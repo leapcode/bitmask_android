@@ -16,7 +16,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.blinkt.openvpn"
+    package="se.leap.leapclient"
     android:versionCode="57"
     android:versionName="0.5.29" >
 
@@ -33,7 +33,7 @@
         android:targetSdkVersion="15" />
 
     <permission
-        android:name="de.blinkt.openvpn.REMOTE_API"
+        android:name="se.leap.openvpn.REMOTE_API"
         android:description="@string/permission_description"
         android:label="Control OpenVPN"
         android:permissionGroup="android.permission-group.NETWORK"
@@ -43,16 +43,16 @@
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app" >
-        <activity android:name=".AboutFragment" />
+        <activity android:name="se.leap.openvpn.AboutFragment" />
         <activity
-            android:name=".VPNPreferences"
+            android:name="se.leap.openvpn.VPNPreferences"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".LogWindow"
+            android:name="se.leap.openvpn.LogWindow"
             android:label="@string/openvpn_log" />
-        <activity android:name=".SendDumpActivity" />
-        <activity android:name=".FileSelect" />
-        <activity android:name=".MainActivity" >
+        <activity android:name="se.leap.openvpn.SendDumpActivity" />
+        <activity android:name="se.leap.openvpn.FileSelect" />
+        <activity android:name="se.leap.openvpn.MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -62,36 +62,36 @@
         </activity>
 
         <service
-            android:name=".OpenVpnService"
+            android:name="se.leap.openvpn.OpenVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE" >
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
         <service
-            android:name=".api.ExternalOpenVPNService"
-            android:permission="de.blinkt.openvpn.REMOTE_API" >
+            android:name="se.leap.openvpn.api.ExternalOpenVPNService"
+            android:permission="se.leap.openvpn.REMOTE_API" >
             <intent-filter>
-                <action android:name="de.blinkt.openvpn.api.IOpenVPNAPIService" />
+                <action android:name="se.leap.openvpn.api.IOpenVPNAPIService" />
             </intent-filter>
         </service>
 
         <activity
-            android:name=".api.GrantPermissionsActivity"
-            android:permission="de.blinkt.openvpn.REMOTE_API" >
+            android:name="se.leap.openvpn.api.GrantPermissionsActivity"
+            android:permission="se.leap.openvpn.REMOTE_API" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
 
-        <receiver android:name=".OnBootReceiver" >
+        <receiver android:name="se.leap.openvpn.OnBootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <activity
-            android:name=".ConfigConverter"
+            android:name="se.leap.openvpn.ConfigConverter"
             android:label="Convert Config File" >
             <intent-filter android:label="@string/import_config" >
                 <action android:name="android.intent.action.VIEW" />
@@ -121,7 +121,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LaunchVPN"
+            android:name="se.leap.openvpn.LaunchVPN"
             android:label="@string/vpn_launch_title" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -131,9 +131,9 @@
         </activity>
 
         <activity-alias
-            android:name=".app.CreateShortcuts"
+            android:name="se.leap.openvpn.app.CreateShortcuts"
             android:label="@string/vpn_shortcut"
-            android:targetActivity=".LaunchVPN" >
+            android:targetActivity="se.leap.openvpn.LaunchVPN" >
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
 
@@ -142,8 +142,8 @@
         </activity-alias>
 
         <provider
-            android:name=".FileProvider"
-            android:authorities="de.blinkt.openvpn.FileProvider"
+            android:name="se.leap.openvpn.FileProvider"
+            android:authorities="se.leap.openvpn.FileProvider"
             android:exported="true"
             android:grantUriPermissions="true" />
     </application>

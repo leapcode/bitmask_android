@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:blinkt="http://schemas.android.com/apk/res/de.blinkt.openvpn"
+    xmlns:leap="http://schemas.android.com/apk/res/se.leap.leapclient"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" >
 
@@ -122,11 +122,11 @@
             android:orientation="vertical"
             android:visibility="gone" >
 
-            <de.blinkt.openvpn.FileSelectLayout
+            <se.leap.openvpn.FileSelectLayout
                 android:id="@+id/caselect"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                blinkt:title="@string/ca_title" />
+                leap:title="@string/ca_title" />
         </LinearLayout>
 
         <LinearLayout
@@ -136,17 +136,17 @@
             android:orientation="vertical"
             android:visibility="gone" >
 
-            <de.blinkt.openvpn.FileSelectLayout
+            <se.leap.openvpn.FileSelectLayout
                 android:id="@+id/certselect"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                blinkt:title="@string/client_certificate_title" />
+                leap:title="@string/client_certificate_title" />
 
-            <de.blinkt.openvpn.FileSelectLayout
+            <se.leap.openvpn.FileSelectLayout
                 android:id="@+id/keyselect"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                blinkt:title="@string/client_key_title" />
+                leap:title="@string/client_key_title" />
 
             <LinearLayout
                 android:id="@+id/key_password_layout"
@@ -179,11 +179,11 @@
             android:orientation="vertical"
             android:visibility="gone" >
 
-            <de.blinkt.openvpn.FileSelectLayout
+            <se.leap.openvpn.FileSelectLayout
                 android:id="@+id/pkcs12select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                blinkt:title="@string/client_pkcs12_title" />
+                leap:title="@string/client_pkcs12_title" />
 
             <TextView
                 style="@style/item"

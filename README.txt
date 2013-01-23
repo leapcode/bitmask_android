@@ -28,10 +28,10 @@ public class StartOpenVPNActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-    	final String EXTRA_NAME = "de.blinkt.openvpn.shortcutProfileName";
+    	final String EXTRA_NAME = "se.leap.openvpn.shortcutProfileName";
 
         Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
-		shortcutIntent.setClassName("de.blinkt.openvpn", "de.blinkt.openvpn.LaunchVPN");
+		shortcutIntent.setClassName("se.leap.openvpn", "se.leap.openvpn.LaunchVPN");
 		shortcutIntent.putExtra(EXTRA_NAME,"upb ssl");
 		startActivity(shortcutIntent);
     }
@@ -39,5 +39,5 @@ public class StartOpenVPNActivity extends Activity {
 
 or from the shell:
 
-am start -a android.intent.action.MAIN -n de.blinkt.openvpn/.LaunchVPN -e de.blinkt.openvpn.shortcutProfileName Home
+am start -a android.intent.action.MAIN -n se.leap.openvpn/.LaunchVPN -e se.leap.openvpn.shortcutProfileName Home
 

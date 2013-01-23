@@ -2,18 +2,18 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <header
-        android:fragment="de.blinkt.openvpn.VPNProfileList"
+        android:fragment="se.leap.openvpn.VPNProfileList"
         android:summary="@string/vpn_list_summary"
         android:title="@string/vpn_list_title" />
     <header
-        android:fragment="de.blinkt.openvpn.GeneralSettings"
+        android:fragment="se.leap.openvpn.GeneralSettings"
         android:title="@string/generalsettings" />
     <header
-        android:fragment="de.blinkt.openvpn.FaqFragment"
+        android:fragment="se.leap.openvpn.FaqFragment"
         android:summary="@string/faq_summary"
         android:title="@string/faq" />
     <header
-        android:fragment="de.blinkt.openvpn.AboutFragment"
+        android:fragment="se.leap.openvpn.AboutFragment"
         android:summary="@string/about_summary"
         android:title="@string/about" />
 
