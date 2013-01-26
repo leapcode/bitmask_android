@@ -46,7 +46,7 @@ public class VpnProfile implements  Serializable{
 	public static final int TYPE_USERPASS_KEYSTORE = 7;
 
 	// Don't change this, not all parts of the program use this constant
-	public static final String EXTRA_PROFILEUUID = "se.leap.openvpn.profileUUID";
+	public static final String EXTRA_PROFILEUUID = "se.leap.leapclient.profileUUID"; // TODO this feels wrong.  See Issue #1494
 	public static final String INLINE_TAG = "[[INLINE]]";
 	private static final String OVPNCONFIGFILE = "android.conf";
 
