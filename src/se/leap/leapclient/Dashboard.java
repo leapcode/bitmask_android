@@ -37,7 +37,8 @@ public class Dashboard extends Activity {
 		preferences = getPreferences(MODE_PRIVATE);
 
 		// FIXME provider data!! get parmegv's work so we can stop (or lessen) faking it
-		if (preferences.contains("provider") )
+		 //TODO In my emulator, I always get that contains TRUE. Don't know why, but I've been testing without the "!".
+		if (!preferences.contains("provider") )
 			startActivity(new Intent(this, ProviderListActivity.class));
 		
 		// Get our provider

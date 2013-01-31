@@ -1,9 +1,15 @@
 package se.leap.leapclient;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Scanner;
 
 import se.leap.leapclient.ProviderListContent;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
@@ -44,14 +50,14 @@ public class ProviderListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
     
-    private static SharedPreferences preferences;
+    static SharedPreferences shared_preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_provider_list);
 
-        preferences = getPreferences(MODE_PRIVATE);
+        shared_preferences = getPreferences(MODE_PRIVATE);
         
         loadPreseededProviders();
 
@@ -96,9 +102,8 @@ public class ProviderListActivity extends FragmentActivity
         		ProviderItem current_provider_item = preseeded_providers_iterator.next();
         		if(current_provider_item.id.equalsIgnoreCase(id))
         		{
-        			ArrayList<String> downloaded_files = downloadFiles(current_provider_item);
         			try {
-						parseToSharedPrefs(downloaded_files);
+						downloadJSONFiles(current_provider_item);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -111,77 +116,17 @@ public class ProviderListActivity extends FragmentActivity
         }
     }
 
-	private void parseToSharedPrefs(ArrayList<String> downloaded_files) throws IOException {
-		SharedPreferences.Editor sharedPreferencesEditor = preferences.edit();
+	private void downloadJSONFiles(ProviderItem current_provider_item) throws IOException {
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 		
-		for(int i = 0; i < downloaded_files.size(); i++)
-		{
-			String type_and_filename = downloaded_files.get(i);
-			String filename = type_and_filename.substring(type_and_filename.indexOf(":")+1, type_and_filename.length());
-			
-			String file_contents = readFileAsString(filename, null);
-			
-			if(downloaded_files.get(i).startsWith("provider:"))
-				sharedPreferencesEditor.putString("provider", file_contents);
-			else if(downloaded_files.get(i).startsWith("provider:"))
-				sharedPreferencesEditor.putString("eip", file_contents);
-			
-			sharedPreferencesEditor.commit();
-		}
-	}
-	
-	public static String readFileAsString(String fileName, String charsetName)
-			throws java.io.IOException {
-		java.io.InputStream is = new java.io.FileInputStream(fileName);
-		try {
-			final int bufsize = 4096;
-			int available = is.available();
-			byte data[] = new byte[available < bufsize ? bufsize : available];
-			int used = 0;
-			while (true) {
-				if (data.length - used < bufsize) {
-					byte newData[] = new byte[data.length << 1];
-					System.arraycopy(data, 0, newData, 0, used);
-					data = newData;
-				}
-				int got = is.read(data, used, data.length - used);
-				if (got <= 0)
-					break;
-				used += got;
-			}
-			return charsetName != null ? new String(data, 0, used, charsetName)
-					: new String(data, 0, used);
-		} finally {
-			is.close();
-		}
-	}
-
-	private ArrayList<String> downloadFiles(ProviderItem current_provider_item) {
-		ArrayList<String> paths_to_downloaded_files = new ArrayList<String>();
+		Bundle method_and_parameters = new Bundle();
+		method_and_parameters.putString("method", "getAndParseSharedPref");
+		method_and_parameters.putString("provider", current_provider_item.provider_json_url);
+		method_and_parameters.putString("eip", current_provider_item.eip_service_json_url);
 		
-		paths_to_downloaded_files.add(downloadProviderJSON("provider_json", current_provider_item.provider_json_url, Environment.DIRECTORY_DOWNLOADS, current_provider_item.name + "_provider.json"));
-		paths_to_downloaded_files.add(downloadProviderJSON("eip_service_json", current_provider_item.eip_service_json_url, Environment.DIRECTORY_DOWNLOADS, current_provider_item.name + "_eip-service.json"));
+		provider_API_command.putExtra("downloadJSONFiles", method_and_parameters);
 		
-		return paths_to_downloaded_files;
-	}
-
-	private String downloadProviderJSON(String type, String json_url, String target_directory, String filename) {
-		
-		DownloadManager.Request request = new DownloadManager.Request(Uri.parse(json_url));
-		request.setDescription("Downloading JSON file");
-		request.setTitle("JSON file");
-		// in order for this if to run, you must use the android 3.2 to compile your app
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-		    request.allowScanningByMediaScanner();
-		    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-		}
-		//request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, current_provider_item.name + "_provider.json");
-		request.setDestinationInExternalPublicDir(target_directory, filename);
-
-		// get download service and enqueue file
-		DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-		manager.enqueue(request);
-		return type + ":" + target_directory + "/" + filename;
+		startService(provider_API_command);
 		
 	}
 }

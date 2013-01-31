@@ -70,7 +70,8 @@
                 <action android:name="se.leap.openvpn.api.IOpenVPNAPIService" />
             </intent-filter>
         </service>
-
+		<service android:name="se.leap.leapclient.ProviderAPI" android:enabled="true"/>
+		
         <activity
             android:name="se.leap.openvpn.api.GrantPermissionsActivity"
             android:permission="se.leap.openvpn.REMOTE_API" >
