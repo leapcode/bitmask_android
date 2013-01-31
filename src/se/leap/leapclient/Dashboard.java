@@ -47,6 +47,10 @@ public class Dashboard extends Activity {
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getName());
 		providerNameTV.setTextSize(28); // TODO maybe to some calculating, or a marquee?
+		
+		// TODO Inflate layout fragments for provider's services
+		if ( provider.hasEIP() )
+			serviceItemEIP();
 	}
 
 	// FIXME!!  We don't want you around here once we have something /real/ going on
@@ -94,6 +98,35 @@ public class Dashboard extends Activity {
 		fakes.putString("provider", providerjson);
 		fakes.putString("eip", eipjson);
 		fakes.commit();
+	}
+
+	private void serviceItemEIP() {
+		// FIXME Provider service (eip/openvpn)	
+		View eipOverview = ((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
+
+		// Set our EIP type title
+		eipTypeTV = (TextView) findViewById(R.id.eipType);
+		eipTypeTV.setText(provider.getEIPType());
+
+		// TODO Bind our switch to run our EIP
+		// What happens when our VPN stops running?  does it call the listener?
+		Switch eipSwitch = (Switch) findViewById(R.id.eipSwitch);
+		eipSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if ( isChecked ){
+					//TODO startVPN();
+				} else {
+					//TODO stopVPN();
+				}
+			}
+		});
+
+		//TODO write our info into the view	fragment that will expand with details and a settings button
+		// TODO set eip overview subview
+		// TODO make eip type clickable, show subview
+		// TODO attach vpn status feedback to eip overview view
+		// TODO attach settings button to something
 	}
 
 	@Override

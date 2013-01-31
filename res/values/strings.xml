@@ -257,5 +257,6 @@
     <string name="title_activity_dashboard">LEAP Dashboard</string>
     <string name="provider_label">Provider:</string>
     <string name="provider_label_none">No provider configured</string>
+    <string name="eip_type_active">EIP</string>
 
 </resources>

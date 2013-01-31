@@ -53,4 +53,27 @@
 
         </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_marginBottom="15dp"
+        android:background="@android:drawable/divider_horizontal_bright" />
+
+    <LinearLayout
+        android:id="@+id/servicesCollection"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.11"
+        android:orientation="vertical" >
+
+        <ViewStub
+            android:id="@+id/eipOverviewStub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inflatedId="@+id/eipOverview"
+            android:layout="@layout/eip_overview" />
+
+    </LinearLayout>
+
 </LinearLayout>
