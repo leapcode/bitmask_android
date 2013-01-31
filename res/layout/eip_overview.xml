@@ -13,6 +13,8 @@
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="15dp"
         android:layout_toLeftOf="@+id/eipSwitch"
+        android:clickable="false"
+        android:onClick="toggleOverview"
         android:text="@string/eip_type_active"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -23,5 +25,36 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="10dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/eipType"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp"
+        android:visibility="gone" >
+
+        <ImageView
+            android:id="@+id/eipSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:contentDescription="@string/eip_settings_button_description"
+            android:src="@drawable/ic_sysbar_quicksettings" />
+
+        <TextView
+            android:id="@+id/eipStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:text="@string/eip_status" />
+
+    </RelativeLayout>
 
 </RelativeLayout>

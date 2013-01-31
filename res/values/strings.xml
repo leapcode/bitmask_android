@@ -257,6 +257,8 @@
     <string name="title_activity_dashboard">LEAP Dashboard</string>
     <string name="provider_label">Provider:</string>
     <string name="provider_label_none">No provider configured</string>
+    <string name="eip_settings_button_description">Access EIP connection settings</string>
+    <string name="eip_status">Status unknown</string>
     <string name="eip_type_active">EIP</string>
 
 </resources>

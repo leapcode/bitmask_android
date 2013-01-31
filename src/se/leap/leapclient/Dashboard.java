@@ -163,4 +163,9 @@ public class Dashboard extends Activity {
 		
 	}
 	
+	@SuppressWarnings("unused")
+	private void toggleOverview() {
+		// TODO Expand the one line overview item to show some details
+	}
+
 }
