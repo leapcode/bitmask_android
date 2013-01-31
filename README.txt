@@ -39,5 +39,5 @@ public class StartOpenVPNActivity extends Activity {
 
 or from the shell:
 
-am start -a android.intent.action.MAIN -n se.leap.openvpn/.LaunchVPN -e se.leap.openvpn.shortcutProfileName Home
+am start -a android.intent.action.VPNLEGACY -n se.leap.openvpn/.LaunchVPN -e se.leap.openvpn.shortcutProfileName Home
 

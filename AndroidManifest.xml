@@ -53,12 +53,6 @@
         <activity android:name="se.leap.openvpn.SendDumpActivity" />
         <activity android:name="se.leap.openvpn.FileSelect" />
         <activity android:name="se.leap.openvpn.MainActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <service
@@ -146,6 +140,16 @@
             android:authorities="se.leap.openvpn.FileProvider"
             android:exported="true"
             android:grantUriPermissions="true" />
+
+        <activity
+            android:name="se.leap.leapclient.Dashboard"
+            android:label="@string/title_activity_dashboard" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
