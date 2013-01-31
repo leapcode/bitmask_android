@@ -1,0 +1,6 @@
+{
+	"name" : "bitmask",
+	"json_provider" : "https://bitmask.net/provider.json",
+	"cert" : "https://bitmask.net/1/cert",
+	"json_eip_service" : "https://api.bitmask.net:4430/1/config/eip-service.json"
+}

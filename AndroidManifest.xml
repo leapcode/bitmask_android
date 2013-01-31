@@ -25,6 +25,7 @@
     <!-- <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- <uses-permission android:name="com.android.vending.BILLING" /> -->
 
@@ -149,6 +150,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        
+        <activity
+            android:name="se.leap.leapclient.ProviderListActivity"
+            android:label="@string/app" >
         </activity>
     </application>
 

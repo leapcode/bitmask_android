@@ -37,8 +37,8 @@ public class Dashboard extends Activity {
 		preferences = getPreferences(MODE_PRIVATE);
 
 		// FIXME provider data!! get parmegv's work so we can stop (or lessen) faking it
-		if ( !preferences.contains("provider") )
-			fixmePrefsFaker(preferences);
+		if (preferences.contains("provider") )
+			startActivity(new Intent(this, ProviderListActivity.class));
 		
 		// Get our provider
 		provider = Provider.getInstance(preferences);
