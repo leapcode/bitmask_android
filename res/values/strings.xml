@@ -255,5 +255,7 @@
     <string name="state_nonetwork">Waiting for usable network</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_dashboard">LEAP Dashboard</string>
+    <string name="provider_label">Provider:</string>
+    <string name="provider_label_none">No provider configured</string>
 
 </resources>
