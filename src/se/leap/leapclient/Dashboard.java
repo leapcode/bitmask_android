@@ -36,6 +36,10 @@ public class Dashboard extends Activity {
 
 		preferences = getPreferences(MODE_PRIVATE);
 
+		// FIXME provider data!! get parmegv's work so we can stop (or lessen) faking it
+		if ( !preferences.contains("provider") )
+			fixmePrefsFaker(preferences);
+		
 		// Get our provider
 		provider = Provider.getInstance(preferences);
 		
@@ -43,6 +47,53 @@ public class Dashboard extends Activity {
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getName());
 		providerNameTV.setTextSize(28); // TODO maybe to some calculating, or a marquee?
+	}
+
+	// FIXME!!  We don't want you around here once we have something /real/ going on
+	private void fixmePrefsFaker(SharedPreferences fakeit) {
+		SharedPreferences.Editor fakes = fakeit.edit();
+		
+		AssetManager am = getAssets();
+		BufferedReader prov = null;
+		try {
+			prov = new BufferedReader(new InputStreamReader(am.open("providers/bitmask.net_provider.json")));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		BufferedReader serv = null;
+		try {
+			serv = new BufferedReader(new InputStreamReader(am.open("providers/bitmask.net_eip-service.json")));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		StringBuilder provider = new StringBuilder();
+		StringBuilder eip = new StringBuilder();
+		
+		String line;
+		try {
+			while ((line = prov.readLine()) != null){
+				provider.append(line);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String providerjson = provider.toString();
+		try {
+			while ((line = serv.readLine()) != null){
+				eip.append(line);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String eipjson = eip.toString();
+		
+		fakes.putString("provider", providerjson);
+		fakes.putString("eip", eipjson);
+		fakes.commit();
 	}
 
 	@Override
