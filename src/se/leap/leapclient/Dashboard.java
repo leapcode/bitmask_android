@@ -57,6 +57,17 @@ public class Dashboard extends Activity {
 		Intent intent;
 		// Handle item selection
 		switch (item.getItemId()){
+		case R.id.about_leap:
+			// TODO move se.leap.openvpn.AboutFragment into our package
+			Fragment aboutFragment = new AboutFragment();
+			FragmentTransaction trans = getFragmentManager().beginTransaction();
+			trans.replace(R.id.dashboardLayout, aboutFragment);
+			trans.addToBackStack(null);
+			trans.commit();
+			
+			//intent = new Intent(this,AboutFragment.class);
+			//startActivity(intent);
+			return true;
 		case R.id.legacy_interface:
 			// TODO call se.leap.openvpn.MainActivity
 			intent = new Intent(this,MainActivity.class);
