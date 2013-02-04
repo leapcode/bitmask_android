@@ -36,8 +36,8 @@ public class Dashboard extends Activity {
 
 		preferences = getPreferences(MODE_PRIVATE);
 
-		// FIXME provider data!! get parmegv's work so we can stop (or lessen) faking it
-		if (preferences.contains("provider") )
+		// FIXME We need to StartActivityForResult and move the rest to buildDashboard (called in "else" and onActivityResult)
+		if ( !preferences.contains("provider") )
 			startActivity(new Intent(this, ProviderListActivity.class));
 		
 		// Get our provider
