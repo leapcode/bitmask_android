@@ -120,11 +120,10 @@ public class ProviderListActivity extends FragmentActivity
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 		
 		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString("method", "getAndParseSharedPref");
 		method_and_parameters.putString("provider", current_provider_item.provider_json_url);
 		method_and_parameters.putString("eip", current_provider_item.eip_service_json_url);
 		
-		provider_API_command.putExtra("downloadJSONFiles", method_and_parameters);
+		provider_API_command.putExtra(ConfigHelper.downloadJsonFilesBundleExtra, method_and_parameters);
 		
 		startService(provider_API_command);
 		
