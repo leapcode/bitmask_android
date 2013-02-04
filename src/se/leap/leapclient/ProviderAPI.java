@@ -1,15 +1,12 @@
 package se.leap.leapclient;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Scanner;
 
-import javax.net.ssl.HttpsURLConnection;
-
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,23 +45,17 @@ public class ProviderAPI extends IntentService {
 	}
 
 	private JSONObject getFromProvider(String json_url) throws IOException, JSONException {
-		URL url = new URL(json_url);
-		String json_file_content = "";
-		URLConnection urlConnection = null;
 		
-		if (url.getProtocol().equalsIgnoreCase("https")) {
-			urlConnection = (HttpsURLConnection) url.openConnection();
-		} else if (url.getProtocol().equalsIgnoreCase("http")) {
-			urlConnection = (HttpURLConnection) url.openConnection();
-		}
-
-		try {
-			InputStream in = new BufferedInputStream(
-					urlConnection.getInputStream());
-			json_file_content = new Scanner(in).useDelimiter("\\A").next();
-		} finally {
-			((HttpURLConnection) urlConnection).disconnect();
-		}
+		String json_file_content = "";
+		
+		DefaultHttpClient client = new LeapHttpClient(getApplicationContext());
+		HttpGet get = new HttpGet(json_url);
+		// Execute the GET call and obtain the response
+		HttpResponse getResponse = client.execute(get);
+		HttpEntity responseEntity = getResponse.getEntity();
+		
+		json_file_content = new Scanner(responseEntity.getContent()).useDelimiter("\\A").next();
+		
 		
 		return new JSONObject(json_file_content);
 	}
