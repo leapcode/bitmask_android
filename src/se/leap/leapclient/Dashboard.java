@@ -37,9 +37,10 @@ public class Dashboard extends Activity {
 		preferences = getPreferences(MODE_PRIVATE);
 
 		// FIXME We need to StartActivityForResult and move the rest to buildDashboard (called in "else" and onActivityResult)
-		if ( !preferences.contains("provider") )
+		if ( !preferences.contains("provider") ) {
 			startActivity(new Intent(this, ProviderListActivity.class));
-		
+		}
+			
 		// Get our provider
 		provider = Provider.getInstance(preferences);
 		

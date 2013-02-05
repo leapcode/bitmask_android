@@ -156,6 +156,9 @@
         <activity
             android:name="se.leap.leapclient.ProviderListActivity"
             android:label="@string/app" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
         </activity>
     </application>
 

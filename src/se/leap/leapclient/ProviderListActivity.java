@@ -1,15 +1,20 @@
 package se.leap.leapclient;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Scanner;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderListContent;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
@@ -103,6 +108,7 @@ public class ProviderListActivity extends FragmentActivity
         		if(current_provider_item.id.equalsIgnoreCase(id))
         		{
         			try {
+        				processAssetsFiles(current_provider_item);
 						downloadJSONFiles(current_provider_item);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -116,12 +122,27 @@ public class ProviderListActivity extends FragmentActivity
         }
     }
 
+	private void processAssetsFiles(ProviderItem current_provider_item) {
+		AssetManager assets_manager = getAssets();
+		JSONObject provider_json = new JSONObject();
+		try {
+			String provider_contents = new Scanner(new InputStreamReader(assets_manager.open(current_provider_item.provider_json_assets))).useDelimiter("\\A").next();
+			provider_json = new JSONObject(provider_contents);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			ConfigHelper.rescueJSONException(e);
+		}
+		ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
+	}
+
 	private void downloadJSONFiles(ProviderItem current_provider_item) throws IOException {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 		
 		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString("provider", current_provider_item.provider_json_url);
-		method_and_parameters.putString("eip", current_provider_item.eip_service_json_url);
+		method_and_parameters.putString(ConfigHelper.cert_key, current_provider_item.cert_json_url);
+		method_and_parameters.putString(ConfigHelper.eip_service_key, current_provider_item.eip_service_json_url);
 		
 		provider_API_command.putExtra(ConfigHelper.downloadJsonFilesBundleExtra, method_and_parameters);
 		

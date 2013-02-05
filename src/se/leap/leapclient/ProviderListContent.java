@@ -39,14 +39,17 @@ public class ProviderListContent {
     	public String id;
         public String name;
         public String provider_json_url;
+        public String provider_json_assets;
         public String eip_service_json_url;
+        public String cert_json_url;
         
 
-        public ProviderItem(String id, String name, String provider_json_url, String eip_service_json_url) {
+        public ProviderItem(String id, String name, String provider_json_url, String eip_service_json_url, String cert_json_url) {
         	this.id = id;
         	this.name = name;
             this.provider_json_url = provider_json_url;
             this.eip_service_json_url = eip_service_json_url;
+            this.cert_json_url = cert_json_url;
         }
 
         public ProviderItem(String name, InputStream urls_file_input_stream) {
@@ -59,7 +62,9 @@ public class ProviderListContent {
 				id = name;
 				this.name = name;
 				provider_json_url = (String) file_contents.get("json_provider");
+				provider_json_assets = (String) file_contents.get("assets_json_provider");
 				eip_service_json_url = (String) file_contents.get("json_eip_service");
+				cert_json_url = (String) file_contents.get("cert");
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
