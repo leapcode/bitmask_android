@@ -36,21 +36,12 @@ public class Dashboard extends Activity {
 
 		preferences = getPreferences(MODE_PRIVATE);
 
-		// FIXME We need to StartActivityForResult and move the rest to buildDashboard (called in "else" and onActivityResult)
-		if ( !preferences.contains("provider") )
+		// Check if we have preferences, run configuration wizard if not
+		// TODO We should do a better check for config that this!
+		if (!preferences.contains("provider") )
 			startActivity(new Intent(this, ProviderListActivity.class));
-		
-		// Get our provider
-		provider = Provider.getInstance(preferences);
-		
-		// Set provider name in textview
-		providerNameTV = (TextView) findViewById(R.id.providerName);
-		providerNameTV.setText(provider.getName());
-		providerNameTV.setTextSize(28); // TODO maybe to some calculating, or a marquee?
-		
-		// TODO Inflate layout fragments for provider's services
-		if ( provider.hasEIP() )
-			serviceItemEIP();
+		else
+			buildDashboard();
 	}
 
 	// FIXME!!  We don't want you around here once we have something /real/ going on
@@ -98,6 +89,20 @@ public class Dashboard extends Activity {
 		fakes.putString("provider", providerjson);
 		fakes.putString("eip", eipjson);
 		fakes.commit();
+	}
+	
+	private void buildDashboard() {
+		// Get our provider
+				provider = Provider.getInstance(preferences);
+				
+				// Set provider name in textview
+				providerNameTV = (TextView) findViewById(R.id.providerName);
+				providerNameTV.setText(provider.getName());
+				providerNameTV.setTextSize(28); // TODO maybe to some calculating, or a marquee?
+				
+				// TODO Inflate layout fragments for provider's services
+				if ( provider.hasEIP() )
+					serviceItemEIP();
 	}
 
 	private void serviceItemEIP() {
