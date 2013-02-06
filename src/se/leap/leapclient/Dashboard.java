@@ -1,9 +1,5 @@
 package se.leap.leapclient;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import se.leap.openvpn.AboutFragment;
 import se.leap.openvpn.MainActivity;
 import android.app.Activity;
@@ -11,7 +7,6 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
