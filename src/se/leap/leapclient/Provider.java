@@ -109,7 +109,7 @@ final class Provider implements Serializable {
 		return desc;
 	}
 
-	public boolean hasEIP() {
+	protected boolean hasEIP() {
 		JSONArray services = null;
 		try {
 			services = definition.getJSONArray(API_TERM_SERVICES); // returns ["openvpn"]
@@ -128,7 +128,7 @@ final class Provider implements Serializable {
 		return false;
 	}
 	
-	public String getEIPType() {
+	protected String getEIPType() {
 		// FIXME!!!!!  We won't always be providing /only/ OpenVPN, will we?
 		// This will have to hook into some saved choice of EIP transport
 		if ( instance.hasEIP() )
@@ -137,7 +137,7 @@ final class Provider implements Serializable {
 			return null;
 	}
 	
-	public JSONObject getEIP() {
+	protected JSONObject getEIP() {
 		// FIXME!!!!!  We won't always be providing /only/ OpenVPN, will we?
 		// This will have to hook into some saved choice of EIP transport, cluster, gateway
 		//   with possible "choose at random" preference
