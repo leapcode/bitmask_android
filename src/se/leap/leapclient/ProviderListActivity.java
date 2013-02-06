@@ -96,7 +96,7 @@ public class ProviderListActivity extends FragmentActivity
     @Override
     public void onItemSelected(String id) {
         if (mTwoPane) {
-            
+            // TODO Hmmm...is this how we should do this?  What if it /is/ two pane?
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
@@ -109,6 +109,7 @@ public class ProviderListActivity extends FragmentActivity
         		{
         			try {
         				processAssetsFiles(current_provider_item);
+        				// TODO ask Provider class to save provider.json, setResult(OK), finish() to ConfigurationWizard
 						downloadJSONFiles(current_provider_item);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
