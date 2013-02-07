@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 public class Dashboard extends Activity {
 
+	protected static final int CONFIGURE_LEAP = 0;
+	
 	private static SharedPreferences preferences;
 	private static Provider provider;
 
@@ -34,11 +36,25 @@ public class Dashboard extends Activity {
 		// Check if we have preferences, run configuration wizard if not
 		// TODO We should do a better check for config that this!
 		if (!preferences.contains("provider") )
-			startActivity(new Intent(this, ProviderListActivity.class));
+			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 		else
 			buildDashboard();
 	}
-
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data){
+		if ( requestCode == CONFIGURE_LEAP ) {
+			if ( resultCode == RESULT_OK ){
+				// Configuration done, get our preferences again
+				preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
+				
+				buildDashboard();
+			} else {
+				// Something went wrong... TODO figure out what
+				// TODO Error dialog
+			}
+		}
+	}
 	
 	private void buildDashboard() {
 		// Get our provider

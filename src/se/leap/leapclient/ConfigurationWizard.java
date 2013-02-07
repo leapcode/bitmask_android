@@ -118,8 +118,10 @@ public class ConfigurationWizard extends Activity
         		}
         	}
         	
-            Intent dashboardIntent = new Intent(this, Dashboard.class);
-            startActivity(dashboardIntent);
+            // FIXME!! We're going to have more Fragments and listeners, flow control?
+        	// TODO There is no testing done to know if we're okay...
+        	setResult(RESULT_OK);
+        	finish();
         }
     }
 
