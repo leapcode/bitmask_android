@@ -261,5 +261,8 @@
     <string name="eip_status">Status unknown</string>
     <string name="eip_type_active">EIP</string>
     <string name="title_activity_configuration_wizard">Configure LEAP</string>
+    <string name="new_provider_button">Add new Provider</string>
+    <string name="introduce_new_provider">Introduce new provider</string>
+    <string name="save">Save</string>
 
 </resources>

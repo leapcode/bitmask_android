@@ -10,11 +10,15 @@ import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.view.View;
 
 
 /**
@@ -41,6 +45,8 @@ public class ConfigurationWizard extends Activity
      * device.
      */
     private boolean mTwoPane;
+
+	private int mStackLevel;
     
     static SharedPreferences shared_preferences;
 
@@ -151,5 +157,17 @@ public class ConfigurationWizard extends Activity
 		
 		startService(provider_API_command);
 		
+	}
+	
+	public void addNewProvider(View view) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+	    Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag("newProviderDialog");
+	    if (previous_new_provider_dialog != null) {
+	        fragment_transaction.remove(previous_new_provider_dialog);
+	    }
+	    fragment_transaction.addToBackStack(null);
+
+	    DialogFragment newFragment = NewProviderDialog.newInstance();
+	    newFragment.show(fragment_transaction, "newProviderDialog");
 	}
 }
