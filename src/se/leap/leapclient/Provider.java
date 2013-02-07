@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 
 /**
@@ -49,13 +50,24 @@ final class Provider implements Serializable {
 	/**
 	 * 
 	 */
-	private Provider(SharedPreferences preferences) {
+	private Provider() {}
+
+	protected static Provider getInstance(){
+		if(instance==null){
+			instance = new Provider();
+		}
+		return instance;
+	}
+
+	protected void init(Activity activity) {
 		
 		// Load our preferences from SharedPreferences
 		//   If there's nothing there, we will end up returning a rather empty object
 		//   to whoever called getInstance() and they can run the First Run Wizard
 		//preferences = context.getgetPreferences(0); // 0 == MODE_PRIVATE, but we don't extend Android's classes...
 		
+		// Load SharedPreferences
+		preferences = activity.getSharedPreferences(ConfigHelper.PREFERENCES_KEY,0); // We don't get MODE_PRIVATE by importing SharedPreferences; i guess it's in Activity?
 		// Inflate our provider.json data
 		try {
 			definition = new JSONObject( preferences.getString("provider", "") );
@@ -64,13 +76,6 @@ final class Provider implements Serializable {
 			
 			// FIXME!!  We want "real" data!!
 		}
-	}
-
-	protected static Provider getInstance(SharedPreferences preferences){
-		if(instance==null){
-			instance = new Provider(preferences);
-		}
-		return instance;
 	}
 
 	protected String getName(){

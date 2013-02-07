@@ -29,7 +29,7 @@ public class Dashboard extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.client_dashboard);
 
-		preferences = getPreferences(MODE_PRIVATE);
+		preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
 
 		// Check if we have preferences, run configuration wizard if not
 		// TODO We should do a better check for config that this!
@@ -42,7 +42,8 @@ public class Dashboard extends Activity {
 	
 	private void buildDashboard() {
 		// Get our provider
-				provider = Provider.getInstance(preferences);
+				provider = Provider.getInstance();
+				provider.init( this );
 				
 				// Set provider name in textview
 				providerNameTV = (TextView) findViewById(R.id.providerName);

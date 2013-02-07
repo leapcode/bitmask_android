@@ -12,6 +12,7 @@ public class ConfigHelper {
 	final static String provider_key = "provider";
 	final static String cert_key = "cert";
 	final static String eip_service_key = "eip";
+	public static final String PREFERENCES_KEY = "LEAPPreferences";
 
 	static void saveSharedPref(String shared_preferences_key, JSONObject content) {
 
