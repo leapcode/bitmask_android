@@ -9,11 +9,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderListContent.ProviderItem;
+import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
 
 /**
@@ -32,7 +33,7 @@ import android.support.v4.app.FragmentActivity;
  * {@link ProviderListFragment.Callbacks} interface
  * to listen for item selections.
  */
-public class ProviderListActivity extends FragmentActivity
+public class ConfigurationWizard extends Activity
         implements ProviderListFragment.Callbacks {
 
     /**
@@ -46,11 +47,24 @@ public class ProviderListActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_provider_list);
-
-        shared_preferences = getPreferences(MODE_PRIVATE);
+        
+        setContentView(R.layout.activity_configuration_wizard);
+        
+        shared_preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
         
         loadPreseededProviders();
+        
+        // Only create our fragments if we're not restoring a saved instance
+        if ( savedInstanceState == null ){
+        	// TODO Some welcome screen?
+        	// We will need better flow control when we have more Fragments (e.g. user auth)
+        	ProviderListFragment providerList = new ProviderListFragment();
+        	
+        	FragmentManager fragmentManager = getFragmentManager();
+        	fragmentManager.beginTransaction()
+        		.add(R.id.configuration_wizard_layout, providerList, "providerlist")
+        		.commit();
+        }
 
         // TODO: If exposing deep links into your app, handle intents here.
     }

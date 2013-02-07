@@ -1,13 +1,11 @@
 package se.leap.leapclient;
 
 import android.app.Activity;
+import android.app.ListFragment;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import se.leap.leapclient.ProviderListContent;
 
 /**
  * A list fragment representing a list of Providers. This fragment

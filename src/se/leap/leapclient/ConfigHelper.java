@@ -15,7 +15,7 @@ public class ConfigHelper {
 
 	static void saveSharedPref(String shared_preferences_key, JSONObject content) {
 
-		SharedPreferences.Editor shared_preferences_editor = ProviderListActivity.shared_preferences
+		SharedPreferences.Editor shared_preferences_editor = ConfigurationWizard.shared_preferences
 				.edit();
 		shared_preferences_editor.putString(shared_preferences_key,
 				content.toString());
@@ -23,7 +23,7 @@ public class ConfigHelper {
 		System.out.println("Shared preferences updated: key = "
 				+ shared_preferences_key
 				+ " Content = "
-				+ ProviderListActivity.shared_preferences.getString(
+				+ ConfigurationWizard.shared_preferences.getString(
 						shared_preferences_key, "Default"));
 	}
 	

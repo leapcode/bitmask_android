@@ -260,5 +260,6 @@
     <string name="eip_settings_button_description">Access EIP connection settings</string>
     <string name="eip_status">Status unknown</string>
     <string name="eip_type_active">EIP</string>
+    <string name="title_activity_configuration_wizard">Configure LEAP</string>
 
 </resources>

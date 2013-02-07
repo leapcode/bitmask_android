@@ -152,13 +152,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
         <activity
-            android:name="se.leap.leapclient.ProviderListActivity"
-            android:label="@string/app" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
+            android:name="se.leap.leapclient.ConfigurationWizard"
+            android:label="@string/title_activity_configuration_wizard" >
         </activity>
     </application>
 
