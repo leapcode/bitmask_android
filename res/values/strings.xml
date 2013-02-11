@@ -264,5 +264,6 @@
     <string name="new_provider_button">Add new Provider</string>
     <string name="introduce_new_provider">Introduce new provider</string>
     <string name="save">Save</string>
+    <string name="new_provider_uri">New provider\'s main URL</string>
 
 </resources>

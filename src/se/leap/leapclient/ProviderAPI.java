@@ -27,7 +27,7 @@ public class ProviderAPI extends IntentService {
 	protected void onHandleIntent(Intent task_for) {
 		Bundle task;
 		System.out.println("onHandleIntent called");
-		if (!(task = task_for.getBundleExtra(ConfigHelper.downloadJsonFilesBundleExtra)).isEmpty()) {
+		if((task = task_for.getBundleExtra(ConfigHelper.downloadJsonFilesBundleExtra)) != null) {
 			String cert_url = (String) task.get(ConfigHelper.cert_key);
 			String eip_service_json_url = (String) task.get(ConfigHelper.eip_service_key);
 			try {
@@ -45,6 +45,25 @@ public class ProviderAPI extends IntentService {
 				e.printStackTrace();
 			}
 		}
+		else if ((task = task_for.getBundleExtra(ConfigHelper.downloadNewProviderDotJSON)) != null) {
+			String provider_main_url = (String) task.get(ConfigHelper.provider_key_url);
+			String provider_json_url = guessURL(provider_main_url);
+			try {
+				JSONObject provider_json = getJSONFromProvider(provider_json_url);
+				String filename = provider_json_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_") + "_provider.json".replaceFirst("__", "_");
+				ConfigHelper.saveFile(filename, provider_json.toString());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private String guessURL(String provider_main_url) {
+		return provider_main_url + "/provider.json";
 	}
 
 	private String getStringFromProvider(String string_url) throws IOException {

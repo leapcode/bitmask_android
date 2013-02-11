@@ -8,6 +8,7 @@ import java.util.Scanner;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import se.leap.leapclient.NewProviderDialog.NewProviderDialogInterface;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -38,7 +39,7 @@ import android.view.View;
  * to listen for item selections.
  */
 public class ConfigurationWizard extends Activity
-        implements ProviderListFragment.Callbacks {
+        implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface{
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -169,5 +170,17 @@ public class ConfigurationWizard extends Activity
 
 	    DialogFragment newFragment = NewProviderDialog.newInstance();
 	    newFragment.show(fragment_transaction, "newProviderDialog");
+	}
+
+	@Override
+	public void saveProvider(String provider_url) {
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+		Bundle method_and_parameters = new Bundle();
+		method_and_parameters.putString(ConfigHelper.provider_key_url, provider_url);
+
+		provider_API_command.putExtra(ConfigHelper.downloadNewProviderDotJSON, method_and_parameters);
+
+		startService(provider_API_command);
 	}
 }
