@@ -5,15 +5,4 @@
     android:layout_height="match_parent"
     tools:context=".ConfigurationWizard" >
 
-    <Button
-        android:id="@+id/buttonNewProvider"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="24dp"
-        android:layout_marginLeft="24dp"
-        android:onClick="addNewProvider"
-        android:text="@string/new_provider_button" />
-
 </RelativeLayout>
