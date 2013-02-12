@@ -1,5 +1,6 @@
 package se.leap.leapclient;
 
+import se.leap.leapclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -23,6 +24,8 @@ import android.widget.ListView;
  */
 public class ProviderListFragment extends ListFragment {
 
+	private ArrayAdapter<ProviderItem> content_adapter;
+	
     /**
      * The serialization (saved instance state) Bundle key representing the
      * activated item position. Only used on tablets.
@@ -72,13 +75,12 @@ public class ProviderListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        setListAdapter(new ArrayAdapter<ProviderListContent.ProviderItem>(
+        content_adapter = new ArrayAdapter<ProviderListContent.ProviderItem>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
-                ProviderListContent.ITEMS));
-        
+                ProviderListContent.ITEMS);
+        setListAdapter(content_adapter);
     }
 
     @Override

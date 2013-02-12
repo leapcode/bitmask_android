@@ -3,8 +3,11 @@ package se.leap.leapclient;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +26,9 @@ public class ConfigHelper {
 	public static final String PREFERENCES_KEY = "LEAPPreferences";
 	public static final String user_directory = "leap_android";
 	public static String provider_key_url = "provider_main_url";
+	final public static String eip_service_api_path = "/config/eip-service.json";
+	
+	final public static int CUSTOM_PROVIDER_ADDED = 0; 
 
 	static void saveSharedPref(String shared_preferences_key, JSONObject content) {
 
@@ -45,21 +51,34 @@ public class ConfigHelper {
 
 	static void saveFile(String filename, String content) {
 		File root = Environment.getExternalStorageDirectory();
-		File outDir = new File(root.getAbsolutePath() + File.separator + user_directory);
-		if (!outDir.isDirectory()) {
-			outDir.mkdir();
+		File leap_dir = new File(root.getAbsolutePath() + File.separator + user_directory);
+		if (!leap_dir.isDirectory()) {
+			leap_dir.mkdir();
 		}
 		try {
-			if (!outDir.isDirectory()) {
+			if (!leap_dir.isDirectory()) {
 				throw new IOException(
 						"Unable to create directory " + user_directory + ". Maybe the SD card is mounted?");
 			}
-			File outputFile = new File(outDir, filename);
+			File outputFile = new File(leap_dir, filename);
 			BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
 			writer.write(content);
 			writer.close();
 		} catch (IOException e) {
 			Log.w("leap_android", e.getMessage(), e);
 		}
+	}
+	
+	static FileInputStream openFileInputStream(String filename) {
+		FileInputStream input_stream = null;
+		File root = Environment.getExternalStorageDirectory();
+		File leap_dir = new File(root.getAbsolutePath() + File.separator + user_directory);
+		try {
+			input_stream = new FileInputStream(leap_dir + File.separator + filename);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return input_stream;
 	}
 }

@@ -10,13 +10,16 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import se.leap.leapclient.ProviderListContent.ProviderItem;
+
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.util.Log;
 
 public class ProviderAPI extends IntentService {
-
+	
 	public ProviderAPI() {
 		super("ProviderAPI");
 		Log.v("ClassName", "Provider API");
@@ -25,6 +28,7 @@ public class ProviderAPI extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent task_for) {
+		final ResultReceiver receiver = task_for.getParcelableExtra("receiver");
 		Bundle task;
 		System.out.println("onHandleIntent called");
 		if((task = task_for.getBundleExtra(ConfigHelper.downloadJsonFilesBundleExtra)) != null) {
@@ -46,12 +50,16 @@ public class ProviderAPI extends IntentService {
 			}
 		}
 		else if ((task = task_for.getBundleExtra(ConfigHelper.downloadNewProviderDotJSON)) != null) {
+			boolean custom = true;
 			String provider_main_url = (String) task.get(ConfigHelper.provider_key_url);
+			String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
 			String provider_json_url = guessURL(provider_main_url);
 			try {
 				JSONObject provider_json = getJSONFromProvider(provider_json_url);
-				String filename = provider_json_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_") + "_provider.json".replaceFirst("__", "_");
+				String filename = provider_name + "_provider.json".replaceFirst("__", "_");
 				ConfigHelper.saveFile(filename, provider_json.toString());
+        		ProviderListContent.addItem(new ProviderItem(provider_name, ConfigHelper.openFileInputStream(filename), custom));
+        		receiver.send(ConfigHelper.CUSTOM_PROVIDER_ADDED, Bundle.EMPTY);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -84,5 +92,4 @@ public class ProviderAPI extends IntentService {
 		String json_file_content = getStringFromProvider(json_url);
 		return new JSONObject(json_file_content);
 	}
-
 }

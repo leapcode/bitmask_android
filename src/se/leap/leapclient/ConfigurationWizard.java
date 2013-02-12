@@ -8,7 +8,7 @@ import java.util.Scanner;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import se.leap.leapclient.NewProviderDialog.NewProviderDialogInterface;
+import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
 
@@ -39,18 +40,19 @@ import android.view.View;
  * to listen for item selections.
  */
 public class ConfigurationWizard extends Activity
-        implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface{
+        implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, Receiver {
 
+	
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     private boolean mTwoPane;
-
-	private int mStackLevel;
     
     static SharedPreferences shared_preferences;
 
+    public ProviderAPIResultReceiver providerAPI_result_receiver;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,9 +88,10 @@ public class ConfigurationWizard extends Activity
 			String provider_name = "";
 	        for(String url_filepath : urls_filepaths)
 	        {
+	        	boolean custom = false;
 	        	provider_name = url_filepath.subSequence(0, url_filepath.indexOf(".")).toString();
 	        	if(ProviderListContent.ITEMS.isEmpty()) //TODO I have to implement a way of checking if a provider new or is already present in that ITEMS list
-	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath)));
+	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath), custom));
 	        }
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -115,7 +118,8 @@ public class ConfigurationWizard extends Activity
         		if(current_provider_item.id.equalsIgnoreCase(id))
         		{
         			try {
-        				processAssetsFiles(current_provider_item);
+        				if(current_provider_item.custom)
+        					processAssetsFiles(current_provider_item);
         				// TODO ask Provider class to save provider.json, setResult(OK), finish() to ConfigurationWizard
 						downloadJSONFiles(current_provider_item);
 					} catch (IOException e) {
@@ -174,13 +178,29 @@ public class ConfigurationWizard extends Activity
 
 	@Override
 	public void saveProvider(String provider_url) {
+		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+		providerAPI_result_receiver.setReceiver(this);
+		
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle method_and_parameters = new Bundle();
 		method_and_parameters.putString(ConfigHelper.provider_key_url, provider_url);
 
 		provider_API_command.putExtra(ConfigHelper.downloadNewProviderDotJSON, method_and_parameters);
-
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 		startService(provider_API_command);
+	}
+
+	@Override
+	public void onReceiveResult(int resultCode, Bundle resultData) {
+		// TODO Auto-generated method stub
+		if(resultCode == ConfigHelper.CUSTOM_PROVIDER_ADDED){
+			ProviderListFragment providerList = new ProviderListFragment();
+
+			FragmentManager fragmentManager = getFragmentManager();
+			fragmentManager.beginTransaction()
+				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
+				.commit();
+		}
 	}
 }
