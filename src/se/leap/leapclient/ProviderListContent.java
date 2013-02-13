@@ -66,6 +66,7 @@ public class ProviderListContent {
 				provider_json_assets = (String) file_contents.get("assets_json_provider");
 				eip_service_json_url = (String) file_contents.get("json_eip_service");
 				cert_json_url = (String) file_contents.get("cert");
+				this.custom = custom;
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -86,6 +87,7 @@ public class ProviderListContent {
 				this.name = name;
 				eip_service_json_url = (String) file_contents.get("api_uri") + ConfigHelper.eip_service_api_path;
 				cert_json_url = (String) file_contents.get("ca_cert_uri");
+				this.custom = custom;
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

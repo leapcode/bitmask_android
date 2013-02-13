@@ -118,7 +118,7 @@ public class ConfigurationWizard extends Activity
         		if(current_provider_item.id.equalsIgnoreCase(id))
         		{
         			try {
-        				if(current_provider_item.custom)
+        				if(!current_provider_item.custom)
         					processAssetsFiles(current_provider_item);
         				// TODO ask Provider class to save provider.json, setResult(OK), finish() to ConfigurationWizard
 						downloadJSONFiles(current_provider_item);
