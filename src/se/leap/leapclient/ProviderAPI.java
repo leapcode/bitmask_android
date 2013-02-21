@@ -1,8 +1,13 @@
 package se.leap.leapclient;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Scanner;
 
+import org.bouncycastle.crypto.agreement.srp.SRP6Client;
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.jcajce.provider.digest.Whirlpool.Digest;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -68,6 +73,25 @@ public class ProviderAPI extends IntentService {
 				e.printStackTrace();
 			}
 		}
+		else if ((task = task_for.getBundleExtra(ConfigHelper.srpAuth)) != null) {
+			String username = (String) task.get(ConfigHelper.username_key);
+			String password = (String) task.get(ConfigHelper.password_key);
+			SRP6Client srp_client = new SRP6Client();
+			srp_client.init(new BigInteger(ConfigHelper.NG_1024, 16), ConfigHelper.g, new SHA256Digest(), new SecureRandom());
+			// Receive salt from server
+			String salt = getSaltFromSRPServer();
+			BigInteger A = srp_client.generateClientCredentials(salt.getBytes(), username.getBytes(), password.getBytes());
+			//Send A to the server. Doing a http response with cookies?
+			//Receive server generated serverB
+			//S = calculateSecret(BigInteger serverB)
+			//K = H(S)
+			//Now the two parties have a shared, strong session key K. To complete authentication, they need to prove to each other that their keys match.
+		}
+	}
+
+	private String getSaltFromSRPServer() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private String guessURL(String provider_main_url) {
