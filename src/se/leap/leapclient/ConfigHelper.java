@@ -28,6 +28,7 @@ public class ConfigHelper {
 	public static final String PREFERENCES_KEY = "LEAPPreferences";
 	public static final String user_directory = "leap_android";
 	public static String provider_key_url = "provider_main_url";
+	final public static String srp_server_url_key = "srp_server_url";
 	final public static String username_key = "username";
 	final public static String password_key = "password";
 	final public static String eip_service_api_path = "/config/eip-service.json";
