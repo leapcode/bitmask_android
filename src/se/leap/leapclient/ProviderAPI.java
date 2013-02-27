@@ -84,9 +84,9 @@ public class ProviderAPI extends IntentService {
 			}
 		}
 		else if ((task = task_for.getBundleExtra(ConfigHelper.srpAuth)) != null) {
-			String username = (String) task.get(ConfigHelper.username_key);
-			String password = (String) task.get(ConfigHelper.password_key);
-			String authentication_server = (String) task.get(ConfigHelper.srp_server_url_key);
+			String username = "username";//(String) task.get(ConfigHelper.username_key);
+			String password = "password";//(String) task.get(ConfigHelper.password_key);
+			String authentication_server = "localhost:3000";//(String) task.get(ConfigHelper.srp_server_url_key);
 			SRP6Client srp_client = new SRP6Client();
 			srp_client.init(new BigInteger(ConfigHelper.NG_1024, 16), ConfigHelper.g, new SHA256Digest(), new SecureRandom());
 			// Receive salt from server
