@@ -159,6 +159,7 @@ public class ConfigurationWizard extends Activity
 		method_and_parameters.putString(ConfigHelper.eip_service_key, current_provider_item.eip_service_json_url);
 		
 		provider_API_command.putExtra(ConfigHelper.downloadJsonFilesBundleExtra, method_and_parameters);
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 		
 		startService(provider_API_command);
 		
@@ -188,12 +189,12 @@ public class ConfigurationWizard extends Activity
 
 		provider_API_command.putExtra(ConfigHelper.downloadNewProviderDotJSON, method_and_parameters);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		
 		startService(provider_API_command);
 	}
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
-		// TODO Auto-generated method stub
 		if(resultCode == ConfigHelper.CUSTOM_PROVIDER_ADDED){
 			ProviderListFragment providerList = new ProviderListFragment();
 
@@ -201,6 +202,12 @@ public class ConfigurationWizard extends Activity
 			fragmentManager.beginTransaction()
 				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
 				.commit();
+		}
+		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
+			// TODO Show error
+		}
+		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
+			// TODO Show nothing? Show success?
 		}
 	}
 }

@@ -44,25 +44,14 @@ public class ProviderAPI extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent task_for) {
 		final ResultReceiver receiver = task_for.getParcelableExtra("receiver");
+		
 		Bundle task;
 		System.out.println("onHandleIntent called");
 		if((task = task_for.getBundleExtra(ConfigHelper.downloadJsonFilesBundleExtra)) != null) {
-			String cert_url = (String) task.get(ConfigHelper.cert_key);
-			String eip_service_json_url = (String) task.get(ConfigHelper.eip_service_key);
-			try {
-				String cert_string = getStringFromProvider(cert_url);
-				JSONObject cert_json = new JSONObject("{ \"certificate\" : \"" + cert_string + "\"}");
-				ConfigHelper.saveSharedPref(ConfigHelper.cert_key, cert_json);
-				JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url);
-				ConfigHelper.saveSharedPref(ConfigHelper.eip_service_key, eip_service_json);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JSONException e) {
-				ConfigHelper.rescueJSONException(e);
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
+			if(!downloadJsonFiles(task))
+				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+			else
+				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 		}
 		else if ((task = task_for.getBundleExtra(ConfigHelper.downloadNewProviderDotJSON)) != null) {
 			boolean custom = true;
@@ -128,6 +117,29 @@ public class ProviderAPI extends IntentService {
 		}
 	}
 	
+	private boolean downloadJsonFiles(Bundle task) {
+		String cert_url = (String) task.get(ConfigHelper.cert_key);
+		String eip_service_json_url = (String) task.get(ConfigHelper.eip_service_key);
+		try {
+			String cert_string = getStringFromProvider(cert_url);
+			JSONObject cert_json = new JSONObject("{ \"certificate\" : \"" + cert_string + "\"}");
+			ConfigHelper.saveSharedPref(ConfigHelper.cert_key, cert_json);
+			JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url);
+			ConfigHelper.saveSharedPref(ConfigHelper.eip_service_key, eip_service_json);
+			return true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		} catch (JSONException e) {
+			ConfigHelper.rescueJSONException(e);
+			return false;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	private void sendM1(BigInteger m2, BigInteger k, BigInteger clientA,
 			BigInteger serverB, int salt, String username) throws NoSuchAlgorithmException {
 		BigInteger M1 = generateM1(k, clientA, serverB, salt, username);
