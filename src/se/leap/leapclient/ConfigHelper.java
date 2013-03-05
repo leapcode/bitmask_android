@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 
 import org.json.JSONException;
@@ -18,10 +17,14 @@ import android.os.Environment;
 import android.util.Log;
 
 public class ConfigHelper {
+    
+    public static SharedPreferences shared_preferences;
 
 	final static String downloadJsonFilesBundleExtra = "downloadJSONFiles";
 	final static String downloadNewProviderDotJSON = "downloadNewProviderDotJSON";
-	final static String srpAuth = "srpAuth";
+	public static final String srpRegister = "srpRegister";
+	final public static String srpAuth = "srpAuth";
+	final public static String resultKey = "result";
 	final static String provider_key = "provider";
 	final static String cert_key = "cert";
 	final static String eip_service_key = "eip";
@@ -38,12 +41,16 @@ public class ConfigHelper {
 	final public static BigInteger g = BigInteger.valueOf(2);
 	
 	final public static int CUSTOM_PROVIDER_ADDED = 0;
-	final public static int CORRECTLY_DOWNLOADED_JSON_FILES = 0;
-	final public static int INCORRECTLY_DOWNLOADED_JSON_FILES = 0; 
+	final public static int CORRECTLY_DOWNLOADED_JSON_FILES = 1;
+	final public static int INCORRECTLY_DOWNLOADED_JSON_FILES = 2;
+	final public static int SRP_AUTHENTICATION_SUCCESSFUL = 3;
+	final public static int SRP_AUTHENTICATION_FAILED = 4;
+	public static final int SRP_REGISTRATION_SUCCESSFUL = 5;
+	public static final int SRP_REGISTRATION_FAILED = 6;
 
 	static void saveSharedPref(String shared_preferences_key, JSONObject content) {
 
-		SharedPreferences.Editor shared_preferences_editor = ConfigurationWizard.shared_preferences
+		SharedPreferences.Editor shared_preferences_editor = shared_preferences
 				.edit();
 		shared_preferences_editor.putString(shared_preferences_key,
 				content.toString());
@@ -51,7 +58,7 @@ public class ConfigHelper {
 		System.out.println("Shared preferences updated: key = "
 				+ shared_preferences_key
 				+ " Content = "
-				+ ConfigurationWizard.shared_preferences.getString(
+				+ shared_preferences.getString(
 						shared_preferences_key, "Default"));
 	}
 
@@ -91,5 +98,10 @@ public class ConfigHelper {
 			e.printStackTrace();
 		}
 		return input_stream;
+	}
+
+	public static void setSharedPreferences(
+			SharedPreferences shared_preferences) {
+		ConfigHelper.shared_preferences = shared_preferences;
 	}
 }

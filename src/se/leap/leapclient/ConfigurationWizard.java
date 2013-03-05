@@ -48,8 +48,6 @@ public class ConfigurationWizard extends Activity
      * device.
      */
     private boolean mTwoPane;
-    
-    static SharedPreferences shared_preferences;
 
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     
@@ -58,8 +56,6 @@ public class ConfigurationWizard extends Activity
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.activity_configuration_wizard);
-        
-        shared_preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
         
         loadPreseededProviders();
         
