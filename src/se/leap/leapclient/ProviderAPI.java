@@ -171,9 +171,12 @@ public class ProviderAPI extends IntentService {
 		srp_client.init(n, ConfigHelper.g, new SHA256Digest(), new SecureRandom());
 
 		BigInteger salt = BigInteger.probablePrime(1024, null);
-		BigInteger clientA = srp_client.generateClientCredentials(salt.toByteArray(), username.getBytes(), password.getBytes());
+
+		BigInteger clientA = srp_client.generateClientCredentials(salt.toString(16).getBytes(), username.getBytes(), password.getBytes());
+
 		try {
 			BigInteger serverB = sendAToSRPServer(authentication_server, username, clientA);
+
 			if(serverB == BigInteger.ZERO)
 				return false; // TODO Show error: error trying to start authentication with provider
 			
@@ -241,7 +244,7 @@ public class ProviderAPI extends IntentService {
 	}
 
 	public BigInteger generateM1(BigInteger K, BigInteger salt, BigInteger clientA, BigInteger serverB, String username) throws NoSuchAlgorithmException {
-		String digest_of_N_as_string = new BigInteger(MessageDigest.getInstance("SHA-256").digest(ConfigHelper.NG_1024.getBytes())).toString(16);
+		String digest_of_N_as_string = new BigInteger(1, MessageDigest.getInstance("SHA-256").digest(hex2ascii(ConfigHelper.NG_1024).getBytes())).toString(16);
 
 		String digest_of_G_as_string = new BigInteger(1, MessageDigest.getInstance("SHA-256").digest(ConfigHelper.g.toString(16).getBytes())).toString(16);
 
@@ -297,7 +300,11 @@ public class ProviderAPI extends IntentService {
 	private String hexXor(String a, String b) {
 	    String str = "";
 	    for (int i = 0; i < a.length(); i += 2) {
-	      int xor = Integer.parseInt(a.substring(i, 2 + i), 16) ^ Integer.parseInt(b.substring(i, 2 + i), 16);
+	    	int xor = 0;
+	    	if(a.length() > i + 2)
+	    		xor = Integer.parseInt(a.substring(i, 2 + i), 16) ^ Integer.parseInt(b.substring(i, 2 + i), 16);
+	    	else
+	    		xor = Integer.parseInt(a.substring(i, 1 + i), 16) ^ Integer.parseInt(b.substring(i, 1 + i), 16);
 	      String xor_string = String.valueOf(Integer.valueOf(String.valueOf(xor), 16));
 	      str += (xor_string.length() == 1) ? ("0" + xor) : xor_string;
 	    }
@@ -328,6 +335,16 @@ public class ProviderAPI extends IntentService {
      }
      return buffer.toString();
 }
+	
+	private String hex2ascii(String hex) {
+		StringBuilder output = new StringBuilder();
+	    for (int i = 0; i < hex.length(); i+=2) {
+	        String str = hex.substring(i, i+2);
+	        output.append((char)Integer.parseInt(str, 16));
+	    }
+	    String debug = output.toString();
+	    return output.toString();
+	}
 
 	private BigInteger sendM1ToSRPServer(String server_url, String username, BigInteger m1) throws ClientProtocolException, IOException, JSONException {
 		DefaultHttpClient client = new LeapHttpClient(getApplicationContext());
