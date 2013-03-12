@@ -24,6 +24,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.jboss.security.srp.SRPClientSession;
+import org.jboss.security.srp.SRPConf.SRPParams;
+import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -166,6 +169,30 @@ public class ProviderAPI extends IntentService {
 		String password = (String) task.get(ConfigHelper.password_key);
 		String authentication_server = (String) task.get(ConfigHelper.srp_server_url_key);
 		
+		SRPParameters params = new SRPParameters(ConfigHelper.NG_1024.getBytes(), "2".getBytes(), null);
+		SRPClientSession client = new SRPClientSession(username, password.toCharArray(), params);
+		byte[] A = client.exponential();
+		try {
+			byte[] B = sendAToSRPServer(authentication_server, username, A);
+			byte[] M1 = client.response(B);
+			byte[] M2 = sendM1ToSRPServer(authentication_server, username, M1);
+			if( client.verify(M2) == false )
+				 throw new SecurityException("Failed to validate server reply");
+			return true;
+		} catch (ClientProtocolException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		SRP6Client srp_client = new SRP6Client();
 		BigInteger n = new BigInteger(ConfigHelper.NG_1024, 16);
 		srp_client.init(n, ConfigHelper.g, new SHA256Digest(), new SecureRandom());
@@ -241,6 +268,25 @@ public class ProviderAPI extends IntentService {
 			String session_id = cookies.get(0).getValue();
 		}
 		return new BigInteger(json_response.getString("B"), 16);
+	}
+	
+	private byte[] sendAToSRPServer(String server_url, String username, byte[] clientA) throws ClientProtocolException, IOException, JSONException {
+		DefaultHttpClient client = new LeapHttpClient(getApplicationContext());
+		String parameter_chain = "A" + "=" + new String(clientA) + "&" + "login" + "=" + username;
+		HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + parameter_chain);
+	
+		HttpResponse getResponse = client.execute(post);
+		HttpEntity responseEntity = getResponse.getEntity();
+		String plain_response = new Scanner(responseEntity.getContent()).useDelimiter("\\A").next();
+		JSONObject json_response = new JSONObject(plain_response);
+		if(!json_response.isNull("errors") || json_response.has("errors")) {
+			return new byte[0];
+		}
+		List<Cookie> cookies = client.getCookieStore().getCookies();
+		if(!cookies.isEmpty()) {
+			String session_id = cookies.get(0).getValue();
+		}
+		return json_response.getString("B").getBytes();
 	}
 
 	public BigInteger generateM1(BigInteger K, BigInteger salt, BigInteger clientA, BigInteger serverB, String username) throws NoSuchAlgorithmException {
@@ -362,6 +408,25 @@ public class ProviderAPI extends IntentService {
 		List<Cookie> cookies = client.getCookieStore().getCookies();
 		String session_id = cookies.get(0).getValue();
 		return new BigInteger(json_response.getString("M2"), 16);
+	}
+
+	private byte[] sendM1ToSRPServer(String server_url, String username, byte[] m1) throws ClientProtocolException, IOException, JSONException {
+		DefaultHttpClient client = new LeapHttpClient(getApplicationContext());
+		String parameter_chain = "client_auth" + "=" + new String(m1);
+		HttpPut put = new HttpPut(server_url + "/sessions/" + username +".json" + "?" + parameter_chain);
+		
+		HttpResponse getResponse = client.execute(put);
+		HttpEntity responseEntity = getResponse.getEntity();
+		String plain_response = new Scanner(responseEntity.getContent()).useDelimiter("\\A").next();
+		JSONObject json_response = new JSONObject(plain_response);
+		if(!json_response.isNull("errors") || json_response.has("errors")) {
+			return new byte[0];
+		}
+		
+		List<Cookie> cookies = client.getCookieStore().getCookies();
+		String session_id = cookies.get(0).getValue();
+		
+		return json_response.getString("M2").getBytes();
 	}
 
 	private String guessURL(String provider_main_url) {

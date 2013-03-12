@@ -27,7 +27,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import org.jboss.crypto.CryptoUtil;
-import org.jboss.logging.Logger; 
+import org.jboss.logging.Logger;
 
 /** The client side logic to the SRP protocol. The class is intended to be used
  * with a SRPServerSession object via the SRPServerInterface. The SRP algorithm
