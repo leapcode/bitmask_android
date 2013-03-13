@@ -59,7 +59,7 @@ public class ConfigurationWizard extends Activity
         
         setContentView(R.layout.activity_configuration_wizard);
         
-        shared_preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
+        ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE));
         
         loadPreseededProviders();
         
@@ -118,10 +118,9 @@ public class ConfigurationWizard extends Activity
         		if(current_provider_item.id.equalsIgnoreCase(id))
         		{
         			try {
-        				if(!current_provider_item.custom)
-        					processAssetsFiles(current_provider_item);
-        				// TODO ask Provider class to save provider.json, setResult(OK), finish() to ConfigurationWizard
-						downloadJSONFiles(current_provider_item);
+        				saveProviderJson(current_provider_item);
+        				downloadJSONFiles(current_provider_item);
+        				
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -136,11 +135,15 @@ public class ConfigurationWizard extends Activity
         }
     }
 
-	private void processAssetsFiles(ProviderItem current_provider_item) {
+	private void saveProviderJson(ProviderItem current_provider_item) {
 		AssetManager assets_manager = getAssets();
 		JSONObject provider_json = new JSONObject();
 		try {
-			String provider_contents = new Scanner(new InputStreamReader(assets_manager.open(current_provider_item.provider_json_assets))).useDelimiter("\\A").next();
+			String provider_contents = "";
+			if(!current_provider_item.custom)
+				provider_contents = new Scanner(new InputStreamReader(assets_manager.open(current_provider_item.provider_json_filename))).useDelimiter("\\A").next();
+			else
+				provider_contents = new Scanner(ConfigHelper.openFileInputStream(current_provider_item.provider_json_filename)).useDelimiter("\\A").next();
 			provider_json = new JSONObject(provider_contents);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -152,16 +155,20 @@ public class ConfigurationWizard extends Activity
 	}
 
 	private void downloadJSONFiles(ProviderItem current_provider_item) throws IOException {
+		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+		providerAPI_result_receiver.setReceiver(this);
+		
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 		
 		Bundle method_and_parameters = new Bundle();
+		
+		method_and_parameters.putString(ConfigHelper.provider_key, current_provider_item.name);
 		method_and_parameters.putString(ConfigHelper.cert_key, current_provider_item.cert_json_url);
 		method_and_parameters.putString(ConfigHelper.eip_service_key, current_provider_item.eip_service_json_url);
 		
 		provider_API_command.putExtra(ConfigHelper.downloadJsonFilesBundleExtra, method_and_parameters);
-		
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 		startService(provider_API_command);
-		
 	}
 	
 	public void addNewProvider(View view) {
@@ -193,7 +200,6 @@ public class ConfigurationWizard extends Activity
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
-		// TODO Auto-generated method stub
 		if(resultCode == ConfigHelper.CUSTOM_PROVIDER_ADDED){
 			ProviderListFragment providerList = new ProviderListFragment();
 

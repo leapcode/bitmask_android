@@ -41,7 +41,7 @@ public class ProviderListContent {
     	public String id;
         public String name;
         public String provider_json_url;
-        public String provider_json_assets;
+        public String provider_json_filename;
         public String eip_service_json_url;
         public String cert_json_url;
         
@@ -63,7 +63,7 @@ public class ProviderListContent {
 				id = name;
 				this.name = name;
 				provider_json_url = (String) file_contents.get("json_provider");
-				provider_json_assets = (String) file_contents.get("assets_json_provider");
+				provider_json_filename = (String) file_contents.get("assets_json_provider");
 				eip_service_json_url = (String) file_contents.get("json_eip_service");
 				cert_json_url = (String) file_contents.get("cert");
 				this.custom = custom;
@@ -88,6 +88,8 @@ public class ProviderListContent {
 				eip_service_json_url = (String) file_contents.get("api_uri") + ConfigHelper.eip_service_api_path;
 				cert_json_url = (String) file_contents.get("ca_cert_uri");
 				this.custom = custom;
+				if(custom)
+					provider_json_filename = name + "_provider.json".replaceFirst("__", "_");
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

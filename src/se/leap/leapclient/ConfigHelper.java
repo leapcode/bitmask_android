@@ -17,6 +17,8 @@ import android.os.Environment;
 import android.util.Log;
 
 public class ConfigHelper {
+    
+    public static SharedPreferences shared_preferences;
 
 	final static String downloadJsonFilesBundleExtra = "downloadJSONFiles";
 	final static String downloadNewProviderDotJSON = "downloadNewProviderDotJSON";
@@ -28,11 +30,13 @@ public class ConfigHelper {
 	public static String provider_key_url = "provider_main_url";
 	final public static String eip_service_api_path = "/config/eip-service.json";
 	
-	final public static int CUSTOM_PROVIDER_ADDED = 0; 
+	final public static int CUSTOM_PROVIDER_ADDED = 0;
+	final public static int CORRECTLY_DOWNLOADED_JSON_FILES = 1;
+	final public static int INCORRECTLY_DOWNLOADED_JSON_FILES = 2;
 
 	static void saveSharedPref(String shared_preferences_key, JSONObject content) {
 
-		SharedPreferences.Editor shared_preferences_editor = ConfigurationWizard.shared_preferences
+		SharedPreferences.Editor shared_preferences_editor = shared_preferences
 				.edit();
 		shared_preferences_editor.putString(shared_preferences_key,
 				content.toString());
@@ -40,7 +44,7 @@ public class ConfigHelper {
 		System.out.println("Shared preferences updated: key = "
 				+ shared_preferences_key
 				+ " Content = "
-				+ ConfigurationWizard.shared_preferences.getString(
+				+ shared_preferences.getString(
 						shared_preferences_key, "Default"));
 	}
 
@@ -80,5 +84,10 @@ public class ConfigHelper {
 			e.printStackTrace();
 		}
 		return input_stream;
+	}
+
+	public static void setSharedPreferences(
+			SharedPreferences shared_preferences) {
+		ConfigHelper.shared_preferences = shared_preferences;
 	}
 }
