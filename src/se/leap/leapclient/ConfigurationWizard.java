@@ -1,6 +1,7 @@
 package se.leap.leapclient;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Scanner;
@@ -62,6 +63,11 @@ public class ConfigurationWizard extends Activity
         ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE));
         
         loadPreseededProviders();
+        
+        if(ConfigHelper.getKeystore() == null) {
+        	InputStream keystore_input_stream = getResources().openRawResource(R.raw.leapkeystore);
+        	ConfigHelper.getNewKeystore(keystore_input_stream);
+        }
         
         // Only create our fragments if we're not restoring a saved instance
         if ( savedInstanceState == null ){

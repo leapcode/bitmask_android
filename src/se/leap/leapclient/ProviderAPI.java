@@ -1,6 +1,9 @@
 package se.leap.leapclient;
 
 import java.io.IOException;
+import java.net.URL;
+import java.security.Provider;
+import java.security.Security;
 import java.util.Scanner;
 
 import org.apache.http.HttpEntity;
@@ -38,14 +41,18 @@ public class ProviderAPI extends IntentService {
 			try {
 				JSONObject provider_json = new JSONObject("{ \"provider\" : \"" + provider_name + "\"}");
 				ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
-				String cert_string = getStringFromProvider(cert_url);
+				
+				/*String cert_string = getStringFromProvider(cert_url);
 				JSONObject cert_json = new JSONObject("{ \"certificate\" : \"" + cert_string + "\"}");
 				ConfigHelper.saveSharedPref(ConfigHelper.cert_key, cert_json);
+				ConfigHelper.addTrustedCertificate(provider_name, cert_string);*/
+				URL cacert = new URL(cert_url);
+				ConfigHelper.addTrustedCertificate(provider_name, cacert.openStream());
 				JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url);
 				ConfigHelper.saveSharedPref(ConfigHelper.eip_service_key, eip_service_json);
 				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				// TODO It could happen that an https site used a certificate not trusted.
 				e.printStackTrace();
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			} catch (JSONException e) {
@@ -69,7 +76,7 @@ public class ProviderAPI extends IntentService {
         		ProviderListContent.addItem(new ProviderItem(provider_name, ConfigHelper.openFileInputStream(filename), custom));
         		receiver.send(ConfigHelper.CUSTOM_PROVIDER_ADDED, Bundle.EMPTY);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				// TODO It could happen that an https site used a certificate not trusted.
 				e.printStackTrace();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
