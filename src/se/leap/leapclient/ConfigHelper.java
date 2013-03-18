@@ -142,8 +142,8 @@ public class ConfigHelper {
 			try {
 				// Initialize the keystore with the provided trusted certificates
 				// Also provide the password of the keystore
-				//keystore_trusted.load(leap_keystore, "uer92jf".toCharArray());
-				keystore_trusted.load(null, null);
+				keystore_trusted.load(leap_keystore, "uer92jf".toCharArray());
+				//keystore_trusted.load(null, null);
 			} finally {
 				leap_keystore.close();
 			}
