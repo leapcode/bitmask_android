@@ -1,6 +1,7 @@
 package se.leap.leapclient;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Provider;
 import java.security.Security;
@@ -68,20 +69,36 @@ public class ProviderAPI extends IntentService {
 			String provider_main_url = (String) task.get(ConfigHelper.provider_key_url);
 			String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
 			String provider_json_url = guessURL(provider_main_url);
+			JSONObject provider_json = null;
 			try {
-				JSONObject provider_json = getJSONFromProvider(provider_json_url);
-				String filename = provider_name + "_provider.json".replaceFirst("__", "_");
-				ConfigHelper.saveFile(filename, provider_json.toString());
-				
-        		ProviderListContent.addItem(new ProviderItem(provider_name, ConfigHelper.openFileInputStream(filename), custom));
-        		receiver.send(ConfigHelper.CUSTOM_PROVIDER_ADDED, Bundle.EMPTY);
+				provider_json = getJSONFromProvider(provider_json_url);
 			} catch (IOException e) {
 				// TODO It could happen that an https site used a certificate not trusted.
+				try {
+					URL provider_url = new URL(provider_json_url);
+					String provider_json_string = new Scanner(provider_url.openStream()).useDelimiter("\\A").next();
+					provider_json = new JSONObject(provider_json_string);
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				e.printStackTrace();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			String filename = provider_name + "_provider.json".replaceFirst("__", "_");
+			ConfigHelper.saveFile(filename, provider_json.toString());
+			
+    		ProviderListContent.addItem(new ProviderItem(provider_name, ConfigHelper.openFileInputStream(filename), custom));
+    		receiver.send(ConfigHelper.CUSTOM_PROVIDER_ADDED, Bundle.EMPTY);
 		}
 	}
 
