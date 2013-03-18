@@ -126,18 +126,12 @@ public class ConfigurationWizard extends Activity
         			try {
         				saveProviderJson(current_provider_item);
         				downloadJSONFiles(current_provider_item);
-        				
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
         		}
         	}
-        	
-            // FIXME!! We're going to have more Fragments and listeners, flow control?
-        	// TODO There is no testing done to know if we're okay...
-        	setResult(RESULT_OK);
-        	finish();
         }
     }
 
@@ -213,6 +207,14 @@ public class ConfigurationWizard extends Activity
 			fragmentManager.beginTransaction()
 				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
 				.commit();
+		}
+		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
+        	setResult(RESULT_OK);
+        	finish();
+		}
+		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
+        	setResult(RESULT_CANCELED);
+        	finish();
 		}
 	}
 }
