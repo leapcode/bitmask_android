@@ -1,6 +1,5 @@
 obj
 bin
-libs
 gen
 openvpn/.git
 openvpn/autom4te.cache
