@@ -24,9 +24,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.jboss.security.srp.SRPClientSession;
-import org.jboss.security.srp.SRPConf.SRPParams;
-import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
 

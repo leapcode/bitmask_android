@@ -25,9 +25,15 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.jboss.tools.ws.jaxrs.metamodelBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.jboss.tools.ws.jaxrs.nature</nature>
 	</natures>
 </projectDescription>
