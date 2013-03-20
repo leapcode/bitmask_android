@@ -122,7 +122,7 @@ public class ConfigHelper {
 			cf = CertificateFactory.getInstance("X.509");
 			X509Certificate cert =
 					(X509Certificate)cf.generateCertificate(openFileInputStream(filename_to_save));
-			keystore_trusted.setCertificateEntry("provider", cert);
+			keystore_trusted.setCertificateEntry(provider, cert);
 		} catch (CertificateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
