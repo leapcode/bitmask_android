@@ -15,11 +15,12 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.jboss.security.srp.SRPClientSession;
-import org.jboss.security.srp.SRPParameters;
-import org.jboss.security.srp.SRPServerInterface;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.jordanzimmerman.SRPClientSession;
+import com.jordanzimmerman.SRPConstants;
+import com.jordanzimmerman.SRPFactory;
 
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 
@@ -121,20 +122,20 @@ public class ProviderAPI extends IntentService {
 		String password = (String) task.get(ConfigHelper.password_key);
 		String authentication_server = (String) task.get(ConfigHelper.srp_server_url_key);
 
-		SRPParameters params = new SRPParameters(ConfigHelper.NG_1024.getBytes(), "2".getBytes(), "salt".getBytes(), "SHA-256");
-		SRPClientSession client = new SRPClientSession(username, password.toCharArray(), params);
-		byte[] A = client.exponential();
+		SRPConstants constants = new SRPConstants(new BigInteger(ConfigHelper.NG_1024, 16), ConfigHelper.g);
+		SRPFactory 			factory = SRPFactory.getInstance(constants);
+		SRPClientSession session = factory.newClientSession(password.getBytes());
+		session.setSalt_s(new BigInteger("1"));
+		byte[] A = session.getPublicKey_A().toString(16).getBytes();
 		try {
 			JSONObject saltAndB = sendAToSRPServer(authentication_server, username, getHexString(A));
-			byte[] B = saltAndB.getString("B").getBytes();
+			String B = saltAndB.getString("B");
 			String salt = saltAndB.getString("salt");
-			params = new SRPParameters(ConfigHelper.NG_1024.getBytes(), "2".getBytes(), salt.getBytes(), "SHA-256");
-			client = new SRPClientSession(username, password.toCharArray(), params);
-			client.exponential();
-			byte[] M1 = client.response(B);
+			session.setSalt_s(new BigInteger(salt, 16));
+			session.setServerPublicKey_B(new BigInteger(B, 16));
+			byte[] M1 = session.getEvidenceValue_M1().toString(16).getBytes();
 			byte[] M2 = sendM1ToSRPServer(authentication_server, username, M1);
-			if( client.verify(M2) == false )
-				 throw new SecurityException("Failed to validate server reply");
+			session.validateServerEvidenceValue_M2(new BigInteger(getHexString(M2), 16));
 			return true;
 		} catch (ClientProtocolException e1) {
 			// TODO Auto-generated catch block
@@ -147,10 +148,6 @@ public class ProviderAPI extends IntentService {
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-			return false;
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 			return false;
 		}
 	}
