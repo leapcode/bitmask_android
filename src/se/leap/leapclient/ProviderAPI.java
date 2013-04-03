@@ -3,7 +3,6 @@ package se.leap.leapclient;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -13,14 +12,15 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.jboss.security.srp.SRPClientSession;
+import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.jordanzimmerman.SRPClientSession;
-import com.jordanzimmerman.SRPConstants;
-import com.jordanzimmerman.SRPFactory;
 
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 
@@ -121,22 +121,31 @@ public class ProviderAPI extends IntentService {
 		String username = (String) task.get(ConfigHelper.username_key);
 		String password = (String) task.get(ConfigHelper.password_key);
 		String authentication_server = (String) task.get(ConfigHelper.srp_server_url_key);
+		
+		String salt = "abcd";
 
-		SRPConstants constants = new SRPConstants(new BigInteger(ConfigHelper.NG_1024, 16), ConfigHelper.g);
-		SRPFactory 			factory = SRPFactory.getInstance(constants);
-		SRPClientSession session = factory.newClientSession(password.getBytes());
-		session.setSalt_s(new BigInteger("1"));
-		byte[] A = session.getPublicKey_A().toString(16).getBytes();
+		SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
+		//SRPClientSession client = new SRPClientSession(username, password.toCharArray(), params);
+		LeapSRPSession client = new LeapSRPSession(username, password.toCharArray(), params);
+		byte[] A = client.exponential();
 		try {
-			JSONObject saltAndB = sendAToSRPServer(authentication_server, username, getHexString(A));
-			String B = saltAndB.getString("B");
-			String salt = saltAndB.getString("salt");
-			session.setSalt_s(new BigInteger(salt, 16));
-			session.setServerPublicKey_B(new BigInteger(B, 16));
-			byte[] M1 = session.getEvidenceValue_M1().toString(16).getBytes();
-			byte[] M2 = sendM1ToSRPServer(authentication_server, username, M1);
-			session.validateServerEvidenceValue_M2(new BigInteger(getHexString(M2), 16));
-			return true;
+			JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(A).toString(16));
+			if(saltAndB.length() > 0) {
+				byte[] B = saltAndB.getString("B").getBytes();
+				salt = saltAndB.getString("salt");
+				params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
+				//client = new SRPClientSession(username, password.toCharArray(), params);
+				client = new LeapSRPSession(username, password.toCharArray(), params);
+				A = client.exponential();
+				saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(A).toString(16));
+				String Bhex = saltAndB.getString("B");
+				byte[] M1 = client.response(new BigInteger(Bhex, 16).toByteArray());
+				byte[] M2 = sendM1ToSRPServer(authentication_server, username, M1);
+				if( client.verify(M2) == false )
+					throw new SecurityException("Failed to validate server reply");
+				return true;
+			}
+			else return false;
 		} catch (ClientProtocolException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -149,25 +158,15 @@ public class ProviderAPI extends IntentService {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			return false;
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
 		}
 	}
-	
-	public static String getHexString(byte[] b) {
-		  String result = "";
-		  StringBuffer sb = new StringBuffer();
-			for (byte tmp : b) {
-				sb.append(Integer.toHexString((int) (tmp & 0xff)));
-			}
-			return sb.toString();
-//		  for (int i=0; i < b.length; i++) {
-//		    result +=
-//		          Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring( 1 );
-//		  }
-//		  return result;
-		}
 
 	private JSONObject sendAToSRPServer(String server_url, String username, String clientA) throws ClientProtocolException, IOException, JSONException {
-		DefaultHttpClient client = new LeapHttpClient(getApplicationContext());
+		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
 		String parameter_chain = "A" + "=" + clientA + "&" + "login" + "=" + username;
 		HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + parameter_chain);
 	
@@ -185,40 +184,20 @@ public class ProviderAPI extends IntentService {
 		return json_response;
 	}
 
-	private byte[] sendAToSRPServer(String server_url, String username, byte[] clientA) throws ClientProtocolException, IOException, JSONException {
-		DefaultHttpClient client = new LeapHttpClient(getApplicationContext());
-		String parameter_chain = "A" + "=" + getHexString(clientA) + "&" + "login" + "=" + username;
-		HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + parameter_chain);
-	
-		HttpResponse getResponse = client.execute(post);
-		HttpEntity responseEntity = getResponse.getEntity();
-		String plain_response = new Scanner(responseEntity.getContent()).useDelimiter("\\A").next();
-		JSONObject json_response = new JSONObject(plain_response);
-		if(!json_response.isNull("errors") || json_response.has("errors")) {
-			return new byte[0];
-		}
-		List<Cookie> cookies = client.getCookieStore().getCookies();
-		if(!cookies.isEmpty()) {
-			String session_id = cookies.get(0).getValue();
-		}
-		return json_response.getString("B").getBytes();
-	}
-
 	private byte[] sendM1ToSRPServer(String server_url, String username, byte[] m1) throws ClientProtocolException, IOException, JSONException {
-		DefaultHttpClient client = new LeapHttpClient(getApplicationContext());
-		String parameter_chain = "client_auth" + "=" + getHexString(m1);
+		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
+		String parameter_chain = "client_auth" + "=" + new BigInteger(m1).toString(16);
 		HttpPut put = new HttpPut(server_url + "/sessions/" + username +".json" + "?" + parameter_chain);
+		HttpContext localContext = new BasicHttpContext();
+		localContext.setAttribute(ClientContext.COOKIE_STORE, client.getCookieStore());
 		
-		HttpResponse getResponse = client.execute(put);
+		HttpResponse getResponse = client.execute(put, localContext);
 		HttpEntity responseEntity = getResponse.getEntity();
 		String plain_response = new Scanner(responseEntity.getContent()).useDelimiter("\\A").next();
 		JSONObject json_response = new JSONObject(plain_response);
 		if(!json_response.isNull("errors") || json_response.has("errors")) {
 			return new byte[0];
 		}
-		
-		List<Cookie> cookies = client.getCookieStore().getCookies();
-		String session_id = cookies.get(0).getValue();
 		
 		return json_response.getString("M2").getBytes();
 	}
@@ -231,7 +210,7 @@ public class ProviderAPI extends IntentService {
 		
 		String json_file_content = "";
 		
-		DefaultHttpClient client = new LeapHttpClient(getApplicationContext());
+		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
 		HttpGet get = new HttpGet(string_url);
 		// Execute the GET call and obtain the response
 		HttpResponse getResponse = client.execute(get);

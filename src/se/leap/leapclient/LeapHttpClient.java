@@ -15,6 +15,8 @@ import android.content.Context;
 
 public class LeapHttpClient extends DefaultHttpClient {
 	final Context context;
+	
+	private static LeapHttpClient client;
 
 	  public LeapHttpClient(Context context) {
 	      this.context = context;
@@ -54,5 +56,11 @@ public class LeapHttpClient extends DefaultHttpClient {
 	      } catch (Exception e) {
 	          throw new AssertionError(e);
 	      }
+	  }
+	  
+	  public static LeapHttpClient getInstance(Context context) {
+		  if(client == null)
+			  client = new LeapHttpClient(context);
+		  return client;
 	  }
 }
