@@ -61,7 +61,8 @@ public class LeapSRPSession {
 	      }
 	      this.params = params;
 	      this.g = new BigInteger(1, params.g);
-	      this.N = new BigInteger(1, params.N);
+	      byte[] N_trimmed = Util.trim(params.N);
+	      this.N = new BigInteger(1, N_trimmed);
 	      if( abytes != null ) {
 	    	  A_LEN = 8*abytes.length;
 	    	  /* TODO Why did they put this condition?
@@ -84,14 +85,15 @@ public class LeapSRPSession {
 	      clientHash = newDigest();
 	      
 	      // H(N)
-	      byte[] hn = newDigest().digest(params.N);
+	      byte[] hn = newDigest().digest(N_trimmed);
 	      // H(g)
 	      byte[] hg = newDigest().digest(params.g);
 	      // clientHash = H(N) xor H(g)
 	      byte[] hxg = xor(hn, hg, hg.length);
 	      clientHash.update(hxg);
 	      // clientHash = H(N) xor H(g) | H(U)
-	      clientHash.update(newDigest().digest(username.getBytes()));
+	      byte[] username_digest = newDigest().digest(username.getBytes());
+	      clientHash.update(username_digest);
 	      // clientHash = H(N) xor H(g) | H(U) | s
 	      clientHash.update(params.s);
 	      K = null;
@@ -124,7 +126,7 @@ public class LeapSRPSession {
 	   
 		public byte[] response(byte[] Bbytes) throws NoSuchAlgorithmException {
 			// clientHash = H(N) xor H(g) | H(U) | s | A | B
-		      clientHash.update(Bbytes);
+		      clientHash.update(Util.trim(Bbytes));
 		      
 		      /*
 		      var B = new BigInteger(ephemeral, 16);
@@ -157,7 +159,7 @@ public class LeapSRPSession {
 
 
 		public byte[] getU(byte[] Abytes, byte[] Bbytes) {
-			MessageDigest u_digest = Util.newDigest();
+			MessageDigest u_digest = newDigest();
 			u_digest.update(Abytes);
 			u_digest.update(Bbytes);
 			return new BigInteger(1, u_digest.digest()).toByteArray();
@@ -195,7 +197,7 @@ public class LeapSRPSession {
 	   {
 		   MessageDigest md = null;
 		   try {
-			   md = MessageDigest.getInstance("SHA256");
+			   md = MessageDigest.getInstance("SHA-256");
 		   } catch (NoSuchAlgorithmException e) {
 			   e.printStackTrace();
 		   }
@@ -248,6 +250,6 @@ public class LeapSRPSession {
 	   public byte[] xor(byte[] b1, byte[] b2, int length)
 	   {
 		   //TODO Check if length matters in the order, when b2 is smaller than b1 or viceversa
-		   return new BigInteger(b1).xor(new BigInteger(b2)).toByteArray();
+		   return new BigInteger(1, b1).xor(new BigInteger(1, b2)).toByteArray();
 	   }
 }
