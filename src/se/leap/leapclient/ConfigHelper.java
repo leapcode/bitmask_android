@@ -36,7 +36,7 @@ public class ConfigHelper {
 	final public static String password_key = "password";
 	final public static String eip_service_api_path = "/config/eip-service.json";
 	
-	final public static String NG_1024 = 
+	final public static String NG_1024 =
 			"eeaf0ab9adb38dd69c33f80afa8fc5e86072618775ff3c0b9ea2314c9c256576d674df7496ea81d3383b4813d692c6e0e0d5d8e250b98be48e495c1d6089dad15dc7d7b46154d6b6ce8ef4ad69b15d4982559b297bcf1885c529f566660e57ec68edbc3c05726cc02fd4cbf4976eaa9afd5138fe8376435b9fc61d2fc0eb06e3";
 	final public static BigInteger g = BigInteger.valueOf(2);
 	
