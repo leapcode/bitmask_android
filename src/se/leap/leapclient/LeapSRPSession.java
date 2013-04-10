@@ -90,15 +90,18 @@ public class LeapSRPSession {
 		byte[] hg = newDigest().digest(params.g);
 		// clientHash = H(N) xor H(g)
 		byte[] hxg = xor(hn, hg, hg.length);
-		//hxg = Util.trim(hxg);
-		clientHash.update(hxg);
+		String hxg_string = new BigInteger(1, hxg).toString(16);
+		hxg = Util.trim(hxg);
+		clientHash.update(hxg); // OK
 		// clientHash = H(N) xor H(g) | H(U)
 		byte[] username_bytes = username.getBytes();
 		byte[] username_digest = newDigest().digest(username_bytes);
-		clientHash.update(username_digest);
+		String username_digest_string = new BigInteger(1, username_digest).toString(16);
+		clientHash.update(username_digest); // OK
 		// clientHash = H(N) xor H(g) | H(U) | s
 		byte[] salt_bytes = params.s;
-		clientHash.update(salt_bytes);
+		String salt_string = new BigInteger(1, salt_bytes).toString(16);
+		clientHash.update(salt_bytes); // OK
 		K = null;
 	}
 
@@ -123,9 +126,10 @@ public class LeapSRPSession {
 			}
 			A = g.modPow(a, N);
 			Abytes = A.toByteArray();
-			//Abytes = Util.trim(Abytes);
+			String Abytes_string = new BigInteger(1, Abytes).toString(16);
+			Abytes = Util.trim(Abytes);
 			// clientHash = H(N) xor H(g) | H(U) | A
-			clientHash.update(Abytes);
+			clientHash.update(Abytes); // Begins with 0: second case
 			// serverHash = A
 			serverHash.update(Abytes);
 		}
@@ -134,16 +138,21 @@ public class LeapSRPSession {
 
 	public byte[] response(byte[] Bbytes) throws NoSuchAlgorithmException {
 		// clientHash = H(N) xor H(g) | H(U) | s | A | B
-		//Bbytes = Util.trim(Bbytes);
-		clientHash.update(Bbytes);
+		Bbytes = Util.trim(Bbytes); // Begins with 0: first case, second case
+		String Abytes_string = new BigInteger(1, Bbytes).toString(16);
+		clientHash.update(Bbytes); // OK
 		// Calculate S = (B - kg^x) ^ (a + u * x) % N
 		BigInteger S = calculateS(Bbytes);
 		byte[] S_bytes = S.toByteArray();
-		//S_bytes = Util.trim(S_bytes);
+		S_bytes = Util.trim(S_bytes); // Begins with 0: first case
+		String S_bytes_string = new BigInteger(1, S_bytes).toString(16);
 		// K = SessionHash(S)
 		String hash_algorithm = params.hashAlgorithm;
 		MessageDigest sessionDigest = MessageDigest.getInstance(hash_algorithm);
 		K = sessionDigest.digest(S_bytes);
+		//K = Util.trim(K);
+		String K_bytes_string = new BigInteger(1, K).toString(16);
+		
 		// clientHash = H(N) xor H(g) | H(U) | A | B | K
 		clientHash.update(K);
 		byte[] M1 = clientHash.digest();
