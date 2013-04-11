@@ -18,7 +18,6 @@ public class LeapSRPSession {
 	private BigInteger g;
 	private BigInteger x;
 	private BigInteger v;
-	private byte[] s;
 	private BigInteger a;
 	private BigInteger A;
 	private byte[] K;
@@ -49,16 +48,14 @@ public class LeapSRPSession {
 	      8 bytes in length.
 	 */
 	public LeapSRPSession(String username, char[] password, SRPParameters params,
-			byte[] abytes)
-	{
-		try
-		{
+			byte[] abytes) {
+		try {
 			// Initialize the secure random number and message digests
 			Util.init();
 		}
-		catch(NoSuchAlgorithmException e)
-		{
+		catch(NoSuchAlgorithmException e) {
 		}
+
 		this.params = params;
 		this.g = new BigInteger(1, params.g);
 		byte[] N_bytes = Util.trim(params.N);
@@ -75,44 +72,111 @@ public class LeapSRPSession {
 		}
 
 		// Calculate x = H(s | H(U | ':' | password))
-		byte[] salt_bytes = params.s;
-		salt_bytes = Util.trim(salt_bytes);
+		byte[] salt_bytes = Util.trim(params.s);
 		byte[] xb = calculatePasswordHash(username, password, salt_bytes);
-		xb = Util.trim(xb);
 		this.x = new BigInteger(1, xb);
 
 		// Calculate v = kg^x mod N
-		this.v = calculateV();
-		String v_string = v.toString(16);
+		String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
+		this.v = calculateV(k_string);
+		//String v_string = v.toString(16);
 
 		serverHash = newDigest();
 		clientHash = newDigest();
 
 		// H(N)
-		byte[] hn = newDigest().digest(N_bytes);
+		byte[] digest_of_n = newDigest().digest(N_bytes);
+		
 		// H(g)
-		byte[] hg = newDigest().digest(params.g);
+		byte[] digest_of_g = newDigest().digest(params.g);
+		
 		// clientHash = H(N) xor H(g)
-		byte[] hxg = xor(hn, hg, hg.length);
-		String hxg_string = new BigInteger(1, hxg).toString(16);
-		hxg = Util.trim(hxg);
-		clientHash.update(hxg); // OK
+		byte[] xor_digest = xor(digest_of_n, digest_of_g, digest_of_g.length);
+		//String hxg_string = new BigInteger(1, xor_digest).toString(16);
+		clientHash.update(xor_digest);
+		
 		// clientHash = H(N) xor H(g) | H(U)
-		byte[] username_bytes = username.getBytes();
-		username_bytes = Util.trim(username_bytes);
-		byte[] username_digest = newDigest().digest(username_bytes);
+		byte[] username_digest = newDigest().digest(Util.trim(username.getBytes()));
 		username_digest = Util.trim(username_digest);
-		String username_digest_string = new BigInteger(1, username_digest).toString(16);
-		clientHash.update(username_digest); // OK
+		//String username_digest_string = new BigInteger(1, username_digest).toString(16);
+		clientHash.update(username_digest);
+		
 		// clientHash = H(N) xor H(g) | H(U) | s
-		String salt_string = new BigInteger(1, salt_bytes).toString(16);
-		clientHash.update(salt_bytes); // OK
+		//String salt_string = new BigInteger(1, salt_bytes).toString(16);
+		clientHash.update(salt_bytes);
+		
 		K = null;
 	}
 
-	private BigInteger calculateV() {
-		BigInteger k = new BigInteger("bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0", 16);
+	/**
+	 * Calculates the parameter x of the SRP-6a algorithm.
+	 * @param username
+	 * @param password
+	 * @param salt the salt of the user
+	 * @return x
+	 */
+	public byte[] calculatePasswordHash(String username, char[] password, byte[] salt)
+	{
+		// Calculate x = H(s | H(U | ':' | password))
+		MessageDigest x_digest = newDigest();
+		
+		// Try to convert the username to a byte[] using UTF-8
+		byte[] user = null;
+		byte[] colon = {};
+		try {
+			user = Util.trim(username.getBytes("UTF-8"));
+			colon = Util.trim(":".getBytes("UTF-8"));
+		}
+		catch(UnsupportedEncodingException e) {
+			// Use the default platform encoding
+			user = Util.trim(username.getBytes());
+			colon = Util.trim(":".getBytes());
+		}
+
+		byte[] passBytes = new byte[2*password.length];
+		int passBytesLength = 0;
+		for(int p = 0; p < password.length; p++) {
+			int c = (password[p] & 0x00FFFF);
+			// The low byte of the char
+			byte b0 = (byte) (c & 0x0000FF);
+			// The high byte of the char
+			byte b1 = (byte) ((c & 0x00FF00) >> 8);
+			passBytes[passBytesLength ++] = b0;
+			// Only encode the high byte if c is a multi-byte char
+			if( c > 255 )
+				passBytes[passBytesLength ++] = b1;
+		}
+	
+		// Build the hash
+		x_digest.update(user);
+		x_digest.update(colon);
+		x_digest.update(passBytes, 0, passBytesLength);
+		byte[] h = x_digest.digest();
+		//h = Util.trim(h);
+		
+		x_digest.reset();
+		x_digest.update(salt);
+		x_digest.update(h);
+		byte[] x_digest_bytes = Util.trim(x_digest.digest());
+
+		return x_digest_bytes;
+	}
+
+	/**
+	 * Calculates the parameter V of the SRP-6a algorithm.
+	 * @param k_string constant k predefined by the SRP server implementation.
+	 * @return the value of V
+	 */
+	private BigInteger calculateV(String k_string) {
+		BigInteger k = new BigInteger(k_string, 16);
 		return k.multiply(g.modPow(x, N));  // g^x % N
+	}
+
+	public byte[] xor(byte[] b1, byte[] b2, int length)
+	{
+		//TODO Check if length matters in the order, when b2 is smaller than b1 or viceversa
+		byte[] xor_digest = new BigInteger(1, b1).xor(new BigInteger(1, b2)).toByteArray();
+		return Util.trim(xor_digest);
 	}
 
 	/**
@@ -130,60 +194,81 @@ public class LeapSRPSession {
 				} while(a.compareTo(one) <= 0);
 			}
 			A = g.modPow(a, N);
-			Abytes = A.toByteArray();
-			String Abytes_string = new BigInteger(1, Abytes).toString(16);
-			Abytes = Util.trim(Abytes);
+			Abytes = Util.trim(A.toByteArray());
+			//String Abytes_string = new BigInteger(1, Abytes).toString(16);
+
 			// clientHash = H(N) xor H(g) | H(U) | A
-			clientHash.update(Abytes); // Begins with 0: second case
+			clientHash.update(Abytes);
+			
 			// serverHash = A
 			serverHash.update(Abytes);
 		}
 		return Abytes;
 	}
 
+	/**
+	 * Calculates the parameter M1, to be sent to the SRP server.
+	 * It also updates hashes of client and server for further calculations in other methods.
+	 * @param Bbytes the parameter received from the server, in bytes
+	 * @return the parameter M1
+	 * @throws NoSuchAlgorithmException
+	 */
 	public byte[] response(byte[] Bbytes) throws NoSuchAlgorithmException {
 		// clientHash = H(N) xor H(g) | H(U) | s | A | B
-		Bbytes = Util.trim(Bbytes); // Begins with 0: first case, second case
-		String Bbytes_string = new BigInteger(1, Bbytes).toString(16);
-		clientHash.update(Bbytes); // OK
+		Bbytes = Util.trim(Bbytes);
+		//String Bbytes_string = new BigInteger(1, Bbytes).toString(16);
+		clientHash.update(Bbytes);
+		
 		// Calculate S = (B - kg^x) ^ (a + u * x) % N
 		BigInteger S = calculateS(Bbytes);
-		byte[] S_bytes = S.toByteArray();
-		S_bytes = Util.trim(S_bytes); // Begins with 0: first case
-		String S_bytes_string = new BigInteger(1, S_bytes).toString(16);
+		byte[] S_bytes = Util.trim(S.toByteArray());
+		//String S_bytes_string = new BigInteger(1, S_bytes).toString(16);
+
 		// K = SessionHash(S)
 		String hash_algorithm = params.hashAlgorithm;
 		MessageDigest sessionDigest = MessageDigest.getInstance(hash_algorithm);
 		K = sessionDigest.digest(S_bytes);
 		//K = Util.trim(K);
-		String K_bytes_string = new BigInteger(1, K).toString(16);
+		//String K_bytes_string = new BigInteger(1, K).toString(16);
 		
 		// clientHash = H(N) xor H(g) | H(U) | A | B | K
 		clientHash.update(K);
 		byte[] M1 = clientHash.digest();
+		
 		// serverHash = Astr + M + K
 		serverHash.update(M1);
 		serverHash.update(K);
 		return M1;
 	}
 
-
+	/**
+	 * It calculates the parameter S used by response() to obtain session hash K.
+	 * @param Bbytes the parameter received from the server, in bytes
+	 * @return the parameter S
+	 */
 	private BigInteger calculateS(byte[] Bbytes) {
 		byte[] Abytes = Util.trim(A.toByteArray());
-		byte[] ub = getU(Abytes, Bbytes);
+		byte[] u_bytes = getU(Abytes, Bbytes);
 		//ub = Util.trim(ub);
 		
 		BigInteger B = new BigInteger(1, Bbytes);
-		BigInteger u = new BigInteger(1, ub);
-		String u_string = u.toString(16);
-		BigInteger B_v = B.subtract(v);
+		BigInteger u = new BigInteger(1, u_bytes);
+		//String u_string = u.toString(16);
+		
+		BigInteger B_minus_v = B.subtract(v);
 		BigInteger a_ux = a.add(u.multiply(x));
-		String a_ux_string = a_ux.toString(16);
-		BigInteger S = B_v.modPow(a_ux, N);
+		//String a_ux_string = a_ux.toString(16);
+		BigInteger S = B_minus_v.modPow(a_ux, N);
 
 		return S;
 	}
 
+	/**
+	 * It calculates the parameter u used by calculateS to obtain S.
+	 * @param Abytes the exponential residue sent to the server
+	 * @param Bbytes the parameter received from the server, in bytes
+	 * @return
+	 */
 	public byte[] getU(byte[] Abytes, byte[] Bbytes) {
 		MessageDigest u_digest = newDigest();
 		u_digest.update(Abytes);
@@ -210,15 +295,13 @@ public class LeapSRPSession {
 	 */
 	public byte[] getSessionKey() throws SecurityException
 	{
-		SecurityManager sm = System.getSecurityManager();
-		if( sm != null )
-		{
-			SRPPermission p = new SRPPermission("getSessionKey");
-			sm.checkPermission(p);
-		}
 		return K;
 	}
 
+	
+	/**
+	 * @return a new SHA-256 digest.
+	 */
 	public MessageDigest newDigest()
 	{
 		MessageDigest md = null;
@@ -228,56 +311,5 @@ public class LeapSRPSession {
 			e.printStackTrace();
 		}
 		return md;
-	}
-
-	public byte[] calculatePasswordHash(String username, char[] password, byte[] salt)
-	{
-		// Calculate x = H(s | H(U | ':' | password))
-		MessageDigest xd = newDigest();
-		// Try to convert the username to a byte[] using UTF-8
-		byte[] user = null;
-		byte[] colon = {};
-		try {
-			user = username.getBytes("UTF-8");
-			colon = ":".getBytes("UTF-8");
-		}
-		catch(UnsupportedEncodingException e) {
-			// Use the default platform encoding
-			user = username.getBytes();
-			colon = ":".getBytes();
-		}
-		user = Util.trim(user);
-		colon = Util.trim(colon);
-		byte[] passBytes = new byte[2*password.length];
-		int passBytesLength = 0;
-		for(int p = 0; p < password.length; p ++) {
-			int c = (password[p] & 0x00FFFF);
-			// The low byte of the char
-			byte b0 = (byte) (c & 0x0000FF);
-			// The high byte of the char
-			byte b1 = (byte) ((c & 0x00FF00) >> 8);
-			passBytes[passBytesLength ++] = b0;
-			// Only encode the high byte if c is a multi-byte char
-			if( c > 255 )
-				passBytes[passBytesLength ++] = b1;
-		}
-
-		// Build the hash
-		xd.update(user);
-		xd.update(colon);
-		xd.update(passBytes, 0, passBytesLength);
-		byte[] h = xd.digest();
-		//h = Util.trim(h);
-		xd.reset();
-		xd.update(salt);
-		xd.update(h);
-		byte[] xb = xd.digest();
-		return xb;
-	}
-
-	public byte[] xor(byte[] b1, byte[] b2, int length)
-	{
-		//TODO Check if length matters in the order, when b2 is smaller than b1 or viceversa
-		return new BigInteger(1, b1).xor(new BigInteger(1, b2)).toByteArray();
 	}
 }
