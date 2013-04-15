@@ -182,14 +182,14 @@ public class ConfigurationWizard extends Activity
 	}
 
 	@Override
-	public void saveProvider(String provider_url) {
+	public void saveProvider(String provider_main_url) {
 		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 		providerAPI_result_receiver.setReceiver(this);
 		
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString(ConfigHelper.provider_key_url, provider_url);
+		method_and_parameters.putString(ConfigHelper.provider_main_url, provider_main_url);
 
 		provider_API_command.putExtra(ConfigHelper.downloadNewProviderDotJSON, method_and_parameters);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);

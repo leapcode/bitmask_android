@@ -38,7 +38,7 @@ public class ConfigHelper {
 	final static String eip_service_key = "eip";
 	public static final String PREFERENCES_KEY = "LEAPPreferences";
 	public static final String user_directory = "leap_android";
-	public static String provider_key_url = "provider_main_url";
+	public static String provider_main_url = "provider_main_url";
 	final public static String srp_server_url_key = "srp_server_url";
 	final public static String username_key = "username";
 	final public static String password_key = "password";
@@ -175,5 +175,12 @@ public class ConfigHelper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public static int getSrpAuthenticationFailed() {
+		return SRP_AUTHENTICATION_FAILED;
+	}static String extractProviderName(String provider_main_url) {
+		
+		return null;
 	}
 }

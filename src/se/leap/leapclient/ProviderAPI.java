@@ -50,7 +50,7 @@ public class ProviderAPI extends IntentService {
 				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 		}
 		else if ((task = task_for.getBundleExtra(ConfigHelper.downloadNewProviderDotJSON)) != null) {
-			if(downloadJsonFilesBundleExtra(task))
+			if(downloadNewProviderDotJSON(task))
 				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			else
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
@@ -179,7 +179,7 @@ public class ProviderAPI extends IntentService {
 
 	private boolean downloadNewProviderDotJSON(Bundle task) {
 		boolean custom = true;
-		String provider_main_url = (String) task.get(ConfigHelper.provider_key_url);
+		String provider_main_url = (String) task.get(ConfigHelper.provider_main_url);
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
 		String provider_json_url = guessURL(provider_main_url);
 		JSONObject provider_json = null;
@@ -199,6 +199,7 @@ public class ProviderAPI extends IntentService {
 		} else {
 			String filename = provider_name + "_provider.json".replaceFirst("__", "_");
 			ConfigHelper.saveFile(filename, provider_json.toString());
+			ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
 
 			ProviderListContent.addItem(new ProviderItem(provider_name, ConfigHelper.openFileInputStream(filename), custom));
 			return true;
@@ -206,7 +207,9 @@ public class ProviderAPI extends IntentService {
 	}
 
 	private boolean downloadJsonFilesBundleExtra(Bundle task) {
-		String provider_name = (String) task.get(ConfigHelper.provider_key);
+		//TODO task only contains provider main url -> we need to infer cert_url, provider_name and eip_service_json_url from that.
+		String provider_main_url = (String) task.get(ConfigHelper.provider_main_url);
+		String provider_name = ConfigHelper.extractProviderName(provider_main_url);
 		String cert_url = (String) task.get(ConfigHelper.cert_key);
 		String eip_service_json_url = (String) task.get(ConfigHelper.eip_service_key);
 		try {
@@ -223,7 +226,7 @@ public class ProviderAPI extends IntentService {
 			ConfigHelper.saveSharedPref(ConfigHelper.eip_service_key, eip_service_json);
 			return true;
 		} catch (IOException e) {
-			// It could happen that an https site used a certificate not trusted: solved above using URL
+			//TODO It could happen when the url is not valid.
 			e.printStackTrace();
 			return false;
 		} catch (JSONException e) {
