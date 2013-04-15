@@ -1,6 +1,7 @@
 package se.leap.leapclient;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Scanner;
@@ -57,7 +58,14 @@ public class ConfigurationWizard extends Activity
         
         setContentView(R.layout.activity_configuration_wizard);
         
+        ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE));
+        
         loadPreseededProviders();
+        
+        if(ConfigHelper.getKeystore() == null) {
+        	InputStream keystore_input_stream = getResources().openRawResource(R.raw.leapkeystore);
+        	ConfigHelper.getNewKeystore(keystore_input_stream);
+        }
         
         // Only create our fragments if we're not restoring a saved instance
         if ( savedInstanceState == null ){
@@ -114,29 +122,26 @@ public class ConfigurationWizard extends Activity
         		if(current_provider_item.id.equalsIgnoreCase(id))
         		{
         			try {
-        				if(!current_provider_item.custom)
-        					processAssetsFiles(current_provider_item);
-        				// TODO ask Provider class to save provider.json, setResult(OK), finish() to ConfigurationWizard
-						downloadJSONFiles(current_provider_item);
+        				saveProviderJson(current_provider_item);
+        				downloadJSONFiles(current_provider_item);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
         		}
         	}
-        	
-            // FIXME!! We're going to have more Fragments and listeners, flow control?
-        	// TODO There is no testing done to know if we're okay...
-        	setResult(RESULT_OK);
-        	finish();
         }
     }
 
-	private void processAssetsFiles(ProviderItem current_provider_item) {
+	private void saveProviderJson(ProviderItem current_provider_item) {
 		AssetManager assets_manager = getAssets();
 		JSONObject provider_json = new JSONObject();
 		try {
-			String provider_contents = new Scanner(new InputStreamReader(assets_manager.open(current_provider_item.provider_json_assets))).useDelimiter("\\A").next();
+			String provider_contents = "";
+			if(!current_provider_item.custom)
+				provider_contents = new Scanner(new InputStreamReader(assets_manager.open(current_provider_item.provider_json_filename))).useDelimiter("\\A").next();
+			else
+				provider_contents = new Scanner(ConfigHelper.openFileInputStream(current_provider_item.provider_json_filename)).useDelimiter("\\A").next();
 			provider_json = new JSONObject(provider_contents);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -148,17 +153,21 @@ public class ConfigurationWizard extends Activity
 	}
 
 	private void downloadJSONFiles(ProviderItem current_provider_item) throws IOException {
+		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+		providerAPI_result_receiver.setReceiver(this);
+		
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 		
 		Bundle method_and_parameters = new Bundle();
+		
+		method_and_parameters.putString(ConfigHelper.provider_key, current_provider_item.name);
 		method_and_parameters.putString(ConfigHelper.cert_key, current_provider_item.cert_json_url);
 		method_and_parameters.putString(ConfigHelper.eip_service_key, current_provider_item.eip_service_json_url);
 		
 		provider_API_command.putExtra(ConfigHelper.downloadJsonFilesBundleExtra, method_and_parameters);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
-		
+
 		startService(provider_API_command);
-		
 	}
 	
 	public void addNewProvider(View view) {
@@ -199,11 +208,13 @@ public class ConfigurationWizard extends Activity
 				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
 				.commit();
 		}
-		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
-			// TODO Show error
-		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
-			// TODO Show nothing? Show success?
+        	setResult(RESULT_OK);
+        	finish();
+		}
+		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
+        	setResult(RESULT_CANCELED);
+        	finish();
 		}
 	}
 }

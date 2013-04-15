@@ -8,8 +8,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebView.FindListener;
 import android.widget.EditText;
 import android.widget.Toast;
 
