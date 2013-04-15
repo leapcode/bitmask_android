@@ -1,6 +1,5 @@
 package se.leap.leapclient;
 
-import java.io.InputStream;
 import java.security.KeyStore;
 
 import org.apache.http.conn.ClientConnectionManager;

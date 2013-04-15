@@ -17,7 +17,6 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -58,7 +57,7 @@ public class ConfigurationWizard extends Activity
         
         setContentView(R.layout.activity_configuration_wizard);
         
-        ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE));
+        ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
         
         loadPreseededProviders();
         
