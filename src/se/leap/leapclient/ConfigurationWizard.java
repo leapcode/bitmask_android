@@ -21,6 +21,7 @@ import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.Toast;
 
 
 /**
@@ -213,7 +214,7 @@ public class ConfigurationWizard extends Activity
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
         	setResult(RESULT_CANCELED);
-        	finish();
+			Toast.makeText(getApplicationContext(), "You have not entered a LEAP provider URL", Toast.LENGTH_LONG).show();
 		}
 	}
 }

@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import org.apache.http.HttpEntity;
@@ -246,6 +247,8 @@ public class ProviderAPI extends IntentService {
 			String provider_json_string = new Scanner(provider_url.openStream()).useDelimiter("\\A").next();
 			provider_json = new JSONObject(provider_json_string);
 		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		} catch (UnknownHostException e1) {
 			e1.printStackTrace();
 		} catch (IOException e1) {
 			e1.printStackTrace();

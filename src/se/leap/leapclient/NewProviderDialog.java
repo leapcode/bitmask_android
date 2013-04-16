@@ -50,10 +50,10 @@ public class NewProviderDialog extends DialogFragment {
 					String entered_url = url_input_field.getText().toString().trim();
 					if(validURL(entered_url)) {
 						interface_with_ConfigurationWizard.saveProvider(entered_url);
-						Toast.makeText(getActivity().getApplicationContext(), "Valid URL", Toast.LENGTH_LONG).show();
+						Toast.makeText(getActivity().getApplicationContext(), "It seems your URL is well formed", Toast.LENGTH_LONG).show();
 					} else {
 						url_input_field.setText("");
-						Toast.makeText(getActivity().getApplicationContext(), "Not valid URL", Toast.LENGTH_LONG).show();
+						Toast.makeText(getActivity().getApplicationContext(), "It seems your URL is not well formed", Toast.LENGTH_LONG).show();
 					}
 				}
 			})
