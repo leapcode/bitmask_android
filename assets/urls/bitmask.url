@@ -3,5 +3,5 @@
 	"assets_json_provider" : "providers/bitmask.net_provider.json",
 	"json_provider" : "https://bitmask.net/provider.json",
 	"cert" : "https://bitmask.net/ca.crt",
-	"json_eip_service" : "https://api.bitmask.net/1/config/eip-service.json"
+	"json_eip_service" : "https://api.bitmask.net:4430/1/config/eip-service.json"
 }

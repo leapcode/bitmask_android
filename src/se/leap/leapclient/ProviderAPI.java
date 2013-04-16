@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import org.apache.http.HttpEntity;
@@ -17,7 +20,6 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.jboss.security.srp.SRPClientSession;
 import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,7 +44,6 @@ public class ProviderAPI extends IntentService {
 		final ResultReceiver receiver = task_for.getParcelableExtra("receiver");
 		
 		Bundle task;
-		System.out.println("onHandleIntent called");
 		if((task = task_for.getBundleExtra(ConfigHelper.downloadJsonFilesBundleExtra)) != null) {
 			if(!downloadJsonFiles(task))
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
@@ -50,35 +51,10 @@ public class ProviderAPI extends IntentService {
 				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 		}
 		else if ((task = task_for.getBundleExtra(ConfigHelper.downloadNewProviderDotJSON)) != null) {
-			boolean custom = true;
-			String provider_main_url = (String) task.get(ConfigHelper.provider_key_url);
-			String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
-			String provider_json_url = guessURL(provider_main_url);
-			try {
-				JSONObject provider_json = getJSONFromProvider(provider_json_url);
-				String filename = provider_name + "_provider.json".replaceFirst("__", "_");
-				ConfigHelper.saveFile(filename, provider_json.toString());
-        		ProviderListContent.addItem(new ProviderItem(provider_name, ConfigHelper.openFileInputStream(filename), custom));
-        		receiver.send(ConfigHelper.CUSTOM_PROVIDER_ADDED, Bundle.EMPTY);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.srpRegister)) != null) {
-			if(!registerWithSRP(task))
-				receiver.send(ConfigHelper.SRP_REGISTRATION_FAILED, Bundle.EMPTY);
+			if(downloadNewProviderDotJSON(task))
+				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			else
-				receiver.send(ConfigHelper.SRP_REGISTRATION_SUCCESSFUL, Bundle.EMPTY);
-		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.srpAuth)) != null) {
-			if(!authenticateBySRP(task))
-				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, Bundle.EMPTY);
-			else
-				receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, Bundle.EMPTY);
+				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 		}
 	}
 
@@ -200,6 +176,86 @@ public class ProviderAPI extends IntentService {
 		}
 		
 		return json_response.getString("M2").getBytes();
+	}
+
+	private boolean downloadNewProviderDotJSON(Bundle task) {
+		boolean custom = true;
+		String provider_main_url = (String) task.get(ConfigHelper.provider_main_url);
+		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
+		String provider_json_url = guessURL(provider_main_url);
+		JSONObject provider_json = null;
+		try {
+			provider_json = getJSONFromProvider(provider_json_url);
+		} catch (IOException e) {
+			// It could happen that an https site used a certificate not trusted.
+			provider_json = downloadNewProviderDotJsonWithoutCert(provider_json_url);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		if(provider_json == null) {
+			return false;
+		} else {
+			String filename = provider_name + "_provider.json".replaceFirst("__", "_");
+			ConfigHelper.saveFile(filename, provider_json.toString());
+			ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
+
+			ProviderListContent.addItem(new ProviderItem(provider_name, ConfigHelper.openFileInputStream(filename), custom));
+			return true;
+		}
+	}
+
+	private boolean downloadJsonFilesBundleExtra(Bundle task) {
+		//TODO task only contains provider main url -> we need to infer cert_url, provider_name and eip_service_json_url from that.
+		String provider_main_url = (String) task.get(ConfigHelper.provider_main_url);
+		String provider_name = ConfigHelper.extractProviderName(provider_main_url);
+		String cert_url = (String) task.get(ConfigHelper.cert_key);
+		String eip_service_json_url = (String) task.get(ConfigHelper.eip_service_key);
+		try {
+			//JSONObject provider_json = new JSONObject("{ \"provider\" : \"" + provider_name + "\"}");
+			//ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
+			
+			/*String cert_string = getStringFromProvider(cert_url);
+			JSONObject cert_json = new JSONObject("{ \"certificate\" : \"" + cert_string + "\"}");
+			ConfigHelper.saveSharedPref(ConfigHelper.cert_key, cert_json);
+			ConfigHelper.addTrustedCertificate(provider_name, cert_string);*/
+			URL cacert = new URL(cert_url);
+			ConfigHelper.addTrustedCertificate(provider_name, cacert.openStream());
+			JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url);
+			ConfigHelper.saveSharedPref(ConfigHelper.eip_service_key, eip_service_json);
+			return true;
+		} catch (IOException e) {
+			//TODO It could happen when the url is not valid.
+			e.printStackTrace();
+			return false;
+		} catch (JSONException e) {
+			ConfigHelper.rescueJSONException(e);
+			return false;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	private JSONObject downloadNewProviderDotJsonWithoutCert(
+			String provider_json_url) {
+		JSONObject provider_json = null;
+		try {
+			URL provider_url = new URL(provider_json_url);
+			String provider_json_string = new Scanner(provider_url.openStream()).useDelimiter("\\A").next();
+			provider_json = new JSONObject(provider_json_string);
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
+		return provider_json;
 	}
 
 	private String guessURL(String provider_main_url) {

@@ -8,6 +8,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +26,7 @@ import android.util.Log;
 public class ConfigHelper {
     
     public static SharedPreferences shared_preferences;
+    private static KeyStore keystore_trusted;
 
 	final static String downloadJsonFilesBundleExtra = "downloadJSONFiles";
 	final static String downloadNewProviderDotJSON = "downloadNewProviderDotJSON";
@@ -30,7 +38,7 @@ public class ConfigHelper {
 	final static String eip_service_key = "eip";
 	public static final String PREFERENCES_KEY = "LEAPPreferences";
 	public static final String user_directory = "leap_android";
-	public static String provider_key_url = "provider_main_url";
+	public static String provider_main_url = "provider_main_url";
 	final public static String srp_server_url_key = "srp_server_url";
 	final public static String username_key = "username";
 	final public static String password_key = "password";
@@ -103,5 +111,76 @@ public class ConfigHelper {
 	public static void setSharedPreferences(
 			SharedPreferences shared_preferences) {
 		ConfigHelper.shared_preferences = shared_preferences;
+	}
+
+	public static void addTrustedCertificate(String provider, InputStream inputStream) {
+		CertificateFactory cf;
+		try {
+			cf = CertificateFactory.getInstance("X.509");
+			X509Certificate cert =
+					(X509Certificate)cf.generateCertificate(inputStream);
+			keystore_trusted.setCertificateEntry(provider, cert);
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static void addTrustedCertificate(String provider, String certificate) {
+		String filename_to_save = provider + "_certificate.cer";
+		saveFile(filename_to_save, certificate);
+		CertificateFactory cf;
+		try {
+			cf = CertificateFactory.getInstance("X.509");
+			X509Certificate cert =
+					(X509Certificate)cf.generateCertificate(openFileInputStream(filename_to_save));
+			keystore_trusted.setCertificateEntry(provider, cert);
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static KeyStore getKeystore() {
+		return keystore_trusted;
+	}
+
+	public static void getNewKeystore(InputStream leap_keystore) {
+		try {
+			keystore_trusted = KeyStore.getInstance("BKS");
+			try {
+				// Initialize the keystore with the provided trusted certificates
+				// Also provide the password of the keystore
+				keystore_trusted.load(leap_keystore, "uer92jf".toCharArray());
+				//keystore_trusted.load(null, null);
+			} finally {
+				leap_keystore.close();
+			}
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static int getSrpAuthenticationFailed() {
+		return SRP_AUTHENTICATION_FAILED;
+	}static String extractProviderName(String provider_main_url) {
+		
+		return null;
 	}
 }
