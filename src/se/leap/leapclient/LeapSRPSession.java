@@ -70,6 +70,8 @@ public class LeapSRPSession {
 			 */
 			this.a = new BigInteger(abytes);
 		}
+		else
+			A_LEN = 64;
 
 		// Calculate x = H(s | H(U | ':' | password))
 		byte[] salt_bytes = Util.trim(params.s);

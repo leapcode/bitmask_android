@@ -20,6 +20,7 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.jboss.security.Util;
 import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,6 +56,12 @@ public class ProviderAPI extends IntentService {
 				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			else
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+		}
+		else if ((task = task_for.getBundleExtra(ConfigHelper.srpAuth)) != null) {
+			if(authenticateBySRP(task))
+				receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, Bundle.EMPTY);
+			else
+				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, Bundle.EMPTY);
 		}
 	}
 
@@ -105,17 +112,16 @@ public class ProviderAPI extends IntentService {
 		LeapSRPSession client = new LeapSRPSession(username, password.toCharArray(), params);
 		byte[] A = client.exponential();
 		try {
-			JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(A).toString(16));
+			JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
 			if(saltAndB.length() > 0) {
 				byte[] B = saltAndB.getString("B").getBytes();
 				salt = saltAndB.getString("salt");
 				params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-				//client = new SRPClientSession(username, password.toCharArray(), params);
 				client = new LeapSRPSession(username, password.toCharArray(), params);
 				A = client.exponential();
-				saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(A).toString(16));
-				String Bhex = saltAndB.getString("B");
-				byte[] M1 = client.response(new BigInteger(Bhex, 16).toByteArray());
+				saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
+				byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
+				byte[] M1 = client.response(Bbytes);
 				byte[] M2 = sendM1ToSRPServer(authentication_server, username, M1);
 				if( client.verify(M2) == false )
 					throw new SecurityException("Failed to validate server reply");
@@ -162,7 +168,7 @@ public class ProviderAPI extends IntentService {
 
 	private byte[] sendM1ToSRPServer(String server_url, String username, byte[] m1) throws ClientProtocolException, IOException, JSONException {
 		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
-		String parameter_chain = "client_auth" + "=" + new BigInteger(m1).toString(16);
+		String parameter_chain = "client_auth" + "=" + new BigInteger(1, Util.trim(m1)).toString(16);
 		HttpPut put = new HttpPut(server_url + "/sessions/" + username +".json" + "?" + parameter_chain);
 		HttpContext localContext = new BasicHttpContext();
 		localContext.setAttribute(ClientContext.COOKIE_STORE, client.getCookieStore());
@@ -175,7 +181,9 @@ public class ProviderAPI extends IntentService {
 			return new byte[0];
 		}
 		
-		return json_response.getString("M2").getBytes();
+		byte[] M2_not_trimmed = new BigInteger(json_response.getString("M2"), 16).toByteArray();
+		return Util.trim(M2_not_trimmed);
+		//return M2_not_trimmed;
 	}
 
 	private boolean downloadNewProviderDotJSON(Bundle task) {
