@@ -34,7 +34,7 @@ public class LeapSRPSession {
 	    @param password, the user clear text password
 	    @param params, the SRP parameters for the session
 	 */
-	public LeapSRPSession(String username, char[] password, SRPParameters params)
+	public LeapSRPSession(String username, String password, SRPParameters params)
 	{
 		this(username, password, params, null);
 	}
@@ -47,7 +47,7 @@ public class LeapSRPSession {
 	    @param abytes, the random exponent used in the A public key. This must be
 	      8 bytes in length.
 	 */
-	public LeapSRPSession(String username, char[] password, SRPParameters params,
+	public LeapSRPSession(String username, String password, SRPParameters params,
 			byte[] abytes) {
 		try {
 			// Initialize the secure random number and message digests
@@ -117,11 +117,11 @@ public class LeapSRPSession {
 	 * @param salt the salt of the user
 	 * @return x
 	 */
-	public byte[] calculatePasswordHash(String username, char[] password, byte[] salt)
+	public byte[] calculatePasswordHash(String username, String password, byte[] salt)
 	{
+		password = password.replaceAll("\\\\", "\\\\\\\\");
 		// Calculate x = H(s | H(U | ':' | password))
 		MessageDigest x_digest = newDigest();
-		
 		// Try to convert the username to a byte[] using UTF-8
 		byte[] user = null;
 		byte[] colon = {};
@@ -135,10 +135,10 @@ public class LeapSRPSession {
 			colon = Util.trim(":".getBytes());
 		}
 
-		byte[] passBytes = new byte[2*password.length];
+		byte[] passBytes = new byte[2*password.toCharArray().length];
 		int passBytesLength = 0;
-		for(int p = 0; p < password.length; p++) {
-			int c = (password[p] & 0x00FFFF);
+		for(int p = 0; p < password.toCharArray().length; p++) {
+			int c = (password.toCharArray()[p] & 0x00FFFF);
 			// The low byte of the char
 			byte b0 = (byte) (c & 0x0000FF);
 			// The high byte of the char
@@ -159,7 +159,7 @@ public class LeapSRPSession {
 		x_digest.reset();
 		x_digest.update(salt);
 		x_digest.update(h);
-		byte[] x_digest_bytes = Util.trim(x_digest.digest());
+		byte[] x_digest_bytes = x_digest.digest();
 
 		return x_digest_bytes;
 	}
@@ -171,7 +171,8 @@ public class LeapSRPSession {
 	 */
 	private BigInteger calculateV(String k_string) {
 		BigInteger k = new BigInteger(k_string, 16);
-		return k.multiply(g.modPow(x, N));  // g^x % N
+		BigInteger v = k.multiply(g.modPow(x, N));  // g^x % N
+		return v;
 	}
 
 	public byte[] xor(byte[] b1, byte[] b2, int length)
@@ -229,13 +230,13 @@ public class LeapSRPSession {
 		// K = SessionHash(S)
 		String hash_algorithm = params.hashAlgorithm;
 		MessageDigest sessionDigest = MessageDigest.getInstance(hash_algorithm);
-		K = sessionDigest.digest(S_bytes);
+		K = Util.trim(sessionDigest.digest(S_bytes));
 		//K = Util.trim(K);
 		//String K_bytes_string = new BigInteger(1, K).toString(16);
 		
 		// clientHash = H(N) xor H(g) | H(U) | A | B | K
 		clientHash.update(K);
-		byte[] M1 = clientHash.digest();
+		byte[] M1 = Util.trim(clientHash.digest());
 		
 		// serverHash = Astr + M + K
 		serverHash.update(M1);
@@ -250,10 +251,11 @@ public class LeapSRPSession {
 	 */
 	private BigInteger calculateS(byte[] Bbytes) {
 		byte[] Abytes = Util.trim(A.toByteArray());
+		Bbytes = Util.trim(Bbytes);
 		byte[] u_bytes = getU(Abytes, Bbytes);
-		//ub = Util.trim(ub);
 		
 		BigInteger B = new BigInteger(1, Bbytes);
+		//String Bstring = B.toString(16);
 		BigInteger u = new BigInteger(1, u_bytes);
 		//String u_string = u.toString(16);
 		
@@ -273,9 +275,10 @@ public class LeapSRPSession {
 	 */
 	public byte[] getU(byte[] Abytes, byte[] Bbytes) {
 		MessageDigest u_digest = newDigest();
-		u_digest.update(Abytes);
-		u_digest.update(Bbytes);
-		return new BigInteger(1, u_digest.digest()).toByteArray();
+		u_digest.update(Util.trim(Abytes));
+		u_digest.update(Util.trim(Bbytes));
+		byte[] u_digest_bytes = u_digest.digest();//Util.trim(u_digest.digest());
+		return Util.trim(new BigInteger(1, u_digest_bytes).toByteArray());
 	}
 
 	/**
@@ -285,7 +288,8 @@ public class LeapSRPSession {
 	public boolean verify(byte[] M2)
 	{
 		// M2 = H(A | M1 | K)
-		byte[] myM2 = serverHash.digest();
+		M2 = Util.trim(M2);
+		byte[] myM2 = Util.trim(serverHash.digest());
 		boolean valid = Arrays.equals(M2, myM2);
 		return valid;
 	}
