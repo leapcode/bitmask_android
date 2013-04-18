@@ -32,6 +32,7 @@ public class ConfigHelper {
 	final static String downloadNewProviderDotJSON = "downloadNewProviderDotJSON";
 	public static final String srpRegister = "srpRegister";
 	final public static String srpAuth = "srpAuth";
+	public static String logOut = "logOut";
 	final public static String resultKey = "result";
 	final static String provider_key = "provider";
 	final static String cert_key = "cert";
@@ -53,8 +54,10 @@ public class ConfigHelper {
 	final public static int INCORRECTLY_DOWNLOADED_JSON_FILES = 2;
 	final public static int SRP_AUTHENTICATION_SUCCESSFUL = 3;
 	final public static int SRP_AUTHENTICATION_FAILED = 4;
-	public static final int SRP_REGISTRATION_SUCCESSFUL = 5;
-	public static final int SRP_REGISTRATION_FAILED = 6;
+	final public static int SRP_REGISTRATION_SUCCESSFUL = 5;
+	final public static int SRP_REGISTRATION_FAILED = 6;
+	final public static int LOGOUT_SUCCESSFUL = 7;
+	final public static int LOGOUT_FAILED = 8;
 
 	static void saveSharedPref(String shared_preferences_key, JSONObject content) {
 

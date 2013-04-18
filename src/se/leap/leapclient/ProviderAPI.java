@@ -12,6 +12,7 @@ import java.util.Scanner;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -62,6 +63,12 @@ public class ProviderAPI extends IntentService {
 				receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, Bundle.EMPTY);
 			else
 				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, Bundle.EMPTY);
+		}
+		else if ((task = task_for.getBundleExtra(ConfigHelper.logOut)) != null) {
+			if(logOut(task))
+				receiver.send(ConfigHelper.LOGOUT_SUCCESSFUL, Bundle.EMPTY);
+			else
+				receiver.send(ConfigHelper.LOGOUT_FAILED, Bundle.EMPTY);
 		}
 	}
 
@@ -215,38 +222,6 @@ public class ProviderAPI extends IntentService {
 		}
 	}
 
-	private boolean downloadJsonFilesBundleExtra(Bundle task) {
-		//TODO task only contains provider main url -> we need to infer cert_url, provider_name and eip_service_json_url from that.
-		String provider_main_url = (String) task.get(ConfigHelper.provider_main_url);
-		String provider_name = ConfigHelper.extractProviderName(provider_main_url);
-		String cert_url = (String) task.get(ConfigHelper.cert_key);
-		String eip_service_json_url = (String) task.get(ConfigHelper.eip_service_key);
-		try {
-			//JSONObject provider_json = new JSONObject("{ \"provider\" : \"" + provider_name + "\"}");
-			//ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
-			
-			/*String cert_string = getStringFromProvider(cert_url);
-			JSONObject cert_json = new JSONObject("{ \"certificate\" : \"" + cert_string + "\"}");
-			ConfigHelper.saveSharedPref(ConfigHelper.cert_key, cert_json);
-			ConfigHelper.addTrustedCertificate(provider_name, cert_string);*/
-			URL cacert = new URL(cert_url);
-			ConfigHelper.addTrustedCertificate(provider_name, cacert.openStream());
-			JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url);
-			ConfigHelper.saveSharedPref(ConfigHelper.eip_service_key, eip_service_json);
-			return true;
-		} catch (IOException e) {
-			//TODO It could happen when the url is not valid.
-			e.printStackTrace();
-			return false;
-		} catch (JSONException e) {
-			ConfigHelper.rescueJSONException(e);
-			return false;
-		} catch(Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
 	private JSONObject downloadNewProviderDotJsonWithoutCert(
 			String provider_json_url) {
 		JSONObject provider_json = null;
@@ -284,8 +259,29 @@ public class ProviderAPI extends IntentService {
 		
 		return json_file_content;
 	}
+	
 	private JSONObject getJSONFromProvider(String json_url) throws IOException, JSONException {
 		String json_file_content = getStringFromProvider(json_url);
 		return new JSONObject(json_file_content);
+	}
+	
+	private boolean logOut(Bundle task) {
+		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
+		int session_id_index = 0;
+		//String delete_url = task.getString(ConfigHelper.srp_server_url_key) + "/sessions/" + client.getCookieStore().getCookies().get(0).getValue();
+		String delete_url = task.getString(ConfigHelper.srp_server_url_key) + "/logout" + "?authenticity_token=" + client.getCookieStore().getCookies().get(session_id_index).getValue();
+		HttpDelete delete = new HttpDelete(delete_url);
+		try {
+			HttpResponse getResponse = client.execute(delete);
+			HttpEntity responseEntity = getResponse.getEntity();
+			responseEntity.consumeContent();
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
 	}
 }
