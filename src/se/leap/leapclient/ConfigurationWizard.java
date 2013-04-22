@@ -172,14 +172,14 @@ public class ConfigurationWizard extends Activity
 	
 	public void addNewProvider(View view) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-	    Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag("newProviderDialog");
+	    Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.newProviderDialog);
 	    if (previous_new_provider_dialog != null) {
 	        fragment_transaction.remove(previous_new_provider_dialog);
 	    }
 	    fragment_transaction.addToBackStack(null);
 
 	    DialogFragment newFragment = NewProviderDialog.newInstance();
-	    newFragment.show(fragment_transaction, "newProviderDialog");
+	    newFragment.show(fragment_transaction, ConfigHelper.newProviderDialog);
 	}
 
 	@Override

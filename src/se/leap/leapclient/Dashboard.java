@@ -1,13 +1,20 @@
 package se.leap.leapclient;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.openvpn.AboutFragment;
 import se.leap.openvpn.MainActivity;
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +23,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
-public class Dashboard extends Activity {
+public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface, Receiver {
 
 	protected static final int CONFIGURE_LEAP = 0;
 	
@@ -25,6 +32,8 @@ public class Dashboard extends Activity {
 
 	private TextView providerNameTV;
 	private TextView eipTypeTV;
+
+    public ProviderAPIResultReceiver providerAPI_result_receiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +137,9 @@ public class Dashboard extends Activity {
 			intent = new Intent(this,MainActivity.class);
 			startActivity(intent);
 			return true;
+		case R.id.login_button:
+			
+			return true;
 		default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -137,6 +149,56 @@ public class Dashboard extends Activity {
 	@SuppressWarnings("unused")
 	private void toggleOverview() {
 		// TODO Expand the one line overview item to show some details
+	}
+
+	@Override
+	public void authenticate(String username, String password) {
+		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+		providerAPI_result_receiver.setReceiver(this);
+		
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+		Bundle method_and_parameters = new Bundle();
+		method_and_parameters.putString(ConfigHelper.username_key, username);
+		method_and_parameters.putString(ConfigHelper.password_key, password);
+
+		JSONObject provider_json;
+		try {
+			provider_json = new JSONObject(preferences.getString(ConfigHelper.provider_key, ""));
+			method_and_parameters.putString(ConfigHelper.api_url_key, provider_json.getString(ConfigHelper.api_url_key));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		provider_API_command.putExtra(ConfigHelper.srpAuth, method_and_parameters);
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		
+		startService(provider_API_command);
+	}
+	
+	public void logInDialog(View view) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.logInDialog);
+	    if (previous_log_in_dialog != null) {
+	        fragment_transaction.remove(previous_log_in_dialog);
+	    }
+	    fragment_transaction.addToBackStack(null);
+
+	    DialogFragment newFragment = LogInDialog.newInstance();
+	    newFragment.show(fragment_transaction, ConfigHelper.logInDialog);
+	}
+
+	@Override
+	public void onReceiveResult(int resultCode, Bundle resultData) {
+		if(resultCode == ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL){
+			setResult(RESULT_OK);
+			//TODO What should we do know?
+		}
+		else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
+        	setResult(RESULT_CANCELED);
+        	finish();
+		}
 	}
 
 }

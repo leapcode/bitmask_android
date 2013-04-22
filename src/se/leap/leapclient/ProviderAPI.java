@@ -83,7 +83,7 @@ public class ProviderAPI extends IntentService {
 			ConfigHelper.saveSharedPref(ConfigHelper.eip_service_key, eip_service_json);
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO 
 			e.printStackTrace();
 			return false;
 		} catch (JSONException e) {
@@ -98,7 +98,7 @@ public class ProviderAPI extends IntentService {
 	private boolean registerWithSRP(Bundle task) {
 		String username = (String) task.get(ConfigHelper.username_key);
 		String password = (String) task.get(ConfigHelper.password_key);
-		String authentication_server = (String) task.get(ConfigHelper.srp_server_url_key);
+		String authentication_server = (String) task.get(ConfigHelper.api_url_key);
 		
 		BigInteger ng_1024 = new BigInteger(ConfigHelper.NG_1024, 16);
 		BigInteger salt = ng_1024.probablePrime(1024, null);
@@ -110,7 +110,7 @@ public class ProviderAPI extends IntentService {
 	private boolean authenticateBySRP(Bundle task) {
 		String username = (String) task.get(ConfigHelper.username_key);
 		String password = (String) task.get(ConfigHelper.password_key);
-		String authentication_server = (String) task.get(ConfigHelper.srp_server_url_key);
+		String authentication_server = (String) task.get(ConfigHelper.api_url_key);
 		
 		String salt = "abcd";
 
@@ -269,7 +269,7 @@ public class ProviderAPI extends IntentService {
 		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
 		int session_id_index = 0;
 		//String delete_url = task.getString(ConfigHelper.srp_server_url_key) + "/sessions/" + client.getCookieStore().getCookies().get(0).getValue();
-		String delete_url = task.getString(ConfigHelper.srp_server_url_key) + "/logout" + "?authenticity_token=" + client.getCookieStore().getCookies().get(session_id_index).getValue();
+		String delete_url = task.getString(ConfigHelper.api_url_key) + "/logout" + "?authenticity_token=" + client.getCookieStore().getCookies().get(session_id_index).getValue();
 		HttpDelete delete = new HttpDelete(delete_url);
 		try {
 			HttpResponse getResponse = client.execute(delete);
