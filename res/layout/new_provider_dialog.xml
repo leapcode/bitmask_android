@@ -15,4 +15,10 @@
         android:layout_marginBottom="4dp"
         android:hint="@string/new_provider_uri" />
 
+    <CheckBox
+        android:id="@+id/danger_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/danger_checkbox" />
+
 </LinearLayout>

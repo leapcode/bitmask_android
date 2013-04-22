@@ -183,7 +183,7 @@ public class ConfigurationWizard extends Activity
 	}
 
 	@Override
-	public void saveProvider(String provider_main_url) {
+	public void saveProvider(String provider_main_url, boolean danger_on) {
 		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 		providerAPI_result_receiver.setReceiver(this);
 		
@@ -193,6 +193,7 @@ public class ConfigurationWizard extends Activity
 		method_and_parameters.putString(ConfigHelper.provider_main_url, provider_main_url);
 
 		provider_API_command.putExtra(ConfigHelper.downloadNewProviderDotJSON, method_and_parameters);
+		provider_API_command.putExtra(ConfigHelper.danger_on, danger_on);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 		
 		startService(provider_API_command);

@@ -17,7 +17,7 @@ public class LogInDialog extends DialogFragment {
         public void authenticate(String username, String password);
     }
 
-	LogInDialogInterface interface_with_ConfigurationWizard;
+	LogInDialogInterface interface_with_Dashboard;
 
 	public static DialogFragment newInstance() {
 		LogInDialog dialog_fragment = new LogInDialog();
@@ -30,7 +30,7 @@ public class LogInDialog extends DialogFragment {
         // Verify that the host activity implements the callback interface
         try {
             // Instantiate the NoticeDialogListener so we can send events to the host
-        	interface_with_ConfigurationWizard = (LogInDialogInterface) activity;
+        	interface_with_Dashboard = (LogInDialogInterface) activity;
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
             throw new ClassCastException(activity.toString()
@@ -50,7 +50,7 @@ public class LogInDialog extends DialogFragment {
 					String username = username_field.getText().toString().trim();
 					String password = password_field.getText().toString().trim();
 					if(validPassword(password)) {
-						interface_with_ConfigurationWizard.authenticate(username, password);
+						interface_with_Dashboard.authenticate(username, password);
 						Toast.makeText(getActivity().getApplicationContext(), "It seems your URL is well formed", Toast.LENGTH_LONG).show();
 					} else {
 						password_field.setText("");
@@ -68,6 +68,6 @@ public class LogInDialog extends DialogFragment {
 	}
 
 	boolean validPassword(String entered_password) {
-		return !(entered_password.length() > 8);
+		return entered_password.length() > 8;
 	}
 }

@@ -269,5 +269,6 @@
     <string name="password_ask">Enter your password</string>
     <string name="log_in_button">Log in</string>
     <string name="login_button">Log In</string>
+    <string name="danger_checkbox">Trust completely</string>
 
 </resources>

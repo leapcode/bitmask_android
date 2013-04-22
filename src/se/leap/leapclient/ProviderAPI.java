@@ -9,6 +9,10 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -195,6 +199,8 @@ public class ProviderAPI extends IntentService {
 
 	private boolean downloadNewProviderDotJSON(Bundle task) {
 		boolean custom = true;
+		boolean danger_on = ((Boolean)task.get(ConfigHelper.danger_on)).booleanValue();
+		
 		String provider_main_url = (String) task.get(ConfigHelper.provider_main_url);
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
 		String provider_json_url = guessURL(provider_main_url);
@@ -203,7 +209,7 @@ public class ProviderAPI extends IntentService {
 			provider_json = getJSONFromProvider(provider_json_url);
 		} catch (IOException e) {
 			// It could happen that an https site used a certificate not trusted.
-			provider_json = downloadNewProviderDotJsonWithoutCert(provider_json_url);
+			provider_json = downloadNewProviderDotJsonWithoutCert(provider_json_url, danger_on);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -223,7 +229,7 @@ public class ProviderAPI extends IntentService {
 	}
 
 	private JSONObject downloadNewProviderDotJsonWithoutCert(
-			String provider_json_url) {
+			String provider_json_url, boolean danger_on) {
 		JSONObject provider_json = null;
 		try {
 			URL provider_url = new URL(provider_json_url);
@@ -234,11 +240,51 @@ public class ProviderAPI extends IntentService {
 		} catch (UnknownHostException e1) {
 			e1.printStackTrace();
 		} catch (IOException e1) {
+			if(danger_on) {
+				provider_json = downloadNewProviderDotJsonWithoutValidate(provider_json_url);
+			}
+			else {
+				//TODO Show error message advising to check the checkbox if the url is completely trusted.
+			}
 			e1.printStackTrace();
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
 		return provider_json;
+	}
+
+	private JSONObject downloadNewProviderDotJsonWithoutValidate(
+			String provider_json_url) {
+		JSONObject provider_json = null;
+		HostnameVerifier hostnameVerifier = new HostnameVerifier() {
+		    @Override
+		    public boolean verify(String hostname, SSLSession session) {
+		        HostnameVerifier hostname_verifier =
+		            HttpsURLConnection.getDefaultHostnameVerifier();
+		        return hostname_verifier.verify("", session);
+		    }
+		};
+
+		// Tell the URLConnection to use our HostnameVerifier
+		try {
+			URL url = new URL(provider_json_url);
+			HttpsURLConnection urlConnection =
+				    (HttpsURLConnection)url.openConnection();
+				urlConnection.setHostnameVerifier(hostnameVerifier);
+				String provider_json_string = new Scanner(url.openStream()).useDelimiter("\\A").next();
+				provider_json = new JSONObject(provider_json_string);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return provider_json;
+
 	}
 
 	private String guessURL(String provider_main_url) {

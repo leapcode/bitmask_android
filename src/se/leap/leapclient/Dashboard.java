@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.CompoundButton;
 import android.widget.Switch;
@@ -138,7 +139,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			startActivity(intent);
 			return true;
 		case R.id.login_button:
-			
+			View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
+			logInDialog(view);
 			return true;
 		default:
 				return super.onOptionsItemSelected(item);
