@@ -1,5 +1,6 @@
 127.0.0.1	localhost
 10.0.2.2	api.lvh.me
+10.0.2.2	lvh.me
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     ip6-localhost ip6-loopback

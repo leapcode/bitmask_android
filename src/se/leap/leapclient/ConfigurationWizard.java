@@ -95,7 +95,7 @@ public class ConfigurationWizard extends Activity
 	        	boolean custom = false;
 	        	provider_name = url_filepath.subSequence(0, url_filepath.indexOf(".")).toString();
 	        	if(ProviderListContent.ITEMS.isEmpty()) //TODO I have to implement a way of checking if a provider new or is already present in that ITEMS list
-	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath), custom));
+	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath), custom, true)); // By default, it trusts the provider
 	        }
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -163,6 +163,7 @@ public class ConfigurationWizard extends Activity
 		method_and_parameters.putString(ConfigHelper.provider_key, current_provider_item.name);
 		method_and_parameters.putString(ConfigHelper.cert_key, current_provider_item.cert_json_url);
 		method_and_parameters.putString(ConfigHelper.eip_service_key, current_provider_item.eip_service_json_url);
+		method_and_parameters.putBoolean(ConfigHelper.danger_on, current_provider_item.danger_on);
 		
 		provider_API_command.putExtra(ConfigHelper.downloadJsonFilesBundleExtra, method_and_parameters);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
@@ -191,9 +192,9 @@ public class ConfigurationWizard extends Activity
 
 		Bundle method_and_parameters = new Bundle();
 		method_and_parameters.putString(ConfigHelper.provider_main_url, provider_main_url);
+		method_and_parameters.putBoolean(ConfigHelper.danger_on, danger_on);
 
 		provider_API_command.putExtra(ConfigHelper.downloadNewProviderDotJSON, method_and_parameters);
-		provider_API_command.putExtra(ConfigHelper.danger_on, danger_on);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 		
 		startService(provider_API_command);

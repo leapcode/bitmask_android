@@ -1,17 +1,26 @@
 package se.leap.leapclient;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -36,6 +45,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Base64;
 import android.util.Log;
 
 public class ProviderAPI extends IntentService {
@@ -58,7 +68,7 @@ public class ProviderAPI extends IntentService {
 		}
 		else if ((task = task_for.getBundleExtra(ConfigHelper.downloadNewProviderDotJSON)) != null) {
 			if(downloadNewProviderDotJSON(task))
-				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+				receiver.send(ConfigHelper.CUSTOM_PROVIDER_ADDED, Bundle.EMPTY);
 			else
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 		}
@@ -77,24 +87,20 @@ public class ProviderAPI extends IntentService {
 	}
 
 	private boolean downloadJsonFiles(Bundle task) {
-		String cert_url = (String) task.get(ConfigHelper.cert_key);
-		String eip_service_json_url = (String) task.get(ConfigHelper.eip_service_key);
+		String provider_name = task.getString(ConfigHelper.provider_key);
+		String cert_url = task.getString(ConfigHelper.cert_key);
+		String eip_service_json_url = task.getString(ConfigHelper.eip_service_key);
+		boolean danger_on = task.getBoolean(ConfigHelper.danger_on);
 		try {
-			String cert_string = getStringFromProvider(cert_url);
+			String cert_string = getStringFromProvider(cert_url, danger_on);
+			ConfigHelper.addTrustedCertificate(provider_name, cert_string);
 			JSONObject cert_json = new JSONObject("{ \"certificate\" : \"" + cert_string + "\"}");
 			ConfigHelper.saveSharedPref(ConfigHelper.cert_key, cert_json);
-			JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url);
+			JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url, danger_on);
 			ConfigHelper.saveSharedPref(ConfigHelper.eip_service_key, eip_service_json);
 			return true;
-		} catch (IOException e) {
-			// TODO 
-			e.printStackTrace();
-			return false;
 		} catch (JSONException e) {
 			ConfigHelper.rescueJSONException(e);
-			return false;
-		} catch(Exception e) {
-			e.printStackTrace();
 			return false;
 		}
 	}
@@ -135,7 +141,8 @@ public class ProviderAPI extends IntentService {
 				byte[] M1 = client.response(Bbytes);
 				byte[] M2 = sendM1ToSRPServer(authentication_server, username, M1);
 				if( client.verify(M2) == false )
-					throw new SecurityException("Failed to validate server reply: M2 = " + new BigInteger(1, M2).toString(16));
+					//throw new SecurityException("Failed to validate server reply: M2 = " + new BigInteger(1, M2).toString(16));
+					return false;
 				return true;
 			}
 			else return false;
@@ -199,17 +206,14 @@ public class ProviderAPI extends IntentService {
 
 	private boolean downloadNewProviderDotJSON(Bundle task) {
 		boolean custom = true;
-		boolean danger_on = ((Boolean)task.get(ConfigHelper.danger_on)).booleanValue();
+		boolean danger_on = task.getBoolean(ConfigHelper.danger_on);
 		
 		String provider_main_url = (String) task.get(ConfigHelper.provider_main_url);
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
 		String provider_json_url = guessURL(provider_main_url);
 		JSONObject provider_json = null;
 		try {
-			provider_json = getJSONFromProvider(provider_json_url);
-		} catch (IOException e) {
-			// It could happen that an https site used a certificate not trusted.
-			provider_json = downloadNewProviderDotJsonWithoutCert(provider_json_url, danger_on);
+			provider_json = getJSONFromProvider(provider_json_url, danger_on);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -223,75 +227,128 @@ public class ProviderAPI extends IntentService {
 			ConfigHelper.saveFile(filename, provider_json.toString());
 			ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
 
-			ProviderListContent.addItem(new ProviderItem(provider_name, ConfigHelper.openFileInputStream(filename), custom));
+			ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, ConfigHelper.openFileInputStream(filename), custom, danger_on));
 			return true;
 		}
 	}
 
-	private JSONObject downloadNewProviderDotJsonWithoutCert(
-			String provider_json_url, boolean danger_on) {
-		JSONObject provider_json = null;
-		try {
-			URL provider_url = new URL(provider_json_url);
-			String provider_json_string = new Scanner(provider_url.openStream()).useDelimiter("\\A").next();
-			provider_json = new JSONObject(provider_json_string);
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
-		} catch (UnknownHostException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			if(danger_on) {
-				provider_json = downloadNewProviderDotJsonWithoutValidate(provider_json_url);
-			}
-			else {
-				//TODO Show error message advising to check the checkbox if the url is completely trusted.
-			}
-			e1.printStackTrace();
-		} catch (JSONException e1) {
-			e1.printStackTrace();
-		}
-		return provider_json;
-	}
-
-	private JSONObject downloadNewProviderDotJsonWithoutValidate(
-			String provider_json_url) {
-		JSONObject provider_json = null;
+	private String getStringFromProviderWithoutValidate(
+			URL provider_json_url) {
+		
+		String json_string = "";
 		HostnameVerifier hostnameVerifier = new HostnameVerifier() {
-		    @Override
-		    public boolean verify(String hostname, SSLSession session) {
-		        HostnameVerifier hostname_verifier =
-		            HttpsURLConnection.getDefaultHostnameVerifier();
-		        return hostname_verifier.verify("", session);
-		    }
+			@Override
+			public boolean verify(String hostname, SSLSession session) {
+				return true;
+			}
 		};
 
 		// Tell the URLConnection to use our HostnameVerifier
 		try {
-			URL url = new URL(provider_json_url);
 			HttpsURLConnection urlConnection =
-				    (HttpsURLConnection)url.openConnection();
-				urlConnection.setHostnameVerifier(hostnameVerifier);
-				String provider_json_string = new Scanner(url.openStream()).useDelimiter("\\A").next();
-				provider_json = new JSONObject(provider_json_string);
+					(HttpsURLConnection)provider_json_url.openConnection();
+			urlConnection.setHostnameVerifier(hostnameVerifier);
+			json_string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			json_string = getStringFromProviderWithCACertAdded(provider_json_url);
+			//e.printStackTrace();
 		}
-		return provider_json;
-
+		return json_string;
 	}
 
 	private String guessURL(String provider_main_url) {
 		return provider_main_url + "/provider.json";
 	}
+	
+	private String getStringFromProvider(String string_url, boolean danger_on) {
+		
+		String json_file_content = "";
+		
+		URL provider_url = null;
+		try {
+			provider_url = new URL(string_url);
+			json_file_content = new Scanner(provider_url.openStream()).useDelimiter("\\A").next();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO SSLHandshakeException
+			// This means that we have not added ca.crt to the trusted certificates.
+			if(provider_url != null && danger_on) {
+				json_file_content = getStringFromProviderWithoutValidate(provider_url);
+			}
+			//json_file_content = downloadStringFromProviderWithCACertAdded(string_url);
+			e.printStackTrace();
+		}
+		
+		return json_file_content;
+	}
 
-	private String getStringFromProvider(String string_url) throws IOException {
+	private String getStringFromProviderWithCACertAdded(URL url) {
+		String json_file_content = "";
+		
+		// Load CAs from an InputStream
+		// (could be from a resource or ByteArrayInputStream or ...)
+		CertificateFactory cf;
+		try {
+			cf = CertificateFactory.getInstance("X.509");
+
+			String cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.cert_key);
+			cert_string = cert_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
+			byte[] cert_bytes = Base64.decode(cert_string, Base64.DEFAULT);
+			InputStream caInput =  new ByteArrayInputStream(cert_bytes);
+			java.security.cert.Certificate ca;
+			try {
+			    ca = cf.generateCertificate(caInput);
+			    System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
+			} finally {
+			    caInput.close();
+			}
+
+			// Create a KeyStore containing our trusted CAs
+			String keyStoreType = KeyStore.getDefaultType();
+			KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+			keyStore.load(null, null);
+			keyStore.setCertificateEntry("ca", ca);
+
+			// Create a TrustManager that trusts the CAs in our KeyStore
+			String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+			tmf.init(keyStore);
+
+			// Create an SSLContext that uses our TrustManager
+			SSLContext context = SSLContext.getInstance("TLS");
+			context.init(null, tmf.getTrustManagers(), null);
+
+			// Tell the URLConnection to use a SocketFactory from our SSLContext
+			HttpsURLConnection urlConnection =
+			    (HttpsURLConnection)url.openConnection();
+			urlConnection.setSSLSocketFactory(context.getSocketFactory());
+			json_file_content = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (KeyManagementException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return json_file_content;
+	}
+
+	private String getStringFromProvider_2(String string_url) throws IOException {
 		
 		String json_file_content = "";
 		
@@ -306,8 +363,8 @@ public class ProviderAPI extends IntentService {
 		return json_file_content;
 	}
 	
-	private JSONObject getJSONFromProvider(String json_url) throws IOException, JSONException {
-		String json_file_content = getStringFromProvider(json_url);
+	private JSONObject getJSONFromProvider(String json_url, boolean danger_on) throws JSONException {
+		String json_file_content = getStringFromProvider(json_url, danger_on);
 		return new JSONObject(json_file_content);
 	}
 	

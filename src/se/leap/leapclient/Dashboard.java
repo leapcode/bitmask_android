@@ -23,6 +23,7 @@ import android.view.ViewStub;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface, Receiver {
 
@@ -195,11 +196,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 		if(resultCode == ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL){
 			setResult(RESULT_OK);
+			Toast.makeText(getApplicationContext(), "Authentication succeeded", Toast.LENGTH_LONG).show();
 			//TODO What should we do know?
 		}
 		else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
         	setResult(RESULT_CANCELED);
-        	finish();
+			Toast.makeText(getApplicationContext(), "Authentication failed", Toast.LENGTH_LONG).show();
 		}
 	}
 

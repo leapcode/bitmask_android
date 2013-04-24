@@ -16,6 +16,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,7 +45,7 @@ public class ConfigHelper {
 	public static final String user_directory = "leap_android";
 	final public static String provider_main_url = "provider_main_url";
 	final public static String danger_on = "danger_on";
-	final public static String api_url_key = "srp_server_url";
+	final public static String api_url_key = "api_uri";
 	final public static String username_key = "username";
 	final public static String password_key = "password";
 	final public static String eip_service_api_path = "/config/eip-service.json";
@@ -63,6 +64,20 @@ public class ConfigHelper {
 	final public static int LOGOUT_SUCCESSFUL = 7;
 	final public static int LOGOUT_FAILED = 8;
 
+	static String getStringFromSharedPref(String shared_preferences_key) {
+		String value = "";
+		String content = shared_preferences.getString(shared_preferences_key, "");
+		try {
+			JSONObject json_object = new JSONObject(content);
+			JSONArray names = json_object.names();
+			String key = names.getString(0);
+			value = json_object.getString(key);
+		} catch (JSONException e) {
+			value = content;
+		}
+		return value;
+	}
+	
 	static void saveSharedPref(String shared_preferences_key, JSONObject content) {
 
 		SharedPreferences.Editor shared_preferences_editor = shared_preferences
@@ -164,8 +179,8 @@ public class ConfigHelper {
 			try {
 				// Initialize the keystore with the provided trusted certificates
 				// Also provide the password of the keystore
-				keystore_trusted.load(leap_keystore, "uer92jf".toCharArray());
-				//keystore_trusted.load(null, null);
+				//keystore_trusted.load(leap_keystore, "uer92jf".toCharArray());
+				keystore_trusted.load(null, null);
 			} finally {
 				leap_keystore.close();
 			}

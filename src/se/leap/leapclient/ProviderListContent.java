@@ -44,6 +44,7 @@ public class ProviderListContent {
         public String provider_json_filename;
         public String eip_service_json_url;
         public String cert_json_url;
+        public boolean danger_on = false;
         
         public ProviderItem(String id, String name, String provider_json_url, String eip_service_json_url, String cert_json_url) {
         	this.id = id;
@@ -53,7 +54,7 @@ public class ProviderListContent {
             this.cert_json_url = cert_json_url;
         }
 
-        public ProviderItem(String name, InputStream urls_file_input_stream, boolean custom) {
+        public ProviderItem(String name, InputStream urls_file_input_stream, boolean custom, boolean danger_on) {
         	
         	try {
         		byte[] urls_file_bytes = new byte[urls_file_input_stream.available()];
@@ -62,11 +63,12 @@ public class ProviderListContent {
 				JSONObject file_contents = new JSONObject(urls_file_content);
 				id = name;
 				this.name = name;
-				provider_json_url = (String) file_contents.get("json_provider");
-				provider_json_filename = (String) file_contents.get("assets_json_provider");
-				eip_service_json_url = (String) file_contents.get("json_eip_service");
-				cert_json_url = (String) file_contents.get("cert");
+				provider_json_url = file_contents.getString("json_provider");
+				provider_json_filename = file_contents.getString("assets_json_provider");
+				eip_service_json_url = file_contents.getString("json_eip_service");
+				cert_json_url = file_contents.getString("cert");
 				this.custom = custom;
+				this.danger_on = danger_on;
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -76,7 +78,7 @@ public class ProviderListContent {
 			}
         }
 
-        public ProviderItem(String name, FileInputStream provider_json, boolean custom) {
+        public ProviderItem(String name, String provider_json_url, FileInputStream provider_json, boolean custom, boolean danger_on) {
         	
         	try {
         		byte[] urls_file_bytes = new byte[provider_json.available()];
@@ -85,9 +87,11 @@ public class ProviderListContent {
 				JSONObject file_contents = new JSONObject(urls_file_content);
 				id = name;
 				this.name = name;
+				this.provider_json_url = provider_json_url;
 				eip_service_json_url = (String) file_contents.get("api_uri") + ConfigHelper.eip_service_api_path;
 				cert_json_url = (String) file_contents.get("ca_cert_uri");
 				this.custom = custom;
+				this.danger_on = danger_on;
 				if(custom)
 					provider_json_filename = name + "_provider.json".replaceFirst("__", "_");
 			} catch (JSONException e) {
