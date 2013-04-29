@@ -14,7 +14,10 @@ import org.jboss.security.srp.SRPPermission;
 public class LeapSRPSession {
 
 	private SRPParameters params;
+	private String username;
+	private String password;
 	private BigInteger N;
+	private byte[] N_bytes;
 	private BigInteger g;
 	private BigInteger x;
 	private BigInteger v;
@@ -58,9 +61,11 @@ public class LeapSRPSession {
 
 		this.params = params;
 		this.g = new BigInteger(1, params.g);
-		byte[] N_bytes = Util.trim(params.N);
+		N_bytes = Util.trim(params.N);
 		this.N = new BigInteger(1, N_bytes);
-
+		this.username = username;
+		this.password = password;
+		
 		if( abytes != null ) {
 			A_LEN = 8*abytes.length;
 			/* TODO Why did they put this condition?
@@ -73,41 +78,8 @@ public class LeapSRPSession {
 		else
 			A_LEN = 64;
 
-		// Calculate x = H(s | H(U | ':' | password))
-		byte[] salt_bytes = Util.trim(params.s);
-		byte[] xb = calculatePasswordHash(username, password, salt_bytes);
-		this.x = new BigInteger(1, xb);
-
-		// Calculate v = kg^x mod N
-		String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
-		this.v = calculateV(k_string);
-		//String v_string = v.toString(16);
-
 		serverHash = newDigest();
 		clientHash = newDigest();
-
-		// H(N)
-		byte[] digest_of_n = newDigest().digest(N_bytes);
-		
-		// H(g)
-		byte[] digest_of_g = newDigest().digest(params.g);
-		
-		// clientHash = H(N) xor H(g)
-		byte[] xor_digest = xor(digest_of_n, digest_of_g, digest_of_g.length);
-		//String hxg_string = new BigInteger(1, xor_digest).toString(16);
-		clientHash.update(xor_digest);
-		
-		// clientHash = H(N) xor H(g) | H(U)
-		byte[] username_digest = newDigest().digest(Util.trim(username.getBytes()));
-		username_digest = Util.trim(username_digest);
-		//String username_digest_string = new BigInteger(1, username_digest).toString(16);
-		clientHash.update(username_digest);
-		
-		// clientHash = H(N) xor H(g) | H(U) | s
-		//String salt_string = new BigInteger(1, salt_bytes).toString(16);
-		clientHash.update(salt_bytes);
-		
-		K = null;
 	}
 
 	/**
@@ -198,13 +170,6 @@ public class LeapSRPSession {
 			}
 			A = g.modPow(a, N);
 			Abytes = Util.trim(A.toByteArray());
-			//String Abytes_string = new BigInteger(1, Abytes).toString(16);
-
-			// clientHash = H(N) xor H(g) | H(U) | A
-			clientHash.update(Abytes);
-			
-			// serverHash = A
-			serverHash.update(Abytes);
 		}
 		return Abytes;
 	}
@@ -213,10 +178,52 @@ public class LeapSRPSession {
 	 * Calculates the parameter M1, to be sent to the SRP server.
 	 * It also updates hashes of client and server for further calculations in other methods.
 	 * @param Bbytes the parameter received from the server, in bytes
+	 * @param bs 
 	 * @return the parameter M1
 	 * @throws NoSuchAlgorithmException
 	 */
-	public byte[] response(byte[] Bbytes) throws NoSuchAlgorithmException {
+	public byte[] response(byte[] salt_bytes, byte[] Bbytes) throws NoSuchAlgorithmException {
+		// Calculate x = H(s | H(U | ':' | password))
+		byte[] xb = calculatePasswordHash(username, password, salt_bytes);
+		this.x = new BigInteger(1, xb);
+
+		// Calculate v = kg^x mod N
+		String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
+		this.v = calculateV(k_string);
+		//String v_string = v.toString(16);
+
+
+		// H(N)
+		byte[] digest_of_n = newDigest().digest(N_bytes);
+		
+		// H(g)
+		byte[] digest_of_g = newDigest().digest(params.g);
+		
+		// clientHash = H(N) xor H(g)
+		byte[] xor_digest = xor(digest_of_n, digest_of_g, digest_of_g.length);
+		//String hxg_string = new BigInteger(1, xor_digest).toString(16);
+		clientHash.update(xor_digest);
+		
+		// clientHash = H(N) xor H(g) | H(U)
+		byte[] username_digest = newDigest().digest(Util.trim(username.getBytes()));
+		username_digest = Util.trim(username_digest);
+		//String username_digest_string = new BigInteger(1, username_digest).toString(16);
+		clientHash.update(username_digest);
+		
+		// clientHash = H(N) xor H(g) | H(U) | s
+		//String salt_string = new BigInteger(1, salt_bytes).toString(16);
+		clientHash.update(Util.trim(salt_bytes));
+		
+		K = null;
+		
+		// clientHash = H(N) xor H(g) | H(U) | s | A | B
+
+		byte[] Abytes = Util.trim(A.toByteArray());
+		//String Abytes_string = new BigInteger(1, Abytes).toString(16);
+
+		// clientHash = H(N) xor H(g) | H(U) | A
+		clientHash.update(Abytes);
+		
 		// clientHash = H(N) xor H(g) | H(U) | s | A | B
 		Bbytes = Util.trim(Bbytes);
 		//String Bbytes_string = new BigInteger(1, Bbytes).toString(16);
@@ -239,6 +246,7 @@ public class LeapSRPSession {
 		byte[] M1 = Util.trim(clientHash.digest());
 		
 		// serverHash = Astr + M + K
+		serverHash.update(Abytes);
 		serverHash.update(M1);
 		serverHash.update(K);
 		return M1;

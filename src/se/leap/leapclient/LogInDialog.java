@@ -51,10 +51,10 @@ public class LogInDialog extends DialogFragment {
 					String password = password_field.getText().toString().trim();
 					if(validPassword(password)) {
 						interface_with_Dashboard.authenticate(username, password);
-						Toast.makeText(getActivity().getApplicationContext(), "It seems your URL is well formed", Toast.LENGTH_LONG).show();
+						Toast.makeText(getActivity().getApplicationContext(), "Your password is valid", Toast.LENGTH_LONG).show();
 					} else {
 						password_field.setText("");
-						Toast.makeText(getActivity().getApplicationContext(), "It seems your URL is not well formed", Toast.LENGTH_LONG).show();
+						Toast.makeText(getActivity().getApplicationContext(), "Your password is not valid: it should have at least 8 characters", Toast.LENGTH_LONG).show();
 					}
 				}
 			})

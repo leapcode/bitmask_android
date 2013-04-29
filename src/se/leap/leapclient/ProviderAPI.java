@@ -131,14 +131,14 @@ public class ProviderAPI extends IntentService {
 		try {
 			JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
 			if(saltAndB.length() > 0) {
-				byte[] B = saltAndB.getString("B").getBytes();
-				salt = saltAndB.getString("salt");
+				/*byte[] B = saltAndB.getString("B").getBytes();
 				params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
 				client = new LeapSRPSession(username, password, params);
 				A = client.exponential();
-				saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
+				saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));*/
+				salt = saltAndB.getString("salt");
 				byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
-				byte[] M1 = client.response(Bbytes);
+				byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
 				byte[] M2 = sendM1ToSRPServer(authentication_server, username, M1);
 				if( client.verify(M2) == false )
 					//throw new SecurityException("Failed to validate server reply: M2 = " + new BigInteger(1, M2).toString(16));
