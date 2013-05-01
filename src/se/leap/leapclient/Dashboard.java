@@ -170,7 +170,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		JSONObject provider_json;
 		try {
 			provider_json = new JSONObject(preferences.getString(ConfigHelper.provider_key, ""));
-			method_and_parameters.putString(ConfigHelper.api_url_key, provider_json.getString(ConfigHelper.api_url_key));
+			method_and_parameters.putString(ConfigHelper.api_url_key, provider_json.getString(ConfigHelper.api_url_key) + "/" + provider_json.getString(ConfigHelper.api_version_key));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

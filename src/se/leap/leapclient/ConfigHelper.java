@@ -37,6 +37,7 @@ public class ConfigHelper {
 	final public static String srpAuth = "srpAuth";
 	public static String logIn = "logIn";
 	public static String logOut = "logOut";
+	public static String api_version_key = "api_version";
 	final public static String resultKey = "result";
 	final static String provider_key = "provider";
 	final static String cert_key = "cert";
