@@ -93,7 +93,7 @@ public class ProviderAPI extends IntentService {
 		boolean danger_on = task.getBoolean(ConfigHelper.danger_on);
 		try {
 			String cert_string = getStringFromProvider(cert_url, danger_on);
-			ConfigHelper.addTrustedCertificate(provider_name, cert_string);
+			//ConfigHelper.addTrustedCertificate(provider_name, cert_string);
 			JSONObject cert_json = new JSONObject("{ \"certificate\" : \"" + cert_string + "\"}");
 			ConfigHelper.saveSharedPref(ConfigHelper.cert_key, cert_json);
 			JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url, danger_on);
@@ -177,9 +177,11 @@ public class ProviderAPI extends IntentService {
 		if(!json_response.isNull("errors") || json_response.has("errors")) {
 			return new JSONObject();
 		}
+		
+		String session_id = "";
 		List<Cookie> cookies = client.getCookieStore().getCookies();
 		if(!cookies.isEmpty()) {
-			String session_id = cookies.get(0).getValue();
+			session_id = cookies.get(0).getValue();
 		}
 		return json_response;
 	}
@@ -190,6 +192,8 @@ public class ProviderAPI extends IntentService {
 		HttpPut put = new HttpPut(server_url + "/sessions/" + username +".json" + "?" + parameter_chain);
 		HttpContext localContext = new BasicHttpContext();
 		localContext.setAttribute(ClientContext.COOKIE_STORE, client.getCookieStore());
+		String session_id = client.getCookieStore().getCookies().get(0).getValue();
+		int number_of_cookies = client.getCookieStore().getCookies().size();
 		
 		HttpResponse getResponse = client.execute(put, localContext);
 		HttpEntity responseEntity = getResponse.getEntity();

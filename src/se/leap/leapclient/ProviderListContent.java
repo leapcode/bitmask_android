@@ -88,7 +88,7 @@ public class ProviderListContent {
 				id = name;
 				this.name = name;
 				this.provider_json_url = provider_json_url;
-				eip_service_json_url = (String) file_contents.get("api_uri") + ConfigHelper.eip_service_api_path;
+				eip_service_json_url = file_contents.getString("api_uri") + "/" + file_contents.getString("api_version") + "/" + ConfigHelper.eip_service_api_path;
 				cert_json_url = (String) file_contents.get("ca_cert_uri");
 				this.custom = custom;
 				this.danger_on = danger_on;

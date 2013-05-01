@@ -51,8 +51,13 @@ public class LeapHttpClient extends DefaultHttpClient {
 	  }
 	  
 	  public static LeapHttpClient getInstance(Context context) {
-		  if(client == null)
+		  if(client == null) {
 			  client = new LeapHttpClient(context);
+			  String cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.cert_key);
+			  if(!cert_string.isEmpty()) {
+				ConfigHelper.addTrustedCertificate("recovered_certificate", cert_string);
+			  }
+		  }
 		  return client;
 	  }
 }

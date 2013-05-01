@@ -43,7 +43,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		setContentView(R.layout.client_dashboard);
 
 		preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
-
+		if(ConfigHelper.shared_preferences == null)
+			ConfigHelper.setSharedPreferences(preferences);
+		
 		// Check if we have preferences, run configuration wizard if not
 		// TODO We should do a better check for config that this!
 		if (!preferences.contains("provider") )
