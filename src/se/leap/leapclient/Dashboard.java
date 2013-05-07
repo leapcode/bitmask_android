@@ -199,7 +199,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if(resultCode == ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL){
 			setResult(RESULT_OK);
 			Toast.makeText(getApplicationContext(), "Authentication succeeded", Toast.LENGTH_LONG).show();
-			//TODO What should we do know?
+			//TODO Download certificate requesting /1/cert with session_id cookie
+			
 		}
 		else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
         	setResult(RESULT_CANCELED);
