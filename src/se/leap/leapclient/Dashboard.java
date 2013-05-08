@@ -1,5 +1,7 @@
 package se.leap.leapclient;
 
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -194,17 +196,44 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    newFragment.show(fragment_transaction, ConfigHelper.logInDialog);
 	}
 
+	private void downloadAuthedUserCertificate(Cookie session_id) {
+		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+		providerAPI_result_receiver.setReceiver(this);
+		
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+		Bundle method_and_parameters = new Bundle();
+		method_and_parameters.putString(ConfigHelper.session_id_cookie_key, session_id.getName());
+		method_and_parameters.putString(ConfigHelper.session_id_key, session_id.getValue());
+
+		provider_API_command.putExtra(ConfigHelper.downloadUserAuthedCertificate, method_and_parameters);
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		
+		startService(provider_API_command);
+	}
+
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 		if(resultCode == ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL){
+			String session_id_cookie_key = resultData.getString(ConfigHelper.session_id_cookie_key);
+			String session_id_string = resultData.getString(ConfigHelper.session_id_key);
 			setResult(RESULT_OK);
 			Toast.makeText(getApplicationContext(), "Authentication succeeded", Toast.LENGTH_LONG).show();
 			//TODO Download certificate requesting /1/cert with session_id cookie
-			
+			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
+			downloadAuthedUserCertificate(session_id);
 		}
 		else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
         	setResult(RESULT_CANCELED);
 			Toast.makeText(getApplicationContext(), "Authentication failed", Toast.LENGTH_LONG).show();
+		}
+		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE) {
+        	setResult(RESULT_CANCELED);
+			Toast.makeText(getApplicationContext(), "Your own cert has been correctly downloaded", Toast.LENGTH_LONG).show();
+		}
+		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE) {
+        	setResult(RESULT_CANCELED);
+			Toast.makeText(getApplicationContext(), "Your own cert has incorrectly been downloaded", Toast.LENGTH_LONG).show();
 		}
 	}
 

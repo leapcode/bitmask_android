@@ -37,11 +37,15 @@ public class ConfigHelper {
 	final public static String srpAuth = "srpAuth";
 	public static String logIn = "logIn";
 	public static String logOut = "logOut";
+	public static String downloadUserAuthedCertificate = "downloadUserAuthedCertificate";
 	public static String api_version_key = "api_version";
 	final public static String resultKey = "result";
 	final static String provider_key = "provider";
+	final static String main_cert_key = "main_cert";
 	final static String cert_key = "cert";
 	final static String eip_service_key = "eip";
+	final static String session_id_cookie_key = "session_id_cookie_key";
+	final static String session_id_key = "session_id";
 	public static final String PREFERENCES_KEY = "LEAPPreferences";
 	public static final String user_directory = "leap_android";
 	final public static String provider_main_url = "provider_main_url";
@@ -64,17 +68,23 @@ public class ConfigHelper {
 	final public static int SRP_REGISTRATION_FAILED = 6;
 	final public static int LOGOUT_SUCCESSFUL = 7;
 	final public static int LOGOUT_FAILED = 8;
+	final public static int CORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE = 9;
+	final public static int INCORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE = 10;
 
 	static String getStringFromSharedPref(String shared_preferences_key) {
 		String value = "";
-		String content = shared_preferences.getString(shared_preferences_key, "");
-		try {
-			JSONObject json_object = new JSONObject(content);
-			JSONArray names = json_object.names();
-			String key = names.getString(0);
-			value = json_object.getString(key);
-		} catch (JSONException e) {
-			value = content;
+		//TODO This is not OK -> when reading provider.json it only shows "open"
+		if(shared_preferences != null) {
+			String content = shared_preferences.getString(shared_preferences_key, "");
+			try {
+				JSONObject json_object = new JSONObject(content);
+				value = json_object.toString();
+				/*JSONArray names = json_object.names();
+				String key = names.getString(0);
+				value = json_object.getString(key);*/
+			} catch (JSONException e) {
+				value = content;
+			}
 		}
 		return value;
 	}
@@ -184,6 +194,7 @@ public class ConfigHelper {
 				// Initialize the keystore with the provided trusted certificates
 				// Also provide the password of the keystore
 				if(leap_keystore != null) {
+					InputStream android_default_keystore;
 					//keystore_trusted.load(leap_keystore, "uer92jf".toCharArray());
 					keystore_trusted.load(null, null);
 				} else {

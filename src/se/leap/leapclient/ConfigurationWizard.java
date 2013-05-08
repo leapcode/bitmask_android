@@ -150,6 +150,12 @@ public class ConfigurationWizard extends Activity
 			ConfigHelper.rescueJSONException(e);
 		}
 		ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
+		try {
+			ConfigHelper.saveSharedPref(ConfigHelper.danger_on, new JSONObject().put(ConfigHelper.danger_on, current_provider_item.danger_on));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void downloadJSONFiles(ProviderItem current_provider_item) throws IOException {
@@ -161,7 +167,7 @@ public class ConfigurationWizard extends Activity
 		Bundle method_and_parameters = new Bundle();
 		
 		method_and_parameters.putString(ConfigHelper.provider_key, current_provider_item.name);
-		method_and_parameters.putString(ConfigHelper.cert_key, current_provider_item.cert_json_url);
+		method_and_parameters.putString(ConfigHelper.main_cert_key, current_provider_item.cert_json_url);
 		method_and_parameters.putString(ConfigHelper.eip_service_key, current_provider_item.eip_service_json_url);
 		method_and_parameters.putBoolean(ConfigHelper.danger_on, current_provider_item.danger_on);
 		
