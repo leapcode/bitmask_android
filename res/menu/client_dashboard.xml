@@ -7,6 +7,7 @@
         android:title="@string/menu_settings"/>
     <item android:id="@+id/about_leap" android:title="@string/about" android:orderInCategory="110" />
     <item android:id="@+id/legacy_interface" android:title="ICS OpenVPN Interface" android:orderInCategory="500" />
-    <item android:id="@+id/login_button" android:title="@string/login_button" android:visible="true"></item>
+    <item android:id="@+id/login_button" android:title="@string/login_button" android:visible="false"></item>
+    <item android:id="@+id/logout_button" android:title="@string/logout_button" android:visible="false"></item>
 
 </menu>

@@ -15,7 +15,6 @@ import java.util.List;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -30,16 +29,12 @@ import javax.net.ssl.TrustManagerFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.jboss.security.Util;
@@ -73,6 +68,24 @@ public class ProviderAPI extends IntentService {
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			else
 				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+		}
+		else if ((task = task_for.getBundleExtra(ConfigHelper.updateProviderDotJSON)) != null) {
+			JSONObject result = updateProviderDotJSON(task);
+			boolean successful;
+			try {
+				successful = result.getBoolean(ConfigHelper.resultKey);
+				if(successful) {
+					Bundle provider_dot_json_and_danger_on = new Bundle();
+					provider_dot_json_and_danger_on.putBoolean(ConfigHelper.danger_on, result.getBoolean(ConfigHelper.danger_on));
+					provider_dot_json_and_danger_on.putString(ConfigHelper.provider_key, result.getJSONObject(ConfigHelper.provider_key).toString());
+					receiver.send(ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON, provider_dot_json_and_danger_on);
+				} else {
+					receiver.send(ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON, Bundle.EMPTY);
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		else if ((task = task_for.getBundleExtra(ConfigHelper.downloadNewProviderDotJSON)) != null) {
 			if(downloadNewProviderDotJSON(task))
@@ -172,6 +185,9 @@ public class ProviderAPI extends IntentService {
 					successfulAndsession_id.put(ConfigHelper.session_id_cookie_key, session_idAndM2.getString(ConfigHelper.session_id_cookie_key));
 					return successfulAndsession_id;
 				}
+			} else {
+				successfulAndsession_id.put(ConfigHelper.resultKey, false);
+				return successfulAndsession_id;
 			}
 		} catch (ClientProtocolException e1) {
 			// TODO Auto-generated catch block
@@ -236,6 +252,50 @@ public class ProviderAPI extends IntentService {
 		return session_idAndM2;
 	}
 
+	private JSONObject updateProviderDotJSON(Bundle task) {
+		JSONObject result = new JSONObject();
+		boolean custom = task.getBoolean(ConfigHelper.custom);
+		boolean danger_on = task.getBoolean(ConfigHelper.danger_on);
+		String provider_json_url = task.getString(ConfigHelper.provider_json_url);
+		String provider_name = task.getString(ConfigHelper.provider_name);
+		
+		JSONObject provider_json = null;
+		try {
+			provider_json = getJSONFromProvider(provider_json_url, danger_on);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			try {
+				return result.put(ConfigHelper.resultKey, false);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		
+		if(provider_json == null) {
+			try {
+				return result.put(ConfigHelper.resultKey, false);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			String filename = provider_name + "_provider.json".replaceFirst("__", "_");
+			ConfigHelper.saveFile(filename, provider_json.toString());
+			//ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
+
+			ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, filename, custom, danger_on));
+			try {
+				return result.put(ConfigHelper.resultKey, true).put(ConfigHelper.provider_key, provider_json).put(ConfigHelper.danger_on, danger_on);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return result;
+	}
+
 	private boolean downloadNewProviderDotJSON(Bundle task) {
 		boolean custom = true;
 		boolean danger_on = task.getBoolean(ConfigHelper.danger_on);
@@ -259,7 +319,7 @@ public class ProviderAPI extends IntentService {
 			ConfigHelper.saveFile(filename, provider_json.toString());
 			//ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
 
-			ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, ConfigHelper.openFileInputStream(filename), custom, danger_on));
+			ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, filename, custom, danger_on));
 			return true;
 		}
 	}
@@ -290,10 +350,6 @@ public class ProviderAPI extends IntentService {
 			//e.printStackTrace();
 		}
 		return json_string;
-	}
-
-	private String guessURL(String provider_main_url) {
-		return provider_main_url + "/provider.json";
 	}
 	
 	private String getStringFromProvider(String string_url, boolean danger_on) {
@@ -388,23 +444,33 @@ public class ProviderAPI extends IntentService {
 		String json_file_content = getStringFromProvider(json_url, danger_on);
 		return new JSONObject(json_file_content);
 	}
+
+	private String guessURL(String provider_main_url) {
+		return provider_main_url + "/provider.json";
+	}
 	
 	private boolean logOut(Bundle task) {
 		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
 		int session_id_index = 0;
 		//String delete_url = task.getString(ConfigHelper.srp_server_url_key) + "/sessions/" + client.getCookieStore().getCookies().get(0).getValue();
-		String delete_url = task.getString(ConfigHelper.api_url_key) + "/logout" + "?authenticity_token=" + client.getCookieStore().getCookies().get(session_id_index).getValue();
-		HttpDelete delete = new HttpDelete(delete_url);
 		try {
+			String delete_url = task.getString(ConfigHelper.api_url_key) + "/logout" + "?authenticity_token=" + client.getCookieStore().getCookies().get(session_id_index).getValue();
+			HttpDelete delete = new HttpDelete(delete_url);
 			HttpResponse getResponse = client.execute(delete);
 			HttpEntity responseEntity = getResponse.getEntity();
 			responseEntity.consumeContent();
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
+		} catch (IndexOutOfBoundsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
 		return true;
 	}

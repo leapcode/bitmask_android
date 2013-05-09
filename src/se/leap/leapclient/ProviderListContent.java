@@ -78,8 +78,10 @@ public class ProviderListContent {
 			}
         }
 
-        public ProviderItem(String name, String provider_json_url, FileInputStream provider_json, boolean custom, boolean danger_on) {
+        public ProviderItem(String name, String provider_json_url, String provider_json_filename, boolean custom, boolean danger_on) {
         	
+        	
+        	FileInputStream provider_json = ConfigHelper.openFileInputStream(provider_json_filename);
         	try {
         		byte[] urls_file_bytes = new byte[provider_json.available()];
         		provider_json.read(urls_file_bytes);
@@ -88,6 +90,7 @@ public class ProviderListContent {
 				id = name;
 				this.name = name;
 				this.provider_json_url = provider_json_url;
+				this.provider_json_filename = provider_json_filename;
 				eip_service_json_url = file_contents.getString("api_uri") + "/" + file_contents.getString("api_version") + "/" + ConfigHelper.eip_service_api_path;
 				cert_json_url = (String) file_contents.get("ca_cert_uri");
 				this.custom = custom;

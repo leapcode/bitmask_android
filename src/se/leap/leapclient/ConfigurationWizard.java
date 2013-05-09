@@ -3,6 +3,7 @@ package se.leap.leapclient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Scanner;
 
@@ -133,29 +134,27 @@ public class ConfigurationWizard extends Activity
         }
     }
 
-	private void saveProviderJson(ProviderItem current_provider_item) {
-		AssetManager assets_manager = getAssets();
-		JSONObject provider_json = new JSONObject();
-		try {
-			String provider_contents = "";
-			if(!current_provider_item.custom)
-				provider_contents = new Scanner(new InputStreamReader(assets_manager.open(current_provider_item.provider_json_filename))).useDelimiter("\\A").next();
-			else
-				provider_contents = new Scanner(ConfigHelper.openFileInputStream(current_provider_item.provider_json_filename)).useDelimiter("\\A").next();
-			provider_json = new JSONObject(provider_contents);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
-			ConfigHelper.rescueJSONException(e);
-		}
-		ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
-		try {
-			ConfigHelper.saveSharedPref(ConfigHelper.danger_on, new JSONObject().put(ConfigHelper.danger_on, current_provider_item.danger_on));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    private void saveProviderJson(ProviderItem current_provider_item) {
+    	JSONObject provider_json = new JSONObject();
+    	try {
+    		String provider_contents = "";
+    		if(!current_provider_item.custom) {
+    			//provider_contents = new Scanner(new InputStreamReader(assets_manager.open(current_provider_item.provider_json_filename))).useDelimiter("\\A").next();
+    			updateProviderDotJson(current_provider_item.name, current_provider_item.provider_json_url, current_provider_item.danger_on);
+    		} else {
+    			provider_contents = new Scanner(ConfigHelper.openFileInputStream(current_provider_item.provider_json_filename)).useDelimiter("\\A").next();
+    			provider_json = new JSONObject(provider_contents);
+    	    	ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
+    	    	try {
+    	    		ConfigHelper.saveSharedPref(ConfigHelper.danger_on, new JSONObject().put(ConfigHelper.danger_on, current_provider_item.danger_on));
+    	    	} catch (JSONException e) {
+    	    		// TODO Auto-generated catch block
+    	    		e.printStackTrace();
+    	    	}
+    		}
+    	} catch (JSONException e) {
+    		ConfigHelper.rescueJSONException(e);
+    	}
 	}
 
 	private void downloadJSONFiles(ProviderItem current_provider_item) throws IOException {
@@ -205,6 +204,23 @@ public class ConfigurationWizard extends Activity
 		
 		startService(provider_API_command);
 	}
+	
+	public void updateProviderDotJson(String provider_name, String provider_json_url, boolean danger_on) {
+		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+		providerAPI_result_receiver.setReceiver(this);
+		
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+		Bundle method_and_parameters = new Bundle();
+		method_and_parameters.putString(ConfigHelper.provider_name, provider_name);
+		method_and_parameters.putString(ConfigHelper.provider_json_url, provider_json_url);
+		method_and_parameters.putBoolean(ConfigHelper.danger_on, danger_on);
+
+		provider_API_command.putExtra(ConfigHelper.updateProviderDotJSON, method_and_parameters);
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		
+		startService(provider_API_command);
+	}
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
@@ -224,5 +240,21 @@ public class ConfigurationWizard extends Activity
         	setResult(RESULT_CANCELED);
 			Toast.makeText(getApplicationContext(), "You have not entered a LEAP provider URL", Toast.LENGTH_LONG).show();
 		}
+		else if(resultCode == ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+			JSONObject provider_json;
+			try {
+				provider_json = new JSONObject(resultData.getString(ConfigHelper.provider_key));
+				boolean danger_on = resultData.getBoolean(ConfigHelper.danger_on);
+				ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
+				ConfigHelper.saveSharedPref(ConfigHelper.danger_on, new JSONObject().put(ConfigHelper.danger_on, danger_on));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+			Toast.makeText(getApplicationContext(), "Install a new version of this app.", Toast.LENGTH_LONG).show();
+		}
+		
 	}
 }

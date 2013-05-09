@@ -11,7 +11,6 @@ import se.leap.openvpn.MainActivity;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -116,6 +115,25 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		String provider_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.provider_key);
+		try {
+			JSONObject provider_json = new JSONObject(provider_json_string);
+			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.service_key);
+			if(service_description.getBoolean(ConfigHelper.allow_registration_key)) {
+				menu.findItem(R.id.login_button).setVisible(true);
+				menu.findItem(R.id.logout_button).setVisible(true);
+				return true;
+			}
+		} catch (JSONException e) {
+			menu.findItem(R.id.login_button).setVisible(false);
+			menu.findItem(R.id.logout_button).setVisible(false);
+			return false;
+		}
+		return false;
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.client_dashboard, menu);
@@ -146,6 +164,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		case R.id.login_button:
 			View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
 			logInDialog(view);
+			return true;
+		case R.id.logout_button:
+			logOut();
 			return true;
 		default:
 				return super.onOptionsItemSelected(item);
@@ -179,6 +200,28 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		}
 
 		provider_API_command.putExtra(ConfigHelper.srpAuth, method_and_parameters);
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		
+		startService(provider_API_command);
+	}
+	
+	public void logOut() {
+		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+		providerAPI_result_receiver.setReceiver(this);
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+		Bundle method_and_parameters = new Bundle();
+
+		JSONObject provider_json;
+		try {
+			provider_json = new JSONObject(preferences.getString(ConfigHelper.provider_key, ""));
+			method_and_parameters.putString(ConfigHelper.api_url_key, provider_json.getString(ConfigHelper.api_url_key) + "/" + provider_json.getString(ConfigHelper.api_version_key));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		provider_API_command.putExtra(ConfigHelper.logOut, method_and_parameters);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 		
 		startService(provider_API_command);
@@ -219,19 +262,22 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_string = resultData.getString(ConfigHelper.session_id_key);
 			setResult(RESULT_OK);
 			Toast.makeText(getApplicationContext(), "Authentication succeeded", Toast.LENGTH_LONG).show();
-			//TODO Download certificate requesting /1/cert with session_id cookie
+
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
-		}
-		else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
+		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
         	setResult(RESULT_CANCELED);
 			Toast.makeText(getApplicationContext(), "Authentication failed", Toast.LENGTH_LONG).show();
-		}
-		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE) {
+		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
+			setResult(RESULT_OK);
+			Toast.makeText(getApplicationContext(), "Logged out", Toast.LENGTH_LONG).show();
+		} else if(resultCode == ConfigHelper.LOGOUT_FAILED) {
+			setResult(RESULT_CANCELED);
+			Toast.makeText(getApplicationContext(), "Didn't logged out", Toast.LENGTH_LONG).show();
+		} else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
 			Toast.makeText(getApplicationContext(), "Your own cert has been correctly downloaded", Toast.LENGTH_LONG).show();
-		}
-		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE) {
+		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
 			Toast.makeText(getApplicationContext(), "Your own cert has incorrectly been downloaded", Toast.LENGTH_LONG).show();
 		}

@@ -16,7 +16,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,6 +29,7 @@ public class ConfigHelper {
     private static KeyStore keystore_trusted;
 
 	final static String downloadJsonFilesBundleExtra = "downloadJSONFiles";
+	final static String updateProviderDotJSON = "updateProviderDotJSON";
 	final static String downloadNewProviderDotJSON = "downloadNewProviderDotJSON";
 	final public static String logInDialog = "logInDialog";
 	final public static String newProviderDialog = "logInDialog";
@@ -41,6 +41,7 @@ public class ConfigHelper {
 	public static String api_version_key = "api_version";
 	final public static String resultKey = "result";
 	final static String provider_key = "provider";
+	final static String service_key = "service";
 	final static String main_cert_key = "main_cert";
 	final static String cert_key = "cert";
 	final static String eip_service_key = "eip";
@@ -48,11 +49,15 @@ public class ConfigHelper {
 	final static String session_id_key = "session_id";
 	public static final String PREFERENCES_KEY = "LEAPPreferences";
 	public static final String user_directory = "leap_android";
+	final public static String provider_name = "provider_name";
 	final public static String provider_main_url = "provider_main_url";
+	final public static String provider_json_url = "provider_json_url";
+	final public static String custom = "custom";
 	final public static String danger_on = "danger_on";
 	final public static String api_url_key = "api_uri";
 	final public static String username_key = "username";
 	final public static String password_key = "password";
+	final public static String allow_registration_key = "allow_registration";
 	final public static String eip_service_api_path = "config/eip-service.json";
 	
 	final public static String NG_1024 =
@@ -70,6 +75,8 @@ public class ConfigHelper {
 	final public static int LOGOUT_FAILED = 8;
 	final public static int CORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE = 9;
 	final public static int INCORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE = 10;
+	final public static int CORRECTLY_UPDATED_PROVIDER_DOT_JSON = 11;
+	final public static int INCORRECTLY_UPDATED_PROVIDER_DOT_JSON = 12;
 
 	static String getStringFromSharedPref(String shared_preferences_key) {
 		String value = "";
@@ -194,7 +201,6 @@ public class ConfigHelper {
 				// Initialize the keystore with the provided trusted certificates
 				// Also provide the password of the keystore
 				if(leap_keystore != null) {
-					InputStream android_default_keystore;
 					//keystore_trusted.load(leap_keystore, "uer92jf".toCharArray());
 					keystore_trusted.load(null, null);
 				} else {
@@ -221,7 +227,9 @@ public class ConfigHelper {
 
 	public static int getSrpAuthenticationFailed() {
 		return SRP_AUTHENTICATION_FAILED;
-	}static String extractProviderName(String provider_main_url) {
+	}
+	
+	static String extractProviderName(String provider_main_url) {
 		
 		return null;
 	}
