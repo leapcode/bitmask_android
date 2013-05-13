@@ -6,6 +6,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
+import se.leap.leapclient.R;
+import se.leap.leapclient.R.id;
+import se.leap.leapclient.R.layout;
+import se.leap.leapclient.R.menu;
 import se.leap.openvpn.AboutFragment;
 import se.leap.openvpn.MainActivity;
 import android.app.Activity;
@@ -116,11 +120,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		String provider_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.provider_key);
+		String provider_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY);
 		try {
 			JSONObject provider_json = new JSONObject(provider_json_string);
-			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.service_key);
-			if(service_description.getBoolean(ConfigHelper.allow_registration_key)) {
+			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
+			if(service_description.getBoolean(ConfigHelper.ALLOW_REGISTRATION_KEY)) {
 				menu.findItem(R.id.login_button).setVisible(true);
 				menu.findItem(R.id.logout_button).setVisible(true);
 				return true;
@@ -187,19 +191,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString(ConfigHelper.username_key, username);
-		method_and_parameters.putString(ConfigHelper.password_key, password);
+		method_and_parameters.putString(ConfigHelper.USERNAME_KEY, username);
+		method_and_parameters.putString(ConfigHelper.PASSWORD_KEY, password);
 
 		JSONObject provider_json;
 		try {
-			provider_json = new JSONObject(preferences.getString(ConfigHelper.provider_key, ""));
-			method_and_parameters.putString(ConfigHelper.api_url_key, provider_json.getString(ConfigHelper.api_url_key) + "/" + provider_json.getString(ConfigHelper.api_version_key));
+			provider_json = new JSONObject(preferences.getString(ConfigHelper.PROVIDER_KEY, ""));
+			method_and_parameters.putString(ConfigHelper.API_URL_KEY, provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		provider_API_command.putExtra(ConfigHelper.srpAuth, method_and_parameters);
+		provider_API_command.putExtra(ConfigHelper.SRP_AUTH, method_and_parameters);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 		
 		startService(provider_API_command);
@@ -214,14 +218,14 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		JSONObject provider_json;
 		try {
-			provider_json = new JSONObject(preferences.getString(ConfigHelper.provider_key, ""));
-			method_and_parameters.putString(ConfigHelper.api_url_key, provider_json.getString(ConfigHelper.api_url_key) + "/" + provider_json.getString(ConfigHelper.api_version_key));
+			provider_json = new JSONObject(preferences.getString(ConfigHelper.PROVIDER_KEY, ""));
+			method_and_parameters.putString(ConfigHelper.API_URL_KEY, provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		provider_API_command.putExtra(ConfigHelper.logOut, method_and_parameters);
+		provider_API_command.putExtra(ConfigHelper.LOG_OUT, method_and_parameters);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 		
 		startService(provider_API_command);
@@ -229,14 +233,14 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	
 	public void logInDialog(View view) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.logInDialog);
+	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.LOG_IN_DIALOG);
 	    if (previous_log_in_dialog != null) {
 	        fragment_transaction.remove(previous_log_in_dialog);
 	    }
 	    fragment_transaction.addToBackStack(null);
 
 	    DialogFragment newFragment = LogInDialog.newInstance();
-	    newFragment.show(fragment_transaction, ConfigHelper.logInDialog);
+	    newFragment.show(fragment_transaction, ConfigHelper.LOG_IN_DIALOG);
 	}
 
 	private void downloadAuthedUserCertificate(Cookie session_id) {
@@ -246,10 +250,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString(ConfigHelper.session_id_cookie_key, session_id.getName());
-		method_and_parameters.putString(ConfigHelper.session_id_key, session_id.getValue());
+		method_and_parameters.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id.getName());
+		method_and_parameters.putString(ConfigHelper.SESSION_ID_KEY, session_id.getValue());
 
-		provider_API_command.putExtra(ConfigHelper.downloadUserAuthedCertificate, method_and_parameters);
+		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_USER_AUTHED_CERTIFICATE, method_and_parameters);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 		
 		startService(provider_API_command);
@@ -258,8 +262,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 		if(resultCode == ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL){
-			String session_id_cookie_key = resultData.getString(ConfigHelper.session_id_cookie_key);
-			String session_id_string = resultData.getString(ConfigHelper.session_id_key);
+			String session_id_cookie_key = resultData.getString(ConfigHelper.SESSION_ID_COOKIE_KEY);
+			String session_id_string = resultData.getString(ConfigHelper.SESSION_ID_KEY);
 			setResult(RESULT_OK);
 			Toast.makeText(getApplicationContext(), "Authentication succeeded", Toast.LENGTH_LONG).show();
 

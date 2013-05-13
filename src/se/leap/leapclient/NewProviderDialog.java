@@ -1,5 +1,9 @@
 package se.leap.leapclient;
 
+import se.leap.leapclient.R;
+import se.leap.leapclient.R.id;
+import se.leap.leapclient.R.layout;
+import se.leap.leapclient.R.string;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -28,12 +32,9 @@ public class NewProviderDialog extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        // Verify that the host activity implements the callback interface
         try {
-            // Instantiate the NoticeDialogListener so we can send events to the host
         	interface_with_ConfigurationWizard = (NewProviderDialogInterface) activity;
         } catch (ClassCastException e) {
-            // The activity doesn't implement the interface, throw exception
             throw new ClassCastException(activity.toString()
                     + " must implement NoticeDialogListener");
         }

@@ -18,7 +18,7 @@ import android.content.SharedPreferences;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  *
  */
-final class Provider implements Serializable {
+public final class Provider implements Serializable {
 
 	private static final long serialVersionUID = 6003835972151761353L;
 	

@@ -1,9 +1,6 @@
 package se.leap.leapclient;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.Scanner;
 
@@ -12,6 +9,9 @@ import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
+import se.leap.leapclient.R;
+import se.leap.leapclient.R.id;
+import se.leap.leapclient.R.layout;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -24,23 +24,6 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
 
-
-/**
- * An activity representing a list of Providers. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link DashboardActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- * <p>
- * The activity makes heavy use of fragments. The list of items is a
- * {@link ProviderListFragment} and the item details
- * (if present) is a {@link DashboardFragment}.
- * <p>
- * This activity also implements the required
- * {@link ProviderListFragment.Callbacks} interface
- * to listen for item selections.
- */
 public class ConfigurationWizard extends Activity
         implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, Receiver {
 
@@ -63,11 +46,6 @@ public class ConfigurationWizard extends Activity
         
         loadPreseededProviders();
         
-        if(ConfigHelper.getKeystore() == null) {
-        	InputStream keystore_input_stream = getResources().openRawResource(R.raw.leapkeystore);
-        	ConfigHelper.getNewKeystore(keystore_input_stream);
-        }
-        
         // Only create our fragments if we're not restoring a saved instance
         if ( savedInstanceState == null ){
         	// TODO Some welcome screen?
@@ -82,145 +60,6 @@ public class ConfigurationWizard extends Activity
 
         // TODO: If exposing deep links into your app, handle intents here.
     }
-
-    private void loadPreseededProviders() {
-        AssetManager asset_manager = getAssets();
-        String[] urls_filepaths = null;
-		try {
-			String url_files_folder = "urls";
-			//TODO Put that folder in a better place (also inside the "for")
-			urls_filepaths = asset_manager.list(url_files_folder); 
-			String provider_name = "";
-	        for(String url_filepath : urls_filepaths)
-	        {
-	        	boolean custom = false;
-	        	provider_name = url_filepath.subSequence(0, url_filepath.indexOf(".")).toString();
-	        	if(ProviderListContent.ITEMS.isEmpty()) //TODO I have to implement a way of checking if a provider new or is already present in that ITEMS list
-	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath), custom, true)); // By default, it trusts the provider
-	        }
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-	}
-
-	/**
-     * Callback method from {@link ProviderListFragment.Callbacks}
-     * indicating that the item with the given ID was selected.
-     */
-    @Override
-    public void onItemSelected(String id) {
-        if (mTwoPane) {
-            // TODO Hmmm...is this how we should do this?  What if it /is/ two pane?
-        } else {
-            // In single-pane mode, simply start the detail activity
-            // for the selected item ID.
-            
-        	Iterator<ProviderItem> preseeded_providers_iterator = ProviderListContent.ITEMS.iterator();
-        	while(preseeded_providers_iterator.hasNext())
-        	{
-        		ProviderItem current_provider_item = preseeded_providers_iterator.next();
-        		if(current_provider_item.id.equalsIgnoreCase(id))
-        		{
-        			try {
-        				saveProviderJson(current_provider_item);
-        				downloadJSONFiles(current_provider_item);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-        		}
-        	}
-        }
-    }
-
-    private void saveProviderJson(ProviderItem current_provider_item) {
-    	JSONObject provider_json = new JSONObject();
-    	try {
-    		String provider_contents = "";
-    		if(!current_provider_item.custom) {
-    			//provider_contents = new Scanner(new InputStreamReader(assets_manager.open(current_provider_item.provider_json_filename))).useDelimiter("\\A").next();
-    			updateProviderDotJson(current_provider_item.name, current_provider_item.provider_json_url, current_provider_item.danger_on);
-    		} else {
-    			provider_contents = new Scanner(ConfigHelper.openFileInputStream(current_provider_item.provider_json_filename)).useDelimiter("\\A").next();
-    			provider_json = new JSONObject(provider_contents);
-    	    	ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
-    	    	try {
-    	    		ConfigHelper.saveSharedPref(ConfigHelper.danger_on, new JSONObject().put(ConfigHelper.danger_on, current_provider_item.danger_on));
-    	    	} catch (JSONException e) {
-    	    		// TODO Auto-generated catch block
-    	    		e.printStackTrace();
-    	    	}
-    		}
-    	} catch (JSONException e) {
-    		ConfigHelper.rescueJSONException(e);
-    	}
-	}
-
-	private void downloadJSONFiles(ProviderItem current_provider_item) throws IOException {
-		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-		providerAPI_result_receiver.setReceiver(this);
-		
-		Intent provider_API_command = new Intent(this, ProviderAPI.class);
-		
-		Bundle method_and_parameters = new Bundle();
-		
-		method_and_parameters.putString(ConfigHelper.provider_key, current_provider_item.name);
-		method_and_parameters.putString(ConfigHelper.main_cert_key, current_provider_item.cert_json_url);
-		method_and_parameters.putString(ConfigHelper.eip_service_key, current_provider_item.eip_service_json_url);
-		method_and_parameters.putBoolean(ConfigHelper.danger_on, current_provider_item.danger_on);
-		
-		provider_API_command.putExtra(ConfigHelper.downloadJsonFilesBundleExtra, method_and_parameters);
-		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
-
-		startService(provider_API_command);
-	}
-	
-	public void addNewProvider(View view) {
-		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-	    Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.newProviderDialog);
-	    if (previous_new_provider_dialog != null) {
-	        fragment_transaction.remove(previous_new_provider_dialog);
-	    }
-	    fragment_transaction.addToBackStack(null);
-
-	    DialogFragment newFragment = NewProviderDialog.newInstance();
-	    newFragment.show(fragment_transaction, ConfigHelper.newProviderDialog);
-	}
-
-	@Override
-	public void saveProvider(String provider_main_url, boolean danger_on) {
-		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-		providerAPI_result_receiver.setReceiver(this);
-		
-		Intent provider_API_command = new Intent(this, ProviderAPI.class);
-
-		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString(ConfigHelper.provider_main_url, provider_main_url);
-		method_and_parameters.putBoolean(ConfigHelper.danger_on, danger_on);
-
-		provider_API_command.putExtra(ConfigHelper.downloadNewProviderDotJSON, method_and_parameters);
-		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
-		
-		startService(provider_API_command);
-	}
-	
-	public void updateProviderDotJson(String provider_name, String provider_json_url, boolean danger_on) {
-		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-		providerAPI_result_receiver.setReceiver(this);
-		
-		Intent provider_API_command = new Intent(this, ProviderAPI.class);
-
-		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString(ConfigHelper.provider_name, provider_name);
-		method_and_parameters.putString(ConfigHelper.provider_json_url, provider_json_url);
-		method_and_parameters.putBoolean(ConfigHelper.danger_on, danger_on);
-
-		provider_API_command.putExtra(ConfigHelper.updateProviderDotJSON, method_and_parameters);
-		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
-		
-		startService(provider_API_command);
-	}
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
@@ -238,15 +77,15 @@ public class ConfigurationWizard extends Activity
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
         	setResult(RESULT_CANCELED);
-			Toast.makeText(getApplicationContext(), "You have not entered a LEAP provider URL", Toast.LENGTH_LONG).show();
+        	Toast.makeText(getApplicationContext(), "You have not entered a LEAP provider URL or it is unavailable", Toast.LENGTH_LONG).show();
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			JSONObject provider_json;
 			try {
-				provider_json = new JSONObject(resultData.getString(ConfigHelper.provider_key));
-				boolean danger_on = resultData.getBoolean(ConfigHelper.danger_on);
-				ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
-				ConfigHelper.saveSharedPref(ConfigHelper.danger_on, new JSONObject().put(ConfigHelper.danger_on, danger_on));
+				provider_json = new JSONObject(resultData.getString(ConfigHelper.PROVIDER_KEY));
+				boolean danger_on = resultData.getBoolean(ConfigHelper.DANGER_ON);
+				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
+				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, new JSONObject().put(ConfigHelper.DANGER_ON, danger_on));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -255,6 +94,137 @@ public class ConfigurationWizard extends Activity
 		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			Toast.makeText(getApplicationContext(), "Install a new version of this app.", Toast.LENGTH_LONG).show();
 		}
+	}
+
+	/**
+     * Callback method from {@link ProviderListFragment.Callbacks}
+     * indicating that the item with the given ID was selected.
+     */
+    @Override
+    public void onItemSelected(String id) {
+    	//TODO Code 2 pane view
+    	Iterator<ProviderItem> preseeded_providers_iterator = ProviderListContent.ITEMS.iterator();
+    	while(preseeded_providers_iterator.hasNext())
+    	{
+    		ProviderItem current_provider_item = preseeded_providers_iterator.next();
+    		if(current_provider_item.id.equalsIgnoreCase(id))
+    		{
+    			try {
+    				saveProviderJson(current_provider_item);
+    				downloadJSONFiles(current_provider_item);
+    			} catch (IOException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    		}
+    	}
+    }
+	
+    private boolean loadPreseededProviders() {
+    	boolean loaded_preseeded_providers = false;
+        AssetManager asset_manager = getAssets();
+        String[] urls_filepaths = null;
+		try {
+			String url_files_folder = "urls";
+			//TODO Put that folder in a better place (also inside the "for")
+			urls_filepaths = asset_manager.list(url_files_folder); 
+			String provider_name = "";
+	        for(String url_filepath : urls_filepaths)
+	        {
+	        	boolean custom = false;
+	        	provider_name = url_filepath.subSequence(0, url_filepath.indexOf(".")).toString();
+	        	if(ProviderListContent.ITEMS.isEmpty()) //TODO I have to implement a way of checking if a provider new or is already present in that ITEMS list
+	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath), custom, true)); // By default, it trusts the provider
+	        	loaded_preseeded_providers = true;
+	        }
+		} catch (IOException e) {
+			loaded_preseeded_providers = false;
+		}
 		
+		return loaded_preseeded_providers;
+	}
+
+    private boolean saveProviderJson(ProviderItem current_provider_item) {
+    	JSONObject provider_json = new JSONObject();
+    	try {
+    		String provider_contents = "";
+    		if(!current_provider_item.custom) {
+    			updateProviderDotJson(current_provider_item.name, current_provider_item.provider_json_url, current_provider_item.danger_on);
+    			return true;
+    		} else {
+    			provider_contents = new Scanner(ConfigHelper.openFileInputStream(current_provider_item.provider_json_filename)).useDelimiter("\\A").next();
+    			provider_json = new JSONObject(provider_contents);
+    			ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
+    			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, new JSONObject().put(ConfigHelper.DANGER_ON, current_provider_item.danger_on));
+    			return true;
+    		}
+    	} catch (JSONException e) {
+    		return false;
+    	}
+    }
+
+	private void downloadJSONFiles(ProviderItem current_provider_item) throws IOException {
+		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+		providerAPI_result_receiver.setReceiver(this);
+		
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
+		
+		Bundle method_and_parameters = new Bundle();
+		
+		method_and_parameters.putString(ConfigHelper.PROVIDER_KEY, current_provider_item.name);
+		method_and_parameters.putString(ConfigHelper.MAIN_CERT_KEY, current_provider_item.cert_json_url);
+		method_and_parameters.putString(ConfigHelper.EIP_SERVICE_KEY, current_provider_item.eip_service_json_url);
+		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, current_provider_item.danger_on);
+		
+		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA, method_and_parameters);
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+
+		startService(provider_API_command);
+	}
+	
+	public void addNewProvider(View view) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+	    Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.NEW_PROVIDER_DIALOG);
+	    if (previous_new_provider_dialog != null) {
+	        fragment_transaction.remove(previous_new_provider_dialog);
+	    }
+	    fragment_transaction.addToBackStack(null);
+
+	    DialogFragment newFragment = NewProviderDialog.newInstance();
+	    newFragment.show(fragment_transaction, ConfigHelper.NEW_PROVIDER_DIALOG);
+	}
+
+	@Override
+	public void saveProvider(String provider_main_url, boolean danger_on) {
+		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+		providerAPI_result_receiver.setReceiver(this);
+		
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+		Bundle method_and_parameters = new Bundle();
+		method_and_parameters.putString(ConfigHelper.PROVIDER_MAIN_URL, provider_main_url);
+		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, danger_on);
+
+		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_NEW_PROVIDER_DOTJSON, method_and_parameters);
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		
+		startService(provider_API_command);
+	}
+	
+	public void updateProviderDotJson(String provider_name, String provider_json_url, boolean danger_on) {
+		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+		providerAPI_result_receiver.setReceiver(this);
+		
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+		Bundle method_and_parameters = new Bundle();
+		method_and_parameters.putString(ConfigHelper.PROVIDER_NAME, provider_name);
+		method_and_parameters.putString(ConfigHelper.PROVIDER_JSON_URL, provider_json_url);
+		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, danger_on);
+
+		provider_API_command.putExtra(ConfigHelper.UPDATE_PROVIDER_DOTJSON, method_and_parameters);
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		
+		startService(provider_API_command);
 	}
 }

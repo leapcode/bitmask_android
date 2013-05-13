@@ -47,8 +47,7 @@ public class LeapSRPSession {
 	    @param username, the user ID
 	    @param password, the user clear text password
 	    @param params, the SRP parameters for the session
-	    @param abytes, the random exponent used in the A public key. This must be
-	      8 bytes in length.
+	    @param abytes, the random exponent used in the A public key
 	 */
 	public LeapSRPSession(String username, String password, SRPParameters params,
 			byte[] abytes) {
@@ -177,8 +176,9 @@ public class LeapSRPSession {
 	/**
 	 * Calculates the parameter M1, to be sent to the SRP server.
 	 * It also updates hashes of client and server for further calculations in other methods.
+	 * It uses a predefined k.
+	 * @param salt_bytes
 	 * @param Bbytes the parameter received from the server, in bytes
-	 * @param bs 
 	 * @return the parameter M1
 	 * @throws NoSuchAlgorithmException
 	 */
@@ -190,8 +190,6 @@ public class LeapSRPSession {
 		// Calculate v = kg^x mod N
 		String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
 		this.v = calculateV(k_string);
-		//String v_string = v.toString(16);
-
 
 		// H(N)
 		byte[] digest_of_n = newDigest().digest(N_bytes);
@@ -201,54 +199,45 @@ public class LeapSRPSession {
 		
 		// clientHash = H(N) xor H(g)
 		byte[] xor_digest = xor(digest_of_n, digest_of_g, digest_of_g.length);
-		//String hxg_string = new BigInteger(1, xor_digest).toString(16);
 		clientHash.update(xor_digest);
 		
 		// clientHash = H(N) xor H(g) | H(U)
 		byte[] username_digest = newDigest().digest(Util.trim(username.getBytes()));
 		username_digest = Util.trim(username_digest);
-		//String username_digest_string = new BigInteger(1, username_digest).toString(16);
 		clientHash.update(username_digest);
 		
 		// clientHash = H(N) xor H(g) | H(U) | s
-		//String salt_string = new BigInteger(1, salt_bytes).toString(16);
 		clientHash.update(Util.trim(salt_bytes));
 		
 		K = null;
-		
-		// clientHash = H(N) xor H(g) | H(U) | s | A | B
-
-		byte[] Abytes = Util.trim(A.toByteArray());
-		//String Abytes_string = new BigInteger(1, Abytes).toString(16);
 
 		// clientHash = H(N) xor H(g) | H(U) | A
+		byte[] Abytes = Util.trim(A.toByteArray());
 		clientHash.update(Abytes);
 		
 		// clientHash = H(N) xor H(g) | H(U) | s | A | B
 		Bbytes = Util.trim(Bbytes);
-		//String Bbytes_string = new BigInteger(1, Bbytes).toString(16);
 		clientHash.update(Bbytes);
 		
 		// Calculate S = (B - kg^x) ^ (a + u * x) % N
 		BigInteger S = calculateS(Bbytes);
 		byte[] S_bytes = Util.trim(S.toByteArray());
-		//String S_bytes_string = new BigInteger(1, S_bytes).toString(16);
 
 		// K = SessionHash(S)
 		String hash_algorithm = params.hashAlgorithm;
 		MessageDigest sessionDigest = MessageDigest.getInstance(hash_algorithm);
 		K = Util.trim(sessionDigest.digest(S_bytes));
-		//K = Util.trim(K);
-		//String K_bytes_string = new BigInteger(1, K).toString(16);
 		
 		// clientHash = H(N) xor H(g) | H(U) | A | B | K
 		clientHash.update(K);
+		
 		byte[] M1 = Util.trim(clientHash.digest());
 		
 		// serverHash = Astr + M + K
 		serverHash.update(Abytes);
 		serverHash.update(M1);
 		serverHash.update(K);
+		
 		return M1;
 	}
 
@@ -263,13 +252,10 @@ public class LeapSRPSession {
 		byte[] u_bytes = getU(Abytes, Bbytes);
 		
 		BigInteger B = new BigInteger(1, Bbytes);
-		//String Bstring = B.toString(16);
 		BigInteger u = new BigInteger(1, u_bytes);
-		//String u_string = u.toString(16);
 		
 		BigInteger B_minus_v = B.subtract(v);
 		BigInteger a_ux = a.add(u.multiply(x));
-		//String a_ux_string = a_ux.toString(16);
 		BigInteger S = B_minus_v.modPow(a_ux, N);
 
 		return S;
@@ -285,7 +271,7 @@ public class LeapSRPSession {
 		MessageDigest u_digest = newDigest();
 		u_digest.update(Util.trim(Abytes));
 		u_digest.update(Util.trim(Bbytes));
-		byte[] u_digest_bytes = u_digest.digest();//Util.trim(u_digest.digest());
+		byte[] u_digest_bytes = u_digest.digest();
 		return Util.trim(new BigInteger(1, u_digest_bytes).toByteArray());
 	}
 
@@ -302,17 +288,6 @@ public class LeapSRPSession {
 		return valid;
 	}
 
-	/** Returns the negotiated session K, K = SHA_Interleave(S)
-	    @return the private session K byte[]
-	    @throws SecurityException - if the current thread does not have an
-	    getSessionKey SRPPermission.
-	 */
-	public byte[] getSessionKey() throws SecurityException
-	{
-		return K;
-	}
-
-	
 	/**
 	 * @return a new SHA-256 digest.
 	 */

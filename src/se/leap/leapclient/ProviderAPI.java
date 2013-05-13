@@ -11,7 +11,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.List;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
@@ -32,6 +31,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -63,89 +63,72 @@ public class ProviderAPI extends IntentService {
 		final ResultReceiver receiver = task_for.getParcelableExtra("receiver");
 		
 		Bundle task;
-		if((task = task_for.getBundleExtra(ConfigHelper.downloadJsonFilesBundleExtra)) != null) {
-			if(!downloadJsonFiles(task))
+		if((task = task_for.getBundleExtra(ConfigHelper.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA)) != null) {
+			if(!downloadJsonFiles(task)) {
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
-			else
+			} else { 
 				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
-		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.updateProviderDotJSON)) != null) {
-			JSONObject result = updateProviderDotJSON(task);
-			boolean successful;
-			try {
-				successful = result.getBoolean(ConfigHelper.resultKey);
-				if(successful) {
-					Bundle provider_dot_json_and_danger_on = new Bundle();
-					provider_dot_json_and_danger_on.putBoolean(ConfigHelper.danger_on, result.getBoolean(ConfigHelper.danger_on));
-					provider_dot_json_and_danger_on.putString(ConfigHelper.provider_key, result.getJSONObject(ConfigHelper.provider_key).toString());
-					receiver.send(ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON, provider_dot_json_and_danger_on);
-				} else {
-					receiver.send(ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON, Bundle.EMPTY);
-				}
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.downloadNewProviderDotJSON)) != null) {
-			if(downloadNewProviderDotJSON(task))
+		else if ((task = task_for.getBundleExtra(ConfigHelper.UPDATE_PROVIDER_DOTJSON)) != null) {
+			Bundle result = updateProviderDotJSON(task);
+			if(result.getBoolean(ConfigHelper.RESULT_KEY)) {
+				receiver.send(ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
+			} else {
+				receiver.send(ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON, Bundle.EMPTY);
+			}
+		}
+		else if ((task = task_for.getBundleExtra(ConfigHelper.DOWNLOAD_NEW_PROVIDER_DOTJSON)) != null) {
+			if(downloadNewProviderDotJSON(task)) {
 				receiver.send(ConfigHelper.CUSTOM_PROVIDER_ADDED, Bundle.EMPTY);
-			else
+			} else {
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
-		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.srpAuth)) != null) {
-			try {
-				JSONObject session_idAndResult = authenticateBySRP(task);
-				if(session_idAndResult.getBoolean(ConfigHelper.resultKey)) {
-					Bundle session_id_bundle = new Bundle();
-					session_id_bundle.putString(ConfigHelper.session_id_cookie_key, session_idAndResult.getString(ConfigHelper.session_id_cookie_key));
-					session_id_bundle.putString(ConfigHelper.session_id_key, session_idAndResult.getString(ConfigHelper.session_id_key));
-					receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
-				} else {
-					receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, Bundle.EMPTY);
-				}
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.logOut)) != null) {
-			if(logOut(task))
-				receiver.send(ConfigHelper.LOGOUT_SUCCESSFUL, Bundle.EMPTY);
-			else
-				receiver.send(ConfigHelper.LOGOUT_FAILED, Bundle.EMPTY);
+		else if ((task = task_for.getBundleExtra(ConfigHelper.SRP_AUTH)) != null) {
+			Bundle session_id_bundle = authenticateBySRP(task);
+			if(session_id_bundle.getBoolean(ConfigHelper.RESULT_KEY)) {
+				receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
+			} else {
+				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, Bundle.EMPTY);
+			}
 		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.downloadUserAuthedCertificate)) != null) {
-			if(getNewCert(task))
+		else if ((task = task_for.getBundleExtra(ConfigHelper.LOG_OUT)) != null) {
+			if(logOut(task)) {
+				receiver.send(ConfigHelper.LOGOUT_SUCCESSFUL, Bundle.EMPTY);
+			} else {
+				receiver.send(ConfigHelper.LOGOUT_FAILED, Bundle.EMPTY);
+			}
+		}
+		else if ((task = task_for.getBundleExtra(ConfigHelper.DOWNLOAD_USER_AUTHED_CERTIFICATE)) != null) {
+			if(getNewCert(task)) {
 				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE, Bundle.EMPTY);
-			else
+			} else {
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE, Bundle.EMPTY);
+			}
 		}
 	}
 
 	private boolean downloadJsonFiles(Bundle task) {
-		//String provider_name = task.getString(ConfigHelper.provider_key);
-		String cert_url = task.getString(ConfigHelper.main_cert_key);
-		String eip_service_json_url = task.getString(ConfigHelper.eip_service_key);
-		boolean danger_on = task.getBoolean(ConfigHelper.danger_on);
+		String cert_url = task.getString(ConfigHelper.MAIN_CERT_KEY);
+		String eip_service_json_url = task.getString(ConfigHelper.EIP_SERVICE_KEY);
+		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
 		try {
 			String cert_string = getStringFromProvider(cert_url, danger_on);
-			//ConfigHelper.addTrustedCertificate(provider_name, cert_string);
-			JSONObject cert_json = new JSONObject().put(ConfigHelper.main_cert_key, cert_string);
-			ConfigHelper.saveSharedPref(ConfigHelper.main_cert_key, cert_json);
+			JSONObject cert_json = new JSONObject().put(ConfigHelper.MAIN_CERT_KEY, cert_string);
+			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, cert_json);
 			JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url, danger_on);
-			ConfigHelper.saveSharedPref(ConfigHelper.eip_service_key, eip_service_json);
+			ConfigHelper.saveSharedPref(ConfigHelper.EIP_SERVICE_KEY, eip_service_json);
 			return true;
 		} catch (JSONException e) {
-			ConfigHelper.rescueJSONException(e);
 			return false;
 		}
 	}
 
 	private boolean registerWithSRP(Bundle task) {
-		String username = (String) task.get(ConfigHelper.username_key);
-		String password = (String) task.get(ConfigHelper.password_key);
-		String authentication_server = (String) task.get(ConfigHelper.api_url_key);
+		String username = (String) task.get(ConfigHelper.USERNAME_KEY);
+		String password = (String) task.get(ConfigHelper.PASSWORD_KEY);
+		String authentication_server = (String) task.get(ConfigHelper.API_URL_KEY);
 		
 		BigInteger ng_1024 = new BigInteger(ConfigHelper.NG_1024, 16);
 		BigInteger salt = ng_1024.probablePrime(1024, null);
@@ -154,173 +137,127 @@ public class ProviderAPI extends IntentService {
 		return false;
 	}
 	
-	private JSONObject authenticateBySRP(Bundle task) {
-		JSONObject successfulAndsession_id = new JSONObject();
+	private Bundle authenticateBySRP(Bundle task) {
+		Bundle session_id_bundle = new Bundle();
 		
-		String username = (String) task.get(ConfigHelper.username_key);
-		String password = (String) task.get(ConfigHelper.password_key);
-		String authentication_server = (String) task.get(ConfigHelper.api_url_key);
-		
-		String salt = "abcd";
+		String username = (String) task.get(ConfigHelper.USERNAME_KEY);
+		String password = (String) task.get(ConfigHelper.PASSWORD_KEY);
+		String authentication_server = (String) task.get(ConfigHelper.API_URL_KEY);
 
-		SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		//SRPClientSession client = new SRPClientSession(username, password.toCharArray(), params);
+		SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
 		LeapSRPSession client = new LeapSRPSession(username, password, params);
 		byte[] A = client.exponential();
 		try {
 			JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
 			if(saltAndB.length() > 0) {
-				salt = saltAndB.getString("salt");
+				String salt = saltAndB.getString(ConfigHelper.SALT_KEY);
 				byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
 				byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
-				//byte[] M2 = sendM1ToSRPServer(authentication_server, username, M1);
 				JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
 				if( client.verify((byte[])session_idAndM2.get("M2")) == false ) {
-					//throw new SecurityException("Failed to validate server reply: M2 = " + new BigInteger(1, M2).toString(16));
-					successfulAndsession_id.put(ConfigHelper.resultKey, false);
-					return successfulAndsession_id;
+					session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 				} else {
-					successfulAndsession_id.put(ConfigHelper.resultKey, true);
-					successfulAndsession_id.put(ConfigHelper.session_id_key, session_idAndM2.getString(ConfigHelper.session_id_key));
-					successfulAndsession_id.put(ConfigHelper.session_id_cookie_key, session_idAndM2.getString(ConfigHelper.session_id_cookie_key));
-					return successfulAndsession_id;
+					session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, true);
+					session_id_bundle.putString(ConfigHelper.SESSION_ID_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_KEY));
+					session_id_bundle.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_COOKIE_KEY));
 				}
 			} else {
-				successfulAndsession_id.put(ConfigHelper.resultKey, false);
-				return successfulAndsession_id;
+				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 			}
-		} catch (ClientProtocolException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (ClientProtocolException e) {
+			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+		} catch (IOException e) {
+			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+		} catch (JSONException e) {
+			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 		}
-		return successfulAndsession_id;
+
+		return session_id_bundle;
 	}
 
 	private JSONObject sendAToSRPServer(String server_url, String username, String clientA) throws ClientProtocolException, IOException, JSONException {
-		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
-		String parameter_chain = "A" + "=" + clientA + "&" + "login" + "=" + username;
-		HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + parameter_chain);
+		HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + "login=" + username + "&&" + "A=" + clientA);
+		return sendToServer(post);
+	}
+
+	private JSONObject sendM1ToSRPServer(String server_url, String username, byte[] m1) throws ClientProtocolException, IOException, JSONException {
+		HttpPut put = new HttpPut(server_url + "/sessions/" + username +".json" + "?" + "client_auth" + "=" + new BigInteger(1, Util.trim(m1)).toString(16));
+		JSONObject json_response = sendToServer(put);
+
+		JSONObject session_idAndM2 = new JSONObject();
+		if(json_response.length() > 0) {
+			byte[] M2_not_trimmed = new BigInteger(json_response.getString("M2"), 16).toByteArray();
+			Cookie session_id_cookie = LeapHttpClient.getInstance(getApplicationContext()).getCookieStore().getCookies().get(0);
+			session_idAndM2.put(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id_cookie.getName());
+			session_idAndM2.put(ConfigHelper.SESSION_ID_KEY, session_id_cookie.getValue());
+			session_idAndM2.put("M2", Util.trim(M2_not_trimmed));
+		}
+		return session_idAndM2;
+	}
 	
-		HttpResponse getResponse = client.execute(post);
+	private JSONObject sendToServer(HttpUriRequest request) throws ClientProtocolException, IOException, JSONException {
+		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
+		HttpContext localContext = new BasicHttpContext();
+		localContext.setAttribute(ClientContext.COOKIE_STORE, client.getCookieStore());
+		
+		HttpResponse getResponse = client.execute(request, localContext);
 		HttpEntity responseEntity = getResponse.getEntity();
 		String plain_response = new Scanner(responseEntity.getContent()).useDelimiter("\\A").next();
 		JSONObject json_response = new JSONObject(plain_response);
 		if(!json_response.isNull("errors") || json_response.has("errors")) {
 			return new JSONObject();
 		}
-		
-		String session_id = "";
-		List<Cookie> cookies = client.getCookieStore().getCookies();
-		if(!cookies.isEmpty()) {
-			session_id = cookies.get(0).getValue();
-		}
+
 		return json_response;
 	}
 
-	private JSONObject sendM1ToSRPServer(String server_url, String username, byte[] m1) throws ClientProtocolException, IOException, JSONException {
-		JSONObject session_idAndM2 = new JSONObject();
-		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
-		String parameter_chain = "client_auth" + "=" + new BigInteger(1, Util.trim(m1)).toString(16);
-		HttpPut put = new HttpPut(server_url + "/sessions/" + username +".json" + "?" + parameter_chain);
-		HttpContext localContext = new BasicHttpContext();
-		localContext.setAttribute(ClientContext.COOKIE_STORE, client.getCookieStore());
-		String session_id = client.getCookieStore().getCookies().get(0).getValue();
-		int number_of_cookies = client.getCookieStore().getCookies().size();
+	private Bundle updateProviderDotJSON(Bundle task) {
+		Bundle result = new Bundle();
+		boolean custom = task.getBoolean(ConfigHelper.CUSTOM);
+		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
+		String provider_json_url = task.getString(ConfigHelper.PROVIDER_JSON_URL);
+		String provider_name = task.getString(ConfigHelper.PROVIDER_NAME);
 		
-		HttpResponse getResponse = client.execute(put, localContext);
-		HttpEntity responseEntity = getResponse.getEntity();
-		String plain_response = new Scanner(responseEntity.getContent()).useDelimiter("\\A").next();
-		JSONObject json_response = new JSONObject(plain_response);
-		if(!json_response.isNull("errors") || json_response.has("errors")) {
-			return session_idAndM2;
-		}
-
-		number_of_cookies = client.getCookieStore().getCookies().size();
-		byte[] M2_not_trimmed = new BigInteger(json_response.getString("M2"), 16).toByteArray();
-		session_idAndM2.put(ConfigHelper.session_id_cookie_key, client.getCookieStore().getCookies().get(0).getName());
-		session_idAndM2.put(ConfigHelper.session_id_key, client.getCookieStore().getCookies().get(0).getValue());
-		session_idAndM2.put("M2", Util.trim(M2_not_trimmed));
-		return session_idAndM2;
-	}
-
-	private JSONObject updateProviderDotJSON(Bundle task) {
-		JSONObject result = new JSONObject();
-		boolean custom = task.getBoolean(ConfigHelper.custom);
-		boolean danger_on = task.getBoolean(ConfigHelper.danger_on);
-		String provider_json_url = task.getString(ConfigHelper.provider_json_url);
-		String provider_name = task.getString(ConfigHelper.provider_name);
-		
-		JSONObject provider_json = null;
 		try {
-			provider_json = getJSONFromProvider(provider_json_url, danger_on);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			try {
-				return result.put(ConfigHelper.resultKey, false);
-			} catch (JSONException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			JSONObject provider_json = getJSONFromProvider(provider_json_url, danger_on);
+			if(provider_json == null) {
+				result.putBoolean(ConfigHelper.RESULT_KEY, false);
+			} else {
+				String filename = provider_name + "_provider.json".replaceFirst("__", "_");
+				ConfigHelper.saveFile(filename, provider_json.toString());
+
+				ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, filename, custom, danger_on));
+				result.putBoolean(ConfigHelper.RESULT_KEY, true);
+				result.putString(ConfigHelper.PROVIDER_KEY, provider_json.toString());
+				result.putBoolean(ConfigHelper.DANGER_ON, danger_on);
 			}
+		} catch (JSONException e) {
+			result.putBoolean(ConfigHelper.RESULT_KEY, false);
 		}
 		
-		if(provider_json == null) {
-			try {
-				return result.put(ConfigHelper.resultKey, false);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else {
-			String filename = provider_name + "_provider.json".replaceFirst("__", "_");
-			ConfigHelper.saveFile(filename, provider_json.toString());
-			//ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
-
-			ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, filename, custom, danger_on));
-			try {
-				return result.put(ConfigHelper.resultKey, true).put(ConfigHelper.provider_key, provider_json).put(ConfigHelper.danger_on, danger_on);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 		return result;
 	}
 
 	private boolean downloadNewProviderDotJSON(Bundle task) {
 		boolean custom = true;
-		boolean danger_on = task.getBoolean(ConfigHelper.danger_on);
+		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
 		
-		String provider_main_url = (String) task.get(ConfigHelper.provider_main_url);
+		String provider_main_url = (String) task.get(ConfigHelper.PROVIDER_MAIN_URL);
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
 		String provider_json_url = guessURL(provider_main_url);
 		JSONObject provider_json = null;
 		try {
 			provider_json = getJSONFromProvider(provider_json_url, danger_on);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
-		
-		if(provider_json == null) {
-			return false;
-		} else {
+
 			String filename = provider_name + "_provider.json".replaceFirst("__", "_");
 			ConfigHelper.saveFile(filename, provider_json.toString());
-			//ConfigHelper.saveSharedPref(ConfigHelper.provider_key, provider_json);
 
 			ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, filename, custom, danger_on));
 			return true;
+		} catch (JSONException e) {
+			return false;
 		}
 	}
 
@@ -385,8 +322,8 @@ public class ProviderAPI extends IntentService {
 		try {
 			cf = CertificateFactory.getInstance("X.509");
 
-			String cert_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.main_cert_key);
-			String cert_string = new JSONObject(cert_json_string).getString(ConfigHelper.main_cert_key);
+			String cert_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
+			String cert_string = new JSONObject(cert_json_string).getString(ConfigHelper.MAIN_CERT_KEY);
 			cert_string = cert_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
 			byte[] cert_bytes = Base64.decode(cert_string, Base64.DEFAULT);
 			InputStream caInput =  new ByteArrayInputStream(cert_bytes);
@@ -454,7 +391,7 @@ public class ProviderAPI extends IntentService {
 		int session_id_index = 0;
 		//String delete_url = task.getString(ConfigHelper.srp_server_url_key) + "/sessions/" + client.getCookieStore().getCookies().get(0).getValue();
 		try {
-			String delete_url = task.getString(ConfigHelper.api_url_key) + "/logout" + "?authenticity_token=" + client.getCookieStore().getCookies().get(session_id_index).getValue();
+			String delete_url = task.getString(ConfigHelper.API_URL_KEY) + "/logout" + "?authenticity_token=" + client.getCookieStore().getCookies().get(session_id_index).getValue();
 			HttpDelete delete = new HttpDelete(delete_url);
 			HttpResponse getResponse = client.execute(delete);
 			HttpEntity responseEntity = getResponse.getEntity();
@@ -476,24 +413,24 @@ public class ProviderAPI extends IntentService {
 	}
 
 	private boolean getNewCert(Bundle task) {
-		String provider_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.provider_key);
-		HttpCookie session_id_cookie = new HttpCookie(task.getString(ConfigHelper.session_id_cookie_key), task.getString(ConfigHelper.session_id_key));
+		String provider_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY);
+		HttpCookie session_id_cookie = new HttpCookie(task.getString(ConfigHelper.SESSION_ID_COOKIE_KEY), task.getString(ConfigHelper.SESSION_ID_KEY));
 		
 		try {
 			JSONObject provider_json = new JSONObject(provider_json_string);
-			URL provider_main_url = new URL(provider_json.getString(ConfigHelper.api_url_key).replace("api.", ""));
-			String new_cert_string_url = provider_main_url.getProtocol() + "://" + provider_main_url.getHost() + "/" + provider_json.getString(ConfigHelper.api_version_key) + "/" + ConfigHelper.cert_key;
+			URL provider_main_url = new URL(provider_json.getString(ConfigHelper.API_URL_KEY).replace("api.", ""));
+			String new_cert_string_url = provider_main_url.getProtocol() + "://" + provider_main_url.getHost() + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY) + "/" + ConfigHelper.CERT_KEY;
 
 			CookieManager cookieManager = new CookieManager();
 			cookieManager.getCookieStore().add(provider_main_url.toURI(), session_id_cookie);
 			CookieHandler.setDefault(cookieManager);
 
-			String danger_on_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.danger_on);
-			boolean danger_on = new JSONObject(danger_on_json_string).getBoolean(ConfigHelper.danger_on);
+			String danger_on_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.DANGER_ON);
+			boolean danger_on = new JSONObject(danger_on_json_string).getBoolean(ConfigHelper.DANGER_ON);
 			String cert_string = getStringFromProvider(new_cert_string_url, danger_on);
 			if(!cert_string.isEmpty()) { 
-				JSONObject cert_json = new JSONObject().put(ConfigHelper.cert_key, cert_string);
-				ConfigHelper.saveSharedPref(ConfigHelper.cert_key, cert_json);
+				JSONObject cert_json = new JSONObject().put(ConfigHelper.CERT_KEY, cert_string);
+				ConfigHelper.saveSharedPref(ConfigHelper.CERT_KEY, cert_json);
 				return true;
 			} else {
 				return false;
