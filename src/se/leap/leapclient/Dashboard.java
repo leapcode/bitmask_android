@@ -250,10 +250,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle method_and_parameters = new Bundle();
+		method_and_parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.AUTHED_CERTIFICATE);
 		method_and_parameters.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id.getName());
 		method_and_parameters.putString(ConfigHelper.SESSION_ID_KEY, session_id.getValue());
 
-		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_USER_AUTHED_CERTIFICATE, method_and_parameters);
+		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_CERTIFICATE, method_and_parameters);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 		
 		startService(provider_API_command);
@@ -278,10 +279,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		} else if(resultCode == ConfigHelper.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
 			Toast.makeText(getApplicationContext(), "Didn't logged out", Toast.LENGTH_LONG).show();
-		} else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE) {
+		} else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
 			Toast.makeText(getApplicationContext(), "Your own cert has been correctly downloaded", Toast.LENGTH_LONG).show();
-		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE) {
+		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
 			Toast.makeText(getApplicationContext(), "Your own cert has incorrectly been downloaded", Toast.LENGTH_LONG).show();
 		}

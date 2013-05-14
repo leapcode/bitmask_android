@@ -100,11 +100,11 @@ public class ProviderAPI extends IntentService {
 				receiver.send(ConfigHelper.LOGOUT_FAILED, Bundle.EMPTY);
 			}
 		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.DOWNLOAD_USER_AUTHED_CERTIFICATE)) != null) {
+		else if ((task = task_for.getBundleExtra(ConfigHelper.DOWNLOAD_CERTIFICATE)) != null) {
 			if(getNewCert(task)) {
-				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE, Bundle.EMPTY);
+				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 			} else {
-				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE, Bundle.EMPTY);
+				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 			}
 		}
 	}
@@ -224,7 +224,9 @@ public class ProviderAPI extends IntentService {
 			JSONObject provider_json = getJSONFromProvider(provider_json_url, danger_on);
 			if(provider_json == null) {
 				result.putBoolean(ConfigHelper.RESULT_KEY, false);
-			} else {
+			} else {    			
+				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, new JSONObject().put(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON)));
+
 				String filename = provider_name + "_provider.json".replaceFirst("__", "_");
 				ConfigHelper.saveFile(filename, provider_json.toString());
 
@@ -414,17 +416,20 @@ public class ProviderAPI extends IntentService {
 
 	private boolean getNewCert(Bundle task) {
 		String provider_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY);
-		HttpCookie session_id_cookie = new HttpCookie(task.getString(ConfigHelper.SESSION_ID_COOKIE_KEY), task.getString(ConfigHelper.SESSION_ID_KEY));
-		
+		String type_of_certificate = task.getString(ConfigHelper.TYPE_OF_CERTIFICATE);
 		try {
 			JSONObject provider_json = new JSONObject(provider_json_string);
 			URL provider_main_url = new URL(provider_json.getString(ConfigHelper.API_URL_KEY).replace("api.", ""));
 			String new_cert_string_url = provider_main_url.getProtocol() + "://" + provider_main_url.getHost() + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY) + "/" + ConfigHelper.CERT_KEY;
 
-			CookieManager cookieManager = new CookieManager();
-			cookieManager.getCookieStore().add(provider_main_url.toURI(), session_id_cookie);
-			CookieHandler.setDefault(cookieManager);
+			if(type_of_certificate.equalsIgnoreCase(ConfigHelper.AUTHED_CERTIFICATE)) {
+				HttpCookie session_id_cookie = new HttpCookie(task.getString(ConfigHelper.SESSION_ID_COOKIE_KEY), task.getString(ConfigHelper.SESSION_ID_KEY));
 
+				CookieManager cookieManager = new CookieManager();
+				cookieManager.getCookieStore().add(provider_main_url.toURI(), session_id_cookie);
+				CookieHandler.setDefault(cookieManager);
+			}
+			
 			String danger_on_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.DANGER_ON);
 			boolean danger_on = new JSONObject(danger_on_json_string).getBoolean(ConfigHelper.DANGER_ON);
 			String cert_string = getStringFromProvider(new_cert_string_url, danger_on);
@@ -435,7 +440,6 @@ public class ProviderAPI extends IntentService {
 			} else {
 				return false;
 			}
-		
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

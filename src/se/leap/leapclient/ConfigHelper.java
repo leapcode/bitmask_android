@@ -37,14 +37,18 @@ public class ConfigHelper {
     SRP_AUTH = "srpAuth",
     LOG_IN = "logIn",
     LOG_OUT = "logOut",
-    DOWNLOAD_USER_AUTHED_CERTIFICATE = "downloadUserAuthedCertificate",
+    DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
     API_VERSION_KEY = "api_version",
     RESULT_KEY = "result",
     PROVIDER_KEY = "provider",
     SERVICE_KEY = "service",
+    ALLOWED_ANON = "allow_anonymous",
     MAIN_CERT_KEY = "main_cert",
     CERT_KEY = "cert",
     EIP_SERVICE_KEY = "eip",
+    TYPE_OF_CERTIFICATE = "type_of_certificate",
+    ANON_CERTIFICATE = "anon_certificate",
+    AUTHED_CERTIFICATE = "authed_certificate",
     SALT_KEY = "salt",
     SESSION_ID_COOKIE_KEY = "session_id_cookie_key",
     SESSION_ID_KEY = "session_id",
@@ -76,10 +80,12 @@ public class ConfigHelper {
     SRP_REGISTRATION_FAILED = 6,
     LOGOUT_SUCCESSFUL = 7,
     LOGOUT_FAILED = 8,
-    CORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE = 9,
-    INCORRECTLY_DOWNLOADED_AUTHED_USER_CERTIFICATE = 10,
+    CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
+    INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
     CORRECTLY_UPDATED_PROVIDER_DOT_JSON = 11,
-    INCORRECTLY_UPDATED_PROVIDER_DOT_JSON = 12
+    INCORRECTLY_UPDATED_PROVIDER_DOT_JSON = 12,
+    CORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 13,
+    INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
     ;
 	
 	public static void saveSharedPref(String shared_preferences_key, JSONObject content) {
