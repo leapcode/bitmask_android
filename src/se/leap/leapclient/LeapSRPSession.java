@@ -95,35 +95,24 @@ public class LeapSRPSession {
 		MessageDigest x_digest = newDigest();
 		// Try to convert the username to a byte[] using UTF-8
 		byte[] user = null;
+		byte[] password_bytes = null;
 		byte[] colon = {};
 		try {
 			user = Util.trim(username.getBytes("UTF-8"));
 			colon = Util.trim(":".getBytes("UTF-8"));
+			password_bytes = Util.trim(password.getBytes("UTF-8"));
 		}
 		catch(UnsupportedEncodingException e) {
 			// Use the default platform encoding
 			user = Util.trim(username.getBytes());
 			colon = Util.trim(":".getBytes());
+			password_bytes = Util.trim(password.getBytes());
 		}
-
-		byte[] passBytes = new byte[2*password.toCharArray().length];
-		int passBytesLength = 0;
-		for(int p = 0; p < password.toCharArray().length; p++) {
-			int c = (password.toCharArray()[p] & 0x00FFFF);
-			// The low byte of the char
-			byte b0 = (byte) (c & 0x0000FF);
-			// The high byte of the char
-			byte b1 = (byte) ((c & 0x00FF00) >> 8);
-			passBytes[passBytesLength ++] = b0;
-			// Only encode the high byte if c is a multi-byte char
-			if( c > 255 )
-				passBytes[passBytesLength ++] = b1;
-		}
-	
+		
 		// Build the hash
 		x_digest.update(user);
 		x_digest.update(colon);
-		x_digest.update(passBytes, 0, passBytesLength);
+		x_digest.update(password_bytes);
 		byte[] h = x_digest.digest();
 		//h = Util.trim(h);
 		
