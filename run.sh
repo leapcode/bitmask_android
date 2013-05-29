@@ -22,7 +22,17 @@ wait_until_booted() {
 	echo "Emulator booted!"
 }
 
-emulator -wipe-data @$avd_name & # If you want to test the app from scratch
+echo "Press \"y\" key and enter if you want to wipe emulator's data"
+read wipe_data_or_not
+if [ $wipe_data_or_not == "y" ]
+then
+	echo "Wiping data"
+	emulator -wipe-data @$avd_name & # If you want to test the app from scratch
+else
+	echo "Not wiping data"
+	emulator @$avd_name & # If you want to test the app from scratch
+fi
+
 wait_until_booted
 adb install -r $PROJECT_FOLDER/bin/LEAP\ Android-debug.apk # Install the new version of the application
 adb shell am start se.leap.leapclient/.Dashboard # Run app
