@@ -97,10 +97,11 @@ public class LeapSRPSession {
 		byte[] user = null;
 		byte[] password_bytes = null;
 		byte[] colon = {};
+		String encoding = "ISO-8859-1";
 		try {
-			user = Util.trim(username.getBytes("UTF-8"));
-			colon = Util.trim(":".getBytes("UTF-8"));
-			password_bytes = Util.trim(password.getBytes("UTF-8"));
+			user = Util.trim(username.getBytes(encoding));
+			colon = Util.trim(":".getBytes(encoding));
+			password_bytes = Util.trim(password.getBytes(encoding));
 		}
 		catch(UnsupportedEncodingException e) {
 			// Use the default platform encoding
