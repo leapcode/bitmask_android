@@ -52,6 +52,9 @@ public class NewProviderDialog extends DialogFragment {
 			.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					String entered_url = url_input_field.getText().toString().trim();
+					if(!entered_url.startsWith("https://")) {
+						entered_url = "https://".concat(entered_url);
+					}
 					boolean danger_on = danger_checkbox.isChecked();
 					if(validURL(entered_url)) {
 						interface_with_ConfigurationWizard.saveProvider(entered_url, danger_on);
