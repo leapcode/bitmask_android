@@ -109,13 +109,29 @@ public class LeapSRPSession {
 			password_bytes = Util.trim(password.getBytes());
 		}
 		
+		/*byte[] passBytes = new byte[2*password.toCharArray().length];
+		int passBytesLength = 0;
+		for(int p = 0; p < password.toCharArray().length; p++) {
+			int c = (password.toCharArray()[p] & 0x00FFFF);
+			// The low byte of the char
+			byte b0 = (byte) (c & 0x0000FF);
+			// The high byte of the char
+			byte b1 = (byte) ((c & 0x00FF00) >> 8);
+			passBytes[passBytesLength ++] = b0;
+			// Only encode the high byte if c is a multi-byte char
+			if( c > 255 )
+				passBytes[passBytesLength ++] = b1;
+		}*/
+		
 		// Build the hash
 		x_digest.update(user);
 		x_digest.update(colon);
 		x_digest.update(password_bytes);
+		//x_digest.update(passBytes, 0, passBytesLength);
 		byte[] h = x_digest.digest();
+		String hstr = new BigInteger(1, h).toString(16);
 		//h = Util.trim(h);
-		
+		//25c19c2b903ff36dd5acd6e1136b8f3af008ceee45103ef9771334f4246d6226
 		x_digest.reset();
 		x_digest.update(salt);
 		x_digest.update(h);
@@ -173,8 +189,9 @@ public class LeapSRPSession {
 	 */
 	public byte[] response(byte[] salt_bytes, byte[] Bbytes) throws NoSuchAlgorithmException {
 		// Calculate x = H(s | H(U | ':' | password))
-		byte[] xb = calculatePasswordHash(username, password, salt_bytes);
+		byte[] xb = calculatePasswordHash(username, password, Util.trim(salt_bytes));
 		this.x = new BigInteger(1, xb);
+		String xstr = x.toString(16);
 
 		// Calculate v = kg^x mod N
 		String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
@@ -211,6 +228,7 @@ public class LeapSRPSession {
 		// Calculate S = (B - kg^x) ^ (a + u * x) % N
 		BigInteger S = calculateS(Bbytes);
 		byte[] S_bytes = Util.trim(S.toByteArray());
+		String Sstr = S.toString(16);
 
 		// K = SessionHash(S)
 		String hash_algorithm = params.hashAlgorithm;
@@ -219,8 +237,10 @@ public class LeapSRPSession {
 		
 		// clientHash = H(N) xor H(g) | H(U) | A | B | K
 		clientHash.update(K);
+		String Kstr = new BigInteger(1, K).toString(16);
 		
 		byte[] M1 = Util.trim(clientHash.digest());
+		String M1str = new BigInteger(1, M1).toString(16);
 		
 		// serverHash = Astr + M + K
 		serverHash.update(Abytes);
@@ -244,9 +264,10 @@ public class LeapSRPSession {
 		BigInteger u = new BigInteger(1, u_bytes);
 		
 		BigInteger B_minus_v = B.subtract(v);
+		String vstr = v.toString(16);
 		BigInteger a_ux = a.add(u.multiply(x));
+		String xstr = x.toString(16);
 		BigInteger S = B_minus_v.modPow(a_ux, N);
-
 		return S;
 	}
 

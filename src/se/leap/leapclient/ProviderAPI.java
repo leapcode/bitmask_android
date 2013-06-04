@@ -15,8 +15,10 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Scanner;
 
 import javax.net.ssl.HostnameVerifier;
@@ -296,12 +298,17 @@ public class ProviderAPI extends IntentService {
 		String json_file_content = "";
 		
 		URL provider_url = null;
+		int seconds_of_timeout = 1;
 		try {
 			provider_url = new URL(string_url);
-			json_file_content = new Scanner(provider_url.openStream()).useDelimiter("\\A").next();
+			URLConnection url_connection = provider_url.openConnection();
+			url_connection.setConnectTimeout(seconds_of_timeout*1000);
+			json_file_content = new Scanner(url_connection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch(SocketTimeoutException e) {
+			return "";
 		} catch (IOException e) {
 			// TODO SSLHandshakeException
 			// This means that we have not added ca.crt to the trusted certificates.
@@ -310,8 +317,10 @@ public class ProviderAPI extends IntentService {
 			}
 			//json_file_content = downloadStringFromProviderWithCACertAdded(string_url);
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
+
 		return json_file_content;
 	}
 
