@@ -90,10 +90,10 @@ public class LeapSRPSession {
 	 */
 	public byte[] calculatePasswordHash(String username, String password, byte[] salt)
 	{
-		password = password.replaceAll("\\\\", "\\\\\\\\");
+		//password = password.replaceAll("\\\\", "\\\\\\\\");
 		// Calculate x = H(s | H(U | ':' | password))
 		MessageDigest x_digest = newDigest();
-		// Try to convert the username to a byte[] using UTF-8
+		// Try to convert the username to a byte[] using ISO-8859-1
 		byte[] user = null;
 		byte[] password_bytes = null;
 		byte[] colon = {};
@@ -110,29 +110,12 @@ public class LeapSRPSession {
 			password_bytes = Util.trim(password.getBytes());
 		}
 		
-		/*byte[] passBytes = new byte[2*password.toCharArray().length];
-		int passBytesLength = 0;
-		for(int p = 0; p < password.toCharArray().length; p++) {
-			int c = (password.toCharArray()[p] & 0x00FFFF);
-			// The low byte of the char
-			byte b0 = (byte) (c & 0x0000FF);
-			// The high byte of the char
-			byte b1 = (byte) ((c & 0x00FF00) >> 8);
-			passBytes[passBytesLength ++] = b0;
-			// Only encode the high byte if c is a multi-byte char
-			if( c > 255 )
-				passBytes[passBytesLength ++] = b1;
-		}*/
-		
 		// Build the hash
 		x_digest.update(user);
 		x_digest.update(colon);
 		x_digest.update(password_bytes);
-		//x_digest.update(passBytes, 0, passBytesLength);
 		byte[] h = x_digest.digest();
-		String hstr = new BigInteger(1, h).toString(16);
-		//h = Util.trim(h);
-		//25c19c2b903ff36dd5acd6e1136b8f3af008ceee45103ef9771334f4246d6226
+		
 		x_digest.reset();
 		x_digest.update(salt);
 		x_digest.update(h);
