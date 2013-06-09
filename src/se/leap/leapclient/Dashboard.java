@@ -7,9 +7,6 @@ import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.leapclient.R;
-import se.leap.leapclient.R.id;
-import se.leap.leapclient.R.layout;
-import se.leap.leapclient.R.menu;
 import se.leap.openvpn.AboutFragment;
 import se.leap.openvpn.MainActivity;
 import android.app.Activity;
@@ -116,7 +113,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	private void serviceItemEIP() {
 		// FIXME Provider service (eip/openvpn)	
-		View eipOverview = ((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
+		((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
 
 		// Set our EIP type title
 		eipTypeTV = (TextView) findViewById(R.id.eipType);

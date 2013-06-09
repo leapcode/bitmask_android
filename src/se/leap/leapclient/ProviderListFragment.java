@@ -2,9 +2,6 @@ package se.leap.leapclient;
 
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;

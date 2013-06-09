@@ -10,8 +10,6 @@ import org.json.JSONObject;
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import se.leap.leapclient.R;
-import se.leap.leapclient.R.id;
-import se.leap.leapclient.R.layout;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -26,14 +24,8 @@ import android.view.View;
 import android.widget.Toast;
 
 public class ConfigurationWizard extends Activity
-        implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, Receiver {
+implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, Receiver {
 
-	
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
-    private boolean mTwoPane;
 	private ProviderItem mSelectedProvider;
 	private ProgressDialog mProgressDialog;
 	private Intent mConfigState = new Intent();
