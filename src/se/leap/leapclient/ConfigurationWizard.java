@@ -17,6 +17,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ public class ConfigurationWizard extends Activity
      */
     private boolean mTwoPane;
 	private ProviderItem mSelectedProvider;
+	private ProgressDialog mProgressDialog;
 	private Intent mConfigState = new Intent();
 
 	protected static final String PROVIDER_SET = "PROVIDER SET";
@@ -81,9 +83,11 @@ public class ConfigurationWizard extends Activity
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
 			if (ConfigHelper.getBoolFromSharedPref(ConfigHelper.ALLOWED_ANON)){
+				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_certificates));
 				mConfigState.putExtra(SERVICES_RETRIEVED, true);
 				downloadAnonCert();
 			} else {
+				mProgressDialog.dismiss();
 				Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 				setResult(RESULT_OK);
 				finish();
@@ -105,28 +109,33 @@ public class ConfigurationWizard extends Activity
 				
 				mConfigState.setAction(PROVIDER_SET);
 				
+				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
 				downloadJSONFiles(mSelectedProvider);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 
+				mProgressDialog.dismiss();
 				Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
 				setResult(RESULT_CANCELED, mConfigState);
 				finish();
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), "Install a new version of this app.", Toast.LENGTH_LONG).show();
 			setResult(RESULT_CANCELED, mConfigState);
 			finish();
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), "Your anon cert has been correctly downloaded", Toast.LENGTH_LONG).show();
 			Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 			//mConfigState.putExtra(CERTIFICATE_RETRIEVED, true); // If this isn't the last step and finish() is moved...
         	setResult(RESULT_OK);
         	finish();
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), "Your anon cert was not downloaded", Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);
 			finish();
@@ -146,6 +155,7 @@ public class ConfigurationWizard extends Activity
     		ProviderItem provider = preseeded_providers_iterator.next();
     		if(provider.id.equalsIgnoreCase(id))
     		{
+    			mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
     			mSelectedProvider = provider;
     			saveProviderJson(mSelectedProvider);
     		}
@@ -192,6 +202,7 @@ public class ConfigurationWizard extends Activity
     			ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
     			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, current_provider_item.danger_on);
     			
+    			mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
     			downloadJSONFiles(mSelectedProvider);
     		}
     	} catch (JSONException e) {
