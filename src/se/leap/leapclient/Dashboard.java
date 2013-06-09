@@ -69,6 +69,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			if ( resultCode == RESULT_OK ){
 				// Configuration done, get our preferences again
 				preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
+				// Update eip-service local parsing
+				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				
 				buildDashboard();
 			} else {

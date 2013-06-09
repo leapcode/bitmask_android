@@ -35,7 +35,6 @@ import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.net.VpnService;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Build;
 import android.os.IBinder;
