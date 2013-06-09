@@ -271,5 +271,7 @@
     <string name="login_button">Log In</string>
     <string name="logout_button">Log Out</string>
     <string name="danger_checkbox">Trust completely</string>
+    <string name="config_error_parsing">Error parsing provider\'s responses!</string>
+    <string name="success">Success!</string>
 
 </resources>
