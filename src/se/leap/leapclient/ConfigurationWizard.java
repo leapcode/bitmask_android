@@ -84,7 +84,7 @@ public class ConfigurationWizard extends Activity
 				provider_json = new JSONObject(resultData.getString(ConfigHelper.PROVIDER_KEY));
 				boolean danger_on = resultData.getBoolean(ConfigHelper.DANGER_ON);
 				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
-				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, new JSONObject().put(ConfigHelper.DANGER_ON, danger_on));
+				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, danger_on);
 				downloadAnonCert();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -163,9 +163,8 @@ public class ConfigurationWizard extends Activity
     			provider_contents = new Scanner(ConfigHelper.openFileInputStream(current_provider_item.provider_json_filename)).useDelimiter("\\A").next();
     			provider_json = new JSONObject(provider_contents);
     			ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
-    			ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, new JSONObject().put(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON)));
-    			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, new JSONObject().put(ConfigHelper.DANGER_ON, current_provider_item.danger_on));
-				downloadAnonCert();
+    			ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
+    			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, current_provider_item.danger_on);
     			return true;
     		}
     	} catch (JSONException e) {
@@ -194,31 +193,28 @@ public class ConfigurationWizard extends Activity
 	
 	private boolean downloadAnonCert() {
 
-		JSONObject allowed_anon;
-		try {
-			allowed_anon = new JSONObject(ConfigHelper.getStringFromSharedPref(ConfigHelper.ALLOWED_ANON));
-			if(allowed_anon.getBoolean(ConfigHelper.ALLOWED_ANON)) {
-				providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-				providerAPI_result_receiver.setReceiver(this);
-				
-				Intent provider_API_command = new Intent(this, ProviderAPI.class);
-				
-				Bundle method_and_parameters = new Bundle();
-				
-				method_and_parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.ANON_CERTIFICATE);
-				
-				provider_API_command.putExtra(ConfigHelper.DOWNLOAD_CERTIFICATE, method_and_parameters);
-				provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		boolean allowed_anon;
+		allowed_anon = ConfigHelper.getBoolFromSharedPref(ConfigHelper.ALLOWED_ANON);
+		if(allowed_anon) {
+			providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+			providerAPI_result_receiver.setReceiver(this);
 
-				startService(provider_API_command);
-				return true;
-			} else {
-				return false;
-			}
-		} catch (JSONException e) {
+			Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+			Bundle method_and_parameters = new Bundle();
+
+			method_and_parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.ANON_CERTIFICATE);
+
+			provider_API_command.putExtra(ConfigHelper.DOWNLOAD_CERTIFICATE, method_and_parameters);
+			provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+
+			startService(provider_API_command);
+			return true;
+		} else {
 			return false;
 		}
 	}
+	
 	public void addNewProvider(View view) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.NEW_PROVIDER_DIALOG);

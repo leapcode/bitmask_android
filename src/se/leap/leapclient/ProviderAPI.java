@@ -117,8 +117,7 @@ public class ProviderAPI extends IntentService {
 		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
 		try {
 			String cert_string = getStringFromProvider(cert_url, danger_on);
-			JSONObject cert_json = new JSONObject().put(ConfigHelper.MAIN_CERT_KEY, cert_string);
-			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, cert_json);
+			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, cert_string);
 			JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url, danger_on);
 			ConfigHelper.saveSharedPref(ConfigHelper.EIP_SERVICE_KEY, eip_service_json);
 			return true;
@@ -227,7 +226,7 @@ public class ProviderAPI extends IntentService {
 			if(provider_json == null) {
 				result.putBoolean(ConfigHelper.RESULT_KEY, false);
 			} else {    			
-				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, new JSONObject().put(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON)));
+				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
 
 				String filename = provider_name + "_provider.json".replaceFirst("__", "_");
 				ConfigHelper.saveFile(filename, provider_json.toString());
@@ -333,8 +332,7 @@ public class ProviderAPI extends IntentService {
 		try {
 			cf = CertificateFactory.getInstance("X.509");
 
-			String cert_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
-			String cert_string = new JSONObject(cert_json_string).getString(ConfigHelper.MAIN_CERT_KEY);
+			String cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
 			cert_string = cert_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
 			byte[] cert_bytes = Base64.decode(cert_string, Base64.DEFAULT);
 			InputStream caInput =  new ByteArrayInputStream(cert_bytes);
@@ -381,10 +379,8 @@ public class ProviderAPI extends IntentService {
 		} catch (KeyManagementException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+
 		return json_file_content;
 	}
 	
@@ -424,10 +420,9 @@ public class ProviderAPI extends IntentService {
 	}
 
 	private boolean getNewCert(Bundle task) {
-		String provider_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY);
 		String type_of_certificate = task.getString(ConfigHelper.TYPE_OF_CERTIFICATE);
 		try {
-			JSONObject provider_json = new JSONObject(provider_json_string);
+			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY);
 			URL provider_main_url = new URL(provider_json.getString(ConfigHelper.API_URL_KEY).replace("api.", ""));
 			String new_cert_string_url = provider_main_url.getProtocol() + "://" + provider_main_url.getHost() + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY) + "/" + ConfigHelper.CERT_KEY;
 
@@ -439,12 +434,10 @@ public class ProviderAPI extends IntentService {
 				CookieHandler.setDefault(cookieManager);
 			}
 			
-			String danger_on_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.DANGER_ON);
-			boolean danger_on = new JSONObject(danger_on_json_string).getBoolean(ConfigHelper.DANGER_ON);
+			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ConfigHelper.DANGER_ON);
 			String cert_string = getStringFromProvider(new_cert_string_url, danger_on);
 			if(!cert_string.isEmpty()) { 
-				JSONObject cert_json = new JSONObject().put(ConfigHelper.CERT_KEY, cert_string);
-				ConfigHelper.saveSharedPref(ConfigHelper.CERT_KEY, cert_json);
+				ConfigHelper.saveSharedPref(ConfigHelper.CERT_KEY, cert_string);
 				return true;
 			} else {
 				return false;

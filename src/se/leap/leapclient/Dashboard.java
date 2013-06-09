@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	protected static final int CONFIGURE_LEAP = 0;
 	
+	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
 
@@ -45,6 +47,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		app = this;
+		
 		setContentView(R.layout.client_dashboard);
 
 		preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
@@ -288,4 +293,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		}
 	}
 
+	// Used for getting Context when outside of a class extending Context
+	public static Context getAppContext() {
+		return app;
+	}
 }

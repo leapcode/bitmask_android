@@ -18,6 +18,7 @@ import java.security.cert.X509Certificate;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.util.Log;
@@ -88,6 +89,17 @@ public class ConfigHelper {
     INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
     ;
 	
+    
+    private static boolean checkSharedPrefs() {
+    	try {
+    		shared_preferences = Dashboard.getAppContext().getSharedPreferences(PREFERENCES_KEY,Context.MODE_PRIVATE);
+    	} catch (Exception e) {
+    		return false;
+    	}
+    	
+    	return true;
+    }
+    
 	public static void saveSharedPref(String shared_preferences_key, JSONObject content) {
 
 		SharedPreferences.Editor shared_preferences_editor = shared_preferences
@@ -97,16 +109,49 @@ public class ConfigHelper {
 		shared_preferences_editor.commit();
 	}
 
+	public static void saveSharedPref(String shared_preferences_key, String content) {
+
+		SharedPreferences.Editor shared_preferences_editor = shared_preferences
+				.edit();
+		shared_preferences_editor.putString(shared_preferences_key,
+				content);
+		shared_preferences_editor.commit();
+	}
+	
+	public static void saveSharedPref(String shared_preferences_key, boolean content) {
+
+		SharedPreferences.Editor shared_preferences_editor = shared_preferences
+				.edit();
+		shared_preferences_editor.putBoolean(shared_preferences_key, content);
+		shared_preferences_editor.commit();
+	}
+	
 	public static String getStringFromSharedPref(String shared_preferences_key) {
-		String value = "";
-		if(shared_preferences != null) {
-			String content = shared_preferences.getString(shared_preferences_key, "");
-			try {
-				JSONObject json_object = new JSONObject(content);
-				value = json_object.toString();
-			} catch (JSONException e) {
-				value = content;
-			}
+		String content = null;
+		if ( checkSharedPrefs() ) {
+			content = shared_preferences.getString(shared_preferences_key, "");
+		}
+		return content;
+	}
+	
+	public static JSONObject getJsonFromSharedPref(String shared_preferences_key) throws JSONException {
+		JSONObject content = null;
+		if ( checkSharedPrefs() ) {
+			content = new JSONObject( shared_preferences.getString(shared_preferences_key, "") );
+		}
+		
+		return content;
+	}
+	
+	/*
+	 * This method defaults to false.
+	 * If you use this method, be sure to fail-closed on false!
+	 * TODO This is obviously less than ideal...solve it!
+	 */
+	public static boolean getBoolFromSharedPref(String shared_preferences_key) {
+		boolean value = false;
+		if ( checkSharedPrefs() ) {
+			value = shared_preferences.getBoolean(shared_preferences_key, false);
 		}
 		return value;
 	}
