@@ -238,7 +238,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 
 		mProfile = ProfileManager.get(profileUUID);
 
-		showNotification("Starting VPN " + mProfile.mName,"Starting VPN " + mProfile.mName, false,0);
+		//showNotification("Starting VPN " + mProfile.mName,"Starting VPN " + mProfile.mName, false,0);
 
 
 		OpenVPN.addStateListener(this);
@@ -487,7 +487,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 
 		if("BYTECOUNT".equals(state)) {
 			if(mDisplayBytecount) {
-				showNotification(logmessage,null,true,mConnecttime);
+				//showNotification(logmessage,null,true,mConnecttime);
 			}
 		} else {
 			if("CONNECTED".equals(state)) {
@@ -501,7 +501,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 			// This also mean we are no longer connected, ignore bytecount messages until next
 			// CONNECTED
 			String ticker = getString(resid);
-			showNotification(getString(resid) +" " + logmessage,ticker,false,0);
+			//showNotification(getString(resid) +" " + logmessage,ticker,false,0);
 
 		}
 	}
