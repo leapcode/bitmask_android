@@ -73,23 +73,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
 				.commit();
 		}
-		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
-			if (ConfigHelper.getBoolFromSharedPref(ConfigHelper.ALLOWED_ANON)){
-				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_certificates));
-				mConfigState.putExtra(SERVICES_RETRIEVED, true);
-				downloadAnonCert();
-			} else {
-				mProgressDialog.dismiss();
-				Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
-				setResult(RESULT_OK);
-				finish();
-			}
-		}
-		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
-        	Toast.makeText(getApplicationContext(), "You have not entered a LEAP provider URL or it is unavailable", Toast.LENGTH_LONG).show();
-        	setResult(RESULT_CANCELED, mConfigState);
-        	finish();
-		}
 		else if(resultCode == ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			JSONObject provider_json;
 			try {
@@ -118,6 +101,23 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			Toast.makeText(getApplicationContext(), "Install a new version of this app.", Toast.LENGTH_LONG).show();
 			setResult(RESULT_CANCELED, mConfigState);
 			finish();
+		}
+		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
+			if (ConfigHelper.getBoolFromSharedPref(ConfigHelper.ALLOWED_ANON)){
+				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_certificates));
+				mConfigState.putExtra(SERVICES_RETRIEVED, true);
+				downloadAnonCert();
+			} else {
+				mProgressDialog.dismiss();
+				Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
+				setResult(RESULT_OK);
+				finish();
+			}
+		}
+		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
+        	Toast.makeText(getApplicationContext(), "You have not entered a LEAP provider URL or it is unavailable", Toast.LENGTH_LONG).show();
+        	setResult(RESULT_CANCELED, mConfigState);
+        	finish();
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
