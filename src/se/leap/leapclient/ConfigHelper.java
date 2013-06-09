@@ -73,7 +73,9 @@ public class ConfigHelper {
     PASSWORD_KEY = "password",
     ALLOW_REGISTRATION_KEY = "allow_registration",
     EIP_SERVICE_API_PATH = "config/eip-service.json",
-    ERRORS_KEY = "errors"
+    ERRORS_KEY = "errors",
+    RECEIVER_TAG = "receiverTag",
+    REQUEST_TAG = "requestTag";
     ;
 	
     final public static String NG_1024 =

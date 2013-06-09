@@ -13,12 +13,21 @@ import org.json.JSONObject;
 import se.leap.openvpn.ConfigParser;
 import se.leap.openvpn.ConfigParser.ConfigParseError;
 import se.leap.openvpn.LaunchVPN;
-import se.leap.openvpn.OpenVpnManagementThread;
+import se.leap.openvpn.OpenVpnService;
+import se.leap.openvpn.OpenVpnService.LocalBinder;
 import se.leap.openvpn.ProfileManager;
 import se.leap.openvpn.VpnProfile;
+
+import android.app.Activity;
 import android.app.IntentService;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.ResultReceiver;
 import android.util.Log;
 
 /**
@@ -31,7 +40,17 @@ public final class EIP extends IntentService {
 	public final static String ACTION_STOP_EIP = "se.leap.leapclient.STOP_EIP";
 	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.leapclient.UPDATE_EIP_SERVICE";
 	
+	public final static String ACTION_IS_EIP_RUNNING = "se.leap.leapclient.IS_RUNNING";
+	
+	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
+	
 	private static Context context;
+	private static ResultReceiver mReceiver;
+	// Binder to OpenVpnService for comm ops
+	private static OpenVpnService mVpnService;
+	private static boolean mBound = false;
+	// Used to store actions to "resume" onServiceConnection
+	private static String mPending = null;
 	
 	// Represents our Provider's eip-service.json
 	private static JSONObject eipDefinition = null;
@@ -56,19 +75,97 @@ public final class EIP extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		this.retreiveVpnService();
+	}
+	
+	@Override
+	public void onDestroy() {
+		unbindService(mVpnServiceConn);
+		mBound = false;
+
+		super.onDestroy();
 	}
 	
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		// Get our action from the Intent
 		String action = intent.getAction();
+		// Get the ResultReceiver, if any
+		mReceiver = intent.getParcelableExtra(ConfigHelper.RECEIVER_TAG);
 		
+		if ( action == ACTION_IS_EIP_RUNNING )
+			this.isRunning();
 		if ( action == ACTION_UPDATE_EIP_SERVICE )
 			this.updateEIPService();
 		else if ( action == ACTION_START_EIP )
 			this.startEIP();
 		else if ( action == ACTION_STOP_EIP )
 			this.stopEIP();
+	}
+	
+	private void retreiveVpnService() {
+		Intent bindIntent = new Intent(this,OpenVpnService.class);
+		bindIntent.setAction(OpenVpnService.RETRIEVE_SERVICE);
+		bindService(bindIntent, mVpnServiceConn, 0);
+	}
+	
+	private static ServiceConnection mVpnServiceConn = new ServiceConnection() {
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			LocalBinder binder = (LocalBinder) service;
+			mVpnService = binder.getService();
+			mBound = true;
+
+			if (mReceiver != null && mPending != null) {
+				
+				boolean running = mVpnService.isRunning();
+				int resultCode = Activity.RESULT_CANCELED;
+				
+				if (mPending.equals(ACTION_IS_EIP_RUNNING))
+					resultCode = (running) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+				if (mPending.equals(ACTION_START_EIP))
+					resultCode = (running) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+				else if (mPending.equals(ACTION_STOP_EIP))
+					resultCode = (running) ? Activity.RESULT_CANCELED
+							: Activity.RESULT_OK;
+				Bundle resultData = new Bundle();
+				resultData.putString(ConfigHelper.REQUEST_TAG, EIP_NOTIFICATION);
+				mReceiver.send(resultCode, resultData);
+				
+				mPending = null;
+			}
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			// XXX tell mReceiver!!
+			mBound = false;
+			
+			if (mReceiver != null){
+				Bundle resultData = new Bundle();
+				resultData.putString(ConfigHelper.REQUEST_TAG, EIP_NOTIFICATION);
+				mReceiver.send(Activity.RESULT_CANCELED, resultData);
+			}
+		}
+	
+	};
+	
+	private void isRunning() {
+		// TODO I don't like that whatever requested this never receives a response
+		//		if OpenVpnService has not been START_SERVICE, though the one place this is used that's okay
+		if (mBound) {
+			if (mReceiver != null){
+				Bundle resultData = new Bundle();
+				resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_IS_EIP_RUNNING);
+				int resultCode = (mVpnService.isRunning()) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+				mReceiver.send(resultCode, resultData);
+			}
+		} else {
+			mPending = ACTION_IS_EIP_RUNNING;
+			this.retreiveVpnService();
+		}
 	}
 
 	private void startEIP() {
@@ -80,11 +177,50 @@ public final class EIP extends IntentService {
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.putExtra(LaunchVPN.EXTRA_KEY, activeGateway.mVpnProfile.getUUID().toString() );
 		intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.mVpnProfile.getName() );
+		intent.putExtra(ConfigHelper.RECEIVER_TAG, mReceiver);
 		startActivity(intent);
+		// Let's give it 2s to get rolling... TODO there really should be a better way to do this, or it's not needed.
+		// Read more code in .openvpn package
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// Bind OpenVpnService for comm ops
+		if (!mBound){
+			mPending = ACTION_START_EIP;
+			this.retreiveVpnService();
+		} else {
+			if (mReceiver != null) {
+				Bundle resultData = new Bundle();
+				resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_START_EIP);
+				mReceiver.send(Activity.RESULT_OK, resultData);
+			}
+		}
 	}
 	
 	private void stopEIP() {
-		OpenVpnManagementThread.stopOpenVPN();
+		if (mBound){
+			mVpnService.onRevoke();
+
+			/*if (mReceiver != null){
+				Bundle resultData = new Bundle();
+				resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_STOP_EIP);
+				mReceiver.send(Activity.RESULT_OK, resultData);
+			}*/
+		} else {
+			// TODO If OpenVpnService isn't bound, does that really always mean it's not running?
+			//		If it's not running, bindService doesn't work w/o START_SERVICE action, so...
+			/*mPending = ACTION_STOP_EIP;
+			this.retreiveVpnService();*/
+		}
+		// Remove this if above comes back
+		if (mReceiver != null){
+			Bundle resultData = new Bundle();
+			resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_STOP_EIP);
+			mReceiver.send(Activity.RESULT_OK, resultData);
+		}
 	}
 
 	private void updateEIPService() {

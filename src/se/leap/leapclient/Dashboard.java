@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.openvpn.AboutFragment;
 import se.leap.openvpn.MainActivity;
+import se.leap.openvpn.OpenVPN;
+import se.leap.openvpn.OpenVPN.StateListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -19,6 +21,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ResultReceiver;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +33,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface, Receiver {
+public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver,StateListener {
 
 	protected static final int CONFIGURE_LEAP = 0;
 	
@@ -40,8 +43,14 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	private TextView providerNameTV;
 	private TextView eipTypeTV;
+	private Switch eipSwitch;
+	private View eipDetail;
+	private TextView eipStatus;
+	
+	private boolean mEipWait = false;
 
     public ProviderAPIResultReceiver providerAPI_result_receiver;
+    private EIPReceiver mEIPReceiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +70,24 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			buildDashboard();
 		else
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		// TODO null provider should only happen before ConfigurationWizard has run, once...better way?
+		if (provider != null)
+			if (provider.hasEIP() && provider.getEIPType() == "OpenVPN")
+				OpenVPN.removeStateListener(this);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		// TODO null provider should only happen before ConfigurationWizard has run, once...better way?
+		if (provider != null)
+			if (provider.hasEIP() && provider.getEIPType() == "OpenVPN")
+				OpenVPN.addStateListener(this);
 	}
 	
 	@Override
@@ -111,36 +138,55 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if ( provider.hasEIP() /*&& provider.getEIP() != null*/){
 			// FIXME let's schedule this, so we're not doing it when we load the app
 			startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
+			if (provider.getEIPType() == "OpenVPN")
+				OpenVPN.addStateListener(this);
 			serviceItemEIP();
 		}
 	}
 
 	private void serviceItemEIP() {
+		mEIPReceiver = new EIPReceiver(new Handler());
+		mEIPReceiver.setReceiver(this);
+
+		Intent intent = new Intent(this,EIP.class);
+		intent.setAction(EIP.ACTION_IS_EIP_RUNNING);
+		intent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
+		startService(intent);
+		
 		((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
 
 		// Set our EIP type title
 		eipTypeTV = (TextView) findViewById(R.id.eipType);
 		eipTypeTV.setText(provider.getEIPType());
+		
 		// Show our EIP detail
-		View eipDetail = ((RelativeLayout) findViewById(R.id.eipDetail));
+		eipDetail = ((RelativeLayout) findViewById(R.id.eipDetail));
 		View eipSettings = findViewById(R.id.eipSettings);
 		eipSettings.setVisibility(View.GONE); // FIXME too!
 		eipDetail.setVisibility(View.VISIBLE);
+		eipStatus = (TextView) findViewById(R.id.eipStatus);
 
 		// TODO Bind our switch to run our EIP
 		// What happens when our VPN stops running?  does it call the listener?
-		Switch eipSwitch = (Switch) findViewById(R.id.eipSwitch);
+		eipSwitch = (Switch) findViewById(R.id.eipSwitch);
 		eipSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (!mEipWait){
+					// We're gonna have to have some patience!
+					buttonView.setClickable(false);
+					mEipWait = true;
+					
 					Intent vpnIntent;
 					if (isChecked){
 						vpnIntent = new Intent(EIP.ACTION_START_EIP);
 					} else {
 						vpnIntent = new Intent(EIP.ACTION_STOP_EIP);
 					}
+					vpnIntent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
 					startService(vpnIntent);
 				}
+			}
 		});
 
 		//TODO write our info into the view	fragment that will expand with details and a settings button
@@ -332,5 +378,91 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	// Used for getting Context when outside of a class extending Context
 	public static Context getAppContext() {
 		return app;
+	}
+	
+	@Override
+	public void updateState(final String state, final String logmessage, final int localizedResId) {
+		// Note: "states" are not organized anywhere...collected state strings:
+		//		NOPROCESS,NONETWORK,BYTECOUNT,AUTH_FAILED + some parsing thing ( WAIT(?),AUTH,GET_CONFIG,ASSIGN_IP,CONNECTED(?) )
+		// TODO follow-back calls to updateState to find set variable values passed as first param & third param (find those strings...are they all R.string.STATE_* ?)
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				if (eipStatus != null) {
+					String prefix = getString(localizedResId) + ":";
+					if (state.equals("BYTECOUNT") || state.equals("NOPROCESS"))
+						prefix = "";
+					eipStatus.setText(prefix + logmessage);
+				}
+			}
+		});
+	}
+
+	protected class EIPReceiver extends ResultReceiver {
+		
+		Dashboard mDashboard;
+		
+		protected EIPReceiver(Handler handler){
+			super(handler);
+		}
+		
+		public void setReceiver(Dashboard receiver) {
+			mDashboard = receiver;
+		}
+
+		@Override
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			
+			// What were we asking for, again?
+			String request = resultData.getString(ConfigHelper.REQUEST_TAG);
+			// Should the EIP switch be on?
+			mEipWait = true;
+			boolean checked = false;
+			
+			if (request == EIP.ACTION_IS_EIP_RUNNING) {
+				switch (resultCode){
+				case RESULT_OK:
+					checked = true;
+					break;
+				case RESULT_CANCELED:
+					checked = false;
+					break;
+				}
+			} else if (request == EIP.ACTION_START_EIP) {
+				switch (resultCode){
+				case RESULT_OK:
+					checked = true;
+					break;
+				case RESULT_CANCELED:
+					checked = false;
+					break;
+				}
+			} else if (request == EIP.ACTION_STOP_EIP) {
+				switch (resultCode){
+				case RESULT_OK:
+					checked = false;
+					break;
+				case RESULT_CANCELED:
+					checked = true;
+					break;
+				}
+			} else if (request == EIP.EIP_NOTIFICATION) {
+				switch  (resultCode){
+				case RESULT_OK:
+					checked = true;
+					break;
+				case RESULT_CANCELED:
+					checked = false;
+					break;
+				}
+			}
+			
+			Switch eipS = ((Switch) mDashboard.findViewById(R.id.eipSwitch));
+			eipS.setChecked(checked);
+			eipS.setClickable(true);
+			mEipWait = false;
+		}
 	}
 }

@@ -19,6 +19,9 @@ package se.leap.openvpn;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Vector;
+
+import se.leap.leapclient.ConfigHelper;
+import se.leap.leapclient.EIP;
 import se.leap.leapclient.R;
 
 import android.app.Activity;
@@ -32,6 +35,7 @@ import android.content.SharedPreferences;
 import android.net.VpnService;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
@@ -76,6 +80,8 @@ public class LaunchVPN extends ListActivity implements OnItemClickListener {
 
 	public static final int START_VPN_PROFILE= 70;
 	
+	// Dashboard, maybe more, want to know!
+	private ResultReceiver mReceiver;
 
 	private ProfileManager mPM;
 	private VpnProfile mSelectedProfile;
@@ -98,6 +104,9 @@ public class LaunchVPN extends ListActivity implements OnItemClickListener {
 
 		final Intent intent = getIntent();
 		final String action = intent.getAction();
+		
+		// If something wants feedback, they sent us a Receiver
+		mReceiver = intent.getParcelableExtra(ConfigHelper.RECEIVER_TAG);
 		
 		// If the intent is a request to create a shortcut, we'll do that and exit
 
@@ -273,7 +282,11 @@ public class LaunchVPN extends ListActivity implements OnItemClickListener {
 					new startOpenVpnThread().start();
 				}
 			} else if (resultCode == Activity.RESULT_CANCELED) {
-				// User does not want us to start, so we just vanish
+				// User does not want us to start, so we just vanish (well, now we tell our receiver, then vanish)
+				Bundle resultData = new Bundle();
+				// For now, nothing else is calling, so this "request" string is good enough
+				resultData.putString(ConfigHelper.REQUEST_TAG, EIP.ACTION_START_EIP);
+				mReceiver.send(RESULT_CANCELED, resultData);
 				finish();
 			}
 		}
@@ -357,6 +370,11 @@ public class LaunchVPN extends ListActivity implements OnItemClickListener {
 		@Override
 		public void run() {
 			VPNLaunchHelper.startOpenVpn(mSelectedProfile, getBaseContext());
+			// Tell whom-it-may-concern that we started VPN
+			Bundle resultData = new Bundle();
+			// For now, nothing else is calling, so this "request" string is good enough
+			resultData.putString(ConfigHelper.REQUEST_TAG, EIP.ACTION_START_EIP);
+			mReceiver.send(RESULT_OK, resultData);
 			finish();
 
 		}

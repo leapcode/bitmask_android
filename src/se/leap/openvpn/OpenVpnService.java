@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Vector;
+
+import se.leap.leapclient.Dashboard;
 import se.leap.leapclient.R;
 
 import android.annotation.TargetApi;
@@ -44,6 +46,7 @@ import se.leap.openvpn.OpenVPN.StateListener;
 
 public class OpenVpnService extends VpnService implements StateListener, Callback {
 	public static final String START_SERVICE = "se.leap.openvpn.START_SERVICE";
+	public static final String RETRIEVE_SERVICE = "se.leap.openvpn.RETRIEVE_SERVICE";
 
 	private Thread mProcessThread=null;
 
@@ -88,7 +91,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	@Override
 	public IBinder onBind(Intent intent) {
 		String action = intent.getAction();
-		if( action !=null && action.equals(START_SERVICE))
+		if( action !=null && (action.equals(START_SERVICE) || action.equals(RETRIEVE_SERVICE)) )
 			return mBinder;
 		else
 			return super.onBind(intent);
@@ -222,7 +225,8 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {		
 		
-		if(intent != null && intent.getAction() !=null &&intent.getAction().equals(START_SERVICE))
+		if( intent != null && intent.getAction() !=null &&
+				(intent.getAction().equals(START_SERVICE) || intent.getAction().equals(RETRIEVE_SERVICE)) )
 			return START_NOT_STICKY;
 			
 
@@ -465,6 +469,13 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		mLocalIPv6 = ipv6addr;
 	}
 
+	public boolean isRunning() {
+		if (mStarting == true || mProcessThread != null)
+			return true;
+		else
+			return false;
+	}
+	
 	@Override
 	public void updateState(String state,String logmessage, int resid) {
 		// If the process is not running, ignore any state, 
