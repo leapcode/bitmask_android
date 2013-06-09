@@ -13,10 +13,12 @@ import se.leap.leapclient.R.menu;
 import se.leap.openvpn.AboutFragment;
 import se.leap.openvpn.MainActivity;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -58,10 +60,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		// Check if we have preferences, run configuration wizard if not
 		// TODO We should do a better check for config that this!
-		if (!preferences.contains("provider") )
-			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
-		else
+		if (preferences.contains("provider") && preferences.getString(ConfigHelper.PROVIDER_KEY, null) != null)
 			buildDashboard();
+		else
+			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 	}
 	
 	@Override
@@ -73,8 +75,26 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				
 				buildDashboard();
 			} else {
-				// Something went wrong... TODO figure out what
-				// TODO Error dialog
+				// Something went wrong in configuration
+				AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getAppContext());
+				alertBuilder.setTitle(getResources().getString(R.string.setup_error_title));
+				alertBuilder
+					.setMessage(getResources().getString(R.string.setup_error_text))
+					.setCancelable(false)
+					.setPositiveButton(getResources().getString(R.string.setup_error_configure_button), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							startActivityForResult(new Intent(getAppContext(),ConfigurationWizard.class),CONFIGURE_LEAP);
+						}
+					})
+					.setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							SharedPreferences.Editor prefsEdit = getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE).edit();
+							prefsEdit.remove(ConfigHelper.PROVIDER_KEY).commit();
+							finish();
+						}
+					});
 			}
 		}
 	}

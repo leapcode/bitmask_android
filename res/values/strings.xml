@@ -271,6 +271,10 @@
     <string name="login_button">Log In</string>
     <string name="logout_button">Log Out</string>
     <string name="danger_checkbox">Trust completely</string>
+    <string name="setup_error_title">Configuration Error</string>
+    <string name="setup_error_configure_button">Configure</string>
+    <string name="setup_error_close_button">Exit</string>
+    <string name="setup_error_text">There was an error configuring LEAP with your chosen provider.\n\nYou may choose to reconfigure, or exit and configure a provider upon next launch.</string>
     <string name="config_wait_title">Configuring LEAP provider</string>
     <string name="config_connecting_provider">Downloading provider configuration</string>
     <string name="config_downloading_services">Downloading service definitions</string>
