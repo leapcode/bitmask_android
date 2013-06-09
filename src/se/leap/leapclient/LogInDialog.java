@@ -47,7 +47,7 @@ public class LogInDialog extends DialogFragment {
 	}
 
 	boolean wellFormedPassword(String entered_password) {
-		return entered_password.length() > 8;
+		return entered_password.length() >= 8;
 	}
 	
 	public interface LogInDialogInterface {
