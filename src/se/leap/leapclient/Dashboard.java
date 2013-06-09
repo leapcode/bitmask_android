@@ -6,7 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
-import se.leap.leapclient.R;
 import se.leap.openvpn.AboutFragment;
 import se.leap.openvpn.MainActivity;
 import android.app.Activity;
@@ -26,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.CompoundButton;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -100,26 +100,32 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	
 	private void buildDashboard() {
 		// Get our provider
-				provider = Provider.getInstance();
-				provider.init( this );
-				
-				// Set provider name in textview
-				providerNameTV = (TextView) findViewById(R.id.providerName);
-				providerNameTV.setText(provider.getName());
-				providerNameTV.setTextSize(28); // TODO maybe to some calculating, or a marquee?
-				
-				// TODO Inflate layout fragments for provider's services
-				if ( provider.hasEIP() )
-					serviceItemEIP();
+		provider = Provider.getInstance();
+		provider.init( this );
+
+		// Set provider name in textview
+		providerNameTV = (TextView) findViewById(R.id.providerName);
+		providerNameTV.setText(provider.getName());
+		providerNameTV.setTextSize(28); // TODO maybe to some calculating, or a marquee?
+
+		if ( provider.hasEIP() /*&& provider.getEIP() != null*/){
+			// FIXME let's schedule this, so we're not doing it when we load the app
+			startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
+			serviceItemEIP();
+		}
 	}
 
 	private void serviceItemEIP() {
-		// FIXME Provider service (eip/openvpn)	
 		((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
 
 		// Set our EIP type title
 		eipTypeTV = (TextView) findViewById(R.id.eipType);
 		eipTypeTV.setText(provider.getEIPType());
+		// Show our EIP detail
+		View eipDetail = ((RelativeLayout) findViewById(R.id.eipDetail));
+		View eipSettings = findViewById(R.id.eipSettings);
+		eipSettings.setVisibility(View.GONE); // FIXME too!
+		eipDetail.setVisibility(View.VISIBLE);
 
 		// TODO Bind our switch to run our EIP
 		// What happens when our VPN stops running?  does it call the listener?
@@ -127,12 +133,14 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		eipSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if ( isChecked ){
-					//TODO startVPN();
-				} else {
-					//TODO stopVPN();
+					Intent vpnIntent;
+					if (isChecked){
+						vpnIntent = new Intent(EIP.ACTION_START_EIP);
+					} else {
+						vpnIntent = new Intent(EIP.ACTION_STOP_EIP);
+					}
+					startService(vpnIntent);
 				}
-			}
 		});
 
 		//TODO write our info into the view	fragment that will expand with details and a settings button

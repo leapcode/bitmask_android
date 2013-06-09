@@ -3,6 +3,7 @@ package se.leap.leapclient;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import org.json.JSONArray;
@@ -11,6 +12,8 @@ import org.json.JSONObject;
 
 import se.leap.openvpn.ConfigParser;
 import se.leap.openvpn.ConfigParser.ConfigParseError;
+import se.leap.openvpn.LaunchVPN;
+import se.leap.openvpn.OpenVpnManagementThread;
 import se.leap.openvpn.ProfileManager;
 import se.leap.openvpn.VpnProfile;
 import android.app.IntentService;
@@ -24,6 +27,8 @@ import android.util.Log;
  */
 public final class EIP extends IntentService {
 	
+	public final static String ACTION_START_EIP = "se.leap.leapclient.START_EIP";
+	public final static String ACTION_STOP_EIP = "se.leap.leapclient.STOP_EIP";
 	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.leapclient.UPDATE_EIP_SERVICE";
 	
 	private static Context context;
@@ -31,6 +36,8 @@ public final class EIP extends IntentService {
 	// Represents our Provider's eip-service.json
 	private static JSONObject eipDefinition = null;
 	
+	// Our active gateway
+	private static OVPNGateway activeGateway = null;
 
 	public EIP(){
 		super("LEAPEIP");
@@ -58,6 +65,26 @@ public final class EIP extends IntentService {
 		
 		if ( action == ACTION_UPDATE_EIP_SERVICE )
 			this.updateEIPService();
+		else if ( action == ACTION_START_EIP )
+			this.startEIP();
+		else if ( action == ACTION_STOP_EIP )
+			this.stopEIP();
+	}
+
+	private void startEIP() {
+		if (activeGateway==null)
+			activeGateway = selectGateway();
+		
+		Intent intent = new Intent(this,LaunchVPN.class);
+		intent.setAction(Intent.ACTION_MAIN);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.putExtra(LaunchVPN.EXTRA_KEY, activeGateway.mVpnProfile.getUUID().toString() );
+		intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.mVpnProfile.getName() );
+		startActivity(intent);
+	}
+	
+	private void stopEIP() {
+		OpenVpnManagementThread.stopOpenVPN();
 	}
 
 	private void updateEIPService() {
@@ -69,6 +96,11 @@ public final class EIP extends IntentService {
 			e.printStackTrace();
 		}
 		updateGateways();
+	}
+	
+	private OVPNGateway selectGateway() {
+		// TODO Logic, yay!
+		return new OVPNGateway("first");
 	}
 	
 	private void updateGateways(){
@@ -121,6 +153,32 @@ public final class EIP extends IntentService {
 		// Options get put here in the form that se.leap.openvpn.ConfigParser wants TODO will be gone w/ rewrite
 		private HashMap<String,Vector<Vector<String>>> options = new HashMap<String, Vector<Vector<String>>>();
 
+		
+		// Constructor to load a gateway by name
+		private OVPNGateway(String name){
+			ProfileManager vpl = ProfileManager.getInstance(context);
+			
+			try {
+
+				// FIXME ha, this got funny..it will get smart once i'm further...
+				if ( name == "first" ) {
+					name = vpl.getProfiles().iterator().next().mName;
+				}
+				
+				mVpnProfile = vpl.getProfileByName(name);
+				
+			} catch (NoSuchElementException e) {
+				
+				// The gateway we were looking for is not in ProfileList!
+				updateEIPService();
+				
+				// TODO prompt user to fix config error
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		// Constructor to create a gateway by definition
 		protected OVPNGateway(JSONObject gw){

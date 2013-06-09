@@ -53,6 +53,7 @@ public class ConfigHelper {
     ALLOWED_ANON = "allow_anonymous",
     MAIN_CERT_KEY = "main_cert",
     CERT_KEY = "cert",
+    KEY_KEY = "key",
     EIP_SERVICE_KEY = "eip",
     TYPE_OF_CERTIFICATE = "type_of_certificate",
     ANON_CERTIFICATE = "anon_certificate",

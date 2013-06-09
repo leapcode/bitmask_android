@@ -124,6 +124,7 @@ public final class Provider implements Serializable {
 		}
 		for (int i=0;i<API_EIP_TYPES.length;i++){
 			try {
+				// Walk the EIP types array looking for matches in provider's service definitions
 				if ( Arrays.asList(API_EIP_TYPES).contains( services.getString(i) ) )
 					return true;
 			} catch (JSONException e) {

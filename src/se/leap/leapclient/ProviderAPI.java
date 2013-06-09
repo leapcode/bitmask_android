@@ -584,8 +584,18 @@ public class ProviderAPI extends IntentService {
 			
 			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ConfigHelper.DANGER_ON);
 			String cert_string = getStringFromProvider(new_cert_string_url, danger_on);
-			if(!cert_string.isEmpty()) { 
-				ConfigHelper.saveSharedPref(ConfigHelper.CERT_KEY, cert_string);
+			if(!cert_string.isEmpty()) {
+				// API returns concatenated cert & key.  Split them for OpenVPN options
+				String certificate = null, key = null;
+				String[] certAndKey = cert_string.split("(?<=-\n)");
+				for (int i=0; i < certAndKey.length-1; i++){
+					if ( certAndKey[i].contains("KEY") )
+						key = certAndKey[i++] + certAndKey[i];
+					else if ( certAndKey[i].contains("CERTIFICATE") )
+						certificate = certAndKey[i++] + certAndKey[i];
+				}
+				ConfigHelper.saveSharedPref(ConfigHelper.CERT_KEY, certificate);
+				ConfigHelper.saveSharedPref(ConfigHelper.KEY_KEY, key);
 				return true;
 			} else {
 				return false;

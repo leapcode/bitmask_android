@@ -74,7 +74,7 @@ public class LaunchVPN extends ListActivity implements OnItemClickListener {
 	public static final String EXTRA_NAME = "se.leap.openvpn.shortcutProfileName";
 	public static final String EXTRA_HIDELOG =  "se.leap.openvpn.showNoLogWindow";;
 
-	private static final int START_VPN_PROFILE= 70;
+	public static final int START_VPN_PROFILE= 70;
 	
 
 	private ProfileManager mPM;
@@ -266,7 +266,7 @@ public class LaunchVPN extends ListActivity implements OnItemClickListener {
 					askForPW(needpw);
 				} else {
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);        
-					boolean showlogwindow = prefs.getBoolean("showlogwindow", true);
+					boolean showlogwindow = prefs.getBoolean("showlogwindow", false);
 					
 					if(!mhideLog && showlogwindow)
 						showLogWindow();
