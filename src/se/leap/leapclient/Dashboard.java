@@ -145,21 +145,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		String provider_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY);
+		JSONObject provider_json;
 		try {
-			JSONObject provider_json = new JSONObject(provider_json_string);
+			provider_json = ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY);
 			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
 			if(service_description.getBoolean(ConfigHelper.ALLOW_REGISTRATION_KEY)) {
 				menu.findItem(R.id.login_button).setVisible(true);
 				menu.findItem(R.id.logout_button).setVisible(true);
-				return true;
 			}
 		} catch (JSONException e) {
-			menu.findItem(R.id.login_button).setVisible(false);
-			menu.findItem(R.id.logout_button).setVisible(false);
-			return false;
-		}
-		return false;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return true;
 	}
 	
 	@Override
