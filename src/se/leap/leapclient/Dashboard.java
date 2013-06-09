@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.openvpn.AboutFragment;
+import se.leap.openvpn.LogWindow;
 import se.leap.openvpn.MainActivity;
 import se.leap.openvpn.OpenVPN;
 import se.leap.openvpn.OpenVPN.StateListener;
@@ -188,12 +189,27 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				}
 			}
 		});
-
+		
 		//TODO write our info into the view	fragment that will expand with details and a settings button
 		// TODO set eip overview subview
 		// TODO make eip type clickable, show subview
 		// TODO attach vpn status feedback to eip overview view
 		// TODO attach settings button to something
+	}
+	
+	public void toggleEipOverview(View view) {
+		if (eipDetail.isShown())
+			eipDetail.setVisibility(View.GONE);
+		else
+			eipDetail.setVisibility(View.VISIBLE);
+	}
+	
+	// FIXME!! I will move to EIPSettingsFragment and begone!
+	// Also means change onClick property for status line
+	public void showEIPLog(View view){
+		Intent intent = new Intent(getBaseContext(),LogWindow.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+		startActivity(intent);
 	}
 
 	@Override
@@ -252,11 +268,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				return super.onOptionsItemSelected(item);
 		}
 		
-	}
-	
-	@SuppressWarnings("unused")
-	private void toggleOverview() {
-		// TODO Expand the one line overview item to show some details
 	}
 
 	@Override

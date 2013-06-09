@@ -175,10 +175,10 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	}
 
 	PendingIntent getLogPendingIntent() {
-		// Let the configure Button show the Log
-		Intent intent = new Intent(getBaseContext(),LogWindow.class);
+		// Let the configure Button show the Dashboard
+		Intent intent = new Intent(Dashboard.getAppContext(),Dashboard.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-		PendingIntent startLW = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		PendingIntent startLW = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		return startLW;
 
