@@ -423,8 +423,8 @@ public class ProviderAPI extends IntentService {
 		String type_of_certificate = task.getString(ConfigHelper.TYPE_OF_CERTIFICATE);
 		try {
 			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY);
-			URL provider_main_url = new URL(provider_json.getString(ConfigHelper.API_URL_KEY).replace("api.", ""));
-			String new_cert_string_url = provider_main_url.getProtocol() + "://" + provider_main_url.getHost() + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY) + "/" + ConfigHelper.CERT_KEY;
+			URL provider_main_url = new URL(provider_json.getString(ConfigHelper.API_URL_KEY));
+			String new_cert_string_url = provider_main_url.toString() + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY) + "/" + ConfigHelper.CERT_KEY;
 
 			if(type_of_certificate.equalsIgnoreCase(ConfigHelper.AUTHED_CERTIFICATE)) {
 				HttpCookie session_id_cookie = new HttpCookie(task.getString(ConfigHelper.SESSION_ID_COOKIE_KEY), task.getString(ConfigHelper.SESSION_ID_KEY));
