@@ -125,18 +125,6 @@ public class ProviderAPI extends IntentService {
 			return false;
 		}
 	}
-
-	private boolean registerWithSRP(Bundle task) {
-		String username = (String) task.get(ConfigHelper.USERNAME_KEY);
-		String password = (String) task.get(ConfigHelper.PASSWORD_KEY);
-		String authentication_server = (String) task.get(ConfigHelper.API_URL_KEY);
-		
-		BigInteger ng_1024 = new BigInteger(ConfigHelper.NG_1024, 16);
-		BigInteger salt = ng_1024.probablePrime(1024, null);
-		byte[] salt_in_bytes = salt.toByteArray();
-		
-		return false;
-	}
 	
 	private Bundle authenticateBySRP(Bundle task) {
 		Bundle session_id_bundle = new Bundle();

@@ -173,7 +173,6 @@ public class LeapSRPSession {
 		// Calculate x = H(s | H(U | ':' | password))
 		byte[] xb = calculatePasswordHash(username, password, Util.trim(salt_bytes));
 		this.x = new BigInteger(1, xb);
-		String xstr = x.toString(16);
 
 		// Calculate v = kg^x mod N
 		String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
@@ -210,7 +209,6 @@ public class LeapSRPSession {
 		// Calculate S = (B - kg^x) ^ (a + u * x) % N
 		BigInteger S = calculateS(Bbytes);
 		byte[] S_bytes = Util.trim(S.toByteArray());
-		String Sstr = S.toString(16);
 
 		// K = SessionHash(S)
 		String hash_algorithm = params.hashAlgorithm;
@@ -219,10 +217,8 @@ public class LeapSRPSession {
 		
 		// clientHash = H(N) xor H(g) | H(U) | A | B | K
 		clientHash.update(K);
-		String Kstr = new BigInteger(1, K).toString(16);
 		
 		byte[] M1 = Util.trim(clientHash.digest());
-		String M1str = new BigInteger(1, M1).toString(16);
 		
 		// serverHash = Astr + M + K
 		serverHash.update(Abytes);
@@ -246,9 +242,7 @@ public class LeapSRPSession {
 		BigInteger u = new BigInteger(1, u_bytes);
 		
 		BigInteger B_minus_v = B.subtract(v);
-		String vstr = v.toString(16);
 		BigInteger a_ux = a.add(u.multiply(x));
-		String xstr = x.toString(16);
 		BigInteger S = B_minus_v.modPow(a_ux, N);
 		return S;
 	}
