@@ -1,9 +1,6 @@
 package se.leap.leapclient;
 
 import se.leap.leapclient.R;
-import se.leap.leapclient.R.id;
-import se.leap.leapclient.R.layout;
-import se.leap.leapclient.R.string;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -47,7 +44,7 @@ public class LogInDialog extends DialogFragment {
 	}
 
 	boolean wellFormedPassword(String entered_password) {
-		return entered_password.length() > 8;
+		return entered_password.length() >= 8;
 	}
 	
 	public interface LogInDialogInterface {

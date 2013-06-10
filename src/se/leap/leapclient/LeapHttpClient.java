@@ -9,9 +9,6 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 
 public class LeapHttpClient extends DefaultHttpClient {
@@ -22,16 +19,9 @@ public class LeapHttpClient extends DefaultHttpClient {
 	public static LeapHttpClient getInstance(Context context) {
 		if(client == null) {
 			client = new LeapHttpClient(context);
-			String cert_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
-			String cert_string;
-			try {
-				cert_string = new JSONObject(cert_json_string).getString(ConfigHelper.MAIN_CERT_KEY);
-				if(!cert_string.isEmpty()) {
-					ConfigHelper.addTrustedCertificate("recovered_certificate", cert_string);
-				}
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			String cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
+			if(cert_string != null) {
+				ConfigHelper.addTrustedCertificate("recovered_certificate", cert_string);
 			}
 		}
 		return client;

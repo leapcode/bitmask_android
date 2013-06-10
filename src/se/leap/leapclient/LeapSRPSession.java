@@ -7,9 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import org.jboss.security.Util;
-import org.jboss.security.srp.SRPClientSession;
 import org.jboss.security.srp.SRPParameters;
-import org.jboss.security.srp.SRPPermission;
 
 public class LeapSRPSession {
 

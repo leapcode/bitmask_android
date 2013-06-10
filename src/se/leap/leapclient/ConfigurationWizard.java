@@ -10,13 +10,12 @@ import org.json.JSONObject;
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import se.leap.leapclient.R;
-import se.leap.leapclient.R.id;
-import se.leap.leapclient.R.layout;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -25,15 +24,15 @@ import android.view.View;
 import android.widget.Toast;
 
 public class ConfigurationWizard extends Activity
-        implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, Receiver {
+implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, Receiver {
 
-	
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
-    private boolean mTwoPane;
+	private ProviderItem mSelectedProvider;
+	private ProgressDialog mProgressDialog;
+	private Intent mConfigState = new Intent();
 
+	protected static final String PROVIDER_SET = "PROVIDER SET";
+	protected static final String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
+    
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     
     @Override
@@ -41,6 +40,9 @@ public class ConfigurationWizard extends Activity
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.activity_configuration_wizard);
+        
+        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+        providerAPI_result_receiver.setReceiver(this);
         
         ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
         
@@ -71,36 +73,64 @@ public class ConfigurationWizard extends Activity
 				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
 				.commit();
 		}
-		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
-        	setResult(RESULT_OK);
-		}
-		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
-        	setResult(RESULT_CANCELED);
-        	Toast.makeText(getApplicationContext(), "You have not entered a LEAP provider URL or it is unavailable", Toast.LENGTH_LONG).show();
-		}
 		else if(resultCode == ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			JSONObject provider_json;
 			try {
 				provider_json = new JSONObject(resultData.getString(ConfigHelper.PROVIDER_KEY));
 				boolean danger_on = resultData.getBoolean(ConfigHelper.DANGER_ON);
 				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
-				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, new JSONObject().put(ConfigHelper.DANGER_ON, danger_on));
-				downloadAnonCert();
+				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, danger_on);
+				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getBoolean(ConfigHelper.ALLOWED_ANON));
+				
+				mConfigState.setAction(PROVIDER_SET);
+				
+				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
+				downloadJSONFiles(mSelectedProvider);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+
+				mProgressDialog.dismiss();
+				Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
+				setResult(RESULT_CANCELED, mConfigState);
+				finish();
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), "Install a new version of this app.", Toast.LENGTH_LONG).show();
+			setResult(RESULT_CANCELED, mConfigState);
+			finish();
+		}
+		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
+			if (ConfigHelper.getBoolFromSharedPref(ConfigHelper.ALLOWED_ANON)){
+				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_certificates));
+				mConfigState.putExtra(SERVICES_RETRIEVED, true);
+				downloadAnonCert();
+			} else {
+				mProgressDialog.dismiss();
+				Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
+				setResult(RESULT_OK);
+				finish();
+			}
+		}
+		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
+        	Toast.makeText(getApplicationContext(), "You have not entered a LEAP provider URL or it is unavailable", Toast.LENGTH_LONG).show();
+        	setResult(RESULT_CANCELED, mConfigState);
+        	finish();
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
-        	setResult(RESULT_OK);
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), "Your anon cert has been correctly downloaded", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
+			//mConfigState.putExtra(CERTIFICATE_RETRIEVED, true); // If this isn't the last step and finish() is moved...
+        	setResult(RESULT_OK);
         	finish();
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
-        	setResult(RESULT_CANCELED);
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), "Your anon cert was not downloaded", Toast.LENGTH_LONG).show();
+        	setResult(RESULT_CANCELED, mConfigState);
+			finish();
 		}
 	}
 
@@ -114,16 +144,12 @@ public class ConfigurationWizard extends Activity
     	Iterator<ProviderItem> preseeded_providers_iterator = ProviderListContent.ITEMS.iterator();
     	while(preseeded_providers_iterator.hasNext())
     	{
-    		ProviderItem current_provider_item = preseeded_providers_iterator.next();
-    		if(current_provider_item.id.equalsIgnoreCase(id))
+    		ProviderItem provider = preseeded_providers_iterator.next();
+    		if(provider.id.equalsIgnoreCase(id))
     		{
-    			try {
-    				saveProviderJson(current_provider_item);
-    				downloadJSONFiles(current_provider_item);
-    			} catch (IOException e) {
-    				// TODO Auto-generated catch block
-    				e.printStackTrace();
-    			}
+    			mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
+    			mSelectedProvider = provider;
+    			saveProviderJson(mSelectedProvider);
     		}
     	}
     }
@@ -152,31 +178,32 @@ public class ConfigurationWizard extends Activity
 		return loaded_preseeded_providers;
 	}
 
-    private boolean saveProviderJson(ProviderItem current_provider_item) {
+    private void saveProviderJson(ProviderItem current_provider_item) {
     	JSONObject provider_json = new JSONObject();
     	try {
     		String provider_contents = "";
     		if(!current_provider_item.custom) {
     			updateProviderDotJson(current_provider_item.name, current_provider_item.provider_json_url, current_provider_item.danger_on);
-    			return true;
     		} else {
+    			// FIXME!! We should we be updating our seeded providers list at ConfigurationWizard onStart() ?
+    			// I think yes, but if so, where does this list live? leap.se, as it's the non-profit project for the software?
+    			// If not, we should just be getting names/urls, and fetching the provider.json like in custom entries
     			provider_contents = new Scanner(ConfigHelper.openFileInputStream(current_provider_item.provider_json_filename)).useDelimiter("\\A").next();
     			provider_json = new JSONObject(provider_contents);
     			ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
-    			ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, new JSONObject().put(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON)));
-    			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, new JSONObject().put(ConfigHelper.DANGER_ON, current_provider_item.danger_on));
-				downloadAnonCert();
-    			return true;
+    			ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
+    			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, current_provider_item.danger_on);
+    			
+    			mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
+    			downloadJSONFiles(mSelectedProvider);
     		}
     	} catch (JSONException e) {
-    		return false;
+    		setResult(RESULT_CANCELED);
+    		finish();
     	}
     }
 
-	private void downloadJSONFiles(ProviderItem current_provider_item) throws IOException {
-		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-		providerAPI_result_receiver.setReceiver(this);
-		
+	private void downloadJSONFiles(ProviderItem current_provider_item) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 		
 		Bundle method_and_parameters = new Bundle();
@@ -193,32 +220,19 @@ public class ConfigurationWizard extends Activity
 	}
 	
 	private boolean downloadAnonCert() {
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
-		JSONObject allowed_anon;
-		try {
-			allowed_anon = new JSONObject(ConfigHelper.getStringFromSharedPref(ConfigHelper.ALLOWED_ANON));
-			if(allowed_anon.getBoolean(ConfigHelper.ALLOWED_ANON)) {
-				providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-				providerAPI_result_receiver.setReceiver(this);
-				
-				Intent provider_API_command = new Intent(this, ProviderAPI.class);
-				
-				Bundle method_and_parameters = new Bundle();
-				
-				method_and_parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.ANON_CERTIFICATE);
-				
-				provider_API_command.putExtra(ConfigHelper.DOWNLOAD_CERTIFICATE, method_and_parameters);
-				provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		Bundle method_and_parameters = new Bundle();
 
-				startService(provider_API_command);
-				return true;
-			} else {
-				return false;
-			}
-		} catch (JSONException e) {
-			return false;
-		}
+		method_and_parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.ANON_CERTIFICATE);
+
+		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_CERTIFICATE, method_and_parameters);
+		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+
+		startService(provider_API_command);
+		return true;
 	}
+	
 	public void addNewProvider(View view) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.NEW_PROVIDER_DIALOG);
@@ -233,9 +247,6 @@ public class ConfigurationWizard extends Activity
 
 	@Override
 	public void saveProvider(String provider_main_url, boolean danger_on) {
-		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-		providerAPI_result_receiver.setReceiver(this);
-		
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle method_and_parameters = new Bundle();
@@ -249,9 +260,6 @@ public class ConfigurationWizard extends Activity
 	}
 	
 	public void updateProviderDotJson(String provider_name, String provider_json_url, boolean danger_on) {
-		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-		providerAPI_result_receiver.setReceiver(this);
-		
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle method_and_parameters = new Bundle();

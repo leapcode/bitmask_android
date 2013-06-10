@@ -7,15 +7,15 @@ import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.leapclient.R;
-import se.leap.leapclient.R.id;
-import se.leap.leapclient.R.layout;
-import se.leap.leapclient.R.menu;
 import se.leap.openvpn.AboutFragment;
 import se.leap.openvpn.MainActivity;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -34,6 +34,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	protected static final int CONFIGURE_LEAP = 0;
 	
+	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
 
@@ -45,6 +46,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		app = this;
+		
 		setContentView(R.layout.client_dashboard);
 
 		preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
@@ -53,10 +57,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		// Check if we have preferences, run configuration wizard if not
 		// TODO We should do a better check for config that this!
-		if (!preferences.contains("provider") )
-			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
-		else
+		if (preferences.contains("provider") && preferences.getString(ConfigHelper.PROVIDER_KEY, null) != null)
 			buildDashboard();
+		else
+			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 	}
 	
 	@Override
@@ -68,8 +72,26 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				
 				buildDashboard();
 			} else {
-				// Something went wrong... TODO figure out what
-				// TODO Error dialog
+				// Something went wrong in configuration
+				AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getAppContext());
+				alertBuilder.setTitle(getResources().getString(R.string.setup_error_title));
+				alertBuilder
+					.setMessage(getResources().getString(R.string.setup_error_text))
+					.setCancelable(false)
+					.setPositiveButton(getResources().getString(R.string.setup_error_configure_button), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							startActivityForResult(new Intent(getAppContext(),ConfigurationWizard.class),CONFIGURE_LEAP);
+						}
+					})
+					.setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							SharedPreferences.Editor prefsEdit = getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE).edit();
+							prefsEdit.remove(ConfigHelper.PROVIDER_KEY).commit();
+							finish();
+						}
+					});
 			}
 		}
 	}
@@ -91,7 +113,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	private void serviceItemEIP() {
 		// FIXME Provider service (eip/openvpn)	
-		View eipOverview = ((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
+		((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
 
 		// Set our EIP type title
 		eipTypeTV = (TextView) findViewById(R.id.eipType);
@@ -120,21 +142,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		String provider_json_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY);
+		JSONObject provider_json;
 		try {
-			JSONObject provider_json = new JSONObject(provider_json_string);
+			provider_json = ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY);
 			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
 			if(service_description.getBoolean(ConfigHelper.ALLOW_REGISTRATION_KEY)) {
 				menu.findItem(R.id.login_button).setVisible(true);
 				menu.findItem(R.id.logout_button).setVisible(true);
-				return true;
 			}
 		} catch (JSONException e) {
-			menu.findItem(R.id.login_button).setVisible(false);
-			menu.findItem(R.id.logout_button).setVisible(false);
-			return false;
-		}
-		return false;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return true;
 	}
 	
 	@Override
@@ -288,4 +308,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		}
 	}
 
+	// Used for getting Context when outside of a class extending Context
+	public static Context getAppContext() {
+		return app;
+	}
 }
