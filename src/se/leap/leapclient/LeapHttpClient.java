@@ -20,7 +20,7 @@ public class LeapHttpClient extends DefaultHttpClient {
 		if(client == null) {
 			client = new LeapHttpClient(context);
 			String cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
-			if(!cert_string.isEmpty()) {
+			if(cert_string != null) {
 				ConfigHelper.addTrustedCertificate("recovered_certificate", cert_string);
 			}
 		}
