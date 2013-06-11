@@ -217,7 +217,6 @@ public class ProviderAPI extends IntentService {
 				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
 
 				String filename = provider_name + "_provider.json".replaceFirst("__", "_");
-				ConfigHelper.saveFile(filename, provider_json.toString());
 
 				ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, filename, custom, danger_on));
 				result.putBoolean(ConfigHelper.RESULT_KEY, true);
@@ -243,7 +242,6 @@ public class ProviderAPI extends IntentService {
 			provider_json = getJSONFromProvider(provider_json_url, danger_on);
 
 			String filename = provider_name + "_provider.json".replaceFirst("__", "_");
-			ConfigHelper.saveFile(filename, provider_json.toString());
 
 			ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, filename, custom, danger_on));
 			return true;

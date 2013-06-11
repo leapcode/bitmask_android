@@ -156,26 +156,6 @@ public class ConfigHelper {
 		return value;
 	}
 
-	public static void saveFile(String filename, String content) {
-		File root = Environment.getExternalStorageDirectory();
-		File leap_dir = new File(root.getAbsolutePath() + File.separator + USER_DIRECTORY);
-		if (!leap_dir.isDirectory()) {
-			leap_dir.mkdir();
-		}
-		try {
-			if (!leap_dir.isDirectory()) {
-				throw new IOException(
-						"Unable to create directory " + USER_DIRECTORY + ". Maybe the SD card is mounted?");
-			}
-			File outputFile = new File(leap_dir, filename);
-			BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
-			writer.write(content);
-			writer.close();
-		} catch (IOException e) {
-			Log.w("leap_android", e.getMessage(), e);
-		}
-	}
-	
 	public static FileInputStream openFileInputStream(String filename) {
 		FileInputStream input_stream = null;
 		File root = Environment.getExternalStorageDirectory();
