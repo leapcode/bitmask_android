@@ -31,23 +31,15 @@ public class LeapHttpClient extends DefaultHttpClient {
 	protected ClientConnectionManager createClientConnectionManager() {
 		SchemeRegistry registry = new SchemeRegistry();
 		registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-		// Register for port 443 our SSLSocketFactory with our keystore
-		// to the ConnectionManager
 		registry.register(new Scheme("https", newSslSocketFactory(), 443));
+
 		return new SingleClientConnManager(getParams(), registry);
 	}
 
 	private SSLSocketFactory newSslSocketFactory() {
 		try {
-			// Get an instance of the Bouncy Castle KeyStore format
 			KeyStore trusted = ConfigHelper.getKeystore();
-
-			// Pass the keystore to the SSLSocketFactory. The factory is responsible
-			// for the verification of the server certificate.
 			SSLSocketFactory sf = new SSLSocketFactory(trusted);
-
-			// Hostname verification from certificate
-			// http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html#d4e506
 			sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
 			return sf;
