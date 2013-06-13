@@ -216,9 +216,7 @@ public class ProviderAPI extends IntentService {
 			} else {    			
 				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
 
-				String filename = provider_name + "_provider.json".replaceFirst("__", "_");
-
-				ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, filename, custom, danger_on));
+				ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on));
 				result.putBoolean(ConfigHelper.RESULT_KEY, true);
 				result.putString(ConfigHelper.PROVIDER_KEY, provider_json.toString());
 				result.putBoolean(ConfigHelper.DANGER_ON, danger_on);
@@ -237,17 +235,17 @@ public class ProviderAPI extends IntentService {
 		String provider_main_url = (String) task.get(ConfigHelper.PROVIDER_MAIN_URL);
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
 		String provider_json_url = guessURL(provider_main_url);
-		JSONObject provider_json = null;
+		
+		JSONObject provider_json;
 		try {
 			provider_json = getJSONFromProvider(provider_json_url, danger_on);
-
-			String filename = provider_name + "_provider.json".replaceFirst("__", "_");
-
-			ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, filename, custom, danger_on));
-			return true;
+			ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on));
 		} catch (JSONException e) {
-			return false;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		return true;
 	}
 
 	private String getStringFromProviderWithoutValidate(

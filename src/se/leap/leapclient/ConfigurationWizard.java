@@ -80,8 +80,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				boolean danger_on = resultData.getBoolean(ConfigHelper.DANGER_ON);
 				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
 				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, danger_on);
-				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getBoolean(ConfigHelper.ALLOWED_ANON));
-				
+				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
+	
 				mConfigState.setAction(PROVIDER_SET);
 				
 				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));

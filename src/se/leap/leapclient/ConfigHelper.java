@@ -192,7 +192,6 @@ public class ConfigHelper {
 
 	public static void addTrustedCertificate(String provider, String certificate) {
 		String filename_to_save = provider + "_certificate.cer";
-		saveFile(filename_to_save, certificate);
 		CertificateFactory cf;
 		try {
 			cf = CertificateFactory.getInstance("X.509");

@@ -1,6 +1,5 @@
 package se.leap.leapclient;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -78,29 +77,19 @@ public class ProviderListContent {
 			}
         }
 
-        public ProviderItem(String name, String provider_json_url, String provider_json_filename, boolean custom, boolean danger_on) {
+        public ProviderItem(String name, String provider_json_url, JSONObject provider_json, boolean custom, boolean danger_on) {
         	
-        	
-        	FileInputStream provider_json = ConfigHelper.openFileInputStream(provider_json_filename);
         	try {
-        		byte[] urls_file_bytes = new byte[provider_json.available()];
-        		provider_json.read(urls_file_bytes);
-        		String urls_file_content = new String(urls_file_bytes);
-				JSONObject file_contents = new JSONObject(urls_file_content);
 				id = name;
 				this.name = name;
 				this.provider_json_url = provider_json_url;
-				this.provider_json_filename = provider_json_filename;
-				eip_service_json_url = file_contents.getString("api_uri") + "/" + file_contents.getString("api_version") + "/" + ConfigHelper.EIP_SERVICE_API_PATH;
-				cert_json_url = (String) file_contents.get("ca_cert_uri");
+				eip_service_json_url = provider_json.getString("api_uri") + "/" + provider_json.getString("api_version") + "/" + ConfigHelper.EIP_SERVICE_API_PATH;
+				cert_json_url = (String) provider_json.get("ca_cert_uri");
 				this.custom = custom;
 				this.danger_on = danger_on;
 				if(custom)
 					provider_json_filename = name + "_provider.json".replaceFirst("__", "_");
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
