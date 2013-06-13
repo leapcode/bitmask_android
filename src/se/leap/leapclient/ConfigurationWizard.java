@@ -188,8 +188,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     			// FIXME!! We should we be updating our seeded providers list at ConfigurationWizard onStart() ?
     			// I think yes, but if so, where does this list live? leap.se, as it's the non-profit project for the software?
     			// If not, we should just be getting names/urls, and fetching the provider.json like in custom entries
-    			provider_contents = new Scanner(ConfigHelper.openFileInputStream(current_provider_item.provider_json_filename)).useDelimiter("\\A").next();
-    			provider_json = new JSONObject(provider_contents);
+    			provider_json = current_provider_item.provider_json;
     			ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
     			ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
     			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, current_provider_item.danger_on);

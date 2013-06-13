@@ -40,6 +40,7 @@ public class ProviderListContent {
     	public String id;
         public String name;
         public String provider_json_url;
+		public JSONObject provider_json;
         public String provider_json_filename;
         public String eip_service_json_url;
         public String cert_json_url;
@@ -83,6 +84,7 @@ public class ProviderListContent {
 				id = name;
 				this.name = name;
 				this.provider_json_url = provider_json_url;
+				this.provider_json = provider_json;
 				eip_service_json_url = provider_json.getString("api_uri") + "/" + provider_json.getString("api_version") + "/" + ConfigHelper.EIP_SERVICE_API_PATH;
 				cert_json_url = (String) provider_json.get("ca_cert_uri");
 				this.custom = custom;
