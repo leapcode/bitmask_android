@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import se.leap.openvpn.ConfigParser;
 import se.leap.openvpn.ConfigParser.ConfigParseError;
 import se.leap.openvpn.LaunchVPN;
+import se.leap.openvpn.OpenVpnManagementThread;
 import se.leap.openvpn.OpenVpnService;
 import se.leap.openvpn.OpenVpnService.LocalBinder;
 import se.leap.openvpn.ProfileManager;
@@ -193,6 +194,9 @@ public final class EIP extends IntentService {
 	private void stopEIP() {
 		if (mBound)
 			mVpnService.onRevoke();
+		else
+			OpenVpnManagementThread.stopOpenVPN();
+			
 		if (mReceiver != null){
 			Bundle resultData = new Bundle();
 			resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_STOP_EIP);
