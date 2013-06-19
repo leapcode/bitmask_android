@@ -10,30 +10,29 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
+/**
+ * Models the provider list shown in the ConfigurationWizard.
+ * 
+ * @author parmegv
+ *
+ */
 public class ProviderListContent {
 
-    /**
-     * An array of sample (dummy) items.
-     */
     public static List<ProviderItem> ITEMS = new ArrayList<ProviderItem>();
 
-    /**
-     * A map of sample (dummy) items, by ID.
-     */
     public static Map<String, ProviderItem> ITEM_MAP = new HashMap<String, ProviderItem>();
-
-    static {
-        //addItem(new ProviderItem("1", "bitmask", "https://bitmask.net/provider.json", "https://api.bitmask.net:4430/1/config/eip-service.json"));    
-    }
     
+    /**
+     * Adds a new provider item to the end of the items map, and to the items list.
+     * @param item
+     */
     public static void addItem(ProviderItem item) {
         ITEMS.add(item);
         ITEM_MAP.put(String.valueOf(ITEMS.size()), item);
     }
 
     /**
-     * A dummy item representing a piece of content.
+     * A provider item.
      */
     public static class ProviderItem {  
     	public boolean custom = false;
@@ -45,15 +44,13 @@ public class ProviderListContent {
         public String eip_service_json_url;
         public String cert_json_url;
         public boolean danger_on = false;
-        
-        public ProviderItem(String id, String name, String provider_json_url, String eip_service_json_url, String cert_json_url) {
-        	this.id = id;
-        	this.name = name;
-            this.provider_json_url = provider_json_url;
-            this.eip_service_json_url = eip_service_json_url;
-            this.cert_json_url = cert_json_url;
-        }
 
+        /**
+         * @param name of the provider
+         * @param urls_file_input_stream file input stream linking with the assets url file
+         * @param custom if it's a new provider entered by the user or not
+         * @param danger_on if the user trusts completely the new provider
+         */
         public ProviderItem(String name, InputStream urls_file_input_stream, boolean custom, boolean danger_on) {
         	
         	try {
@@ -78,6 +75,13 @@ public class ProviderListContent {
 			}
         }
 
+        /**
+         * @param name of the provider
+         * @param provider_json_url used to download provider.json file of the provider
+         * @param provider_json already downloaded
+         * @param custom if it's a new provider entered by the user or not
+         * @param danger_on if the user trusts completely the new provider
+         */
         public ProviderItem(String name, String provider_json_url, JSONObject provider_json, boolean custom, boolean danger_on) {
         	
         	try {

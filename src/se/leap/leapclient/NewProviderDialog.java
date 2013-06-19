@@ -13,6 +13,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * Implements the new custom provider dialog.
+ * 
+ * @author parmegv
+ *
+ */
 public class NewProviderDialog extends DialogFragment {
 	
 	public interface NewProviderDialogInterface {
@@ -21,6 +27,9 @@ public class NewProviderDialog extends DialogFragment {
 
 	NewProviderDialogInterface interface_with_ConfigurationWizard;
 
+	/**
+	 * @return a new instance of this DialogFragment.
+	 */
 	public static DialogFragment newInstance() {
 		NewProviderDialog dialog_fragment = new NewProviderDialog();
 		return dialog_fragment;
@@ -37,6 +46,7 @@ public class NewProviderDialog extends DialogFragment {
         }
     }
 
+    @Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -71,6 +81,11 @@ public class NewProviderDialog extends DialogFragment {
 		return builder.create();
 	}
 
+    /**
+     * Checks if the entered url is valid or not.
+     * @param entered_url
+     * @return true if it's not empty nor contains only the protocol.
+     */
 	boolean validURL(String entered_url) {
 		return !entered_url.isEmpty() && entered_url.matches("http[s]?://.+") && !entered_url.replaceFirst("http[s]?://", "").isEmpty();
 	}

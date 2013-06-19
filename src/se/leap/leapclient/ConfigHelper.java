@@ -1,10 +1,8 @@
 package se.leap.leapclient;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.io.InputStream;
@@ -21,8 +19,14 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
-import android.util.Log;
 
+/**
+ * Stores constants, and implements auxiliary methods used across all LEAP Android classes.
+ * 
+ * @author parmegv
+ * @author MeanderingCode
+ *
+ */
 public class ConfigHelper {
     
     public static SharedPreferences shared_preferences;
@@ -100,6 +104,11 @@ public class ConfigHelper {
     	return true;
     }
     
+    /**
+     * Saves a JSON object into class scope Shared Preferences
+     * @param shared_preferences_key
+     * @param content
+     */
 	public static void saveSharedPref(String shared_preferences_key, JSONObject content) {
 
 		SharedPreferences.Editor shared_preferences_editor = shared_preferences
@@ -109,6 +118,11 @@ public class ConfigHelper {
 		shared_preferences_editor.commit();
 	}
 
+    /**
+     * Saves a String object into class scope Shared Preferences
+     * @param shared_preferences_key
+     * @param content
+     */
 	public static void saveSharedPref(String shared_preferences_key, String content) {
 
 		SharedPreferences.Editor shared_preferences_editor = shared_preferences
@@ -117,7 +131,12 @@ public class ConfigHelper {
 				content);
 		shared_preferences_editor.commit();
 	}
-	
+
+    /**
+     * Saves a boolean object into class scope Shared Preferences
+     * @param shared_preferences_key
+     * @param content
+     */
 	public static void saveSharedPref(String shared_preferences_key, boolean content) {
 
 		SharedPreferences.Editor shared_preferences_editor = shared_preferences
@@ -126,6 +145,11 @@ public class ConfigHelper {
 		shared_preferences_editor.commit();
 	}
 	
+	/**
+	 * Gets String object from class scope Shared Preferences
+	 * @param shared_preferences_key
+	 * @return the string correspondent to the key parameter
+	 */
 	public static String getStringFromSharedPref(String shared_preferences_key) {
 		String content = null;
 		if ( checkSharedPrefs() ) {
@@ -134,6 +158,11 @@ public class ConfigHelper {
 		return content;
 	}
 	
+	/**
+	 * Gets JSON object from class scope Shared Preferences
+	 * @param shared_preferences_key
+	 * @return the JSON object correspondent to the key parameter
+	 */
 	public static JSONObject getJsonFromSharedPref(String shared_preferences_key) throws JSONException {
 		JSONObject content = null;
 		if ( checkSharedPrefs() ) {
@@ -156,6 +185,11 @@ public class ConfigHelper {
 		return value;
 	}
 
+	/**
+	 * Opens a FileInputStream from the user directory of the external storage directory.
+	 * @param filename
+	 * @return a file input stream
+	 */
 	public static FileInputStream openFileInputStream(String filename) {
 		FileInputStream input_stream = null;
 		File root = Environment.getExternalStorageDirectory();
@@ -169,11 +203,20 @@ public class ConfigHelper {
 		return input_stream;
 	}
 
+	/**
+	 * Sets class scope Shared Preferences
+	 * @param shared_preferences
+	 */
 	public static void setSharedPreferences(
 			SharedPreferences shared_preferences) {
 		ConfigHelper.shared_preferences = shared_preferences;
 	}
 
+	/**
+	 * Adds a new X509 certificate given its input stream and its provider name
+	 * @param provider used to store the certificate in the keystore
+	 * @param inputStream from which X509 certificate must be generated.
+	 */
 	public static void addTrustedCertificate(String provider, InputStream inputStream) {
 		CertificateFactory cf;
 		try {
@@ -190,6 +233,11 @@ public class ConfigHelper {
 		}
 	}
 
+	/**
+	 * Adds a new X509 certificate given in its string from and using its provider name
+	 * @param provider used to store the certificate in the keystore
+	 * @param certificate
+	 */
 	public static void addTrustedCertificate(String provider, String certificate) {
 		String filename_to_save = provider + "_certificate.cer";
 		CertificateFactory cf;
@@ -217,6 +265,9 @@ public class ConfigHelper {
 		}
 	}
 	
+	/**
+	 * @return class wide keystore
+	 */
 	public static KeyStore getKeystore() {
 		return keystore_trusted;
 	}

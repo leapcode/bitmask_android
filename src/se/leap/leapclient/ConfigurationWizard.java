@@ -2,7 +2,6 @@ package se.leap.leapclient;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Scanner;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +22,14 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
 
+/**
+ * Activity that builds and shows the list of known available providers.
+ * 
+ * It also allows the user to enter custom providers with a button.
+ * 
+ * @author parmegv
+ *
+ */
 public class ConfigurationWizard extends Activity
 implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, Receiver {
 
@@ -154,6 +161,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     	}
     }
 	
+    /**
+     * Loads providers data from url file contained in the project 
+     * @return true if the file was read correctly
+     */
     private boolean loadPreseededProviders() {
     	boolean loaded_preseeded_providers = false;
         AssetManager asset_manager = getAssets();
@@ -178,20 +189,26 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		return loaded_preseeded_providers;
 	}
 
-    private void saveProviderJson(ProviderItem current_provider_item) {
+    /**
+     * Saves provider.json file associated with provider.
+     * 
+     * If the provider is custom, the file has already been downloaded so we load it from memory.
+     * If not, the file is updated using the provider's URL.
+     * @param provider
+     */
+    private void saveProviderJson(ProviderItem provider) {
     	JSONObject provider_json = new JSONObject();
     	try {
-    		String provider_contents = "";
-    		if(!current_provider_item.custom) {
-    			updateProviderDotJson(current_provider_item.name, current_provider_item.provider_json_url, current_provider_item.danger_on);
+    		if(!provider.custom) {
+    			updateProviderDotJson(provider.name, provider.provider_json_url, provider.danger_on);
     		} else {
     			// FIXME!! We should we be updating our seeded providers list at ConfigurationWizard onStart() ?
     			// I think yes, but if so, where does this list live? leap.se, as it's the non-profit project for the software?
     			// If not, we should just be getting names/urls, and fetching the provider.json like in custom entries
-    			provider_json = current_provider_item.provider_json;
+    			provider_json = provider.provider_json;
     			ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
     			ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
-    			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, current_provider_item.danger_on);
+    			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, provider.danger_on);
     			
     			mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
     			downloadJSONFiles(mSelectedProvider);
@@ -202,15 +219,21 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     	}
     }
 
-	private void downloadJSONFiles(ProviderItem current_provider_item) {
+    /**
+     * Asks ProviderAPI to download provider site's certificate and eip-service.json
+     * 
+     * URLs are fetched from the provider parameter
+     * @param provider from which certificate and eip-service.json files are going to be downloaded
+     */
+	private void downloadJSONFiles(ProviderItem provider) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 		
 		Bundle method_and_parameters = new Bundle();
 		
-		method_and_parameters.putString(ConfigHelper.PROVIDER_KEY, current_provider_item.name);
-		method_and_parameters.putString(ConfigHelper.MAIN_CERT_KEY, current_provider_item.cert_json_url);
-		method_and_parameters.putString(ConfigHelper.EIP_SERVICE_KEY, current_provider_item.eip_service_json_url);
-		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, current_provider_item.danger_on);
+		method_and_parameters.putString(ConfigHelper.PROVIDER_KEY, provider.name);
+		method_and_parameters.putString(ConfigHelper.MAIN_CERT_KEY, provider.cert_json_url);
+		method_and_parameters.putString(ConfigHelper.EIP_SERVICE_KEY, provider.eip_service_json_url);
+		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, provider.danger_on);
 		
 		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA, method_and_parameters);
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
@@ -218,7 +241,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		startService(provider_API_command);
 	}
 	
-	private boolean downloadAnonCert() {
+	/**
+	 * Asks ProviderAPI to download an anonymous (anon) VPN certificate.
+	 */
+	private void downloadAnonCert() {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle method_and_parameters = new Bundle();
@@ -229,9 +255,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
 
 		startService(provider_API_command);
-		return true;
 	}
 	
+	/**
+	 * Open the new provider dialog
+	 * @param view from which the dialog is showed
+	 */
 	public void addNewProvider(View view) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.NEW_PROVIDER_DIALOG);
@@ -258,6 +287,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		startService(provider_API_command);
 	}
 	
+	/**
+	 * Asks ProviderAPI to download a new provider.json file
+	 * @param provider_name
+	 * @param provider_json_url
+	 * @param danger_on tells if HTTPS client should bypass certificate errors
+	 */
 	public void updateProviderDotJson(String provider_name, String provider_json_url, boolean danger_on) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 

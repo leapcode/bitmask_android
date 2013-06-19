@@ -55,6 +55,15 @@ import android.os.ResultReceiver;
 import android.util.Base64;
 import android.util.Log;
 
+/**
+ * Implements HTTP api methods used to manage communications with the provider server.
+ * 
+ * It's an IntentService because it downloads data fromt he Internet, so it operates in the background.
+ *  
+ * @author parmegv
+ * @author MeanderingCode
+ *
+ */
 public class ProviderAPI extends IntentService {
 	
 	public ProviderAPI() {
@@ -113,6 +122,11 @@ public class ProviderAPI extends IntentService {
 		}
 	}
 
+	/**
+	 * Downloads the main cert and the eip-service.json files given through the task parameter
+	 * @param task
+	 * @return true if eip-service.json was parsed as a JSON object correctly.
+	 */
 	private boolean downloadJsonFiles(Bundle task) {
 		String cert_url = task.getString(ConfigHelper.MAIN_CERT_KEY);
 		String eip_service_json_url = task.getString(ConfigHelper.EIP_SERVICE_KEY);
@@ -128,6 +142,12 @@ public class ProviderAPI extends IntentService {
 		}
 	}
 	
+	/**
+	 * Starts the authentication process using SRP protocol.
+	 * 
+	 * @param task containing: username, password and api url. 
+	 * @return a bundle with a boolean value mapped to a key named ConfigHelper.RESULT_KEY, and which is true if authentication was successful. 
+	 */
 	private Bundle authenticateBySRP(Bundle task) {
 		Bundle session_id_bundle = new Bundle();
 		
@@ -168,11 +188,31 @@ public class ProviderAPI extends IntentService {
 		return session_id_bundle;
 	}
 
+	/**
+	 * Sends an HTTP POST request to the authentication server with the SRP Parameter A.
+	 * @param server_url
+	 * @param username
+	 * @param clientA First SRP parameter sent 
+	 * @return response from authentication server
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws JSONException
+	 */
 	private JSONObject sendAToSRPServer(String server_url, String username, String clientA) throws ClientProtocolException, IOException, JSONException {
 		HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + "login=" + username + "&&" + "A=" + clientA);
 		return sendToServer(post);
 	}
 
+	/**
+	 * Sends an HTTP PUT request to the authentication server with the SRP Parameter M1 (or simply M).
+	 * @param server_url
+	 * @param username
+	 * @param m1 Second SRP parameter sent 
+	 * @return response from authentication server
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws JSONException
+	 */
 	private JSONObject sendM1ToSRPServer(String server_url, String username, byte[] m1) throws ClientProtocolException, IOException, JSONException {
 		HttpPut put = new HttpPut(server_url + "/sessions/" + username +".json" + "?" + "client_auth" + "=" + new BigInteger(1, Util.trim(m1)).toString(16));
 		JSONObject json_response = sendToServer(put);
@@ -188,6 +228,14 @@ public class ProviderAPI extends IntentService {
 		return session_idAndM2;
 	}
 	
+	/**
+	 * Executes an HTTP request expecting a JSON response.
+	 * @param request
+	 * @return response from authentication server
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws JSONException
+	 */
 	private JSONObject sendToServer(HttpUriRequest request) throws ClientProtocolException, IOException, JSONException {
 		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
 		HttpContext localContext = new BasicHttpContext();
@@ -204,6 +252,11 @@ public class ProviderAPI extends IntentService {
 		return json_response;
 	}
 
+	/**
+	 * Downloads a provider.json from a given URL, adding a new provider using the given name.  
+	 * @param task containing a boolean meaning if the provider is custom or not, another boolean meaning if the user completely trusts this provider, the provider name and its provider.json url.
+	 * @return a bundle with a boolean value mapped to a key named ConfigHelper.RESULT_KEY, and which is true if the update was successful. 
+	 */
 	private Bundle updateProviderDotJSON(Bundle task) {
 		Bundle result = new Bundle();
 		boolean custom = task.getBoolean(ConfigHelper.CUSTOM);
@@ -230,13 +283,18 @@ public class ProviderAPI extends IntentService {
 		return result;
 	}
 
+	/**
+	 * Downloads a custom provider provider.json file
+	 * @param task containing a boolean meaning if the user completely trusts this provider, and the provider main url entered in the new custom provider dialog.
+	 * @return true if provider.json file was successfully parsed as a JSON object.
+	 */
 	private boolean downloadNewProviderDotJSON(Bundle task) {
 		boolean custom = true;
 		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
 		
 		String provider_main_url = (String) task.get(ConfigHelper.PROVIDER_MAIN_URL);
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
-		String provider_json_url = guessURL(provider_main_url);
+		String provider_json_url = guessProviderDotJsonURL(provider_main_url);
 		
 		JSONObject provider_json;
 		try {
@@ -245,11 +303,20 @@ public class ProviderAPI extends IntentService {
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
 		
 		return true;
 	}
 	
+	/**
+	 * Tries to download whatever is pointed by the string_url.
+	 * 
+	 * If danger_on flag is true, SSL exceptions will be managed by futher methods that will try to use some bypass methods.
+	 * @param string_url
+	 * @param danger_on if the user completely trusts this provider
+	 * @return
+	 */
 	private String getStringFromProvider(String string_url, boolean danger_on) {
 		
 		String json_file_content = "";
@@ -281,8 +348,15 @@ public class ProviderAPI extends IntentService {
 		return json_file_content;
 	}
 
+	/**
+	 * Tries to download a string from given url without verifying the hostname.
+	 * 
+	 * If a IOException still occurs, it tries with another bypass method: getStringFromProviderWithCACertAdded. 
+	 * @param string_url
+	 * @return an empty string if everything fails, the url content if not. 
+	 */
 	private String getStringFromProviderWithoutValidate(
-			URL provider_json_url) {
+			URL string_url) {
 		
 		String json_string = "";
 		HostnameVerifier hostnameVerifier = new HostnameVerifier() {
@@ -294,20 +368,25 @@ public class ProviderAPI extends IntentService {
 
 		try {
 			HttpsURLConnection urlConnection =
-					(HttpsURLConnection)provider_json_url.openConnection();
+					(HttpsURLConnection)string_url.openConnection();
 			urlConnection.setHostnameVerifier(hostnameVerifier);
 			json_string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			json_string = getStringFromProviderWithCACertAdded(provider_json_url);
+			json_string = getStringFromProviderWithCACertAdded(string_url);
 			//e.printStackTrace();
 		}
 		
 		return json_string;
 	}
 
+	/**
+	 * Tries to download the contents of the provided url using main certificate from choosen provider. 
+	 * @param url
+	 * @return an empty string if it fails, the url content if not. 
+	 */
 	private String getStringFromProviderWithCACertAdded(URL url) {
 		String json_file_content = "";
 
@@ -372,6 +451,11 @@ public class ProviderAPI extends IntentService {
 		return json_file_content;
 	}
 	
+	/**
+	 * Downloads the certificate from the parameter url bypassing self signed certificate SSL errors. 
+	 * @param certificate_url_string
+	 * @return the certificate, as a string
+	 */
 	private String downloadCertificateWithoutTrusting(String certificate_url_string) {
 		
 		String cert_string = "";
@@ -424,15 +508,34 @@ public class ProviderAPI extends IntentService {
 		return cert_string;
 	}
 
+	/**
+	 * Downloads a JSON object from the given url.
+	 * 
+	 * It first downloads the JSON object as a String, and then parses it to JSON object.
+	 * @param json_url
+	 * @param danger_on if the user completely trusts the certificate of the url address.
+	 * @return
+	 * @throws JSONException
+	 */
 	private JSONObject getJSONFromProvider(String json_url, boolean danger_on) throws JSONException {
 		String json_file_content = getStringFromProvider(json_url, danger_on);
 		return new JSONObject(json_file_content);
 	}
 
-	private String guessURL(String provider_main_url) {
+	/**
+	 * Tries to guess the provider.json url given the main provider url.
+	 * @param provider_main_url
+	 * @return the guessed provider.json url
+	 */
+	private String guessProviderDotJsonURL(String provider_main_url) {
 		return provider_main_url + "/provider.json";
 	}
 	
+	/**
+	 * Logs out from the api url retrieved from the task.
+	 * @param task containing api url from which the user will log out
+	 * @return true if there were no exceptions
+	 */
 	private boolean logOut(Bundle task) {
 		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
 		int session_id_index = 0;
@@ -459,6 +562,12 @@ public class ProviderAPI extends IntentService {
 		return true;
 	}
 
+	/**
+	 * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.
+	 * 
+	 * @param task containing the type of the certificate to be downloaded
+	 * @return true if certificate was downloaded correctly, false if provider.json or danger_on flag are not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
+	 */
 	private boolean getNewCert(Bundle task) {
 		String type_of_certificate = task.getString(ConfigHelper.TYPE_OF_CERTIFICATE);
 		try {
@@ -493,7 +602,7 @@ public class ProviderAPI extends IntentService {
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
-		return true;
 	}
 }

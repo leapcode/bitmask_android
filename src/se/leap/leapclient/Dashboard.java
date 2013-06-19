@@ -229,6 +229,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		startService(provider_API_command);
 	}
 	
+	/**
+	 * Asks ProviderAPI to log out.
+	 */
 	public void logOut() {
 		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 		providerAPI_result_receiver.setReceiver(this);
@@ -251,6 +254,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		startService(provider_API_command);
 	}
 	
+	/**
+	 * Shows the log in dialog.
+	 * @param view from which the dialog is created.
+	 */
 	public void logInDialog(View view) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.LOG_IN_DIALOG);
@@ -263,6 +270,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    newFragment.show(fragment_transaction, ConfigHelper.LOG_IN_DIALOG);
 	}
 
+	/**
+	 * Asks ProviderAPI to download an authenticated OpenVPN certificate.
+	 * @param session_id cookie for the server to allow us to download the certificate.
+	 */
 	private void downloadAuthedUserCertificate(Cookie session_id) {
 		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 		providerAPI_result_receiver.setReceiver(this);

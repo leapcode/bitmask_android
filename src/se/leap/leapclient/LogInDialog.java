@@ -11,6 +11,16 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * Implements the log in dialog, currently without progress dialog.
+ * 
+ * It returns to the previous fragment when finished, and sends username and password to the authenticate method.
+ * 
+ * It also notifies the user if the password is not valid. 
+ * 
+ * @author parmegv
+ *
+ */
 public class LogInDialog extends DialogFragment {
 
 	public AlertDialog onCreateDialog(Bundle savedInstanceState) {
@@ -43,16 +53,35 @@ public class LogInDialog extends DialogFragment {
 		return builder.create();
 	}
 
-	boolean wellFormedPassword(String entered_password) {
+	/**
+	 * Validates a password
+	 * @param entered_password
+	 * @return true if the entered password length is greater or equal to eight (8).
+	 */
+	private boolean wellFormedPassword(String entered_password) {
 		return entered_password.length() >= 8;
 	}
 	
+	/**
+	 * Interface used to communicate LogInDialog with Dashboard.
+	 * 
+	 * @author parmegv
+	 *
+	 */
 	public interface LogInDialogInterface {
+		/**
+		 * Starts authentication process.
+		 * @param username
+		 * @param password
+		 */
         public void authenticate(String username, String password);
     }
 
 	LogInDialogInterface interface_with_Dashboard;
 
+	/**
+	 * @return a new instance of this DialogFragment.
+	 */
 	public static DialogFragment newInstance() {
 		LogInDialog dialog_fragment = new LogInDialog();
 		return dialog_fragment;

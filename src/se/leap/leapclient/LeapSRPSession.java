@@ -9,6 +9,14 @@ import java.util.Arrays;
 import org.jboss.security.Util;
 import org.jboss.security.srp.SRPParameters;
 
+/**
+ * Implements all SRP algorithm logic.
+ * 
+ * It's derived from JBoss implementation, with adjustments to make it work with LEAP platform.
+ * 
+ * @author parmegv
+ *
+ */
 public class LeapSRPSession {
 
 	private SRPParameters params;
@@ -133,7 +141,14 @@ public class LeapSRPSession {
 		return v;
 	}
 
-	public byte[] xor(byte[] b1, byte[] b2, int length)
+	/**
+	 * Calculates the trimmed xor from two BigInteger numbers
+	 * @param b1 the positive source to build first BigInteger
+	 * @param b2 the positive source to build second BigInteger
+	 * @param length 
+	 * @return
+	 */
+	public byte[] xor(byte[] b1, byte[] b2)
 	{
 		//TODO Check if length matters in the order, when b2 is smaller than b1 or viceversa
 		byte[] xor_digest = new BigInteger(1, b1).xor(new BigInteger(1, b2)).toByteArray();
@@ -185,7 +200,7 @@ public class LeapSRPSession {
 		byte[] digest_of_g = newDigest().digest(params.g);
 		
 		// clientHash = H(N) xor H(g)
-		byte[] xor_digest = xor(digest_of_n, digest_of_g, digest_of_g.length);
+		byte[] xor_digest = xor(digest_of_n, digest_of_g);
 		clientHash.update(xor_digest);
 		
 		// clientHash = H(N) xor H(g) | H(U)
