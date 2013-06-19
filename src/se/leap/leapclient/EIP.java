@@ -132,7 +132,6 @@ public final class EIP extends IntentService {
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			// XXX tell mReceiver!!
 			mBound = false;
 			
 			if (mReceiver != null){
@@ -145,8 +144,6 @@ public final class EIP extends IntentService {
 	};
 	
 	private void isRunning() {
-		// TODO I don't like that whatever requested this never receives a response
-		//		if OpenVpnService has not been START_SERVICE, though the one place this is used that's okay
 		if (mBound) {
 			if (mReceiver != null){
 				Bundle resultData = new Bundle();
@@ -188,7 +185,6 @@ public final class EIP extends IntentService {
 	}
 
 	private void updateEIPService() {
-		// TODO this will also fetch new eip-service.json
 		try {
 			eipDefinition = ConfigHelper.getJsonFromSharedPref(ConfigHelper.EIP_SERVICE_KEY);
 		} catch (JSONException e) {
@@ -199,7 +195,8 @@ public final class EIP extends IntentService {
 	}
 	
 	private OVPNGateway selectGateway() {
-		// TODO Logic, yay!
+		// TODO Implement gateway selection logic based on TZ or preferences
+		// TODO will also remove "first" from OVPNGateway constructor
 		return new OVPNGateway("first");
 	}
 	
@@ -226,8 +223,6 @@ public final class EIP extends IntentService {
 			
 			try {
 				if ( gw.getJSONObject("capabilities").getJSONArray("transport").toString().contains("openvpn") ){
-					// Now build VPNProfiles and save their UUIDs
-					// TODO create multiple profiles for each gateway to allow trying e.g. different ports when connections don't complete
 					new OVPNGateway(gw);
 				}
 			} catch (JSONException e) {
@@ -243,7 +238,6 @@ public final class EIP extends IntentService {
 		
 		private VpnProfile mVpnProfile;
 		private JSONObject gateway;
-		// Options get put here in the form that se.leap.openvpn.ConfigParser wants TODO will be gone w/ rewrite
 		private HashMap<String,Vector<Vector<String>>> options = new HashMap<String, Vector<Vector<String>>>();
 
 		
@@ -253,7 +247,7 @@ public final class EIP extends IntentService {
 			
 			try {
 
-				// FIXME ha, this got funny..it will get smart once i'm further...
+				// TODO when implementing gateway selection logic
 				if ( name == "first" ) {
 					name = vpl.getProfiles().iterator().next().mName;
 				}
@@ -268,15 +262,11 @@ public final class EIP extends IntentService {
 			}
 		}
 		
-		// Constructor to create a gateway by definition
 		protected OVPNGateway(JSONObject gw){
-			// TODO We're going to build 1 profile per gateway, but eventually several
 
 			gateway = gw;
 			
-			// Delete VpnProfile for host, if there already is one
-			// FIXME There is a better way to check settings and update them, instead of destroy/rebuild
-			// Also, this allows one gateway per hostname entry, so that had better be true from the server!
+			// Currently deletes VpnProfile for host, if there already is one, and builds new
 			ProfileManager vpl = ProfileManager.getInstance(context);
 			Collection<VpnProfile> profiles = vpl.getProfiles();
 			for (VpnProfile p : profiles){
@@ -320,10 +310,7 @@ public final class EIP extends IntentService {
 			}
 		}
 
-		// FIXME this whole thing will get rewritten when we modify ConfigParser
-		// 			in fact, don't even bother looking, except to debug
 		private void parseOptions(){
-			// TODO we will want to rewrite se.leap.openvpn.ConfigParser soon to be targeted at our use
 			
 			// FIXME move these to a common API (& version) definition place, like ProviderAPI or ConfigHelper
 			String common_options = "openvpn_configuration";
@@ -332,13 +319,6 @@ public final class EIP extends IntentService {
 			String protos = "protocols";
 			String capabilities = "capabilities";
 			
-			// FIXME Our gateway definition has keys that are not OpenVPN options...
-			// We need a hard spec for the eip-service.json and better handling in this class
-			// Then we can stop dumping all the "capabilities" key:values into our options for parsing
-			
-			// Put our common options in
-			// FIXME quite ugly.  We don't need the nested vectors, as we're not byte-reading file input, but we haven't rewritten the parser, yet
-
 			Vector<String> arg = new Vector<String>();
 			Vector<Vector<String>> args = new Vector<Vector<String>>();
 			
@@ -412,7 +392,6 @@ public final class EIP extends IntentService {
 		}
 		
 		protected void createVPNProfile(){
-			// TODO take data from eip-service.json for openvpn gateway definitions and create VPNProfile for each
 			try {
 				ConfigParser cp = new ConfigParser();
 				cp.setDefinition(options);
@@ -420,7 +399,7 @@ public final class EIP extends IntentService {
 				mVpnProfile = vp;
 				Log.v(TAG,"Created VPNProfile");
 			} catch (ConfigParseError e) {
-				// FIXME Being here is bad because we didn't get a VpnProfile!
+				// FIXME We didn't get a VpnProfile!  Error handling!
 				Log.v(TAG,"Error createing VPNProfile");
 				e.printStackTrace();
 			}

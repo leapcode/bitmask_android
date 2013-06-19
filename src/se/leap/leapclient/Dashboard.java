@@ -65,7 +65,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if(ConfigHelper.shared_preferences == null)
 			ConfigHelper.setSharedPreferences(preferences);
 		
-		// TODO We should do a better check for config that this!
 		if (preferences.contains("provider") && preferences.getString(ConfigHelper.PROVIDER_KEY, null) != null)
 			buildDashboard();
 		else
@@ -75,7 +74,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	protected void onStop() {
 		super.onStop();
-		// TODO null provider should only happen before ConfigurationWizard has run, once...better way?
 		if (provider != null)
 			if (provider.hasEIP() && provider.getEIPType() == "OpenVPN")
 				OpenVPN.removeStateListener(this);
@@ -84,7 +82,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	protected void onResume() {
 		super.onResume();
-		// TODO null provider should only happen before ConfigurationWizard has run, once...better way?
 		if (provider != null)
 			if (provider.hasEIP() && provider.getEIPType() == "OpenVPN")
 				OpenVPN.addStateListener(this);
@@ -97,7 +94,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
 			} else
-				// FIXME Doesn't take partial config into account
 				configErrorDialog();
 		}
 	}
@@ -130,10 +126,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getName());
-		providerNameTV.setTextSize(28); // TODO maybe to some calculating, or a marquee?
+		providerNameTV.setTextSize(28);
 
 		if ( provider.hasEIP() ){
-			// FIXME let's schedule this, so we're not doing it when we load the app
 			startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 			if (provider.getEIPType() == "OpenVPN")
 				OpenVPN.addStateListener(this);
@@ -180,12 +175,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				}
 			}
 		});
-		
-		//TODO write our info into the view	fragment that will expand with details and a settings button
-		// TODO set eip overview subview
-		// TODO make eip type clickable, show subview
-		// TODO attach vpn status feedback to eip overview view
-		// TODO attach settings button to something
 	}
 	
 	public void toggleEipOverview(View view) {
@@ -195,7 +184,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			eipDetail.setVisibility(View.VISIBLE);
 	}
 	
-	// FIXME!! I will move to EIPSettingsFragment and begone!
 	public void showEIPLog(View view){
 		Intent intent = new Intent(getBaseContext(),LogWindow.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -230,7 +218,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		Intent intent;
 		switch (item.getItemId()){
 		case R.id.about_leap:
-			// TODO move se.leap.openvpn.AboutFragment into our package
 			Fragment aboutFragment = new AboutFragment();
 			FragmentTransaction trans = getFragmentManager().beginTransaction();
 			trans.replace(R.id.dashboardLayout, aboutFragment);
@@ -379,7 +366,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public void updateState(final String state, final String logmessage, final int localizedResId) {
 		// Note: "states" are not organized anywhere...collected state strings:
 		//		NOPROCESS,NONETWORK,BYTECOUNT,AUTH_FAILED + some parsing thing ( WAIT(?),AUTH,GET_CONFIG,ASSIGN_IP,CONNECTED(?) )
-		// TODO follow-back calls to updateState to find set variable values passed as first param & third param (find those strings...are they all R.string.STATE_* ?)
 		runOnUiThread(new Runnable() {
 
 			@Override
