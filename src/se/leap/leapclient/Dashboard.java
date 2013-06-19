@@ -96,28 +96,32 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			if ( resultCode == RESULT_OK ){
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
-			} else {
-				AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getAppContext());
-				alertBuilder.setTitle(getResources().getString(R.string.setup_error_title));
-				alertBuilder
-					.setMessage(getResources().getString(R.string.setup_error_text))
-					.setCancelable(false)
-					.setPositiveButton(getResources().getString(R.string.setup_error_configure_button), new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							startActivityForResult(new Intent(getAppContext(),ConfigurationWizard.class),CONFIGURE_LEAP);
-						}
-					})
-					.setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							SharedPreferences.Editor prefsEdit = getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE).edit();
-							prefsEdit.remove(ConfigHelper.PROVIDER_KEY).commit();
-							finish();
-						}
-					});
-			}
+			} else
+				// FIXME Doesn't take partial config into account
+				configErrorDialog();
 		}
+	}
+	
+	private void configErrorDialog() {
+		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getAppContext());
+		alertBuilder.setTitle(getResources().getString(R.string.setup_error_title));
+		alertBuilder
+			.setMessage(getResources().getString(R.string.setup_error_text))
+			.setCancelable(false)
+			.setPositiveButton(getResources().getString(R.string.setup_error_configure_button), new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					startActivityForResult(new Intent(getAppContext(),ConfigurationWizard.class),CONFIGURE_LEAP);
+				}
+			})
+			.setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					SharedPreferences.Editor prefsEdit = getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE).edit();
+					prefsEdit.remove(ConfigHelper.PROVIDER_KEY).commit();
+					finish();
+				}
+			});
 	}
 	
 	private void buildDashboard() {
