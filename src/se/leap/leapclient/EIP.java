@@ -24,7 +24,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
@@ -39,23 +38,18 @@ public final class EIP extends IntentService {
 	public final static String ACTION_START_EIP = "se.leap.leapclient.START_EIP";
 	public final static String ACTION_STOP_EIP = "se.leap.leapclient.STOP_EIP";
 	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.leapclient.UPDATE_EIP_SERVICE";
-	
 	public final static String ACTION_IS_EIP_RUNNING = "se.leap.leapclient.IS_RUNNING";
-	
 	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
 	
 	private static Context context;
 	private static ResultReceiver mReceiver;
-	// Binder to OpenVpnService for comm ops
 	private static OpenVpnService mVpnService;
 	private static boolean mBound = false;
 	// Used to store actions to "resume" onServiceConnection
 	private static String mPending = null;
 	
-	// Represents our Provider's eip-service.json
 	private static JSONObject eipDefinition = null;
 	
-	// Our active gateway
 	private static OVPNGateway activeGateway = null;
 
 	public EIP(){
@@ -68,7 +62,6 @@ public final class EIP extends IntentService {
 		
 		context = getApplicationContext();
 		
-		// Inflate our eip-service.json data
 		try {
 			eipDefinition = ConfigHelper.getJsonFromSharedPref(ConfigHelper.EIP_SERVICE_KEY);
 		} catch (JSONException e) {
@@ -89,9 +82,7 @@ public final class EIP extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		// Get our action from the Intent
 		String action = intent.getAction();
-		// Get the ResultReceiver, if any
 		mReceiver = intent.getParcelableExtra(ConfigHelper.RECEIVER_TAG);
 		
 		if ( action == ACTION_IS_EIP_RUNNING )
@@ -187,7 +178,6 @@ public final class EIP extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// Bind OpenVpnService for comm ops
 		if (!mBound){
 			mPending = ACTION_START_EIP;
 			this.retreiveVpnService();
@@ -201,21 +191,8 @@ public final class EIP extends IntentService {
 	}
 	
 	private void stopEIP() {
-		if (mBound){
+		if (mBound)
 			mVpnService.onRevoke();
-
-			/*if (mReceiver != null){
-				Bundle resultData = new Bundle();
-				resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_STOP_EIP);
-				mReceiver.send(Activity.RESULT_OK, resultData);
-			}*/
-		} else {
-			// TODO If OpenVpnService isn't bound, does that really always mean it's not running?
-			//		If it's not running, bindService doesn't work w/o START_SERVICE action, so...
-			/*mPending = ACTION_STOP_EIP;
-			this.retreiveVpnService();*/
-		}
-		// Remove this if above comes back
 		if (mReceiver != null){
 			Bundle resultData = new Bundle();
 			resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_STOP_EIP);
@@ -242,7 +219,6 @@ public final class EIP extends IntentService {
 	private void updateGateways(){
 		JSONArray gatewaysDefined = null;
 		
-		// Get our list of gateways
 		try {
 			gatewaysDefined = eipDefinition.getJSONArray("gateways");
 		} catch (JSONException e1) {
@@ -250,7 +226,6 @@ public final class EIP extends IntentService {
 			e1.printStackTrace();
 		}
 		
-		// Walk the list of gateways and inflate them to VPNProfiles
 		for ( int i=0 ; i < gatewaysDefined.length(); i++ ){
 			
 			JSONObject gw = null;
@@ -264,7 +239,6 @@ public final class EIP extends IntentService {
 			
 			try {
 				if ( gw.getJSONObject("capabilities").getJSONArray("transport").toString().contains("openvpn") ){
-					// We have an openvpn gateway!
 					// Now build VPNProfiles and save their UUIDs
 					// TODO create multiple profiles for each gateway to allow trying e.g. different ports when connections don't complete
 					new OVPNGateway(gw);
@@ -278,14 +252,10 @@ public final class EIP extends IntentService {
 
 	private class OVPNGateway {
 		
-		// Log tag
 		private String TAG = "OVPNGateway";
 		
-		// The actual VPN Profile object
 		private VpnProfile mVpnProfile;
-		// Our gateway definition from eip-service.json
 		private JSONObject gateway;
-		// This holds our OpenVPN options for creating the VPNProfile
 		// Options get put here in the form that se.leap.openvpn.ConfigParser wants TODO will be gone w/ rewrite
 		private HashMap<String,Vector<Vector<String>>> options = new HashMap<String, Vector<Vector<String>>>();
 
@@ -304,12 +274,7 @@ public final class EIP extends IntentService {
 				mVpnProfile = vpl.getProfileByName(name);
 				
 			} catch (NoSuchElementException e) {
-				
-				// The gateway we were looking for is not in ProfileList!
 				updateEIPService();
-				
-				// TODO prompt user to fix config error
-				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -325,7 +290,6 @@ public final class EIP extends IntentService {
 			// Delete VpnProfile for host, if there already is one
 			// FIXME There is a better way to check settings and update them, instead of destroy/rebuild
 			// Also, this allows one gateway per hostname entry, so that had better be true from the server!
-			// TODO Will we define multiple gateways per host, for variable options?  or change how .openvpn.VpnProfile works?
 			ProfileManager vpl = ProfileManager.getInstance(context);
 			Collection<VpnProfile> profiles = vpl.getProfiles();
 			for (VpnProfile p : profiles){
@@ -338,11 +302,8 @@ public final class EIP extends IntentService {
 				}
 			}
 			
-			// Create options HashMap for se.leap.openvpn.ConfigParser
 			this.parseOptions();
-			// Now create the VPNProfile
 			this.createVPNProfile();
-			// Now let's save it in the .openvpn package way
 			
 			setUniqueProfileName(vpl);
 			vpl.addProfile(mVpnProfile);
@@ -415,10 +376,6 @@ public final class EIP extends IntentService {
 				e.printStackTrace();
 			}
 			
-			// Now our gateway-specific options
-			// to hold 'em the way they're wanted for parsing
-
-			// remote:ip_address
 			try {
 				arg.add("remote");
 				arg.add(gateway.getString(remote));
@@ -431,7 +388,6 @@ public final class EIP extends IntentService {
 			arg.clear();
 			args.clear();
 			
-			// proto:udp||tcp
 			JSONArray protocolsJSON = null;
 			arg.add("proto");
 			try {
@@ -453,7 +409,6 @@ public final class EIP extends IntentService {
 			args.clear();
 			
 			
-			// Now ports...picking one 'cause i say so'... TODO we should have multiple profiles?...
 			String port = null;
 			arg.add("port");
 			try {

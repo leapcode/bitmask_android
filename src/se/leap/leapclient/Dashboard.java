@@ -65,7 +65,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if(ConfigHelper.shared_preferences == null)
 			ConfigHelper.setSharedPreferences(preferences);
 		
-		// Check if we have preferences, run configuration wizard if not
 		// TODO We should do a better check for config that this!
 		if (preferences.contains("provider") && preferences.getString(ConfigHelper.PROVIDER_KEY, null) != null)
 			buildDashboard();
@@ -95,14 +94,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if ( requestCode == CONFIGURE_LEAP ) {
 			if ( resultCode == RESULT_OK ){
-				// Configuration done, get our preferences again
 				preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
-				// Update eip-service local parsing
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				
 				buildDashboard();
 			} else {
-				// Something went wrong in configuration
 				AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getAppContext());
 				alertBuilder.setTitle(getResources().getString(R.string.setup_error_title));
 				alertBuilder
@@ -127,16 +123,14 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	}
 	
 	private void buildDashboard() {
-		// Get our provider
 		provider = Provider.getInstance();
 		provider.init( this );
 
-		// Set provider name in textview
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getName());
 		providerNameTV.setTextSize(28); // TODO maybe to some calculating, or a marquee?
 
-		if ( provider.hasEIP() /*&& provider.getEIP() != null*/){
+		if ( provider.hasEIP() ){
 			// FIXME let's schedule this, so we're not doing it when we load the app
 			startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 			if (provider.getEIPType() == "OpenVPN")
@@ -156,25 +150,20 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
 
-		// Set our EIP type title
 		eipTypeTV = (TextView) findViewById(R.id.eipType);
 		eipTypeTV.setText(provider.getEIPType());
 		
-		// Show our EIP detail
 		eipDetail = ((RelativeLayout) findViewById(R.id.eipDetail));
 		View eipSettings = findViewById(R.id.eipSettings);
 		eipSettings.setVisibility(View.GONE); // FIXME too!
 		eipDetail.setVisibility(View.VISIBLE);
 		eipStatus = (TextView) findViewById(R.id.eipStatus);
 
-		// TODO Bind our switch to run our EIP
-		// What happens when our VPN stops running?  does it call the listener?
 		eipSwitch = (Switch) findViewById(R.id.eipSwitch);
 		eipSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (!mEipWait){
-					// We're gonna have to have some patience!
 					buttonView.setClickable(false);
 					mEipWait = true;
 					
@@ -205,7 +194,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	}
 	
 	// FIXME!! I will move to EIPSettingsFragment and begone!
-	// Also means change onClick property for status line
 	public void showEIPLog(View view){
 		Intent intent = new Intent(getBaseContext(),LogWindow.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -231,7 +219,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.client_dashboard, menu);
 		return true;
 	}
@@ -239,7 +226,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item){
 		Intent intent;
-		// Handle item selection
 		switch (item.getItemId()){
 		case R.id.about_leap:
 			// TODO move se.leap.openvpn.AboutFragment into our package
@@ -248,12 +234,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			trans.replace(R.id.dashboardLayout, aboutFragment);
 			trans.addToBackStack(null);
 			trans.commit();
-			
-			//intent = new Intent(this,AboutFragment.class);
-			//startActivity(intent);
 			return true;
 		case R.id.legacy_interface:
-			// TODO call se.leap.openvpn.MainActivity
 			intent = new Intent(this,MainActivity.class);
 			startActivity(intent);
 			return true;
@@ -426,9 +408,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		protected void onReceiveResult(int resultCode, Bundle resultData) {
 			super.onReceiveResult(resultCode, resultData);
 			
-			// What were we asking for, again?
 			String request = resultData.getString(ConfigHelper.REQUEST_TAG);
-			// Should the EIP switch be on?
 			mEipWait = true;
 			boolean checked = false;
 			
