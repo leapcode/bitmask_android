@@ -94,9 +94,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if ( requestCode == CONFIGURE_LEAP ) {
 			if ( resultCode == RESULT_OK ){
-				preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
-				
 				buildDashboard();
 			} else {
 				AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getAppContext());
