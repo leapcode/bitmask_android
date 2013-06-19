@@ -239,7 +239,7 @@ public final class EIP extends IntentService {
 		private String TAG = "OVPNGateway";
 		
 		private VpnProfile mVpnProfile;
-		private JSONObject gateway;
+		private JSONObject mGateway;
 		private HashMap<String,Vector<Vector<String>>> options = new HashMap<String, Vector<Vector<String>>>();
 
 		
@@ -264,9 +264,9 @@ public final class EIP extends IntentService {
 			}
 		}
 		
-		protected OVPNGateway(JSONObject gw){
+		protected OVPNGateway(JSONObject gateway){
 
-			gateway = gw;
+			mGateway = gateway;
 			
 			// Currently deletes VpnProfile for host, if there already is one, and builds new
 			ProfileManager vpl = ProfileManager.getInstance(context);
@@ -295,7 +295,7 @@ public final class EIP extends IntentService {
 
 			String newname;
 			try {
-				newname = gateway.getString("host");
+				newname = mGateway.getString("host");
 				while(vpl.getProfileByName(newname)!=null) {
 					i++;
 					if(i==1)
@@ -347,7 +347,7 @@ public final class EIP extends IntentService {
 			
 			try {
 				arg.add("remote");
-				arg.add(gateway.getString(remote));
+				arg.add(mGateway.getString(remote));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -360,7 +360,7 @@ public final class EIP extends IntentService {
 			JSONArray protocolsJSON = null;
 			arg.add("proto");
 			try {
-				protocolsJSON = gateway.getJSONObject(capabilities).getJSONArray(protos);
+				protocolsJSON = mGateway.getJSONObject(capabilities).getJSONArray(protos);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -381,7 +381,7 @@ public final class EIP extends IntentService {
 			String port = null;
 			arg.add("port");
 			try {
-				port = gateway.getJSONObject(capabilities).getJSONArray(ports).optString(0);
+				port = mGateway.getJSONObject(capabilities).getJSONArray(ports).optString(0);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
