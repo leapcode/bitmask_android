@@ -171,24 +171,7 @@ public final class EIP extends IntentService {
 		intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.mVpnProfile.getName() );
 		intent.putExtra(ConfigHelper.RECEIVER_TAG, mReceiver);
 		startActivity(intent);
-		// Let's give it 2s to get rolling... TODO there really should be a better way to do this, or it's not needed.
-		// Read more code in .openvpn package
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (!mBound){
-			mPending = ACTION_START_EIP;
-			this.retreiveVpnService();
-		} else {
-			if (mReceiver != null) {
-				Bundle resultData = new Bundle();
-				resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_START_EIP);
-				mReceiver.send(Activity.RESULT_OK, resultData);
-			}
-		}
+		mPending = ACTION_START_EIP;
 	}
 	
 	private void stopEIP() {
