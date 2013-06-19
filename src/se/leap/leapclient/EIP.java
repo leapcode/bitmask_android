@@ -144,16 +144,18 @@ public final class EIP extends IntentService {
 	};
 	
 	private void isRunning() {
+		Bundle resultData = new Bundle();
+		resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_IS_EIP_RUNNING);
+		int resultCode = Activity.RESULT_CANCELED;
 		if (mBound) {
-			if (mReceiver != null){
-				Bundle resultData = new Bundle();
-				resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_IS_EIP_RUNNING);
-				int resultCode = (mVpnService.isRunning()) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-				mReceiver.send(resultCode, resultData);
-			}
+			resultCode = (mVpnService.isRunning()) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
 		} else {
 			mPending = ACTION_IS_EIP_RUNNING;
 			this.retreiveVpnService();
+		}
+		
+		if (mReceiver != null){
+			mReceiver.send(resultCode, resultData);
 		}
 	}
 
