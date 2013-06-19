@@ -34,6 +34,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * The main user facing Activity of LEAP Android, consisting of status, controls,
+ * and access to preferences.
+ * 
+ * @author Sean Leonard <meanderingcode@aetherislands.net>
+ */
 public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver,StateListener {
 
 	protected static final int CONFIGURE_LEAP = 0;
@@ -98,6 +104,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		}
 	}
 	
+	/**
+	 * Dialog shown when encountering a configuration error.  Such errors require
+	 * reconfiguring LEAP or aborting the application.
+	 */
 	private void configErrorDialog() {
 		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getAppContext());
 		alertBuilder.setTitle(getResources().getString(R.string.setup_error_title));
@@ -120,6 +130,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			});
 	}
 	
+	/**
+	 * Inflates permanent UI elements of the View and contains logic for what
+	 * service dependent UI elements to include.
+	 */
 	private void buildDashboard() {
 		provider = Provider.getInstance();
 		provider.init( this );
@@ -136,6 +150,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		}
 	}
 
+	/**
+	 * Builds the UI for the EIP service Dashboard component
+	 */
 	private void serviceItemEIP() {
 		mEIPReceiver = new EIPReceiver(new Handler());
 		mEIPReceiver.setReceiver(this);
@@ -177,6 +194,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		});
 	}
 	
+	/**
+	 * Expands the EIP Dashboard component for extra details view.
+	 * Called by onClick property in client_dashboard.xml layout.
+	 * 
+	 * @param view (Unused) The View calling this method by its onClick property
+	 */
 	public void toggleEipOverview(View view) {
 		if (eipDetail.isShown())
 			eipDetail.setVisibility(View.GONE);
@@ -184,6 +207,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			eipDetail.setVisibility(View.VISIBLE);
 	}
 	
+	/**
+	 * Launches the se.leap.openvpn.LogWindow Activity showing detailed OpenVPN log
+	 * 
+	 * @param view (Unused) The View calling this method by its onClick property
+	 */
 	public void showEIPLog(View view){
 		Intent intent = new Intent(getBaseContext(),LogWindow.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -357,7 +385,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		}
 	}
 
-	// Used for getting Context when outside of a class extending Context
+	/**
+	 * For retrieving the base application Context in classes that don't extend
+	 * Android's Activity class
+	 * 
+	 * @return Application Context as defined by <code>this</code> for Dashboard instance
+	 */
 	public static Context getAppContext() {
 		return app;
 	}
@@ -380,6 +413,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		});
 	}
 
+	/**
+	 * Inner class for handling messages related to EIP status and control requests
+	 * 
+	 * @author Sean Leonard <meanderingcode@aetherislands.net>
+	 */
 	protected class EIPReceiver extends ResultReceiver {
 		
 		Dashboard mDashboard;

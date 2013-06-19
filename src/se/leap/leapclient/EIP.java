@@ -31,8 +31,13 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 /**
+ * EIP is the abstract base class for interacting with and managing the Encrypted
+ * Internet Proxy connection.  Connections are started, stopped, and queried through
+ * this IntentService.
+ * Contains logic for parsing eip-service.json from the provider, configuring and selecting
+ * gateways, and controlling {@link .openvpn.OpenVpnService} connections.
+ * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
- *
  */
 public final class EIP extends IntentService {
 	
@@ -96,6 +101,10 @@ public final class EIP extends IntentService {
 			this.stopEIP();
 	}
 	
+	/**
+	 * Sends an Intent to bind OpenVpnService.
+	 * Used when OpenVpnService isn't bound but might be running.
+	 */
 	private void retreiveVpnService() {
 		Intent bindIntent = new Intent(this,OpenVpnService.class);
 		bindIntent.setAction(OpenVpnService.RETRIEVE_SERVICE);
@@ -143,6 +152,15 @@ public final class EIP extends IntentService {
 	
 	};
 	
+	/**
+	 * Attempts to determine if OpenVpnService has an established VPN connection
+	 * through the bound ServiceConnection.  If there is no bound service, this
+	 * method will attempt to bind a running OpenVpnService and send
+	 * <code>Activity.RESULT_CANCELED</code> to the ResultReceiver that made the
+	 * request.
+	 * Note: If the request to bind OpenVpnService is successful, the ResultReceiver
+	 * will be notified in {@link onServiceConnected()}
+	 */
 	private void isRunning() {
 		Bundle resultData = new Bundle();
 		resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_IS_EIP_RUNNING);
@@ -159,6 +177,10 @@ public final class EIP extends IntentService {
 		}
 	}
 
+	/**
+	 * Initiates an EIP connection by selecting a gateway and preparing and sending an
+	 * Intent to {@link se.leap.openvpn.LaunchVPN}
+	 */
 	private void startEIP() {
 		if (activeGateway==null)
 			activeGateway = selectGateway();
@@ -173,6 +195,10 @@ public final class EIP extends IntentService {
 		mPending = ACTION_START_EIP;
 	}
 	
+	/**
+	 * Disconnects the EIP connection gracefully through the bound service or forcefully
+	 * if there is no bound service.  Sends a message to the requesting ResultReceiver.
+	 */
 	private void stopEIP() {
 		if (mBound)
 			mVpnService.onRevoke();
@@ -186,6 +212,11 @@ public final class EIP extends IntentService {
 		}
 	}
 
+	/**
+	 * Loads eip-service.json from SharedPreferences and calls {@link updateGateways()}
+	 * to parse gateway definitions.
+	 * TODO Implement API call to refresh eip-service.json from the provider
+	 */
 	private void updateEIPService() {
 		try {
 			eipDefinition = ConfigHelper.getJsonFromSharedPref(ConfigHelper.EIP_SERVICE_KEY);
@@ -196,12 +227,23 @@ public final class EIP extends IntentService {
 		updateGateways();
 	}
 	
+	/**
+	 * Choose a gateway to connect to based on timezone from system locale data
+	 * 
+	 * @return The gateway to connect to
+	 */
 	private OVPNGateway selectGateway() {
 		// TODO Implement gateway selection logic based on TZ or preferences
-		// TODO will also remove "first" from OVPNGateway constructor
+		// TODO Implement search through gateways loaded from SharedPreferences
+		// TODO Remove String arg constructor in favor of findGatewayByName(String)
 		return new OVPNGateway("first");
 	}
 	
+	/**
+	 * Walk the list of gateways defined in eip-service.json and parse them into
+	 * OVPNGateway objects.
+	 * TODO Store the OVPNGateways (as Serializable) in SharedPreferences
+	 */
 	private void updateGateways(){
 		JSONArray gatewaysDefined = null;
 		
@@ -234,6 +276,13 @@ public final class EIP extends IntentService {
 		}
 	}
 
+	/**
+	 * OVPNGateway provides objects defining gateways and their options and metadata.
+	 * Each instance contains a VpnProfile for OpenVPN specific data and member
+	 * variables describing capabilities and location
+	 * 
+	 * @author Sean Leonard <meanderingcode@aetherislands.net>
+	 */
 	private class OVPNGateway {
 		
 		private String TAG = "OVPNGateway";
@@ -243,13 +292,17 @@ public final class EIP extends IntentService {
 		private HashMap<String,Vector<Vector<String>>> options = new HashMap<String, Vector<Vector<String>>>();
 
 		
-		// Constructor to load a gateway by name
+		/**
+		 * Attempts to retrieve a VpnProfile by name and build an OVPNGateway around it.
+		 * FIXME This needs to become a findGatewayByName() method
+		 * 
+		 * @param name The hostname of the gateway to inflate
+		 */
 		private OVPNGateway(String name){
 			ProfileManager vpl = ProfileManager.getInstance(context);
 			
 			try {
 
-				// TODO when implementing gateway selection logic
 				if ( name == "first" ) {
 					name = vpl.getProfiles().iterator().next().mName;
 				}
@@ -264,6 +317,12 @@ public final class EIP extends IntentService {
 			}
 		}
 		
+		/**
+		 * Build a gateway object from a JSON OpenVPN gateway definition in eip-service.json
+		 * and create a VpnProfile belonging to it.
+		 * 
+		 * @param gateway The JSON OpenVPN gateway definition to parse
+		 */
 		protected OVPNGateway(JSONObject gateway){
 
 			mGateway = gateway;
@@ -290,13 +349,18 @@ public final class EIP extends IntentService {
 			vpl.saveProfileList(context);
 		}
 		
-		private void setUniqueProfileName(ProfileManager vpl) {
+		/**
+		 * Attempts to create a unique profile name from the hostname of the gateway
+		 * 
+		 * @param profileManager
+		 */
+		private void setUniqueProfileName(ProfileManager profileManager) {
 			int i=0;
 
 			String newname;
 			try {
 				newname = mGateway.getString("host");
-				while(vpl.getProfileByName(newname)!=null) {
+				while(profileManager.getProfileByName(newname)!=null) {
 					i++;
 					if(i==1)
 						newname = getString(R.string.converted_profile);
@@ -312,6 +376,9 @@ public final class EIP extends IntentService {
 			}
 		}
 
+		/**
+		 * FIXME This method is really the outline of the refactoring needed in se.leap.openvpn.ConfigParser 
+		 */
 		private void parseOptions(){
 			
 			// FIXME move these to a common API (& version) definition place, like ProviderAPI or ConfigHelper
@@ -393,6 +460,9 @@ public final class EIP extends IntentService {
 			arg.clear();
 		}
 		
+		/**
+		 * Create and attach the VpnProfile to our gateway object
+		 */
 		protected void createVPNProfile(){
 			try {
 				ConfigParser cp = new ConfigParser();
@@ -401,7 +471,7 @@ public final class EIP extends IntentService {
 				mVpnProfile = vp;
 				Log.v(TAG,"Created VPNProfile");
 			} catch (ConfigParseError e) {
-				// FIXME We didn't get a VpnProfile!  Error handling!
+				// FIXME We didn't get a VpnProfile!  Error handling! and log level
 				Log.v(TAG,"Error createing VPNProfile");
 				e.printStackTrace();
 			}
