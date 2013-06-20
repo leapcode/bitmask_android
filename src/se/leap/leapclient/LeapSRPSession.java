@@ -4,9 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
-import org.jboss.security.Util;
 import org.jboss.security.srp.SRPParameters;
 
 /**
@@ -30,6 +30,7 @@ public class LeapSRPSession {
 	private BigInteger a;
 	private BigInteger A;
 	private byte[] K;
+	private SecureRandom pseudoRng;
 	/** The M1 = H(H(N) xor H(g) | H(U) | s | A | B | K) hash */
 	private MessageDigest clientHash;
 	/** The M2 = H(A | M | K) hash */
@@ -57,19 +58,19 @@ public class LeapSRPSession {
 	 */
 	public LeapSRPSession(String username, String password, SRPParameters params,
 			byte[] abytes) {
-		try {
-			// Initialize the secure random number and message digests
-			Util.init();
-		}
-		catch(NoSuchAlgorithmException e) {
-		}
-
 		this.params = params;
 		this.g = new BigInteger(1, params.g);
-		N_bytes = Util.trim(params.N);
+		N_bytes = ConfigHelper.trim(params.N);
 		this.N = new BigInteger(1, N_bytes);
 		this.username = username;
 		this.password = password;
+		
+		try {
+			pseudoRng = SecureRandom.getInstance("SHA1PRNG");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		if( abytes != null ) {
 			A_LEN = 8*abytes.length;
@@ -105,15 +106,15 @@ public class LeapSRPSession {
 		byte[] colon = {};
 		String encoding = "ISO-8859-1";
 		try {
-			user = Util.trim(username.getBytes(encoding));
-			colon = Util.trim(":".getBytes(encoding));
-			password_bytes = Util.trim(password.getBytes(encoding));
+			user = ConfigHelper.trim(username.getBytes(encoding));
+			colon = ConfigHelper.trim(":".getBytes(encoding));
+			password_bytes = ConfigHelper.trim(password.getBytes(encoding));
 		}
 		catch(UnsupportedEncodingException e) {
 			// Use the default platform encoding
-			user = Util.trim(username.getBytes());
-			colon = Util.trim(":".getBytes());
-			password_bytes = Util.trim(password.getBytes());
+			user = ConfigHelper.trim(username.getBytes());
+			colon = ConfigHelper.trim(":".getBytes());
+			password_bytes = ConfigHelper.trim(password.getBytes());
 		}
 		
 		// Build the hash
@@ -152,7 +153,7 @@ public class LeapSRPSession {
 	{
 		//TODO Check if length matters in the order, when b2 is smaller than b1 or viceversa
 		byte[] xor_digest = new BigInteger(1, b1).xor(new BigInteger(1, b2)).toByteArray();
-		return Util.trim(xor_digest);
+		return ConfigHelper.trim(xor_digest);
 	}
 
 	/**
@@ -166,11 +167,11 @@ public class LeapSRPSession {
 			if( a == null ) {
 				BigInteger one = BigInteger.ONE;
 				do {
-					a = new BigInteger(A_LEN, Util.getPRNG());
+					a = new BigInteger(A_LEN, pseudoRng);
 				} while(a.compareTo(one) <= 0);
 			}
 			A = g.modPow(a, N);
-			Abytes = Util.trim(A.toByteArray());
+			Abytes = ConfigHelper.trim(A.toByteArray());
 		}
 		return Abytes;
 	}
@@ -186,7 +187,7 @@ public class LeapSRPSession {
 	 */
 	public byte[] response(byte[] salt_bytes, byte[] Bbytes) throws NoSuchAlgorithmException {
 		// Calculate x = H(s | H(U | ':' | password))
-		byte[] xb = calculatePasswordHash(username, password, Util.trim(salt_bytes));
+		byte[] xb = calculatePasswordHash(username, password, ConfigHelper.trim(salt_bytes));
 		this.x = new BigInteger(1, xb);
 
 		// Calculate v = kg^x mod N
@@ -204,36 +205,36 @@ public class LeapSRPSession {
 		clientHash.update(xor_digest);
 		
 		// clientHash = H(N) xor H(g) | H(U)
-		byte[] username_digest = newDigest().digest(Util.trim(username.getBytes()));
-		username_digest = Util.trim(username_digest);
+		byte[] username_digest = newDigest().digest(ConfigHelper.trim(username.getBytes()));
+		username_digest = ConfigHelper.trim(username_digest);
 		clientHash.update(username_digest);
 		
 		// clientHash = H(N) xor H(g) | H(U) | s
-		clientHash.update(Util.trim(salt_bytes));
+		clientHash.update(ConfigHelper.trim(salt_bytes));
 		
 		K = null;
 
 		// clientHash = H(N) xor H(g) | H(U) | A
-		byte[] Abytes = Util.trim(A.toByteArray());
+		byte[] Abytes = ConfigHelper.trim(A.toByteArray());
 		clientHash.update(Abytes);
 		
 		// clientHash = H(N) xor H(g) | H(U) | s | A | B
-		Bbytes = Util.trim(Bbytes);
+		Bbytes = ConfigHelper.trim(Bbytes);
 		clientHash.update(Bbytes);
 		
 		// Calculate S = (B - kg^x) ^ (a + u * x) % N
 		BigInteger S = calculateS(Bbytes);
-		byte[] S_bytes = Util.trim(S.toByteArray());
+		byte[] S_bytes = ConfigHelper.trim(S.toByteArray());
 
 		// K = SessionHash(S)
 		String hash_algorithm = params.hashAlgorithm;
 		MessageDigest sessionDigest = MessageDigest.getInstance(hash_algorithm);
-		K = Util.trim(sessionDigest.digest(S_bytes));
+		K = ConfigHelper.trim(sessionDigest.digest(S_bytes));
 		
 		// clientHash = H(N) xor H(g) | H(U) | A | B | K
 		clientHash.update(K);
 		
-		byte[] M1 = Util.trim(clientHash.digest());
+		byte[] M1 = ConfigHelper.trim(clientHash.digest());
 		
 		// serverHash = Astr + M + K
 		serverHash.update(Abytes);
@@ -249,8 +250,8 @@ public class LeapSRPSession {
 	 * @return the parameter S
 	 */
 	private BigInteger calculateS(byte[] Bbytes) {
-		byte[] Abytes = Util.trim(A.toByteArray());
-		Bbytes = Util.trim(Bbytes);
+		byte[] Abytes = ConfigHelper.trim(A.toByteArray());
+		Bbytes = ConfigHelper.trim(Bbytes);
 		byte[] u_bytes = getU(Abytes, Bbytes);
 		
 		BigInteger B = new BigInteger(1, Bbytes);
@@ -270,10 +271,10 @@ public class LeapSRPSession {
 	 */
 	public byte[] getU(byte[] Abytes, byte[] Bbytes) {
 		MessageDigest u_digest = newDigest();
-		u_digest.update(Util.trim(Abytes));
-		u_digest.update(Util.trim(Bbytes));
+		u_digest.update(ConfigHelper.trim(Abytes));
+		u_digest.update(ConfigHelper.trim(Bbytes));
 		byte[] u_digest_bytes = u_digest.digest();
-		return Util.trim(new BigInteger(1, u_digest_bytes).toByteArray());
+		return ConfigHelper.trim(new BigInteger(1, u_digest_bytes).toByteArray());
 	}
 
 	/**
@@ -283,8 +284,8 @@ public class LeapSRPSession {
 	public boolean verify(byte[] M2)
 	{
 		// M2 = H(A | M1 | K)
-		M2 = Util.trim(M2);
-		byte[] myM2 = Util.trim(serverHash.digest());
+		M2 = ConfigHelper.trim(M2);
+		byte[] myM2 = ConfigHelper.trim(serverHash.digest());
 		boolean valid = Arrays.equals(M2, myM2);
 		return valid;
 	}

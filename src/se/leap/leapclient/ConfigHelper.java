@@ -208,6 +208,26 @@ public class ConfigHelper {
 	}
 
 	/**
+	 *  Treat the input as the MSB representation of a number,
+	 *  and lop off leading zero elements.  For efficiency, the
+	 *  input is simply returned if no leading zeroes are found.
+	 *  
+	 *  @param in array to be trimmed
+	 */
+	public static byte[] trim(byte[] in) {
+		if(in.length == 0 || in[0] != 0)
+			return in;
+
+		int len = in.length;
+		int i = 1;
+		while(in[i] == 0 && i < len)
+			++i;
+		byte[] ret = new byte[len - i];
+		System.arraycopy(in, i, ret, 0, len - i);
+		return ret;
+	}
+
+	/**
 	 * Sets class scope Shared Preferences
 	 * @param shared_preferences
 	 */

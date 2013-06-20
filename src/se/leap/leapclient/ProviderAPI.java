@@ -41,7 +41,6 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.jboss.security.Util;
 import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -214,7 +213,7 @@ public class ProviderAPI extends IntentService {
 	 * @throws JSONException
 	 */
 	private JSONObject sendM1ToSRPServer(String server_url, String username, byte[] m1) throws ClientProtocolException, IOException, JSONException {
-		HttpPut put = new HttpPut(server_url + "/sessions/" + username +".json" + "?" + "client_auth" + "=" + new BigInteger(1, Util.trim(m1)).toString(16));
+		HttpPut put = new HttpPut(server_url + "/sessions/" + username +".json" + "?" + "client_auth" + "=" + new BigInteger(1, ConfigHelper.trim(m1)).toString(16));
 		JSONObject json_response = sendToServer(put);
 
 		JSONObject session_idAndM2 = new JSONObject();
@@ -223,7 +222,7 @@ public class ProviderAPI extends IntentService {
 			Cookie session_id_cookie = LeapHttpClient.getInstance(getApplicationContext()).getCookieStore().getCookies().get(0);
 			session_idAndM2.put(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id_cookie.getName());
 			session_idAndM2.put(ConfigHelper.SESSION_ID_KEY, session_id_cookie.getValue());
-			session_idAndM2.put(ConfigHelper.M2_KEY, Util.trim(M2_not_trimmed));
+			session_idAndM2.put(ConfigHelper.M2_KEY, ConfigHelper.trim(M2_not_trimmed));
 		}
 		return session_idAndM2;
 	}
