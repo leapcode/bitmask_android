@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
@@ -18,7 +19,7 @@ import android.content.SharedPreferences;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  *
  */
-final class Provider implements Serializable {
+public final class Provider implements Serializable {
 
 	private static final long serialVersionUID = 6003835972151761353L;
 	
@@ -67,7 +68,7 @@ final class Provider implements Serializable {
 		//preferences = context.getgetPreferences(0); // 0 == MODE_PRIVATE, but we don't extend Android's classes...
 		
 		// Load SharedPreferences
-		preferences = activity.getSharedPreferences(ConfigHelper.PREFERENCES_KEY,0); // We don't get MODE_PRIVATE by importing SharedPreferences; i guess it's in Activity?
+		preferences = activity.getSharedPreferences(ConfigHelper.PREFERENCES_KEY,Context.MODE_PRIVATE);
 		// Inflate our provider.json data
 		try {
 			definition = new JSONObject( preferences.getString("provider", "") );
