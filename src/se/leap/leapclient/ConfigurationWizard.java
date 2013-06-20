@@ -105,7 +105,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), "Install a new version of this app.", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.incorrectly_updated_provider_dot_json_message, Toast.LENGTH_LONG).show();
 			setResult(RESULT_CANCELED, mConfigState);
 			finish();
 		}
@@ -122,20 +122,20 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
-        	Toast.makeText(getApplicationContext(), "You have not entered a LEAP provider URL or it is unavailable", Toast.LENGTH_LONG).show();
+        	Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);
         	finish();
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), "Your anon cert has been correctly downloaded", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.correctly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
 			Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 			//mConfigState.putExtra(CERTIFICATE_RETRIEVED, true); // If this isn't the last step and finish() is moved...
         	setResult(RESULT_OK);
         	finish();
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), "Your anon cert was not downloaded", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);
 			finish();
 		}
@@ -236,7 +236,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, provider.danger_on);
 		
 		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA, method_and_parameters);
-		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 
 		startService(provider_API_command);
 	}
@@ -252,7 +252,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		method_and_parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.ANON_CERTIFICATE);
 
 		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_CERTIFICATE, method_and_parameters);
-		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 
 		startService(provider_API_command);
 	}
@@ -282,7 +282,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, danger_on);
 
 		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_NEW_PROVIDER_DOTJSON, method_and_parameters);
-		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
 	}
@@ -302,7 +302,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, danger_on);
 
 		provider_API_command.putExtra(ConfigHelper.UPDATE_PROVIDER_DOTJSON, method_and_parameters);
-		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
 	}

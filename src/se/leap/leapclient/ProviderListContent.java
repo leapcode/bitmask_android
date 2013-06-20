@@ -60,10 +60,10 @@ public class ProviderListContent {
 				JSONObject file_contents = new JSONObject(urls_file_content);
 				id = name;
 				this.name = name;
-				provider_json_url = file_contents.getString("json_provider");
+				provider_json_url = file_contents.getString(ConfigHelper.PROVIDER_JSON_URL);
 				provider_json_filename = file_contents.getString("assets_json_provider");
 				eip_service_json_url = file_contents.getString("json_eip_service");
-				cert_json_url = file_contents.getString("cert");
+				cert_json_url = file_contents.getString(ConfigHelper.CERT_KEY);
 				this.custom = custom;
 				this.danger_on = danger_on;
 			} catch (JSONException e) {
@@ -89,7 +89,7 @@ public class ProviderListContent {
 				this.name = name;
 				this.provider_json_url = provider_json_url;
 				this.provider_json = provider_json;
-				eip_service_json_url = provider_json.getString("api_uri") + "/" + provider_json.getString("api_version") + "/" + ConfigHelper.EIP_SERVICE_API_PATH;
+				eip_service_json_url = provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY) + "/" + ConfigHelper.EIP_SERVICE_API_PATH;
 				cert_json_url = (String) provider_json.get("ca_cert_uri");
 				this.custom = custom;
 				this.danger_on = danger_on;

@@ -65,10 +65,10 @@ public class NewProviderDialog extends DialogFragment {
 					boolean danger_on = danger_checkbox.isChecked();
 					if(validURL(entered_url)) {
 						interface_with_ConfigurationWizard.saveProvider(entered_url, danger_on);
-						Toast.makeText(getActivity().getApplicationContext(), "It seems your URL is well formed", Toast.LENGTH_LONG).show();
+						Toast.makeText(getActivity().getApplicationContext(), R.string.valid_url_entered, Toast.LENGTH_LONG).show();
 					} else {
 						url_input_field.setText("");
-						Toast.makeText(getActivity().getApplicationContext(), "It seems your URL is not well formed", Toast.LENGTH_LONG).show();
+						Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_password_message, Toast.LENGTH_LONG).show();
 					}
 				}
 			})

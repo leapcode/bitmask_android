@@ -40,11 +40,14 @@ public class ConfigHelper {
     NEW_PROVIDER_DIALOG = "logInDialog",
     SRP_REGISTER = "srpRegister",
     SRP_AUTH = "srpAuth",
+    M1_KEY = "M1",
+    M2_KEY = "M2",
     LOG_IN = "logIn",
     LOG_OUT = "logOut",
     DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
     API_VERSION_KEY = "api_version",
     RESULT_KEY = "result",
+    RECEIVER_KEY = "receiver",
     PROVIDER_KEY = "provider",
     SERVICE_KEY = "service",
     ALLOWED_ANON = "allow_anonymous",
@@ -68,7 +71,8 @@ public class ConfigHelper {
     USERNAME_KEY = "username",
     PASSWORD_KEY = "password",
     ALLOW_REGISTRATION_KEY = "allow_registration",
-    EIP_SERVICE_API_PATH = "config/eip-service.json"
+    EIP_SERVICE_API_PATH = "config/eip-service.json",
+    ERRORS_KEY = "errors"
     ;
 	
     final public static String NG_1024 =

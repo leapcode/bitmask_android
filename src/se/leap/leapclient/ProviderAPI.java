@@ -219,11 +219,11 @@ public class ProviderAPI extends IntentService {
 
 		JSONObject session_idAndM2 = new JSONObject();
 		if(json_response.length() > 0) {
-			byte[] M2_not_trimmed = new BigInteger(json_response.getString("M2"), 16).toByteArray();
+			byte[] M2_not_trimmed = new BigInteger(json_response.getString(ConfigHelper.M2_KEY), 16).toByteArray();
 			Cookie session_id_cookie = LeapHttpClient.getInstance(getApplicationContext()).getCookieStore().getCookies().get(0);
 			session_idAndM2.put(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id_cookie.getName());
 			session_idAndM2.put(ConfigHelper.SESSION_ID_KEY, session_id_cookie.getValue());
-			session_idAndM2.put("M2", Util.trim(M2_not_trimmed));
+			session_idAndM2.put(ConfigHelper.M2_KEY, Util.trim(M2_not_trimmed));
 		}
 		return session_idAndM2;
 	}
@@ -245,7 +245,7 @@ public class ProviderAPI extends IntentService {
 		HttpEntity responseEntity = getResponse.getEntity();
 		String plain_response = new Scanner(responseEntity.getContent()).useDelimiter("\\A").next();
 		JSONObject json_response = new JSONObject(plain_response);
-		if(!json_response.isNull("errors") || json_response.has("errors")) {
+		if(!json_response.isNull(ConfigHelper.ERRORS_KEY) || json_response.has(ConfigHelper.ERRORS_KEY)) {
 			return new JSONObject();
 		}
 

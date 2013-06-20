@@ -40,7 +40,7 @@ public class LogInDialog extends DialogFragment {
 						interface_with_Dashboard.authenticate(username, password);
 					} else {
 						password_field.setText("");
-						Toast.makeText(getActivity().getApplicationContext(), "Your password is not well-formed: it should have at least 8 characters", Toast.LENGTH_LONG).show();
+						Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_password_message, Toast.LENGTH_LONG).show();
 					}
 				}
 			})

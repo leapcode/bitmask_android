@@ -224,7 +224,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		}
 
 		provider_API_command.putExtra(ConfigHelper.SRP_AUTH, method_and_parameters);
-		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
 	}
@@ -249,7 +249,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		}
 
 		provider_API_command.putExtra(ConfigHelper.LOG_OUT, method_and_parameters);
-		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
 	}
@@ -286,7 +286,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		method_and_parameters.putString(ConfigHelper.SESSION_ID_KEY, session_id.getValue());
 
 		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_CERTIFICATE, method_and_parameters);
-		provider_API_command.putExtra("receiver", providerAPI_result_receiver);
+		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
 	}
@@ -297,25 +297,25 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_cookie_key = resultData.getString(ConfigHelper.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ConfigHelper.SESSION_ID_KEY);
 			setResult(RESULT_OK);
-			Toast.makeText(getApplicationContext(), "Authentication succeeded", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.succesful_authentication_message, Toast.LENGTH_LONG).show();
 
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
         	setResult(RESULT_CANCELED);
-			Toast.makeText(getApplicationContext(), "Authentication failed", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.authentication_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
 			setResult(RESULT_OK);
-			Toast.makeText(getApplicationContext(), "Logged out", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.successful_log_out_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
-			Toast.makeText(getApplicationContext(), "Didn't logged out", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
-			Toast.makeText(getApplicationContext(), "Your own cert has been correctly downloaded", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.successful_authed_cert_downloaded_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
-			Toast.makeText(getApplicationContext(), "Your own cert has incorrectly been downloaded", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.authed_cert_download_failed_message, Toast.LENGTH_LONG).show();
 		}
 	}
 
