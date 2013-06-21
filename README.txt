@@ -1,43 +1,65 @@
-This is my first Android project, so some things may be done in a completely stupid way.
+Compiling
+=========
 
-See  the file todo.txt for ideas/not yet implemented features (and the bug tracker).
+Preconditions
+----------------
 
-Build instraction:
+1. Android SDK installed (follow instructions from http://developer.android.com/sdk/index.html)
+2. API version 16 or version installed.
+2. Ant 1.6 or greater
 
-Checkout google breakcode:
+Instructions to compile
+-----------------------
 
-svn co http://google-breakpad.googlecode.com/svn/trunk/ google-breakpad
+1. cd $PROJECT_LOCATION/leap_android
+2. ./compile.sh
 
-- Install sdk
-- Install ndk
+Postconditions
+--------------
 
-Do ./build-native.sh in the root directory of the project.
+1. $PROJECT_LOCATION/leap_android/bin/LEAP Android-debug.apk exists
 
-Use eclipse with android plugins to build the project.
+Running on the emulator
+=========================
 
-Optional: Copy minivpn from lib/ to assets (if you want your own compiled version)
+Preconditions
+-----------------
 
+1. Android SDK is installed, and its tools are in the PATH.
+2. leap_android has been compiled.
+3. An avd exists in ~/.android/avd/ (if you do not have one, follow instructions from http://developer.android.com/tools/devices/managing-avds-cmdline.html)
 
+Instructions to run on the emulator
+-----------------------------------
 
+1. cd $PROJECT_LOCATION/leap_android
+1. Run script: ./run.sh @AVD-NAME . (avd names are the names of the files in ~/.android/avd with extension .avd).
 
-Starting a VPN by name from an external app:
+Postconditions
+--------------
 
-public class StartOpenVPNActivity extends Activity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-        
-    	final String EXTRA_NAME = "se.leap.openvpn.shortcutProfileName";
+1. LEAP Android is running.
 
-        Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
-		shortcutIntent.setClassName("se.leap.openvpn", "se.leap.openvpn.LaunchVPN");
-		shortcutIntent.putExtra(EXTRA_NAME,"upb ssl");
-		startActivity(shortcutIntent);
-    }
-}
+Debugging from console
+======================
 
-or from the shell:
+Preconditions
+-----------------
 
-am start -a android.intent.action.VPNLEGACY -n se.leap.openvpn/.LaunchVPN -e se.leap.openvpn.shortcutProfileName Home
+1. Android SDK is installed, and its tools are in the PATH.
+2. leap_android has been compiled.
+3. An avd exists in ~/.android/avd/ (if you do not have one, follow instructions from http://developer.android.com/tools/devices/managing-avds-cmdline.html).
+4. jdb is installed (this program is part of OpenJDK 7)
 
+Instructions to debug from the console
+-----------------------------------
+
+1. cd $PROJECT_LOCATION/leap_android
+2. Run script: ./debug.sh @AVD-NAME . (avd names are the names of the files in ~/.android/avd with extension .avd).
+
+Postconditions
+--------------
+
+1. LEAP Android is running.
+2. LEAP Android does not show the message "Application LEAP for Android (process se.leap.leapclient) is waiting for the debugger to attach".
+3. You are in a jdb debuggin session.

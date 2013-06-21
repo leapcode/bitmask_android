@@ -265,5 +265,35 @@
     <string name="introduce_new_provider">Introduce new provider</string>
     <string name="save">Save</string>
     <string name="new_provider_uri">New provider\'s main URL</string>
+    <string name="valid_url_entered">It seems your URL is well formed</string>
+    <string name="not_valid_url_entered">It seems your URL is not well formed</string>
+    <string name="username_ask">Introduce your username</string>
+    <string name="password_ask">Enter your password</string>
+    <string name="log_in_button">Log in</string>
+    <string name="login_button">Log In</string>
+    <string name="logout_button">Log Out</string>
+    <string name="danger_checkbox">Trust completely</string>
+    <string name="setup_error_title">Configuration Error</string>
+    <string name="setup_error_configure_button">Configure</string>
+    <string name="setup_error_close_button">Exit</string>
+    <string name="setup_error_text">There was an error configuring LEAP with your chosen provider.\n\nYou may choose to reconfigure, or exit and configure a provider upon next launch.</string>
+    <string name="config_wait_title">Configuring LEAP provider</string>
+    <string name="config_connecting_provider">Downloading provider configuration</string>
+    <string name="config_downloading_services">Downloading service definitions</string>
+    <string name="config_downloading_certificates">Downloading authentication certificates</string>
+    <string name="config_error_parsing">Error parsing provider\'s responses!</string>
+    <string name="success">Success!</string>
+    <string name="incorrectly_downloaded_json_files_message">You have not entered a LEAP provider URL or it is unavailable</string>
+    <string name="correctly_downloaded_json_files_message">Your anon cert has been correctly downloaded</string>
+    <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
+    <string name="incorrectly_updated_provider_dot_json_message">Install a new version of this app.</string>
+    <string name="not_valid_password_message">Your password is not well-formed: it should have at least 8 characters.</string>
+    <string name="succesful_authentication_message">Authentication succeeded.</string>
+    <string name="authentication_failed_message">Authentication failed.</string>
+    <string name="successful_log_out_message">Logged out.</string>
+    <string name="log_out_failed_message">Didn\'t logged out.</string>
+    <string name="successful_authed_cert_downloaded_message">Your own cert has been correctly downloaded.</string>
+    <string name="authed_cert_download_failed_message">Your own cert has incorrectly been downloaded.</string>
+    
 
 </resources>
