@@ -11,6 +11,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.SecureRandom;
+import javax.net.ssl.KeyManager;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
@@ -347,15 +349,13 @@ public class ProviderAPI extends IntentService {
 		} catch(SocketTimeoutException e) {
 			return "";
 		} catch (IOException e) {
-			// TODO SSLHandshakeException
-			// This means that we have not added ca.crt to the trusted certificates.
 			if(provider_url != null && danger_on) {
 				json_file_content = getStringFromProviderWithoutValidate(provider_url);
 			}
-			//json_file_content = downloadStringFromProviderWithCACertAdded(string_url);
-			e.printStackTrace();
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(provider_url != null && danger_on) {
+				json_file_content = getStringFromProviderWithoutValidate(provider_url);
+			}
 		}
 
 		return json_file_content;
@@ -389,7 +389,6 @@ public class ProviderAPI extends IntentService {
 			e.printStackTrace();
 		} catch (IOException e) {
 			json_string = getStringFromProviderWithCACertAdded(string_url);
-			//e.printStackTrace();
 		}
 		
 		return json_string;
@@ -417,10 +416,10 @@ public class ProviderAPI extends IntentService {
 			cert_string = cert_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
 			byte[] cert_bytes = Base64.decode(cert_string, Base64.DEFAULT);
 			InputStream caInput =  new ByteArrayInputStream(cert_bytes);
-			java.security.cert.Certificate ca;
+			java.security.cert.Certificate dangerous_certificate;
 			try {
-				ca = cf.generateCertificate(caInput);
-				System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
+				dangerous_certificate = cf.generateCertificate(caInput);
+				System.out.println("dangerous certificate =" + ((X509Certificate) dangerous_certificate).getSubjectDN());
 			} finally {
 				caInput.close();
 			}
@@ -429,7 +428,7 @@ public class ProviderAPI extends IntentService {
 			String keyStoreType = KeyStore.getDefaultType();
 			KeyStore keyStore = KeyStore.getInstance(keyStoreType);
 			keyStore.load(null, null);
-			keyStore.setCertificateEntry("ca", ca);
+			keyStore.setCertificateEntry("dangerous_certificate", dangerous_certificate);
 
 			// Create a TrustManager that trusts the CAs in our KeyStore
 			String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
@@ -449,8 +448,8 @@ public class ProviderAPI extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// The downloaded certificate doesn't validate our https connection.
+			json_file_content = getStringFromProviderIgnoringCertificate(url);
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -464,6 +463,52 @@ public class ProviderAPI extends IntentService {
 		return json_file_content;
 	}
 	
+	/**
+	 * Downloads the string that's in the url without regarding certificate validity
+	 */
+	private String getStringFromProviderIgnoringCertificate(URL url) {
+		String string = "";
+		try {
+			class DefaultTrustManager implements X509TrustManager {
+
+				@Override
+					public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+
+				@Override
+					public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+
+				@Override
+					public X509Certificate[] getAcceptedIssuers() {
+						return null;
+					}
+			}
+
+			SSLContext context = SSLContext.getInstance("TLS");
+			context.init(new KeyManager[0], new TrustManager[] {new DefaultTrustManager()}, new SecureRandom());
+
+			HttpsURLConnection urlConnection = (HttpsURLConnection)url.openConnection();
+			urlConnection.setSSLSocketFactory(context.getSocketFactory());
+			urlConnection.setHostnameVerifier(new HostnameVerifier() {
+					@Override
+					public boolean verify(String arg0, SSLSession arg1) {
+					return true;
+					}
+					});
+			string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
+			System.out.println("String ignoring certificate = " + string);
+		} catch (IOException e) {
+			// The downloaded certificate doesn't validate our https connection.
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (KeyManagementException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return string;
+	}
+
 	/**
 	 * Downloads the certificate from the parameter url bypassing self signed certificate SSL errors. 
 	 * @param certificate_url_string
