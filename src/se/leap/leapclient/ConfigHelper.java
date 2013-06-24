@@ -53,6 +53,7 @@ public class ConfigHelper {
     ALLOWED_ANON = "allow_anonymous",
     MAIN_CERT_KEY = "main_cert",
     CERT_KEY = "cert",
+    KEY_KEY = "key",
     EIP_SERVICE_KEY = "eip",
     TYPE_OF_CERTIFICATE = "type_of_certificate",
     ANON_CERTIFICATE = "anon_certificate",
@@ -72,7 +73,9 @@ public class ConfigHelper {
     PASSWORD_KEY = "password",
     ALLOW_REGISTRATION_KEY = "allow_registration",
     EIP_SERVICE_API_PATH = "config/eip-service.json",
-    ERRORS_KEY = "errors"
+    ERRORS_KEY = "errors",
+    RECEIVER_TAG = "receiverTag",
+    REQUEST_TAG = "requestTag";
     ;
 	
     final public static String NG_1024 =

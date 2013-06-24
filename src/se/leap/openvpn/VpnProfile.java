@@ -20,6 +20,8 @@ import java.util.Vector;
 
 import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
+
+import se.leap.leapclient.ConfigHelper;
 import se.leap.leapclient.R;
 
 import android.content.Context;
@@ -62,7 +64,7 @@ public class VpnProfile implements  Serializable{
 	// Public attributes, since I got mad with getter/setter
 	// set members to default values
 	private UUID mUuid;
-	public int mAuthenticationType = TYPE_KEYSTORE ;
+	public int mAuthenticationType = TYPE_CERTIFICATES ;
 	public String mName;
 	public String mAlias;
 	public String mClientCertFilename;
@@ -236,13 +238,18 @@ public class VpnProfile implements  Serializable{
 		case VpnProfile.TYPE_USERPASS_CERTIFICATES:
 			cfg+="auth-user-pass\n";
 		case VpnProfile.TYPE_CERTIFICATES:
-			// Ca
+			/*// Ca
 			cfg+=insertFileData("ca",mCaFilename);
 
 			// Client Cert + Key
 			cfg+=insertFileData("key",mClientKeyFilename);
 			cfg+=insertFileData("cert",mClientCertFilename);
-
+*/
+			// FIXME This is all we need...The whole switch statement can go...
+			cfg+="<ca>\n"+ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY)+"\n</ca>\n";
+			cfg+="<key>\n"+ConfigHelper.getStringFromSharedPref(ConfigHelper.KEY_KEY)+"\n</key>\n";
+			cfg+="<cert>\n"+ConfigHelper.getStringFromSharedPref(ConfigHelper.CERT_KEY)+"\n</cert>\n";
+			
 			break;
 		case VpnProfile.TYPE_USERPASS_PKCS12:
 			cfg+="auth-user-pass\n";
@@ -492,8 +499,8 @@ public class VpnProfile implements  Serializable{
 		Intent intent = new Intent(context,OpenVpnService.class);
 
 		if(mAuthenticationType == VpnProfile.TYPE_KEYSTORE || mAuthenticationType == VpnProfile.TYPE_USERPASS_KEYSTORE) {
-			if(!saveCertificates(context))
-				return null;
+			/*if(!saveCertificates(context))
+				return null;*/
 		}
 
 		intent.putExtra(prefix + ".ARGV" , buildOpenvpnArgv(context.getCacheDir()));
@@ -597,10 +604,10 @@ public class VpnProfile implements  Serializable{
 
 	//! Return an error if somethign is wrong
 	public int checkProfile(Context context) {
-		if(mAuthenticationType==TYPE_KEYSTORE || mAuthenticationType==TYPE_USERPASS_KEYSTORE) {
+/*		if(mAuthenticationType==TYPE_KEYSTORE || mAuthenticationType==TYPE_USERPASS_KEYSTORE) {
 			if(mAlias==null) 
 				return R.string.no_keystore_cert_selected;
-		}
+		}*/
 
 		if(!mUsePull) {
 			if(mIPv4Address == null || cidrToIPAndNetmask(mIPv4Address) == null)

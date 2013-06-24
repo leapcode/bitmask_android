@@ -259,6 +259,7 @@
     <string name="provider_label_none">No provider configured</string>
     <string name="eip_settings_button_description">Access EIP connection settings</string>
     <string name="eip_status">Status unknown</string>
+    <string name="eip_service_label">EIP:</string>
     <string name="eip_type_active">EIP</string>
     <string name="title_activity_configuration_wizard">Configure LEAP</string>
     <string name="new_provider_button">Add new Provider</string>
