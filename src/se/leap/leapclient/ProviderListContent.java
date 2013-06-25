@@ -112,6 +112,7 @@ public class ProviderListContent {
 				e.printStackTrace();
 			}
 		}
+<<<<<<< HEAD
 
 		@Override
 		public String toString() {
@@ -121,5 +122,12 @@ public class ProviderListContent {
 		public String getId() {
 			return id;
 		}
+=======
+
+		@Override
+			public String toString() {
+				return name;
+			}
+>>>>>>> 30c3744... ConfigurationWizard shows domain and name.
 	}
 }
