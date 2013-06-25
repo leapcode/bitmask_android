@@ -91,8 +91,9 @@ public class ProviderAPI extends IntentService {
 			}
 		}
 		else if ((task = task_for.getBundleExtra(ConfigHelper.DOWNLOAD_NEW_PROVIDER_DOTJSON)) != null) {
-			if(downloadNewProviderDotJSON(task)) {
-				receiver.send(ConfigHelper.CUSTOM_PROVIDER_ADDED, Bundle.EMPTY);
+			Bundle result = downloadNewProviderDotJSON(task);
+			if(result.getBoolean(ConfigHelper.RESULT_KEY)) {
+				receiver.send(ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
 			} else {
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			}
@@ -287,7 +288,8 @@ public class ProviderAPI extends IntentService {
 	 * @param task containing a boolean meaning if the user completely trusts this provider, and the provider main url entered in the new custom provider dialog.
 	 * @return true if provider.json file was successfully parsed as a JSON object.
 	 */
-	private boolean downloadNewProviderDotJSON(Bundle task) {
+	private Bundle downloadNewProviderDotJSON(Bundle task) {
+		Bundle result = new Bundle();
 		boolean custom = true;
 		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
 		
@@ -298,14 +300,26 @@ public class ProviderAPI extends IntentService {
 		JSONObject provider_json;
 		try {
 			provider_json = getJSONFromProvider(provider_json_url, danger_on);
-			ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on));
+			if(provider_json == null) {
+				result.putBoolean(ConfigHelper.RESULT_KEY, false);
+			} else {    			
+
+				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
+				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, danger_on);
+				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
+				ProviderItem added_provider = new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on);
+				ProviderListContent.addItem(added_provider);
+
+				result.putString(ConfigHelper.PROVIDER_ID, added_provider.getId());
+				result.putBoolean(ConfigHelper.RESULT_KEY, true);
+				result.putString(ConfigHelper.PROVIDER_KEY, provider_json.toString());
+				result.putBoolean(ConfigHelper.DANGER_ON, danger_on);
+			}
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
+			result.putBoolean(ConfigHelper.RESULT_KEY, false);
 		}
 		
-		return true;
+		return result;
 	}
 	
 	/**
