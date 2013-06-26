@@ -262,7 +262,7 @@
     <string name="eip_service_label">EIP:</string>
     <string name="eip_type_active">EIP</string>
     <string name="title_activity_configuration_wizard">Configure LEAP</string>
-    <string name="new_provider_button">Add new Provider</string>
+    <string name="new_provider_button">Select new Provider</string>
     <string name="introduce_new_provider">Introduce new provider</string>
     <string name="save">Save</string>
     <string name="new_provider_uri">New provider\'s main URL</string>
@@ -287,7 +287,7 @@
     <string name="incorrectly_downloaded_json_files_message">You have not entered a LEAP provider URL or it is unavailable</string>
     <string name="correctly_downloaded_json_files_message">Your anon cert has been correctly downloaded</string>
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
-    <string name="incorrectly_updated_provider_dot_json_message">Install a new version of this app.</string>
+    <string name="incorrectly_updated_provider_dot_json_message">Server is down.</string>
     <string name="not_valid_password_message">Your password is not well-formed: it should have at least 8 characters.</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>

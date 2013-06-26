@@ -64,6 +64,7 @@ public class ConfigHelper {
     PREFERENCES_KEY = "LEAPPreferences",
     USER_DIRECTORY = "leap_android",
     PROVIDER_NAME = "provider_name",
+    PROVIDER_ID = "provider_id",
     PROVIDER_MAIN_URL = "provider_main_url",
     PROVIDER_JSON_URL = "provider_json_url",
     CUSTOM = "custom",
