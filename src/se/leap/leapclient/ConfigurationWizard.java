@@ -31,7 +31,7 @@ import android.widget.Toast;
  *
  */
 public class ConfigurationWizard extends Activity
-implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, Receiver {
+implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, ProviderDetailFragment.ProviderDetailFragmentInterface, Receiver {
 
 	private ProviderItem mSelectedProvider;
 	private ProgressDialog mProgressDialog;
@@ -85,8 +85,16 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				if(mProgressDialog == null)
 					mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
 				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
-				if(mSelectedProvider == null)
+				if(mSelectedProvider == null) {
 					mSelectedProvider = getProvider(resultData.getString(ConfigHelper.PROVIDER_ID));
+
+					ProviderListFragment providerList = new ProviderListFragment();
+
+					FragmentManager fragmentManager = getFragmentManager();
+					fragmentManager.beginTransaction()
+						.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
+						.commit();
+				}
 				downloadJSONFiles(mSelectedProvider);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -320,5 +328,16 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
+	}
+
+	@Override
+	public void login() {
+		//TODO Start dashboard and show login dialog
+	}
+
+	@Override
+	public void use_anonymously() {
+		setResult(RESULT_OK);
+		finish();
 	}
 }

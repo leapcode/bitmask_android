@@ -94,7 +94,7 @@ public class LogInDialog extends DialogFragment {
         	interface_with_Dashboard = (LogInDialogInterface) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement NoticeDialogListener");
+                    + " must implement LogInDialogListener");
         }
     }
 }
