@@ -32,7 +32,7 @@ public class LogInDialog extends DialogFragment {
 		final EditText password_field = (EditText)log_in_dialog_view.findViewById(R.id.password_entered);
 		
 		builder.setView(log_in_dialog_view)
-			.setPositiveButton(R.string.log_in_button, new DialogInterface.OnClickListener() {
+			.setPositiveButton(R.string.login_button, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					String username = username_field.getText().toString().trim();
 					String password = password_field.getText().toString().trim();
