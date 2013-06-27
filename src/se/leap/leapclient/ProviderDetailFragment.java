@@ -3,6 +3,9 @@ package se.leap.leapclient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import se.leap.leapclient.LogInDialog.LogInDialogInterface;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -34,10 +37,12 @@ public class ProviderDetailFragment extends DialogFragment {
 			builder.setTitle(R.string.provider_details_fragment_title);
 			builder.setPositiveButton(R.string.use_anonymously_button, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
+					interface_with_configuration_wizard.use_anonymously();
 				}
 			});
 			builder.setNegativeButton(R.string.login_button, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
+					interface_with_configuration_wizard.login();
 				}
 			});
 			
@@ -51,4 +56,22 @@ public class ProviderDetailFragment extends DialogFragment {
 		ProviderDetailFragment provider_detail_fragment = new ProviderDetailFragment();
 		return provider_detail_fragment;
 	}
+	
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+        	interface_with_configuration_wizard = (ProviderDetailFragmentInterface) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement LogInDialogListener");
+        }
+    }
+	
+	public interface ProviderDetailFragmentInterface {
+		public void login();
+		public void use_anonymously();
+	}
+	
+	ProviderDetailFragmentInterface interface_with_configuration_wizard;
 }
