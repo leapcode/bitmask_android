@@ -46,7 +46,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setContentView(R.layout.activity_configuration_wizard);
+        setContentView(R.layout.configuration_wizard_activity);
         
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
         providerAPI_result_receiver.setReceiver(this);
@@ -124,7 +124,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 			//mConfigState.putExtra(CERTIFICATE_RETRIEVED, true); // If this isn't the last step and finish() is moved...
 			setResult(RESULT_OK);
-			finish();
+			//finish();
+			showProviderDetails(getCurrentFocus());
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
@@ -267,6 +268,24 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		
 		DialogFragment newFragment = NewProviderDialog.newInstance();
 		newFragment.show(fragment_transaction, ConfigHelper.NEW_PROVIDER_DIALOG);
+	}
+	
+	/**
+	 * Once selected a provider, this fragment offers the user to log in, 
+	 * use it anonymously (if possible) 
+	 * or cancel his/her election pressing the back button.
+	 * @param view
+	 */
+	public void showProviderDetails(View view) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+		Fragment previous_provider_details_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.PROVIDER_DETAILS_DIALOG);
+		if (previous_provider_details_dialog != null) {
+			fragment_transaction.remove(previous_provider_details_dialog);
+		}
+		fragment_transaction.addToBackStack(null);
+		
+		DialogFragment newFragment = ProviderDetailFragment.newInstance();
+		newFragment.show(fragment_transaction, ConfigHelper.PROVIDER_DETAILS_DIALOG);
 	}
 
 	@Override
