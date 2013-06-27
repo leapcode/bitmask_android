@@ -117,7 +117,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				downloadAnonCert();
 			} else {
 				mProgressDialog.dismiss();
-				Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
+				//Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 				setResult(RESULT_OK);
 				finish();
 			}
@@ -128,8 +128,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), R.string.correctly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
-			Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
+			//Toast.makeText(getApplicationContext(), R.string.correctly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
+			//Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 			//mConfigState.putExtra(CERTIFICATE_RETRIEVED, true); // If this isn't the last step and finish() is moved...
 			setResult(RESULT_OK);
 			//finish();

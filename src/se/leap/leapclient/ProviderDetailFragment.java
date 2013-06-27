@@ -3,8 +3,6 @@ package se.leap.leapclient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import se.leap.leapclient.LogInDialog.LogInDialogInterface;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
