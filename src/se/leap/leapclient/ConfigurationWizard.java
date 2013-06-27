@@ -72,15 +72,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
-		if(resultCode == ConfigHelper.CUSTOM_PROVIDER_ADDED){
-			ProviderListFragment providerList = new ProviderListFragment();
-
-			FragmentManager fragmentManager = getFragmentManager();
-			fragmentManager.beginTransaction()
-				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
-				.commit();
-		}
-		else if(resultCode == ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+		if(resultCode == ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			JSONObject provider_json;
 			try {
 				provider_json = new JSONObject(resultData.getString(ConfigHelper.PROVIDER_KEY));
@@ -88,10 +80,13 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
 				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, danger_on);
 				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
-	
 				mConfigState.setAction(PROVIDER_SET);
 				
+				if(mProgressDialog == null)
+					mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
 				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
+				if(mSelectedProvider == null)
+					mSelectedProvider = getProvider(resultData.getString(ConfigHelper.PROVIDER_ID));
 				downloadJSONFiles(mSelectedProvider);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -100,14 +95,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				mProgressDialog.dismiss();
 				Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
 				setResult(RESULT_CANCELED, mConfigState);
-				finish();
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), R.string.incorrectly_updated_provider_dot_json_message, Toast.LENGTH_LONG).show();
 			setResult(RESULT_CANCELED, mConfigState);
-			finish();
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
 			if (ConfigHelper.getBoolFromSharedPref(ConfigHelper.ALLOWED_ANON)){
@@ -122,22 +115,20 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
-        	Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
-        	setResult(RESULT_CANCELED, mConfigState);
-        	finish();
+			Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
+			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), R.string.correctly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
 			Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 			//mConfigState.putExtra(CERTIFICATE_RETRIEVED, true); // If this isn't the last step and finish() is moved...
-        	setResult(RESULT_OK);
-        	finish();
+			setResult(RESULT_OK);
+			finish();
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);
-			finish();
 		}
 	}
 
@@ -147,18 +138,23 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
      */
     @Override
     public void onItemSelected(String id) {
-    	//TODO Code 2 pane view
-    	Iterator<ProviderItem> preseeded_providers_iterator = ProviderListContent.ITEMS.iterator();
-    	while(preseeded_providers_iterator.hasNext())
-    	{
-    		ProviderItem provider = preseeded_providers_iterator.next();
-    		if(provider.id.equalsIgnoreCase(id))
-    		{
-    			mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
-    			mSelectedProvider = provider;
-    			saveProviderJson(mSelectedProvider);
-    		}
-    	}
+	    //TODO Code 2 pane view
+	    ProviderItem selected_provider = getProvider(id);
+	    if(mProgressDialog == null)
+		    mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
+	    mSelectedProvider = selected_provider;
+	    saveProviderJson(mSelectedProvider);
+    }
+
+    private ProviderItem getProvider(String id) {
+	    Iterator<ProviderItem> providers_iterator = ProviderListContent.ITEMS.iterator();
+	    while(providers_iterator.hasNext()) {
+		    ProviderItem provider = providers_iterator.next();
+		    if(provider.id.equalsIgnoreCase(id)) {
+			    return provider;
+		    }
+	    }
+	    return null;
     }
 	
     /**
@@ -261,20 +257,20 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	 * Open the new provider dialog
 	 * @param view from which the dialog is showed
 	 */
-	public void addNewProvider(View view) {
+	public void addAndSelectNewProvider(View view) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-	    Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.NEW_PROVIDER_DIALOG);
-	    if (previous_new_provider_dialog != null) {
-	        fragment_transaction.remove(previous_new_provider_dialog);
-	    }
-	    fragment_transaction.addToBackStack(null);
-
-	    DialogFragment newFragment = NewProviderDialog.newInstance();
-	    newFragment.show(fragment_transaction, ConfigHelper.NEW_PROVIDER_DIALOG);
+		Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.NEW_PROVIDER_DIALOG);
+		if (previous_new_provider_dialog != null) {
+			fragment_transaction.remove(previous_new_provider_dialog);
+		}
+		fragment_transaction.addToBackStack(null);
+		
+		DialogFragment newFragment = NewProviderDialog.newInstance();
+		newFragment.show(fragment_transaction, ConfigHelper.NEW_PROVIDER_DIALOG);
 	}
 
 	@Override
-	public void saveProvider(String provider_main_url, boolean danger_on) {
+	public void saveAndSelectProvider(String provider_main_url, boolean danger_on) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle method_and_parameters = new Bundle();
