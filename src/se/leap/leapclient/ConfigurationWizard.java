@@ -332,7 +332,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 	@Override
 	public void login() {
-		//TODO Start dashboard and show login dialog
+		Intent ask_login = new Intent();
+		ask_login.putExtra(ConfigHelper.LOG_IN, ConfigHelper.LOG_IN);
+		setResult(RESULT_OK, ask_login);
+		finish();
 	}
 
 	@Override
