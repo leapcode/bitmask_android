@@ -80,7 +80,8 @@ public class ConfigHelper {
     PROVIDER_DETAILS_DIALOG = "providerDetailsFragment",
     DOMAIN = "domain",
     NAME = "name",
-    DESCRIPTION = "description"
+    DESCRIPTION = "description",
+    QUIT = "quit"
     ;
 	
     final public static String NG_1024 =

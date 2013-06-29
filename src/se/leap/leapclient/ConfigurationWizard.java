@@ -148,6 +148,14 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    mSelectedProvider = selected_provider;
 	    saveProviderJson(mSelectedProvider);
     }
+    
+    @Override
+    public void onBackPressed() {
+		Intent ask_quit = new Intent();
+		ask_quit.putExtra(ConfigHelper.QUIT, ConfigHelper.QUIT);
+		setResult(RESULT_CANCELED, ask_quit);
+    	super.onBackPressed();
+    }
 
     private ProviderItem getProvider(String id) {
 	    Iterator<ProviderItem> providers_iterator = ProviderListContent.ITEMS.iterator();
