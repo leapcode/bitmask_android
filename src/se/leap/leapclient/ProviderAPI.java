@@ -52,9 +52,11 @@ import se.leap.leapclient.ProviderListContent.ProviderItem;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Implements HTTP api methods used to manage communications with the provider server.
@@ -67,9 +69,27 @@ import android.util.Log;
  */
 public class ProviderAPI extends IntentService {
 	
+	private Handler mHandler;
+
 	public ProviderAPI() {
 		super("ProviderAPI");
 		Log.v("ClassName", "Provider API");
+	}
+	
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		mHandler = new Handler();
+	}
+	
+	private void displayToast(final int toast_string_id) {
+		mHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+	            Toast.makeText(ProviderAPI.this, toast_string_id, Toast.LENGTH_LONG).show();                
+			}
+		});
 	}
 
 	@Override
@@ -304,7 +324,7 @@ public class ProviderAPI extends IntentService {
 			provider_json = getJSONFromProvider(provider_json_url, danger_on);
 			if(provider_json == null) {
 				result.putBoolean(ConfigHelper.RESULT_KEY, false);
-			} else {    			
+			} else {
 
 				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
 				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, danger_on);
@@ -344,14 +364,14 @@ public class ProviderAPI extends IntentService {
 			url_connection.setConnectTimeout(seconds_of_timeout*1000);
 			json_file_content = new Scanner(url_connection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			displayToast(R.string.malformed_url);
 		} catch(SocketTimeoutException e) {
-			return "";
+			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			if(provider_url != null && danger_on) {
 				json_file_content = getStringFromProviderWithoutValidate(provider_url);
 			}
+			displayToast(R.string.malformed_url);
 		} catch (Exception e) {
 			if(provider_url != null && danger_on) {
 				json_file_content = getStringFromProviderWithoutValidate(provider_url);
@@ -385,8 +405,7 @@ public class ProviderAPI extends IntentService {
 			urlConnection.setHostnameVerifier(hostnameVerifier);
 			json_string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), R.string.malformed_url, Toast.LENGTH_LONG).show();
 		} catch (IOException e) {
 			json_string = getStringFromProviderWithCACertAdded(string_url);
 		}
@@ -450,6 +469,7 @@ public class ProviderAPI extends IntentService {
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			json_file_content = getStringFromProviderIgnoringCertificate(url);
+			Toast.makeText(getApplicationContext(), R.string.malformed_url, Toast.LENGTH_LONG).show();
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
