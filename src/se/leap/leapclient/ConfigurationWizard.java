@@ -85,16 +85,15 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				if(mProgressDialog == null)
 					mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
 				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
-				if(mSelectedProvider == null) {
+				if(resultData.containsKey(ConfigHelper.PROVIDER_ID))
 					mSelectedProvider = getProvider(resultData.getString(ConfigHelper.PROVIDER_ID));
 
-					ProviderListFragment providerList = new ProviderListFragment();
+				ProviderListFragment providerList = new ProviderListFragment();
 
-					FragmentManager fragmentManager = getFragmentManager();
-					fragmentManager.beginTransaction()
-						.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
-						.commit();
-				}
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction()
+				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
+				.commit();
 				downloadJSONFiles(mSelectedProvider);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block

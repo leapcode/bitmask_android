@@ -67,14 +67,14 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		setContentView(R.layout.client_dashboard);
 
-		preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
+		ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
 		if(ConfigHelper.shared_preferences == null)
 			ConfigHelper.setSharedPreferences(preferences);
 		
-		if (preferences.contains("provider") && preferences.getString(ConfigHelper.PROVIDER_KEY, null) != null)
-			buildDashboard();
-		else
+		if (ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY).isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+		else
+			buildDashboard();
 	}
 
 	@Override
