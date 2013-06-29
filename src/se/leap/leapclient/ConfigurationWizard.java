@@ -9,6 +9,8 @@ import org.json.JSONObject;
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import se.leap.leapclient.R;
+import se.leap.openvpn.AboutFragment;
+import se.leap.openvpn.MainActivity;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -19,7 +21,10 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -328,6 +333,39 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item){
+		switch (item.getItemId()){
+		case R.id.about_leap:
+			showAboutFragment(getCurrentFocus());
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	/**
+	 * Once selected a provider, this fragment offers the user to log in, 
+	 * use it anonymously (if possible) 
+	 * or cancel his/her election pressing the back button.
+	 * @param view
+	 */
+	public void showAboutFragment(View view) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+		Fragment previous_about_fragment = getFragmentManager().findFragmentByTag(ConfigHelper.ABOUT_FRAGMENT);
+		if (previous_about_fragment == null) {
+			fragment_transaction.addToBackStack(null);
+
+			Fragment newFragment = AboutFragment.newInstance();
+			fragment_transaction.replace(R.id.configuration_wizard_layout, newFragment, ConfigHelper.ABOUT_FRAGMENT).commit();
+		}
 	}
 
 	@Override

@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/about_leap"
+        android:orderInCategory="110"
+        android:title="@string/about"/>
+
+</menu>

@@ -15,6 +15,11 @@ import se.leap.leapclient.R;
 
 public class AboutFragment extends Fragment  {
 
+	public static Fragment newInstance() {
+		AboutFragment instance = new AboutFragment();
+		return instance;
+	}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
