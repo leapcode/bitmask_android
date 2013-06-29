@@ -16,8 +16,8 @@ import se.leap.leapclient.R;
 public class AboutFragment extends Fragment  {
 
 	public static Fragment newInstance() {
-		AboutFragment instance = new AboutFragment();
-		return instance;
+		AboutFragment provider_detail_fragment = new AboutFragment();
+		return provider_detail_fragment;
 	}
 
     @Override

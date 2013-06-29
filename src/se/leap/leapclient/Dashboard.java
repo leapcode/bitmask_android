@@ -68,8 +68,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		setContentView(R.layout.client_dashboard);
 
 		ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
-		if(ConfigHelper.shared_preferences == null)
-			ConfigHelper.setSharedPreferences(preferences);
+		preferences = ConfigHelper.shared_preferences;
 		
 		if (ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY).isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
@@ -374,7 +373,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
-        	setResult(RESULT_CANCELED);
+        	logInDialog(getCurrentFocus());
 			Toast.makeText(getApplicationContext(), R.string.authentication_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
 			setResult(RESULT_OK);
