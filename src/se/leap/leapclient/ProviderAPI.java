@@ -370,8 +370,9 @@ public class ProviderAPI extends IntentService {
 		} catch (IOException e) {
 			if(provider_url != null && danger_on) {
 				json_file_content = getStringFromProviderWithoutValidate(provider_url);
+			} else {
+				displayToast(R.string.certificate_error);
 			}
-			displayToast(R.string.certificate_error);
 		} catch (Exception e) {
 			if(provider_url != null && danger_on) {
 				json_file_content = getStringFromProviderWithoutValidate(provider_url);
