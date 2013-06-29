@@ -33,20 +33,45 @@ public class ProviderDetailFragment extends DialogFragment {
 			
 			builder.setView(provider_detail_view);
 			builder.setTitle(R.string.provider_details_fragment_title);
-			builder.setPositiveButton(R.string.use_anonymously_button, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					interface_with_configuration_wizard.use_anonymously();
-				}
-			});
-			builder.setNegativeButton(R.string.login_button, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					interface_with_configuration_wizard.login();
-				}
-			});
+			
+			if(anon_allowed(provider_json)) {
+				builder.setPositiveButton(R.string.use_anonymously_button, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						interface_with_configuration_wizard.use_anonymously();
+					}
+				});
+			}
+
+			if(registration_allowed(provider_json)) {
+
+				builder.setNegativeButton(R.string.login_button, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						interface_with_configuration_wizard.login();
+					}
+				});
+			}
 			
 			return builder.create();
 		} catch (JSONException e) {
 			return null;
+		}
+	}
+	
+	private boolean anon_allowed(JSONObject provider_json) {
+		try {
+			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
+			return service_description.has(ConfigHelper.ALLOWED_ANON) && service_description.getBoolean(ConfigHelper.ALLOWED_ANON);
+		} catch (JSONException e) {
+			return false;
+		}
+	}
+	
+	private boolean registration_allowed(JSONObject provider_json) {
+		try {
+			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
+			return service_description.has(ConfigHelper.ALLOW_REGISTRATION_KEY) && service_description.getBoolean(ConfigHelper.ALLOW_REGISTRATION_KEY);
+		} catch (JSONException e) {
+			return false;
 		}
 	}
 
