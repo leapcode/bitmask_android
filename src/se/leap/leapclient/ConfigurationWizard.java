@@ -20,7 +20,6 @@ import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.widget.Toast;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -82,8 +81,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
 				mConfigState.setAction(PROVIDER_SET);
 				
-				if(mProgressDialog == null)
-					mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
+				if(mProgressDialog != null) mProgressDialog.dismiss();
+				mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
 				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
 				if(resultData.containsKey(ConfigHelper.PROVIDER_ID))
 					mSelectedProvider = getProvider(resultData.getString(ConfigHelper.PROVIDER_ID));
@@ -143,8 +142,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     public void onItemSelected(String id) {
 	    //TODO Code 2 pane view
 	    ProviderItem selected_provider = getProvider(id);
-	    if(mProgressDialog == null)
-		    mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
+	    mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
 	    mSelectedProvider = selected_provider;
 	    saveProviderJson(mSelectedProvider);
     }
