@@ -33,6 +33,7 @@ public class ConfigHelper {
     private static KeyStore keystore_trusted;
 
     final public static String
+    ABOUT_FRAGMENT = "aboutFragment",
     DOWNLOAD_JSON_FILES_BUNDLE_EXTRA = "downloadJSONFiles",	
     UPDATE_PROVIDER_DOTJSON = "updateProviderDotJSON",
     DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
