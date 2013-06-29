@@ -20,6 +20,7 @@
     <string name="copyright_guicode">Source code and issue tracker available at https://github.com/leapcode/leap_android/</string>
     <string name="copyright_others">This program uses the following components; see the source code for full details on the licenses</string>
     <string name="about">About</string>
+    <string name="switch_provider_menu_option">Switch provider</string>
     <string name="about_summary">About LEAP for Android</string>
     <string name="vpn_list_summary">List of all configured VPNs</string>
     <string name="vpn_list_title">VPN Profiles</string>
@@ -295,6 +296,10 @@
     <string name="malformed_url">It doesn\'t seem to be a LEAP provider.</string>
     <string name="certificate_error">This is not a trusted LEAP provider.</string>
     <string name="not_valid_password_message">Your password is not well-formed: it should have at least 8 characters.</string>
+    <string name="authenticating_title">Authenticating</string>
+    <string name="authenticating_message">Authenticating with entered login and password.</string>
+    <string name="logout_title">Log out</string>
+    <string name="logout_message">Logging out from this session.</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
     <string name="successful_log_out_message">Logged out.</string>
