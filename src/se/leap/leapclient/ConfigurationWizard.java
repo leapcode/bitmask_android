@@ -101,13 +101,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				e.printStackTrace();
 
 				mProgressDialog.dismiss();
-				Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
+				//Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
 				setResult(RESULT_CANCELED, mConfigState);
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), R.string.incorrectly_updated_provider_dot_json_message, Toast.LENGTH_LONG).show();
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
@@ -123,20 +122,16 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
-			Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
+			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
-			//Toast.makeText(getApplicationContext(), R.string.correctly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
-			//Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
-			//mConfigState.putExtra(CERTIFICATE_RETRIEVED, true); // If this isn't the last step and finish() is moved...
 			setResult(RESULT_OK);
-			//finish();
 			showProviderDetails(getCurrentFocus());
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
+			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);
 		}
 	}
