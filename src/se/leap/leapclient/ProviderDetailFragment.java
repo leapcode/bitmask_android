@@ -71,7 +71,9 @@ public class ProviderDetailFragment extends DialogFragment {
 			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
 			return service_description.has(ConfigHelper.ALLOW_REGISTRATION_KEY) && service_description.getBoolean(ConfigHelper.ALLOW_REGISTRATION_KEY);
 		} catch (JSONException e) {
-			return false;
+			//return false;
+			//TODO Just to debug while provider.json is not OK in the server.
+			return true;
 		}
 	}
 	
