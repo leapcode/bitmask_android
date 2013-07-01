@@ -169,7 +169,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		intent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
 		startService(intent);
 		
-		((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
+		ViewStub eip_overview_stub = ((ViewStub) findViewById(R.id.eipOverviewStub));
+		if(eip_overview_stub != null)
+			eip_overview_stub.inflate();
 
 		eipTypeTV = (TextView) findViewById(R.id.eipType);
 		eipTypeTV.setText(provider.getEIPType());
