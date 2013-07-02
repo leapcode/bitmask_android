@@ -452,21 +452,10 @@ public class ProviderAPI extends IntentService {
 		if(cert_string.isEmpty()) {
 			cert_string = downloadCertificateWithoutTrusting(url.getProtocol() + "://" + url.getHost() + "/" + "ca.crt");
 			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, cert_string);
-		} 
-		CertificateFactory cf;
+		}
+		
 		try {
-			cf = CertificateFactory.getInstance("X.509");
-
-			cert_string = cert_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
-			byte[] cert_bytes = Base64.decode(cert_string, Base64.DEFAULT);
-			InputStream caInput =  new ByteArrayInputStream(cert_bytes);
-			java.security.cert.Certificate dangerous_certificate;
-			try {
-				dangerous_certificate = cf.generateCertificate(caInput);
-				System.out.println("dangerous certificate =" + ((X509Certificate) dangerous_certificate).getSubjectDN());
-			} finally {
-				caInput.close();
-			}
+			java.security.cert.Certificate dangerous_certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
 
 			// Create a KeyStore containing our trusted CAs
 			String keyStoreType = KeyStore.getDefaultType();
