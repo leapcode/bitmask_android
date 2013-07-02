@@ -102,7 +102,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				buildDashboard();
 				if(data != null && data.hasExtra(ConfigHelper.LOG_IN)) {
 					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-					logInDialog(view);
+					logInDialog(view, "");
 				}
 			} else if(resultCode == RESULT_CANCELED && data.hasExtra(ConfigHelper.QUIT)) {
 				finish();
@@ -270,7 +270,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			return true;
 		case R.id.login_button:
 			View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-			logInDialog(view);
+			logInDialog(view, "");
 			return true;
 		case R.id.logout_button:
 			logOut();
@@ -340,7 +340,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * Shows the log in dialog.
 	 * @param view from which the dialog is created.
 	 */
-	public void logInDialog(View view) {
+	public void logInDialog(View view, String user_message) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.LOG_IN_DIALOG);
 	    if (previous_log_in_dialog != null) {
@@ -349,6 +349,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    fragment_transaction.addToBackStack(null);
 
 	    DialogFragment newFragment = LogInDialog.newInstance();
+	    if(user_message != null && !user_message.isEmpty()) {
+	    	Bundle user_message_bundle = new Bundle();
+	    	user_message_bundle.putString(getResources().getString(R.string.user_message), user_message);
+	    	newFragment.setArguments(user_message_bundle);
+	    }
 	    newFragment.show(fragment_transaction, ConfigHelper.LOG_IN_DIALOG);
 	}
 
@@ -384,7 +389,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
-        	logInDialog(getCurrentFocus());
+        	logInDialog(getCurrentFocus(), resultData.getString(getResources().getString(R.string.user_message)));
 			mProgressDialog.dismiss();
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
 			setResult(RESULT_OK);

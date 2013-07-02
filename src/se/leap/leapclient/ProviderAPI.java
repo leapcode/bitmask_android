@@ -62,7 +62,7 @@ import android.widget.Toast;
 /**
  * Implements HTTP api methods used to manage communications with the provider server.
  * 
- * It's an IntentService because it downloads data fromt he Internet, so it operates in the background.
+ * It's an IntentService because it downloads data from the Internet, so it operates in the background.
  *  
  * @author parmegv
  * @author MeanderingCode
@@ -126,7 +126,10 @@ public class ProviderAPI extends IntentService {
 			if(session_id_bundle.getBoolean(ConfigHelper.RESULT_KEY)) {
 				receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
 			} else {
-				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, Bundle.EMPTY);
+				Bundle user_message_bundle = new Bundle();
+				String user_message_key = getResources().getString(R.string.user_message);
+				user_message_bundle.putString(user_message_key, session_id_bundle.getString(user_message_key));
+				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, user_message_bundle);
 			}
 		}
 		else if ((task = task_for.getBundleExtra(ConfigHelper.LOG_OUT)) != null) {
@@ -176,39 +179,58 @@ public class ProviderAPI extends IntentService {
 		
 		String username = (String) task.get(ConfigHelper.USERNAME_KEY);
 		String password = (String) task.get(ConfigHelper.PASSWORD_KEY);
-		String authentication_server = (String) task.get(ConfigHelper.API_URL_KEY);
+		if(wellFormedPassword(password)) {
+			String authentication_server = (String) task.get(ConfigHelper.API_URL_KEY);
 
-		SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
-		LeapSRPSession client = new LeapSRPSession(username, password, params);
-		byte[] A = client.exponential();
-		try {
-			JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
-			if(saltAndB.length() > 0) {
-				String salt = saltAndB.getString(ConfigHelper.SALT_KEY);
-				byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
-				byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
-				JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
-				if( client.verify((byte[])session_idAndM2.get("M2")) == false ) {
-					session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+			SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
+			LeapSRPSession client = new LeapSRPSession(username, password, params);
+			byte[] A = client.exponential();
+			try {
+				JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
+				if(saltAndB.length() > 0) {
+					String salt = saltAndB.getString(ConfigHelper.SALT_KEY);
+					byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
+					byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
+					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
+					if( client.verify((byte[])session_idAndM2.get("M2")) == false ) {
+						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+					} else {
+						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, true);
+						session_id_bundle.putString(ConfigHelper.SESSION_ID_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_KEY));
+						session_id_bundle.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_COOKIE_KEY));
+					}
 				} else {
-					session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, true);
-					session_id_bundle.putString(ConfigHelper.SESSION_ID_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_KEY));
-					session_id_bundle.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_COOKIE_KEY));
+					session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
+					session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 				}
-			} else {
+			} catch (ClientProtocolException e) {
 				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_client_http_user_message));
+			} catch (IOException e) {
+				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_io_exception_user_message));
+			} catch (JSONException e) {
+				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_json_exception_user_message));
+			} catch (NoSuchAlgorithmException e) {
+				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_no_such_algorithm_exception_user_message));
 			}
-		} catch (ClientProtocolException e) {
+		} else {
 			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
-		} catch (IOException e) {
-			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
-		} catch (JSONException e) {
-			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
-		} catch (NoSuchAlgorithmException e) {
-			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+			session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_not_valid_password_user_message));
 		}
-
+		
 		return session_id_bundle;
+	}
+
+	/**
+	 * Validates a password
+	 * @param entered_password
+	 * @return true if the entered password length is greater or equal to eight (8).
+	 */
+	private boolean wellFormedPassword(String entered_password) {
+		return entered_password.length() >= 8;
 	}
 
 	/**
