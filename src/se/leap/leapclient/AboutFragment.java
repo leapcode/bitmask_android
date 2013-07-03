@@ -1,4 +1,4 @@
-package se.leap.openvpn;
+package se.leap.leapclient;
 
 import android.app.Fragment;
 import android.content.pm.PackageInfo;

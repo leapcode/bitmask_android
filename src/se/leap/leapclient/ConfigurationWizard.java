@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import se.leap.leapclient.R;
-import se.leap.openvpn.AboutFragment;
 import se.leap.openvpn.MainActivity;
 import android.app.Activity;
 import android.app.DialogFragment;
