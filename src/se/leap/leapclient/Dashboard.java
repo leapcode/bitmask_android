@@ -56,8 +56,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		super.onCreate(savedInstanceState);
 		
 		app = this;
-		
-		setContentView(R.layout.client_dashboard);
 
 		ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
@@ -118,6 +116,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	private void buildDashboard() {
 		provider = Provider.getInstance();
 		provider.init( this );
+
+		setContentView(R.layout.client_dashboard);
 
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getDomain());
