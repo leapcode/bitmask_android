@@ -178,7 +178,8 @@ public class ConfigHelper {
 	public static JSONObject getJsonFromSharedPref(String shared_preferences_key) throws JSONException {
 		JSONObject content = null;
 		if ( checkSharedPrefs() ) {
-			content = new JSONObject( shared_preferences.getString(shared_preferences_key, "") );
+			String json_string = shared_preferences.getString(shared_preferences_key, "");
+			content = new JSONObject(json_string);
 		}
 		
 		return content;

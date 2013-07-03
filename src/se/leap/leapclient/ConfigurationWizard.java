@@ -154,10 +154,22 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     
     @Override
     public void onBackPressed() {
+    	try {
+			if(ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY) == null || ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY).length() == 0) {
+				askDashboardToQuitApp();
+			} else {
+				setResult(RESULT_OK);
+			}
+		} catch (JSONException e) {
+			askDashboardToQuitApp();
+		}
+    	super.onBackPressed();
+    }
+    
+    private void askDashboardToQuitApp() {
 		Intent ask_quit = new Intent();
 		ask_quit.putExtra(ConfigHelper.QUIT, ConfigHelper.QUIT);
 		setResult(RESULT_CANCELED, ask_quit);
-    	super.onBackPressed();
     }
 
     private ProviderItem getProvider(String id) {
