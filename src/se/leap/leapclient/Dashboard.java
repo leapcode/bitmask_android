@@ -120,7 +120,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider.init( this );
 
 		providerNameTV = (TextView) findViewById(R.id.providerName);
-		providerNameTV.setText(provider.getName());
+		providerNameTV.setText(provider.getDomain());
 		providerNameTV.setTextSize(28);
 
 		FragmentManager fragMan = getFragmentManager();
