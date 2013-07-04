@@ -40,6 +40,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -53,7 +54,7 @@ public class ConfigurationWizard extends Activity
 implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, ProviderDetailFragment.ProviderDetailFragmentInterface, Receiver {
 
 	private ProviderItem mSelectedProvider;
-	private ProgressDialog mProgressDialog;
+	private ProgressBar mProgressBar;
 	private Intent mConfigState = new Intent();
 
 	protected static final String PROVIDER_SET = "PROVIDER SET";
@@ -66,6 +67,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.configuration_wizard_activity);
+	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
+	    mProgressBar.setVisibility(ProgressBar.INVISIBLE);
         
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
         providerAPI_result_receiver.setReceiver(this);
@@ -78,17 +81,29 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
         if ( savedInstanceState == null ){
         	// TODO Some welcome screen?
         	// We will need better flow control when we have more Fragments (e.g. user auth)
-        	ProviderListFragment providerList = new ProviderListFragment();
+        	ProviderListFragment provider_list_fragment = new ProviderListFragment();
         	
         	FragmentManager fragmentManager = getFragmentManager();
         	fragmentManager.beginTransaction()
-        		.add(R.id.configuration_wizard_layout, providerList, "providerlist")
+        		.add(R.id.configuration_wizard_layout, provider_list_fragment, getResources().getString(R.string.provider_list_fragment_tag))
         		.commit();
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
     }
 
+    private void refreshProviderList(int top_padding) {
+    	ProviderListFragment providerList = new ProviderListFragment();
+		Bundle top_padding_bundle = new Bundle();
+		top_padding_bundle.putInt(getResources().getString(R.string.top_padding), top_padding);
+		providerList.setArguments(top_padding_bundle);
+
+		FragmentManager fragmentManager = getFragmentManager();
+		fragmentManager.beginTransaction()
+		.replace(R.id.configuration_wizard_layout, providerList, getResources().getString(R.string.provider_list_fragment_tag))
+		.commit();
+    }
+    
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 		if(resultCode == ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
@@ -101,57 +116,68 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
 				mConfigState.setAction(PROVIDER_SET);
 				
-				if(mProgressDialog != null) mProgressDialog.dismiss();
-				mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
-				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
+				if(!mProgressBar.isShown())
+					startProgressBar();
+				mProgressBar.incrementProgressBy(1);
 				if(resultData.containsKey(ConfigHelper.PROVIDER_ID))
 					mSelectedProvider = getProvider(resultData.getString(ConfigHelper.PROVIDER_ID));
 
-				ProviderListFragment providerList = new ProviderListFragment();
-
-				FragmentManager fragmentManager = getFragmentManager();
-				fragmentManager.beginTransaction()
-				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
-				.commit();
+				refreshProviderList(30);
 				downloadJSONFiles(mSelectedProvider);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-
-				mProgressDialog.dismiss();
+			    mProgressBar.setVisibility(ProgressBar.GONE);
+				refreshProviderList(0);
 				//Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
 				setResult(RESULT_CANCELED, mConfigState);
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
-			mProgressDialog.dismiss();
+			refreshProviderList(0);
+			mProgressBar.setVisibility(ProgressBar.GONE);
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
+			mProgressBar.incrementProgressBy(1);
 			if (ConfigHelper.getBoolFromSharedPref(ConfigHelper.ALLOWED_ANON)){
-				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_certificates));
 				mConfigState.putExtra(SERVICES_RETRIEVED, true);
 				downloadAnonCert();
 			} else {
-				mProgressDialog.dismiss();
+				mProgressBar.incrementProgressBy(1);
+			    mProgressBar.setVisibility(ProgressBar.GONE);
+			    refreshProviderList(0);
 				//Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 				setResult(RESULT_OK);
-				finish();
+				showProviderDetails(getCurrentFocus());
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
+			refreshProviderList(0);
+			mProgressBar.setVisibility(ProgressBar.GONE);
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
-			mProgressDialog.dismiss();
+			mProgressBar.incrementProgressBy(1);
+		    mProgressBar.setVisibility(ProgressBar.GONE);
+		    refreshProviderList(0);
 			setResult(RESULT_OK);
 			showProviderDetails(getCurrentFocus());
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
-			mProgressDialog.dismiss();
+			refreshProviderList(0);
+			mProgressBar.setVisibility(ProgressBar.GONE);
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);
 		}
+	}
+	
+	private void startProgressBar() {
+	    FragmentManager fragmentManager = getFragmentManager();
+	    fragmentManager.findFragmentByTag(getResources().getString(R.string.provider_list_fragment_tag)).getView().setPadding(8, 30, 8, 0);
+	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
+	    mProgressBar.setProgress(0);
+	    mProgressBar.setMax(3);
 	}
 
 	/**
@@ -162,7 +188,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     public void onItemSelected(String id) {
 	    //TODO Code 2 pane view
 	    ProviderItem selected_provider = getProvider(id);
-	    mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
+	    startProgressBar();
 	    mSelectedProvider = selected_provider;
 	    saveProviderJson(mSelectedProvider);
     }
@@ -246,8 +272,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     			ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
     			ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
     			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, provider.danger_on);
-    			
-    			mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
+
+
+    			mProgressBar.incrementProgressBy(1);
     			downloadJSONFiles(mSelectedProvider);
     		}
     	} catch (JSONException e) {
