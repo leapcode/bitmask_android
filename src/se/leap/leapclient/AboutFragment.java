@@ -45,13 +45,6 @@ public class AboutFragment extends Fragment  {
     	
     	ver.setText(getString(R.string.version_info,name,version));
     	
-    	TextView paypal = (TextView) v.findViewById(R.id.donatestring);
-    	
-    	String donatetext = getActivity().getString(R.string.donatewithpaypal);
-    	Spanned htmltext = Html.fromHtml(donatetext);
-    	paypal.setText(htmltext);
-    	paypal.setMovementMethod(LinkMovementMethod.getInstance());
-    	
     	TextView translation = (TextView) v.findViewById(R.id.translation);
     	
     	// Don't print a text for myself
