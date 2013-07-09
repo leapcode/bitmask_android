@@ -6,14 +6,15 @@
     tools:context=".ConfigurationWizard" >
 
     <ProgressBar
-        android:id="@+id/progressbar"
+        android:id="@+id/progressbar_configuration_wizard"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
         android:max="3"
-        android:maxHeight="20dip"
-        android:minHeight="20dip"
-        android:progress="0" 
-        android:background="@android:color/transparent"/>
+        android:maxHeight="10dip"
+        android:minHeight="10dip"
+        android:progress="0"
+        android:progressDrawable="@android:drawable/progress_horizontal" />
 
 </RelativeLayout>
