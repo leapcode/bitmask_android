@@ -95,7 +95,9 @@ public class ProviderAPI extends IntentService {
     RECEIVER_KEY = "receiver",
     SESSION_ID_COOKIE_KEY = "session_id_cookie_key",
     SESSION_ID_KEY = "session_id",
-    ERRORS = "errors"
+    ERRORS = "errors",
+    UPDATE_ACTION = "update_action",
+    UPDATE_DATA = "update data"
     ;
 
     final public static int
@@ -223,29 +225,36 @@ public class ProviderAPI extends IntentService {
 	 */
 	private Bundle authenticateBySRP(Bundle task) {
 		Bundle session_id_bundle = new Bundle();
+		int progress = 0;
 		
 		String username = (String) task.get(LogInDialog.USERNAME);
 		String password = (String) task.get(LogInDialog.PASSWORD);
 		if(validUserLoginData(username, password)) {
+		
 			String authentication_server = (String) task.get(Provider.API_URL);
 
 			SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
 			LeapSRPSession client = new LeapSRPSession(username, password, params);
 			byte[] A = client.exponential();
+			broadcast_progress(progress++);
 			try {
 				JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
 				if(saltAndB.length() > 0) {
 					String salt = saltAndB.getString(LeapSRPSession.SALT);
+					broadcast_progress(progress++);
 					byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
 					byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
+					broadcast_progress(progress++);
 					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
 					if(session_idAndM2.has(LeapSRPSession.M2) && client.verify((byte[])session_idAndM2.get(LeapSRPSession.M2))) {
 						session_id_bundle.putBoolean(RESULT_KEY, true);
+						broadcast_progress(progress++);
 					} else {
 						session_id_bundle.putBoolean(RESULT_KEY, false);
 						session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
 						session_id_bundle.putString(LogInDialog.USERNAME, username);
 					}
+					broadcast_progress(progress++);
 				} else {
 					session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
 					session_id_bundle.putString(LogInDialog.USERNAME, username);
@@ -290,6 +299,19 @@ public class ProviderAPI extends IntentService {
 		}
 		
 		return session_id_bundle;
+	}
+	
+	/**
+	 * Sets up an intent with the progress value passed as a parameter
+	 * and sends it as a broadcast.
+	 * @param progress
+	 */
+	private void broadcast_progress(int progress) {
+		Intent intentUpdate = new Intent();
+		intentUpdate.setAction(UPDATE_ACTION);
+		intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
+		intentUpdate.putExtra(UPDATE_DATA, progress);
+		sendBroadcast(intentUpdate);
 	}
 
 	/**
