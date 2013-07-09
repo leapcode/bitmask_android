@@ -40,6 +40,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.CompoundButton;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +53,7 @@ import android.widget.Toast;
  * and access to preferences.
  * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
+ * @author parmegv
  */
 public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver {
 
@@ -58,7 +64,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     final public static String ACTION_QUIT = "quit";
 
 	private ProgressDialog mProgressDialog;
-	
+	private ProgressBar mProgressBar;
 	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
@@ -74,6 +80,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		super.onCreate(savedInstanceState);
 		
 		app = this;
+		
+	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
 
 		ConfigHelper.setSharedPreferences(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
@@ -234,8 +242,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
-		if(mProgressDialog != null) mProgressDialog.dismiss();
-		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
+		//if(mProgressDialog != null) mProgressDialog.dismiss();
+		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
 		startService(provider_API_command);
 	}
 	
@@ -314,15 +323,18 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_cookie_key = resultData.getString(ProviderAPI.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ProviderAPI.SESSION_ID_KEY);
 			setResult(RESULT_OK);
+
 			authed_eip = true;
 			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
 			invalidateOptionsMenu();
 
-			//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
-			downloadAuthedUserCertificate(/*session_id*/);
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+
+        	//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
+        	downloadAuthedUserCertificate(/*session_id*/);
 		} else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_FAILED) {
-			mProgressDialog.dismiss();
         	logInDialog(getCurrentFocus(), resultData);
+        	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
 			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
