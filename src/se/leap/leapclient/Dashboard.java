@@ -18,9 +18,11 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,6 +52,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	private ProgressDialog mProgressDialog;
 	private ProgressBar mProgressBar;
+	private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
 	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
@@ -74,6 +77,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		setContentView(R.layout.client_dashboard);
 	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
 
+	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
+	    IntentFilter update_intent_filter = new IntentFilter(ConfigHelper.UPDATE_ACTION_KEY);
+	    update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
+	    registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
+	    
 		ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
 		
@@ -83,6 +91,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			buildDashboard();
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(providerAPI_broadcast_receiver_update);
+	}
+	
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -441,6 +455,16 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				}
 			}
 		});
+	}
+
+
+	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			int update = intent.getIntExtra(ConfigHelper.UPDATE_KEY, 0);
+			mProgressBar.setProgress(update);
+		}
 	}
 
 	/**
