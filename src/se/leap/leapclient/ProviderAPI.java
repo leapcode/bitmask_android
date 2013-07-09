@@ -57,6 +57,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 /**
@@ -192,6 +193,7 @@ public class ProviderAPI extends IntentService {
 					byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
 					byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
 					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
+
 					if( client.verify((byte[])session_idAndM2.get("M2")) == false ) {
 						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 					} else {

@@ -52,7 +52,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.configuration_wizard_activity);
-	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
+	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_configuration_wizard);
 	    mProgressBar.setVisibility(ProgressBar.INVISIBLE);
         
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
