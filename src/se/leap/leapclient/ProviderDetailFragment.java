@@ -43,7 +43,6 @@ public class ProviderDetailFragment extends DialogFragment {
 			}
 
 			if(registration_allowed(provider_json)) {
-
 				builder.setNegativeButton(R.string.login_button, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						interface_with_configuration_wizard.login();
@@ -71,9 +70,7 @@ public class ProviderDetailFragment extends DialogFragment {
 			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
 			return service_description.has(ConfigHelper.ALLOW_REGISTRATION_KEY) && service_description.getBoolean(ConfigHelper.ALLOW_REGISTRATION_KEY);
 		} catch (JSONException e) {
-			//return false;
-			//TODO Just to debug while provider.json is not OK in the server.
-			return true;
+			return false;
 		}
 	}
 	

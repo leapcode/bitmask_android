@@ -64,6 +64,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	private TextView eipStatus;
 	
 	private boolean mEipWait = false;
+	private boolean authed = false;
 
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private EIPReceiver mEIPReceiver;
@@ -253,8 +254,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			provider_json = ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY);
 			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
 			if(service_description.getBoolean(ConfigHelper.ALLOW_REGISTRATION_KEY)) {
-				menu.findItem(R.id.login_button).setVisible(true);
-				menu.findItem(R.id.logout_button).setVisible(true);
+				if(authed) {
+					menu.findItem(R.id.login_button).setVisible(false);
+					menu.findItem(R.id.logout_button).setVisible(true);
+				} else {
+					menu.findItem(R.id.login_button).setVisible(true);
+					menu.findItem(R.id.logout_button).setVisible(false);
+				}
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -404,16 +410,18 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_cookie_key = resultData.getString(ConfigHelper.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ConfigHelper.SESSION_ID_KEY);
 			setResult(RESULT_OK);
-			//mProgressDialog.dismiss();
+			authed = true;
+			invalidateOptionsMenu();
         	mProgressBar.setVisibility(ProgressBar.GONE);
 
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
         	logInDialog(getCurrentFocus(), resultData.getString(getResources().getString(R.string.user_message)));
-			//mProgressDialog.dismiss();
         	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
+			authed = false;
+			invalidateOptionsMenu();
 			setResult(RESULT_OK);
 			mProgressDialog.dismiss();
 		} else if(resultCode == ConfigHelper.LOGOUT_FAILED) {
