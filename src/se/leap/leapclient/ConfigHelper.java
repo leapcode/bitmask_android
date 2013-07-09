@@ -66,6 +66,8 @@ public class ConfigHelper {
     API_VERSION_KEY = "api_version",
     API_RETURN_SERIAL_KEY = "serial",
     RESULT_KEY = "result",
+    UPDATE_ACTION_KEY = "update_action",
+    UPDATE_KEY = "update_key",
     RECEIVER_KEY = "receiver",
     PROVIDER_KEY = "provider",
     SERVICE_KEY = "service",
