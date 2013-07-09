@@ -68,6 +68,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 /**
