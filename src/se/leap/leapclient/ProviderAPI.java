@@ -455,7 +455,7 @@ public class ProviderAPI extends IntentService {
 		}
 		
 		try {
-			java.security.cert.Certificate ca = ConfigHelper.parseX509CertificateFromString(cert_string);
+			java.security.cert.Certificate dangerous_certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
 
 			// Create a KeyStore containing our trusted CAs
 			String keyStoreType = KeyStore.getDefaultType();
