@@ -99,6 +99,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if ( requestCode == CONFIGURE_LEAP ) {
 			if ( resultCode == RESULT_OK ){
+				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
 				if(data != null && data.hasExtra(ConfigHelper.LOG_IN)) {
 					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);

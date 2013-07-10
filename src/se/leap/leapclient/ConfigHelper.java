@@ -49,6 +49,7 @@ public class ConfigHelper {
     LOG_OUT = "logOut",
     DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
     API_VERSION_KEY = "api_version",
+    API_RETURN_SERIAL_KEY = "serial",
     RESULT_KEY = "result",
     RECEIVER_KEY = "receiver",
     PROVIDER_KEY = "provider",
@@ -58,6 +59,7 @@ public class ConfigHelper {
     CERT_KEY = "cert",
     KEY_KEY = "key",
     EIP_SERVICE_KEY = "eip",
+    EIP_PARSED_SERIAL = "eip_parsed_serial",
     TYPE_OF_CERTIFICATE = "type_of_certificate",
     ANON_CERTIFICATE = "anon_certificate",
     AUTHED_CERTIFICATE = "authed_certificate",
@@ -162,6 +164,17 @@ public class ConfigHelper {
 	}
 	
 	/**
+	 * Saves an int into class scope Shared Preferences
+	 * 
+	 * @param shared_preferences_key
+	 * @param value
+	 */
+	protected static void saveSharedPref(String shared_preferences_key, int value) {
+		SharedPreferences.Editor shared_preferences_editor = shared_preferences.edit();
+		shared_preferences_editor.putInt(shared_preferences_key, value).commit();
+	}
+	
+	/**
 	 * Gets String object from class scope Shared Preferences
 	 * @param shared_preferences_key
 	 * @return the string correspondent to the key parameter
@@ -198,6 +211,16 @@ public class ConfigHelper {
 			value = shared_preferences.getBoolean(shared_preferences_key, false);
 		}
 		return value;
+	}
+
+	/**
+	 * Get an int from SharedPreferences
+	 * 
+	 * @param shared_preferences_key	Key to retrieve
+	 * @return	The value for the key or 0
+	 */
+	protected static int getIntFromSharedPref(String shared_preferences_key) {
+		return shared_preferences.getInt(shared_preferences_key, 0);
 	}
 	
 	/*
