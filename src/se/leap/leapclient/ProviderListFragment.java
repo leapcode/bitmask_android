@@ -73,7 +73,7 @@ public class ProviderListFragment extends ListFragment {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    	super.onCreate(savedInstanceState);
         content_adapter = new ArrayAdapter<ProviderListContent.ProviderItem>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_2,
@@ -111,6 +111,12 @@ public class ProviderListFragment extends ListFragment {
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
+    	String top_padding_key = getResources().getString(R.string.top_padding);
+    	if(getArguments() != null && getArguments().containsKey(top_padding_key)) {
+    		int topPadding = getArguments().getInt(top_padding_key);
+    		View current_view = getView();
+    		getView().setPadding(current_view.getPaddingLeft(), topPadding, current_view.getPaddingRight(), current_view.getPaddingBottom());
+    	}
     }
 
     @Override
