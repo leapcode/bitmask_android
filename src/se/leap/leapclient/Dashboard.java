@@ -55,7 +55,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	private View eipDetail;
 	private TextView eipStatus;
 	
-	private boolean mEipWait = false;
+	private boolean mEipStartPending = false;
 	private boolean authed = false;
 
     public ProviderAPIResultReceiver providerAPI_result_receiver;
@@ -187,21 +187,48 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		eipSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (!mEipWait){
-					buttonView.setClickable(false);
-					mEipWait = true;
-					
-					Intent vpnIntent;
-					if (isChecked){
-						vpnIntent = new Intent(EIP.ACTION_START_EIP);
+
+				if (isChecked){
+					mEipStartPending = true;
+					eipCommand(EIP.ACTION_START_EIP);
+				} else {
+					if (mEipStartPending){
+						AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getAppContext());
+						alertBuilder.setTitle(getResources().getString(R.string.eip_cancel_connect_title));
+						alertBuilder
+						.setMessage(getResources().getString(R.string.eip_cancel_connect_text))
+						.setPositiveButton(getResources().getString(R.string.eip_cancel_connect_cancel), new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								eipCommand(EIP.ACTION_STOP_EIP);
+							}
+						})
+						.setNegativeButton(getResources().getString(R.string.eip_cancel_connect_false), new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								eipSwitch.setChecked(true);
+							}
+						})
+						.show();
 					} else {
-						vpnIntent = new Intent(EIP.ACTION_STOP_EIP);
+						eipCommand(EIP.ACTION_STOP_EIP);
 					}
-					vpnIntent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
-					startService(vpnIntent);
 				}
 			}
 		});
+	}
+	
+	/**
+	 * Send a command to EIP
+	 * 
+	 * @param action	A valid String constant from EIP class representing an Intent
+	 * 					filter for the EIP class 
+	 */
+	private void eipCommand(String action){
+		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
+		Intent vpnIntent = new Intent(action);
+		vpnIntent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
+		startService(vpnIntent);
 	}
 	
 	/**
@@ -434,18 +461,22 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			@Override
 			public void run() {
 				if (eipStatus != null) {
+					boolean switchState = true;
 					String statusMessage = "";
 					String prefix = getString(localizedResId);
 					if (state.equals("CONNECTED")){
 						statusMessage = "Connection Secure";
+						mEipStartPending = false;
 					} else if (state.equals("BYTECOUNT")) {
 						statusMessage = logmessage;
 					} else if (state.equals("NOPROCESS") || state.equals("EXITING")) {
 						statusMessage = "Not running! Connection not secure!";
+						switchState = false;
 					} else {
 						statusMessage = prefix + logmessage;
 					}
 					
+					eipSwitch.setChecked(switchState);
 					eipStatus.setText(statusMessage);
 				}
 			}
@@ -474,7 +505,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			super.onReceiveResult(resultCode, resultData);
 			
 			String request = resultData.getString(ConfigHelper.REQUEST_TAG);
-			mEipWait = true;
 			boolean checked = false;
 			
 			if (request == EIP.ACTION_IS_EIP_RUNNING) {
@@ -515,10 +545,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				}
 			}
 			
-			Switch eipS = ((Switch) mDashboard.findViewById(R.id.eipSwitch));
-			eipS.setChecked(checked);
-			eipS.setClickable(true);
-			mEipWait = false;
+			eipSwitch.setChecked(checked);
 		}
 	}
 }
