@@ -106,7 +106,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 					prefsEdit.remove(ConfigHelper.PROVIDER_KEY).commit();
 					finish();
 				}
-			});
+			})
+			.show();
 	}
 	
 	/**
