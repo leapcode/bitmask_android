@@ -6,6 +6,13 @@
     android:orientation="vertical"
     tools:context=".LogInDialog" >
 
+    <TextView
+        android:id="@+id/user_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
     <EditText
         android:id="@+id/username_entered"
         android:layout_width="match_parent"
