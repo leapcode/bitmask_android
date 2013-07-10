@@ -302,7 +302,6 @@ public final class EIP extends IntentService {
 			ProfileManager vpl = ProfileManager.getInstance(context);
 			
 			try {
-
 				if ( name == "first" ) {
 					name = vpl.getProfiles().iterator().next().mName;
 				}
@@ -330,9 +329,11 @@ public final class EIP extends IntentService {
 			// Currently deletes VpnProfile for host, if there already is one, and builds new
 			ProfileManager vpl = ProfileManager.getInstance(context);
 			Collection<VpnProfile> profiles = vpl.getProfiles();
-			for (VpnProfile p : profiles){
+			for (Iterator<VpnProfile> it = profiles.iterator(); it.hasNext(); ){
+				VpnProfile p = it.next();
 				try {
 					if ( p.mName.contains( gateway.getString("host") ) )
+						it.remove();
 						vpl.removeProfile(context, p);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
