@@ -67,6 +67,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	private int mMtu;
 	private String mLocalIPv6=null;
 	private NetworkSateReceiver mNetworkStateReceiver;
+	private NotificationManager mNotificationManager;
 
 	private boolean mDisplayBytecount=false;
 
@@ -118,9 +119,9 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		}
 	}
 
-	private void showNotification(String msg, String tickerText, boolean lowpriority, long when) {
+	private void showNotification(String msg, String tickerText, boolean lowpriority, long when, boolean persistant) {
 		String ns = Context.NOTIFICATION_SERVICE;
-		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
+		mNotificationManager = (NotificationManager) getSystemService(ns);
 
 
 		int icon = R.drawable.ic_stat_vpn;
@@ -129,7 +130,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		nbuilder.setContentTitle(getString(R.string.notifcation_title,mProfile.mName));
 		nbuilder.setContentText(msg);
 		nbuilder.setOnlyAlertOnce(true);
-		nbuilder.setOngoing(true);
+		nbuilder.setOngoing(persistant);
 		nbuilder.setContentIntent(getLogPendingIntent());
 		nbuilder.setSmallIcon(icon);
 		if(when !=0)
@@ -146,7 +147,6 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 
 
 		mNotificationManager.notify(OPENVPN_STATUS, notification);
-		startForeground(OPENVPN_STATUS, notification);
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -483,26 +483,16 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		if(mProcessThread==null)
 			return;
 
-		// Display byte count only after being connected
-
-		if("BYTECOUNT".equals(state)) {
-			if(mDisplayBytecount) {
-				//showNotification(logmessage,null,true,mConnecttime);
-			}
-		} else {
-			if("CONNECTED".equals(state)) {
-				mDisplayBytecount = true;
-				mConnecttime = System.currentTimeMillis();
-			} else {
-				mDisplayBytecount = false;
-			}
+		if("CONNECTED".equals(state)) {
+			mNotificationManager.cancel(OPENVPN_STATUS);
+		} else if(!"BYTECOUNT".equals(state)) {
 
 			// Other notifications are shown,
 			// This also mean we are no longer connected, ignore bytecount messages until next
 			// CONNECTED
 			String ticker = getString(resid);
-			//showNotification(getString(resid) +" " + logmessage,ticker,false,0);
-
+			boolean persist = ("NOPROCESS".equals(state)) ? false : true;
+			showNotification(getString(resid) +" " + logmessage,ticker,false,0,persist);
 		}
 	}
 
