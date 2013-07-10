@@ -198,12 +198,13 @@ public class ProviderAPI extends IntentService {
 					broadcast_progress(progress++);
 					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
 					broadcast_progress(progress++);
-					if( client.verify((byte[])session_idAndM2.get("M2")) == false ) {
-						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
-					} else {
+					if(session_idAndM2.has("M2") && client.verify((byte[])session_idAndM2.get("M2"))) {
 						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, true);
 						session_id_bundle.putString(ConfigHelper.SESSION_ID_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_KEY));
 						session_id_bundle.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_COOKIE_KEY));
+					} else {
+						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+						session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
 					}
 					broadcast_progress(progress++);
 				} else {
