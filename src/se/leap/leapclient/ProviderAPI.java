@@ -21,6 +21,7 @@ import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import javax.net.ssl.HostnameVerifier;
@@ -467,6 +468,8 @@ public class ProviderAPI extends IntentService {
 		} catch (CertificateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (UnknownHostException e) {
+			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			json_file_content = getStringFromProviderIgnoringCertificate(url);
