@@ -62,6 +62,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	private Switch eipSwitch;
 	private View eipDetail;
 	private TextView eipStatus;
+	private TextView user_message_progressBar;
 	
 	private boolean mEipWait = false;
 	private boolean authed = false;
@@ -77,6 +78,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		setContentView(R.layout.client_dashboard);
 	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
+	    user_message_progressBar = (TextView) findViewById(R.id.user_message_progressbar_dashboard);
 
 	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
 	    IntentFilter update_intent_filter = new IntentFilter(ConfigHelper.UPDATE_ACTION_KEY);
@@ -329,9 +331,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ConfigHelper.SRP_AUTH, method_and_parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
-		//if(mProgressDialog != null) mProgressDialog.dismiss();
 		mProgressBar.setVisibility(ProgressBar.VISIBLE);
-		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
+		user_message_progressBar.setVisibility(View.VISIBLE);
+		user_message_progressBar.setText(getResources().getString(R.string.authenticating_message));
 		startService(provider_API_command);
 	}
 	
@@ -412,12 +414,14 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			setResult(RESULT_OK);
 			authed = true;
 			invalidateOptionsMenu();
+			user_message_progressBar.setVisibility(TextView.GONE);
         	mProgressBar.setVisibility(ProgressBar.GONE);
 
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
         	logInDialog(getCurrentFocus(), resultData.getString(getResources().getString(R.string.user_message)));
+			user_message_progressBar.setVisibility(TextView.GONE);
         	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
 			authed = false;
