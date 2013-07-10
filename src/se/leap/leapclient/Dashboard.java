@@ -427,16 +427,25 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	public void updateState(final String state, final String logmessage, final int localizedResId) {
 		// Note: "states" are not organized anywhere...collected state strings:
-		//		NOPROCESS,NONETWORK,BYTECOUNT,AUTH_FAILED + some parsing thing ( WAIT(?),AUTH,GET_CONFIG,ASSIGN_IP,CONNECTED(?) )
+		//		NOPROCESS,NONETWORK,BYTECOUNT,AUTH_FAILED + some parsing thing ( WAIT(?),AUTH,GET_CONFIG,ASSIGN_IP,CONNECTED,SIGINT )
 		runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
 				if (eipStatus != null) {
-					String prefix = getString(localizedResId) + ":";
-					if (state.equals("BYTECOUNT") || state.equals("NOPROCESS"))
-						prefix = "";
-					eipStatus.setText(prefix + logmessage);
+					String statusMessage = "";
+					String prefix = getString(localizedResId);
+					if (state.equals("CONNECTED")){
+						statusMessage = "Connection Secure";
+					} else if (state.equals("BYTECOUNT")) {
+						statusMessage = logmessage;
+					} else if (state.equals("NOPROCESS") || state.equals("EXITING")) {
+						statusMessage = "Not running! Connection not secure!";
+					} else {
+						statusMessage = prefix + logmessage;
+					}
+					
+					eipStatus.setText(statusMessage);
 				}
 			}
 		});
