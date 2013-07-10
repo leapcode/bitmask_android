@@ -204,10 +204,10 @@ public class OpenVPN {
 			mLaststate= state;
 			mLaststatemsg = msg;
 			mLastStateresid = resid;
-		}
 
-		for (StateListener sl : stateListener) {
-			sl.updateState(state,msg,resid);
+			for (StateListener sl : stateListener) {
+				sl.updateState(state,msg,resid);
+			}
 		}
 	}
 
