@@ -189,7 +189,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		} catch (JSONException e) {
 			askDashboardToQuitApp();
 		}
-    	super.onBackPressed();
+    	finish();
     }
     
     private void askDashboardToQuitApp() {
