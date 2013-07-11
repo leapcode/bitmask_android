@@ -6,14 +6,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
-import se.leap.openvpn.LogWindow;
 import se.leap.openvpn.MainActivity;
-import se.leap.openvpn.OpenVPN;
-import se.leap.openvpn.OpenVPN.StateListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -22,15 +20,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ResultReceiver;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.CompoundButton;
-import android.widget.RelativeLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,26 +33,23 @@ import android.widget.Toast;
  * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  */
-public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver,StateListener {
+public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver {
 
 	protected static final int CONFIGURE_LEAP = 0;
 
+	private static final String TAG_EIP_FRAGMENT = "EIP_DASHBOARD_FRAGMENT";
+
 	private ProgressDialog mProgressDialog;
+	
 	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
 
 	private TextView providerNameTV;
-	private TextView eipTypeTV;
-	private Switch eipSwitch;
-	private View eipDetail;
-	private TextView eipStatus;
-	
-	private boolean mEipStartPending = false;
+
 	private boolean authed = false;
 
     public ProviderAPIResultReceiver providerAPI_result_receiver;
-    private EIPReceiver mEIPReceiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,23 +66,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 		else
 			buildDashboard();
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-		if (provider != null)
-			if (provider.hasEIP() && provider.getEIPType() == "OpenVPN")
-				OpenVPN.removeStateListener(this);
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		
-		if (provider != null)
-			if (provider.hasEIP() && provider.getEIPType() == "OpenVPN")
-				OpenVPN.addStateListener(this);
 	}
 	
 	@Override
@@ -150,109 +123,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		providerNameTV.setText(provider.getName());
 		providerNameTV.setTextSize(28);
 
-		if ( provider.hasEIP() ){
-			startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
-			if (provider.getEIPType() == "OpenVPN")
-				OpenVPN.addStateListener(this);
-			serviceItemEIP();
+		FragmentManager fragMan = getFragmentManager();
+		if ( provider.hasEIP() && fragMan.findFragmentByTag(TAG_EIP_FRAGMENT) == null){
+			EipServiceFragment eipFragment = new EipServiceFragment();
+			fragMan.beginTransaction().add(R.id.servicesCollection, eipFragment, TAG_EIP_FRAGMENT).commit();
 		}
-	}
-
-	/**
-	 * Builds the UI for the EIP service Dashboard component
-	 */
-	private void serviceItemEIP() {
-		mEIPReceiver = new EIPReceiver(new Handler());
-		mEIPReceiver.setReceiver(this);
-
-		Intent intent = new Intent(this,EIP.class);
-		intent.setAction(EIP.ACTION_IS_EIP_RUNNING);
-		intent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
-		startService(intent);
-		
-		ViewStub eip_overview_stub = ((ViewStub) findViewById(R.id.eipOverviewStub));
-		if(eip_overview_stub != null)
-			eip_overview_stub.inflate();
-
-		eipTypeTV = (TextView) findViewById(R.id.eipType);
-		eipTypeTV.setText(provider.getEIPType());
-		
-		eipDetail = ((RelativeLayout) findViewById(R.id.eipDetail));
-		View eipSettings = findViewById(R.id.eipSettings);
-		eipSettings.setVisibility(View.GONE); // FIXME too!
-		eipDetail.setVisibility(View.VISIBLE);
-		eipStatus = (TextView) findViewById(R.id.eipStatus);
-
-		eipSwitch = (Switch) findViewById(R.id.eipSwitch);
-		eipSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-				if (isChecked){
-					mEipStartPending = true;
-					eipCommand(EIP.ACTION_START_EIP);
-				} else {
-					if (mEipStartPending){
-						AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getAppContext());
-						alertBuilder.setTitle(getResources().getString(R.string.eip_cancel_connect_title));
-						alertBuilder
-						.setMessage(getResources().getString(R.string.eip_cancel_connect_text))
-						.setPositiveButton(getResources().getString(R.string.eip_cancel_connect_cancel), new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								eipCommand(EIP.ACTION_STOP_EIP);
-							}
-						})
-						.setNegativeButton(getResources().getString(R.string.eip_cancel_connect_false), new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								eipSwitch.setChecked(true);
-							}
-						})
-						.show();
-					} else {
-						eipCommand(EIP.ACTION_STOP_EIP);
-					}
-				}
-			}
-		});
-	}
-	
-	/**
-	 * Send a command to EIP
-	 * 
-	 * @param action	A valid String constant from EIP class representing an Intent
-	 * 					filter for the EIP class 
-	 */
-	private void eipCommand(String action){
-		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
-		Intent vpnIntent = new Intent(action);
-		vpnIntent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
-		startService(vpnIntent);
-	}
-	
-	/**
-	 * Expands the EIP Dashboard component for extra details view.
-	 * Called by onClick property in client_dashboard.xml layout.
-	 * 
-	 * @param view (Unused) The View calling this method by its onClick property
-	 */
-	public void toggleEipOverview(View view) {
-		if (eipDetail.isShown())
-			eipDetail.setVisibility(View.GONE);
-		else
-			eipDetail.setVisibility(View.VISIBLE);
-	}
-	
-	/**
-	 * Launches the se.leap.openvpn.LogWindow Activity showing detailed OpenVPN log
-	 * 
-	 * @param view (Unused) The View calling this method by its onClick property
-	 */
-	public void showEIPLog(View view){
-		Intent intent = new Intent(getBaseContext(),LogWindow.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-		startActivity(intent);
 	}
 
 	@Override
@@ -452,100 +327,4 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		return app;
 	}
 	
-	@Override
-	public void updateState(final String state, final String logmessage, final int localizedResId) {
-		// Note: "states" are not organized anywhere...collected state strings:
-		//		NOPROCESS,NONETWORK,BYTECOUNT,AUTH_FAILED + some parsing thing ( WAIT(?),AUTH,GET_CONFIG,ASSIGN_IP,CONNECTED,SIGINT )
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				if (eipStatus != null) {
-					boolean switchState = true;
-					String statusMessage = "";
-					String prefix = getString(localizedResId);
-					if (state.equals("CONNECTED")){
-						statusMessage = "Connection Secure";
-						mEipStartPending = false;
-					} else if (state.equals("BYTECOUNT")) {
-						statusMessage = logmessage;
-					} else if (state.equals("NOPROCESS") || state.equals("EXITING")) {
-						statusMessage = "Not running! Connection not secure!";
-						switchState = false;
-					} else {
-						statusMessage = prefix + logmessage;
-					}
-					
-					eipSwitch.setChecked(switchState);
-					eipStatus.setText(statusMessage);
-				}
-			}
-		});
-	}
-
-	/**
-	 * Inner class for handling messages related to EIP status and control requests
-	 * 
-	 * @author Sean Leonard <meanderingcode@aetherislands.net>
-	 */
-	protected class EIPReceiver extends ResultReceiver {
-		
-		Dashboard mDashboard;
-		
-		protected EIPReceiver(Handler handler){
-			super(handler);
-		}
-		
-		public void setReceiver(Dashboard receiver) {
-			mDashboard = receiver;
-		}
-
-		@Override
-		protected void onReceiveResult(int resultCode, Bundle resultData) {
-			super.onReceiveResult(resultCode, resultData);
-			
-			String request = resultData.getString(ConfigHelper.REQUEST_TAG);
-			boolean checked = false;
-			
-			if (request == EIP.ACTION_IS_EIP_RUNNING) {
-				switch (resultCode){
-				case RESULT_OK:
-					checked = true;
-					break;
-				case RESULT_CANCELED:
-					checked = false;
-					break;
-				}
-			} else if (request == EIP.ACTION_START_EIP) {
-				switch (resultCode){
-				case RESULT_OK:
-					checked = true;
-					break;
-				case RESULT_CANCELED:
-					checked = false;
-					break;
-				}
-			} else if (request == EIP.ACTION_STOP_EIP) {
-				switch (resultCode){
-				case RESULT_OK:
-					checked = false;
-					break;
-				case RESULT_CANCELED:
-					checked = true;
-					break;
-				}
-			} else if (request == EIP.EIP_NOTIFICATION) {
-				switch  (resultCode){
-				case RESULT_OK:
-					checked = true;
-					break;
-				case RESULT_CANCELED:
-					checked = false;
-					break;
-				}
-			}
-			
-			eipSwitch.setChecked(checked);
-		}
-	}
 }

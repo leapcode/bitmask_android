@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/eipServiceFragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginTop="10dp" >
 
     <TextView
@@ -12,7 +13,6 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="10dp"
         android:clickable="true"
-        android:onClick="toggleEipOverview"
         android:text="@string/eip_service_label"
         android:textAppearance="?android:attr/textAppearanceLarge" />
     
@@ -67,10 +67,8 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:clickable="true"
-            android:onClick="showEIPLog"
             android:text="@string/eip_status" />
 
     </RelativeLayout>
-
 
 </RelativeLayout>
