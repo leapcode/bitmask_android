@@ -15,10 +15,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -39,11 +44,15 @@ import android.widget.Toast;
  * and access to preferences.
  * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
+ * @author parmegv
  */
 public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver,StateListener {
 
 	protected static final int CONFIGURE_LEAP = 0;
-	
+
+	private ProgressDialog mProgressDialog;
+	private ProgressBar mProgressBar;
+	private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
 	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
@@ -53,8 +62,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	private Switch eipSwitch;
 	private View eipDetail;
 	private TextView eipStatus;
+	private TextView user_message_progressBar;
 	
 	private boolean mEipWait = false;
+	private boolean authed = false;
 
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private EIPReceiver mEIPReceiver;
@@ -66,17 +77,29 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		app = this;
 		
 		setContentView(R.layout.client_dashboard);
+	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
+	    user_message_progressBar = (TextView) findViewById(R.id.user_message_progressbar_dashboard);
 
-		preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
-		if(ConfigHelper.shared_preferences == null)
-			ConfigHelper.setSharedPreferences(preferences);
+	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
+	    IntentFilter update_intent_filter = new IntentFilter(ConfigHelper.UPDATE_ACTION_KEY);
+	    update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
+	    registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
+	    
+		ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
+		preferences = ConfigHelper.shared_preferences;
 		
-		if (preferences.contains("provider") && preferences.getString(ConfigHelper.PROVIDER_KEY, null) != null)
-			buildDashboard();
-		else
+		if (ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY).isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+		else
+			buildDashboard();
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(providerAPI_broadcast_receiver_update);
+	}
+	
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -88,6 +111,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
 		if (provider != null)
 			if (provider.hasEIP() && provider.getEIPType() == "OpenVPN")
 				OpenVPN.addStateListener(this);
@@ -98,6 +122,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if ( requestCode == CONFIGURE_LEAP ) {
 			if ( resultCode == RESULT_OK ){
 				buildDashboard();
+				if(data != null && data.hasExtra(ConfigHelper.LOG_IN)) {
+					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
+					logInDialog(view, "");
+				}
+			} else if(resultCode == RESULT_CANCELED && data.hasExtra(ConfigHelper.QUIT)) {
+				finish();
 			} else
 				configErrorDialog();
 		}
@@ -161,7 +191,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		intent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
 		startService(intent);
 		
-		((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
+		ViewStub eip_overview_stub = ((ViewStub) findViewById(R.id.eipOverviewStub));
+		if(eip_overview_stub != null)
+			eip_overview_stub.inflate();
 
 		eipTypeTV = (TextView) findViewById(R.id.eipType);
 		eipTypeTV.setText(provider.getEIPType());
@@ -224,8 +256,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			provider_json = ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY);
 			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
 			if(service_description.getBoolean(ConfigHelper.ALLOW_REGISTRATION_KEY)) {
-				menu.findItem(R.id.login_button).setVisible(true);
-				menu.findItem(R.id.logout_button).setVisible(true);
+				if(authed) {
+					menu.findItem(R.id.login_button).setVisible(false);
+					menu.findItem(R.id.logout_button).setVisible(true);
+				} else {
+					menu.findItem(R.id.login_button).setVisible(true);
+					menu.findItem(R.id.logout_button).setVisible(false);
+				}
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -255,9 +292,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			intent = new Intent(this,MainActivity.class);
 			startActivity(intent);
 			return true;
+		case R.id.switch_provider:
+			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+			return true;
 		case R.id.login_button:
 			View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-			logInDialog(view);
+			logInDialog(view, "");
 			return true;
 		case R.id.logout_button:
 			logOut();
@@ -291,6 +331,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ConfigHelper.SRP_AUTH, method_and_parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
+		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		user_message_progressBar.setVisibility(View.VISIBLE);
+		user_message_progressBar.setText(getResources().getString(R.string.authenticating_message));
 		startService(provider_API_command);
 	}
 	
@@ -316,6 +359,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ConfigHelper.LOG_OUT, method_and_parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
+		if(mProgressDialog != null) mProgressDialog.dismiss();
+		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
 		startService(provider_API_command);
 	}
 	
@@ -323,7 +368,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * Shows the log in dialog.
 	 * @param view from which the dialog is created.
 	 */
-	public void logInDialog(View view) {
+	public void logInDialog(View view, String user_message) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.LOG_IN_DIALOG);
 	    if (previous_log_in_dialog != null) {
@@ -332,6 +377,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    fragment_transaction.addToBackStack(null);
 
 	    DialogFragment newFragment = LogInDialog.newInstance();
+	    if(user_message != null && !user_message.isEmpty()) {
+	    	Bundle user_message_bundle = new Bundle();
+	    	user_message_bundle.putString(getResources().getString(R.string.user_message), user_message);
+	    	newFragment.setArguments(user_message_bundle);
+	    }
 	    newFragment.show(fragment_transaction, ConfigHelper.LOG_IN_DIALOG);
 	}
 
@@ -362,18 +412,25 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_cookie_key = resultData.getString(ConfigHelper.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ConfigHelper.SESSION_ID_KEY);
 			setResult(RESULT_OK);
-			Toast.makeText(getApplicationContext(), R.string.succesful_authentication_message, Toast.LENGTH_LONG).show();
+			authed = true;
+			invalidateOptionsMenu();
+			user_message_progressBar.setVisibility(TextView.GONE);
+        	mProgressBar.setVisibility(ProgressBar.GONE);
 
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
-        	setResult(RESULT_CANCELED);
-			Toast.makeText(getApplicationContext(), R.string.authentication_failed_message, Toast.LENGTH_LONG).show();
+        	logInDialog(getCurrentFocus(), resultData.getString(getResources().getString(R.string.user_message)));
+			user_message_progressBar.setVisibility(TextView.GONE);
+        	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
+			authed = false;
+			invalidateOptionsMenu();
 			setResult(RESULT_OK);
-			Toast.makeText(getApplicationContext(), R.string.successful_log_out_message, Toast.LENGTH_LONG).show();
+			mProgressDialog.dismiss();
 		} else if(resultCode == ConfigHelper.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
@@ -410,6 +467,16 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				}
 			}
 		});
+	}
+
+
+	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			int update = intent.getIntExtra(ConfigHelper.UPDATE_KEY, 0);
+			mProgressBar.setProgress(update);
+		}
 	}
 
 	/**

@@ -9,6 +9,8 @@ import org.json.JSONObject;
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import se.leap.leapclient.R;
+import se.leap.openvpn.AboutFragment;
+import se.leap.openvpn.MainActivity;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -19,8 +21,11 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -31,10 +36,10 @@ import android.widget.Toast;
  *
  */
 public class ConfigurationWizard extends Activity
-implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, Receiver {
+implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, ProviderDetailFragment.ProviderDetailFragmentInterface, Receiver {
 
 	private ProviderItem mSelectedProvider;
-	private ProgressDialog mProgressDialog;
+	private ProgressBar mProgressBar;
 	private Intent mConfigState = new Intent();
 
 	protected static final String PROVIDER_SET = "PROVIDER SET";
@@ -46,7 +51,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setContentView(R.layout.activity_configuration_wizard);
+        setContentView(R.layout.configuration_wizard_activity);
+	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_configuration_wizard);
+	    mProgressBar.setVisibility(ProgressBar.INVISIBLE);
         
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
         providerAPI_result_receiver.setReceiver(this);
@@ -59,17 +66,29 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
         if ( savedInstanceState == null ){
         	// TODO Some welcome screen?
         	// We will need better flow control when we have more Fragments (e.g. user auth)
-        	ProviderListFragment providerList = new ProviderListFragment();
+        	ProviderListFragment provider_list_fragment = new ProviderListFragment();
         	
         	FragmentManager fragmentManager = getFragmentManager();
         	fragmentManager.beginTransaction()
-        		.add(R.id.configuration_wizard_layout, providerList, "providerlist")
+        		.add(R.id.configuration_wizard_layout, provider_list_fragment, getResources().getString(R.string.provider_list_fragment_tag))
         		.commit();
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
     }
 
+    private void refreshProviderList(int top_padding) {
+    	ProviderListFragment providerList = new ProviderListFragment();
+		Bundle top_padding_bundle = new Bundle();
+		top_padding_bundle.putInt(getResources().getString(R.string.top_padding), top_padding);
+		providerList.setArguments(top_padding_bundle);
+
+		FragmentManager fragmentManager = getFragmentManager();
+		fragmentManager.beginTransaction()
+		.replace(R.id.configuration_wizard_layout, providerList, getResources().getString(R.string.provider_list_fragment_tag))
+		.commit();
+    }
+    
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 		if(resultCode == ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
@@ -82,54 +101,68 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
 				mConfigState.setAction(PROVIDER_SET);
 				
-				if(mProgressDialog == null)
-					mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
-				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
-				if(mSelectedProvider == null)
+				if(!mProgressBar.isShown())
+					startProgressBar();
+				mProgressBar.incrementProgressBy(1);
+				if(resultData.containsKey(ConfigHelper.PROVIDER_ID))
 					mSelectedProvider = getProvider(resultData.getString(ConfigHelper.PROVIDER_ID));
+
+				refreshProviderList(30);
 				downloadJSONFiles(mSelectedProvider);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-
-				mProgressDialog.dismiss();
-				Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
+			    mProgressBar.setVisibility(ProgressBar.GONE);
+				refreshProviderList(0);
+				//Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
 				setResult(RESULT_CANCELED, mConfigState);
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
-			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), R.string.incorrectly_updated_provider_dot_json_message, Toast.LENGTH_LONG).show();
+			refreshProviderList(0);
+			mProgressBar.setVisibility(ProgressBar.GONE);
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
+			mProgressBar.incrementProgressBy(1);
 			if (ConfigHelper.getBoolFromSharedPref(ConfigHelper.ALLOWED_ANON)){
-				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_certificates));
 				mConfigState.putExtra(SERVICES_RETRIEVED, true);
 				downloadAnonCert();
 			} else {
-				mProgressDialog.dismiss();
-				Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
+				mProgressBar.incrementProgressBy(1);
+			    mProgressBar.setVisibility(ProgressBar.GONE);
+			    refreshProviderList(0);
+				//Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 				setResult(RESULT_OK);
-				finish();
+				showProviderDetails(getCurrentFocus());
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
-			Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
+			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
+			refreshProviderList(0);
+			mProgressBar.setVisibility(ProgressBar.GONE);
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
-			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), R.string.correctly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
-			Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
-			//mConfigState.putExtra(CERTIFICATE_RETRIEVED, true); // If this isn't the last step and finish() is moved...
+			mProgressBar.incrementProgressBy(1);
+		    mProgressBar.setVisibility(ProgressBar.GONE);
+		    refreshProviderList(0);
 			setResult(RESULT_OK);
-			finish();
+			showProviderDetails(getCurrentFocus());
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
-			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
+			refreshProviderList(0);
+			mProgressBar.setVisibility(ProgressBar.GONE);
+			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);
 		}
+	}
+	
+	private void startProgressBar() {
+	    FragmentManager fragmentManager = getFragmentManager();
+	    fragmentManager.findFragmentByTag(getResources().getString(R.string.provider_list_fragment_tag)).getView().setPadding(8, 30, 8, 0);
+	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
+	    mProgressBar.setProgress(0);
+	    mProgressBar.setMax(3);
 	}
 
 	/**
@@ -140,10 +173,29 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     public void onItemSelected(String id) {
 	    //TODO Code 2 pane view
 	    ProviderItem selected_provider = getProvider(id);
-	    if(mProgressDialog == null)
-		    mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
+	    startProgressBar();
 	    mSelectedProvider = selected_provider;
 	    saveProviderJson(mSelectedProvider);
+    }
+    
+    @Override
+    public void onBackPressed() {
+    	try {
+			if(ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY) == null || ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY).length() == 0) {
+				askDashboardToQuitApp();
+			} else {
+				setResult(RESULT_OK);
+			}
+		} catch (JSONException e) {
+			askDashboardToQuitApp();
+		}
+    	finish();
+    }
+    
+    private void askDashboardToQuitApp() {
+		Intent ask_quit = new Intent();
+		ask_quit.putExtra(ConfigHelper.QUIT, ConfigHelper.QUIT);
+		setResult(RESULT_CANCELED, ask_quit);
     }
 
     private ProviderItem getProvider(String id) {
@@ -205,8 +257,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     			ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
     			ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
     			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, provider.danger_on);
-    			
-    			mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
+
+
+    			mProgressBar.incrementProgressBy(1);
     			downloadJSONFiles(mSelectedProvider);
     		}
     	} catch (JSONException e) {
@@ -268,6 +321,24 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		DialogFragment newFragment = NewProviderDialog.newInstance();
 		newFragment.show(fragment_transaction, ConfigHelper.NEW_PROVIDER_DIALOG);
 	}
+	
+	/**
+	 * Once selected a provider, this fragment offers the user to log in, 
+	 * use it anonymously (if possible) 
+	 * or cancel his/her election pressing the back button.
+	 * @param view
+	 */
+	public void showProviderDetails(View view) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+		Fragment previous_provider_details_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.PROVIDER_DETAILS_DIALOG);
+		if (previous_provider_details_dialog != null) {
+			fragment_transaction.remove(previous_provider_details_dialog);
+		}
+		fragment_transaction.addToBackStack(null);
+		
+		DialogFragment newFragment = ProviderDetailFragment.newInstance();
+		newFragment.show(fragment_transaction, ConfigHelper.PROVIDER_DETAILS_DIALOG);
+	}
 
 	@Override
 	public void saveAndSelectProvider(String provider_main_url, boolean danger_on) {
@@ -301,5 +372,52 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item){
+		switch (item.getItemId()){
+		case R.id.about_leap:
+			showAboutFragment(getCurrentFocus());
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	/**
+	 * Once selected a provider, this fragment offers the user to log in, 
+	 * use it anonymously (if possible) 
+	 * or cancel his/her election pressing the back button.
+	 * @param view
+	 */
+	public void showAboutFragment(View view) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+		Fragment previous_about_fragment = getFragmentManager().findFragmentByTag(ConfigHelper.ABOUT_FRAGMENT);
+		if (previous_about_fragment == null) {
+			fragment_transaction.addToBackStack(null);
+
+			Fragment newFragment = AboutFragment.newInstance();
+			fragment_transaction.replace(R.id.configuration_wizard_layout, newFragment, ConfigHelper.ABOUT_FRAGMENT).commit();
+		}
+	}
+
+	@Override
+	public void login() {
+		Intent ask_login = new Intent();
+		ask_login.putExtra(ConfigHelper.LOG_IN, ConfigHelper.LOG_IN);
+		setResult(RESULT_OK, ask_login);
+		finish();
+	}
+
+	@Override
+	public void use_anonymously() {
+		setResult(RESULT_OK);
+		finish();
 	}
 }
