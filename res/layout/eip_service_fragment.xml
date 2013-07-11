@@ -36,6 +36,17 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="10dp" />
+    
+    <ProgressBar 
+        android:id="@+id/eipProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@android:style/Widget.Holo.ProgressBar.Horizontal"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:layout_below="@id/eipLabel"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
 
     <RelativeLayout
         android:id="@+id/eipDetail"

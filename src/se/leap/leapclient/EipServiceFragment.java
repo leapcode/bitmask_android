@@ -23,6 +23,8 @@ import android.widget.TextView;
 
 public class EipServiceFragment extends Fragment implements StateListener, OnClickListener, OnCheckedChangeListener {
 	
+	private static final String IS_EIP_PENDING = "is_eip_pending";
+	
 	private View eipFragment;
 	private Switch eipSwitch;
 	private View eipDetail;
@@ -37,6 +39,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		
 		eipFragment = inflater.inflate(R.layout.eip_service_fragment, container, false);
 		
 		eipDetail = ((RelativeLayout) eipFragment.findViewById(R.id.eipDetail));
@@ -44,6 +47,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 
 		View eipSettings = eipFragment.findViewById(R.id.eipSettings);
 		eipSettings.setVisibility(View.GONE); // FIXME too!
+
+		if (mEipStartPending)
+			eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
 		
 		eipStatus = (TextView) eipFragment.findViewById(R.id.eipStatus);
 		eipStatus.setOnClickListener(this);
@@ -59,6 +65,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 		super.onCreate(savedInstanceState);
 		
 		mEIPReceiver = new EIPReceiver(new Handler());
+
+		if (savedInstanceState != null)
+			mEipStartPending = savedInstanceState.getBoolean(IS_EIP_PENDING);
 	}
 
 	@Override
@@ -73,6 +82,12 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 		super.onPause();
 
 		OpenVPN.removeStateListener(this);
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(IS_EIP_PENDING, mEipStartPending);
 	}
 	
 	@Override
@@ -95,6 +110,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 		if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
 			if (isChecked){
 				mEipStartPending = true;
+				eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
+				((TextView) eipFragment.findViewById(R.id.eipStatus)).setText(R.string.eip_status_start_pending);
 				eipCommand(EIP.ACTION_START_EIP);
 			} else {
 				if (mEipStartPending){
@@ -151,11 +168,14 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 					String prefix = getString(localizedResId);
 					if (state.equals("CONNECTED")){
 						statusMessage = "Connection Secure";
+						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
 					} else if (state.equals("BYTECOUNT")) {
 						statusMessage = logmessage;
-					} else if (state.equals("NOPROCESS") || state.equals("EXITING")) {
+					} else if ( (state.equals("NOPROCESS") && !mEipStartPending ) || state.equals("EXITING")) {
 						statusMessage = "Not running! Connection not secure!";
+						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
+						mEipStartPending = false;
 						switchState = false;
 					} else {
 						statusMessage = prefix + logmessage;
@@ -204,6 +224,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 					break;
 				case Activity.RESULT_CANCELED:
 					checked = false;
+					eipFragment.findViewById(R.id.eipProgress).setVisibility(View.GONE);
 					break;
 				}
 			} else if (request == EIP.ACTION_STOP_EIP) {
