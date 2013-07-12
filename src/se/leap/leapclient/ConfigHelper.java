@@ -1,5 +1,6 @@
 package se.leap.leapclient;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
+import android.util.Base64;
 
 /**
  * Stores constants, and implements auxiliary methods used across all LEAP Android classes.
@@ -256,6 +258,31 @@ public class ConfigHelper {
 			SharedPreferences shared_preferences) {
 		ConfigHelper.shared_preferences = shared_preferences;
 	}
+	
+	public static X509Certificate parseX509CertificateFromString(String certificate_string) {
+		java.security.cert.Certificate certificate = null;
+		CertificateFactory cf;
+		try {
+			cf = CertificateFactory.getInstance("X.509");
+
+			certificate_string = certificate_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
+			byte[] cert_bytes = Base64.decode(certificate_string, Base64.DEFAULT);
+			InputStream caInput =  new ByteArrayInputStream(cert_bytes);
+			try {
+				certificate = cf.generateCertificate(caInput);
+				System.out.println("ca=" + ((X509Certificate) certificate).getSubjectDN());
+			} finally {
+				caInput.close();
+			}
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			return null;
+		}
+		
+		return (X509Certificate) certificate;
+	}
 
 	/**
 	 * Adds a new X509 certificate given its input stream and its provider name
@@ -284,24 +311,21 @@ public class ConfigHelper {
 	 * @param certificate
 	 */
 	public static void addTrustedCertificate(String provider, String certificate) {
-		String filename_to_save = provider + "_certificate.cer";
-		CertificateFactory cf;
+
 		try {
-			cf = CertificateFactory.getInstance("X.509");
-			X509Certificate cert =
-					(X509Certificate)cf.generateCertificate(openFileInputStream(filename_to_save));
+			X509Certificate cert = ConfigHelper.parseX509CertificateFromString(certificate);
 			if(keystore_trusted == null) {
 				keystore_trusted = KeyStore.getInstance("BKS");
 				keystore_trusted.load(null);
 			}
 			keystore_trusted.setCertificateEntry(provider, cert);
-		} catch (CertificateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CertificateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
