@@ -74,6 +74,12 @@ public class ProviderDetailFragment extends DialogFragment {
 			return false;
 		}
 	}
+	
+	@Override
+	public void onCancel(DialogInterface dialog) {
+		super.onCancel(dialog);
+		ConfigHelper.removeFromSharedPref(ConfigHelper.PROVIDER_KEY);
+	}
 
 	public static DialogFragment newInstance() {
 		ProviderDetailFragment provider_detail_fragment = new ProviderDetailFragment();

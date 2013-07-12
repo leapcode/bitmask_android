@@ -80,7 +80,8 @@ public class ConfigHelper {
     PROVIDER_DETAILS_DIALOG = "providerDetailsFragment",
     DOMAIN = "domain",
     NAME = "name",
-    DESCRIPTION = "description"
+    DESCRIPTION = "description",
+    QUIT = "quit"
     ;
 	
     final public static String NG_1024 =
@@ -164,9 +165,7 @@ public class ConfigHelper {
 	 */
 	public static String getStringFromSharedPref(String shared_preferences_key) {
 		String content = null;
-		if ( checkSharedPrefs() ) {
-			content = shared_preferences.getString(shared_preferences_key, "");
-		}
+		content = shared_preferences.getString(shared_preferences_key, "");
 		return content;
 	}
 	
@@ -195,6 +194,18 @@ public class ConfigHelper {
 			value = shared_preferences.getBoolean(shared_preferences_key, false);
 		}
 		return value;
+	}
+	
+	/*
+	 * This method defaults to false.
+	 * If you use this method, be sure to fail-closed on false!
+	 * TODO This is obviously less than ideal...solve it!
+	 */
+	public static boolean removeFromSharedPref(String shared_preferences_key) {
+		SharedPreferences.Editor shared_preferences_editor = shared_preferences
+				.edit();
+		shared_preferences_editor.remove(shared_preferences_key);
+		return shared_preferences_editor.commit();
 	}
 
 	/**

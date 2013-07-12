@@ -20,7 +20,6 @@ import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.widget.Toast;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -82,19 +81,18 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
 				mConfigState.setAction(PROVIDER_SET);
 				
-				if(mProgressDialog == null)
-					mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
+				if(mProgressDialog != null) mProgressDialog.dismiss();
+				mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
 				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
-				if(mSelectedProvider == null) {
+				if(resultData.containsKey(ConfigHelper.PROVIDER_ID))
 					mSelectedProvider = getProvider(resultData.getString(ConfigHelper.PROVIDER_ID));
 
-					ProviderListFragment providerList = new ProviderListFragment();
+				ProviderListFragment providerList = new ProviderListFragment();
 
-					FragmentManager fragmentManager = getFragmentManager();
-					fragmentManager.beginTransaction()
-						.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
-						.commit();
-				}
+				FragmentManager fragmentManager = getFragmentManager();
+				fragmentManager.beginTransaction()
+				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
+				.commit();
 				downloadJSONFiles(mSelectedProvider);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -144,10 +142,17 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     public void onItemSelected(String id) {
 	    //TODO Code 2 pane view
 	    ProviderItem selected_provider = getProvider(id);
-	    if(mProgressDialog == null)
-		    mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
+	    mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
 	    mSelectedProvider = selected_provider;
 	    saveProviderJson(mSelectedProvider);
+    }
+    
+    @Override
+    public void onBackPressed() {
+		Intent ask_quit = new Intent();
+		ask_quit.putExtra(ConfigHelper.QUIT, ConfigHelper.QUIT);
+		setResult(RESULT_CANCELED, ask_quit);
+    	super.onBackPressed();
     }
 
     private ProviderItem getProvider(String id) {
