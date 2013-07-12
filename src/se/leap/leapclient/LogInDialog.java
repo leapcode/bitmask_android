@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
 /**
  * Implements the log in dialog, currently without progress dialog.
@@ -22,12 +22,16 @@ import android.widget.Toast;
  *
  */
 public class LogInDialog extends DialogFragment {
-
+	
 	public AlertDialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		View log_in_dialog_view = inflater.inflate(R.layout.log_in_dialog, null);
-		
+
+		final TextView user_message = (TextView)log_in_dialog_view.findViewById(R.id.user_message);
+		if(getArguments() != null && getArguments().containsKey(getResources().getString(R.string.user_message))) {
+			user_message.setText(getArguments().getString(getResources().getString(R.string.user_message)));
+		} else user_message.setVisibility(View.GONE);
 		final EditText username_field = (EditText)log_in_dialog_view.findViewById(R.id.username_entered);
 		final EditText password_field = (EditText)log_in_dialog_view.findViewById(R.id.password_entered);
 		
@@ -36,12 +40,7 @@ public class LogInDialog extends DialogFragment {
 				public void onClick(DialogInterface dialog, int id) {
 					String username = username_field.getText().toString().trim();
 					String password = password_field.getText().toString().trim();
-					if(wellFormedPassword(password)) {
-						interface_with_Dashboard.authenticate(username, password);
-					} else {
-						password_field.setText("");
-						Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_password_message, Toast.LENGTH_LONG).show();
-					}
+					interface_with_Dashboard.authenticate(username, password);
 				}
 			})
 			.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -51,15 +50,6 @@ public class LogInDialog extends DialogFragment {
 			});
 		
 		return builder.create();
-	}
-
-	/**
-	 * Validates a password
-	 * @param entered_password
-	 * @return true if the entered password length is greater or equal to eight (8).
-	 */
-	private boolean wellFormedPassword(String entered_password) {
-		return entered_password.length() >= 8;
 	}
 	
 	/**

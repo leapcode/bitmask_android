@@ -79,6 +79,9 @@ public class ProviderDetailFragment extends DialogFragment {
 	public void onCancel(DialogInterface dialog) {
 		super.onCancel(dialog);
 		ConfigHelper.removeFromSharedPref(ConfigHelper.PROVIDER_KEY);
+		ConfigHelper.removeFromSharedPref(ConfigHelper.DANGER_ON);
+		ConfigHelper.removeFromSharedPref(ConfigHelper.ALLOWED_ANON);
+		ConfigHelper.removeFromSharedPref(ConfigHelper.EIP_SERVICE_KEY);
 	}
 
 	public static DialogFragment newInstance() {

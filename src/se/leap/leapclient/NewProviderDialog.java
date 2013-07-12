@@ -68,7 +68,7 @@ public class NewProviderDialog extends DialogFragment {
 						Toast.makeText(getActivity().getApplicationContext(), R.string.valid_url_entered, Toast.LENGTH_LONG).show();
 					} else {
 						url_input_field.setText("");
-						Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_password_message, Toast.LENGTH_LONG).show();
+						Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();
 					}
 				}
 			})
