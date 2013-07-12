@@ -291,7 +291,9 @@
     <string name="incorrectly_downloaded_json_files_message">You have not entered a LEAP provider URL or it is unavailable</string>
     <string name="correctly_downloaded_json_files_message">Your anon cert has been correctly downloaded</string>
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
-    <string name="incorrectly_updated_provider_dot_json_message">Server is down.</string>
+    <string name="server_is_down_message">Server is down.</string>
+    <string name="malformed_url">It doesn\'t seem to be a LEAP provider.</string>
+    <string name="certificate_error">This is not a trusted LEAP provider.</string>
     <string name="not_valid_password_message">Your password is not well-formed: it should have at least 8 characters.</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
