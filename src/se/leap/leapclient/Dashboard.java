@@ -16,6 +16,7 @@ import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,7 +44,8 @@ import android.widget.Toast;
 public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver,StateListener {
 
 	protected static final int CONFIGURE_LEAP = 0;
-	
+
+	private ProgressDialog mProgressDialog;
 	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
@@ -167,7 +169,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		intent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
 		startService(intent);
 		
-		((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
+		ViewStub eip_overview_stub = ((ViewStub) findViewById(R.id.eipOverviewStub));
+		if(eip_overview_stub != null)
+			eip_overview_stub.inflate();
 
 		eipTypeTV = (TextView) findViewById(R.id.eipType);
 		eipTypeTV.setText(provider.getEIPType());
@@ -261,6 +265,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			intent = new Intent(this,MainActivity.class);
 			startActivity(intent);
 			return true;
+		case R.id.switch_provider:
+			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+			return true;
 		case R.id.login_button:
 			View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
 			logInDialog(view);
@@ -297,6 +304,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ConfigHelper.SRP_AUTH, method_and_parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
+		if(mProgressDialog != null) mProgressDialog.dismiss();
+		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
 		startService(provider_API_command);
 	}
 	
@@ -322,6 +331,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ConfigHelper.LOG_OUT, method_and_parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
+		if(mProgressDialog != null) mProgressDialog.dismiss();
+		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
 		startService(provider_API_command);
 	}
 	
@@ -368,18 +379,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_cookie_key = resultData.getString(ConfigHelper.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ConfigHelper.SESSION_ID_KEY);
 			setResult(RESULT_OK);
-			Toast.makeText(getApplicationContext(), R.string.succesful_authentication_message, Toast.LENGTH_LONG).show();
+			mProgressDialog.dismiss();
 
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
         	logInDialog(getCurrentFocus());
-			Toast.makeText(getApplicationContext(), R.string.authentication_failed_message, Toast.LENGTH_LONG).show();
+			mProgressDialog.dismiss();
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
 			setResult(RESULT_OK);
-			Toast.makeText(getApplicationContext(), R.string.successful_log_out_message, Toast.LENGTH_LONG).show();
+			mProgressDialog.dismiss();
 		} else if(resultCode == ConfigHelper.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
