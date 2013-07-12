@@ -88,6 +88,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
 		if (provider != null)
 			if (provider.hasEIP() && provider.getEIPType() == "OpenVPN")
 				OpenVPN.addStateListener(this);
@@ -98,6 +99,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if ( requestCode == CONFIGURE_LEAP ) {
 			if ( resultCode == RESULT_OK ){
 				buildDashboard();
+				if(data != null && data.hasExtra(ConfigHelper.LOG_IN)) {
+					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
+					logInDialog(view);
+				}
 			} else
 				configErrorDialog();
 		}

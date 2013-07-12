@@ -76,7 +76,11 @@ public class ConfigHelper {
     EIP_SERVICE_API_PATH = "config/eip-service.json",
     ERRORS_KEY = "errors",
     RECEIVER_TAG = "receiverTag",
-    REQUEST_TAG = "requestTag";
+    REQUEST_TAG = "requestTag",
+    PROVIDER_DETAILS_DIALOG = "providerDetailsFragment",
+    DOMAIN = "domain",
+    NAME = "name",
+    DESCRIPTION = "description"
     ;
 	
     final public static String NG_1024 =
