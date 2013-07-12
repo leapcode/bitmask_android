@@ -20,6 +20,7 @@
     <string name="copyright_guicode">Source code and issue tracker available at https://github.com/leapcode/leap_android/</string>
     <string name="copyright_others">This program uses the following components; see the source code for full details on the licenses</string>
     <string name="about">About</string>
+    <string name="switch_provider_menu_option">Switch provider</string>
     <string name="about_summary">About LEAP for Android</string>
     <string name="vpn_list_summary">List of all configured VPNs</string>
     <string name="vpn_list_title">VPN Profiles</string>
@@ -268,9 +269,20 @@
     <string name="new_provider_uri">New provider\'s main URL</string>
     <string name="valid_url_entered">It seems your URL is well formed</string>
     <string name="not_valid_url_entered">It seems your URL is not well formed</string>
+    <string name="provider_details_fragment_title">Provider details</string>
+    <string name="domain">Domain</string>
+    <string name="name">Name</string>
+    <string name="description">Description</string>
+    <string name="use_anonymously_button">Use anonymously</string>
     <string name="username_ask">Introduce your username</string>
     <string name="password_ask">Enter your password</string>
-    <string name="log_in_button">Log in</string>
+    <string name="user_message">User message</string>
+    <string name="error_bad_user_password_user_message">Not valid username and/or password.</string>
+    <string name="error_not_valid_password_user_message">Your password is not well-formed: it should have at least 8 characters.</string>
+    <string name="error_client_http_user_message">Try again: Client HTTP error</string>
+    <string name="error_io_exception_user_message">Try again: I/O error</string>
+    <string name="error_json_exception_user_message">Try again: Bad response from the server</string>
+    <string name="error_no_such_algorithm_exception_user_message">Update the app</string>
     <string name="login_button">Log In</string>
     <string name="logout_button">Log Out</string>
     <string name="danger_checkbox">Trust completely</string>
@@ -287,7 +299,13 @@
     <string name="incorrectly_downloaded_json_files_message">You have not entered a LEAP provider URL or it is unavailable</string>
     <string name="correctly_downloaded_json_files_message">Your anon cert has been correctly downloaded</string>
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
-    <string name="incorrectly_updated_provider_dot_json_message">Server is down.</string>
+    <string name="server_is_down_message">Server is down.</string>
+    <string name="malformed_url">It doesn\'t seem to be a LEAP provider.</string>
+    <string name="certificate_error">This is not a trusted LEAP provider.</string>
+    <string name="authenticating_title">Authenticating</string>
+    <string name="authenticating_message">Authenticating with entered login and password.</string>
+    <string name="logout_title">Log out</string>
+    <string name="logout_message">Logging out from this session.</string>
     <string name="not_valid_password_message">Your password is not well-formed: it should have at least 8 characters.</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
@@ -295,6 +313,5 @@
     <string name="log_out_failed_message">Didn\'t logged out.</string>
     <string name="successful_authed_cert_downloaded_message">Your own cert has been correctly downloaded.</string>
     <string name="authed_cert_download_failed_message">Your own cert has incorrectly been downloaded.</string>
-    
 
 </resources>

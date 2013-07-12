@@ -1,5 +1,6 @@
 package se.leap.leapclient;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
+import android.util.Base64;
 
 /**
  * Stores constants, and implements auxiliary methods used across all LEAP Android classes.
@@ -33,6 +35,7 @@ public class ConfigHelper {
     private static KeyStore keystore_trusted;
 
     final public static String
+    ABOUT_FRAGMENT = "aboutFragment",
     DOWNLOAD_JSON_FILES_BUNDLE_EXTRA = "downloadJSONFiles",	
     UPDATE_PROVIDER_DOTJSON = "updateProviderDotJSON",
     DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
@@ -76,7 +79,12 @@ public class ConfigHelper {
     EIP_SERVICE_API_PATH = "config/eip-service.json",
     ERRORS_KEY = "errors",
     RECEIVER_TAG = "receiverTag",
-    REQUEST_TAG = "requestTag";
+    REQUEST_TAG = "requestTag",
+    PROVIDER_DETAILS_DIALOG = "providerDetailsFragment",
+    DOMAIN = "domain",
+    NAME = "name",
+    DESCRIPTION = "description",
+    QUIT = "quit"
     ;
 	
     final public static String NG_1024 =
@@ -160,9 +168,7 @@ public class ConfigHelper {
 	 */
 	public static String getStringFromSharedPref(String shared_preferences_key) {
 		String content = null;
-		if ( checkSharedPrefs() ) {
-			content = shared_preferences.getString(shared_preferences_key, "");
-		}
+		content = shared_preferences.getString(shared_preferences_key, "");
 		return content;
 	}
 	
@@ -174,7 +180,8 @@ public class ConfigHelper {
 	public static JSONObject getJsonFromSharedPref(String shared_preferences_key) throws JSONException {
 		JSONObject content = null;
 		if ( checkSharedPrefs() ) {
-			content = new JSONObject( shared_preferences.getString(shared_preferences_key, "") );
+			String json_string = shared_preferences.getString(shared_preferences_key, "");
+			content = new JSONObject(json_string);
 		}
 		
 		return content;
@@ -191,6 +198,18 @@ public class ConfigHelper {
 			value = shared_preferences.getBoolean(shared_preferences_key, false);
 		}
 		return value;
+	}
+	
+	/*
+	 * This method defaults to false.
+	 * If you use this method, be sure to fail-closed on false!
+	 * TODO This is obviously less than ideal...solve it!
+	 */
+	public static boolean removeFromSharedPref(String shared_preferences_key) {
+		SharedPreferences.Editor shared_preferences_editor = shared_preferences
+				.edit();
+		shared_preferences_editor.remove(shared_preferences_key);
+		return shared_preferences_editor.commit();
 	}
 
 	/**
@@ -239,6 +258,31 @@ public class ConfigHelper {
 			SharedPreferences shared_preferences) {
 		ConfigHelper.shared_preferences = shared_preferences;
 	}
+	
+	public static X509Certificate parseX509CertificateFromString(String certificate_string) {
+		java.security.cert.Certificate certificate = null;
+		CertificateFactory cf;
+		try {
+			cf = CertificateFactory.getInstance("X.509");
+
+			certificate_string = certificate_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
+			byte[] cert_bytes = Base64.decode(certificate_string, Base64.DEFAULT);
+			InputStream caInput =  new ByteArrayInputStream(cert_bytes);
+			try {
+				certificate = cf.generateCertificate(caInput);
+				System.out.println("ca=" + ((X509Certificate) certificate).getSubjectDN());
+			} finally {
+				caInput.close();
+			}
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			return null;
+		}
+		
+		return (X509Certificate) certificate;
+	}
 
 	/**
 	 * Adds a new X509 certificate given its input stream and its provider name
@@ -267,24 +311,21 @@ public class ConfigHelper {
 	 * @param certificate
 	 */
 	public static void addTrustedCertificate(String provider, String certificate) {
-		String filename_to_save = provider + "_certificate.cer";
-		CertificateFactory cf;
+
 		try {
-			cf = CertificateFactory.getInstance("X.509");
-			X509Certificate cert =
-					(X509Certificate)cf.generateCertificate(openFileInputStream(filename_to_save));
+			X509Certificate cert = ConfigHelper.parseX509CertificateFromString(certificate);
 			if(keystore_trusted == null) {
 				keystore_trusted = KeyStore.getInstance("BKS");
 				keystore_trusted.load(null);
 			}
 			keystore_trusted.setCertificateEntry(provider, cert);
-		} catch (CertificateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CertificateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {

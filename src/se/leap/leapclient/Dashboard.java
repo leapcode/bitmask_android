@@ -16,6 +16,7 @@ import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,7 +44,8 @@ import android.widget.Toast;
 public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver,StateListener {
 
 	protected static final int CONFIGURE_LEAP = 0;
-	
+
+	private ProgressDialog mProgressDialog;
 	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
@@ -67,14 +69,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		setContentView(R.layout.client_dashboard);
 
-		preferences = getSharedPreferences(ConfigHelper.PREFERENCES_KEY,MODE_PRIVATE);
-		if(ConfigHelper.shared_preferences == null)
-			ConfigHelper.setSharedPreferences(preferences);
+		ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
+		preferences = ConfigHelper.shared_preferences;
 		
-		if (preferences.contains("provider") && preferences.getString(ConfigHelper.PROVIDER_KEY, null) != null)
-			buildDashboard();
-		else
+		if (ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY).isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+		else
+			buildDashboard();
 	}
 
 	@Override
@@ -88,6 +89,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
 		if (provider != null)
 			if (provider.hasEIP() && provider.getEIPType() == "OpenVPN")
 				OpenVPN.addStateListener(this);
@@ -98,6 +100,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if ( requestCode == CONFIGURE_LEAP ) {
 			if ( resultCode == RESULT_OK ){
 				buildDashboard();
+				if(data != null && data.hasExtra(ConfigHelper.LOG_IN)) {
+					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
+					logInDialog(view, "");
+				}
+			} else if(resultCode == RESULT_CANCELED && data.hasExtra(ConfigHelper.QUIT)) {
+				finish();
 			} else
 				configErrorDialog();
 		}
@@ -161,7 +169,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		intent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
 		startService(intent);
 		
-		((ViewStub) findViewById(R.id.eipOverviewStub)).inflate();
+		ViewStub eip_overview_stub = ((ViewStub) findViewById(R.id.eipOverviewStub));
+		if(eip_overview_stub != null)
+			eip_overview_stub.inflate();
 
 		eipTypeTV = (TextView) findViewById(R.id.eipType);
 		eipTypeTV.setText(provider.getEIPType());
@@ -255,9 +265,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			intent = new Intent(this,MainActivity.class);
 			startActivity(intent);
 			return true;
+		case R.id.switch_provider:
+			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+			return true;
 		case R.id.login_button:
 			View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-			logInDialog(view);
+			logInDialog(view, "");
 			return true;
 		case R.id.logout_button:
 			logOut();
@@ -291,6 +304,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ConfigHelper.SRP_AUTH, method_and_parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
+		if(mProgressDialog != null) mProgressDialog.dismiss();
+		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
 		startService(provider_API_command);
 	}
 	
@@ -316,6 +331,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ConfigHelper.LOG_OUT, method_and_parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
+		if(mProgressDialog != null) mProgressDialog.dismiss();
+		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
 		startService(provider_API_command);
 	}
 	
@@ -323,7 +340,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * Shows the log in dialog.
 	 * @param view from which the dialog is created.
 	 */
-	public void logInDialog(View view) {
+	public void logInDialog(View view, String user_message) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.LOG_IN_DIALOG);
 	    if (previous_log_in_dialog != null) {
@@ -332,6 +349,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    fragment_transaction.addToBackStack(null);
 
 	    DialogFragment newFragment = LogInDialog.newInstance();
+	    if(user_message != null && !user_message.isEmpty()) {
+	    	Bundle user_message_bundle = new Bundle();
+	    	user_message_bundle.putString(getResources().getString(R.string.user_message), user_message);
+	    	newFragment.setArguments(user_message_bundle);
+	    }
 	    newFragment.show(fragment_transaction, ConfigHelper.LOG_IN_DIALOG);
 	}
 
@@ -362,18 +384,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_cookie_key = resultData.getString(ConfigHelper.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ConfigHelper.SESSION_ID_KEY);
 			setResult(RESULT_OK);
-			Toast.makeText(getApplicationContext(), R.string.succesful_authentication_message, Toast.LENGTH_LONG).show();
+			mProgressDialog.dismiss();
 
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
-        	setResult(RESULT_CANCELED);
-			Toast.makeText(getApplicationContext(), R.string.authentication_failed_message, Toast.LENGTH_LONG).show();
+        	logInDialog(getCurrentFocus(), resultData.getString(getResources().getString(R.string.user_message)));
+			mProgressDialog.dismiss();
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
 			setResult(RESULT_OK);
-			Toast.makeText(getApplicationContext(), R.string.successful_log_out_message, Toast.LENGTH_LONG).show();
+			mProgressDialog.dismiss();
 		} else if(resultCode == ConfigHelper.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);

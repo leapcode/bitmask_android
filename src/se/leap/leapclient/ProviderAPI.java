@@ -21,6 +21,7 @@ import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import javax.net.ssl.HostnameVerifier;
@@ -52,14 +53,16 @@ import se.leap.leapclient.ProviderListContent.ProviderItem;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Implements HTTP api methods used to manage communications with the provider server.
  * 
- * It's an IntentService because it downloads data fromt he Internet, so it operates in the background.
+ * It's an IntentService because it downloads data from the Internet, so it operates in the background.
  *  
  * @author parmegv
  * @author MeanderingCode
@@ -67,9 +70,27 @@ import android.util.Log;
  */
 public class ProviderAPI extends IntentService {
 	
+	private Handler mHandler;
+
 	public ProviderAPI() {
 		super("ProviderAPI");
 		Log.v("ClassName", "Provider API");
+	}
+	
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		mHandler = new Handler();
+	}
+	
+	private void displayToast(final int toast_string_id) {
+		mHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+	            Toast.makeText(ProviderAPI.this, toast_string_id, Toast.LENGTH_LONG).show();                
+			}
+		});
 	}
 
 	@Override
@@ -105,7 +126,10 @@ public class ProviderAPI extends IntentService {
 			if(session_id_bundle.getBoolean(ConfigHelper.RESULT_KEY)) {
 				receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
 			} else {
-				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, Bundle.EMPTY);
+				Bundle user_message_bundle = new Bundle();
+				String user_message_key = getResources().getString(R.string.user_message);
+				user_message_bundle.putString(user_message_key, session_id_bundle.getString(user_message_key));
+				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, user_message_bundle);
 			}
 		}
 		else if ((task = task_for.getBundleExtra(ConfigHelper.LOG_OUT)) != null) {
@@ -155,39 +179,58 @@ public class ProviderAPI extends IntentService {
 		
 		String username = (String) task.get(ConfigHelper.USERNAME_KEY);
 		String password = (String) task.get(ConfigHelper.PASSWORD_KEY);
-		String authentication_server = (String) task.get(ConfigHelper.API_URL_KEY);
+		if(wellFormedPassword(password)) {
+			String authentication_server = (String) task.get(ConfigHelper.API_URL_KEY);
 
-		SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
-		LeapSRPSession client = new LeapSRPSession(username, password, params);
-		byte[] A = client.exponential();
-		try {
-			JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
-			if(saltAndB.length() > 0) {
-				String salt = saltAndB.getString(ConfigHelper.SALT_KEY);
-				byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
-				byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
-				JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
-				if( client.verify((byte[])session_idAndM2.get("M2")) == false ) {
-					session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+			SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
+			LeapSRPSession client = new LeapSRPSession(username, password, params);
+			byte[] A = client.exponential();
+			try {
+				JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
+				if(saltAndB.length() > 0) {
+					String salt = saltAndB.getString(ConfigHelper.SALT_KEY);
+					byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
+					byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
+					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
+					if( client.verify((byte[])session_idAndM2.get("M2")) == false ) {
+						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+					} else {
+						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, true);
+						session_id_bundle.putString(ConfigHelper.SESSION_ID_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_KEY));
+						session_id_bundle.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_COOKIE_KEY));
+					}
 				} else {
-					session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, true);
-					session_id_bundle.putString(ConfigHelper.SESSION_ID_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_KEY));
-					session_id_bundle.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_COOKIE_KEY));
+					session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
+					session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 				}
-			} else {
+			} catch (ClientProtocolException e) {
 				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_client_http_user_message));
+			} catch (IOException e) {
+				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_io_exception_user_message));
+			} catch (JSONException e) {
+				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_json_exception_user_message));
+			} catch (NoSuchAlgorithmException e) {
+				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_no_such_algorithm_exception_user_message));
 			}
-		} catch (ClientProtocolException e) {
+		} else {
 			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
-		} catch (IOException e) {
-			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
-		} catch (JSONException e) {
-			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
-		} catch (NoSuchAlgorithmException e) {
-			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+			session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_not_valid_password_user_message));
 		}
-
+		
 		return session_id_bundle;
+	}
+
+	/**
+	 * Validates a password
+	 * @param entered_password
+	 * @return true if the entered password length is greater or equal to eight (8).
+	 */
+	private boolean wellFormedPassword(String entered_password) {
+		return entered_password.length() >= 8;
 	}
 
 	/**
@@ -273,7 +316,7 @@ public class ProviderAPI extends IntentService {
 			} else {    			
 				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
 
-				ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on));
+				//ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on));
 				result.putBoolean(ConfigHelper.RESULT_KEY, true);
 				result.putString(ConfigHelper.PROVIDER_KEY, provider_json.toString());
 				result.putBoolean(ConfigHelper.DANGER_ON, danger_on);
@@ -304,7 +347,7 @@ public class ProviderAPI extends IntentService {
 			provider_json = getJSONFromProvider(provider_json_url, danger_on);
 			if(provider_json == null) {
 				result.putBoolean(ConfigHelper.RESULT_KEY, false);
-			} else {    			
+			} else {
 
 				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
 				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, danger_on);
@@ -344,14 +387,16 @@ public class ProviderAPI extends IntentService {
 			url_connection.setConnectTimeout(seconds_of_timeout*1000);
 			json_file_content = new Scanner(url_connection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			displayToast(R.string.malformed_url);
 		} catch(SocketTimeoutException e) {
-			return "";
+			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			if(provider_url != null && danger_on) {
 				json_file_content = getStringFromProviderWithoutValidate(provider_url);
+			} else {
+				displayToast(R.string.certificate_error);
 			}
+			displayToast(R.string.certificate_error);
 		} catch (Exception e) {
 			if(provider_url != null && danger_on) {
 				json_file_content = getStringFromProviderWithoutValidate(provider_url);
@@ -385,8 +430,7 @@ public class ProviderAPI extends IntentService {
 			urlConnection.setHostnameVerifier(hostnameVerifier);
 			json_string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			displayToast(R.string.malformed_url);
 		} catch (IOException e) {
 			json_string = getStringFromProviderWithCACertAdded(string_url);
 		}
@@ -408,21 +452,10 @@ public class ProviderAPI extends IntentService {
 		if(cert_string.isEmpty()) {
 			cert_string = downloadCertificateWithoutTrusting(url.getProtocol() + "://" + url.getHost() + "/" + "ca.crt");
 			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, cert_string);
-		} 
-		CertificateFactory cf;
+		}
+		
 		try {
-			cf = CertificateFactory.getInstance("X.509");
-
-			cert_string = cert_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
-			byte[] cert_bytes = Base64.decode(cert_string, Base64.DEFAULT);
-			InputStream caInput =  new ByteArrayInputStream(cert_bytes);
-			java.security.cert.Certificate dangerous_certificate;
-			try {
-				dangerous_certificate = cf.generateCertificate(caInput);
-				System.out.println("dangerous certificate =" + ((X509Certificate) dangerous_certificate).getSubjectDN());
-			} finally {
-				caInput.close();
-			}
+			java.security.cert.Certificate ca = ConfigHelper.parseX509CertificateFromString(cert_string);
 
 			// Create a KeyStore containing our trusted CAs
 			String keyStoreType = KeyStore.getDefaultType();
@@ -447,9 +480,12 @@ public class ProviderAPI extends IntentService {
 		} catch (CertificateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (UnknownHostException e) {
+			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			json_file_content = getStringFromProviderIgnoringCertificate(url);
+			displayToast(R.string.certificate_error);
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
