@@ -31,7 +31,7 @@ import android.widget.Toast;
  *
  */
 public class ConfigurationWizard extends Activity
-implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, Receiver {
+implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, ProviderDetailFragment.ProviderDetailFragmentInterface, Receiver {
 
 	private ProviderItem mSelectedProvider;
 	private ProgressDialog mProgressDialog;
@@ -46,7 +46,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setContentView(R.layout.activity_configuration_wizard);
+        setContentView(R.layout.configuration_wizard_activity);
         
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
         providerAPI_result_receiver.setReceiver(this);
@@ -85,21 +85,28 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				if(mProgressDialog == null)
 					mProgressDialog =  ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
 				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
-				if(mSelectedProvider == null)
+				if(mSelectedProvider == null) {
 					mSelectedProvider = getProvider(resultData.getString(ConfigHelper.PROVIDER_ID));
+
+					ProviderListFragment providerList = new ProviderListFragment();
+
+					FragmentManager fragmentManager = getFragmentManager();
+					fragmentManager.beginTransaction()
+						.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
+						.commit();
+				}
 				downloadJSONFiles(mSelectedProvider);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 
 				mProgressDialog.dismiss();
-				Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
+				//Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
 				setResult(RESULT_CANCELED, mConfigState);
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), R.string.incorrectly_updated_provider_dot_json_message, Toast.LENGTH_LONG).show();
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
@@ -109,25 +116,22 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				downloadAnonCert();
 			} else {
 				mProgressDialog.dismiss();
-				Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
+				//Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 				setResult(RESULT_OK);
 				finish();
 			}
 		}
 		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
-			Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
+			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), R.string.correctly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
-			Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
-			//mConfigState.putExtra(CERTIFICATE_RETRIEVED, true); // If this isn't the last step and finish() is moved...
 			setResult(RESULT_OK);
-			finish();
+			showProviderDetails(getCurrentFocus());
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
-			Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
+			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);
 		}
 	}
@@ -268,6 +272,24 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		DialogFragment newFragment = NewProviderDialog.newInstance();
 		newFragment.show(fragment_transaction, ConfigHelper.NEW_PROVIDER_DIALOG);
 	}
+	
+	/**
+	 * Once selected a provider, this fragment offers the user to log in, 
+	 * use it anonymously (if possible) 
+	 * or cancel his/her election pressing the back button.
+	 * @param view
+	 */
+	public void showProviderDetails(View view) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+		Fragment previous_provider_details_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.PROVIDER_DETAILS_DIALOG);
+		if (previous_provider_details_dialog != null) {
+			fragment_transaction.remove(previous_provider_details_dialog);
+		}
+		fragment_transaction.addToBackStack(null);
+		
+		DialogFragment newFragment = ProviderDetailFragment.newInstance();
+		newFragment.show(fragment_transaction, ConfigHelper.PROVIDER_DETAILS_DIALOG);
+	}
 
 	@Override
 	public void saveAndSelectProvider(String provider_main_url, boolean danger_on) {
@@ -301,5 +323,19 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
+	}
+
+	@Override
+	public void login() {
+		Intent ask_login = new Intent();
+		ask_login.putExtra(ConfigHelper.LOG_IN, ConfigHelper.LOG_IN);
+		setResult(RESULT_OK, ask_login);
+		finish();
+	}
+
+	@Override
+	public void use_anonymously() {
+		setResult(RESULT_OK);
+		finish();
 	}
 }
