@@ -485,7 +485,6 @@ public class ProviderAPI extends IntentService {
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			json_file_content = getStringFromProviderWithoutValidate(url);
-			displayToast(R.string.certificate_error);
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -535,6 +534,7 @@ public class ProviderAPI extends IntentService {
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			e.printStackTrace();
+			displayToast(R.string.certificate_error);
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
