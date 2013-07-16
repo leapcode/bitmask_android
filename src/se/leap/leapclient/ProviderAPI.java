@@ -397,10 +397,9 @@ public class ProviderAPI extends IntentService {
 			} else {
 				displayToast(R.string.certificate_error);
 			}
-			displayToast(R.string.certificate_error);
 		} catch (Exception e) {
 			if(provider_url != null && danger_on) {
-				json_file_content = getStringFromProviderWithoutValidate(provider_url);
+				json_file_content = getStringFromProviderWithCACertAdded(provider_url);
 			}
 		}
 
@@ -433,7 +432,7 @@ public class ProviderAPI extends IntentService {
 		} catch (MalformedURLException e) {
 			displayToast(R.string.malformed_url);
 		} catch (IOException e) {
-			json_string = getStringFromProviderWithCACertAdded(string_url);
+			json_string = getStringFromProviderIgnoringCertificate(string_url);
 		}
 		
 		return json_string;
@@ -485,7 +484,7 @@ public class ProviderAPI extends IntentService {
 			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
-			json_file_content = getStringFromProviderIgnoringCertificate(url);
+			json_file_content = getStringFromProviderWithoutValidate(url);
 			displayToast(R.string.certificate_error);
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
