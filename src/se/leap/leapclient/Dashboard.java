@@ -6,7 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
-import se.leap.openvpn.AboutFragment;
 import se.leap.openvpn.LogWindow;
 import se.leap.openvpn.MainActivity;
 import se.leap.openvpn.OpenVPN;
