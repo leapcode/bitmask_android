@@ -7,7 +7,6 @@
 	  "OpenVPN" is a trademark of OpenVPN Technologies, Inc.\n</string>
     <string name="defaultserver" translatable="false">openvpn.uni-paderborn.de</string>
     <string name="defaultport" translatable="false">1194</string>
-    <string name="copyright_file_dialog" translatable="false">File Dialog based on work by Alexander Ponomarev</string>
     <string name="lzo_copyright" translatable="false">Copyright © 1996 – 2011 Markus Franz Xaver Johannes Oberhumer</string>
     <string name="copyright_openssl" translatable="false">        This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit\n
         Copyright © 1998-2008 The OpenSSL Project. All rights reserved.\n\n
