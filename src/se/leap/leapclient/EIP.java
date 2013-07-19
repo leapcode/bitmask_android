@@ -54,6 +54,7 @@ public final class EIP extends IntentService {
 	// Used to store actions to "resume" onServiceConnection
 	private static String mPending = null;
 	
+	private static int parsedEipSerial;
 	private static JSONObject eipDefinition = null;
 	
 	private static OVPNGateway activeGateway = null;
@@ -70,6 +71,7 @@ public final class EIP extends IntentService {
 		
 		try {
 			eipDefinition = ConfigHelper.getJsonFromSharedPref(ConfigHelper.EIP_SERVICE_KEY);
+			parsedEipSerial = ConfigHelper.getIntFromSharedPref(ConfigHelper.EIP_PARSED_SERIAL);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -224,7 +226,8 @@ public final class EIP extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		updateGateways();
+		if (eipDefinition.optInt("serial") > parsedEipSerial)
+			updateGateways();
 	}
 	
 	/**
@@ -274,6 +277,8 @@ public final class EIP extends IntentService {
 				e.printStackTrace();
 			}
 		}
+		
+		ConfigHelper.saveSharedPref(ConfigHelper.EIP_PARSED_SERIAL, eipDefinition.optInt(ConfigHelper.API_RETURN_SERIAL_KEY));
 	}
 
 	/**
@@ -287,6 +292,7 @@ public final class EIP extends IntentService {
 		
 		private String TAG = "OVPNGateway";
 		
+		private String mName;
 		private VpnProfile mVpnProfile;
 		private JSONObject mGateway;
 		private HashMap<String,Vector<Vector<String>>> options = new HashMap<String, Vector<Vector<String>>>();
@@ -299,17 +305,24 @@ public final class EIP extends IntentService {
 		 * @param name The hostname of the gateway to inflate
 		 */
 		private OVPNGateway(String name){
+			mName = name;
+			
+			this.loadVpnProfile();
+		}
+		
+		private void loadVpnProfile() {
 			ProfileManager vpl = ProfileManager.getInstance(context);
 			
 			try {
-				if ( name == "first" ) {
-					name = vpl.getProfiles().iterator().next().mName;
+				if ( mName == "first" ) {
+					mName = vpl.getProfiles().iterator().next().mName;
 				}
 				
-				mVpnProfile = vpl.getProfileByName(name);
+				mVpnProfile = vpl.getProfileByName(mName);
 				
 			} catch (NoSuchElementException e) {
 				updateEIPService();
+				this.loadVpnProfile();	// FIXME catch infinite loops
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

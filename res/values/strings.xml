@@ -314,5 +314,10 @@
     <string name="log_out_failed_message">Didn\'t logged out.</string>
     <string name="successful_authed_cert_downloaded_message">Your own cert has been correctly downloaded.</string>
     <string name="authed_cert_download_failed_message">Your own cert has incorrectly been downloaded.</string>
+    <string name="eip_status_start_pending">Initiating connection</string>
+    <string name="eip_cancel_connect_title">Cancel connection?</string>
+    <string name="eip_cancel_connect_text">There is a connection attempt in progress.  Do you wish to cancel it?</string>
+    <string name="eip_cancel_connect_cancel">Yes</string>
+    <string name="eip_cancel_connect_false">No</string>
 
 </resources>
