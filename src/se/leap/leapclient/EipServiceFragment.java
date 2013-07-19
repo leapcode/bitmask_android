@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -30,7 +31,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 	private View eipDetail;
 	private TextView eipStatus;
 
-	private boolean eipAutoSwitched = false;
+	private boolean eipAutoSwitched = true;
 	
 	private boolean mEipStartPending = false;
 
@@ -55,6 +56,13 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 		eipStatus.setOnClickListener(this);
 
 		eipSwitch = (Switch) eipFragment.findViewById(R.id.eipSwitch);
+		eipSwitch.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				eipAutoSwitched = false;
+				return false;
+			}
+		});
 		eipSwitch.setOnCheckedChangeListener(this);
 		
 		return eipFragment;
@@ -139,6 +147,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 				}
 			}
 		}
+		eipAutoSwitched = true;
 	}
 	
 	/**
