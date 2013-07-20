@@ -36,6 +36,7 @@ public final class Provider implements Serializable {
 	// Some API pieces we want to know about
 	private static final String API_TERM_SERVICES = "services";
 	private static final String API_TERM_NAME = "name";
+	private static final String API_TERM_DOMAIN = "domain";
 	private static final String API_TERM_DEFAULT_LANGUAGE = "default_language";
 	protected static final String[] API_EIP_TYPES = {"openvpn"};
 
@@ -79,6 +80,17 @@ public final class Provider implements Serializable {
 		}
 	}
 
+	protected String getDomain(){
+		String domain = "Null";
+		try {
+			domain = definition.getString(API_TERM_DOMAIN);
+		} catch (JSONException e) {
+			domain = "Null";
+			e.printStackTrace();
+		}
+		return domain;
+	}
+	
 	protected String getName(){
 		// Should we pass the locale in, or query the system here?
 		String lang = Locale.getDefault().getLanguage();
