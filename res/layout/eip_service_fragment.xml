@@ -15,19 +15,6 @@
         android:clickable="true"
         android:text="@string/eip_service_label"
         android:textAppearance="?android:attr/textAppearanceLarge" />
-    
-    <TextView
-        android:id="@+id/eipType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/eipLabel"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_toRightOf="@+id/eipLabel"
-        android:clickable="true"
-        android:onClick="toggleEipOverview"
-        android:text="@string/eip_type_active"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Switch
         android:id="@+id/eipSwitch"
@@ -54,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/eipType"
+        android:layout_below="@+id/eipLabel"
         android:paddingBottom="10dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"

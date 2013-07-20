@@ -56,8 +56,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		super.onCreate(savedInstanceState);
 		
 		app = this;
-		
-		setContentView(R.layout.client_dashboard);
 
 		ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
@@ -108,7 +106,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 					prefsEdit.remove(ConfigHelper.PROVIDER_KEY).commit();
 					finish();
 				}
-			});
+			})
+			.show();
 	}
 	
 	/**
@@ -119,8 +118,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider = Provider.getInstance();
 		provider.init( this );
 
+		setContentView(R.layout.client_dashboard);
+
 		providerNameTV = (TextView) findViewById(R.id.providerName);
-		providerNameTV.setText(provider.getName());
+		providerNameTV.setText(provider.getDomain());
 		providerNameTV.setTextSize(28);
 
 		FragmentManager fragMan = getFragmentManager();
