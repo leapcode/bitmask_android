@@ -392,14 +392,14 @@ public class ProviderAPI extends IntentService {
 		} catch(SocketTimeoutException e) {
 			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
-			if(provider_url != null && danger_on) {
-				json_file_content = getStringFromProviderWithoutValidate(provider_url);
+			if(provider_url != null) {
+				json_file_content = getStringFromProviderWithCACertAdded(provider_url, danger_on);
 			} else {
 				displayToast(R.string.certificate_error);
 			}
 		} catch (Exception e) {
 			if(provider_url != null && danger_on) {
-				json_file_content = getStringFromProviderWithCACertAdded(provider_url);
+				json_file_content = getStringFromProviderWithCACertAdded(provider_url, danger_on);
 			}
 		}
 
@@ -441,15 +441,16 @@ public class ProviderAPI extends IntentService {
 	/**
 	 * Tries to download the contents of the provided url using main certificate from choosen provider. 
 	 * @param url
+	 * @param danger_on true to download CA certificate in case it has not been downloaded.
 	 * @return an empty string if it fails, the url content if not. 
 	 */
-	private String getStringFromProviderWithCACertAdded(URL url) {
+	private String getStringFromProviderWithCACertAdded(URL url, boolean danger_on) {
 		String json_file_content = "";
 
 		// Load CAs from an InputStream
 		// (could be from a resource or ByteArrayInputStream or ...)
 		String cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
-		if(cert_string.isEmpty()) {
+		if(cert_string.isEmpty() && danger_on) {
 			cert_string = downloadCertificateWithoutTrusting(url.getProtocol() + "://" + url.getHost() + "/" + "ca.crt");
 			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, cert_string);
 		}
@@ -461,7 +462,7 @@ public class ProviderAPI extends IntentService {
 			String keyStoreType = KeyStore.getDefaultType();
 			KeyStore keyStore = KeyStore.getInstance(keyStoreType);
 			keyStore.load(null, null);
-			keyStore.setCertificateEntry("dangerous_certificate", dangerous_certificate);
+			keyStore.setCertificateEntry("provider_ca_certificate", dangerous_certificate);
 
 			// Create a TrustManager that trusts the CAs in our KeyStore
 			String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
@@ -484,7 +485,11 @@ public class ProviderAPI extends IntentService {
 			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
-			json_file_content = getStringFromProviderWithoutValidate(url);
+			if(danger_on) {
+				json_file_content = getStringFromProviderWithoutValidate(url);
+			} else {
+				displayToast(R.string.certificate_error);
+			}
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
