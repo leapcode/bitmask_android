@@ -299,6 +299,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
+			mProgressDialog.dismiss();
         	logInDialog(getCurrentFocus(), resultData.getString(getResources().getString(R.string.user_message)));
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
 			authed = false;
@@ -310,10 +311,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
-        	setResult(RESULT_CANCELED);
+        	setResult(RESULT_OK);
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), R.string.successful_authed_cert_downloaded_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
+			mProgressDialog.dismiss();
 			Toast.makeText(getApplicationContext(), R.string.authed_cert_download_failed_message, Toast.LENGTH_LONG).show();
 		}
 	}
