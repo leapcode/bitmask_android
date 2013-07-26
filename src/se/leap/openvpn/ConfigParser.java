@@ -47,6 +47,9 @@ public class ConfigParser {
 			options.get(optionname).add(args);
 		}
 	}
+	public void setDefinition(HashMap<String,Vector<Vector<String>>> args) {
+		options = args;
+	}
 
 	private void checkinlinefile(Vector<String> args, BufferedReader br) throws IOException, ConfigParseError {
 		String arg0 = args.get(0);
@@ -247,7 +250,8 @@ public class ConfigParser {
 		// Pull, client, tls-client
 		np.clearDefaults();
 
-		if(options.containsKey("client") || options.containsKey("pull")) {
+		// XXX we are always client
+		if(/*options.containsKey("client") || options.containsKey("pull")*/ true) {
 			np.mUsePull=true;
 			options.remove("pull");
 			options.remove("client");

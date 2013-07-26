@@ -1,25 +1,11 @@
-/*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package se.leap.openvpn;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Vector;
+
+import se.leap.leapclient.Dashboard;
 import se.leap.leapclient.R;
 
 import android.annotation.TargetApi;
@@ -35,7 +21,6 @@ import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.net.VpnService;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Build;
 import android.os.IBinder;
@@ -45,6 +30,7 @@ import se.leap.openvpn.OpenVPN.StateListener;
 
 public class OpenVpnService extends VpnService implements StateListener, Callback {
 	public static final String START_SERVICE = "se.leap.openvpn.START_SERVICE";
+	public static final String RETRIEVE_SERVICE = "se.leap.openvpn.RETRIEVE_SERVICE";
 
 	private Thread mProcessThread=null;
 
@@ -65,6 +51,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	private int mMtu;
 	private String mLocalIPv6=null;
 	private NetworkSateReceiver mNetworkStateReceiver;
+	private NotificationManager mNotificationManager;
 
 	private boolean mDisplayBytecount=false;
 
@@ -89,7 +76,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	@Override
 	public IBinder onBind(Intent intent) {
 		String action = intent.getAction();
-		if( action !=null && action.equals(START_SERVICE))
+		if( action !=null && (action.equals(START_SERVICE) || action.equals(RETRIEVE_SERVICE)) )
 			return mBinder;
 		else
 			return super.onBind(intent);
@@ -116,9 +103,9 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		}
 	}
 
-	private void showNotification(String msg, String tickerText, boolean lowpriority, long when) {
+	private void showNotification(String msg, String tickerText, boolean lowpriority, long when, boolean persistant) {
 		String ns = Context.NOTIFICATION_SERVICE;
-		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
+		mNotificationManager = (NotificationManager) getSystemService(ns);
 
 
 		int icon = R.drawable.ic_stat_vpn;
@@ -127,7 +114,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		nbuilder.setContentTitle(getString(R.string.notifcation_title,mProfile.mName));
 		nbuilder.setContentText(msg);
 		nbuilder.setOnlyAlertOnce(true);
-		nbuilder.setOngoing(true);
+		nbuilder.setOngoing(persistant);
 		nbuilder.setContentIntent(getLogPendingIntent());
 		nbuilder.setSmallIcon(icon);
 		if(when !=0)
@@ -144,7 +131,6 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 
 
 		mNotificationManager.notify(OPENVPN_STATUS, notification);
-		startForeground(OPENVPN_STATUS, notification);
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -173,10 +159,10 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	}
 
 	PendingIntent getLogPendingIntent() {
-		// Let the configure Button show the Log
-		Intent intent = new Intent(getBaseContext(),LogWindow.class);
+		// Let the configure Button show the Dashboard
+		Intent intent = new Intent(Dashboard.getAppContext(),Dashboard.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-		PendingIntent startLW = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		PendingIntent startLW = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		return startLW;
 
@@ -223,7 +209,8 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {		
 		
-		if(intent != null && intent.getAction() !=null &&intent.getAction().equals(START_SERVICE))
+		if( intent != null && intent.getAction() !=null &&
+				(intent.getAction().equals(START_SERVICE) || intent.getAction().equals(RETRIEVE_SERVICE)) )
 			return START_NOT_STICKY;
 			
 
@@ -235,7 +222,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 
 		mProfile = ProfileManager.get(profileUUID);
 
-		showNotification("Starting VPN " + mProfile.mName,"Starting VPN " + mProfile.mName, false,0);
+		//showNotification("Starting VPN " + mProfile.mName,"Starting VPN " + mProfile.mName, false,0);
 
 
 		OpenVPN.addStateListener(this);
@@ -466,6 +453,13 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		mLocalIPv6 = ipv6addr;
 	}
 
+	public boolean isRunning() {
+		if (mStarting == true || mProcessThread != null)
+			return true;
+		else
+			return false;
+	}
+	
 	@Override
 	public void updateState(String state,String logmessage, int resid) {
 		// If the process is not running, ignore any state, 
@@ -473,26 +467,16 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		if(mProcessThread==null)
 			return;
 
-		// Display byte count only after being connected
-
-		if("BYTECOUNT".equals(state)) {
-			if(mDisplayBytecount) {
-				showNotification(logmessage,null,true,mConnecttime);
-			}
-		} else {
-			if("CONNECTED".equals(state)) {
-				mDisplayBytecount = true;
-				mConnecttime = System.currentTimeMillis();
-			} else {
-				mDisplayBytecount = false;
-			}
+		if("CONNECTED".equals(state)) {
+			mNotificationManager.cancel(OPENVPN_STATUS);
+		} else if(!"BYTECOUNT".equals(state)) {
 
 			// Other notifications are shown,
 			// This also mean we are no longer connected, ignore bytecount messages until next
 			// CONNECTED
 			String ticker = getString(resid);
-			showNotification(getString(resid) +" " + logmessage,ticker,false,0);
-
+			boolean persist = ("NOPROCESS".equals(state)) ? false : true;
+			showNotification(getString(resid) +" " + logmessage,ticker,false,0,persist);
 		}
 	}
 

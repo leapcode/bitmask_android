@@ -1,7 +1,7 @@
 obj
 bin
-libs
 gen
+libs
 openvpn/.git
 openvpn/autom4te.cache
 openvpn/aclocal.m4
@@ -63,3 +63,9 @@ zh-CN.zip
 zh-TW.zip
 google-breakpad/
 id.zip
+/hosts-for-android-emulator.bk
+/build-native.sh.bk
+/build-native.sh~
+
+build.gradle
+local.properties

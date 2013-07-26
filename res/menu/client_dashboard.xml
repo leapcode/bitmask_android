@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/menu_settings"/>
+    <item android:id="@+id/about_leap" android:title="@string/about" android:orderInCategory="110" />
+    <item android:id="@+id/legacy_interface" android:title="ICS OpenVPN Interface" android:orderInCategory="500" />
+    <item android:id="@+id/switch_provider" android:title="@string/switch_provider_menu_option" android:orderInCategory="501"/>
+    <item android:id="@+id/login_button" android:title="@string/login_button" android:visible="false"></item>
+    <item android:id="@+id/logout_button" android:title="@string/logout_button" android:visible="false"></item>
+
+</menu>

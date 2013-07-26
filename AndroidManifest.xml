@@ -17,20 +17,18 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="se.leap.leapclient"
-    android:versionCode="57"
-    android:versionName="0.5.29" >
+    android:versionCode="60"
+    android:versionName="0.2.0" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <!-- <uses-permission android:name="com.android.vending.BILLING" /> -->
 
     <uses-sdk
-        android:minSdkVersion="15"
-        android:targetSdkVersion="15" />
+        android:minSdkVersion="14"
+        android:targetSdkVersion="17" />
 
     <permission
         android:name="se.leap.openvpn.REMOTE_API"
@@ -53,12 +51,6 @@
         <activity android:name="se.leap.openvpn.SendDumpActivity" />
         <activity android:name="se.leap.openvpn.FileSelect" />
         <activity android:name="se.leap.openvpn.MainActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <service
@@ -75,7 +67,8 @@
                 <action android:name="se.leap.openvpn.api.IOpenVPNAPIService" />
             </intent-filter>
         </service>
-
+		<service android:name="se.leap.leapclient.ProviderAPI" android:enabled="true"/>
+		
         <activity
             android:name="se.leap.openvpn.api.GrantPermissionsActivity"
             android:permission="se.leap.openvpn.REMOTE_API" >
@@ -146,6 +139,28 @@
             android:authorities="se.leap.openvpn.FileProvider"
             android:exported="true"
             android:grantUriPermissions="true" />
+
+        <activity
+            android:name="se.leap.leapclient.Dashboard"
+            android:label="@string/title_activity_dashboard" >
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="se.leap.leapclient.ConfigurationWizard"
+            android:label="@string/title_activity_configuration_wizard" >
+        </activity>
+        
+        <service android:name=".EIP">
+            <intent-filter>
+                <action android:name="se.leap.leapclient.UPDATE_EIP_SERVICE"/>
+                <action android:name="se.leap.leapclient.START_EIP"/>
+                <action android:name="se.leap.leapclient.STOP_EIP"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
