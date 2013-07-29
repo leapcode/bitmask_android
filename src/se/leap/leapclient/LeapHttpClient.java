@@ -65,15 +65,12 @@ public class LeapHttpClient extends DefaultHttpClient {
 
 	/**
 	 * Uses keystore from ConfigHelper for the SSLSocketFactory.
-	 * 
-	 * Sets hostname verifier to allow all hostname verifier.
 	 * @return
 	 */
 	private SSLSocketFactory newSslSocketFactory() {
 		try {
 			KeyStore trusted = ConfigHelper.getKeystore();
 			SSLSocketFactory sf = new SSLSocketFactory(trusted);
-			sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
 			return sf;
 		} catch (Exception e) {
