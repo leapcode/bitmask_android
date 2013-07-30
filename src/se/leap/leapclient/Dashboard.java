@@ -90,7 +90,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				buildDashboard();
 				if(data != null && data.hasExtra(ConfigHelper.LOG_IN)) {
 					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-					logInDialog(view, "");
+					logInDialog(view, Bundle.EMPTY);
 				}
 			} else if(resultCode == RESULT_CANCELED && data.hasExtra(ConfigHelper.QUIT)) {
 				finish();
@@ -195,7 +195,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			return true;
 		case R.id.login_button:
 			View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-			logInDialog(view, "");
+			logInDialog(view, Bundle.EMPTY);
 			return true;
 		case R.id.logout_button:
 			logOut();
@@ -265,7 +265,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * Shows the log in dialog.
 	 * @param view from which the dialog is created.
 	 */
-	public void logInDialog(View view, String user_message) {
+	public void logInDialog(View view, Bundle resultData) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.LOG_IN_DIALOG);
 	    if (previous_log_in_dialog != null) {
@@ -274,9 +274,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    fragment_transaction.addToBackStack(null);
 
 	    DialogFragment newFragment = LogInDialog.newInstance();
-	    if(user_message != null && !user_message.isEmpty()) {
+	    if(resultData != null && !resultData.isEmpty()) {
 	    	Bundle user_message_bundle = new Bundle();
+	    	String user_message = resultData.getString(getResources().getString(R.string.user_message));
+	    	String username = resultData.getString(ConfigHelper.USERNAME_KEY);
 	    	user_message_bundle.putString(getResources().getString(R.string.user_message), user_message);
+	    	user_message_bundle.putString(ConfigHelper.USERNAME_KEY, username);
 	    	newFragment.setArguments(user_message_bundle);
 	    }
 	    newFragment.show(fragment_transaction, ConfigHelper.LOG_IN_DIALOG);
@@ -316,7 +319,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
 			mProgressDialog.dismiss();
-        	logInDialog(getCurrentFocus(), resultData.getString(getResources().getString(R.string.user_message)));
+        	logInDialog(getCurrentFocus(), resultData);
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
 			authed = false;
 			invalidateOptionsMenu();

@@ -48,8 +48,16 @@ public class LogInDialog extends DialogFragment {
 		if(getArguments() != null && getArguments().containsKey(getResources().getString(R.string.user_message))) {
 			user_message.setText(getArguments().getString(getResources().getString(R.string.user_message)));
 		} else user_message.setVisibility(View.GONE);
+		
 		final EditText username_field = (EditText)log_in_dialog_view.findViewById(R.id.username_entered);
+		if(getArguments() != null && getArguments().containsKey(getResources().getString(R.string.user_message))) {
+			String username = getArguments().getString(ConfigHelper.USERNAME_KEY);
+			username_field.setText(username);
+			username_field.setHint("");
+		}
 		final EditText password_field = (EditText)log_in_dialog_view.findViewById(R.id.password_entered);
+		if(!username_field.getText().toString().isEmpty() && password_field.isFocusable())
+			password_field.requestFocus();
 		
 		builder.setView(log_in_dialog_view)
 			.setPositiveButton(R.string.login_button, new DialogInterface.OnClickListener() {
