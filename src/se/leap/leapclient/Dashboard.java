@@ -291,7 +291,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * Asks ProviderAPI to download an authenticated OpenVPN certificate.
 	 * @param session_id cookie for the server to allow us to download the certificate.
 	 */
-	private void downloadAuthedUserCertificate(Cookie session_id) {
+	private void downloadAuthedUserCertificate(/*Cookie session_id*/) {
 		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 		providerAPI_result_receiver.setReceiver(this);
 		
@@ -299,8 +299,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		Bundle parameters = new Bundle();
 		parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.AUTHED_CERTIFICATE);
-		parameters.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id.getName());
-		parameters.putString(ConfigHelper.SESSION_ID_KEY, session_id.getValue());
+		/*parameters.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id.getName());
+		parameters.putString(ConfigHelper.SESSION_ID_KEY, session_id.getValue());*/
 
 		provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
@@ -318,8 +318,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			authed = true;
 			invalidateOptionsMenu();
 
-			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
-			downloadAuthedUserCertificate(session_id);
+			//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
+			downloadAuthedUserCertificate(/*session_id*/);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
 			mProgressDialog.dismiss();
         	logInDialog(getCurrentFocus(), resultData);
