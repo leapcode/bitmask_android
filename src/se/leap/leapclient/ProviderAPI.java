@@ -38,6 +38,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.net.ssl.HostnameVerifier;
@@ -210,8 +211,8 @@ public class ProviderAPI extends IntentService {
 					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
 					if(session_idAndM2.has("M2") && client.verify((byte[])session_idAndM2.get("M2"))) {
 						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, true);
-						session_id_bundle.putString(ConfigHelper.SESSION_ID_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_KEY));
-						session_id_bundle.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_COOKIE_KEY));
+						//session_id_bundle.putString(ConfigHelper.SESSION_ID_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_KEY));
+						//session_id_bundle.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_COOKIE_KEY));
 					} else {
 						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 						session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
@@ -282,9 +283,9 @@ public class ProviderAPI extends IntentService {
 		JSONObject session_idAndM2 = new JSONObject();
 		if(json_response.length() > 0) {
 			byte[] M2_not_trimmed = new BigInteger(json_response.getString(ConfigHelper.M2_KEY), 16).toByteArray();
-			Cookie session_id_cookie = LeapHttpClient.getInstance(getApplicationContext()).getCookieStore().getCookies().get(0);
+			/*Cookie session_id_cookie = LeapHttpClient.getInstance(getApplicationContext()).getCookieStore().getCookies().get(0);
 			session_idAndM2.put(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id_cookie.getName());
-			session_idAndM2.put(ConfigHelper.SESSION_ID_KEY, session_id_cookie.getValue());
+			session_idAndM2.put(ConfigHelper.SESSION_ID_KEY, session_id_cookie.getValue());*/
 			session_idAndM2.put(ConfigHelper.M2_KEY, ConfigHelper.trim(M2_not_trimmed));
 		}
 		return session_idAndM2;
@@ -300,10 +301,10 @@ public class ProviderAPI extends IntentService {
 	 */
 	private JSONObject sendToServer(HttpUriRequest request) throws ClientProtocolException, IOException, JSONException {
 		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
-		HttpContext localContext = new BasicHttpContext();
-		localContext.setAttribute(ClientContext.COOKIE_STORE, client.getCookieStore());
+		/*HttpContext localContext = new BasicHttpContext();
+		localContext.setAttribute(ClientContext.COOKIE_STORE, client.getCookieStore());*/
 		
-		HttpResponse getResponse = client.execute(request, localContext);
+		HttpResponse getResponse = client.execute(request/*, localContext*/);
 		HttpEntity responseEntity = getResponse.getEntity();
 		String plain_response = new Scanner(responseEntity.getContent()).useDelimiter("\\A").next();
 		JSONObject json_response = new JSONObject(plain_response);
@@ -583,12 +584,21 @@ public class ProviderAPI extends IntentService {
 			URL provider_main_url = new URL(provider_json.getString(ConfigHelper.API_URL_KEY));
 			String new_cert_string_url = provider_main_url.toString() + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY) + "/" + ConfigHelper.CERT_KEY;
 
+			Cookie cookie = null;
 			if(type_of_certificate.equalsIgnoreCase(ConfigHelper.AUTHED_CERTIFICATE)) {
-				HttpCookie session_id_cookie = new HttpCookie(task.getString(ConfigHelper.SESSION_ID_COOKIE_KEY), task.getString(ConfigHelper.SESSION_ID_KEY));
+				List<Cookie> list_cookies = LeapHttpClient.getInstance(getApplicationContext()).getCookieStore().getCookies();
+				for(Cookie aux_cookie : list_cookies) {
+					if(aux_cookie.getName().equalsIgnoreCase(ConfigHelper.SESSION_ID_COOKIE_KEY)) {
+						cookie = aux_cookie;
+						break;
+					}
+				}
+				//HttpCookie session_id_cookie = new HttpCookie(task.getString(ConfigHelper.SESSION_ID_COOKIE_KEY), task.getString(ConfigHelper.SESSION_ID_KEY));
+				/*HttpCookie session_id_cookie = new HttpCookie(cookie.getName(), cookie.getValue());
 
 				CookieManager cookieManager = new CookieManager();
 				cookieManager.getCookieStore().add(provider_main_url.toURI(), session_id_cookie);
-				CookieHandler.setDefault(cookieManager);
+				CookieHandler.setDefault(cookieManager);*/
 			}
 			
 			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ConfigHelper.DANGER_ON);
@@ -617,10 +627,10 @@ public class ProviderAPI extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
-		} catch (URISyntaxException e) {
+		} /*catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
-		}
+		}*/
 	}
 }
