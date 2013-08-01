@@ -88,6 +88,17 @@ public class ProviderAPI extends IntentService {
 	
 	private Handler mHandler;
 
+    final public static String
+    DOWNLOAD_JSON_FILES_BUNDLE_EXTRA = "downloadJSONFiles",	
+    UPDATE_PROVIDER_DOTJSON = "updateProviderDotJSON",
+    DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
+    SRP_REGISTER = "srpRegister",
+    SRP_AUTH = "srpAuth",
+    LOG_OUT = "logOut",
+    DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
+    PARAMETERS = "parameters"
+    ;
+
 	public ProviderAPI() {
 		super("ProviderAPI");
 		Log.v("ClassName", "Provider API");
@@ -110,35 +121,33 @@ public class ProviderAPI extends IntentService {
 	}
 
 	@Override
-	protected void onHandleIntent(Intent task_for) {
-		final ResultReceiver receiver = task_for.getParcelableExtra("receiver");
+	protected void onHandleIntent(Intent command) {
+		final ResultReceiver receiver = command.getParcelableExtra("receiver");
+		String action = command.getAction();
+		Bundle parameters = command.getBundleExtra(PARAMETERS);
 		
-		Bundle task;
-		if((task = task_for.getBundleExtra(ConfigHelper.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA)) != null) {
-			if(!downloadJsonFiles(task)) {
+		if(action.equalsIgnoreCase(DOWNLOAD_JSON_FILES_BUNDLE_EXTRA)) {
+			if(!downloadJsonFiles(parameters)) {
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			} else { 
 				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			}
-		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.UPDATE_PROVIDER_DOTJSON)) != null) {
-			Bundle result = updateProviderDotJSON(task);
+		} else if(action.equalsIgnoreCase(UPDATE_PROVIDER_DOTJSON)) {
+			Bundle result = updateProviderDotJSON(parameters);
 			if(result.getBoolean(ConfigHelper.RESULT_KEY)) {
 				receiver.send(ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
-			} else {
+			} else { 
 				receiver.send(ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON, Bundle.EMPTY);
 			}
-		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.DOWNLOAD_NEW_PROVIDER_DOTJSON)) != null) {
-			Bundle result = downloadNewProviderDotJSON(task);
+		} else if (action.equalsIgnoreCase(DOWNLOAD_NEW_PROVIDER_DOTJSON)) {
+			Bundle result = downloadNewProviderDotJSON(parameters);
 			if(result.getBoolean(ConfigHelper.RESULT_KEY)) {
 				receiver.send(ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
 			} else {
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			}
-		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.SRP_AUTH)) != null) {
-			Bundle session_id_bundle = authenticateBySRP(task);
+		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
+			Bundle session_id_bundle = authenticateBySRP(parameters);
 			if(session_id_bundle.getBoolean(ConfigHelper.RESULT_KEY)) {
 				receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
 			} else {
@@ -147,16 +156,14 @@ public class ProviderAPI extends IntentService {
 				user_message_bundle.putString(user_message_key, session_id_bundle.getString(user_message_key));
 				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, user_message_bundle);
 			}
-		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.LOG_OUT)) != null) {
-			if(logOut(task)) {
+		} else if (action.equalsIgnoreCase(LOG_OUT)) {
+			if(logOut(parameters)) {
 				receiver.send(ConfigHelper.LOGOUT_SUCCESSFUL, Bundle.EMPTY);
 			} else {
 				receiver.send(ConfigHelper.LOGOUT_FAILED, Bundle.EMPTY);
 			}
-		}
-		else if ((task = task_for.getBundleExtra(ConfigHelper.DOWNLOAD_CERTIFICATE)) != null) {
-			if(getNewCert(task)) {
+		} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
+			if(getNewCert(parameters)) {
 				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 			} else {
 				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
