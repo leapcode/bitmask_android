@@ -152,7 +152,8 @@
         </activity>
         <activity
             android:name="se.leap.leapclient.ConfigurationWizard"
-            android:label="@string/title_activity_configuration_wizard" >
+            android:label="@string/title_activity_configuration_wizard"
+            android:uiOptions="splitActionBarWhenNarrow" >
         </activity>
         
         <service android:name=".EIP" android:exported="false">
