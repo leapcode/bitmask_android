@@ -5,4 +5,11 @@
         android:orderInCategory="110"
         android:title="@string/about"/>
 
+    <item
+        android:id="@+id/new_provider"
+        android:orderInCategory="210"
+        android:title="@string/new_provider_button"
+        android:showAsAction="ifRoom|withText"
+        android:icon="@drawable/ic_menu_add"
+        />
 </menu>
