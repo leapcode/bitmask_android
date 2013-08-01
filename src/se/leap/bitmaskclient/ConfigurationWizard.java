@@ -143,7 +143,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		}
 		else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_JSON_FILES) {
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
-			mProgressDialog.dismiss();
+			//mProgressDialog.dismiss();
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
