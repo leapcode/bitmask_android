@@ -296,9 +296,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	
 	/**
 	 * Open the new provider dialog
-	 * @param view from which the dialog is showed
 	 */
-	public void addAndSelectNewProvider(View view) {
+	public void addAndSelectNewProvider() {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 		Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.NEW_PROVIDER_DIALOG);
 		if (previous_new_provider_dialog != null) {
@@ -373,6 +372,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		switch (item.getItemId()){
 		case R.id.about_leap:
 			showAboutFragment(getCurrentFocus());
+		case R.id.new_provider:
+			addAndSelectNewProvider();
 		default:
 			return super.onOptionsItemSelected(item);
 		}
