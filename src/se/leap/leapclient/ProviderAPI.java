@@ -17,6 +17,7 @@
  package se.leap.leapclient;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -407,6 +408,9 @@ public class ProviderAPI extends IntentService {
 			displayToast(R.string.malformed_url);
 		} catch(SocketTimeoutException e) {
 			displayToast(R.string.server_is_down_message);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			if(provider_url != null) {
 				json_file_content = getStringFromProviderWithCACertAdded(provider_url, danger_on);
@@ -447,6 +451,9 @@ public class ProviderAPI extends IntentService {
 			json_string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
 			displayToast(R.string.malformed_url);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			json_string = getStringFromProviderIgnoringCertificate(string_url);
 		}
@@ -498,6 +505,9 @@ public class ProviderAPI extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
+			displayToast(R.string.server_is_down_message);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
@@ -552,6 +562,9 @@ public class ProviderAPI extends IntentService {
 					});
 			string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
 			System.out.println("String ignoring certificate = " + string);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			e.printStackTrace();
