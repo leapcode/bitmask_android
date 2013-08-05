@@ -203,7 +203,6 @@ public class ProviderAPI extends IntentService {
 			
 			String eip_service_string = downloadWithCommercialCA(eip_service_json_url, danger_on);
 			ConfigHelper.saveSharedPref(EIP.KEY, new JSONObject(eip_service_string));
-			
 			return true;
 		} catch (JSONException e) {
 			return false;
@@ -546,7 +545,7 @@ public class ProviderAPI extends IntentService {
 	}
 
 	/**
-	 * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider. 
+	 * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider.
 	 * @param url
 	 * @param danger_on true to download CA certificate in case it has not been downloaded.
 	 * @return an empty string if it fails, the url content if not. 
