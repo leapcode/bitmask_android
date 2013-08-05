@@ -176,13 +176,14 @@ public class ProviderAPI extends IntentService {
 		String eip_service_json_url = task.getString(ConfigHelper.EIP_SERVICE_KEY);
 		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
 		try {
-			String cert_string = getStringFromProvider(cert_url, danger_on);
+			String cert_string = downloadWithCommercialCA(cert_url, danger_on);
 			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
 			cert_string = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
 			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, "-----BEGIN CERTIFICATE-----\n"+cert_string+"-----END CERTIFICATE-----");
 			
-			JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url, danger_on);
-			ConfigHelper.saveSharedPref(ConfigHelper.EIP_SERVICE_KEY, eip_service_json);
+			String eip_service_string = downloadWithCommercialCA(eip_service_json_url, danger_on);
+			ConfigHelper.saveSharedPref(ConfigHelper.EIP_SERVICE_KEY, new JSONObject(eip_service_string));
+			
 			return true;
 		} catch (JSONException e) {
 			return false;
@@ -343,10 +344,11 @@ public class ProviderAPI extends IntentService {
 		String provider_name = task.getString(ConfigHelper.PROVIDER_NAME);
 		
 		try {
-			JSONObject provider_json = getJSONFromProvider(provider_json_url, danger_on);
-			if(provider_json == null) {
+			String provider_dot_json_string = downloadWithCommercialCA(provider_json_url, danger_on);
+			if(provider_dot_json_string.isEmpty()) {
 				result.putBoolean(ConfigHelper.RESULT_KEY, false);
-			} else {    			
+			} else {
+				JSONObject provider_json = new JSONObject(provider_dot_json_string);
 				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
 
 				//ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on));
@@ -375,12 +377,12 @@ public class ProviderAPI extends IntentService {
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
 		String provider_json_url = guessProviderDotJsonURL(provider_main_url);
 		
-		JSONObject provider_json;
+		String provider_json_string = downloadWithCommercialCA(provider_json_url, danger_on);
 		try {
-			provider_json = getJSONFromProvider(provider_json_url, danger_on);
-			if(provider_json == null) {
+			if(provider_json_string.isEmpty()) {
 				result.putBoolean(ConfigHelper.RESULT_KEY, false);
 			} else {
+				JSONObject provider_json = new JSONObject(provider_json_string);
 
 				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
 				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, danger_on);
@@ -401,14 +403,14 @@ public class ProviderAPI extends IntentService {
 	}
 	
 	/**
-	 * Tries to download whatever is pointed by the string_url.
+	 * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
 	 * 
 	 * If danger_on flag is true, SSL exceptions will be managed by futher methods that will try to use some bypass methods.
 	 * @param string_url
 	 * @param danger_on if the user completely trusts this provider
 	 * @return
 	 */
-	private String getStringFromProvider(String string_url, boolean danger_on) {
+	private String downloadWithCommercialCA(String string_url, boolean danger_on) {
 		
 		String json_file_content = "";
 		
@@ -428,13 +430,13 @@ public class ProviderAPI extends IntentService {
 			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			if(provider_url != null) {
-				json_file_content = getStringFromProviderWithCACertAdded(provider_url, danger_on);
+				json_file_content = downloadWithProviderCA(provider_url, danger_on);
 			} else {
 				displayToast(R.string.certificate_error);
 			}
 		} catch (Exception e) {
 			if(provider_url != null && danger_on) {
-				json_file_content = getStringFromProviderWithCACertAdded(provider_url, danger_on);
+				json_file_content = downloadWithProviderCA(provider_url, danger_on);
 			}
 		}
 
@@ -442,65 +444,24 @@ public class ProviderAPI extends IntentService {
 	}
 
 	/**
-	 * Tries to download a string from given url without verifying the hostname.
-	 * 
-	 * If a IOException still occurs, it tries with another bypass method: getStringFromProviderWithCACertAdded. 
-	 * @param string_url
-	 * @return an empty string if everything fails, the url content if not. 
-	 */
-	private String getStringFromProviderWithoutValidate(
-			URL string_url) {
-		
-		String json_string = "";
-		HostnameVerifier hostnameVerifier = new HostnameVerifier() {
-			@Override
-			public boolean verify(String hostname, SSLSession session) {
-				return true;
-			}
-		};
-
-		try {
-			HttpsURLConnection urlConnection =
-					(HttpsURLConnection)string_url.openConnection();
-			urlConnection.setHostnameVerifier(hostnameVerifier);
-			json_string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
-		} catch (MalformedURLException e) {
-			displayToast(R.string.malformed_url);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			displayToast(R.string.server_is_down_message);
-		} catch (IOException e) {
-			json_string = getStringFromProviderIgnoringCertificate(string_url);
-		}
-		
-		return json_string;
-	}
-
-	/**
-	 * Tries to download the contents of the provided url using main certificate from choosen provider. 
+	 * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider. 
 	 * @param url
 	 * @param danger_on true to download CA certificate in case it has not been downloaded.
 	 * @return an empty string if it fails, the url content if not. 
 	 */
-	private String getStringFromProviderWithCACertAdded(URL url, boolean danger_on) {
+	private String downloadWithProviderCA(URL url, boolean danger_on) {
 		String json_file_content = "";
 
-		// Load CAs from an InputStream
-		// (could be from a resource or ByteArrayInputStream or ...)
-		String cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
-		if(cert_string.isEmpty() && danger_on) {
-			cert_string = downloadCertificateWithoutTrusting(url.getProtocol() + "://" + url.getHost() + "/" + "ca.crt");
-			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, cert_string);
-		}
+		String provider_cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
 		
 		try {
-			java.security.cert.Certificate dangerous_certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
+			java.security.cert.Certificate provider_certificate = ConfigHelper.parseX509CertificateFromString(provider_cert_string);
 
 			// Create a KeyStore containing our trusted CAs
 			String keyStoreType = KeyStore.getDefaultType();
 			KeyStore keyStore = KeyStore.getInstance(keyStoreType);
 			keyStore.load(null, null);
-			keyStore.setCertificateEntry("provider_ca_certificate", dangerous_certificate);
+			keyStore.setCertificateEntry("provider_ca_certificate", provider_certificate);
 
 			// Create a TrustManager that trusts the CAs in our KeyStore
 			String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
@@ -527,7 +488,7 @@ public class ProviderAPI extends IntentService {
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			if(danger_on) {
-				json_file_content = getStringFromProviderWithoutValidate(url);
+				json_file_content = downloadWithoutCA(url);
 			} else {
 				displayToast(R.string.certificate_error);
 			}
@@ -545,11 +506,19 @@ public class ProviderAPI extends IntentService {
 	}
 	
 	/**
-	 * Downloads the string that's in the url without regarding certificate validity
+	 * Downloads the string that's in the url with any certificate.
 	 */
-	private String getStringFromProviderIgnoringCertificate(URL url) {
+	private String downloadWithoutCA(URL url) {
 		String string = "";
 		try {
+
+			HostnameVerifier hostnameVerifier = new HostnameVerifier() {
+				@Override
+				public boolean verify(String hostname, SSLSession session) {
+					return true;
+				}
+			};
+			
 			class DefaultTrustManager implements X509TrustManager {
 
 				@Override
@@ -569,12 +538,7 @@ public class ProviderAPI extends IntentService {
 
 			HttpsURLConnection urlConnection = (HttpsURLConnection)url.openConnection();
 			urlConnection.setSSLSocketFactory(context.getSocketFactory());
-			urlConnection.setHostnameVerifier(new HostnameVerifier() {
-					@Override
-					public boolean verify(String arg0, SSLSession arg1) {
-					return true;
-					}
-					});
+			urlConnection.setHostnameVerifier(hostnameVerifier);
 			string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
 			System.out.println("String ignoring certificate = " + string);
 		} catch (FileNotFoundException e) {
@@ -592,77 +556,6 @@ public class ProviderAPI extends IntentService {
 			e.printStackTrace();
 		}
 		return string;
-	}
-
-	/**
-	 * Downloads the certificate from the parameter url bypassing self signed certificate SSL errors. 
-	 * @param certificate_url_string
-	 * @return the certificate, as a string
-	 */
-	private String downloadCertificateWithoutTrusting(String certificate_url_string) {
-		
-		String cert_string = "";
-		HostnameVerifier hostnameVerifier = new HostnameVerifier() {
-			@Override
-			public boolean verify(String hostname, SSLSession session) {
-				return true;
-			}
-		};
-		
-		TrustManager[] trustAllCerts = new TrustManager[]{
-	             new X509TrustManager() {
-	                 public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-	                     return null;
-	                     }
-	                 public void checkClientTrusted( java.security.cert.X509Certificate[] certs, String authType) {
-	                     }
-	                 public void checkServerTrusted( java.security.cert.X509Certificate[] certs, String authType) {
-	                 }
-	             }
-	     };
-
-		try {
-			URL certificate_url = new URL(certificate_url_string);
-			HttpsURLConnection urlConnection =
-					(HttpsURLConnection)certificate_url.openConnection();
-			urlConnection.setHostnameVerifier(hostnameVerifier);
-
-			SSLContext sc = SSLContext.getInstance("TLS");
-			sc.init(null, trustAllCerts, new java.security.SecureRandom());
-			
-			urlConnection.setSSLSocketFactory(sc.getSocketFactory());
-			
-			cert_string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
-			
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// This should never happen
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (KeyManagementException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return cert_string;
-	}
-
-	/**
-	 * Downloads a JSON object from the given url.
-	 * 
-	 * It first downloads the JSON object as a String, and then parses it to JSON object.
-	 * @param json_url
-	 * @param danger_on if the user completely trusts the certificate of the url address.
-	 * @return
-	 * @throws JSONException
-	 */
-	private JSONObject getJSONFromProvider(String json_url, boolean danger_on) throws JSONException {
-		String json_file_content = getStringFromProvider(json_url, danger_on);
-		return new JSONObject(json_file_content);
 	}
 
 	/**
@@ -727,7 +620,7 @@ public class ProviderAPI extends IntentService {
 			}
 			
 			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ConfigHelper.DANGER_ON);
-			String cert_string = getStringFromProvider(new_cert_string_url, danger_on);
+			String cert_string = downloadWithCommercialCA(new_cert_string_url, danger_on);
 			if(!cert_string.isEmpty()) {
 				// API returns concatenated cert & key.  Split them for OpenVPN options
 				String certificateString = null, keyString = null;
