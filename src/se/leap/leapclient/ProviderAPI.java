@@ -16,9 +16,12 @@
  */
  package se.leap.leapclient;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -32,13 +35,17 @@ import javax.net.ssl.KeyManager;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.net.ssl.HostnameVerifier;
@@ -262,8 +269,10 @@ public class ProviderAPI extends IntentService {
 	 * @throws JSONException
 	 */
 	private JSONObject sendAToSRPServer(String server_url, String username, String clientA) throws ClientProtocolException, IOException, JSONException {
-		HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + "login=" + username + "&&" + "A=" + clientA);
-		return sendToServer(post);
+		Map<String, String> parameters = new HashMap<String, String>();
+		parameters.put("login", username);
+		parameters.put("A", clientA);
+		return sendToServer(server_url + "/sessions.json", "POST", parameters);
 	}
 
 	/**
@@ -310,6 +319,41 @@ public class ProviderAPI extends IntentService {
 		JSONObject json_response = new JSONObject(plain_response);
 		if(!json_response.isNull(ConfigHelper.ERRORS_KEY) || json_response.has(ConfigHelper.ERRORS_KEY)) {
 			return new JSONObject();
+		}
+
+		return json_response;
+	}
+	
+	/**
+	 * Executes an HTTP request expecting a JSON response.
+	 * @param url
+	 * @param request_method
+	 * @param parameters
+	 * @return response from authentication server
+	 * @throws IOException
+	 * @throws JSONException
+	 * @throws MalformedURLException 
+	 */
+	private JSONObject sendToServer(String url, String request_method, Map<String, String> parameters) throws JSONException, MalformedURLException, IOException {
+		JSONObject json_response;
+		HttpsURLConnection urlConnection = (HttpsURLConnection)new URL(url).openConnection();
+		try {
+			urlConnection.setRequestMethod(request_method);
+			Iterator<String> parameter_iterator = parameters.keySet().iterator();
+			while(parameter_iterator.hasNext()) {
+				String key = parameter_iterator.next();
+				urlConnection.addRequestProperty(key, parameters.get(key));
+			}
+			//urlConnection.setChunkedStreamingMode(0);
+
+			InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+			String plain_response = new Scanner(in).useDelimiter("\\A").next();
+			json_response = new JSONObject(plain_response);
+			if(!json_response.isNull(ConfigHelper.ERRORS_KEY) || json_response.has(ConfigHelper.ERRORS_KEY)) {
+				return new JSONObject();
+			}
+		} finally {
+			urlConnection.disconnect();
 		}
 
 		return json_response;
