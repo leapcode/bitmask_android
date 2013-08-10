@@ -21,14 +21,22 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.URLEncoder;
 import java.io.InputStream;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,7 +88,7 @@ public class ConfigHelper {
     ANON_CERTIFICATE = "anon_certificate",
     AUTHED_CERTIFICATE = "authed_certificate",
     SALT_KEY = "salt",
-    SESSION_ID_COOKIE_KEY = "session_id_cookie_key",
+    SESSION_ID_COOKIE_KEY = "_session_id",
     SESSION_ID_KEY = "session_id",
     PREFERENCES_KEY = "LEAPPreferences",
     USER_DIRECTORY = "leap_android",
@@ -322,6 +330,28 @@ public class ConfigHelper {
 		
 		return (X509Certificate) certificate;
 	}
+	
+	static String formatHttpParameters(Map<String, String> parameters) throws UnsupportedEncodingException	{
+	    StringBuilder result = new StringBuilder();
+	    boolean first = true;
+
+		Iterator<String> parameter_iterator = parameters.keySet().iterator();
+		while(parameter_iterator.hasNext()) {
+			if(first)
+				first = false;
+			else
+				result.append("&&");
+			
+			String key = parameter_iterator.next();
+			String value = parameters.get(key);
+
+	        result.append(URLEncoder.encode(key, "UTF-8"));
+	        result.append("=");
+	        result.append(URLEncoder.encode(value, "UTF-8"));
+		}
+
+	    return result.toString();
+	}
 
 	/**
 	 * Adds a new X509 certificate given its input stream and its provider name
@@ -378,5 +408,28 @@ public class ConfigHelper {
 	 */
 	public static KeyStore getKeystore() {
 		return keystore_trusted;
+	}
+	
+	static javax.net.ssl.SSLSocketFactory getProviderSSLSocketFactory() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, KeyManagementException {
+		String provider_cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
+
+		java.security.cert.Certificate provider_certificate = ConfigHelper.parseX509CertificateFromString(provider_cert_string);
+
+		// Create a KeyStore containing our trusted CAs
+		String keyStoreType = KeyStore.getDefaultType();
+		KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+		keyStore.load(null, null);
+		keyStore.setCertificateEntry("provider_ca_certificate", provider_certificate);
+
+		// Create a TrustManager that trusts the CAs in our KeyStore
+		String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+		TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+		tmf.init(keyStore);
+
+		// Create an SSLContext that uses our TrustManager
+		SSLContext context = SSLContext.getInstance("TLS");
+		context.init(null, tmf.getTrustManagers(), null);
+
+		return context.getSocketFactory();
 	}
 }
