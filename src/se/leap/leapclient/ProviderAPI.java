@@ -16,20 +16,9 @@
  */
  package se.leap.leapclient;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.SecureRandom;
-import javax.net.ssl.KeyManager;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
@@ -39,14 +28,23 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.Scanner;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpEntity;
@@ -66,7 +64,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import se.leap.leapclient.ProviderListContent.ProviderItem;
-
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
@@ -180,11 +177,18 @@ public class ProviderAPI extends IntentService {
 		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
 		try {
 			String cert_string = getStringFromProvider(cert_url, danger_on);
-			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, cert_string);
+			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
+			cert_string = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
+			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, "-----BEGIN CERTIFICATE-----\n"+cert_string+"-----END CERTIFICATE-----");
+			
 			JSONObject eip_service_json = getJSONFromProvider(eip_service_json_url, danger_on);
 			ConfigHelper.saveSharedPref(ConfigHelper.EIP_SERVICE_KEY, eip_service_json);
 			return true;
 		} catch (JSONException e) {
+			return false;
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -726,17 +730,31 @@ public class ProviderAPI extends IntentService {
 			String cert_string = getStringFromProvider(new_cert_string_url, danger_on);
 			if(!cert_string.isEmpty()) {
 				// API returns concatenated cert & key.  Split them for OpenVPN options
-				String certificate = null, key = null;
+				String certificateString = null, keyString = null;
 				String[] certAndKey = cert_string.split("(?<=-\n)");
 				for (int i=0; i < certAndKey.length-1; i++){
-					if ( certAndKey[i].contains("KEY") )
-						key = certAndKey[i++] + certAndKey[i];
-					else if ( certAndKey[i].contains("CERTIFICATE") )
-						certificate = certAndKey[i++] + certAndKey[i];
+					if ( certAndKey[i].contains("KEY") ) {
+						keyString = certAndKey[i++] + certAndKey[i];
+					}
+					else if ( certAndKey[i].contains("CERTIFICATE") ) {
+						certificateString = certAndKey[i++] + certAndKey[i];
+					}
 				}
-				ConfigHelper.saveSharedPref(ConfigHelper.CERT_KEY, certificate);
-				ConfigHelper.saveSharedPref(ConfigHelper.KEY_KEY, key);
-				return true;
+				try {
+					RSAPrivateKey keyCert = ConfigHelper.parseRsaKeyFromString(keyString);
+					keyString = Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT );
+					ConfigHelper.saveSharedPref(ConfigHelper.KEY_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----");
+					
+					X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
+					certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
+					ConfigHelper.saveSharedPref(ConfigHelper.CERT_KEY, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----");
+					
+					return true;
+				} catch (CertificateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return false;
+				}
 			} else {
 				return false;
 			}
