@@ -213,20 +213,21 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
-		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString(ConfigHelper.USERNAME_KEY, username);
-		method_and_parameters.putString(ConfigHelper.PASSWORD_KEY, password);
+		Bundle parameters = new Bundle();
+		parameters.putString(ConfigHelper.USERNAME_KEY, username);
+		parameters.putString(ConfigHelper.PASSWORD_KEY, password);
 
 		JSONObject provider_json;
 		try {
 			provider_json = new JSONObject(preferences.getString(ConfigHelper.PROVIDER_KEY, ""));
-			method_and_parameters.putString(ConfigHelper.API_URL_KEY, provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY));
+			parameters.putString(ConfigHelper.API_URL_KEY, provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		provider_API_command.putExtra(ConfigHelper.SRP_AUTH, method_and_parameters);
+		provider_API_command.setAction(ProviderAPI.SRP_AUTH);
+		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		if(mProgressDialog != null) mProgressDialog.dismiss();
@@ -242,18 +243,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		providerAPI_result_receiver.setReceiver(this);
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
-		Bundle method_and_parameters = new Bundle();
+		Bundle parameters = new Bundle();
 
 		JSONObject provider_json;
 		try {
 			provider_json = new JSONObject(preferences.getString(ConfigHelper.PROVIDER_KEY, ""));
-			method_and_parameters.putString(ConfigHelper.API_URL_KEY, provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY));
+			parameters.putString(ConfigHelper.API_URL_KEY, provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		provider_API_command.putExtra(ConfigHelper.LOG_OUT, method_and_parameters);
+		provider_API_command.setAction(ProviderAPI.LOG_OUT);
+		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		if(mProgressDialog != null) mProgressDialog.dismiss();
@@ -292,12 +294,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
-		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.AUTHED_CERTIFICATE);
-		method_and_parameters.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id.getName());
-		method_and_parameters.putString(ConfigHelper.SESSION_ID_KEY, session_id.getValue());
+		Bundle parameters = new Bundle();
+		parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.AUTHED_CERTIFICATE);
+		parameters.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id.getName());
+		parameters.putString(ConfigHelper.SESSION_ID_KEY, session_id.getValue());
 
-		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_CERTIFICATE, method_and_parameters);
+		provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
+		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);

@@ -265,14 +265,15 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	private void downloadJSONFiles(ProviderItem provider) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 		
-		Bundle method_and_parameters = new Bundle();
+		Bundle parameters = new Bundle();
 		
-		method_and_parameters.putString(ConfigHelper.PROVIDER_KEY, provider.name);
-		method_and_parameters.putString(ConfigHelper.MAIN_CERT_KEY, provider.cert_json_url);
-		method_and_parameters.putString(ConfigHelper.EIP_SERVICE_KEY, provider.eip_service_json_url);
-		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, provider.danger_on);
+		parameters.putString(ConfigHelper.PROVIDER_KEY, provider.name);
+		parameters.putString(ConfigHelper.MAIN_CERT_KEY, provider.cert_json_url);
+		parameters.putString(ConfigHelper.EIP_SERVICE_KEY, provider.eip_service_json_url);
+		parameters.putBoolean(ConfigHelper.DANGER_ON, provider.danger_on);
 		
-		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA, method_and_parameters);
+		provider_API_command.setAction(ProviderAPI.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA);
+		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 
 		startService(provider_API_command);
@@ -284,11 +285,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	private void downloadAnonCert() {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
-		Bundle method_and_parameters = new Bundle();
+		Bundle parameters = new Bundle();
 
-		method_and_parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.ANON_CERTIFICATE);
+		parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.ANON_CERTIFICATE);
 
-		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_CERTIFICATE, method_and_parameters);
+		provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
+		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 
 		startService(provider_API_command);
@@ -332,11 +334,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	public void saveAndSelectProvider(String provider_main_url, boolean danger_on) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
-		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString(ConfigHelper.PROVIDER_MAIN_URL, provider_main_url);
-		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, danger_on);
+		Bundle parameters = new Bundle();
+		parameters.putString(ConfigHelper.PROVIDER_MAIN_URL, provider_main_url);
+		parameters.putBoolean(ConfigHelper.DANGER_ON, danger_on);
 
-		provider_API_command.putExtra(ConfigHelper.DOWNLOAD_NEW_PROVIDER_DOTJSON, method_and_parameters);
+		provider_API_command.setAction(ProviderAPI.DOWNLOAD_NEW_PROVIDER_DOTJSON);
+		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
@@ -351,12 +354,13 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	public void updateProviderDotJson(String provider_name, String provider_json_url, boolean danger_on) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
-		Bundle method_and_parameters = new Bundle();
-		method_and_parameters.putString(ConfigHelper.PROVIDER_NAME, provider_name);
-		method_and_parameters.putString(ConfigHelper.PROVIDER_JSON_URL, provider_json_url);
-		method_and_parameters.putBoolean(ConfigHelper.DANGER_ON, danger_on);
+		Bundle parameters = new Bundle();
+		parameters.putString(ConfigHelper.PROVIDER_NAME, provider_name);
+		parameters.putString(ConfigHelper.PROVIDER_JSON_URL, provider_json_url);
+		parameters.putBoolean(ConfigHelper.DANGER_ON, danger_on);
 
-		provider_API_command.putExtra(ConfigHelper.UPDATE_PROVIDER_DOTJSON, method_and_parameters);
+		provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DOTJSON);
+		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);

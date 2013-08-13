@@ -52,18 +52,11 @@ public class ConfigHelper {
 
     final public static String
     ABOUT_FRAGMENT = "aboutFragment",
-    DOWNLOAD_JSON_FILES_BUNDLE_EXTRA = "downloadJSONFiles",	
-    UPDATE_PROVIDER_DOTJSON = "updateProviderDotJSON",
-    DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
     LOG_IN_DIALOG = "logInDialog",
     NEW_PROVIDER_DIALOG = "logInDialog",
-    SRP_REGISTER = "srpRegister",
-    SRP_AUTH = "srpAuth",
     M1_KEY = "M1",
     M2_KEY = "M2",
     LOG_IN = "logIn",
-    LOG_OUT = "logOut",
-    DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
     API_VERSION_KEY = "api_version",
     API_RETURN_SERIAL_KEY = "serial",
     RESULT_KEY = "result",
