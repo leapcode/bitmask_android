@@ -141,9 +141,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		providerNameTV.setTextSize(28);
 
 		FragmentManager fragMan = getFragmentManager();
-		if ( provider.hasEIP() && fragMan.findFragmentByTag(TAG_EIP_FRAGMENT) == null){
+		if ( provider.hasEIP()){
 			EipServiceFragment eipFragment = new EipServiceFragment();
-			fragMan.beginTransaction().add(R.id.servicesCollection, eipFragment, TAG_EIP_FRAGMENT).commit();
+			fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, TAG_EIP_FRAGMENT).commit();
 		}
 	}
 
