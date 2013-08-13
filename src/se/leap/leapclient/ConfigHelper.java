@@ -23,12 +23,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.io.InputStream;
+import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -314,6 +320,31 @@ public class ConfigHelper {
 		}
 		
 		return (X509Certificate) certificate;
+	}
+	
+	protected static RSAPrivateKey parseRsaKeyFromString(String RsaKeyString) {
+		RSAPrivateKey key = null;
+		try {
+			KeyFactory kf = KeyFactory.getInstance("RSA", "BC");
+			
+			RsaKeyString = RsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
+			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec( Base64.decode(RsaKeyString, Base64.DEFAULT) );
+			key = (RSAPrivateKey) kf.generatePrivate(keySpec);
+		} catch (InvalidKeySpecException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (NoSuchProviderException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+		return key;
 	}
 
 	/**
