@@ -151,10 +151,7 @@ public class ProviderAPI extends IntentService {
 			if(session_id_bundle.getBoolean(ConfigHelper.RESULT_KEY)) {
 				receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
 			} else {
-				Bundle user_message_bundle = new Bundle();
-				String user_message_key = getResources().getString(R.string.user_message);
-				user_message_bundle.putString(user_message_key, session_id_bundle.getString(user_message_key));
-				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, user_message_bundle);
+				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, session_id_bundle);
 			}
 		} else if (action.equalsIgnoreCase(LOG_OUT)) {
 			if(logOut(parameters)) {
@@ -222,27 +219,34 @@ public class ProviderAPI extends IntentService {
 					} else {
 						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 						session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
+						session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
 					}
 				} else {
 					session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
+					session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
 					session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 				}
 			} catch (ClientProtocolException e) {
 				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_client_http_user_message));
+				session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
 			} catch (IOException e) {
 				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_io_exception_user_message));
+				session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
 			} catch (JSONException e) {
 				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_json_exception_user_message));
+				session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
 			} catch (NoSuchAlgorithmException e) {
 				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_no_such_algorithm_exception_user_message));
+				session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
 			}
 		} else {
 			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
 			session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_not_valid_password_user_message));
+			session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
 		}
 		
 		return session_id_bundle;
