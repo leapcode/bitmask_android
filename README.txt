@@ -66,4 +66,4 @@ Postconditions
 
 1. Bitmask for Android is running.
 2. Bitmask for Android does not show the message "Application Bitmask for Android (process se.leap.bitmaskclient) is waiting for the debugger to attach".
-3. You are in a jdb debuggin session.
+3. You are in a jdb debugging session.
