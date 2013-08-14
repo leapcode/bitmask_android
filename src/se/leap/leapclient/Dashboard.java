@@ -65,7 +65,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	private TextView providerNameTV;
 
-	private boolean authed = false;
+	private boolean authed_eip = false;
 
     public ProviderAPIResultReceiver providerAPI_result_receiver;
 
@@ -78,6 +78,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		ConfigHelper.setSharedPreferences(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
 		
+		authed_eip = ConfigHelper.getBoolFromSharedPref(EIP.AUTHED);
 		if (ConfigHelper.getStringFromSharedPref(Provider.KEY).isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 		else
@@ -88,6 +89,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if ( requestCode == CONFIGURE_LEAP ) {
 			if ( resultCode == RESULT_OK ){
+				ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
 				if(data != null && data.hasExtra(LogInDialog.VERB)) {
@@ -156,7 +158,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
 			JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
 			if(service_description.getBoolean(Provider.ALLOW_REGISTRATION)) {
-				if(authed) {
+				if(authed_eip) {
 					menu.findItem(R.id.login_button).setVisible(false);
 					menu.findItem(R.id.logout_button).setVisible(true);
 				} else {
@@ -312,7 +314,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_cookie_key = resultData.getString(ProviderAPI.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ProviderAPI.SESSION_ID_KEY);
 			setResult(RESULT_OK);
-			authed = true;
+			authed_eip = true;
+			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
 			invalidateOptionsMenu();
 
 			//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
@@ -321,7 +324,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			mProgressDialog.dismiss();
         	logInDialog(getCurrentFocus(), resultData);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
-			authed = false;
+			authed_eip = false;
+			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
 			invalidateOptionsMenu();
 			setResult(RESULT_OK);
 			mProgressDialog.dismiss();

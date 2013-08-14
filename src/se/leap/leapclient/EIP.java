@@ -57,6 +57,7 @@ import android.util.Log;
  */
 public final class EIP extends IntentService {
 	
+	public final static String AUTHED = "authed eip";
 	public final static String ACTION_START_EIP = "se.leap.leapclient.START_EIP";
 	public final static String ACTION_STOP_EIP = "se.leap.leapclient.STOP_EIP";
 	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.leapclient.UPDATE_EIP_SERVICE";
