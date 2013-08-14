@@ -279,12 +279,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	    DialogFragment newFragment = LogInDialog.newInstance();
 	    if(resultData != null && !resultData.isEmpty()) {
-	    	Bundle user_message_bundle = new Bundle();
-	    	String user_message = resultData.getString(getResources().getString(R.string.user_message));
-	    	String username = resultData.getString(LogInDialog.USERNAME);
-	    	user_message_bundle.putString(getResources().getString(R.string.user_message), user_message);
-	    	user_message_bundle.putString(LogInDialog.USERNAME, username);
-	    	newFragment.setArguments(user_message_bundle);
+	    	newFragment.setArguments(resultData);
 	    }
 	    newFragment.show(fragment_transaction, LogInDialog.TAG);
 	}
