@@ -22,7 +22,7 @@ wait_until_booted() {
 	echo "Emulator booted!"
 }
 
-emulator -wipe-data @$avd_name & # If you want to test the app from scratch
+emulator @$avd_name & # If you want to test the app from scratch
 wait_until_booted
 adb install -r $PROJECT_FOLDER/bin/LEAP\ Android-debug.apk # Install the new version of the application
 adb shell am start -D se.leap.bitmaskclient/.Dashboard # Run app
