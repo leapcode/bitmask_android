@@ -317,7 +317,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_string = resultData.getString(ProviderAPI.SESSION_ID_KEY);
 			setResult(RESULT_OK);
 			authed_eip = true;
+<<<<<<< HEAD:src/se/leap/bitmaskclient/Dashboard.java
 			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
+=======
+			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
+>>>>>>> 53c2704... Authenticated status remembered after exit.:src/se/leap/leapclient/Dashboard.java
 			invalidateOptionsMenu();
 
 			//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
@@ -327,7 +331,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	logInDialog(getCurrentFocus(), resultData);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
+<<<<<<< HEAD:src/se/leap/bitmaskclient/Dashboard.java
 			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
+=======
+			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
+>>>>>>> 53c2704... Authenticated status remembered after exit.:src/se/leap/leapclient/Dashboard.java
 			invalidateOptionsMenu();
 			setResult(RESULT_OK);
 			mProgressDialog.dismiss();
