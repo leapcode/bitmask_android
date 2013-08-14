@@ -154,7 +154,7 @@
             android:label="@string/title_activity_configuration_wizard" >
         </activity>
         
-        <service android:name=".EIP">
+        <service android:name=".EIP" android:exported="false">
             <intent-filter>
                 <action android:name="se.leap.leapclient.UPDATE_EIP_SERVICE"/>
                 <action android:name="se.leap.leapclient.START_EIP"/>
