@@ -379,8 +379,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		switch (item.getItemId()){
 		case R.id.about_leap:
 			showAboutFragment(getCurrentFocus());
+			return true;
 		case R.id.new_provider:
 			addAndSelectNewProvider();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
