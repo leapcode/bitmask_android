@@ -216,7 +216,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	        	boolean custom = false;
 	        	provider_name = url_filepath.subSequence(0, url_filepath.indexOf(".")).toString();
 	        	if(ProviderListContent.ITEMS.isEmpty()) //TODO I have to implement a way of checking if a provider new or is already present in that ITEMS list
-	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath), custom, true)); // By default, it trusts the provider
+	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath), custom, false));
 	        	loaded_preseeded_providers = true;
 	        }
 		} catch (IOException e) {
