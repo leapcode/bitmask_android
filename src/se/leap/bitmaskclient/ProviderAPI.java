@@ -57,6 +57,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
@@ -128,14 +129,8 @@ public class ProviderAPI extends IntentService {
 		CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER) );
 	}
 	
-	private void displayToast(final int toast_string_id) {
-		mHandler.post(new Runnable() {
-			
-			@Override
-			public void run() {
-	            Toast.makeText(ProviderAPI.this, toast_string_id, Toast.LENGTH_LONG).show();                
-			}
-		});
+	private String formatErrorMessage(final int toast_string_id) {
+		return "{ \"" + ERRORS + "\" : \""+getResources().getString(toast_string_id)+"\" }";
 	}
 
 	@Override
@@ -145,10 +140,11 @@ public class ProviderAPI extends IntentService {
 		Bundle parameters = command.getBundleExtra(PARAMETERS);
 		
 		if(action.equalsIgnoreCase(DOWNLOAD_JSON_FILES_BUNDLE_EXTRA)) {
-			if(!downloadJsonFiles(parameters)) {
-				receiver.send(INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
-			} else { 
+			Bundle result = downloadJsonFiles(parameters);
+			if(result.getBoolean(RESULT_KEY)) {
 				receiver.send(CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+			} else {
+				receiver.send(INCORRECTLY_DOWNLOADED_JSON_FILES, result);
 			}
 		} else if(action.equalsIgnoreCase(UPDATE_PROVIDER_DOTJSON)) {
 			Bundle result = updateProviderDotJSON(parameters);
@@ -162,7 +158,7 @@ public class ProviderAPI extends IntentService {
 			if(result.getBoolean(RESULT_KEY)) {
 				receiver.send(CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
 			} else {
-				receiver.send(INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+				receiver.send(INCORRECTLY_DOWNLOADED_JSON_FILES, result);
 			}
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
@@ -191,27 +187,53 @@ public class ProviderAPI extends IntentService {
 	 * @param task
 	 * @return true if eip-service.json was parsed as a JSON object correctly.
 	 */
-	private boolean downloadJsonFiles(Bundle task) {
+	private Bundle downloadJsonFiles(Bundle task) {
+		Bundle result = new Bundle();
 		String cert_url = task.getString(Provider.CA_CERT);
 		String eip_service_json_url = task.getString(EIP.KEY);
 		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 		try {
 			String cert_string = downloadWithCommercialCA(cert_url, danger_on);
-			if(cert_string.isEmpty()) return false;
-			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
-			cert_string = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-			ConfigHelper.saveSharedPref(Provider.CA_CERT, "-----BEGIN CERTIFICATE-----\n"+cert_string+"-----END CERTIFICATE-----");
-			
-			String eip_service_string = downloadWithCommercialCA(eip_service_json_url, danger_on);
-			ConfigHelper.saveSharedPref(EIP.KEY, new JSONObject(eip_service_string));
-			return true;
+
+			if(ConfigHelper.checkErroneousDownload(cert_string)) {
+				JSONObject possible_errors = new JSONObject(cert_string);
+				String reason_to_fail = "";
+				if(cert_string.isEmpty())
+					reason_to_fail = "Empty certificate downloaded";
+				else
+				reason_to_fail = possible_errors.getString(ERRORS);
+				result.putString(ERRORS, reason_to_fail);
+				result.putBoolean(RESULT_KEY, false);
+			} else {
+				X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
+				cert_string = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
+				ConfigHelper.saveSharedPref(Provider.CA_CERT, "-----BEGIN CERTIFICATE-----\n"+cert_string+"-----END CERTIFICATE-----");
+			}
 		} catch (JSONException e) {
-			return false;
+			e.printStackTrace();
+			result.putBoolean(RESULT_KEY, false);
 		} catch (CertificateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return false;
+			result.putBoolean(RESULT_KEY, false);
 		}
+
+		try {
+			String eip_service_string = downloadWithCommercialCA(eip_service_json_url, danger_on);
+			JSONObject eip_service_json = new JSONObject(eip_service_string);
+			if(eip_service_json.has(ERRORS)) {
+				String reason_to_fail = eip_service_json.getString(ERRORS);
+				result.putString(ERRORS, reason_to_fail);
+				result.putBoolean(RESULT_KEY, false);
+			}
+			else ConfigHelper.saveSharedPref(EIP.KEY, eip_service_json);
+
+			result.putBoolean(RESULT_KEY, true);
+		} catch (JSONException e) {
+			result.putBoolean(RESULT_KEY, false);
+		}
+		
+		return result;
 	}
 	
 	/**
@@ -451,12 +473,18 @@ public class ProviderAPI extends IntentService {
 				result.putBoolean(RESULT_KEY, false);
 			} else {
 				JSONObject provider_json = new JSONObject(provider_dot_json_string);
-				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
+				if(provider_json.has(ERRORS)) {
+					String reason_to_fail = provider_json.getString(ERRORS);
+					result.putString(ERRORS, reason_to_fail);
+					result.putBoolean(RESULT_KEY, false);
+				} else {
+					ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
 
-				//ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on));
-				result.putBoolean(RESULT_KEY, true);
-				result.putString(Provider.KEY, provider_json.toString());
-				result.putBoolean(ProviderItem.DANGER_ON, danger_on);
+					//ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on));
+					result.putBoolean(RESULT_KEY, true);
+					result.putString(Provider.KEY, provider_json.toString());
+					result.putBoolean(ProviderItem.DANGER_ON, danger_on);
+				}
 			}
 		} catch (JSONException e) {
 			result.putBoolean(RESULT_KEY, false);
@@ -486,16 +514,22 @@ public class ProviderAPI extends IntentService {
 			} else {
 				JSONObject provider_json = new JSONObject(provider_json_string);
 
-				ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
-				ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
-				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
-				ProviderItem added_provider = new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on);
-				ProviderListContent.addItem(added_provider);
+				if(provider_json.has(ERRORS)) {
+					String reason_to_fail = provider_json.getString(ERRORS);
+					result.putString(ERRORS, reason_to_fail);
+					result.putBoolean(ERRORS, false);
+				} else {
+					ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
+					ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
+					ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
+					ProviderItem added_provider = new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on);
+					ProviderListContent.addItem(added_provider);
 
-				result.putString(Provider.NAME, added_provider.getName());
-				result.putBoolean(RESULT_KEY, true);
-				result.putString(Provider.KEY, provider_json.toString());
-				result.putBoolean(ProviderItem.DANGER_ON, danger_on);
+					result.putString(Provider.NAME, added_provider.getName());
+					result.putBoolean(RESULT_KEY, true);
+					result.putString(Provider.KEY, provider_json.toString());
+					result.putBoolean(ProviderItem.DANGER_ON, danger_on);
+				}
 			}
 		} catch (JSONException e) {
 			result.putBoolean(RESULT_KEY, false);
@@ -524,17 +558,14 @@ public class ProviderAPI extends IntentService {
 			url_connection.setConnectTimeout(seconds_of_timeout*1000);
 			json_file_content = new Scanner(url_connection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
-			displayToast(R.string.malformed_url);
+			json_file_content = formatErrorMessage(R.string.malformed_url);
 		} catch(SocketTimeoutException e) {
-			displayToast(R.string.server_is_down_message);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			displayToast(R.string.server_is_down_message);
+			json_file_content = formatErrorMessage(R.string.server_is_down_message);
 		} catch (IOException e) {
 			if(provider_url != null) {
 				json_file_content = downloadWithProviderCA(provider_url, danger_on);
 			} else {
-				displayToast(R.string.certificate_error);
+				json_file_content = formatErrorMessage(R.string.certificate_error);
 			}
 		} catch (Exception e) {
 			if(provider_url != null && danger_on) {
@@ -564,16 +595,13 @@ public class ProviderAPI extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
-			displayToast(R.string.server_is_down_message);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			displayToast(R.string.server_is_down_message);
+			json_file_content = formatErrorMessage(R.string.server_is_down_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			if(danger_on) {
 				json_file_content = downloadWithoutCA(url);
 			} else {
-				displayToast(R.string.certificate_error);
+				json_file_content = formatErrorMessage(R.string.certificate_error);
 			}
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
@@ -649,11 +677,11 @@ public class ProviderAPI extends IntentService {
 			System.out.println("String ignoring certificate = " + string);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			displayToast(R.string.server_is_down_message);
+			string = formatErrorMessage(R.string.server_is_down_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			e.printStackTrace();
-			displayToast(R.string.certificate_error);
+			string = formatErrorMessage(R.string.certificate_error);
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -733,31 +761,39 @@ public class ProviderAPI extends IntentService {
 			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ProviderItem.DANGER_ON);
 			String cert_string = downloadWithCommercialCA(new_cert_string_url, danger_on);
 			if(!cert_string.isEmpty()) {
-				// API returns concatenated cert & key.  Split them for OpenVPN options
-				String certificateString = null, keyString = null;
-				String[] certAndKey = cert_string.split("(?<=-\n)");
-				for (int i=0; i < certAndKey.length-1; i++){
-					if ( certAndKey[i].contains("KEY") ) {
-						keyString = certAndKey[i++] + certAndKey[i];
-					}
-					else if ( certAndKey[i].contains("CERTIFICATE") ) {
-						certificateString = certAndKey[i++] + certAndKey[i];
-					}
-				}
-				try {
-					RSAPrivateKey keyCert = ConfigHelper.parseRsaKeyFromString(keyString);
-					keyString = Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT );
-					ConfigHelper.saveSharedPref(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----");
-					
-					X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
-					certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-					ConfigHelper.saveSharedPref(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----");
-					
-					return true;
-				} catch (CertificateException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				if(ConfigHelper.checkErroneousDownload(cert_string)) {
+					String reason_to_fail = provider_json.getString(ERRORS);
+					//result.putString(ConfigHelper.ERRORS_KEY, reason_to_fail);
+					//result.putBoolean(ConfigHelper.RESULT_KEY, false);
 					return false;
+				} else {
+					
+					// API returns concatenated cert & key.  Split them for OpenVPN options
+					String certificateString = null, keyString = null;
+					String[] certAndKey = cert_string.split("(?<=-\n)");
+					for (int i=0; i < certAndKey.length-1; i++){
+						if ( certAndKey[i].contains("KEY") ) {
+							keyString = certAndKey[i++] + certAndKey[i];
+						}
+						else if ( certAndKey[i].contains("CERTIFICATE") ) {
+							certificateString = certAndKey[i++] + certAndKey[i];
+						}
+					}
+					try {
+						RSAPrivateKey keyCert = ConfigHelper.parseRsaKeyFromString(keyString);
+						keyString = Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT );
+						ConfigHelper.saveSharedPref(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----");
+
+						X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
+						certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
+						ConfigHelper.saveSharedPref(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----");
+
+						return true;
+					} catch (CertificateException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return false;
+					}
 				}
 			} else {
 				return false;

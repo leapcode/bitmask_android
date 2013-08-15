@@ -10,6 +10,7 @@
     <string name="cant_read_folder">Unable to read directory</string>
     <string name="select">Select</string>
     <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
     <string name="no_data">No Data</string>
     <string name="useLZO">LZO Compression</string>
     <string name="client_no_certificate">No Certificate</string>
