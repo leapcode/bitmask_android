@@ -267,6 +267,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		//if(mProgressDialog != null) mProgressDialog.dismiss();
 		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		mProgressBar.setMax(4);
 		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
 		startService(provider_API_command);
 	}
@@ -294,8 +295,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
-		if(mProgressDialog != null) mProgressDialog.dismiss();
-		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
+		//if(mProgressDialog != null) mProgressDialog.dismiss();
+		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
+		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		mProgressBar.setMax(1);
 		startService(provider_API_command);
 	}
 	
@@ -348,11 +351,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			setResult(RESULT_OK);
 
 			authed_eip = true;
-<<<<<<< HEAD:src/se/leap/bitmaskclient/Dashboard.java
 			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
-=======
-			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
->>>>>>> 53c2704... Authenticated status remembered after exit.:src/se/leap/leapclient/Dashboard.java
 			invalidateOptionsMenu();
 
         	mProgressBar.setVisibility(ProgressBar.GONE);
@@ -364,25 +363,26 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
-<<<<<<< HEAD:src/se/leap/bitmaskclient/Dashboard.java
 			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
-=======
-			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
->>>>>>> 53c2704... Authenticated status remembered after exit.:src/se/leap/leapclient/Dashboard.java
+			mProgressBar.setVisibility(ProgressBar.GONE);
+			mProgressBar.setProgress(0);
 			invalidateOptionsMenu();
 			setResult(RESULT_OK);
 			mProgressDialog.dismiss();
 		} else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_OK);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.successful_authed_cert_downloaded_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.authed_cert_download_failed_message, Toast.LENGTH_LONG).show();
 		}
 	}
