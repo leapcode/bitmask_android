@@ -81,13 +81,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		super.onCreate(savedInstanceState);
 		
 		app = this;
-		
-	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
-
-	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
-	    IntentFilter update_intent_filter = new IntentFilter(ConfigHelper.UPDATE_ACTION_KEY);
-	    update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
-	    registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
 	    
 		ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
@@ -158,6 +151,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		setContentView(R.layout.client_dashboard);
 
+	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
+
+	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
+	    IntentFilter update_intent_filter = new IntentFilter(ConfigHelper.UPDATE_ACTION_KEY);
+	    update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
+	    registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
+	    
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getDomain());
 		providerNameTV.setTextSize(28);
