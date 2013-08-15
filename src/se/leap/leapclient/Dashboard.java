@@ -30,9 +30,11 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,6 +42,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.CompoundButton;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +55,7 @@ import android.widget.Toast;
  * and access to preferences.
  * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
+ * @author parmegv
  */
 public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver {
 
@@ -56,7 +64,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	private static final String TAG_EIP_FRAGMENT = "EIP_DASHBOARD_FRAGMENT";
 
 	private ProgressDialog mProgressDialog;
-	
+	private ProgressBar mProgressBar;
+	private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
 	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
@@ -72,7 +81,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		super.onCreate(savedInstanceState);
 		
 		app = this;
-
+	    
 		ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
 		
@@ -80,6 +89,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 		else
 			buildDashboard();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(providerAPI_broadcast_receiver_update);
 	}
 	
 	@Override
@@ -136,6 +151,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		setContentView(R.layout.client_dashboard);
 
+	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
+
+	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
+	    IntentFilter update_intent_filter = new IntentFilter(ConfigHelper.UPDATE_ACTION_KEY);
+	    update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
+	    registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
+	    
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getDomain());
 		providerNameTV.setTextSize(28);
@@ -230,8 +252,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
-		if(mProgressDialog != null) mProgressDialog.dismiss();
-		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
+		//if(mProgressDialog != null) mProgressDialog.dismiss();
+		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		mProgressBar.setMax(4);
+		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
 		startService(provider_API_command);
 	}
 	
@@ -258,8 +282,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
 		
-		if(mProgressDialog != null) mProgressDialog.dismiss();
-		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
+		//if(mProgressDialog != null) mProgressDialog.dismiss();
+		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
+		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		mProgressBar.setMax(1);
 		startService(provider_API_command);
 	}
 	
@@ -315,30 +341,35 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_cookie_key = resultData.getString(ConfigHelper.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ConfigHelper.SESSION_ID_KEY);
 			setResult(RESULT_OK);
+
 			authed = true;
 			invalidateOptionsMenu();
 
 			Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
 			downloadAuthedUserCertificate(session_id);
 		} else if(resultCode == ConfigHelper.SRP_AUTHENTICATION_FAILED) {
-			mProgressDialog.dismiss();
         	logInDialog(getCurrentFocus(), resultData);
+        	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ConfigHelper.LOGOUT_SUCCESSFUL) {
 			authed = false;
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setProgress(0);
 			invalidateOptionsMenu();
 			setResult(RESULT_OK);
-			mProgressDialog.dismiss();
 		} else if(resultCode == ConfigHelper.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_OK);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.successful_authed_cert_downloaded_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.authed_cert_download_failed_message, Toast.LENGTH_LONG).show();
 		}
 	}
@@ -352,5 +383,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public static Context getAppContext() {
 		return app;
 	}
-	
+
+	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			int update = intent.getIntExtra(ConfigHelper.UPDATE_KEY, 0);
+			mProgressBar.setProgress(update);
+		}
+	}
 }
