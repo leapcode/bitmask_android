@@ -702,6 +702,7 @@ public class ProviderAPI extends IntentService {
 	private boolean logOut(Bundle task) {
 		DefaultHttpClient client = LeapHttpClient.getInstance(getApplicationContext());
 		int session_id_index = 0;
+		int progress = 0;
 		//String delete_url = task.getString(ConfigHelper.srp_server_url_key) + "/sessions/" + client.getCookieStore().getCookies().get(0).getValue();
 		try {
 			String delete_url = task.getString(ConfigHelper.API_URL_KEY) + "/logout" + "?authenticity_token=" + client.getCookieStore().getCookies().get(session_id_index).getValue();
@@ -709,6 +710,8 @@ public class ProviderAPI extends IntentService {
 			HttpResponse getResponse = client.execute(delete);
 			HttpEntity responseEntity = getResponse.getEntity();
 			responseEntity.consumeContent();
+
+			broadcast_progress(progress++);
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
