@@ -265,6 +265,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		//if(mProgressDialog != null) mProgressDialog.dismiss();
 		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		mProgressBar.setMax(4);
 		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
 		startService(provider_API_command);
 	}
@@ -292,8 +293,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
-		if(mProgressDialog != null) mProgressDialog.dismiss();
-		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
+		//if(mProgressDialog != null) mProgressDialog.dismiss();
+		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
+		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		mProgressBar.setMax(1);
 		startService(provider_API_command);
 	}
 	
@@ -359,20 +362,26 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
 			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
+
+			mProgressBar.setVisibility(ProgressBar.GONE);
+			mProgressBar.setProgress(0);
 			invalidateOptionsMenu();
 			setResult(RESULT_OK);
 			mProgressDialog.dismiss();
 		} else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_OK);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.successful_authed_cert_downloaded_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.authed_cert_download_failed_message, Toast.LENGTH_LONG).show();
 		}
 	}

@@ -704,12 +704,14 @@ public class ProviderAPI extends IntentService {
 	private boolean logOut(Bundle task) {
 		try {
 			String delete_url = task.getString(Provider.API_URL) + "/logout";
+			int progress = 0;
 
 			HttpsURLConnection urlConnection = (HttpsURLConnection)new URL(delete_url).openConnection();
 			urlConnection.setRequestMethod("DELETE");
 			urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
 
 			int responseCode = urlConnection.getResponseCode();
+			broadcast_progress(progress++);
 			Log.d("logout", Integer.toString(responseCode));
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
