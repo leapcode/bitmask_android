@@ -263,6 +263,8 @@
     <string name="eip_status">Status unknown</string>
     <string name="eip_service_label">Encrypted Internet</string>
     <string name="title_activity_configuration_wizard">Configure LEAP</string>
+    <string name="provider_list_fragment_tag">Provider list fragment</string>
+    <string name="top_padding">Top padding</string>
     <string name="new_provider_button">Select new Provider</string>
     <string name="introduce_new_provider">Introduce new provider</string>
     <string name="save">Save</string>
