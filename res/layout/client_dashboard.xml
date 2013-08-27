@@ -66,15 +66,6 @@
         android:layout_height="0dp"
         android:layout_weight="0.11"
         android:orientation="vertical" >
-        
-        <ProgressBar
-            android:id="@+id/progressbar_dashboard"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:visibility="gone" />
-
     </LinearLayout>
 
 </LinearLayout>

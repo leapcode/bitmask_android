@@ -66,8 +66,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
 
-	private ProgressDialog mProgressDialog;
 	private ProgressBar mProgressBar;
+	private TextView eipStatus;
 	private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
 	private static Context app;
 	private static SharedPreferences preferences;
@@ -87,6 +87,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		PRNGFixes.apply();
 	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
+
 
 	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
 	    IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_ACTION);
@@ -163,8 +164,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider.init( this );
 
 		setContentView(R.layout.client_dashboard);
-
-	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
 
 	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
 	    IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_ACTION);
@@ -265,10 +264,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
-		//if(mProgressDialog != null) mProgressDialog.dismiss();
 		mProgressBar.setVisibility(ProgressBar.VISIBLE);
-		mProgressBar.setMax(4);
-		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
+		eipStatus.setText("Starting to login");
+		//mProgressBar.setMax(4);
 		startService(provider_API_command);
 	}
 	
@@ -298,7 +296,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		//if(mProgressDialog != null) mProgressDialog.dismiss();
 		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
 		mProgressBar.setVisibility(ProgressBar.VISIBLE);
-		mProgressBar.setMax(1);
+		eipStatus.setText("Starting to logout");
+		//mProgressBar.setMax(1);
 		startService(provider_API_command);
 	}
 	
@@ -307,6 +306,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * @param view from which the dialog is created.
 	 */
 	public void logInDialog(View view, Bundle resultData) {
+	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
+		eipStatus = (TextView) findViewById(R.id.eipStatus);
+	    
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(LogInDialog.TAG);
 	    if (previous_log_in_dialog != null) {
@@ -360,29 +362,34 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	downloadAuthedUserCertificate(/*session_id*/);
 		} else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_FAILED) {
         	logInDialog(getCurrentFocus(), resultData);
+    		eipStatus.setText("Login failed");
         	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
 			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
+
+			eipStatus.setText("Connection secure using anonymous certificate.");
 			mProgressBar.setVisibility(ProgressBar.GONE);
 			mProgressBar.setProgress(0);
 			invalidateOptionsMenu();
 			setResult(RESULT_OK);
-			mProgressDialog.dismiss();
 		} else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
+    		eipStatus.setText("Didn't log out");
         	mProgressBar.setVisibility(ProgressBar.GONE);
-        	mProgressBar.setProgress(0);
+        	//mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_OK);
+    		eipStatus.setText("Connection secure using authed certificate.");
         	mProgressBar.setVisibility(ProgressBar.GONE);
-        	mProgressBar.setProgress(0);
+        	//mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.successful_authed_cert_downloaded_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
         	mProgressBar.setVisibility(ProgressBar.GONE);
-        	mProgressBar.setProgress(0);
+        	//mProgressBar.setProgress(0);
+    		eipStatus.setText("Connection secure using anonymous certificate.");
 			Toast.makeText(getApplicationContext(), R.string.authed_cert_download_failed_message, Toast.LENGTH_LONG).show();
 		}
 	}
@@ -402,7 +409,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			int update = intent.getIntExtra(ProviderAPI.UPDATE_DATA, 0);
-			mProgressBar.setProgress(update);
+			//mProgressBar.setProgress(update);
 		}
 	}
 }
