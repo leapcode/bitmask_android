@@ -31,15 +31,29 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Display;
 import android.view.Menu;
+<<<<<<< HEAD:src/se/leap/bitmaskclient/ConfigurationWizard.java
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+=======
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.MeasureSpec;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+>>>>>>> 2e45441... CW ProgressBar is translated below provider.:src/se/leap/leapclient/ConfigurationWizard.java
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -118,14 +132,20 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
 				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
 				mConfigState.setAction(PROVIDER_SET);
-				
-				if(!mProgressBar.isShown())
-					startProgressBar();
-				mProgressBar.incrementProgressBy(1);
-				if(resultData.containsKey(Provider.NAME))
-					mSelectedProvider = getProvider(resultData.getString(Provider.NAME));
 
-				refreshProviderList(30);
+				refreshProviderList(0);
+				
+				if(resultData.containsKey(Provider.NAME)) {
+					String provider_id = resultData.getString(Provider.NAME);
+					mSelectedProvider = getProvider(provider_id);
+
+					if(!mProgressBar.isShown()) {
+						int provider_index = getProviderIndex(provider_id);
+						startProgressBar(provider_index);
+					}
+					mProgressBar.incrementProgressBy(1);
+				}
+
 				downloadJSONFiles(mSelectedProvider);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -159,13 +179,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		}
 		else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_JSON_FILES) {
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
-<<<<<<< HEAD:src/se/leap/bitmaskclient/ConfigurationWizard.java
 			String reason_to_fail = resultData.getString(ProviderAPI.ERRORS);
 			showDownloadFailedDialog(getCurrentFocus(), reason_to_fail);
-=======
 			refreshProviderList(0);
 			mProgressBar.setVisibility(ProgressBar.GONE);
->>>>>>> ed8ca1d... Added a progressbar to ConfigurationWizard.:src/se/leap/leapclient/ConfigurationWizard.java
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
@@ -181,14 +198,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
         	setResult(RESULT_CANCELED, mConfigState);
 		}
 	}
-	
-	private void startProgressBar() {
-	    FragmentManager fragmentManager = getFragmentManager();
-	    fragmentManager.findFragmentByTag(getResources().getString(R.string.provider_list_fragment_tag)).getView().setPadding(8, 30, 8, 0);
-	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	    mProgressBar.setProgress(0);
-	    mProgressBar.setMax(3);
-	}
 
 	/**
      * Callback method from {@link ProviderListFragment.Callbacks}
@@ -198,7 +207,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     public void onItemSelected(String id) {
 	    //TODO Code 2 pane view
 	    ProviderItem selected_provider = getProvider(id);
-	    startProgressBar();
+	    int provider_index = getProviderIndex(id);
+	    startProgressBar(provider_index);
 	    mSelectedProvider = selected_provider;
 	    saveProviderJson(mSelectedProvider);
     }
@@ -233,6 +243,53 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    }
 	    return null;
     }
+	
+	private void startProgressBar() {
+	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
+	    mProgressBar.setProgress(0);
+	    mProgressBar.setMax(3);
+	}
+	
+	private void startProgressBar(int list_item_index) {
+	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
+	    mProgressBar.setProgress(0);
+	    mProgressBar.setMax(3);
+	    int measured_height = listItemHeight(list_item_index);
+        mProgressBar.setTranslationY(measured_height*list_item_index);
+	}
+
+    private int getProviderIndex(String id) {
+    	int index = 0;
+	    Iterator<ProviderItem> providers_iterator = ProviderListContent.ITEMS.iterator();
+	    while(providers_iterator.hasNext()) {
+		    ProviderItem provider = providers_iterator.next();
+		    index++;
+		    if(provider.id.equalsIgnoreCase(id)) {
+			    break;
+		    }
+	    }
+	    return index;
+    }
+    
+    private int listItemHeight(int list_item_index) {
+        ListView provider_list_view = (ListView)findViewById(android.R.id.list);
+        ListAdapter provider_list_adapter = provider_list_view.getAdapter();
+        View listItem = provider_list_adapter.getView(0, null, provider_list_view);
+        listItem.setLayoutParams(new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.WRAP_CONTENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT));
+        WindowManager wm = (WindowManager) getApplicationContext()
+                    .getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        int screenWidth = display.getWidth(); // deprecated
+
+        int listViewWidth = screenWidth - 10 - 10;
+        int widthSpec = MeasureSpec.makeMeasureSpec(listViewWidth,
+                    MeasureSpec.AT_MOST);
+        listItem.measure(widthSpec, 0);
+
+        return listItem.getMeasuredHeight();
+}
 	
     /**
      * Loads providers data from url file contained in the project 
