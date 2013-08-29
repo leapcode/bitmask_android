@@ -1,12 +1,8 @@
 package se.leap.leapclient;
 
 import java.util.List;
-import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,8 +64,9 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		TwoLineListItem row;            
+	public View getView(int index, View convertView, ViewGroup parent) {
+		TwoLineListItem row;
+		int position = getRealPosition(index);
 		if (convertView == null) {
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			row = (TwoLineListItem)inflater.inflate(android.R.layout.simple_list_item_2, null);                    
@@ -79,6 +76,8 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 		ProviderListContent.ProviderItem data = ProviderListContent.ITEMS.get(position);
 		row.getText1().setText(data.domain);
 		row.getText2().setText(data.name);
+		
+		
 
 		return row;
 	}

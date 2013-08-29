@@ -25,12 +25,12 @@ import org.json.JSONObject;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -38,22 +38,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Display;
 import android.view.Menu;
-<<<<<<< HEAD:src/se/leap/bitmaskclient/ConfigurationWizard.java
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-=======
-import android.view.MenuItem;
-import android.view.View;
 import android.view.View.MeasureSpec;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
->>>>>>> 2e45441... CW ProgressBar is translated below provider.:src/se/leap/leapclient/ConfigurationWizard.java
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -109,7 +102,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
         // TODO: If exposing deep links into your app, handle intents here.
     }
 
-    private void refreshProviderList(int top_padding) {
+    public void refreshProviderList(int top_padding) {
     	ProviderListFragment providerList = new ProviderListFragment();
 		Bundle top_padding_bundle = new Bundle();
 		top_padding_bundle.putInt(getResources().getString(R.string.top_padding), top_padding);
@@ -133,11 +126,13 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
 				mConfigState.setAction(PROVIDER_SET);
 
-				refreshProviderList(0);
 				
 				if(resultData.containsKey(Provider.NAME)) {
 					String provider_id = resultData.getString(Provider.NAME);
 					mSelectedProvider = getProvider(provider_id);
+					
+					if(mSelectedProvider.custom)
+						refreshProviderList(0);
 
 					if(!mProgressBar.isShown()) {
 						int provider_index = getProviderIndex(provider_id);
@@ -182,13 +177,14 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			String reason_to_fail = resultData.getString(ProviderAPI.ERRORS);
 			showDownloadFailedDialog(getCurrentFocus(), reason_to_fail);
 			refreshProviderList(0);
+			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, 
 			mProgressBar.setVisibility(ProgressBar.GONE);
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressBar.incrementProgressBy(1);
 		    mProgressBar.setVisibility(ProgressBar.GONE);
-		    refreshProviderList(0);
+		    //refreshProviderList(0);
 			setResult(RESULT_OK);
 			showProviderDetails(getCurrentFocus());
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
@@ -255,7 +251,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    mProgressBar.setProgress(0);
 	    mProgressBar.setMax(3);
 	    int measured_height = listItemHeight(list_item_index);
-        mProgressBar.setTranslationY(measured_height*list_item_index);
+	    mProgressBar.setTranslationY(measured_height);
 	}
 
     private int getProviderIndex(String id) {
