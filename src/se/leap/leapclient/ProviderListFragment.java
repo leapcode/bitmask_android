@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 /**
@@ -37,7 +36,7 @@ import android.widget.ListView;
  */
 public class ProviderListFragment extends ListFragment {
 
-	private ArrayAdapter<ProviderItem> content_adapter;
+	private ProviderListAdapter<ProviderItem> content_adapter;
 	
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -145,6 +144,11 @@ public class ProviderListFragment extends ListFragment {
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
         mCallbacks.onItemSelected(ProviderListContent.ITEMS.get(position).id);
+        
+        for(int item_position = 0; item_position < listView.getCount(); item_position++) {
+        	if(item_position != position)
+        		content_adapter.hide(item_position);
+        }
     }
 
     @Override
