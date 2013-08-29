@@ -26,8 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.content.Context;
-import android.widget.TwoLineListItem;
 
 /**
  * A list fragment representing a list of Providers. This fragment
@@ -91,27 +89,12 @@ public class ProviderListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-        content_adapter = new ArrayAdapter<ProviderListContent.ProviderItem>(
+        content_adapter = new ProviderListAdapter<ProviderListContent.ProviderItem>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_2,
-		ProviderListContent.ITEMS) {
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent){
-				TwoLineListItem row;            
-				if (convertView == null) {
-					LayoutInflater inflater = (LayoutInflater)getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					row = (TwoLineListItem)inflater.inflate(android.R.layout.simple_list_item_2, null);                    
-				} else {
-					row = (TwoLineListItem)convertView;
-				}
-				ProviderListContent.ProviderItem data = ProviderListContent.ITEMS.get(position);
-				row.getText1().setText(data.domain);
-				row.getText2().setText(data.name);
-
-				return row;
-			}
-	};
-	setListAdapter(content_adapter);
+		ProviderListContent.ITEMS);
+			
+        setListAdapter(content_adapter);
     }
 
     @Override
