@@ -83,18 +83,11 @@ public class ProviderDetailFragment extends DialogFragment {
 	@Override
 	public void onCancel(DialogInterface dialog) {
 		super.onCancel(dialog);
-<<<<<<< HEAD
 		ConfigHelper.removeFromSharedPref(Provider.KEY);
 		ConfigHelper.removeFromSharedPref(ProviderItem.DANGER_ON);
 		ConfigHelper.removeFromSharedPref(EIP.ALLOWED_ANON);
 		ConfigHelper.removeFromSharedPref(EIP.KEY);
-=======
-		ConfigHelper.removeFromSharedPref(ConfigHelper.PROVIDER_KEY);
-		ConfigHelper.removeFromSharedPref(ConfigHelper.DANGER_ON);
-		ConfigHelper.removeFromSharedPref(ConfigHelper.ALLOWED_ANON);
-		ConfigHelper.removeFromSharedPref(ConfigHelper.EIP_SERVICE_KEY);
-		interface_with_configuration_wizard.refreshProviderList(0);
->>>>>>> Only selected provider remain visible.
+		interface_with_configuration_wizard.unhideAll();
 	}
 
 	public static DialogFragment newInstance() {
@@ -116,7 +109,7 @@ public class ProviderDetailFragment extends DialogFragment {
 	public interface ProviderDetailFragmentInterface {
 		public void login();
 		public void use_anonymously();
-		public void refreshProviderList(int top_padding);
+		public void unhideAll();
 	}
 	
 	ProviderDetailFragmentInterface interface_with_configuration_wizard;

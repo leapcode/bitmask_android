@@ -182,4 +182,16 @@ public class ProviderListFragment extends ListFragment {
 
         mActivatedPosition = position;
     }
+    
+    public void addItem(ProviderItem provider) {
+    	content_adapter.add(provider);
+    }
+    
+    public void hide(int position) {
+    	content_adapter.hide(position);
+    }
+    
+    public void unhideAll() {
+    	content_adapter.unHideAll();
+    }
 }
