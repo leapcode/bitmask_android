@@ -305,6 +305,7 @@
     <string name="server_is_down_message">Server is down.</string>
     <string name="malformed_url">It doesn\'t seem to be a LEAP provider.</string>
     <string name="certificate_error">This is not a trusted LEAP provider.</string>
+    <string name="configuring_provider">Configuring provider</string>
     <string name="authenticating_title">Authenticating</string>
     <string name="authenticating_message">Authenticating with entered login and password.</string>
     <string name="logout_title">Log out</string>
