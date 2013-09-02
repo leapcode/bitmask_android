@@ -46,7 +46,9 @@ import android.view.View.MeasureSpec;
 import android.view.WindowManager;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -61,6 +63,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 	private ProviderItem mSelectedProvider;
 	private ProgressBar mProgressBar;
+	private TextView progressbar_description;
 	private ProviderListFragment provider_list_fragment;
 	private Intent mConfigState = new Intent();
 	
@@ -80,7 +83,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
         setContentView(R.layout.configuration_wizard_activity);
 	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_configuration_wizard);
 	    mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-        
+	    progressbar_description = (TextView) findViewById(R.id.progressbar_description);
+	    progressbar_description.setVisibility(TextView.INVISIBLE);
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
         providerAPI_result_receiver.setReceiver(this);
         
@@ -158,6 +162,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			    mProgressBar.setVisibility(ProgressBar.GONE);
+			    progressbar_description.setVisibility(TextView.GONE);
 				refreshProviderList(0);
 				//Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
 				setResult(RESULT_CANCELED, mConfigState);
@@ -168,6 +173,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			showDownloadFailedDialog(getCurrentFocus(), reason_to_fail);
 			refreshProviderList(0);
 			mProgressBar.setVisibility(ProgressBar.GONE);
+		    progressbar_description.setVisibility(TextView.GONE);
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_JSON_FILES) {
@@ -178,6 +184,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			} else {
 				mProgressBar.incrementProgressBy(1);
 			    mProgressBar.setVisibility(ProgressBar.GONE);
+			    progressbar_description.setVisibility(TextView.GONE);
 			    refreshProviderList(0);
 				//Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 				setResult(RESULT_OK);
@@ -191,17 +198,20 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			refreshProviderList(0);
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, 
 			mProgressBar.setVisibility(ProgressBar.GONE);
+		    progressbar_description.setVisibility(TextView.GONE);
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressBar.incrementProgressBy(1);
 		    mProgressBar.setVisibility(ProgressBar.GONE);
+		    progressbar_description.setVisibility(TextView.GONE);
 		    //refreshProviderList(0);
 			setResult(RESULT_OK);
 			showProviderDetails(getCurrentFocus());
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
-			refreshProviderList(0);
+			//refreshProviderList(0);
 			mProgressBar.setVisibility(ProgressBar.GONE);
+		    progressbar_description.setVisibility(TextView.GONE);
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);
 		}
@@ -254,10 +264,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	
 	private void startProgressBar(int list_item_index) {
 	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
+	    progressbar_description.setVisibility(TextView.VISIBLE);
 	    mProgressBar.setProgress(0);
 	    mProgressBar.setMax(3);
 	    int measured_height = listItemHeight(list_item_index);
 	    mProgressBar.setTranslationY(measured_height);
+	    progressbar_description.setTranslationY(measured_height + mProgressBar.getHeight());
 	}
 
     private int getProviderIndex(String id) {
