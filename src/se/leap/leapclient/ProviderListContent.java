@@ -48,6 +48,10 @@ public class ProviderListContent {
 		ITEMS.add(item);
 		ITEM_MAP.put(String.valueOf(ITEMS.size()), item);
 	}
+	public static void removeItem(ProviderItem item) {
+		ITEMS.remove(item);
+		ITEM_MAP.remove(item);
+	}
 
 	/**
 	 * A provider item.

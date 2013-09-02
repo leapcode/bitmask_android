@@ -59,6 +59,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 	private ProviderItem mSelectedProvider;
 	private ProgressBar mProgressBar;
+	private ProviderListFragment provider_list_fragment;
 	private Intent mConfigState = new Intent();
 	
 	final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
@@ -89,7 +90,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
         if ( savedInstanceState == null ){
         	// TODO Some welcome screen?
         	// We will need better flow control when we have more Fragments (e.g. user auth)
-        	ProviderListFragment provider_list_fragment = new ProviderListFragment();
+        	provider_list_fragment = new ProviderListFragment();
         	
         	FragmentManager fragmentManager = getFragmentManager();
         	fragmentManager.beginTransaction()
@@ -101,16 +102,23 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     }
 
     public void refreshProviderList(int top_padding) {
-    	ProviderListFragment providerList = new ProviderListFragment();
+    	ProviderListFragment new_provider_list_fragment = new ProviderListFragment();
 		Bundle top_padding_bundle = new Bundle();
 		top_padding_bundle.putInt(getResources().getString(R.string.top_padding), top_padding);
-		providerList.setArguments(top_padding_bundle);
+		new_provider_list_fragment.setArguments(top_padding_bundle);
 
 		FragmentManager fragmentManager = getFragmentManager();
 		fragmentManager.beginTransaction()
-		.replace(R.id.configuration_wizard_layout, providerList, getResources().getString(R.string.provider_list_fragment_tag))
+		.replace(R.id.configuration_wizard_layout, new_provider_list_fragment, getResources().getString(R.string.provider_list_fragment_tag))
 		.commit();
     }
+
+	private void setProviderList(ProviderListFragment new_provider_list_fragment) {
+		FragmentManager fragmentManager = getFragmentManager();
+		fragmentManager.beginTransaction()
+		.replace(R.id.configuration_wizard_layout, new_provider_list_fragment, getResources().getString(R.string.provider_list_fragment_tag))
+		.commit();
+	}
     
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
@@ -123,18 +131,22 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
 				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
 				mConfigState.setAction(PROVIDER_SET);
-
 				
 				if(resultData.containsKey(Provider.NAME)) {
 					String provider_id = resultData.getString(Provider.NAME);
 					mSelectedProvider = getProvider(provider_id);
-					
+					provider_list_fragment.addItem(mSelectedProvider);
+					ProviderListContent.removeItem(mSelectedProvider);
+
 					if(mSelectedProvider.custom)
 						refreshProviderList(0);
-
+					
 					if(!mProgressBar.isShown()) {
 						int provider_index = getProviderIndex(provider_id);
 						startProgressBar(provider_index);
+						provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(getResources().getString(R.string.provider_list_fragment_tag));
+						provider_list_fragment.hide(provider_index-2);
+						//setProviderList(provider_list_fragment);
 					}
 					mProgressBar.incrementProgressBy(1);
 				}
@@ -231,12 +243,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    }
 	    return null;
     }
-	
-	private void startProgressBar() {
-	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	    mProgressBar.setProgress(0);
-	    mProgressBar.setMax(3);
-	}
 	
 	private void startProgressBar(int list_item_index) {
 	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
@@ -479,6 +485,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			Fragment newFragment = AboutFragment.newInstance();
 			fragment_transaction.replace(R.id.configuration_wizard_layout, newFragment, AboutFragment.TAG).commit();
 		}
+	}
+	
+	public void unhideAll() {
+		provider_list_fragment.unhideAll();
+		setProviderList(provider_list_fragment);
+		refreshProviderList(0);
 	}
 
 	@Override

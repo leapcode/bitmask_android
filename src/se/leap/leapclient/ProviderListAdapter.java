@@ -10,19 +10,25 @@ import android.widget.ArrayAdapter;
 import android.widget.TwoLineListItem;
 
 public class ProviderListAdapter<T> extends ArrayAdapter<T> {
-	T[] items = null;
-	boolean[] hidden = null;
+	private T[] items = null;
+	private static boolean[] hidden = null;
 	
 	public void hide(int position) {
 		hidden[getRealPosition(position)] = true;
 		notifyDataSetChanged();
 		notifyDataSetInvalidated();
 	}
+	
 	public void unHide(int position) {
 		hidden[getRealPosition(position)] = false;
 		notifyDataSetChanged();
 		notifyDataSetInvalidated();
 	}
+    
+    public void unHideAll() {
+    	for (int provider_index = 0; provider_index < hidden.length; provider_index++)
+    		hidden[provider_index] = false;
+    }
 	
 	private int getRealPosition(int position) {
 		int hElements = getHiddenCountUpTo(position);
@@ -58,9 +64,20 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 	public ProviderListAdapter(Context mContext, int layout, List<T> objects) {
 		super(mContext, layout, objects);
 		items = objects.toArray((T[])new Object[0]);
-		hidden = new boolean[items.length];
-		for (int i = 0; i < items.length; i++)
-			hidden[i] = false;
+		if(hidden == null) {
+			hidden = new boolean[items.length];
+			for (int i = 0; i < items.length; i++)
+				hidden[i] = false;
+		}
+	}
+	
+	@Override
+	public void add(T item) {
+		super.add(item);
+		boolean[] new_hidden = new boolean[hidden.length+1];
+		System.arraycopy(hidden, 0, new_hidden, 0, hidden.length);
+		new_hidden[hidden.length] = false;
+		hidden = new_hidden;
 	}
 
 	@Override
@@ -76,8 +93,6 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 		ProviderListContent.ProviderItem data = ProviderListContent.ITEMS.get(position);
 		row.getText1().setText(data.domain);
 		row.getText2().setText(data.name);
-		
-		
 
 		return row;
 	}
