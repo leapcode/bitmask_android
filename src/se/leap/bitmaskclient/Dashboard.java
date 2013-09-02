@@ -242,6 +242,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	@Override
 	public void authenticate(String username, String password) {
+	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
+		eipStatus = (TextView) findViewById(R.id.eipStatus);
+		
 		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 		providerAPI_result_receiver.setReceiver(this);
 		
@@ -306,9 +309,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * @param view from which the dialog is created.
 	 */
 	public void logInDialog(View view, Bundle resultData) {
-	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
-		eipStatus = (TextView) findViewById(R.id.eipStatus);
-	    
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(LogInDialog.TAG);
 	    if (previous_log_in_dialog != null) {
