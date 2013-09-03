@@ -75,7 +75,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		super.onCreate(savedInstanceState);
 		
 		app = this;
-
+		
+		PRNGFixes.apply();
 		ConfigHelper.setSharedPreferences(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
 		
