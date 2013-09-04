@@ -91,7 +91,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
-		if(resultCode == ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+		if(resultCode == ProviderAPI.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			JSONObject provider_json;
 			try {
 				provider_json = new JSONObject(resultData.getString(ConfigHelper.PROVIDER_KEY));
@@ -123,11 +123,11 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				setResult(RESULT_CANCELED, mConfigState);
 			}
 		}
-		else if(resultCode == ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+		else if(resultCode == ProviderAPI.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			mProgressDialog.dismiss();
 			setResult(RESULT_CANCELED, mConfigState);
 		}
-		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES) {
+		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_JSON_FILES) {
 			if (ConfigHelper.getBoolFromSharedPref(ConfigHelper.ALLOWED_ANON)){
 				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_certificates));
 				mConfigState.putExtra(SERVICES_RETRIEVED, true);
@@ -139,15 +139,15 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				finish();
 			}
 		}
-		else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES) {
+		else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_JSON_FILES) {
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
 			setResult(RESULT_CANCELED, mConfigState);
 		}
-		else if(resultCode == ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE) {
+		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
 			setResult(RESULT_OK);
 			showProviderDetails(getCurrentFocus());
-		} else if(resultCode == ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
+		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 			mProgressDialog.dismiss();
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);

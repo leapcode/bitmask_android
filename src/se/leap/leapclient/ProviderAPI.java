@@ -92,6 +92,24 @@ public class ProviderAPI extends IntentService {
     PARAMETERS = "parameters"
     ;
 
+    final public static int
+    CUSTOM_PROVIDER_ADDED = 0,
+    CORRECTLY_DOWNLOADED_JSON_FILES = 1,
+    INCORRECTLY_DOWNLOADED_JSON_FILES = 2,
+    SRP_AUTHENTICATION_SUCCESSFUL = 3,
+    SRP_AUTHENTICATION_FAILED = 4,
+    SRP_REGISTRATION_SUCCESSFUL = 5,
+    SRP_REGISTRATION_FAILED = 6,
+    LOGOUT_SUCCESSFUL = 7,
+    LOGOUT_FAILED = 8,
+    CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
+    INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
+    CORRECTLY_UPDATED_PROVIDER_DOT_JSON = 11,
+    INCORRECTLY_UPDATED_PROVIDER_DOT_JSON = 12,
+    CORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 13,
+    INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
+    ;
+
 	public ProviderAPI() {
 		super("ProviderAPI");
 		Log.v("ClassName", "Provider API");
@@ -122,42 +140,42 @@ public class ProviderAPI extends IntentService {
 		
 		if(action.equalsIgnoreCase(DOWNLOAD_JSON_FILES_BUNDLE_EXTRA)) {
 			if(!downloadJsonFiles(parameters)) {
-				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+				receiver.send(INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			} else { 
-				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+				receiver.send(CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			}
 		} else if(action.equalsIgnoreCase(UPDATE_PROVIDER_DOTJSON)) {
 			Bundle result = updateProviderDotJSON(parameters);
 			if(result.getBoolean(ConfigHelper.RESULT_KEY)) {
-				receiver.send(ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
+				receiver.send(CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
 			} else { 
-				receiver.send(ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON, Bundle.EMPTY);
+				receiver.send(INCORRECTLY_UPDATED_PROVIDER_DOT_JSON, Bundle.EMPTY);
 			}
 		} else if (action.equalsIgnoreCase(DOWNLOAD_NEW_PROVIDER_DOTJSON)) {
 			Bundle result = downloadNewProviderDotJSON(parameters);
 			if(result.getBoolean(ConfigHelper.RESULT_KEY)) {
-				receiver.send(ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
+				receiver.send(CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
 			} else {
-				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+				receiver.send(INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			}
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
 			if(session_id_bundle.getBoolean(ConfigHelper.RESULT_KEY)) {
-				receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
+				receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
 			} else {
-				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, session_id_bundle);
+				receiver.send(SRP_AUTHENTICATION_FAILED, session_id_bundle);
 			}
 		} else if (action.equalsIgnoreCase(LOG_OUT)) {
 			if(logOut(parameters)) {
-				receiver.send(ConfigHelper.LOGOUT_SUCCESSFUL, Bundle.EMPTY);
+				receiver.send(LOGOUT_SUCCESSFUL, Bundle.EMPTY);
 			} else {
-				receiver.send(ConfigHelper.LOGOUT_FAILED, Bundle.EMPTY);
+				receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
 			}
 		} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
 			if(getNewCert(parameters)) {
-				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+				receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 			} else {
-				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+				receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 			}
 		}
 	}
