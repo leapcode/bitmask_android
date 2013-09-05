@@ -54,6 +54,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	protected static final int CONFIGURE_LEAP = 0;
 
 	private static final String TAG_EIP_FRAGMENT = "EIP_DASHBOARD_FRAGMENT";
+    final public static String SHARED_PREFERENCES = "LEAPPreferences";
+    final public static String ACTION_QUIT = "quit";
 
 	private ProgressDialog mProgressDialog;
 	
@@ -73,10 +75,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		app = this;
 
-		ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
+		ConfigHelper.setSharedPreferences(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
 		
-		if (ConfigHelper.getStringFromSharedPref(ConfigHelper.PROVIDER_KEY).isEmpty())
+		if (ConfigHelper.getStringFromSharedPref(Provider.KEY).isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 		else
 			buildDashboard();
@@ -88,11 +90,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			if ( resultCode == RESULT_OK ){
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
-				if(data != null && data.hasExtra(ConfigHelper.LOG_IN)) {
+				if(data != null && data.hasExtra(LogInDialog.VERB)) {
 					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
 					logInDialog(view, Bundle.EMPTY);
 				}
-			} else if(resultCode == RESULT_CANCELED && data.hasExtra(ConfigHelper.QUIT)) {
+			} else if(resultCode == RESULT_CANCELED && data.hasExtra(ACTION_QUIT)) {
 				finish();
 			} else
 				configErrorDialog();
@@ -118,8 +120,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			.setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					SharedPreferences.Editor prefsEdit = getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE).edit();
-					prefsEdit.remove(ConfigHelper.PROVIDER_KEY).commit();
+					SharedPreferences.Editor prefsEdit = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE).edit();
+					prefsEdit.remove(Provider.KEY).commit();
 					finish();
 				}
 			})
@@ -151,9 +153,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		JSONObject provider_json;
 		try {
-			provider_json = ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY);
-			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
-			if(service_description.getBoolean(ConfigHelper.ALLOW_REGISTRATION_KEY)) {
+			provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
+			JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
+			if(service_description.getBoolean(Provider.ALLOW_REGISTRATION)) {
 				if(authed) {
 					menu.findItem(R.id.login_button).setVisible(false);
 					menu.findItem(R.id.logout_button).setVisible(true);
@@ -214,13 +216,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle parameters = new Bundle();
-		parameters.putString(ConfigHelper.USERNAME_KEY, username);
-		parameters.putString(ConfigHelper.PASSWORD_KEY, password);
+		parameters.putString(LogInDialog.USERNAME, username);
+		parameters.putString(LogInDialog.PASSWORD, password);
 
 		JSONObject provider_json;
 		try {
-			provider_json = new JSONObject(preferences.getString(ConfigHelper.PROVIDER_KEY, ""));
-			parameters.putString(ConfigHelper.API_URL_KEY, provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY));
+			provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
+			parameters.putString(Provider.API_URL, provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -228,7 +230,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		provider_API_command.setAction(ProviderAPI.SRP_AUTH);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
+		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		if(mProgressDialog != null) mProgressDialog.dismiss();
 		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
@@ -247,8 +249,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		JSONObject provider_json;
 		try {
-			provider_json = new JSONObject(preferences.getString(ConfigHelper.PROVIDER_KEY, ""));
-			parameters.putString(ConfigHelper.API_URL_KEY, provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY));
+			provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
+			parameters.putString(Provider.API_URL, provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -256,7 +258,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		provider_API_command.setAction(ProviderAPI.LOG_OUT);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
+		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		if(mProgressDialog != null) mProgressDialog.dismiss();
 		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
@@ -269,7 +271,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 */
 	public void logInDialog(View view, Bundle resultData) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.LOG_IN_DIALOG);
+	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(LogInDialog.TAG);
 	    if (previous_log_in_dialog != null) {
 	        fragment_transaction.remove(previous_log_in_dialog);
 	    }
@@ -279,12 +281,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    if(resultData != null && !resultData.isEmpty()) {
 	    	Bundle user_message_bundle = new Bundle();
 	    	String user_message = resultData.getString(getResources().getString(R.string.user_message));
-	    	String username = resultData.getString(ConfigHelper.USERNAME_KEY);
+	    	String username = resultData.getString(LogInDialog.USERNAME);
 	    	user_message_bundle.putString(getResources().getString(R.string.user_message), user_message);
-	    	user_message_bundle.putString(ConfigHelper.USERNAME_KEY, username);
+	    	user_message_bundle.putString(LogInDialog.USERNAME, username);
 	    	newFragment.setArguments(user_message_bundle);
 	    }
-	    newFragment.show(fragment_transaction, ConfigHelper.LOG_IN_DIALOG);
+	    newFragment.show(fragment_transaction, LogInDialog.TAG);
 	}
 
 	/**
@@ -298,13 +300,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle parameters = new Bundle();
-		parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.AUTHED_CERTIFICATE);
+		parameters.putString(ConfigurationWizard.TYPE_OF_CERTIFICATE, ConfigurationWizard.AUTHED_CERTIFICATE);
 		/*parameters.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id.getName());
 		parameters.putString(ConfigHelper.SESSION_ID_KEY, session_id.getValue());*/
 
 		provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
+		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
 	}
@@ -312,8 +314,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 		if(resultCode == ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL){
-			String session_id_cookie_key = resultData.getString(ConfigHelper.SESSION_ID_COOKIE_KEY);
-			String session_id_string = resultData.getString(ConfigHelper.SESSION_ID_KEY);
+			String session_id_cookie_key = resultData.getString(ProviderAPI.SESSION_ID_COOKIE_KEY);
+			String session_id_string = resultData.getString(ProviderAPI.SESSION_ID_KEY);
 			setResult(RESULT_OK);
 			authed = true;
 			invalidateOptionsMenu();

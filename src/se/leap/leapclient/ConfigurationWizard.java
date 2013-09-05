@@ -25,7 +25,6 @@ import org.json.JSONObject;
 import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import se.leap.leapclient.R;
-import se.leap.openvpn.MainActivity;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -39,7 +38,6 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -55,9 +53,13 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	private ProviderItem mSelectedProvider;
 	private ProgressDialog mProgressDialog;
 	private Intent mConfigState = new Intent();
+	
+	final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
+	final public static String ANON_CERTIFICATE = "anon_certificate";
+	final public static String AUTHED_CERTIFICATE = "authed_certificate";
 
-	protected static final String PROVIDER_SET = "PROVIDER SET";
-	protected static final String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
+	final protected static String PROVIDER_SET = "PROVIDER SET";
+	final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
     
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     
@@ -70,7 +72,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
         providerAPI_result_receiver.setReceiver(this);
         
-        ConfigHelper.setSharedPreferences(getSharedPreferences(ConfigHelper.PREFERENCES_KEY, MODE_PRIVATE));
+        ConfigHelper.setSharedPreferences(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE));
         
         loadPreseededProviders();
         
@@ -94,18 +96,18 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		if(resultCode == ProviderAPI.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			JSONObject provider_json;
 			try {
-				provider_json = new JSONObject(resultData.getString(ConfigHelper.PROVIDER_KEY));
-				boolean danger_on = resultData.getBoolean(ConfigHelper.DANGER_ON);
-				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
-				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, danger_on);
-				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
+				provider_json = new JSONObject(resultData.getString(Provider.KEY));
+				boolean danger_on = resultData.getBoolean(ProviderItem.DANGER_ON);
+				ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
+				ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
+				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
 				mConfigState.setAction(PROVIDER_SET);
 				
 				if(mProgressDialog != null) mProgressDialog.dismiss();
 				mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
 				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
-				if(resultData.containsKey(ConfigHelper.PROVIDER_ID))
-					mSelectedProvider = getProvider(resultData.getString(ConfigHelper.PROVIDER_ID));
+				if(resultData.containsKey(Provider.NAME))
+					mSelectedProvider = getProvider(resultData.getString(Provider.NAME));
 
 				ProviderListFragment providerList = new ProviderListFragment();
 
@@ -128,7 +130,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_JSON_FILES) {
-			if (ConfigHelper.getBoolFromSharedPref(ConfigHelper.ALLOWED_ANON)){
+			if (ConfigHelper.getBoolFromSharedPref(EIP.ALLOWED_ANON)){
 				mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_certificates));
 				mConfigState.putExtra(SERVICES_RETRIEVED, true);
 				downloadAnonCert();
@@ -170,7 +172,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     @Override
     public void onBackPressed() {
     	try {
-			if(ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY) == null || ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY).length() == 0) {
+			if(ConfigHelper.getJsonFromSharedPref(Provider.KEY) == null || ConfigHelper.getJsonFromSharedPref(Provider.KEY).length() == 0) {
 				askDashboardToQuitApp();
 			} else {
 				setResult(RESULT_OK);
@@ -183,7 +185,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     
     private void askDashboardToQuitApp() {
 		Intent ask_quit = new Intent();
-		ask_quit.putExtra(ConfigHelper.QUIT, ConfigHelper.QUIT);
+		ask_quit.putExtra(Dashboard.ACTION_QUIT, Dashboard.ACTION_QUIT);
 		setResult(RESULT_CANCELED, ask_quit);
     }
 
@@ -243,9 +245,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     			// I think yes, but if so, where does this list live? leap.se, as it's the non-profit project for the software?
     			// If not, we should just be getting names/urls, and fetching the provider.json like in custom entries
     			provider_json = provider.provider_json;
-    			ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
-    			ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
-    			ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, provider.danger_on);
+    			ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
+    			ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
+    			ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, provider.danger_on);
     			
     			mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
     			downloadJSONFiles(mSelectedProvider);
@@ -267,14 +269,14 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		
 		Bundle parameters = new Bundle();
 		
-		parameters.putString(ConfigHelper.PROVIDER_KEY, provider.name);
-		parameters.putString(ConfigHelper.MAIN_CERT_KEY, provider.cert_json_url);
-		parameters.putString(ConfigHelper.EIP_SERVICE_KEY, provider.eip_service_json_url);
-		parameters.putBoolean(ConfigHelper.DANGER_ON, provider.danger_on);
+		parameters.putString(Provider.KEY, provider.name);
+		parameters.putString(Provider.CA_CERT, provider.cert_json_url);
+		parameters.putString(EIP.KEY, provider.eip_service_json_url);
+		parameters.putBoolean(ProviderItem.DANGER_ON, provider.danger_on);
 		
 		provider_API_command.setAction(ProviderAPI.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
+		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 
 		startService(provider_API_command);
 	}
@@ -287,11 +289,11 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 		Bundle parameters = new Bundle();
 
-		parameters.putString(ConfigHelper.TYPE_OF_CERTIFICATE, ConfigHelper.ANON_CERTIFICATE);
+		parameters.putString(TYPE_OF_CERTIFICATE, ANON_CERTIFICATE);
 
 		provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
+		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 
 		startService(provider_API_command);
 	}
@@ -302,14 +304,14 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	 */
 	public void addAndSelectNewProvider(View view) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-		Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.NEW_PROVIDER_DIALOG);
+		Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(NewProviderDialog.TAG);
 		if (previous_new_provider_dialog != null) {
 			fragment_transaction.remove(previous_new_provider_dialog);
 		}
 		fragment_transaction.addToBackStack(null);
 		
 		DialogFragment newFragment = NewProviderDialog.newInstance();
-		newFragment.show(fragment_transaction, ConfigHelper.NEW_PROVIDER_DIALOG);
+		newFragment.show(fragment_transaction, NewProviderDialog.TAG);
 	}
 	
 	/**
@@ -320,14 +322,14 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	 */
 	public void showProviderDetails(View view) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-		Fragment previous_provider_details_dialog = getFragmentManager().findFragmentByTag(ConfigHelper.PROVIDER_DETAILS_DIALOG);
+		Fragment previous_provider_details_dialog = getFragmentManager().findFragmentByTag(ProviderDetailFragment.TAG);
 		if (previous_provider_details_dialog != null) {
 			fragment_transaction.remove(previous_provider_details_dialog);
 		}
 		fragment_transaction.addToBackStack(null);
 		
 		DialogFragment newFragment = ProviderDetailFragment.newInstance();
-		newFragment.show(fragment_transaction, ConfigHelper.PROVIDER_DETAILS_DIALOG);
+		newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
 	}
 
 	@Override
@@ -335,12 +337,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle parameters = new Bundle();
-		parameters.putString(ConfigHelper.PROVIDER_MAIN_URL, provider_main_url);
-		parameters.putBoolean(ConfigHelper.DANGER_ON, danger_on);
+		parameters.putString(Provider.MAIN_URL, provider_main_url);
+		parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
 
 		provider_API_command.setAction(ProviderAPI.DOWNLOAD_NEW_PROVIDER_DOTJSON);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
+		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
 	}
@@ -355,13 +357,13 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle parameters = new Bundle();
-		parameters.putString(ConfigHelper.PROVIDER_NAME, provider_name);
-		parameters.putString(ConfigHelper.PROVIDER_JSON_URL, provider_json_url);
-		parameters.putBoolean(ConfigHelper.DANGER_ON, danger_on);
+		parameters.putString(Provider.NAME, provider_name);
+		parameters.putString(Provider.DOT_JSON_URL, provider_json_url);
+		parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
 
 		provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DOTJSON);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ConfigHelper.RECEIVER_KEY, providerAPI_result_receiver);
+		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		startService(provider_API_command);
 	}
@@ -390,19 +392,19 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	 */
 	public void showAboutFragment(View view) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-		Fragment previous_about_fragment = getFragmentManager().findFragmentByTag(ConfigHelper.ABOUT_FRAGMENT);
+		Fragment previous_about_fragment = getFragmentManager().findFragmentByTag(AboutFragment.TAG);
 		if (previous_about_fragment == null) {
 			fragment_transaction.addToBackStack(null);
 
 			Fragment newFragment = AboutFragment.newInstance();
-			fragment_transaction.replace(R.id.configuration_wizard_layout, newFragment, ConfigHelper.ABOUT_FRAGMENT).commit();
+			fragment_transaction.replace(R.id.configuration_wizard_layout, newFragment, AboutFragment.TAG).commit();
 		}
 	}
 
 	@Override
 	public void login() {
 		Intent ask_login = new Intent();
-		ask_login.putExtra(ConfigHelper.LOG_IN, ConfigHelper.LOG_IN);
+		ask_login.putExtra(LogInDialog.VERB, LogInDialog.VERB);
 		setResult(RESULT_OK, ask_login);
 		finish();
 	}

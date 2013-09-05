@@ -17,9 +17,6 @@
 package se.leap.leapclient;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.io.InputStream;
@@ -28,7 +25,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -41,7 +37,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Environment;
 import android.util.Base64;
 
 /**
@@ -55,55 +50,7 @@ public class ConfigHelper {
     
     public static SharedPreferences shared_preferences;
     private static KeyStore keystore_trusted;
-
-    final public static String
-    ABOUT_FRAGMENT = "aboutFragment",
-    LOG_IN_DIALOG = "logInDialog",
-    NEW_PROVIDER_DIALOG = "logInDialog",
-    M1_KEY = "M1",
-    M2_KEY = "M2",
-    LOG_IN = "logIn",
-    API_VERSION_KEY = "api_version",
-    API_RETURN_SERIAL_KEY = "serial",
-    RESULT_KEY = "result",
-    RECEIVER_KEY = "receiver",
-    PROVIDER_KEY = "provider",
-    SERVICE_KEY = "service",
-    ALLOWED_ANON = "allow_anonymous",
-    MAIN_CERT_KEY = "main_cert",
-    CERT_KEY = "cert",
-    KEY_KEY = "key",
-    EIP_SERVICE_KEY = "eip",
-    EIP_PARSED_SERIAL = "eip_parsed_serial",
-    TYPE_OF_CERTIFICATE = "type_of_certificate",
-    ANON_CERTIFICATE = "anon_certificate",
-    AUTHED_CERTIFICATE = "authed_certificate",
-    SALT_KEY = "salt",
-    SESSION_ID_COOKIE_KEY = "_session_id",
-    SESSION_ID_KEY = "session_id",
-    PREFERENCES_KEY = "LEAPPreferences",
-    USER_DIRECTORY = "leap_android",
-    PROVIDER_NAME = "provider_name",
-    PROVIDER_ID = "provider_id",
-    PROVIDER_MAIN_URL = "provider_main_url",
-    PROVIDER_JSON_URL = "provider_json_url",
-    CUSTOM = "custom",
-    DANGER_ON = "danger_on",
-    API_URL_KEY = "api_uri",
-    USERNAME_KEY = "username",
-    PASSWORD_KEY = "password",
-    ALLOW_REGISTRATION_KEY = "allow_registration",
-    EIP_SERVICE_API_PATH = "config/eip-service.json",
-    ERRORS_KEY = "errors",
-    RECEIVER_TAG = "receiverTag",
-    REQUEST_TAG = "requestTag",
-    PROVIDER_DETAILS_DIALOG = "providerDetailsFragment",
-    DOMAIN = "domain",
-    NAME = "name",
-    DESCRIPTION = "description",
-    QUIT = "quit"
-    ;
-	
+    
     final public static String NG_1024 =
     		"eeaf0ab9adb38dd69c33f80afa8fc5e86072618775ff3c0b9ea2314c9c256576d674df7496ea81d3383b4813d692c6e0e0d5d8e250b98be48e495c1d6089dad15dc7d7b46154d6b6ce8ef4ad69b15d4982559b297bcf1885c529f566660e57ec68edbc3c05726cc02fd4cbf4976eaa9afd5138fe8376435b9fc61d2fc0eb06e3";
     final public static BigInteger G = new BigInteger("2");
@@ -111,7 +58,7 @@ public class ConfigHelper {
     
     private static boolean checkSharedPrefs() {
     	try {
-    		shared_preferences = Dashboard.getAppContext().getSharedPreferences(PREFERENCES_KEY,Context.MODE_PRIVATE);
+    		shared_preferences = Dashboard.getAppContext().getSharedPreferences(Dashboard.SHARED_PREFERENCES,Context.MODE_PRIVATE);
     	} catch (Exception e) {
     		return false;
     	}
@@ -230,24 +177,6 @@ public class ConfigHelper {
 				.edit();
 		shared_preferences_editor.remove(shared_preferences_key);
 		return shared_preferences_editor.commit();
-	}
-
-	/**
-	 * Opens a FileInputStream from the user directory of the external storage directory.
-	 * @param filename
-	 * @return a file input stream
-	 */
-	public static FileInputStream openFileInputStream(String filename) {
-		FileInputStream input_stream = null;
-		File root = Environment.getExternalStorageDirectory();
-		File leap_dir = new File(root.getAbsolutePath() + File.separator + USER_DIRECTORY);
-		try {
-			input_stream = new FileInputStream(leap_dir + File.separator + filename);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return input_stream;
 	}
 
 	/**

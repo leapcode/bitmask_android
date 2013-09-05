@@ -106,7 +106,7 @@ public class LaunchVPN extends ListActivity implements OnItemClickListener {
 		final String action = intent.getAction();
 		
 		// If something wants feedback, they sent us a Receiver
-		mReceiver = intent.getParcelableExtra(ConfigHelper.RECEIVER_TAG);
+		mReceiver = intent.getParcelableExtra(EIP.RECEIVER_TAG);
 		
 		// If the intent is a request to create a shortcut, we'll do that and exit
 
@@ -285,7 +285,7 @@ public class LaunchVPN extends ListActivity implements OnItemClickListener {
 				// User does not want us to start, so we just vanish (well, now we tell our receiver, then vanish)
 				Bundle resultData = new Bundle();
 				// For now, nothing else is calling, so this "request" string is good enough
-				resultData.putString(ConfigHelper.REQUEST_TAG, EIP.ACTION_START_EIP);
+				resultData.putString(EIP.REQUEST_TAG, EIP.ACTION_START_EIP);
 				mReceiver.send(RESULT_CANCELED, resultData);
 				finish();
 			}
@@ -373,7 +373,7 @@ public class LaunchVPN extends ListActivity implements OnItemClickListener {
 			// Tell whom-it-may-concern that we started VPN
 			Bundle resultData = new Bundle();
 			// For now, nothing else is calling, so this "request" string is good enough
-			resultData.putString(ConfigHelper.REQUEST_TAG, EIP.ACTION_START_EIP);
+			resultData.putString(EIP.REQUEST_TAG, EIP.ACTION_START_EIP);
 			mReceiver.send(RESULT_OK, resultData);
 			finish();
 

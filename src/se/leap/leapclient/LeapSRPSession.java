@@ -34,6 +34,10 @@ import org.jboss.security.srp.SRPParameters;
  *
  */
 public class LeapSRPSession {
+	
+	final public static String SALT = "salt";
+	final public static String M1 = "m1";
+	final public static String M2 = "m2";
 
 	private SRPParameters params;
 	private String username;
