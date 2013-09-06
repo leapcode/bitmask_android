@@ -123,17 +123,6 @@
             </intent-filter>
         </activity>
 
-        <activity-alias
-            android:name="se.leap.openvpn.app.CreateShortcuts"
-            android:label="@string/vpn_shortcut"
-            android:targetActivity="se.leap.openvpn.LaunchVPN" >
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity-alias>
-
         <provider
             android:name="se.leap.openvpn.FileProvider"
             android:authorities="se.leap.openvpn.FileProvider"
@@ -149,6 +138,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity-alias
+            android:name="se.leap.leapclient.app.CreateShortcuts"
+            android:label="@string/app"
+            android:targetActivity="se.leap.leapclient.Dashboard" >
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+        
         <activity
             android:name="se.leap.leapclient.ConfigurationWizard"
             android:label="@string/title_activity_configuration_wizard" >
