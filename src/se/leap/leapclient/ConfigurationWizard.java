@@ -126,6 +126,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			}
 		}
 		else if(resultCode == ProviderAPI.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+			ConfigHelper.removeFromSharedPref(Provider.KEY);
 			mProgressDialog.dismiss();
 			setResult(RESULT_CANCELED, mConfigState);
 		}
@@ -167,7 +168,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    ProviderItem selected_provider = getProvider(id);
 	    mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.config_wait_title), getResources().getString(R.string.config_connecting_provider), true);
 	    mSelectedProvider = selected_provider;
-	    saveProviderJson(mSelectedProvider);
+		updateProviderDotJson(mSelectedProvider.name(), mSelectedProvider.providerJsonUrl(), mSelectedProvider.completelyTrusted());
     }
     
     @Override
@@ -194,7 +195,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    Iterator<ProviderItem> providers_iterator = ProviderListContent.ITEMS.iterator();
 	    while(providers_iterator.hasNext()) {
 		    ProviderItem provider = providers_iterator.next();
-		    if(provider.id.equalsIgnoreCase(id)) {
+		    if(provider.name().equalsIgnoreCase(id)) {
 			    return provider;
 		    }
 	    }
@@ -239,16 +240,16 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     private void saveProviderJson(ProviderItem provider) {
     	JSONObject provider_json = new JSONObject();
     	try {
-    		if(!provider.custom) {
-    			updateProviderDotJson(provider.name, provider.provider_json_url, provider.danger_on);
+    		if(!provider.custom()) {
+    			updateProviderDotJson(mSelectedProvider.name(), provider.providerJsonUrl(), provider.completelyTrusted());
     		} else {
     			// FIXME!! We should we be updating our seeded providers list at ConfigurationWizard onStart() ?
     			// I think yes, but if so, where does this list live? leap.se, as it's the non-profit project for the software?
     			// If not, we should just be getting names/urls, and fetching the provider.json like in custom entries
-    			provider_json = provider.provider_json;
+    			provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
     			ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
     			ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
-    			ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, provider.danger_on);
+    			ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, provider.completelyTrusted());
     			
     			mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
     			downloadJSONFiles(mSelectedProvider);
@@ -270,10 +271,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		
 		Bundle parameters = new Bundle();
 		
-		parameters.putString(Provider.KEY, provider.name);
+		parameters.putString(Provider.KEY, provider.name());
 		parameters.putString(Provider.CA_CERT, provider.cert_json_url);
 		parameters.putString(EIP.KEY, provider.eip_service_json_url);
-		parameters.putBoolean(ProviderItem.DANGER_ON, provider.danger_on);
+		parameters.putBoolean(ProviderItem.DANGER_ON, provider.completelyTrusted());
 		
 		provider_API_command.setAction(ProviderAPI.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);

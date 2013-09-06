@@ -53,21 +53,12 @@ public class ProviderListContent {
 	 * A provider item.
 	 */
 	public static class ProviderItem {
-
-	    
 		final public static String CUSTOM = "custom";
 		final public static String DANGER_ON = "danger_on";
-	    
-		public boolean custom = false;
-		public String id;
-		public String name;
-		public String domain;
-		public String provider_json_url;
-		public JSONObject provider_json;
-		public String provider_json_filename;
-		public String eip_service_json_url;
-		public String cert_json_url;
-		public boolean danger_on = false;
+		private boolean custom = false;
+		private String provider_json_url;
+		private String name;
+		private boolean danger_on = false;
 
 		/**
 		 * @param name of the provider
@@ -82,18 +73,10 @@ public class ProviderListContent {
 				urls_file_input_stream.read(urls_file_bytes);
 				String urls_file_content = new String(urls_file_bytes);
 				JSONObject file_contents = new JSONObject(urls_file_content);
-				id = name;
-				this.name = name;
 				provider_json_url = file_contents.getString(Provider.DOT_JSON_URL);
-				domain = new URL(provider_json_url).getHost();
-				//provider_json_filename = file_contents.getString("assets_json_provider");
-				eip_service_json_url = file_contents.getString("json_eip_service");
-				cert_json_url = file_contents.getString(EIP.CERTIFICATE);
+				this.name = name;
 				this.custom = custom;
 				this.danger_on = danger_on;
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -110,37 +93,19 @@ public class ProviderListContent {
 		 * @param custom if it's a new provider entered by the user or not
 		 * @param danger_on if the user trusts completely the new provider
 		 */
-		public ProviderItem(String name, String provider_json_url, JSONObject provider_json, boolean custom, boolean danger_on) {
-
-			try {
-				id = name;
-				//this.name = name;
-				this.provider_json_url = provider_json_url;
-				this.provider_json = provider_json;
-				this.name = provider_json.getJSONObject("name").getString("en");
-				domain = new URL(provider_json_url).getHost();
-				eip_service_json_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
-				cert_json_url = provider_json.getString("ca_cert_uri");
-				this.custom = custom;
-				this.danger_on = danger_on;
-				if(custom)
-					provider_json_filename = name + "_provider.json".replaceFirst("__", "_");
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		public ProviderItem(String name, String provider_json_url, boolean custom, boolean danger_on) {
+			this.name = name;
+			this.provider_json_url = provider_json_url;
+			this.custom = custom;
+			this.danger_on = danger_on;
 		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-
-		public String getName() {
-			return id;
-		}
+		
+		public String name() { return name; }
+		
+		public boolean custom() { return custom; }
+		
+		public String providerJsonUrl() { return provider_json_url; }
+		
+		public boolean completelyTrusted() { return danger_on; }
 	}
 }

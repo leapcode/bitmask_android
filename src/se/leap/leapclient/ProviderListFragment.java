@@ -104,8 +104,8 @@ public class ProviderListFragment extends ListFragment {
 					row = (TwoLineListItem)convertView;
 				}
 				ProviderListContent.ProviderItem data = ProviderListContent.ITEMS.get(position);
-				row.getText1().setText(data.domain);
-				row.getText2().setText(data.name);
+				row.getText1().setText(data.domain());
+				row.getText2().setText(data.name());
 
 				return row;
 			}
