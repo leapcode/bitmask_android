@@ -512,10 +512,10 @@ public class ProviderAPI extends IntentService {
 				ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
 				ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
 				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
-				ProviderItem added_provider = new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on);
+				ProviderItem added_provider = new ProviderItem(provider_name, provider_json_url, custom, danger_on);
 				ProviderListContent.addItem(added_provider);
 
-				result.putString(Provider.NAME, added_provider.getName());
+				result.putString(Provider.NAME, added_provider.name());
 				result.putBoolean(RESULT_KEY, true);
 				result.putString(Provider.KEY, provider_json.toString());
 				result.putBoolean(ProviderItem.DANGER_ON, danger_on);
