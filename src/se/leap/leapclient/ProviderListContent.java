@@ -106,6 +106,14 @@ public class ProviderListContent {
 		
 		public String providerJsonUrl() { return provider_json_url; }
 		
+		public String domain() {
+			try {
+				return new URL(provider_json_url).getHost();
+			} catch (MalformedURLException e) {
+				return provider_json_url.replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
+			}
+		}
+		
 		public boolean completelyTrusted() { return danger_on; }
 	}
 }

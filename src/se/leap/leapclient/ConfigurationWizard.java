@@ -115,7 +115,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				fragmentManager.beginTransaction()
 				.replace(R.id.configuration_wizard_layout, providerList, "providerlist")
 				.commit();
-				downloadJSONFiles(mSelectedProvider);
+				downloadJSONFiles(provider_json, danger_on);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -252,7 +252,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     			ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, provider.completelyTrusted());
     			
     			mProgressDialog.setMessage(getResources().getString(R.string.config_downloading_services));
-    			downloadJSONFiles(mSelectedProvider);
+    			downloadJSONFiles(provider_json, provider.completelyTrusted());
     		}
     	} catch (JSONException e) {
     		setResult(RESULT_CANCELED);
@@ -264,23 +264,28 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
      * Asks ProviderAPI to download provider site's certificate and eip-service.json
      * 
      * URLs are fetched from the provider parameter
-     * @param provider from which certificate and eip-service.json files are going to be downloaded
+     * @param provider_json describing the provider from which certificate and eip-service.json files are going to be downloaded
      */
-	private void downloadJSONFiles(ProviderItem provider) {
-		Intent provider_API_command = new Intent(this, ProviderAPI.class);
-		
-		Bundle parameters = new Bundle();
-		
-		parameters.putString(Provider.KEY, provider.name());
-		parameters.putString(Provider.CA_CERT, provider.cert_json_url);
-		parameters.putString(EIP.KEY, provider.eip_service_json_url);
-		parameters.putBoolean(ProviderItem.DANGER_ON, provider.completelyTrusted());
-		
-		provider_API_command.setAction(ProviderAPI.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA);
-		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+	private void downloadJSONFiles(JSONObject provider_json, boolean danger_on) {
+			try {
+				Intent provider_API_command = new Intent(this, ProviderAPI.class);
+				
+				Bundle parameters = new Bundle();
 
-		startService(provider_API_command);
+				parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
+				parameters.putString(Provider.CA_CERT, provider_json.getString("ca_cert_uri"));
+				String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/config/eip-service.json";
+				parameters.putString(EIP.KEY, eip_service_url);
+				
+				provider_API_command.setAction(ProviderAPI.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA);
+				provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
+				provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+
+				startService(provider_API_command);
+			} catch (JSONException e) {
+				//TODO Show error to the user. This will eventually be transformed to "unselectProvider()", which will show the graphical notice itself.
+				ConfigHelper.removeFromSharedPref(Provider.KEY);
+			}
 	}
 	
 	/**
