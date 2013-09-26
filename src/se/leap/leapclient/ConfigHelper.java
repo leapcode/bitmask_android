@@ -79,7 +79,7 @@ public class ConfigHelper {
     ANON_CERTIFICATE = "anon_certificate",
     AUTHED_CERTIFICATE = "authed_certificate",
     SALT_KEY = "salt",
-    SESSION_ID_COOKIE_KEY = "session_id_cookie_key",
+    SESSION_ID_COOKIE_KEY = "_session_id",
     SESSION_ID_KEY = "session_id",
     PREFERENCES_KEY = "LEAPPreferences",
     USER_DIRECTORY = "leap_android",
