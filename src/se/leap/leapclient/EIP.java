@@ -63,7 +63,7 @@ public final class EIP extends IntentService {
 	public final static String ACTION_IS_EIP_RUNNING = "se.leap.leapclient.IS_RUNNING";
 	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
 	public final static String ALLOWED_ANON = "allow_anonymous";
-	public final static String CERTIFICATE = "certificate";
+	public final static String CERTIFICATE = "cert";
 	public final static String PRIVATE_KEY = "private_key";
 	public final static String KEY = "eip";
 	public final static String PARSED_SERIAL = "eip_parsed_serial";
