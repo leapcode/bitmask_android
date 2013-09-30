@@ -196,6 +196,7 @@ public class ProviderAPI extends IntentService {
 		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 		try {
 			String cert_string = downloadWithCommercialCA(cert_url, danger_on);
+			if(cert_string.isEmpty()) return false;
 			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
 			cert_string = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
 			ConfigHelper.saveSharedPref(Provider.CA_CERT, "-----BEGIN CERTIFICATE-----\n"+cert_string+"-----END CERTIFICATE-----");
