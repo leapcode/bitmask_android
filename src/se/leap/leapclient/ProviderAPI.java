@@ -516,7 +516,7 @@ public class ProviderAPI extends IntentService {
 				if(provider_json.has(ERRORS)) {
 					String reason_to_fail = provider_json.getString(ERRORS);
 					result.putString(ERRORS, reason_to_fail);
-					result.putBoolean(ERRORS, false);
+					result.putBoolean(RESULT_KEY, false);
 				} else {
 					ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
 					ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
@@ -532,6 +532,7 @@ public class ProviderAPI extends IntentService {
 			}
 		} catch (JSONException e) {
 			result.putBoolean(RESULT_KEY, false);
+			result.putString(ERRORS, "Corrupt download");
 		}
 		
 		return result;
