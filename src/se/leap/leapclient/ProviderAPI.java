@@ -225,7 +225,7 @@ public class ProviderAPI extends IntentService {
 		
 		String username = (String) task.get(LogInDialog.USERNAME);
 		String password = (String) task.get(LogInDialog.PASSWORD);
-		if(wellFormedPassword(password)) {
+		if(validUserLoginData(username, password)) {
 			String authentication_server = (String) task.get(Provider.API_URL);
 
 			SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
@@ -277,12 +277,28 @@ public class ProviderAPI extends IntentService {
 				e.printStackTrace();
 			}
 		} else {
-			session_id_bundle.putBoolean(RESULT_KEY, false);
-			session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_not_valid_password_user_message));
-			session_id_bundle.putString(LogInDialog.USERNAME, username);
+			if(!wellFormedPassword(password)) {
+				session_id_bundle.putBoolean(RESULT_KEY, false);
+				session_id_bundle.putString(LogInDialog.USERNAME, username);
+				session_id_bundle.putBoolean(LogInDialog.PASSWORD_INVALID_LENGTH, true);
+			}
+			if(username.isEmpty()) {
+				session_id_bundle.putBoolean(RESULT_KEY, false);
+				session_id_bundle.putBoolean(LogInDialog.USERNAME_MISSING, true);
+			}
 		}
 		
 		return session_id_bundle;
+	}
+
+	/**
+	 * Validates parameters entered by the user to log in
+	 * @param entered_username
+	 * @param entered_password
+	 * @return true if both parameters are present and the entered password length is greater or equal to eight (8).
+	 */
+	private boolean validUserLoginData(String entered_username, String entered_password) {
+		return !(entered_username.isEmpty()) && wellFormedPassword(entered_password);
 	}
 
 	/**

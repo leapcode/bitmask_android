@@ -274,11 +274,12 @@
     <string name="name">Name</string>
     <string name="description">Description</string>
     <string name="use_anonymously_button">Use anonymously</string>
-    <string name="username_ask">Introduce your username</string>
-    <string name="password_ask">Enter your password</string>
+    <string name="username_hint">username</string>
+    <string name="username_ask">Please enter your username</string>
+    <string name="password_hint">password</string>
     <string name="user_message">User message</string>
     <string name="error_bad_user_password_user_message">Not valid username and/or password.</string>
-    <string name="error_not_valid_password_user_message">Your password is not well-formed: it should have at least 8 characters.</string>
+    <string name="error_not_valid_password_user_message">It should have at least 8 characters.</string>
     <string name="error_client_http_user_message">Try again: Client HTTP error</string>
     <string name="error_io_exception_user_message">Try again: I/O error</string>
     <string name="error_json_exception_user_message">Try again: Bad response from the server</string>
