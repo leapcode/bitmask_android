@@ -52,7 +52,12 @@ public class ProviderListContent {
 	/**
 	 * A provider item.
 	 */
-	public static class ProviderItem {  
+	public static class ProviderItem {
+
+	    
+		final public static String CUSTOM = "custom";
+		final public static String DANGER_ON = "danger_on";
+	    
 		public boolean custom = false;
 		public String id;
 		public String name;
@@ -79,11 +84,11 @@ public class ProviderListContent {
 				JSONObject file_contents = new JSONObject(urls_file_content);
 				id = name;
 				this.name = name;
-				provider_json_url = file_contents.getString(ConfigHelper.PROVIDER_JSON_URL);
+				provider_json_url = file_contents.getString(Provider.DOT_JSON_URL);
 				domain = new URL(provider_json_url).getHost();
 				//provider_json_filename = file_contents.getString("assets_json_provider");
 				eip_service_json_url = file_contents.getString("json_eip_service");
-				cert_json_url = file_contents.getString(ConfigHelper.CERT_KEY);
+				cert_json_url = file_contents.getString(EIP.CERTIFICATE);
 				this.custom = custom;
 				this.danger_on = danger_on;
 			} catch (MalformedURLException e) {
@@ -114,7 +119,7 @@ public class ProviderListContent {
 				this.provider_json = provider_json;
 				this.name = provider_json.getJSONObject("name").getString("en");
 				domain = new URL(provider_json_url).getHost();
-				eip_service_json_url = provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY) + "/" + ConfigHelper.EIP_SERVICE_API_PATH;
+				eip_service_json_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
 				cert_json_url = provider_json.getString("ca_cert_uri");
 				this.custom = custom;
 				this.danger_on = danger_on;
@@ -134,7 +139,7 @@ public class ProviderListContent {
 			return name;
 		}
 
-		public String getId() {
+		public String getName() {
 			return id;
 		}
 	}

@@ -14,6 +14,8 @@ import android.widget.TextView;
 import se.leap.leapclient.R;
 
 public class AboutFragment extends Fragment  {
+	
+    final public static String TAG = "aboutFragment";
 
 	public static Fragment newInstance() {
 		AboutFragment provider_detail_fragment = new AboutFragment();
