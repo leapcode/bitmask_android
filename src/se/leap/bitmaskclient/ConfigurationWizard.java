@@ -145,7 +145,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		}
 		else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_JSON_FILES) {
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
-			mProgressDialog.dismiss();
 			String reason_to_fail = resultData.getString(ProviderAPI.ERRORS);
 			showDownloadFailedDialog(getCurrentFocus(), reason_to_fail);
 			setResult(RESULT_CANCELED, mConfigState);
