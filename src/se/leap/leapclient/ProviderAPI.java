@@ -238,7 +238,7 @@ public class ProviderAPI extends IntentService {
 					byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
 					byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
 					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
-					if(session_idAndM2.has("M2") && client.verify((byte[])session_idAndM2.get("M2"))) {
+					if(session_idAndM2.has(LeapSRPSession.M2) && client.verify((byte[])session_idAndM2.get(LeapSRPSession.M2))) {
 						session_id_bundle.putBoolean(RESULT_KEY, true);
 					} else {
 						session_id_bundle.putBoolean(RESULT_KEY, false);
