@@ -70,6 +70,16 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 				hidden[i] = false;
 		}
 	}
+
+	public ProviderListAdapter(Context mContext, int layout, List<T> objects, boolean show_all_providers) {
+		super(mContext, layout, objects);
+		items = objects.toArray((T[])new Object[0]);
+		if(show_all_providers) {
+			hidden = new boolean[items.length];
+			for (int i = 0; i < items.length; i++)
+				hidden[i] = false;
+		}
+	}
 	
 	@Override
 	public void add(T item) {

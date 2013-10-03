@@ -19,6 +19,7 @@
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -37,6 +38,9 @@ import android.widget.ListView;
  */
 public class ProviderListFragment extends ListFragment {
 
+	public static String TAG = "provider_list_fragment";
+	public static String SHOW_ALL_PROVIDERS = "show_all_providers";
+	
 	private ProviderListAdapter<ProviderItem> content_adapter;
 	
     /**
@@ -88,10 +92,17 @@ public class ProviderListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-        content_adapter = new ProviderListAdapter<ProviderListContent.ProviderItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_2,
-		ProviderListContent.ITEMS);
+    	if(getArguments().containsKey(SHOW_ALL_PROVIDERS))
+    		content_adapter = new ProviderListAdapter<ProviderListContent.ProviderItem>(
+    				getActivity(),
+    				android.R.layout.simple_list_item_activated_2,
+    				ProviderListContent.ITEMS, getArguments().getBoolean(SHOW_ALL_PROVIDERS));
+    	else
+    		content_adapter = new ProviderListAdapter<ProviderListContent.ProviderItem>(
+    				getActivity(),
+    				android.R.layout.simple_list_item_activated_2,
+    				ProviderListContent.ITEMS);
+    		
 			
         setListAdapter(content_adapter);
     }
@@ -192,6 +203,14 @@ public class ProviderListFragment extends ListFragment {
     }
     
     public void unhideAll() {
-    	content_adapter.unHideAll();
+    	if(content_adapter != null)
+    		content_adapter.unHideAll();
     }
+
+	/**
+	 * @return a new instance of this ListFragment.
+	 */
+	public static ProviderListFragment newInstance() {
+		return new ProviderListFragment();
+	}
 }
