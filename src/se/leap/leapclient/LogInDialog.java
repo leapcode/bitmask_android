@@ -38,7 +38,14 @@ import android.widget.TextView;
  *
  */
 public class LogInDialog extends DialogFragment {
-	
+
+     
+	final public static String TAG = "logInDialog";
+	final public static String VERB = "log in";
+	final public static String USERNAME = "username";
+	final public static String PASSWORD = "password";
+    
+    
 	public AlertDialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -51,7 +58,7 @@ public class LogInDialog extends DialogFragment {
 		
 		final EditText username_field = (EditText)log_in_dialog_view.findViewById(R.id.username_entered);
 		if(getArguments() != null && getArguments().containsKey(getResources().getString(R.string.user_message))) {
-			String username = getArguments().getString(ConfigHelper.USERNAME_KEY);
+			String username = getArguments().getString(USERNAME);
 			username_field.setText(username);
 			username_field.setHint("");
 		}

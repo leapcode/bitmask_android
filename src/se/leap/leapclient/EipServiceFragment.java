@@ -159,7 +159,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 	private void eipCommand(String action){
 		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
 		Intent vpnIntent = new Intent(action);
-		vpnIntent.putExtra(ConfigHelper.RECEIVER_TAG, mEIPReceiver);
+		vpnIntent.putExtra(EIP.RECEIVER_TAG, mEIPReceiver);
 		getActivity().startService(vpnIntent);
 	}
 	
@@ -214,7 +214,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 		protected void onReceiveResult(int resultCode, Bundle resultData) {
 			super.onReceiveResult(resultCode, resultData);
 			
-			String request = resultData.getString(ConfigHelper.REQUEST_TAG);
+			String request = resultData.getString(EIP.REQUEST_TAG);
 			boolean checked = false;
 			
 			if (request == EIP.ACTION_IS_EIP_RUNNING) {

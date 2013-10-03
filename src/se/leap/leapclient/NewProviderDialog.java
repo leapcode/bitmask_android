@@ -36,7 +36,9 @@ import android.widget.Toast;
  *
  */
 public class NewProviderDialog extends DialogFragment {
-	
+
+    final public static String TAG = "newProviderDialog";
+    
 	public interface NewProviderDialogInterface {
         public void saveAndSelectProvider(String url_provider, boolean danger_on);
     }
