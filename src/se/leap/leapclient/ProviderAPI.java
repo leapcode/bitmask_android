@@ -89,7 +89,30 @@ public class ProviderAPI extends IntentService {
     SRP_AUTH = "srpAuth",
     LOG_OUT = "logOut",
     DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
-    PARAMETERS = "parameters"
+    PARAMETERS = "parameters",
+    RESULT_KEY = "result",
+    RECEIVER_KEY = "receiver",
+    SESSION_ID_COOKIE_KEY = "session_id_cookie_key",
+    SESSION_ID_KEY = "session_id",
+    ERRORS = "errors"
+    ;
+
+    final public static int
+    CUSTOM_PROVIDER_ADDED = 0,
+    CORRECTLY_DOWNLOADED_JSON_FILES = 1,
+    INCORRECTLY_DOWNLOADED_JSON_FILES = 2,
+    SRP_AUTHENTICATION_SUCCESSFUL = 3,
+    SRP_AUTHENTICATION_FAILED = 4,
+    SRP_REGISTRATION_SUCCESSFUL = 5,
+    SRP_REGISTRATION_FAILED = 6,
+    LOGOUT_SUCCESSFUL = 7,
+    LOGOUT_FAILED = 8,
+    CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
+    INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
+    CORRECTLY_UPDATED_PROVIDER_DOT_JSON = 11,
+    INCORRECTLY_UPDATED_PROVIDER_DOT_JSON = 12,
+    CORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 13,
+    INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
     ;
 
 	public ProviderAPI() {
@@ -122,42 +145,42 @@ public class ProviderAPI extends IntentService {
 		
 		if(action.equalsIgnoreCase(DOWNLOAD_JSON_FILES_BUNDLE_EXTRA)) {
 			if(!downloadJsonFiles(parameters)) {
-				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+				receiver.send(INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			} else { 
-				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+				receiver.send(CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			}
 		} else if(action.equalsIgnoreCase(UPDATE_PROVIDER_DOTJSON)) {
 			Bundle result = updateProviderDotJSON(parameters);
-			if(result.getBoolean(ConfigHelper.RESULT_KEY)) {
-				receiver.send(ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
+			if(result.getBoolean(RESULT_KEY)) {
+				receiver.send(CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
 			} else { 
-				receiver.send(ConfigHelper.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON, Bundle.EMPTY);
+				receiver.send(INCORRECTLY_UPDATED_PROVIDER_DOT_JSON, Bundle.EMPTY);
 			}
 		} else if (action.equalsIgnoreCase(DOWNLOAD_NEW_PROVIDER_DOTJSON)) {
 			Bundle result = downloadNewProviderDotJSON(parameters);
-			if(result.getBoolean(ConfigHelper.RESULT_KEY)) {
-				receiver.send(ConfigHelper.CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
+			if(result.getBoolean(RESULT_KEY)) {
+				receiver.send(CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
 			} else {
-				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
+				receiver.send(INCORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
 			}
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
-			if(session_id_bundle.getBoolean(ConfigHelper.RESULT_KEY)) {
-				receiver.send(ConfigHelper.SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
+			if(session_id_bundle.getBoolean(RESULT_KEY)) {
+				receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
 			} else {
-				receiver.send(ConfigHelper.SRP_AUTHENTICATION_FAILED, session_id_bundle);
+				receiver.send(SRP_AUTHENTICATION_FAILED, session_id_bundle);
 			}
 		} else if (action.equalsIgnoreCase(LOG_OUT)) {
 			if(logOut(parameters)) {
-				receiver.send(ConfigHelper.LOGOUT_SUCCESSFUL, Bundle.EMPTY);
+				receiver.send(LOGOUT_SUCCESSFUL, Bundle.EMPTY);
 			} else {
-				receiver.send(ConfigHelper.LOGOUT_FAILED, Bundle.EMPTY);
+				receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
 			}
 		} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
 			if(getNewCert(parameters)) {
-				receiver.send(ConfigHelper.CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+				receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 			} else {
-				receiver.send(ConfigHelper.INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+				receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 			}
 		}
 	}
@@ -168,17 +191,18 @@ public class ProviderAPI extends IntentService {
 	 * @return true if eip-service.json was parsed as a JSON object correctly.
 	 */
 	private boolean downloadJsonFiles(Bundle task) {
-		String cert_url = task.getString(ConfigHelper.MAIN_CERT_KEY);
-		String eip_service_json_url = task.getString(ConfigHelper.EIP_SERVICE_KEY);
-		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
+		String cert_url = task.getString(Provider.CA_CERT);
+		String eip_service_json_url = task.getString(EIP.KEY);
+		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 		try {
 			String cert_string = downloadWithCommercialCA(cert_url, danger_on);
+			if(cert_string.isEmpty()) return false;
 			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
 			cert_string = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-			ConfigHelper.saveSharedPref(ConfigHelper.MAIN_CERT_KEY, "-----BEGIN CERTIFICATE-----\n"+cert_string+"-----END CERTIFICATE-----");
+			ConfigHelper.saveSharedPref(Provider.CA_CERT, "-----BEGIN CERTIFICATE-----\n"+cert_string+"-----END CERTIFICATE-----");
 			
 			String eip_service_string = downloadWithCommercialCA(eip_service_json_url, danger_on);
-			ConfigHelper.saveSharedPref(ConfigHelper.EIP_SERVICE_KEY, new JSONObject(eip_service_string));
+			ConfigHelper.saveSharedPref(EIP.KEY, new JSONObject(eip_service_string));
 			
 			return true;
 		} catch (JSONException e) {
@@ -194,15 +218,15 @@ public class ProviderAPI extends IntentService {
 	 * Starts the authentication process using SRP protocol.
 	 * 
 	 * @param task containing: username, password and api url. 
-	 * @return a bundle with a boolean value mapped to a key named ConfigHelper.RESULT_KEY, and which is true if authentication was successful. 
+	 * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if authentication was successful. 
 	 */
 	private Bundle authenticateBySRP(Bundle task) {
 		Bundle session_id_bundle = new Bundle();
 		
-		String username = (String) task.get(ConfigHelper.USERNAME_KEY);
-		String password = (String) task.get(ConfigHelper.PASSWORD_KEY);
+		String username = (String) task.get(LogInDialog.USERNAME);
+		String password = (String) task.get(LogInDialog.PASSWORD);
 		if(wellFormedPassword(password)) {
-			String authentication_server = (String) task.get(ConfigHelper.API_URL_KEY);
+			String authentication_server = (String) task.get(Provider.API_URL);
 
 			SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
 			LeapSRPSession client = new LeapSRPSession(username, password, params);
@@ -210,40 +234,38 @@ public class ProviderAPI extends IntentService {
 			try {
 				JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
 				if(saltAndB.length() > 0) {
-					String salt = saltAndB.getString(ConfigHelper.SALT_KEY);
+					String salt = saltAndB.getString(LeapSRPSession.SALT);
 					byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
 					byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
 					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
-					if(session_idAndM2.has("M2") && client.verify((byte[])session_idAndM2.get("M2"))) {
-						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, true);
-						//session_id_bundle.putString(ConfigHelper.SESSION_ID_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_KEY));
-						//session_id_bundle.putString(ConfigHelper.SESSION_ID_COOKIE_KEY, session_idAndM2.getString(ConfigHelper.SESSION_ID_COOKIE_KEY));
+					if(session_idAndM2.has(LeapSRPSession.M2) && client.verify((byte[])session_idAndM2.get(LeapSRPSession.M2))) {
+						session_id_bundle.putBoolean(RESULT_KEY, true);
 					} else {
-						session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+						session_id_bundle.putBoolean(RESULT_KEY, false);
 						session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
-						session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
+						session_id_bundle.putString(LogInDialog.USERNAME, username);
 					}
 				} else {
 					session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
-					session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
-					session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+					session_id_bundle.putString(LogInDialog.USERNAME, username);
+					session_id_bundle.putBoolean(RESULT_KEY, false);
 				}
 			} catch (ClientProtocolException e) {
-				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putBoolean(RESULT_KEY, false);
 				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_client_http_user_message));
-				session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
+				session_id_bundle.putString(LogInDialog.USERNAME, username);
 			} catch (IOException e) {
-				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putBoolean(RESULT_KEY, false);
 				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_io_exception_user_message));
-				session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
+				session_id_bundle.putString(LogInDialog.USERNAME, username);
 			} catch (JSONException e) {
-				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putBoolean(RESULT_KEY, false);
 				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_json_exception_user_message));
-				session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
+				session_id_bundle.putString(LogInDialog.USERNAME, username);
 			} catch (NoSuchAlgorithmException e) {
-				session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+				session_id_bundle.putBoolean(RESULT_KEY, false);
 				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_no_such_algorithm_exception_user_message));
-				session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
+				session_id_bundle.putString(LogInDialog.USERNAME, username);
 			} catch (KeyManagementException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -255,9 +277,9 @@ public class ProviderAPI extends IntentService {
 				e.printStackTrace();
 			}
 		} else {
-			session_id_bundle.putBoolean(ConfigHelper.RESULT_KEY, false);
+			session_id_bundle.putBoolean(RESULT_KEY, false);
 			session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_not_valid_password_user_message));
-			session_id_bundle.putString(ConfigHelper.USERNAME_KEY, username);
+			session_id_bundle.putString(LogInDialog.USERNAME, username);
 		}
 		
 		return session_id_bundle;
@@ -319,11 +341,11 @@ public class ProviderAPI extends IntentService {
 
 		JSONObject session_idAndM2 = new JSONObject();
 		if(json_response.length() > 0) {
-			byte[] M2_not_trimmed = new BigInteger(json_response.getString(ConfigHelper.M2_KEY), 16).toByteArray();
+			byte[] M2_not_trimmed = new BigInteger(json_response.getString(LeapSRPSession.M2), 16).toByteArray();
 			/*Cookie session_id_cookie = LeapHttpClient.getInstance(getApplicationContext()).getCookieStore().getCookies().get(0);
 			session_idAndM2.put(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id_cookie.getName());
 			session_idAndM2.put(ConfigHelper.SESSION_ID_KEY, session_id_cookie.getValue());*/
-			session_idAndM2.put(ConfigHelper.M2_KEY, ConfigHelper.trim(M2_not_trimmed));
+			session_idAndM2.put(LeapSRPSession.M2, ConfigHelper.trim(M2_not_trimmed));
 		}
 		return session_idAndM2;
 	}
@@ -365,7 +387,7 @@ public class ProviderAPI extends IntentService {
 				urlConnection.disconnect();
 				Log.d("Error", error_response);
 				json_response = new JSONObject(error_response);
-				if(!json_response.isNull(ConfigHelper.ERRORS_KEY) || json_response.has(ConfigHelper.ERRORS_KEY)) {
+				if(!json_response.isNull(ERRORS) || json_response.has(ERRORS)) {
 					return new JSONObject();
 				}
 			}
@@ -398,30 +420,30 @@ public class ProviderAPI extends IntentService {
 	/**
 	 * Downloads a provider.json from a given URL, adding a new provider using the given name.  
 	 * @param task containing a boolean meaning if the provider is custom or not, another boolean meaning if the user completely trusts this provider, the provider name and its provider.json url.
-	 * @return a bundle with a boolean value mapped to a key named ConfigHelper.RESULT_KEY, and which is true if the update was successful. 
+	 * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if the update was successful. 
 	 */
 	private Bundle updateProviderDotJSON(Bundle task) {
 		Bundle result = new Bundle();
-		boolean custom = task.getBoolean(ConfigHelper.CUSTOM);
-		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
-		String provider_json_url = task.getString(ConfigHelper.PROVIDER_JSON_URL);
-		String provider_name = task.getString(ConfigHelper.PROVIDER_NAME);
+		boolean custom = task.getBoolean(ProviderItem.CUSTOM);
+		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
+		String provider_json_url = task.getString(Provider.DOT_JSON_URL);
+		String provider_name = task.getString(Provider.NAME);
 		
 		try {
 			String provider_dot_json_string = downloadWithCommercialCA(provider_json_url, danger_on);
 			if(provider_dot_json_string.isEmpty()) {
-				result.putBoolean(ConfigHelper.RESULT_KEY, false);
+				result.putBoolean(RESULT_KEY, false);
 			} else {
 				JSONObject provider_json = new JSONObject(provider_dot_json_string);
-				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
+				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
 
 				//ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on));
-				result.putBoolean(ConfigHelper.RESULT_KEY, true);
-				result.putString(ConfigHelper.PROVIDER_KEY, provider_json.toString());
-				result.putBoolean(ConfigHelper.DANGER_ON, danger_on);
+				result.putBoolean(RESULT_KEY, true);
+				result.putString(Provider.KEY, provider_json.toString());
+				result.putBoolean(ProviderItem.DANGER_ON, danger_on);
 			}
 		} catch (JSONException e) {
-			result.putBoolean(ConfigHelper.RESULT_KEY, false);
+			result.putBoolean(RESULT_KEY, false);
 		}
 		
 		return result;
@@ -435,32 +457,32 @@ public class ProviderAPI extends IntentService {
 	private Bundle downloadNewProviderDotJSON(Bundle task) {
 		Bundle result = new Bundle();
 		boolean custom = true;
-		boolean danger_on = task.getBoolean(ConfigHelper.DANGER_ON);
+		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 		
-		String provider_main_url = (String) task.get(ConfigHelper.PROVIDER_MAIN_URL);
+		String provider_main_url = (String) task.get(Provider.MAIN_URL);
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
 		String provider_json_url = guessProviderDotJsonURL(provider_main_url);
 		
 		String provider_json_string = downloadWithCommercialCA(provider_json_url, danger_on);
 		try {
 			if(provider_json_string.isEmpty()) {
-				result.putBoolean(ConfigHelper.RESULT_KEY, false);
+				result.putBoolean(RESULT_KEY, false);
 			} else {
 				JSONObject provider_json = new JSONObject(provider_json_string);
 
-				ConfigHelper.saveSharedPref(ConfigHelper.PROVIDER_KEY, provider_json);
-				ConfigHelper.saveSharedPref(ConfigHelper.DANGER_ON, danger_on);
-				ConfigHelper.saveSharedPref(ConfigHelper.ALLOWED_ANON, provider_json.getJSONObject(ConfigHelper.SERVICE_KEY).getBoolean(ConfigHelper.ALLOWED_ANON));
+				ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
+				ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
+				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
 				ProviderItem added_provider = new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on);
 				ProviderListContent.addItem(added_provider);
 
-				result.putString(ConfigHelper.PROVIDER_ID, added_provider.getId());
-				result.putBoolean(ConfigHelper.RESULT_KEY, true);
-				result.putString(ConfigHelper.PROVIDER_KEY, provider_json.toString());
-				result.putBoolean(ConfigHelper.DANGER_ON, danger_on);
+				result.putString(Provider.NAME, added_provider.getName());
+				result.putBoolean(RESULT_KEY, true);
+				result.putString(Provider.KEY, provider_json.toString());
+				result.putBoolean(ProviderItem.DANGER_ON, danger_on);
 			}
 		} catch (JSONException e) {
-			result.putBoolean(ConfigHelper.RESULT_KEY, false);
+			result.putBoolean(RESULT_KEY, false);
 		}
 		
 		return result;
@@ -551,7 +573,7 @@ public class ProviderAPI extends IntentService {
 	}
 	
 	private javax.net.ssl.SSLSocketFactory getProviderSSLSocketFactory() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, KeyManagementException {
-		String provider_cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
+		String provider_cert_string = ConfigHelper.getStringFromSharedPref(Provider.CA_CERT);
 
 		java.security.cert.Certificate provider_certificate = ConfigHelper.parseX509CertificateFromString(provider_cert_string);
 
@@ -642,7 +664,7 @@ public class ProviderAPI extends IntentService {
 	 */
 	private boolean logOut(Bundle task) {
 		try {
-			String delete_url = task.getString(ConfigHelper.API_URL_KEY) + "/logout";
+			String delete_url = task.getString(Provider.API_URL) + "/logout";
 
 			HttpsURLConnection urlConnection = (HttpsURLConnection)new URL(delete_url).openConnection();
 			urlConnection.setRequestMethod("DELETE");
@@ -685,30 +707,14 @@ public class ProviderAPI extends IntentService {
 	 * @return true if certificate was downloaded correctly, false if provider.json or danger_on flag are not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
 	 */
 	private boolean getNewCert(Bundle task) {
-		//String type_of_certificate = task.getString(ConfigHelper.TYPE_OF_CERTIFICATE);
+
 		try {
-			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY);
-			URL provider_main_url = new URL(provider_json.getString(ConfigHelper.API_URL_KEY));
-			String new_cert_string_url = provider_main_url.toString() + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY) + "/" + ConfigHelper.CERT_KEY;
+			String type_of_certificate = task.getString(ConfigurationWizard.TYPE_OF_CERTIFICATE);
+			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
+			URL provider_main_url = new URL(provider_json.getString(Provider.API_URL));
+			String new_cert_string_url = provider_main_url.toString() + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE;
 
-			/*Cookie cookie = null;
-			if(type_of_certificate.equalsIgnoreCase(ConfigHelper.AUTHED_CERTIFICATE)) {
-				List<Cookie> list_cookies = LeapHttpClient.getInstance(getApplicationContext()).getCookieStore().getCookies();
-				for(Cookie aux_cookie : list_cookies) {
-					if(aux_cookie.getName().equalsIgnoreCase(ConfigHelper.SESSION_ID_COOKIE_KEY)) {
-						cookie = aux_cookie;
-						break;
-					}
-				}*/
-				//HttpCookie session_id_cookie = new HttpCookie(task.getString(ConfigHelper.SESSION_ID_COOKIE_KEY), task.getString(ConfigHelper.SESSION_ID_KEY));
-				/*HttpCookie session_id_cookie = new HttpCookie(cookie.getName(), cookie.getValue());
-
-				CookieManager cookieManager = new CookieManager();
-				cookieManager.getCookieStore().add(provider_main_url.toURI(), session_id_cookie);
-				CookieHandler.setDefault(cookieManager);*/
-			//}
-			
-			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ConfigHelper.DANGER_ON);
+			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ProviderItem.DANGER_ON);
 			String cert_string = downloadWithCommercialCA(new_cert_string_url, danger_on);
 			if(!cert_string.isEmpty()) {
 				// API returns concatenated cert & key.  Split them for OpenVPN options
@@ -725,11 +731,11 @@ public class ProviderAPI extends IntentService {
 				try {
 					RSAPrivateKey keyCert = ConfigHelper.parseRsaKeyFromString(keyString);
 					keyString = Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT );
-					ConfigHelper.saveSharedPref(ConfigHelper.KEY_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----");
+					ConfigHelper.saveSharedPref(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----");
 					
 					X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
 					certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-					ConfigHelper.saveSharedPref(ConfigHelper.CERT_KEY, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----");
+					ConfigHelper.saveSharedPref(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----");
 					
 					return true;
 				} catch (CertificateException e) {
