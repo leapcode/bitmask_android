@@ -30,6 +30,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -93,12 +94,18 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
         if ( savedInstanceState == null ){
         	// TODO Some welcome screen?
         	// We will need better flow control when we have more Fragments (e.g. user auth)
-        	provider_list_fragment = new ProviderListFragment();
-        	
-        	FragmentManager fragmentManager = getFragmentManager();
-        	fragmentManager.beginTransaction()
-        		.add(R.id.configuration_wizard_layout, provider_list_fragment, getResources().getString(R.string.provider_list_fragment_tag))
-        		.commit();
+        	provider_list_fragment = ProviderListFragment.newInstance();
+    		Bundle arguments = new Bundle();
+    		int configuration_wizard_request_code = getIntent().getIntExtra(Dashboard.REQUEST_CODE, -1);
+    		if(configuration_wizard_request_code == Dashboard.SWITCH_PROVIDER) {
+    			arguments.putBoolean(ProviderListFragment.SHOW_ALL_PROVIDERS, true);
+    		}
+			provider_list_fragment.setArguments(arguments);
+
+    		FragmentManager fragmentManager = getFragmentManager();
+    		fragmentManager.beginTransaction()
+    		.replace(R.id.configuration_wizard_layout, provider_list_fragment, ProviderListFragment.TAG)
+    		.commit();
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
@@ -112,14 +119,14 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 		FragmentManager fragmentManager = getFragmentManager();
 		fragmentManager.beginTransaction()
-		.replace(R.id.configuration_wizard_layout, new_provider_list_fragment, getResources().getString(R.string.provider_list_fragment_tag))
+		.replace(R.id.configuration_wizard_layout, new_provider_list_fragment, ProviderListFragment.TAG)
 		.commit();
     }
 
 	private void setProviderList(ProviderListFragment new_provider_list_fragment) {
 		FragmentManager fragmentManager = getFragmentManager();
 		fragmentManager.beginTransaction()
-		.replace(R.id.configuration_wizard_layout, new_provider_list_fragment, getResources().getString(R.string.provider_list_fragment_tag))
+		.replace(R.id.configuration_wizard_layout, new_provider_list_fragment, ProviderListFragment.TAG)
 		.commit();
 	}
     
@@ -147,7 +154,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 					if(!mProgressBar.isShown()) {
 						int provider_index = getProviderIndex(provider_id);
 						startProgressBar(provider_index);
-						provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(getResources().getString(R.string.provider_list_fragment_tag));
+						provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
 						provider_list_fragment.hide(provider_index-2);
 						//setProviderList(provider_list_fragment);
 					}
@@ -498,10 +505,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		}
 	}
 	
-	public void unhideAll() {
-		provider_list_fragment.unhideAll();
-		setProviderList(provider_list_fragment);
-		refreshProviderList(0);
+	public void showAllProviders() {
+		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
+		if(provider_list_fragment != null)
+			provider_list_fragment.unhideAll();
 	}
 
 	@Override

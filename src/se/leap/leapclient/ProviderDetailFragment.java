@@ -86,7 +86,7 @@ public class ProviderDetailFragment extends DialogFragment {
 		ConfigHelper.removeFromSharedPref(ProviderItem.DANGER_ON);
 		ConfigHelper.removeFromSharedPref(EIP.ALLOWED_ANON);
 		ConfigHelper.removeFromSharedPref(EIP.KEY);
-		interface_with_configuration_wizard.unhideAll();
+		interface_with_configuration_wizard.showAllProviders();
 	}
 
 	public static DialogFragment newInstance() {
@@ -108,7 +108,7 @@ public class ProviderDetailFragment extends DialogFragment {
 	public interface ProviderDetailFragmentInterface {
 		public void login();
 		public void use_anonymously();
-		public void unhideAll();
+		public void showAllProviders();
 	}
 	
 	ProviderDetailFragmentInterface interface_with_configuration_wizard;

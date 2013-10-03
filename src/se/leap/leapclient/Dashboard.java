@@ -60,10 +60,12 @@ import android.widget.Toast;
 public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver {
 
 	protected static final int CONFIGURE_LEAP = 0;
+	protected static final int SWITCH_PROVIDER = 1;
 
 	private static final String TAG_EIP_FRAGMENT = "EIP_DASHBOARD_FRAGMENT";
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
+	public static final String REQUEST_CODE = "request_code";
 
 	private ProgressBar mProgressBar;
 	private TextView eipStatus;
@@ -222,7 +224,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			startActivity(intent);
 			return true;
 		case R.id.switch_provider:
-			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;
 		case R.id.login_button:
 			View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
@@ -400,6 +402,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public static Context getAppContext() {
 		return app;
 	}
+	
+	@Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        intent.putExtra(Dashboard.REQUEST_CODE, requestCode);
+        super.startActivityForResult(intent, requestCode);
+    }
 
 	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
 
