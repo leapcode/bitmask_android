@@ -260,7 +260,12 @@
     <string name="provider_label">Provider:</string>
     <string name="provider_label_none">No provider configured</string>
     <string name="eip_settings_button_description">Access EIP connection settings</string>
-    <string name="eip_status">Status unknown</string>
+    <string name="status_unknown">Status unknown.</string>
+    <string name="connection_secure">Connection secure.</string>
+    <string name="future_anonymous_secured_status">Connection will be secure using an anonymous certificate.</string>
+    <string name="anonymous_secured_status">Connection secure using an anonymous certificate.</string>
+    <string name="future_authed_secured_status">Connection will be secure using your own certificate.</string>
+    <string name="authed_secured_status">Connection secure using your own certificate.</string>
     <string name="eip_service_label">Encrypted Internet</string>
     <string name="title_activity_configuration_wizard">Configure LEAP</string>
     <string name="provider_list_fragment_tag">Provider list fragment</string>

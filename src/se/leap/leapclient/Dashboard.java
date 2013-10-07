@@ -38,6 +38,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ResultReceiver;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -367,7 +368,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			authed_eip = false;
 			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
 
-			eipStatus.setText("Connection secure using anonymous certificate.");
+			changeStatusMessage(resultCode);
 			mProgressBar.setVisibility(ProgressBar.GONE);
 			mProgressBar.setProgress(0);
 			invalidateOptionsMenu();
@@ -380,17 +381,45 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_OK);
-    		eipStatus.setText("Connection secure using authed certificate.");
         	mProgressBar.setVisibility(ProgressBar.GONE);
+        	changeStatusMessage(resultCode);
         	//mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.successful_authed_cert_downloaded_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
         	mProgressBar.setVisibility(ProgressBar.GONE);
         	//mProgressBar.setProgress(0);
-    		eipStatus.setText("Connection secure using anonymous certificate.");
+        	changeStatusMessage(resultCode);
 			Toast.makeText(getApplicationContext(), R.string.authed_cert_download_failed_message, Toast.LENGTH_LONG).show();
 		}
+	}
+
+	private void changeStatusMessage(final int previous_result_code) {
+		// TODO Auto-generated method stub
+		ResultReceiver eip_status_receiver = new ResultReceiver(new Handler()){
+			@Override
+			protected void onReceiveResult(int resultCode, Bundle resultData) {
+				super.onReceiveResult(resultCode, resultData);
+				String request = resultData.getString(EIP.REQUEST_TAG);
+				if(resultCode == RESULT_OK) {
+					if(request.equalsIgnoreCase(EIP.ACTION_IS_EIP_RUNNING)) {
+						switch (previous_result_code) {
+						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.anonymous_secured_status); break;
+						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.authed_secured_status); break;
+						}
+					}
+				} else {
+					if(request.equalsIgnoreCase(EIP.ACTION_IS_EIP_RUNNING)) {
+						switch (previous_result_code) {
+						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.future_anonymous_secured_status); break;
+						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.future_authed_secured_status); break;
+						}
+					}
+				}
+			}
+		};
+		eipIsRunning(eip_status_receiver);
+		
 	}
 
 	/**
@@ -403,11 +432,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		return app;
 	}
 	
-	@Override
-    public void startActivityForResult(Intent intent, int requestCode) {
-        intent.putExtra(Dashboard.REQUEST_CODE, requestCode);
-        super.startActivityForResult(intent, requestCode);
-    }
+	/**
+	 * Send a command to EIP
+	 * 
+	 * @param action	A valid String constant from EIP class representing an Intent
+	 * 					filter for the EIP class 
+	 */
+	private void eipIsRunning(ResultReceiver eip_receiver){
+		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
+		Intent eip_intent = new Intent(this, EIP.class);
+		eip_intent.setAction(EIP.ACTION_IS_EIP_RUNNING);
+		eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
+		startService(eip_intent);
+	}
 
 	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
 
