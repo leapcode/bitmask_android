@@ -17,7 +17,11 @@ Instructions to compile
 Postconditions
 --------------
 
+<<<<<<< HEAD
 1. $PROJECT_LOCATION/leap_android/bin/Bitmask Android-debug.apk exists
+=======
+1. $PROJECT_LOCATION/leap_android/bin/Bitmask for Android-debug.apk exists
+>>>>>>> Changed some documentation and scripts.
 
 Running on the emulator
 =========================
@@ -26,7 +30,7 @@ Preconditions
 -----------------
 
 1. Android SDK is installed, and its tools are in the PATH.
-2. Bitmask Android has been compiled.
+2. Bitmask for Android has been compiled.
 3. An avd exists in ~/.android/avd/ (if you do not have one, follow instructions from http://developer.android.com/tools/devices/managing-avds-cmdline.html)
 
 Instructions to run on the emulator
@@ -38,7 +42,7 @@ Instructions to run on the emulator
 Postconditions
 --------------
 
-1. Bitmask Android is running.
+1. Bitmask for Android is running.
 
 Debugging from console
 ======================
@@ -47,7 +51,7 @@ Preconditions
 -----------------
 
 1. Android SDK is installed, and its tools are in the PATH.
-2. Bitmask Android has been compiled.
+2. Bitmask for Android has been compiled.
 3. An avd exists in ~/.android/avd/ (if you do not have one, follow instructions from http://developer.android.com/tools/devices/managing-avds-cmdline.html).
 4. jdb is installed (this program is part of OpenJDK 7)
 
@@ -60,6 +64,6 @@ Instructions to debug from the console
 Postconditions
 --------------
 
-1. Bitmask Android is running.
-2. Bitmask Android does not show the message "Application Bitmask for Android (process se.leap.bitmaskclient) is waiting for the debugger to attach".
+1. Bitmask for Android is running.
+2. Bitmask for Android does not show the message "Application Bitmask for Android (process se.leap.bitmaskclient) is waiting for the debugger to attach".
 3. You are in a jdb debuggin session.
