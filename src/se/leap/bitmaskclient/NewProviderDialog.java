@@ -40,7 +40,7 @@ public class NewProviderDialog extends DialogFragment {
     final public static String TAG = "newProviderDialog";
     
 	public interface NewProviderDialogInterface {
-        public void saveAndSelectProvider(String url_provider, boolean danger_on);
+        public void showAndSelectProvider(String url_provider, boolean danger_on);
     }
 
 	NewProviderDialogInterface interface_with_ConfigurationWizard;
@@ -82,7 +82,7 @@ public class NewProviderDialog extends DialogFragment {
 					}
 					boolean danger_on = danger_checkbox.isChecked();
 					if(validURL(entered_url)) {
-						interface_with_ConfigurationWizard.saveAndSelectProvider(entered_url, danger_on);
+						interface_with_ConfigurationWizard.showAndSelectProvider(entered_url, danger_on);
 						Toast.makeText(getActivity().getApplicationContext(), R.string.valid_url_entered, Toast.LENGTH_LONG).show();
 					} else {
 						url_input_field.setText("");

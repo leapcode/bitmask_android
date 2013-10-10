@@ -172,6 +172,9 @@ public class ProviderListFragment extends ListFragment {
         }
     }
 
+    public void notifyAdapter() {
+    	content_adapter.notifyDataSetChanged();
+    }
     /**
      * Turns on activate-on-click mode. When this mode is on, list items will be
      * given the 'activated' state when touched.

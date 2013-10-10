@@ -236,7 +236,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    int provider_index = getProviderIndex(id);
 	    startProgressBar(provider_index);
 	    mSelectedProvider = selected_provider;
-		updateProviderDotJson(mSelectedProvider.name(), mSelectedProvider.providerJsonUrl(), mSelectedProvider.completelyTrusted());
+		updateProviderDotJson(mSelectedProvider.providerMainUrl(), mSelectedProvider.completelyTrusted());
     }
     
     @Override
@@ -342,37 +342,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	}
 
     /**
-     * Saves provider.json file associated with provider.
-     * 
-     * If the provider is custom, the file has already been downloaded so we load it from memory.
-     * If not, the file is updated using the provider's URL.
-     * @param provider
-     */
-    private void saveProviderJson(ProviderItem provider) {
-    	JSONObject provider_json = new JSONObject();
-    	try {
-    		if(!provider.custom()) {
-    			updateProviderDotJson(mSelectedProvider.name(), provider.providerJsonUrl(), provider.completelyTrusted());
-    		} else {
-    			// FIXME!! We should we be updating our seeded providers list at ConfigurationWizard onStart() ?
-    			// I think yes, but if so, where does this list live? leap.se, as it's the non-profit project for the software?
-    			// If not, we should just be getting names/urls, and fetching the provider.json like in custom entries
-    			provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
-    			ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
-    			ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
-    			ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, provider.completelyTrusted());
-
-    			mProgressBar.incrementProgressBy(1);
-    			
-    			downloadJSONFiles(provider_json, provider.completelyTrusted());
-    		}
-    	} catch (JSONException e) {
-    		setResult(RESULT_CANCELED);
-    		finish();
-    	}
-    }
-
-    /**
      * Asks ProviderAPI to download provider site's certificate and eip-service.json
      * 
      * URLs are fetched from the provider parameter
@@ -469,33 +438,38 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
 	}
 
-	@Override
-	public void saveAndSelectProvider(String provider_main_url, boolean danger_on) {
-		Intent provider_API_command = new Intent(this, ProviderAPI.class);
-
-		Bundle parameters = new Bundle();
-		parameters.putString(Provider.MAIN_URL, provider_main_url);
-		parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
-
-		provider_API_command.setAction(ProviderAPI.DOWNLOAD_NEW_PROVIDER_DOTJSON);
-		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-		
-		startService(provider_API_command);
+	public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
+		showProvider(provider_main_url, danger_on);
+		updateProviderDotJson(provider_main_url, danger_on);
+	}
+	
+	private void showProvider(final String provider_main_url, final boolean danger_on) {
+		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
+		boolean custom = true;
+		final ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url, custom, danger_on);
+		runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				ProviderListContent.addItem(added_provider);
+				ProviderListFragment provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag("providerlist");
+				provider_list_fragment.notifyAdapter();
+			}
+		});
 	}
 	
 	/**
 	 * Asks ProviderAPI to download a new provider.json file
 	 * @param provider_name
-	 * @param provider_json_url
+	 * @param provider_main_url
 	 * @param danger_on tells if HTTPS client should bypass certificate errors
 	 */
-	public void updateProviderDotJson(String provider_name, String provider_json_url, boolean danger_on) {
+	public void updateProviderDotJson(String provider_main_url, boolean danger_on) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle parameters = new Bundle();
-		parameters.putString(Provider.NAME, provider_name);
-		parameters.putString(Provider.DOT_JSON_URL, provider_json_url);
+		parameters.putString(Provider.MAIN_URL, provider_main_url);
 		parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
 
 		provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DOTJSON);

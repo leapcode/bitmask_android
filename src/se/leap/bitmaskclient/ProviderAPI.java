@@ -156,13 +156,6 @@ public class ProviderAPI extends IntentService {
 			} else { 
 				receiver.send(INCORRECTLY_UPDATED_PROVIDER_DOT_JSON, Bundle.EMPTY);
 			}
-		} else if (action.equalsIgnoreCase(DOWNLOAD_NEW_PROVIDER_DOTJSON)) {
-			Bundle result = downloadNewProviderDotJSON(parameters);
-			if(result.getBoolean(RESULT_KEY)) {
-				receiver.send(CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
-			} else {
-				receiver.send(INCORRECTLY_DOWNLOADED_JSON_FILES, result);
-			}
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
 			if(session_id_bundle.getBoolean(RESULT_KEY)) {
@@ -491,10 +484,8 @@ public class ProviderAPI extends IntentService {
 	 */
 	private Bundle updateProviderDotJSON(Bundle task) {
 		Bundle result = new Bundle();
-		boolean custom = task.getBoolean(ProviderItem.CUSTOM);
 		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
-		String provider_json_url = task.getString(Provider.DOT_JSON_URL);
-		String provider_name = task.getString(Provider.NAME);
+		String provider_json_url = task.getString(Provider.MAIN_URL) + "/provider.json";
 		
 		try {
 			String provider_dot_json_string = downloadWithCommercialCA(provider_json_url, danger_on);
@@ -509,56 +500,9 @@ public class ProviderAPI extends IntentService {
 				} else {
 					ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
 
-					//ProviderListContent.addItem(new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on));
-					result.putBoolean(RESULT_KEY, true);
-					result.putString(Provider.KEY, provider_json.toString());
-					result.putBoolean(ProviderItem.DANGER_ON, danger_on);
-				}
-			}
-		} catch (JSONException e) {
-			result.putBoolean(RESULT_KEY, false);
-		}
-		
-		return result;
-	}
-
-	/**
-	 * Downloads a custom provider provider.json file
-	 * @param task containing a boolean meaning if the user completely trusts this provider, and the provider main url entered in the new custom provider dialog.
-	 * @return true if provider.json file was successfully parsed as a JSON object.
-	 */
-	private Bundle downloadNewProviderDotJSON(Bundle task) {
-		Bundle result = new Bundle();
-		boolean custom = true;
-		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
-		
-		String provider_main_url = (String) task.get(Provider.MAIN_URL);
-		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
-		String provider_json_url = guessProviderDotJsonURL(provider_main_url);
-		
-		String provider_json_string = downloadWithCommercialCA(provider_json_url, danger_on);
-		try {
-			if(provider_json_string.isEmpty()) {
-				result.putBoolean(RESULT_KEY, false);
-			} else {
-				JSONObject provider_json = new JSONObject(provider_json_string);
-
-				if(provider_json.has(ERRORS)) {
-					String reason_to_fail = provider_json.getString(ERRORS);
-					result.putString(ERRORS, reason_to_fail);
-					result.putBoolean(RESULT_KEY, false);
-				} else {
-					ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
-					ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
-					ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
-					ProviderItem added_provider = new ProviderItem(provider_name, provider_json_url, provider_json, custom, danger_on);
-					ProviderListContent.addItem(added_provider);
-
-					result.putString(Provider.NAME, added_provider.getName());
-					result.putBoolean(RESULT_KEY, true);
-					result.putString(Provider.KEY, provider_json.toString());
-					result.putBoolean(ProviderItem.DANGER_ON, danger_on);
-				}
+				result.putBoolean(RESULT_KEY, true);
+				result.putString(Provider.KEY, provider_json.toString());
+				result.putBoolean(ProviderItem.DANGER_ON, danger_on);
 			}
 		} catch (JSONException e) {
 			result.putBoolean(RESULT_KEY, false);
