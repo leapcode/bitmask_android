@@ -28,6 +28,8 @@ import java.net.MalformedURLException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+
 /**
  * Models the provider list shown in the ConfigurationWizard.
  * 
@@ -60,7 +62,7 @@ public class ProviderListContent {
 		final public static String CUSTOM = "custom";
 		final public static String DANGER_ON = "danger_on";
 		private boolean custom = false;
-		private String provider_json_url;
+		private String provider_main_url;
 		private String name;
 		private boolean danger_on = false;
 
@@ -77,7 +79,7 @@ public class ProviderListContent {
 				urls_file_input_stream.read(urls_file_bytes);
 				String urls_file_content = new String(urls_file_bytes);
 				JSONObject file_contents = new JSONObject(urls_file_content);
-				provider_json_url = file_contents.getString(Provider.DOT_JSON_URL);
+				provider_main_url = file_contents.getString(Provider.MAIN_URL);
 				this.name = name;
 				this.custom = custom;
 				this.danger_on = danger_on;
@@ -92,14 +94,14 @@ public class ProviderListContent {
 
 		/**
 		 * @param name of the provider
-		 * @param provider_json_url used to download provider.json file of the provider
+		 * @param provider_main_url used to download provider.json file of the provider
 		 * @param provider_json already downloaded
 		 * @param custom if it's a new provider entered by the user or not
 		 * @param danger_on if the user trusts completely the new provider
 		 */
-		public ProviderItem(String name, String provider_json_url, boolean custom, boolean danger_on) {
+		public ProviderItem(String name, String provider_main_url, boolean custom, boolean danger_on) {
 			this.name = name;
-			this.provider_json_url = provider_json_url;
+			this.provider_main_url = provider_main_url;
 			this.custom = custom;
 			this.danger_on = danger_on;
 		}
@@ -108,13 +110,13 @@ public class ProviderListContent {
 		
 		public boolean custom() { return custom; }
 		
-		public String providerJsonUrl() { return provider_json_url; }
+		public String providerMainUrl() { return provider_main_url; }
 		
 		public String domain() {
 			try {
-				return new URL(provider_json_url).getHost();
+				return new URL(provider_main_url).getHost();
 			} catch (MalformedURLException e) {
-				return provider_json_url.replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
+				return provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
 			}
 		}
 		
