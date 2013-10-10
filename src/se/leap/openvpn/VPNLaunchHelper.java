@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 import android.content.Context;
 import android.content.Intent;

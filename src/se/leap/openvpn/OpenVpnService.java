@@ -5,8 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Vector;
 
-import se.leap.leapclient.Dashboard;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.R;
 
 import android.annotation.TargetApi;
 import android.app.Notification;

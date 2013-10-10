@@ -14,14 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.leapclient;
+ package se.leap.bitmaskclient;
 
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.openvpn.MainActivity;
 import android.app.Activity;
 import android.app.AlertDialog;

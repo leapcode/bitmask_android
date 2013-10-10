@@ -1,5 +1,6 @@
-package se.leap.leapclient;
+package se.leap.bitmaskclient;
 
+import se.leap.bitmaskclient.R;
 import se.leap.openvpn.LogWindow;
 import se.leap.openvpn.OpenVPN;
 import se.leap.openvpn.OpenVPN.StateListener;

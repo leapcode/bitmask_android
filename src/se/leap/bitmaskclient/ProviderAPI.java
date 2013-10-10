@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.leapclient;
+ package se.leap.bitmaskclient;
 
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
@@ -58,7 +58,8 @@ import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import se.leap.leapclient.ProviderListContent.ProviderItem;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;

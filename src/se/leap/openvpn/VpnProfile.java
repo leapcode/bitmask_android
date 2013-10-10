@@ -21,10 +21,10 @@ import java.util.Vector;
 import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
 
-import se.leap.leapclient.ConfigHelper;
-import se.leap.leapclient.EIP;
-import se.leap.leapclient.Provider;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.ConfigHelper;
+import se.leap.bitmaskclient.EIP;
+import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.R;
 
 import android.content.Context;
 import android.content.Intent;
@@ -50,7 +50,7 @@ public class VpnProfile implements  Serializable{
 	public static final int TYPE_USERPASS_KEYSTORE = 7;
 
 	// Don't change this, not all parts of the program use this constant
-	public static final String EXTRA_PROFILEUUID = "se.leap.leapclient.profileUUID"; // TODO this feels wrong.  See Issue #1494
+	public static final String EXTRA_PROFILEUUID = "se.leap.bitmaskclient.profileUUID"; // TODO this feels wrong.  See Issue #1494
 	public static final String INLINE_TAG = "[[INLINE]]";
 	private static final String OVPNCONFIGFILE = "android.conf";
 

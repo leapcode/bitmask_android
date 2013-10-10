@@ -6,7 +6,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
 
 public class Settings_IP extends OpenVpnPreferencesFragment implements OnPreferenceChangeListener {
 		private EditTextPreference mIPv4;
