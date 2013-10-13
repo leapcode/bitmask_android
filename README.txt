@@ -62,4 +62,4 @@ Postconditions
 
 1. LEAP Android is running.
 2. LEAP Android does not show the message "Application LEAP for Android (process se.leap.leapclient) is waiting for the debugger to attach".
-3. You are in a jdb debuggin session.
+3. You are in a jdb debugging session.
