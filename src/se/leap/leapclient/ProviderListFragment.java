@@ -202,8 +202,10 @@ public class ProviderListFragment extends ListFragment {
     }
     
     public void unhideAll() {
-    	if(content_adapter != null)
+    	if(content_adapter != null) {
     		content_adapter.unHideAll();
+    		content_adapter.notifyDataSetChanged();
+    	}
     }
 
 	/**

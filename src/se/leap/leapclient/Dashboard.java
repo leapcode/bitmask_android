@@ -431,7 +431,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public static Context getAppContext() {
 		return app;
 	}
+
 	
+	@Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        intent.putExtra(Dashboard.REQUEST_CODE, requestCode);
+        super.startActivityForResult(intent, requestCode);
+    }
 	/**
 	 * Send a command to EIP
 	 * 
