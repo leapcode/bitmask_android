@@ -30,7 +30,6 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -122,17 +121,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		.replace(R.id.configuration_wizard_layout, new_provider_list_fragment, ProviderListFragment.TAG)
 		.commit();
     }
-
-	private void setProviderList(ProviderListFragment new_provider_list_fragment) {
-		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction()
-		.replace(R.id.configuration_wizard_layout, new_provider_list_fragment, ProviderListFragment.TAG)
-		.commit();
-	}
     
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
-		if(resultCode == ProviderAPI.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+		if(resultCode == ProviderAPI.PROVIDER_OK) {
 			JSONObject provider_json;
 			try {
 				provider_json = ConfigHelper.getJsonFromSharedPref((Provider.KEY));
@@ -179,33 +171,11 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				//Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
 				setResult(RESULT_CANCELED, mConfigState);
 			}
-		} else if(resultCode == ProviderAPI.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+		} else if(resultCode == ProviderAPI.PROVIDER_NOK) {
 			//refreshProviderList(0);
 			ConfigHelper.removeFromSharedPref(Provider.KEY);
 			mProgressBar.setVisibility(ProgressBar.GONE);
 			progressbar_description.setVisibility(TextView.GONE);
-			setResult(RESULT_CANCELED, mConfigState);
-		}
-		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_JSON_FILES) {
-			mProgressBar.incrementProgressBy(1);
-			if (ConfigHelper.getBoolFromSharedPref(EIP.ALLOWED_ANON)){
-				mConfigState.putExtra(SERVICES_RETRIEVED, true);
-				downloadAnonCert();
-			} else {
-				mProgressBar.incrementProgressBy(1);
-			    mProgressBar.setVisibility(ProgressBar.GONE);
-			    progressbar_description.setVisibility(TextView.GONE);
-			    //refreshProviderList(0);
-				//Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
-				setResult(RESULT_OK);
-				showProviderDetails(getCurrentFocus());
-			}
-		}
-		else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_JSON_FILES) {
-			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
-			//refreshProviderList(0);
-			mProgressBar.setVisibility(ProgressBar.GONE);
-		    progressbar_description.setVisibility(TextView.GONE);
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
@@ -235,7 +205,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    int provider_index = getProviderIndex(id);
 	    startProgressBar(provider_index);
 	    mSelectedProvider = selected_provider;
-		updateProviderDotJson(mSelectedProvider.providerMainUrl(), true);
+		setUpProvider(mSelectedProvider.providerMainUrl(), true);
     }
     
     @Override
@@ -339,34 +309,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		
 		return loaded_preseeded_providers;
 	}
-
-    /**
-     * Asks ProviderAPI to download provider site's certificate and eip-service.json
-     * 
-     * URLs are fetched from the provider parameter
-     * @param provider_json describing the provider from which certificate and eip-service.json files are going to be downloaded
-     */
-	private void downloadJSONFiles(JSONObject provider_json, boolean danger_on) {
-			try {
-				Intent provider_API_command = new Intent(this, ProviderAPI.class);
-				
-				Bundle parameters = new Bundle();
-
-				parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
-				parameters.putString(Provider.CA_CERT, provider_json.getString("ca_cert_uri"));
-				String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/config/eip-service.json";
-				parameters.putString(EIP.KEY, eip_service_url);
-				
-				provider_API_command.setAction(ProviderAPI.DOWNLOAD_JSON_FILES_BUNDLE_EXTRA);
-				provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-				provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-
-				startService(provider_API_command);
-			} catch (JSONException e) {
-				//TODO Show error to the user. This will eventually be transformed to "unselectProvider()", which will show the graphical notice itself.
-				ConfigHelper.removeFromSharedPref(Provider.KEY);
-			}
-	}
 	
 	/**
 	 * Asks ProviderAPI to download an anonymous (anon) VPN certificate.
@@ -420,27 +362,13 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 	public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
 		showProvider(provider_main_url, danger_on);
-		updateProviderDotJson(provider_main_url, danger_on);
+		setUpProvider(provider_main_url, danger_on);
 	}
 	
 	private void showProvider(final String provider_main_url, final boolean danger_on) {
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
-		final ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url);
-		
-		//ProviderListContent.addItem(added_provider);
+		ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url);
 		provider_list_fragment.addItem(added_provider);
-		/*ProviderListFragment provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
-		//provider_list_fragment.notifyAdapter();
-		provider_list_fragment.addItem(added_provider);
-		refreshProviderList(0);
-		
-		runOnUiThread(new Runnable() {
-			
-			@Override
-			public void run() {
-				provider_list_fragment.addItem(added_provider);
-			}
-		});*/
 	}
 	
 	/**
@@ -449,14 +377,14 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	 * @param provider_main_url
 	 * @param danger_on tells if HTTPS client should bypass certificate errors
 	 */
-	public void updateProviderDotJson(String provider_main_url, boolean danger_on) {
+	public void setUpProvider(String provider_main_url, boolean danger_on) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
 		Bundle parameters = new Bundle();
 		parameters.putString(Provider.MAIN_URL, provider_main_url);
 		parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
 
-		provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DOTJSON);
+		provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		

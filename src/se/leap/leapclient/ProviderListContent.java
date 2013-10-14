@@ -28,8 +28,6 @@ import java.net.MalformedURLException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-
 /**
  * Models the provider list shown in the ConfigurationWizard.
  * 
