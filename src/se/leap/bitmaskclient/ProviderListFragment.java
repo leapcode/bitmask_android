@@ -199,6 +199,7 @@ public class ProviderListFragment extends ListFragment {
     
     public void addItem(ProviderItem provider) {
     	content_adapter.add(provider);
+    	content_adapter.notifyDataSetChanged();
     }
     
     public void hide(int position) {
