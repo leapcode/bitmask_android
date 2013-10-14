@@ -85,8 +85,7 @@ public class ProviderAPI extends IntentService {
 	private Handler mHandler;
 
     final public static String
-    DOWNLOAD_JSON_FILES_BUNDLE_EXTRA = "downloadJSONFiles",	
-    UPDATE_PROVIDER_DOTJSON = "updateProviderDotJSON",
+    SET_UP_PROVIDER = "setUpProvider",
     DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
     SRP_REGISTER = "srpRegister",
     SRP_AUTH = "srpAuth",
@@ -105,8 +104,6 @@ public class ProviderAPI extends IntentService {
 
     final public static int
     CUSTOM_PROVIDER_ADDED = 0,
-    CORRECTLY_DOWNLOADED_JSON_FILES = 1,
-    INCORRECTLY_DOWNLOADED_JSON_FILES = 2,
     SRP_AUTHENTICATION_SUCCESSFUL = 3,
     SRP_AUTHENTICATION_FAILED = 4,
     SRP_REGISTRATION_SUCCESSFUL = 5,
@@ -115,8 +112,8 @@ public class ProviderAPI extends IntentService {
     LOGOUT_FAILED = 8,
     CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
     INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
-    CORRECTLY_UPDATED_PROVIDER_DOT_JSON = 11,
-    INCORRECTLY_UPDATED_PROVIDER_DOT_JSON = 12,
+    PROVIDER_OK = 11,
+    PROVIDER_NOK = 12,
     CORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 13,
     INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
     ;
@@ -143,19 +140,12 @@ public class ProviderAPI extends IntentService {
 		String action = command.getAction();
 		Bundle parameters = command.getBundleExtra(PARAMETERS);
 		
-		if(action.equalsIgnoreCase(DOWNLOAD_JSON_FILES_BUNDLE_EXTRA)) {
-			Bundle result = downloadJsonFiles(parameters);
+		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
+			Bundle result = setUpProvider(parameters);
 			if(result.getBoolean(RESULT_KEY)) {
-				receiver.send(CORRECTLY_DOWNLOADED_JSON_FILES, Bundle.EMPTY);
-			} else {
-				receiver.send(INCORRECTLY_DOWNLOADED_JSON_FILES, result);
-			}
-		} else if(action.equalsIgnoreCase(UPDATE_PROVIDER_DOTJSON)) {
-			Bundle result = updateProviderDotJSON(parameters);
-			if(result.getBoolean(RESULT_KEY)) {
-				receiver.send(CORRECTLY_UPDATED_PROVIDER_DOT_JSON, result);
+				receiver.send(PROVIDER_OK, result);
 			} else { 
-				receiver.send(INCORRECTLY_UPDATED_PROVIDER_DOT_JSON, Bundle.EMPTY);
+				receiver.send(PROVIDER_NOK, Bundle.EMPTY);
 			}
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
@@ -177,63 +167,6 @@ public class ProviderAPI extends IntentService {
 				receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 			}
 		}
-	}
-
-	/**
-	 * Downloads the main cert and the eip-service.json files given through the task parameter
-	 * @param task
-	 * @return true if eip-service.json was parsed as a JSON object correctly.
-	 */
-	private Bundle downloadJsonFiles(Bundle task) {
-		Bundle result = new Bundle();
-		String cert_url = task.getString(Provider.CA_CERT);
-		String eip_service_json_url = task.getString(EIP.KEY);
-		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
-		try {
-			String cert_string = downloadWithCommercialCA(cert_url, danger_on);
-
-			if(ConfigHelper.checkErroneousDownload(cert_string)) {
-				JSONObject possible_errors = new JSONObject(cert_string);
-				String reason_to_fail = "";
-				if(cert_string.isEmpty())
-					reason_to_fail = "Empty certificate downloaded";
-				else
-				reason_to_fail = possible_errors.getString(ERRORS);
-				result.putString(ERRORS, reason_to_fail);
-				result.putBoolean(RESULT_KEY, false);
-			} else {
-				X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
-				cert_string = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-				ConfigHelper.saveSharedPref(Provider.CA_CERT, "-----BEGIN CERTIFICATE-----\n"+cert_string+"-----END CERTIFICATE-----");
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-			result.putBoolean(RESULT_KEY, false);
-		} catch (CertificateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			result.putBoolean(RESULT_KEY, false);
-		}
-
-		try {
-			String eip_service_string = downloadWithCommercialCA(eip_service_json_url, danger_on);
-			JSONObject eip_service_json = new JSONObject(eip_service_string);
-			if(eip_service_json.has(ERRORS)) {
-				String reason_to_fail = eip_service_json.getString(ERRORS);
-				result.putString(ERRORS, reason_to_fail);
-				result.putBoolean(RESULT_KEY, false);
-			}
-			else {
-				ConfigHelper.saveSharedPref(EIP.KEY, eip_service_json);
-				ConfigHelper.saveSharedPref(EIP.PARSED_SERIAL, 0);
-			}
-
-			result.putBoolean(RESULT_KEY, true);
-		} catch (JSONException e) {
-			result.putBoolean(RESULT_KEY, false);
-		}
-		
-		return result;
 	}
 	
 	/**
@@ -486,7 +419,7 @@ public class ProviderAPI extends IntentService {
 	 * @param task containing a boolean meaning if the provider is custom or not, another boolean meaning if the user completely trusts this provider, the provider name and its provider.json url.
 	 * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if the update was successful. 
 	 */
-	private Bundle updateProviderDotJSON(Bundle task) {
+	private Bundle setUpProvider(Bundle task) {
 		Bundle result = new Bundle();
 		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 		String provider_main_url = task.getString(Provider.MAIN_URL);
@@ -739,15 +672,6 @@ public class ProviderAPI extends IntentService {
 			e.printStackTrace();
 		}
 		return string;
-	}
-
-	/**
-	 * Tries to guess the provider.json url given the main provider url.
-	 * @param provider_main_url
-	 * @return the guessed provider.json url
-	 */
-	private String guessProviderDotJsonURL(String provider_main_url) {
-		return provider_main_url + "/provider.json";
 	}
 	
 	/**
