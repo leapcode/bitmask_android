@@ -61,7 +61,6 @@ public class ProviderListContent {
 	public static class ProviderItem {
 		final public static String CUSTOM = "custom";
 		final public static String DANGER_ON = "danger_on";
-		private boolean custom = false;
 		private String provider_main_url;
 		private String name;
 		private boolean danger_on = false;
@@ -81,7 +80,6 @@ public class ProviderListContent {
 				JSONObject file_contents = new JSONObject(urls_file_content);
 				provider_main_url = file_contents.getString(Provider.MAIN_URL);
 				this.name = name;
-				this.custom = custom;
 				this.danger_on = danger_on;
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -99,16 +97,13 @@ public class ProviderListContent {
 		 * @param custom if it's a new provider entered by the user or not
 		 * @param danger_on if the user trusts completely the new provider
 		 */
-		public ProviderItem(String name, String provider_main_url, boolean custom, boolean danger_on) {
+		public ProviderItem(String name, String provider_main_url, boolean danger_on) {
 			this.name = name;
 			this.provider_main_url = provider_main_url;
-			this.custom = custom;
 			this.danger_on = danger_on;
 		}
 		
 		public String name() { return name; }
-		
-		public boolean custom() { return custom; }
 		
 		public String providerMainUrl() { return provider_main_url; }
 		

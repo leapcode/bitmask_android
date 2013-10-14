@@ -137,24 +137,19 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			try {
 				provider_json = new JSONObject(resultData.getString(Provider.KEY));
 				boolean danger_on = resultData.getBoolean(ProviderItem.DANGER_ON);
-				ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
-				ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
-				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
 				mConfigState.setAction(PROVIDER_SET);
 				
 				if(resultData.containsKey(Provider.NAME)) {
 					String provider_id = resultData.getString(Provider.NAME);
 					mSelectedProvider = getProvider(provider_id);
-					provider_list_fragment.addItem(mSelectedProvider);
-					ProviderListContent.removeItem(mSelectedProvider);
+					//provider_list_fragment.addItem(mSelectedProvider);
+					//ProviderListContent.removeItem(mSelectedProvider);
 
-					if(mSelectedProvider.custom)
-						refreshProviderList(0);
+					//refreshProviderList(0);
 					
 					if(!mProgressBar.isShown()) {
 						int provider_index = getProviderIndex(provider_id);
 						startProgressBar(provider_index);
-						provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
 						provider_list_fragment.hide(provider_index-2);
 						//setProviderList(provider_list_fragment);
 					}
@@ -167,7 +162,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				e.printStackTrace();
 			    mProgressBar.setVisibility(ProgressBar.GONE);
 			    progressbar_description.setVisibility(TextView.GONE);
-				refreshProviderList(0);
+				//refreshProviderList(0);
 				//Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
 				setResult(RESULT_CANCELED, mConfigState);
 			}
@@ -187,7 +182,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 				mProgressBar.incrementProgressBy(1);
 			    mProgressBar.setVisibility(ProgressBar.GONE);
 			    progressbar_description.setVisibility(TextView.GONE);
-			    refreshProviderList(0);
+			    //refreshProviderList(0);
 				//Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
 				setResult(RESULT_OK);
 				showProviderDetails(getCurrentFocus());
@@ -277,7 +272,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    while(providers_iterator.hasNext()) {
 		    ProviderItem provider = providers_iterator.next();
 		    index++;
-		    if(provider.id.equalsIgnoreCase(id)) {
+		    if(provider.name().equalsIgnoreCase(id)) {
 			    break;
 		    }
 	    }
@@ -417,18 +412,22 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	
 	private void showProvider(final String provider_main_url, final boolean danger_on) {
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
-		boolean custom = true;
-		final ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url, custom, danger_on);
+		final ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url, danger_on);
+		
+		//ProviderListContent.addItem(added_provider);
+		provider_list_fragment.addItem(added_provider);
+		/*ProviderListFragment provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
+		//provider_list_fragment.notifyAdapter();
+		provider_list_fragment.addItem(added_provider);
+		refreshProviderList(0);
+		
 		runOnUiThread(new Runnable() {
 			
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
-				ProviderListContent.addItem(added_provider);
-				ProviderListFragment provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag("providerlist");
-				provider_list_fragment.notifyAdapter();
+				provider_list_fragment.addItem(added_provider);
 			}
-		});
+		});*/
 	}
 	
 	/**
