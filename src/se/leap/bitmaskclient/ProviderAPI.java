@@ -97,8 +97,8 @@ public class ProviderAPI extends IntentService {
     SESSION_ID_COOKIE_KEY = "session_id_cookie_key",
     SESSION_ID_KEY = "session_id",
     ERRORS = "errors",
-    UPDATE_ACTION = "update_action",
-    UPDATE_DATA = "update data",
+    UPDATE_PROGRESSBAR = "update_action",
+    CURRENT_PROGRESS = "update data",
     TAG = "provider_api_tag"
     ;
 
@@ -266,9 +266,9 @@ public class ProviderAPI extends IntentService {
 	 */
 	private void broadcast_progress(int progress) {
 		Intent intentUpdate = new Intent();
-		intentUpdate.setAction(UPDATE_ACTION);
+		intentUpdate.setAction(UPDATE_PROGRESSBAR);
 		intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
-		intentUpdate.putExtra(UPDATE_DATA, progress);
+		intentUpdate.putExtra(CURRENT_PROGRESS, progress);
 		sendBroadcast(intentUpdate);
 	}
 
@@ -421,38 +421,18 @@ public class ProviderAPI extends IntentService {
 	 */
 	private Bundle setUpProvider(Bundle task) {
 		Bundle result = new Bundle();
+		int progress = 0;
 		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 		String provider_main_url = task.getString(Provider.MAIN_URL);
 		if(downloadCACert(provider_main_url, danger_on)) {
+			broadcast_progress(progress++);
 			result.putBoolean(RESULT_KEY, true);
-			if(getAndSetProviderJson(provider_main_url)) 
+			if(getAndSetProviderJson(provider_main_url)) {
+				broadcast_progress(progress++);
 				if(getAndSetEipServiceJson())
-					;
-		}
-		/*
-		try {
-			String provider_dot_json_string = downloadWithCommercialCA(provider_json_url, danger_on);
-			if(provider_dot_json_string.isEmpty()) {
-				result.putBoolean(RESULT_KEY, false);
-			} else {
-				JSONObject provider_json = new JSONObject(provider_dot_json_string);
-				if(provider_json.has(ERRORS)) {
-					String reason_to_fail = provider_json.getString(ERRORS);
-					result.putString(ERRORS, reason_to_fail);
-					result.putBoolean(RESULT_KEY, false);
-				} else {
-					ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
-
-				result.putString(Provider.NAME, added_provider.name());
-				result.putBoolean(RESULT_KEY, true);
-				result.putString(Provider.KEY, provider_json.toString());
-				result.putBoolean(ProviderItem.DANGER_ON, danger_on);
+					broadcast_progress(progress++);
 			}
-		} catch (JSONException e) {
-			result.putBoolean(RESULT_KEY, false);
-			result.putString(ERRORS, "Corrupt download");
 		}
-		*/
 		return result;
 	}
 	
