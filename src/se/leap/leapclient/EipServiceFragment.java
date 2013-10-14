@@ -176,7 +176,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 					String statusMessage = "";
 					String prefix = getString(localizedResId);
 					if (state.equals("CONNECTED")){
-						statusMessage = "Connection Secure";
+						statusMessage = getResources().getString(R.string.connection_secure);
 						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
 					} else if (state.equals("BYTECOUNT")) {

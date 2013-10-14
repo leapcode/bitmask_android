@@ -30,16 +30,24 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ResultReceiver;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.CompoundButton;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,24 +56,28 @@ import android.widget.Toast;
  * and access to preferences.
  * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
+ * @author parmegv
  */
 public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver {
 
 	protected static final int CONFIGURE_LEAP = 0;
+	protected static final int SWITCH_PROVIDER = 1;
 
 	private static final String TAG_EIP_FRAGMENT = "EIP_DASHBOARD_FRAGMENT";
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
+	public static final String REQUEST_CODE = "request_code";
 
-	private ProgressDialog mProgressDialog;
-	
+	private ProgressBar mProgressBar;
+	private TextView eipStatus;
+	private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
 	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
 
 	private TextView providerNameTV;
 
-	private boolean authed = false;
+	private boolean authed_eip = false;
 
     public ProviderAPIResultReceiver providerAPI_result_receiver;
 
@@ -74,20 +86,35 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		super.onCreate(savedInstanceState);
 		
 		app = this;
+		
+	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 
+	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
+	    IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_ACTION);
+	    update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
+	    registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
+	    
 		ConfigHelper.setSharedPreferences(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
 		
+		authed_eip = ConfigHelper.getBoolFromSharedPref(EIP.AUTHED);
 		if (ConfigHelper.getStringFromSharedPref(Provider.KEY).isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 		else
 			buildDashboard();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(providerAPI_broadcast_receiver_update);
 	}
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if ( requestCode == CONFIGURE_LEAP ) {
 			if ( resultCode == RESULT_OK ){
+				ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
 				if(data != null && data.hasExtra(LogInDialog.VERB)) {
@@ -138,6 +165,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		setContentView(R.layout.client_dashboard);
 
+	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
+	    IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_ACTION);
+	    update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
+	    registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
+	    
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getDomain());
 		providerNameTV.setTextSize(28);
@@ -156,7 +188,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
 			JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
 			if(service_description.getBoolean(Provider.ALLOW_REGISTRATION)) {
-				if(authed) {
+				if(authed_eip) {
 					menu.findItem(R.id.login_button).setVisible(false);
 					menu.findItem(R.id.logout_button).setVisible(true);
 				} else {
@@ -193,7 +225,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			startActivity(intent);
 			return true;
 		case R.id.switch_provider:
-			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;
 		case R.id.login_button:
 			View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
@@ -210,6 +242,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	@Override
 	public void authenticate(String username, String password) {
+	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
+		eipStatus = (TextView) findViewById(R.id.eipStatus);
+		
 		providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 		providerAPI_result_receiver.setReceiver(this);
 		
@@ -232,8 +267,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
-		if(mProgressDialog != null) mProgressDialog.dismiss();
-		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.authenticating_title), getResources().getString(R.string.authenticating_message), true);
+		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		eipStatus.setText("Starting to login");
+		//mProgressBar.setMax(4);
 		startService(provider_API_command);
 	}
 	
@@ -260,8 +296,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
-		if(mProgressDialog != null) mProgressDialog.dismiss();
-		mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
+		//if(mProgressDialog != null) mProgressDialog.dismiss();
+		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
+		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		eipStatus.setText("Starting to logout");
+		//mProgressBar.setMax(1);
 		startService(provider_API_command);
 	}
 	
@@ -312,32 +351,75 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			String session_id_cookie_key = resultData.getString(ProviderAPI.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ProviderAPI.SESSION_ID_KEY);
 			setResult(RESULT_OK);
-			authed = true;
+
+			authed_eip = true;
+			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
 			invalidateOptionsMenu();
 
-			//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
-			downloadAuthedUserCertificate(/*session_id*/);
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+
+        	//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
+        	downloadAuthedUserCertificate(/*session_id*/);
 		} else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_FAILED) {
-			mProgressDialog.dismiss();
         	logInDialog(getCurrentFocus(), resultData);
+    		eipStatus.setText("Login failed");
+        	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
-			authed = false;
+			authed_eip = false;
+			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
+
+			changeStatusMessage(resultCode);
+			mProgressBar.setVisibility(ProgressBar.GONE);
+			mProgressBar.setProgress(0);
 			invalidateOptionsMenu();
 			setResult(RESULT_OK);
-			mProgressDialog.dismiss();
 		} else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
-			mProgressDialog.dismiss();
+    		eipStatus.setText("Didn't log out");
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	//mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_OK);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	changeStatusMessage(resultCode);
+        	//mProgressBar.setProgress(0);
 			Toast.makeText(getApplicationContext(), R.string.successful_authed_cert_downloaded_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
-			mProgressDialog.dismiss();
+        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	//mProgressBar.setProgress(0);
+        	changeStatusMessage(resultCode);
 			Toast.makeText(getApplicationContext(), R.string.authed_cert_download_failed_message, Toast.LENGTH_LONG).show();
 		}
+	}
+
+	private void changeStatusMessage(final int previous_result_code) {
+		// TODO Auto-generated method stub
+		ResultReceiver eip_status_receiver = new ResultReceiver(new Handler()){
+			@Override
+			protected void onReceiveResult(int resultCode, Bundle resultData) {
+				super.onReceiveResult(resultCode, resultData);
+				String request = resultData.getString(EIP.REQUEST_TAG);
+				if(resultCode == RESULT_OK) {
+					if(request.equalsIgnoreCase(EIP.ACTION_IS_EIP_RUNNING)) {
+						switch (previous_result_code) {
+						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.anonymous_secured_status); break;
+						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.authed_secured_status); break;
+						}
+					}
+				} else {
+					if(request.equalsIgnoreCase(EIP.ACTION_IS_EIP_RUNNING)) {
+						switch (previous_result_code) {
+						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.future_anonymous_secured_status); break;
+						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.future_authed_secured_status); break;
+						}
+					}
+				}
+			}
+		};
+		eipIsRunning(eip_status_receiver);
+		
 	}
 
 	/**
@@ -349,5 +431,33 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public static Context getAppContext() {
 		return app;
 	}
+
 	
+	@Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        intent.putExtra(Dashboard.REQUEST_CODE, requestCode);
+        super.startActivityForResult(intent, requestCode);
+    }
+	/**
+	 * Send a command to EIP
+	 * 
+	 * @param action	A valid String constant from EIP class representing an Intent
+	 * 					filter for the EIP class 
+	 */
+	private void eipIsRunning(ResultReceiver eip_receiver){
+		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
+		Intent eip_intent = new Intent(this, EIP.class);
+		eip_intent.setAction(EIP.ACTION_IS_EIP_RUNNING);
+		eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
+		startService(eip_intent);
+	}
+
+	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			int update = intent.getIntExtra(ProviderAPI.UPDATE_DATA, 0);
+			//mProgressBar.setProgress(update);
+		}
+	}
 }
