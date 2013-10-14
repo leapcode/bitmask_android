@@ -16,8 +16,6 @@
  */
  package se.leap.bitmaskclient;
 
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,12 +28,9 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,11 +39,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.CompoundButton;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,7 +62,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	private ProgressBar mProgressBar;
 	private TextView eipStatus;
-	private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
 	private static Context app;
 	private static SharedPreferences preferences;
 	private static Provider provider;
@@ -92,10 +82,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    //mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
 
 
-	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
-	    IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_ACTION);
-	    update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
-	    registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
+	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 	    
 		ConfigHelper.setSharedPreferences(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
@@ -110,7 +97,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		unregisterReceiver(providerAPI_broadcast_receiver_update);
 	}
 	
 	@Override
@@ -167,11 +153,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider.init( this );
 
 		setContentView(R.layout.client_dashboard);
-
-	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
-	    IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_ACTION);
-	    update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
-	    registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
 	    
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getDomain());
@@ -454,14 +435,5 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		eip_intent.setAction(EIP.ACTION_IS_EIP_RUNNING);
 		eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
 		startService(eip_intent);
-	}
-
-	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			int update = intent.getIntExtra(ProviderAPI.UPDATE_DATA, 0);
-			//mProgressBar.setProgress(update);
-		}
 	}
 }
