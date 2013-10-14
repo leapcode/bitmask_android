@@ -89,7 +89,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		app = this;
 		
 		PRNGFixes.apply();
-	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
+	    //mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
 
 
 	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
@@ -434,7 +434,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public static Context getAppContext() {
 		return app;
 	}
+
 	
+	@Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        intent.putExtra(Dashboard.REQUEST_CODE, requestCode);
+        super.startActivityForResult(intent, requestCode);
+    }
 	/**
 	 * Send a command to EIP
 	 * 

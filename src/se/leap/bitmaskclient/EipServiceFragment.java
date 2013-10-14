@@ -178,11 +178,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 					String statusMessage = "";
 					String prefix = getString(localizedResId);
 					if (state.equals("CONNECTED")){
-<<<<<<< HEAD
+
 						statusMessage = getString(R.string.eip_state_connected);
-=======
-						statusMessage = getResources().getString(R.string.connection_secure);
->>>>>>> Dashboard asks for real VPN state.
 						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
 					} else if (state.equals("BYTECOUNT")) {

@@ -1,4 +1,4 @@
-package se.leap.leapclient;
+package se.leap.bitmaskclient;
 
 import java.util.List;
 
