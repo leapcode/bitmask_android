@@ -113,7 +113,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if ( requestCode == CONFIGURE_LEAP ) {
-			if ( resultCode == RESULT_OK ){
+			if ( resultCode == RESULT_OK){
 				ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
@@ -225,6 +225,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			startActivity(intent);
 			return true;
 		case R.id.switch_provider:
+			ConfigHelper.removeFromSharedPref(Provider.KEY);
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;
 		case R.id.login_button:

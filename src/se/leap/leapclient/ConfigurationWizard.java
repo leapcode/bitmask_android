@@ -135,7 +135,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		if(resultCode == ProviderAPI.CORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
 			JSONObject provider_json;
 			try {
-				provider_json = new JSONObject(resultData.getString(Provider.KEY));
+				provider_json = ConfigHelper.getJsonFromSharedPref((Provider.KEY));
 				boolean danger_on = resultData.getBoolean(ProviderItem.DANGER_ON);
 				mConfigState.setAction(PROVIDER_SET);
 				
@@ -156,7 +156,20 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 					mProgressBar.incrementProgressBy(1);
 				}
 
-				downloadJSONFiles(provider_json, danger_on);
+
+				if (ConfigHelper.getBoolFromSharedPref(EIP.ALLOWED_ANON)){
+					mConfigState.putExtra(SERVICES_RETRIEVED, true);
+					downloadAnonCert();
+				} else {
+					mProgressBar.incrementProgressBy(1);
+				    mProgressBar.setVisibility(ProgressBar.GONE);
+				    progressbar_description.setVisibility(TextView.GONE);
+				    //refreshProviderList(0);
+					//Toast.makeText(getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
+					setResult(RESULT_OK);
+					showProviderDetails(getCurrentFocus());
+				}
+				//downloadJSONFiles(provider_json, danger_on);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -222,7 +235,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    int provider_index = getProviderIndex(id);
 	    startProgressBar(provider_index);
 	    mSelectedProvider = selected_provider;
-		updateProviderDotJson(mSelectedProvider.providerMainUrl(), mSelectedProvider.completelyTrusted());
+		updateProviderDotJson(mSelectedProvider.providerMainUrl(), true);
     }
     
     @Override
@@ -317,7 +330,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	        	boolean custom = false;
 	        	provider_name = url_filepath.subSequence(0, url_filepath.indexOf(".")).toString();
 	        	if(ProviderListContent.ITEMS.isEmpty()) //TODO I have to implement a way of checking if a provider new or is already present in that ITEMS list
-	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath), custom, false));
+	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath)));
 	        	loaded_preseeded_providers = true;
 	        }
 		} catch (IOException e) {
@@ -412,7 +425,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	
 	private void showProvider(final String provider_main_url, final boolean danger_on) {
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
-		final ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url, danger_on);
+		final ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url);
 		
 		//ProviderListContent.addItem(added_provider);
 		provider_list_fragment.addItem(added_provider);

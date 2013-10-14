@@ -36,6 +36,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
@@ -66,7 +67,6 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 /**
@@ -97,7 +97,8 @@ public class ProviderAPI extends IntentService {
     SESSION_ID_KEY = "session_id",
     ERRORS = "errors",
     UPDATE_ACTION = "update_action",
-    UPDATE_DATA = "update data"
+    UPDATE_DATA = "update data",
+    TAG = "provider_api_tag"
     ;
 
     final public static int
@@ -458,9 +459,13 @@ public class ProviderAPI extends IntentService {
 		Bundle result = new Bundle();
 		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 		String provider_main_url = task.getString(Provider.MAIN_URL);
-		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
-		String provider_json_url = provider_main_url + "/provider.json";
-		
+		if(downloadCACert(provider_main_url, danger_on)) {
+			result.putBoolean(RESULT_KEY, true);
+			if(getAndSetProviderJson(provider_main_url)) 
+				if(getAndSetEipServiceJson())
+					;
+		}
+		/*
 		try {
 			String provider_dot_json_string = downloadWithCommercialCA(provider_json_url, danger_on);
 			if(provider_dot_json_string.isEmpty()) {
@@ -471,7 +476,7 @@ public class ProviderAPI extends IntentService {
 				ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
 				ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
 				ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
-				ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url, danger_on);
+				ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url);
 				//ProviderListContent.addItem(added_provider);
 
 				result.putString(Provider.NAME, added_provider.name());
@@ -482,10 +487,72 @@ public class ProviderAPI extends IntentService {
 		} catch (JSONException e) {
 			result.putBoolean(RESULT_KEY, false);
 		}
+		*/
+		return result;
+	}
+	
+	private boolean downloadCACert(String provider_main_url, boolean danger_on) {
+		String cert_string = downloadWithCommercialCA(provider_main_url + "/ca.crt", danger_on);
+		if(validCertificate(cert_string))
+			ConfigHelper.saveSharedPref(Provider.CA_CERT, "-----BEGIN CERTIFICATE-----\n"+cert_string+"-----END CERTIFICATE-----");
+		else
+			return false;
+		
+		return true;
+	}
+	
+	private boolean validCertificate(String cert_string) {
+		boolean result = false;
+		if(!cert_string.isEmpty()) {
+			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
+			try {
+				Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
+				result = true;
+			} catch (CertificateEncodingException e) {
+				Log.d(TAG, e.getLocalizedMessage());
+			}
+		}
 		
 		return result;
 	}
 	
+	private boolean getAndSetProviderJson(String provider_main_url) {
+		boolean result = false;
+
+		String provider_dot_json_string = downloadWithProviderCA(provider_main_url + "/provider.json", true);
+
+		try {
+			JSONObject provider_json = new JSONObject(provider_dot_json_string);
+			String name = provider_json.getString(Provider.NAME);
+			//TODO setProviderName(name);
+			
+			ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
+			ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
+			ProviderItem added_provider = new ProviderItem(name, provider_main_url);
+			
+			result = true;
+		} catch (JSONException e) {
+		}
+		return result;
+	}
+
+	
+	private boolean getAndSetEipServiceJson() {
+		boolean result = false;
+
+		try {
+			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
+			String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
+			String eip_service_json_string = downloadWithProviderCA(eip_service_url, true);
+			JSONObject eip_service_json = new JSONObject(eip_service_json_string);
+			eip_service_json.getInt(Provider.API_RETURN_SERIAL);
+
+			ConfigHelper.saveSharedPref(EIP.KEY, eip_service_json);
+			result = true;
+		} catch (JSONException e) {
+		}
+		return result;
+	}
 	/**
 	 * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
 	 * 
@@ -514,13 +581,13 @@ public class ProviderAPI extends IntentService {
 			displayToast(R.string.server_is_down_message);
 		} catch (IOException e) {
 			if(provider_url != null) {
-				json_file_content = downloadWithProviderCA(provider_url, danger_on);
+				json_file_content = downloadWithProviderCA(string_url, danger_on);
 			} else {
 				displayToast(R.string.certificate_error);
 			}
 		} catch (Exception e) {
 			if(provider_url != null && danger_on) {
-				json_file_content = downloadWithProviderCA(provider_url, danger_on);
+				json_file_content = downloadWithProviderCA(string_url, danger_on);
 			}
 		}
 
@@ -529,14 +596,15 @@ public class ProviderAPI extends IntentService {
 
 	/**
 	 * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider. 
-	 * @param url
+	 * @param url as a string
 	 * @param danger_on true to download CA certificate in case it has not been downloaded.
 	 * @return an empty string if it fails, the url content if not. 
 	 */
-	private String downloadWithProviderCA(URL url, boolean danger_on) {
+	private String downloadWithProviderCA(String url_string, boolean danger_on) {
 		String json_file_content = "";
 
 		try {
+			URL url = new URL(url_string);
 			// Tell the URLConnection to use a SocketFactory from our SSLContext
 			HttpsURLConnection urlConnection =
 					(HttpsURLConnection)url.openConnection();
@@ -553,7 +621,7 @@ public class ProviderAPI extends IntentService {
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			if(danger_on) {
-				json_file_content = downloadWithoutCA(url);
+				json_file_content = downloadWithoutCA(url_string);
 			} else {
 				displayToast(R.string.certificate_error);
 			}
@@ -596,7 +664,7 @@ public class ProviderAPI extends IntentService {
 	/**
 	 * Downloads the string that's in the url with any certificate.
 	 */
-	private String downloadWithoutCA(URL url) {
+	private String downloadWithoutCA(String url_string) {
 		String string = "";
 		try {
 
@@ -624,6 +692,7 @@ public class ProviderAPI extends IntentService {
 			SSLContext context = SSLContext.getInstance("TLS");
 			context.init(new KeyManager[0], new TrustManager[] {new DefaultTrustManager()}, new SecureRandom());
 
+			URL url = new URL(url_string);
 			HttpsURLConnection urlConnection = (HttpsURLConnection)url.openConnection();
 			urlConnection.setSSLSocketFactory(context.getSocketFactory());
 			urlConnection.setHostnameVerifier(hostnameVerifier);
@@ -715,7 +784,7 @@ public class ProviderAPI extends IntentService {
 			String new_cert_string_url = provider_main_url.toString() + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE;
 
 			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ProviderItem.DANGER_ON);
-			String cert_string = downloadWithCommercialCA(new_cert_string_url, danger_on);
+			String cert_string = downloadWithProviderCA(new_cert_string_url, true);
 			if(!cert_string.isEmpty()) {
 				// API returns concatenated cert & key.  Split them for OpenVPN options
 				String certificateString = null, keyString = null;
