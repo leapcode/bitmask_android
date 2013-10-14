@@ -18,15 +18,13 @@
 
 import se.leap.leapclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.content.Context;
-import android.widget.TwoLineListItem;
 
 /**
  * A list fragment representing a list of Providers. This fragment
@@ -39,7 +37,10 @@ import android.widget.TwoLineListItem;
  */
 public class ProviderListFragment extends ListFragment {
 
-	private ArrayAdapter<ProviderItem> content_adapter;
+	public static String TAG = "provider_list_fragment";
+	public static String SHOW_ALL_PROVIDERS = "show_all_providers";
+	
+	private ProviderListAdapter<ProviderItem> content_adapter;
 	
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -89,28 +90,20 @@ public class ProviderListFragment extends ListFragment {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        content_adapter = new ArrayAdapter<ProviderListContent.ProviderItem>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_2,
-		ProviderListContent.ITEMS) {
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent){
-				TwoLineListItem row;            
-				if (convertView == null) {
-					LayoutInflater inflater = (LayoutInflater)getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					row = (TwoLineListItem)inflater.inflate(android.R.layout.simple_list_item_2, null);                    
-				} else {
-					row = (TwoLineListItem)convertView;
-				}
-				ProviderListContent.ProviderItem data = ProviderListContent.ITEMS.get(position);
-				row.getText1().setText(data.domain);
-				row.getText2().setText(data.name);
-
-				return row;
-			}
-	};
-	setListAdapter(content_adapter);
+    	super.onCreate(savedInstanceState);
+    	if(getArguments().containsKey(SHOW_ALL_PROVIDERS))
+    		content_adapter = new ProviderListAdapter<ProviderListContent.ProviderItem>(
+    				getActivity(),
+    				android.R.layout.simple_list_item_activated_2,
+    				ProviderListContent.ITEMS, getArguments().getBoolean(SHOW_ALL_PROVIDERS));
+    	else
+    		content_adapter = new ProviderListAdapter<ProviderListContent.ProviderItem>(
+    				getActivity(),
+    				android.R.layout.simple_list_item_activated_2,
+    				ProviderListContent.ITEMS);
+    		
+			
+        setListAdapter(content_adapter);
     }
 
     @Override
@@ -127,6 +120,12 @@ public class ProviderListFragment extends ListFragment {
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
+    	String top_padding_key = getResources().getString(R.string.top_padding);
+    	if(getArguments() != null && getArguments().containsKey(top_padding_key)) {
+    		int topPadding = getArguments().getInt(top_padding_key);
+    		View current_view = getView();
+    		getView().setPadding(current_view.getPaddingLeft(), topPadding, current_view.getPaddingRight(), current_view.getPaddingBottom());
+    	}
     }
 
     @Override
@@ -155,7 +154,12 @@ public class ProviderListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(ProviderListContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(ProviderListContent.ITEMS.get(position).name());
+        
+        for(int item_position = 0; item_position < listView.getCount(); item_position++) {
+        	if(item_position != position)
+        		content_adapter.hide(item_position);
+        }
     }
 
     @Override
@@ -167,6 +171,9 @@ public class ProviderListFragment extends ListFragment {
         }
     }
 
+    public void notifyAdapter() {
+    	content_adapter.notifyDataSetChanged();
+    }
     /**
      * Turns on activate-on-click mode. When this mode is on, list items will be
      * given the 'activated' state when touched.
@@ -188,4 +195,31 @@ public class ProviderListFragment extends ListFragment {
 
         mActivatedPosition = position;
     }
+    
+    public void addItem(ProviderItem provider) {
+    	content_adapter.add(provider);
+    	content_adapter.notifyDataSetChanged();
+    }
+    
+    public void hideAllBut(int position) {
+    	for(int i = 0; i < content_adapter.getCount(); i++)
+    		if(i != position)
+    			content_adapter.hide(i);
+    		else
+    			content_adapter.unHide(i);
+    }
+    
+    public void unhideAll() {
+    	if(content_adapter != null) {
+    		content_adapter.unHideAll();
+    		content_adapter.notifyDataSetChanged();
+    	}
+    }
+
+	/**
+	 * @return a new instance of this ListFragment.
+	 */
+	public static ProviderListFragment newInstance() {
+		return new ProviderListFragment();
+	}
 }
