@@ -99,7 +99,7 @@ public final class Provider implements Serializable {
 		preferences = activity.getSharedPreferences(Dashboard.SHARED_PREFERENCES,Context.MODE_PRIVATE);
 		// Inflate our provider.json data
 		try {
-			definition = new JSONObject( preferences.getString("provider", "") );
+			definition = new JSONObject( preferences.getString(Provider.KEY, "") );
 		} catch (JSONException e) {
 			// TODO: handle exception
 			

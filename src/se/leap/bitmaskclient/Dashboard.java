@@ -243,6 +243,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				}
 				eipStop();
 			}
+			ConfigHelper.removeFromSharedPref(Provider.KEY);
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;
 		case R.id.login_button:

@@ -63,7 +63,6 @@ public class ProviderListContent {
 		final public static String DANGER_ON = "danger_on";
 		private String provider_main_url;
 		private String name;
-		private boolean danger_on = false;
 
 		/**
 		 * @param name of the provider
@@ -71,7 +70,7 @@ public class ProviderListContent {
 		 * @param custom if it's a new provider entered by the user or not
 		 * @param danger_on if the user trusts completely the new provider
 		 */
-		public ProviderItem(String name, InputStream urls_file_input_stream, boolean custom, boolean danger_on) {
+		public ProviderItem(String name, InputStream urls_file_input_stream) {
 
 			try {
 				byte[] urls_file_bytes = new byte[urls_file_input_stream.available()];
@@ -80,7 +79,6 @@ public class ProviderListContent {
 				JSONObject file_contents = new JSONObject(urls_file_content);
 				provider_main_url = file_contents.getString(Provider.MAIN_URL);
 				this.name = name;
-				this.danger_on = danger_on;
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -95,12 +93,10 @@ public class ProviderListContent {
 		 * @param provider_main_url used to download provider.json file of the provider
 		 * @param provider_json already downloaded
 		 * @param custom if it's a new provider entered by the user or not
-		 * @param danger_on if the user trusts completely the new provider
 		 */
-		public ProviderItem(String name, String provider_main_url, boolean danger_on) {
+		public ProviderItem(String name, String provider_main_url) {
 			this.name = name;
 			this.provider_main_url = provider_main_url;
-			this.danger_on = danger_on;
 		}
 		
 		public String name() { return name; }
@@ -114,7 +110,5 @@ public class ProviderListContent {
 				return provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
 			}
 		}
-		
-		public boolean completelyTrusted() { return danger_on; }
 	}
 }
