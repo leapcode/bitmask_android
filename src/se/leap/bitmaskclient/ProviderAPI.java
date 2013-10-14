@@ -488,7 +488,9 @@ public class ProviderAPI extends IntentService {
 	private Bundle updateProviderDotJSON(Bundle task) {
 		Bundle result = new Bundle();
 		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
-		String provider_json_url = task.getString(Provider.MAIN_URL) + "/provider.json";
+		String provider_main_url = task.getString(Provider.MAIN_URL);
+		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
+		String provider_json_url = provider_main_url + "/provider.json";
 		
 		try {
 			String provider_dot_json_string = downloadWithCommercialCA(provider_json_url, danger_on);
@@ -503,6 +505,7 @@ public class ProviderAPI extends IntentService {
 				} else {
 					ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
 
+				result.putString(Provider.NAME, added_provider.name());
 				result.putBoolean(RESULT_KEY, true);
 				result.putString(Provider.KEY, provider_json.toString());
 				result.putBoolean(ProviderItem.DANGER_ON, danger_on);
