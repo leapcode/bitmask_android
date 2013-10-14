@@ -1,6 +1,5 @@
 package se.leap.leapclient;
 
-import java.lang.reflect.Array;
 import java.util.List;
 
 import android.content.Context;
