@@ -118,6 +118,11 @@ public class ProviderAPI extends IntentService {
     INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
     ;
 
+    public static boolean 
+    CA_CERT_DOWNLOADED = false,
+    PROVIDER_JSON_DOWNLOADED = false,
+    EIP_SERVICE_JSON_DOWNLOADED = false
+    ;
 	public ProviderAPI() {
 		super("ProviderAPI");
 		Log.v("ClassName", "Provider API");
@@ -136,14 +141,14 @@ public class ProviderAPI extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent command) {
-		final ResultReceiver receiver = command.getParcelableExtra("receiver");
+		final ResultReceiver receiver = command.getParcelableExtra(RECEIVER_KEY);
 		String action = command.getAction();
 		Bundle parameters = command.getBundleExtra(PARAMETERS);
 		
 		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
 			Bundle result = setUpProvider(parameters);
 			if(result.getBoolean(RESULT_KEY)) {
-				receiver.send(PROVIDER_OK, result);
+				receiver.send(PROVIDER_OK, Bundle.EMPTY);
 			} else { 
 				receiver.send(PROVIDER_NOK, Bundle.EMPTY);
 			}
@@ -424,15 +429,24 @@ public class ProviderAPI extends IntentService {
 		int progress = 0;
 		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 		String provider_main_url = task.getString(Provider.MAIN_URL);
+
+		result.putBoolean(RESULT_KEY, false);
 		if(downloadCACert(provider_main_url, danger_on)) {
 			broadcast_progress(progress++);
-			result.putBoolean(RESULT_KEY, true);
+			CA_CERT_DOWNLOADED = true;
 			if(getAndSetProviderJson(provider_main_url)) {
 				broadcast_progress(progress++);
-				if(getAndSetEipServiceJson())
+				PROVIDER_JSON_DOWNLOADED = true;
+				if(getAndSetEipServiceJson()) {
 					broadcast_progress(progress++);
+					EIP_SERVICE_JSON_DOWNLOADED = true;
+				}
 			}
 		}
+		
+		if(CA_CERT_DOWNLOADED && PROVIDER_JSON_DOWNLOADED && EIP_SERVICE_JSON_DOWNLOADED)
+			result.putBoolean(RESULT_KEY, true);
+		
 		return result;
 	}
 	
