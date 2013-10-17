@@ -34,5 +34,5 @@ else
 fi
 
 wait_until_booted
-adb install -r $PROJECT_FOLDER/bin/LEAP\ Android-debug.apk # Install the new version of the application
-adb shell am start se.leap.leapclient/.Dashboard # Run app
+adb install -r $PROJECT_FOLDER/bin/Bitmask\ for\ Android-debug.apk # Install the new version of the application
+adb shell am start se.leap.bitmaskclient/.Dashboard # Run app

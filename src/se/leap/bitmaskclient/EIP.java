@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.leapclient;
+ package se.leap.bitmaskclient;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import se.leap.bitmaskclient.R;
 import se.leap.openvpn.ConfigParser;
 import se.leap.openvpn.ConfigParser.ConfigParseError;
 import se.leap.openvpn.LaunchVPN;
@@ -57,10 +58,10 @@ import android.util.Log;
  */
 public final class EIP extends IntentService {
 	
-	public final static String ACTION_START_EIP = "se.leap.leapclient.START_EIP";
-	public final static String ACTION_STOP_EIP = "se.leap.leapclient.STOP_EIP";
-	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.leapclient.UPDATE_EIP_SERVICE";
-	public final static String ACTION_IS_EIP_RUNNING = "se.leap.leapclient.IS_RUNNING";
+	public final static String ACTION_START_EIP = "se.leap.bitmaskclient.START_EIP";
+	public final static String ACTION_STOP_EIP = "se.leap.bitmaskclient.STOP_EIP";
+	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.bitmaskclient.UPDATE_EIP_SERVICE";
+	public final static String ACTION_IS_EIP_RUNNING = "se.leap.bitmaskclient.IS_RUNNING";
 	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
 	public final static String ALLOWED_ANON = "allow_anonymous";
 	public final static String CERTIFICATE = "cert";

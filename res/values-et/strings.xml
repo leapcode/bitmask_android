@@ -16,7 +16,7 @@
   <string name="client_pkcs12_title">PKCS12 fail</string>
   <string name="ca_title">CA sertifikaat</string>
   <string name="no_certificate">Peate valima sertifikaadi</string>
-  <string name="copyright_guicode">Lähtetekst ja probleemihaldur asuvad veebilehel https://github.com/leapcode/leap_android/</string>
+  <string name="repository_url_text">Lähtetekst ja probleemihaldur asuvad veebilehel https://github.com/leapcode/bitmask_android/</string>
   <string name="copyright_others">Programmis kasutatakse järgnevaid komponente. Detailse litsenseerimisinfo leiate lähtekoodist</string>
   <string name="about">Lähemalt</string>
   <string name="about_summary">Täpsemalt programmist LEAP Androidile</string>

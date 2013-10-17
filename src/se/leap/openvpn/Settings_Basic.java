@@ -39,8 +39,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-import se.leap.leapclient.R.id;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.R.id;
 
 public class Settings_Basic extends Fragment implements View.OnClickListener, OnItemSelectedListener, Callback {
 	private static final int CHOOSE_FILE_OFFSET = 1000;

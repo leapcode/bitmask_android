@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 import android.util.Log;
 import se.leap.openvpn.OpenVPN.LogItem;

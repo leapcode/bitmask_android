@@ -6,7 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;

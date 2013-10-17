@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
 
 public class FaqFragment extends Fragment  {
 

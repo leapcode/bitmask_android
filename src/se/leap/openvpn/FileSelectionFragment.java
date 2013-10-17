@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 import android.app.AlertDialog;
 import android.app.ListFragment;

@@ -8,7 +8,8 @@ import java.net.SocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 public class ProxyDetection {
 	static SocketAddress detectProxy(VpnProfile vp) {

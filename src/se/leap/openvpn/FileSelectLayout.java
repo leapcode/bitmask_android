@@ -10,7 +10,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
 
 
 public class FileSelectLayout extends LinearLayout implements OnClickListener {
