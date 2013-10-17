@@ -48,21 +48,19 @@ public class ProviderListContent {
 		ITEMS.add(item);
 		ITEM_MAP.put(String.valueOf(ITEMS.size()), item);
 	}
+	public static void removeItem(ProviderItem item) {
+		ITEMS.remove(item);
+		ITEM_MAP.remove(item);
+	}
 
 	/**
 	 * A provider item.
 	 */
-	public static class ProviderItem {  
-		public boolean custom = false;
-		public String id;
-		public String name;
-		public String domain;
-		public String provider_json_url;
-		public JSONObject provider_json;
-		public String provider_json_filename;
-		public String eip_service_json_url;
-		public String cert_json_url;
-		public boolean danger_on = false;
+	public static class ProviderItem {
+		final public static String CUSTOM = "custom";
+		final public static String DANGER_ON = "danger_on";
+		private String provider_main_url;
+		private String name;
 
 		/**
 		 * @param name of the provider
@@ -70,25 +68,15 @@ public class ProviderListContent {
 		 * @param custom if it's a new provider entered by the user or not
 		 * @param danger_on if the user trusts completely the new provider
 		 */
-		public ProviderItem(String name, InputStream urls_file_input_stream, boolean custom, boolean danger_on) {
+		public ProviderItem(String name, InputStream urls_file_input_stream) {
 
 			try {
 				byte[] urls_file_bytes = new byte[urls_file_input_stream.available()];
 				urls_file_input_stream.read(urls_file_bytes);
 				String urls_file_content = new String(urls_file_bytes);
 				JSONObject file_contents = new JSONObject(urls_file_content);
-				id = name;
+				provider_main_url = file_contents.getString(Provider.MAIN_URL);
 				this.name = name;
-				provider_json_url = file_contents.getString(ConfigHelper.PROVIDER_JSON_URL);
-				domain = new URL(provider_json_url).getHost();
-				//provider_json_filename = file_contents.getString("assets_json_provider");
-				eip_service_json_url = file_contents.getString("json_eip_service");
-				cert_json_url = file_contents.getString(ConfigHelper.CERT_KEY);
-				this.custom = custom;
-				this.danger_on = danger_on;
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -100,42 +88,25 @@ public class ProviderListContent {
 
 		/**
 		 * @param name of the provider
-		 * @param provider_json_url used to download provider.json file of the provider
+		 * @param provider_main_url used to download provider.json file of the provider
 		 * @param provider_json already downloaded
 		 * @param custom if it's a new provider entered by the user or not
-		 * @param danger_on if the user trusts completely the new provider
 		 */
-		public ProviderItem(String name, String provider_json_url, JSONObject provider_json, boolean custom, boolean danger_on) {
-
+		public ProviderItem(String name, String provider_main_url) {
+			this.name = name;
+			this.provider_main_url = provider_main_url;
+		}
+		
+		public String name() { return name; }
+		
+		public String providerMainUrl() { return provider_main_url; }
+		
+		public String domain() {
 			try {
-				id = name;
-				//this.name = name;
-				this.provider_json_url = provider_json_url;
-				this.provider_json = provider_json;
-				this.name = provider_json.getJSONObject("name").getString("en");
-				domain = new URL(provider_json_url).getHost();
-				eip_service_json_url = provider_json.getString(ConfigHelper.API_URL_KEY) + "/" + provider_json.getString(ConfigHelper.API_VERSION_KEY) + "/" + ConfigHelper.EIP_SERVICE_API_PATH;
-				cert_json_url = provider_json.getString("ca_cert_uri");
-				this.custom = custom;
-				this.danger_on = danger_on;
-				if(custom)
-					provider_json_filename = name + "_provider.json".replaceFirst("__", "_");
+				return new URL(provider_main_url).getHost();
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
 			}
-		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-
-		public String getId() {
-			return id;
 		}
 	}
 }

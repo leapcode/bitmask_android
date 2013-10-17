@@ -22,6 +22,8 @@ import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
 
 import se.leap.leapclient.ConfigHelper;
+import se.leap.leapclient.EIP;
+import se.leap.leapclient.Provider;
 import se.leap.leapclient.R;
 
 import android.content.Context;
@@ -246,9 +248,9 @@ public class VpnProfile implements  Serializable{
 			cfg+=insertFileData("cert",mClientCertFilename);
 */
 			// FIXME This is all we need...The whole switch statement can go...
-			cfg+="<ca>\n"+ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY)+"\n</ca>\n";
-			cfg+="<key>\n"+ConfigHelper.getStringFromSharedPref(ConfigHelper.KEY_KEY)+"\n</key>\n";
-			cfg+="<cert>\n"+ConfigHelper.getStringFromSharedPref(ConfigHelper.CERT_KEY)+"\n</cert>\n";
+			cfg+="<ca>\n"+ConfigHelper.getStringFromSharedPref(Provider.CA_CERT)+"\n</ca>\n";
+			cfg+="<key>\n"+ConfigHelper.getStringFromSharedPref(EIP.PRIVATE_KEY)+"\n</key>\n";
+			cfg+="<cert>\n"+ConfigHelper.getStringFromSharedPref(EIP.CERTIFICATE)+"\n</cert>\n";
 			
 			break;
 		case VpnProfile.TYPE_USERPASS_PKCS12:

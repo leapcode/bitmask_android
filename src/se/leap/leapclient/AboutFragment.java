@@ -4,9 +4,6 @@ import android.app.Fragment;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +11,8 @@ import android.widget.TextView;
 import se.leap.leapclient.R;
 
 public class AboutFragment extends Fragment  {
+	
+    final public static String TAG = "aboutFragment";
 
 	public static Fragment newInstance() {
 		AboutFragment provider_detail_fragment = new AboutFragment();
