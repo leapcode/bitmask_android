@@ -16,7 +16,7 @@
   <string name="client_pkcs12_title">"Fichier PKCS12"</string>
   <string name="ca_title">"Certificat CA"</string>
   <string name="no_certificate">"Vous devez sélectionner un certificat"</string>
-  <string name="copyright_guicode">"Le code source et le tracker de bugs est disponible ici: https://github.com/leapcode/leap_android/ "</string>
+  <string name="repository_url_text">"Le code source et le tracker de bugs est disponible ici: https://github.com/leapcode/bitmask_android/ "</string>
   <string name="copyright_others">"Le programme utilise les composants suivants. Voir le code source pour plus de détails sur les licences."</string>
   <string name="about">"À propos"</string>
   <string name="about_summary">"À propos d\'LEAP pour Android"</string>
