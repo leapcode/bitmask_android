@@ -65,7 +65,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:clickable="true"
-            android:text="@string/eip_status" />
+            android:text="@string/status_unknown" />
 
     </RelativeLayout>
 
