@@ -16,7 +16,7 @@
   <string name="client_pkcs12_title">PKCS12ファイル</string>
   <string name="ca_title">CA 証明書</string>
   <string name="no_certificate">証明書を選択する必要があります。</string>
-  <string name="copyright_guicode">ソースコードと問題管理は以下で： https://github.com/leapcode/leap_android/</string>
+  <string name="repository_url_text">ソースコードと問題管理は以下で： https://github.com/leapcode/bitmask_android/</string>
   <string name="copyright_others">プログラムは、次のコンポーネントを使用します。完全な詳細についてはソース上のライセンスを参照してください。</string>
   <string name="about">バージョン情報</string>
   <string name="about_summary">LEAP Androidについて</string>

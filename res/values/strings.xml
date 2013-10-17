@@ -18,7 +18,7 @@
     <string name="client_pkcs12_title">PKCS12 File</string>
     <string name="ca_title">CA Certificate</string>
     <string name="no_certificate">You must select a certificate</string>
-    <string name="copyright_guicode">Source code and issue tracker available at https://github.com/leapcode/leap_android/</string>
+    <string name="repository_url_text">Source code and issue tracker available at https://github.com/leapcode/bitmask_android/</string>
     <string name="copyright_others">This program uses the following components; see the source code for full details on the licenses</string>
     <string name="about">About</string>
     <string name="switch_provider_menu_option">Switch provider</string>
