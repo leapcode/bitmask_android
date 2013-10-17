@@ -104,8 +104,8 @@ public class ProviderListFragment extends ListFragment {
 					row = (TwoLineListItem)convertView;
 				}
 				ProviderListContent.ProviderItem data = ProviderListContent.ITEMS.get(position);
-				row.getText1().setText(data.domain);
-				row.getText2().setText(data.name);
+				row.getText1().setText(data.domain());
+				row.getText2().setText(data.name());
 
 				return row;
 			}
@@ -155,7 +155,7 @@ public class ProviderListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(ProviderListContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(ProviderListContent.ITEMS.get(position).name());
     }
 
     @Override
