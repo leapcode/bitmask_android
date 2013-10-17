@@ -126,6 +126,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			}
 		}
 		else if(resultCode == ProviderAPI.INCORRECTLY_UPDATED_PROVIDER_DOT_JSON) {
+			String reason_to_fail = resultData.getString(ProviderAPI.ERRORS);
+			showDownloadFailedDialog(getCurrentFocus(), reason_to_fail);
 			mProgressDialog.dismiss();
 			setResult(RESULT_CANCELED, mConfigState);
 		}
@@ -143,7 +145,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		}
 		else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_JSON_FILES) {
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_json_files_message, Toast.LENGTH_LONG).show();
-			mProgressDialog.dismiss();
+			String reason_to_fail = resultData.getString(ProviderAPI.ERRORS);
+			showDownloadFailedDialog(getCurrentFocus(), reason_to_fail);
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
@@ -313,6 +316,25 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		
 		DialogFragment newFragment = NewProviderDialog.newInstance();
 		newFragment.show(fragment_transaction, NewProviderDialog.TAG);
+	}
+	
+	/**
+	 * Once selected a provider, this fragment offers the user to log in, 
+	 * use it anonymously (if possible) 
+	 * or cancel his/her election pressing the back button.
+	 * @param view
+	 * @param reason_to_fail 
+	 */
+	public void showDownloadFailedDialog(View view, String reason_to_fail) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+		Fragment previous_provider_details_dialog = getFragmentManager().findFragmentByTag(DownloadFailedDialog.TAG);
+		if (previous_provider_details_dialog != null) {
+			fragment_transaction.remove(previous_provider_details_dialog);
+		}
+		fragment_transaction.addToBackStack(null);
+		
+		DialogFragment newFragment = DownloadFailedDialog.newInstance(reason_to_fail);
+		newFragment.show(fragment_transaction, DownloadFailedDialog.TAG);
 	}
 	
 	/**
