@@ -40,6 +40,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
+        android:logo="@drawable/icon"
         android:label="@string/app" >
         <activity android:name="se.leap.openvpn.AboutFragment" />
         <activity
@@ -142,7 +143,8 @@
 
         <activity
             android:name="se.leap.leapclient.Dashboard"
-            android:label="@string/title_activity_dashboard" >
+            android:label="@string/title_activity_dashboard"
+            android:uiOptions="splitActionBarWhenNarrow" >
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.MAIN" />
 
@@ -151,7 +153,8 @@
         </activity>
         <activity
             android:name="se.leap.leapclient.ConfigurationWizard"
-            android:label="@string/title_activity_configuration_wizard" >
+            android:label="@string/title_activity_configuration_wizard"
+            android:uiOptions="splitActionBarWhenNarrow" >
         </activity>
         
         <service android:name=".EIP" android:exported="false">

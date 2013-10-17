@@ -60,6 +60,7 @@ public final class EIP extends IntentService {
 	public final static String ACTION_START_EIP = "se.leap.leapclient.START_EIP";
 	public final static String ACTION_STOP_EIP = "se.leap.leapclient.STOP_EIP";
 	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.leapclient.UPDATE_EIP_SERVICE";
+	public final static String AUTHED_EIP = "authed_eip";
 	public final static String ACTION_IS_EIP_RUNNING = "se.leap.leapclient.IS_RUNNING";
 	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
 	public final static String ALLOWED_ANON = "allow_anonymous";
@@ -70,6 +71,7 @@ public final class EIP extends IntentService {
 	public final static String SERVICE_API_PATH = "config/eip-service.json";
 	public final static String RECEIVER_TAG = "receiverTag";
 	public final static String REQUEST_TAG = "requestTag";
+	
 	
 	private static Context context;
 	private static ResultReceiver mReceiver;
