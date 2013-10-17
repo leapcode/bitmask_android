@@ -5,7 +5,7 @@ Preconditions
 ----------------
 
 1. Android SDK installed (follow instructions from http://developer.android.com/sdk/index.html)
-2. API version 16 or version installed.
+2. API version 15 installed.
 2. Ant 1.6 or greater
 
 Instructions to compile
