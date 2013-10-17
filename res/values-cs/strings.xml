@@ -16,7 +16,7 @@
   <string name="client_pkcs12_title">PKCS12 soubor</string>
   <string name="ca_title">CA certifikát</string>
   <string name="no_certificate">Je třeba vybrat certifikát</string>
-  <string name="copyright_guicode">Zdrojové kódy a seznam problémů je na https://github.com/leapcode/leap_android/</string>
+  <string name="repository_url_text">Zdrojové kódy a seznam problémů je na https://github.com/leapcode/bitmask_android/</string>
   <string name="copyright_others">Tento program používá následující komponenty; viz zdrojový kód pro detaily o licenci</string>
   <string name="about">O programu</string>
   <string name="about_summary">O programu LEAP pro Android</string>

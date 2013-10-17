@@ -16,7 +16,7 @@
   <string name="client_pkcs12_title">File PKCS12</string>
   <string name="ca_title">Certificato CA</string>
   <string name="no_certificate">Devi selezionare un certificato</string>
-  <string name="copyright_guicode">Il codice sorgente e il bug tracker sono disponibili all\'indirizzo https://github.com/leapcode/leap_android/</string>
+  <string name="repository_url_text">Il codice sorgente e il bug tracker sono disponibili all\'indirizzo https://github.com/leapcode/bitmask_android/</string>
   <string name="copyright_others">Questo programma usa i seguenti componenti; guarda il codice sorgente per i dettagli completi sulle licenze</string>
   <string name="about">Informazioni</string>
   <string name="about_summary">Informazioni su LEAP per Android</string>
