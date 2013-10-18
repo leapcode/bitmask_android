@@ -439,7 +439,7 @@ public class ProviderAPI extends IntentService {
 	private boolean downloadCACert(String provider_main_url, boolean danger_on) {
 		String cert_string = downloadWithCommercialCA(provider_main_url + "/ca.crt", danger_on);
 		if(validCertificate(cert_string))
-			ConfigHelper.saveSharedPref(Provider.CA_CERT, "-----BEGIN CERTIFICATE-----\n"+cert_string+"-----END CERTIFICATE-----");
+			ConfigHelper.saveSharedPref(Provider.CA_CERT, cert_string);
 		else
 			return false;
 		
