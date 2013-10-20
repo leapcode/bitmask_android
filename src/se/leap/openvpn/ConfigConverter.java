@@ -9,7 +9,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Vector;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;

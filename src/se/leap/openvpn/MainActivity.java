@@ -1,7 +1,8 @@
 package se.leap.openvpn;
 
 import java.util.List;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 import android.content.Intent;
 import android.preference.PreferenceActivity;

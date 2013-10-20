@@ -16,7 +16,7 @@
   <string name="client_pkcs12_title">Berkas PKCS12</string>
   <string name="ca_title">Sertifikat CA</string>
   <string name="no_certificate">Anda harus memilih sertifikat</string>
-  <string name="copyright_guicode">Kode program dan perekam masalah tersedia di</string>
+  <string name="repository_url_text">Kode program dan perekam masalah tersedia di</string>
   <string name="copyright_others">Aplikasi memakai komponen berikut; lihat kode program untuk lebih jelas mengenai lisensi</string>
   <string name="about">Tentang...</string>
   <string name="about_summary">Tentang LEAP untuk Android</string>
