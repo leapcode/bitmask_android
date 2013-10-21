@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.leapclient;
+ package se.leap.bitmaskclient;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -34,6 +34,10 @@ import org.jboss.security.srp.SRPParameters;
  *
  */
 public class LeapSRPSession {
+	
+	final public static String SALT = "salt";
+	final public static String M1 = "M1";
+	final public static String M2 = "M2";
 
 	private SRPParameters params;
 	private String username;

@@ -16,7 +16,7 @@
   <string name="client_pkcs12_title">Fişier PKCS12</string>
   <string name="ca_title">Certificat CA</string>
   <string name="no_certificate">Trebuie să selectați un certificat</string>
-  <string name="copyright_guicode">Cod sursă şi tracker probleme disponibile la https://github.com/leapcode/leap_android/</string>
+  <string name="repository_url_text">Cod sursă şi tracker probleme disponibile la https://github.com/leapcode/bitmask_android/</string>
   <string name="copyright_others">Acest program utilizează următoarele componente; a se vedea codul sursă pentru mai multe detalii despre licente</string>
   <string name="about">Despre</string>
   <string name="about_summary">Despre LEAP pentru Android</string>

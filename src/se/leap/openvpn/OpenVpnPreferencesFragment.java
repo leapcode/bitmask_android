@@ -2,7 +2,7 @@ package se.leap.openvpn;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
 
 public abstract class OpenVpnPreferencesFragment extends PreferenceFragment {
 	

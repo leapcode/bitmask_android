@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>bitmask_android</name>
+	<name>leap_androidTest</name>
 	<comment></comment>
 	<projects>
+		<project>leap_android</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -25,15 +26,9 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>org.jboss.tools.ws.jaxrs.metamodelBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>org.jboss.tools.ws.jaxrs.nature</nature>
 	</natures>
 </projectDescription>

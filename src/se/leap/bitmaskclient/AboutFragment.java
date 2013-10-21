@@ -1,4 +1,4 @@
-package se.leap.leapclient;
+package se.leap.bitmaskclient;
 
 import android.app.Fragment;
 import android.content.pm.PackageInfo;
@@ -11,9 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
 
 public class AboutFragment extends Fragment  {
+	
+    final public static String TAG = "aboutFragment";
 
 	public static Fragment newInstance() {
 		AboutFragment provider_detail_fragment = new AboutFragment();

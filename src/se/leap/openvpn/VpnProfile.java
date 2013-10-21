@@ -21,8 +21,10 @@ import java.util.Vector;
 import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
 
-import se.leap.leapclient.ConfigHelper;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.ConfigHelper;
+import se.leap.bitmaskclient.EIP;
+import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.R;
 
 import android.content.Context;
 import android.content.Intent;
@@ -48,7 +50,7 @@ public class VpnProfile implements  Serializable{
 	public static final int TYPE_USERPASS_KEYSTORE = 7;
 
 	// Don't change this, not all parts of the program use this constant
-	public static final String EXTRA_PROFILEUUID = "se.leap.leapclient.profileUUID"; // TODO this feels wrong.  See Issue #1494
+	public static final String EXTRA_PROFILEUUID = "se.leap.bitmaskclient.profileUUID"; // TODO this feels wrong.  See Issue #1494
 	public static final String INLINE_TAG = "[[INLINE]]";
 	private static final String OVPNCONFIGFILE = "android.conf";
 
@@ -246,9 +248,9 @@ public class VpnProfile implements  Serializable{
 			cfg+=insertFileData("cert",mClientCertFilename);
 */
 			// FIXME This is all we need...The whole switch statement can go...
-			cfg+="<ca>\n"+ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY)+"\n</ca>\n";
-			cfg+="<key>\n"+ConfigHelper.getStringFromSharedPref(ConfigHelper.KEY_KEY)+"\n</key>\n";
-			cfg+="<cert>\n"+ConfigHelper.getStringFromSharedPref(ConfigHelper.CERT_KEY)+"\n</cert>\n";
+			cfg+="<ca>\n"+ConfigHelper.getStringFromSharedPref(Provider.CA_CERT)+"\n</ca>\n";
+			cfg+="<key>\n"+ConfigHelper.getStringFromSharedPref(EIP.PRIVATE_KEY)+"\n</key>\n";
+			cfg+="<cert>\n"+ConfigHelper.getStringFromSharedPref(EIP.CERTIFICATE)+"\n</cert>\n";
 			
 			break;
 		case VpnProfile.TYPE_USERPASS_PKCS12:

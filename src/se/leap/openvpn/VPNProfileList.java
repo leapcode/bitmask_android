@@ -3,7 +3,8 @@ package se.leap.openvpn;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.TreeSet;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;

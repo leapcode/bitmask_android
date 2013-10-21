@@ -1,7 +1,10 @@
-package se.leap.leapclient;
+package se.leap.bitmaskclient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -14,6 +17,9 @@ import android.view.View;
 import android.widget.TextView;
 
 public class ProviderDetailFragment extends DialogFragment {
+
+    final public static String TAG = "providerDetailFragment";
+    
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -22,14 +28,14 @@ public class ProviderDetailFragment extends DialogFragment {
 			LayoutInflater inflater = getActivity().getLayoutInflater();
 			View provider_detail_view = inflater.inflate(R.layout.provider_detail_fragment, null);
 			
-			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(ConfigHelper.PROVIDER_KEY);
+			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
 			
 			final TextView domain = (TextView)provider_detail_view.findViewById(R.id.provider_detail_domain);
-			domain.setText(provider_json.getString(ConfigHelper.DOMAIN));
+			domain.setText(provider_json.getString(Provider.DOMAIN));
 			final TextView name = (TextView)provider_detail_view.findViewById(R.id.provider_detail_name);
-			name.setText(provider_json.getJSONObject(ConfigHelper.NAME).getString("en"));
+			name.setText(provider_json.getJSONObject(Provider.NAME).getString("en"));
 			final TextView description = (TextView)provider_detail_view.findViewById(R.id.provider_detail_description);
-			description.setText(provider_json.getJSONObject(ConfigHelper.DESCRIPTION).getString("en"));
+			description.setText(provider_json.getJSONObject(Provider.DESCRIPTION).getString("en"));
 			
 			builder.setView(provider_detail_view);
 			builder.setTitle(R.string.provider_details_fragment_title);
@@ -58,8 +64,8 @@ public class ProviderDetailFragment extends DialogFragment {
 	
 	private boolean anon_allowed(JSONObject provider_json) {
 		try {
-			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
-			return service_description.has(ConfigHelper.ALLOWED_ANON) && service_description.getBoolean(ConfigHelper.ALLOWED_ANON);
+			JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
+			return service_description.has(EIP.ALLOWED_ANON) && service_description.getBoolean(EIP.ALLOWED_ANON);
 		} catch (JSONException e) {
 			return false;
 		}
@@ -67,8 +73,8 @@ public class ProviderDetailFragment extends DialogFragment {
 	
 	private boolean registration_allowed(JSONObject provider_json) {
 		try {
-			JSONObject service_description = provider_json.getJSONObject(ConfigHelper.SERVICE_KEY);
-			return service_description.has(ConfigHelper.ALLOW_REGISTRATION_KEY) && service_description.getBoolean(ConfigHelper.ALLOW_REGISTRATION_KEY);
+			JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
+			return service_description.has(Provider.ALLOW_REGISTRATION) && service_description.getBoolean(Provider.ALLOW_REGISTRATION);
 		} catch (JSONException e) {
 			return false;
 		}
@@ -77,10 +83,10 @@ public class ProviderDetailFragment extends DialogFragment {
 	@Override
 	public void onCancel(DialogInterface dialog) {
 		super.onCancel(dialog);
-		ConfigHelper.removeFromSharedPref(ConfigHelper.PROVIDER_KEY);
-		ConfigHelper.removeFromSharedPref(ConfigHelper.DANGER_ON);
-		ConfigHelper.removeFromSharedPref(ConfigHelper.ALLOWED_ANON);
-		ConfigHelper.removeFromSharedPref(ConfigHelper.EIP_SERVICE_KEY);
+		ConfigHelper.removeFromSharedPref(Provider.KEY);
+		ConfigHelper.removeFromSharedPref(ProviderItem.DANGER_ON);
+		ConfigHelper.removeFromSharedPref(EIP.ALLOWED_ANON);
+		ConfigHelper.removeFromSharedPref(EIP.KEY);
 	}
 
 	public static DialogFragment newInstance() {

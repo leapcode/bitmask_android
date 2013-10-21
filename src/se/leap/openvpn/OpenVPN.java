@@ -3,7 +3,8 @@ package se.leap.openvpn;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Vector;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 
 import android.content.Context;

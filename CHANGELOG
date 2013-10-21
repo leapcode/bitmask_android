@@ -1,3 +1,29 @@
+0.2.1 - Oct 21 2013 - the "get on that rolling bandwagon" release:
+Bugs Fixed
+- SRP tests should be runnable localhost
+- Evaluate testing solution: http://appium.io/
+- EIP fragment is not showed after switching provider
+- Provider down is not differentiated from certificate error
+- EIP switch toggles on screen rotate
+- bug - login dialog should require username
+- Backstack is screwed up by notification tap
+- Inconsistent Cookie Management
+- danger_on is true for assets' provider
+- EIP Service Exported With No Access Control
+- Lack of Input Validation on User Certificates
+- LeapHttpClient Disables Hostname Verification
+Features
+- Tests for ConfigurationWizard
+- Sensible notification handling
+- User friendly EIP status and notifications strings
+- Refactor EIP UI logic into a Fragment
+- Only parse eip-service.json if serial incremented
+- Add progress indicator while VPN connection is being established
+- Refactor EIP switch logic
+- Retry login should retain username
+- Move all ConfigHelper constants to their corresponding classes
+
+
 0.2.0
 
 	Initial release.

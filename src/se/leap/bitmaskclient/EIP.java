@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.leapclient;
+ package se.leap.bitmaskclient;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import se.leap.bitmaskclient.R;
 import se.leap.openvpn.ConfigParser;
 import se.leap.openvpn.ConfigParser.ConfigParseError;
 import se.leap.openvpn.LaunchVPN;
@@ -57,11 +58,19 @@ import android.util.Log;
  */
 public final class EIP extends IntentService {
 	
-	public final static String ACTION_START_EIP = "se.leap.leapclient.START_EIP";
-	public final static String ACTION_STOP_EIP = "se.leap.leapclient.STOP_EIP";
-	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.leapclient.UPDATE_EIP_SERVICE";
-	public final static String ACTION_IS_EIP_RUNNING = "se.leap.leapclient.IS_RUNNING";
+	public final static String ACTION_START_EIP = "se.leap.bitmaskclient.START_EIP";
+	public final static String ACTION_STOP_EIP = "se.leap.bitmaskclient.STOP_EIP";
+	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.bitmaskclient.UPDATE_EIP_SERVICE";
+	public final static String ACTION_IS_EIP_RUNNING = "se.leap.bitmaskclient.IS_RUNNING";
 	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
+	public final static String ALLOWED_ANON = "allow_anonymous";
+	public final static String CERTIFICATE = "cert";
+	public final static String PRIVATE_KEY = "private_key";
+	public final static String KEY = "eip";
+	public final static String PARSED_SERIAL = "eip_parsed_serial";
+	public final static String SERVICE_API_PATH = "config/eip-service.json";
+	public final static String RECEIVER_TAG = "receiverTag";
+	public final static String REQUEST_TAG = "requestTag";
 	
 	private static Context context;
 	private static ResultReceiver mReceiver;
@@ -86,8 +95,8 @@ public final class EIP extends IntentService {
 		context = getApplicationContext();
 		
 		try {
-			eipDefinition = ConfigHelper.getJsonFromSharedPref(ConfigHelper.EIP_SERVICE_KEY);
-			parsedEipSerial = ConfigHelper.getIntFromSharedPref(ConfigHelper.EIP_PARSED_SERIAL);
+			eipDefinition = ConfigHelper.getJsonFromSharedPref(KEY);
+			parsedEipSerial = ConfigHelper.getIntFromSharedPref(PARSED_SERIAL);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -107,7 +116,7 @@ public final class EIP extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		String action = intent.getAction();
-		mReceiver = intent.getParcelableExtra(ConfigHelper.RECEIVER_TAG);
+		mReceiver = intent.getParcelableExtra(RECEIVER_TAG);
 		
 		if ( action == ACTION_IS_EIP_RUNNING )
 			this.isRunning();
@@ -150,7 +159,7 @@ public final class EIP extends IntentService {
 					resultCode = (running) ? Activity.RESULT_CANCELED
 							: Activity.RESULT_OK;
 				Bundle resultData = new Bundle();
-				resultData.putString(ConfigHelper.REQUEST_TAG, EIP_NOTIFICATION);
+				resultData.putString(REQUEST_TAG, EIP_NOTIFICATION);
 				mReceiver.send(resultCode, resultData);
 				
 				mPending = null;
@@ -163,7 +172,7 @@ public final class EIP extends IntentService {
 			
 			if (mReceiver != null){
 				Bundle resultData = new Bundle();
-				resultData.putString(ConfigHelper.REQUEST_TAG, EIP_NOTIFICATION);
+				resultData.putString(REQUEST_TAG, EIP_NOTIFICATION);
 				mReceiver.send(Activity.RESULT_CANCELED, resultData);
 			}
 		}
@@ -181,7 +190,7 @@ public final class EIP extends IntentService {
 	 */
 	private void isRunning() {
 		Bundle resultData = new Bundle();
-		resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_IS_EIP_RUNNING);
+		resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
 		int resultCode = Activity.RESULT_CANCELED;
 		if (mBound) {
 			resultCode = (mVpnService.isRunning()) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
@@ -208,7 +217,7 @@ public final class EIP extends IntentService {
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.putExtra(LaunchVPN.EXTRA_KEY, activeGateway.mVpnProfile.getUUID().toString() );
 		intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.mVpnProfile.getName() );
-		intent.putExtra(ConfigHelper.RECEIVER_TAG, mReceiver);
+		intent.putExtra(RECEIVER_TAG, mReceiver);
 		startActivity(intent);
 		mPending = ACTION_START_EIP;
 	}
@@ -225,7 +234,7 @@ public final class EIP extends IntentService {
 			
 		if (mReceiver != null){
 			Bundle resultData = new Bundle();
-			resultData.putString(ConfigHelper.REQUEST_TAG, ACTION_STOP_EIP);
+			resultData.putString(REQUEST_TAG, ACTION_STOP_EIP);
 			mReceiver.send(Activity.RESULT_OK, resultData);
 		}
 	}
@@ -237,7 +246,7 @@ public final class EIP extends IntentService {
 	 */
 	private void updateEIPService() {
 		try {
-			eipDefinition = ConfigHelper.getJsonFromSharedPref(ConfigHelper.EIP_SERVICE_KEY);
+			eipDefinition = ConfigHelper.getJsonFromSharedPref(EIP.KEY);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -294,7 +303,7 @@ public final class EIP extends IntentService {
 			}
 		}
 		
-		ConfigHelper.saveSharedPref(ConfigHelper.EIP_PARSED_SERIAL, eipDefinition.optInt(ConfigHelper.API_RETURN_SERIAL_KEY));
+		ConfigHelper.saveSharedPref(PARSED_SERIAL, eipDefinition.optInt(Provider.API_RETURN_SERIAL));
 	}
 
 	/**

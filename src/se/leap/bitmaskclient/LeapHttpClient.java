@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.leapclient;
+ package se.leap.bitmaskclient;
 
 import java.security.KeyStore;
 
@@ -46,9 +46,9 @@ public class LeapHttpClient extends DefaultHttpClient {
 	public static LeapHttpClient getInstance(Context context) {
 		if(client == null) {
 			client = new LeapHttpClient(context);
-			String cert_string = ConfigHelper.getStringFromSharedPref(ConfigHelper.MAIN_CERT_KEY);
+			String cert_string = ConfigHelper.getStringFromSharedPref(Provider.CA_CERT);
 			if(cert_string != null) {
-				ConfigHelper.addTrustedCertificate("recovered_certificate", cert_string);
+				ConfigHelper.addTrustedCertificate("provider_ca_certificate", cert_string);
 			}
 		}
 		return client;
@@ -65,15 +65,12 @@ public class LeapHttpClient extends DefaultHttpClient {
 
 	/**
 	 * Uses keystore from ConfigHelper for the SSLSocketFactory.
-	 * 
-	 * Sets hostname verifier to allow all hostname verifier.
 	 * @return
 	 */
 	private SSLSocketFactory newSslSocketFactory() {
 		try {
 			KeyStore trusted = ConfigHelper.getKeystore();
 			SSLSocketFactory sf = new SSLSocketFactory(trusted);
-			sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
 			return sf;
 		} catch (Exception e) {

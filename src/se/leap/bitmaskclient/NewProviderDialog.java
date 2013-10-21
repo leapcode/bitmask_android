@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.leapclient;
+ package se.leap.bitmaskclient;
 
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -36,7 +36,9 @@ import android.widget.Toast;
  *
  */
 public class NewProviderDialog extends DialogFragment {
-	
+
+    final public static String TAG = "newProviderDialog";
+    
 	public interface NewProviderDialogInterface {
         public void saveAndSelectProvider(String url_provider, boolean danger_on);
     }

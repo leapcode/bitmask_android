@@ -1,7 +1,8 @@
 package se.leap.openvpn;
 
 import java.util.Vector;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;

@@ -16,7 +16,7 @@
   <string name="client_pkcs12_title">Файл PKCS12</string>
   <string name="ca_title">Сертифікат CA</string>
   <string name="no_certificate">Потрібно вибрати сертифікат</string>
-  <string name="copyright_guicode">Початковий код і відстеження проблем доступні по https://github.com/leapcode/leap_android/</string>
+  <string name="repository_url_text">Початковий код і відстеження проблем доступні по https://github.com/leapcode/bitmask_android/</string>
   <string name="copyright_others">Ця програма використовує такі компоненти; перегляньте вихідний код для повної інформації про ліцензії</string>
   <string name="about">Про</string>
   <string name="about_summary">Про LEAP для Android</string>

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.leap.leapclient;
+package se.leap.bitmaskclient;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -42,7 +42,21 @@ public final class Provider implements Serializable {
 	private static SharedPreferences preferences = null;
 	// Represents our Provider's provider.json
 	private static JSONObject definition = null;
-	
+
+    final public static String
+    API_URL = "api_uri",
+	API_VERSION = "api_version",
+	ALLOW_REGISTRATION = "allow_registration",
+	API_RETURN_SERIAL = "serial",
+	SERVICE = "service",
+	KEY = "provider",
+	CA_CERT = "ca_cert",
+	NAME = "name",
+	DESCRIPTION = "description",
+	DOMAIN = "domain",
+	MAIN_URL = "main_url",
+	DOT_JSON_URL = "provider_json_url"
+	;
 
 	// Array of what API versions we understand
 	protected static final String[] API_VERSIONS = {"1"};  // I assume we might encounter arbitrary version "numbers"
@@ -82,7 +96,7 @@ public final class Provider implements Serializable {
 		//preferences = context.getgetPreferences(0); // 0 == MODE_PRIVATE, but we don't extend Android's classes...
 		
 		// Load SharedPreferences
-		preferences = activity.getSharedPreferences(ConfigHelper.PREFERENCES_KEY,Context.MODE_PRIVATE);
+		preferences = activity.getSharedPreferences(Dashboard.SHARED_PREFERENCES,Context.MODE_PRIVATE);
 		// Inflate our provider.json data
 		try {
 			definition = new JSONObject( preferences.getString("provider", "") );

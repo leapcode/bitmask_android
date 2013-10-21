@@ -11,7 +11,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.SwitchPreference;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
 
 
 public class Settings_Authentication extends OpenVpnPreferencesFragment implements OnPreferenceChangeListener, OnPreferenceClickListener {

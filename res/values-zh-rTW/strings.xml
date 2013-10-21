@@ -16,7 +16,7 @@
   <string name="client_pkcs12_title">PKCS12 檔案</string>
   <string name="ca_title">CA證書</string>
   <string name="no_certificate">您必須選擇一個憑證</string>
-  <string name="copyright_guicode">取得原始碼與個案追蹤，可上 https://github.com/leapcode/leap_android/</string>
+  <string name="repository_url_text">取得原始碼與個案追蹤，可上 https://github.com/leapcode/bitmask_android/</string>
   <string name="copyright_others">本程序使用了以下元件，其作者和授權資訊如下</string>
   <string name="about">關於</string>
   <string name="about_summary">關於 LEAP Android</string>
