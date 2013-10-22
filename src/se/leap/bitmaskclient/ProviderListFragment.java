@@ -19,7 +19,6 @@
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;

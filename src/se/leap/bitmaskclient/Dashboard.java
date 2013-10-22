@@ -166,6 +166,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getDomain());
 		providerNameTV.setTextSize(28);
+		
+	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 
 		FragmentManager fragMan = getFragmentManager();
 		if ( provider.hasEIP()){
@@ -224,6 +226,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				}
 				eipStop();
 			}
+			//unregisterReceiver(providerAPI_broadcast_receiver_update);
 			ConfigHelper.removeFromSharedPref(Provider.KEY);
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;

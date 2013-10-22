@@ -189,7 +189,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	//	resetOldConnection();
 	    ProviderItem selected_provider = getProvider(id);
 	    int provider_index = getProviderIndex(id);
-	    startProgressBar(provider_index);
+
+	    startProgressBar(provider_index+1);
 	    provider_list_fragment.hideAllBut(provider_index);
 	    setUpProvider(selected_provider.providerMainUrl(), true);
     }
@@ -236,6 +237,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    return "";
     }
 	
+	private void startProgressBar() {
+	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
+	    mProgressBar.setProgress(0);
+	    mProgressBar.setMax(3);
+	}
+	
 	private void startProgressBar(int list_item_index) {
 	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
 	    progressbar_description.setVisibility(TextView.VISIBLE);
@@ -253,8 +260,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		    ProviderItem provider = providers_iterator.next();
 		    if(provider.name().equalsIgnoreCase(id)) {
 			    break;
-		    }
-		    index++;
+		    } else index++;
 	    }
 	    return index;
     }

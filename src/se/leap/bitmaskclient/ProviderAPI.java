@@ -58,7 +58,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
@@ -69,7 +68,6 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
 
 /**
  * Implements HTTP api methods used to manage communications with the provider server.
@@ -97,8 +95,8 @@ public class ProviderAPI extends IntentService {
     SESSION_ID_COOKIE_KEY = "session_id_cookie_key",
     SESSION_ID_KEY = "session_id",
     ERRORS = "errors",
-    UPDATE_PROGRESSBAR = "update_action",
-    CURRENT_PROGRESS = "update data",
+    UPDATE_PROGRESSBAR = "update_progressbar",
+    CURRENT_PROGRESS = "current_progress",
     TAG = "provider_api_tag"
     ;
 
@@ -123,6 +121,7 @@ public class ProviderAPI extends IntentService {
     PROVIDER_JSON_DOWNLOADED = false,
     EIP_SERVICE_JSON_DOWNLOADED = false
     ;
+    
 	public ProviderAPI() {
 		super("ProviderAPI");
 		Log.v("ClassName", "Provider API");
@@ -150,7 +149,7 @@ public class ProviderAPI extends IntentService {
 			if(result.getBoolean(RESULT_KEY)) {
 				receiver.send(PROVIDER_OK, Bundle.EMPTY);
 			} else { 
-				receiver.send(PROVIDER_NOK, Bundle.EMPTY);
+				receiver.send(PROVIDER_NOK, result);
 			}
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
@@ -425,39 +424,43 @@ public class ProviderAPI extends IntentService {
 	 * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if the update was successful. 
 	 */
 	private Bundle setUpProvider(Bundle task) {
-		Bundle result = new Bundle();
 		int progress = 0;
 		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 		String provider_main_url = task.getString(Provider.MAIN_URL);
 
-		result.putBoolean(RESULT_KEY, false);
-		if(downloadCACert(provider_main_url, danger_on)) {
+		Bundle current_download = downloadCACert(provider_main_url, danger_on);
+		if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
 			broadcast_progress(progress++);
-			CA_CERT_DOWNLOADED = true;
-			if(getAndSetProviderJson(provider_main_url)) {
+			//CA_CERT_DOWNLOADED = true;
+			current_download = getAndSetProviderJson(provider_main_url); 
+			if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
 				broadcast_progress(progress++);
-				PROVIDER_JSON_DOWNLOADED = true;
-				if(getAndSetEipServiceJson()) {
+				//PROVIDER_JSON_DOWNLOADED = true;
+				current_download = getAndSetEipServiceJson(); 
+				if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
 					broadcast_progress(progress++);
-					EIP_SERVICE_JSON_DOWNLOADED = true;
+					//EIP_SERVICE_JSON_DOWNLOADED = true;
 				}
 			}
 		}
 		
-		if(CA_CERT_DOWNLOADED && PROVIDER_JSON_DOWNLOADED && EIP_SERVICE_JSON_DOWNLOADED)
-			result.putBoolean(RESULT_KEY, true);
-		
-		return result;
+		return current_download;
 	}
 	
-	private boolean downloadCACert(String provider_main_url, boolean danger_on) {
+	private Bundle downloadCACert(String provider_main_url, boolean danger_on) {
+		Bundle result = new Bundle();
 		String cert_string = downloadWithCommercialCA(provider_main_url + "/ca.crt", danger_on);
-		if(validCertificate(cert_string))
+		if(validCertificate(cert_string)) {
 			ConfigHelper.saveSharedPref(Provider.CA_CERT, cert_string);
-		else
-			return false;
+			result.putBoolean(RESULT_KEY, true);
+		} else {
+			String reason_to_fail = cert_string;
+			result.putString(ERRORS, reason_to_fail);
+			result.putBoolean(RESULT_KEY, false);
+			
+		}
 		
-		return true;
+		return result;
 	}
 	
 	private boolean validCertificate(String cert_string) {
@@ -475,8 +478,8 @@ public class ProviderAPI extends IntentService {
 		return result;
 	}
 	
-	private boolean getAndSetProviderJson(String provider_main_url) {
-		boolean result = false;
+	private Bundle getAndSetProviderJson(String provider_main_url) {
+		Bundle result = new Bundle();
 
 		String provider_dot_json_string = downloadWithProviderCA(provider_main_url + "/provider.json", true);
 
@@ -487,28 +490,31 @@ public class ProviderAPI extends IntentService {
 			
 			ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
 			ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
-			ProviderItem added_provider = new ProviderItem(name, provider_main_url);
-			
-			result = true;
+
+			result.putBoolean(RESULT_KEY, true);
 		} catch (JSONException e) {
 		}
 		return result;
 	}
 
 	
-	private boolean getAndSetEipServiceJson() {
-		boolean result = false;
-
+	private Bundle getAndSetEipServiceJson() {
+		Bundle result = new Bundle();
+		String eip_service_json_string = "";
 		try {
 			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
 			String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
-			String eip_service_json_string = downloadWithProviderCA(eip_service_url, true);
+			eip_service_json_string = downloadWithProviderCA(eip_service_url, true);
 			JSONObject eip_service_json = new JSONObject(eip_service_json_string);
 			eip_service_json.getInt(Provider.API_RETURN_SERIAL);
 
 			ConfigHelper.saveSharedPref(EIP.KEY, eip_service_json);
-			result = true;
+
+			result.putBoolean(RESULT_KEY, true);
 		} catch (JSONException e) {
+			String reason_to_fail = eip_service_json_string;
+			result.putString(ERRORS, reason_to_fail);
+			result.putBoolean(RESULT_KEY, false);
 		}
 		return result;
 	}
