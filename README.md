@@ -11,7 +11,7 @@ report any bugs or feature requests and to see the list of known issues.
 
 ## Building
 
-The build requires [Ant](https://ant.apache.org/) v1.6+, the [Android SDK](http://developer.android.com/sdk/index.html) and the [Android NDK](http://developer.android.com/tools/sdk/ndk/index.html) r8b
+The build requires [Ant](https://ant.apache.org/) v1.6+, the [Android SDK](http://developer.android.com/sdk/index.html) API 17 and the [Android NDK](http://developer.android.com/tools/sdk/ndk/index.html) r8b
 to be installed in your development environment. 
 
 In addition you'll need ant/bin, android/tools, 'platforms-tools' and 'android-ndk-r8b' in your enviroment path.
@@ -27,7 +27,7 @@ signed with a different key.  Manually uninstall Bitmask Android from your devic
 you will then be able to install your own built version.
 To uninstall it, do: adb uninstall se.leap.bitmaskclient
 
-See [here](https://github.com/leapcode/bitmask_android/blob/master/Building_from_eclipse.txt) for
+See [here](https://github.com/leapcode/bitmask_android/blob/master/Building_from_eclipse.md) for
 instructions on building from [Eclipse](http://eclipse.org).
 
 ## Acknowledgements
