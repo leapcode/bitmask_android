@@ -25,7 +25,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
+//import android.util.Log;
 import se.leap.openvpn.OpenVPN.StateListener;
 
 public class OpenVpnService extends VpnService implements StateListener, Callback {
@@ -63,7 +63,6 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	private static final int OPENVPN_STATUS = 1;
 
 	public static final int PROTECT_FD = 0;
-	private static final String OPEN_VPN_SERVICE_TAG = "OPEN_VPN_SERVICE: ";
 
 	private final IBinder mBinder = new LocalBinder();
 	
@@ -481,7 +480,6 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 			// CONNECTED
 			String ticker = getString(resid);
 			boolean persist = ("NOPROCESS".equals(state)) ? false : true;
-			Log.d(OPEN_VPN_SERVICE_TAG, ticker);
 			showNotification(getString(resid) +" " + logmessage,ticker,false,0,persist);
 			 
 		}
