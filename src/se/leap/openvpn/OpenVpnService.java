@@ -7,7 +7,6 @@ import java.util.Vector;
 
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
-
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -26,6 +25,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 import se.leap.openvpn.OpenVPN.StateListener;
 
 public class OpenVpnService extends VpnService implements StateListener, Callback {
@@ -63,6 +63,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	private static final int OPENVPN_STATUS = 1;
 
 	public static final int PROTECT_FD = 0;
+	private static final String OPEN_VPN_SERVICE_TAG = "OPEN_VPN_SERVICE: ";
 
 	private final IBinder mBinder = new LocalBinder();
 	
@@ -106,9 +107,13 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	private void showNotification(String msg, String tickerText, boolean lowpriority, long when, boolean persistant) {
 		String ns = Context.NOTIFICATION_SERVICE;
 		mNotificationManager = (NotificationManager) getSystemService(ns);
-
-
-		int icon = R.drawable.ic_stat_vpn;
+		int icon;
+		if (tickerText == getString(R.string.state_noprocess)){
+			icon = R.drawable.ic_vpn_disconnected;
+		}else{	
+			icon = R.drawable.ic_stat_vpn;
+		}
+		
 		android.app.Notification.Builder nbuilder = new Notification.Builder(this);
 
 		nbuilder.setContentTitle(getString(R.string.notifcation_title,mProfile.mName));
@@ -476,7 +481,9 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 			// CONNECTED
 			String ticker = getString(resid);
 			boolean persist = ("NOPROCESS".equals(state)) ? false : true;
+			Log.d(OPEN_VPN_SERVICE_TAG, ticker);
 			showNotification(getString(resid) +" " + logmessage,ticker,false,0,persist);
+			 
 		}
 	}
 
