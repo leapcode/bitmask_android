@@ -182,7 +182,7 @@ public class OpenVpnManagementThread implements Runnable {
 			String cmd = parts[0].substring(1);
 			String argument = parts[1];
 
-
+			Log.d("OpenVPN log", command);
 			if(cmd.equals("INFO")) {
 				// Ignore greeting from mgmt
 				//logStatusMessage(command);
