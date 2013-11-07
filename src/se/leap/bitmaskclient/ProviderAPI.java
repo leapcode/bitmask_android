@@ -544,6 +544,12 @@ public class ProviderAPI extends IntentService {
 		return EIP_SERVICE_JSON_DOWNLOADED;
 	}
 	
+	/**
+	 * Interprets the error message as a JSON object and extract the "errors" keyword pair.
+	 * If the error message is not a JSON object, then it is returned untouched.
+	 * @param string_json_error_message
+	 * @return final error message
+	 */
 	private String pickErrorMessage(String string_json_error_message) {
 		String error_message = "";
 		try {
@@ -556,6 +562,7 @@ public class ProviderAPI extends IntentService {
 		
 		return error_message;
 	}
+	
 	/**
 	 * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
 	 * 
