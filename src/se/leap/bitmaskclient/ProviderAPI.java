@@ -464,7 +464,7 @@ public class ProviderAPI extends IntentService {
 			ConfigHelper.saveSharedPref(Provider.CA_CERT, cert_string);
 			result.putBoolean(RESULT_KEY, true);
 		} else {
-			String reason_to_fail = cert_string;
+			String reason_to_fail = pickErrorMessage(cert_string);
 			result.putString(ERRORS, reason_to_fail);
 			result.putBoolean(RESULT_KEY, false);
 		}
@@ -506,6 +506,10 @@ public class ProviderAPI extends IntentService {
 
 			result.putBoolean(RESULT_KEY, true);
 		} catch (JSONException e) {
+			//TODO Error message should be contained in that provider_dot_json_string
+			String reason_to_fail = pickErrorMessage(provider_dot_json_string);
+			result.putString(ERRORS, reason_to_fail);
+			result.putBoolean(RESULT_KEY, false);
 		}
 		return result;
 	}
@@ -529,7 +533,7 @@ public class ProviderAPI extends IntentService {
 
 			result.putBoolean(RESULT_KEY, true);
 		} catch (JSONException e) {
-			String reason_to_fail = eip_service_json_string;
+			String reason_to_fail = pickErrorMessage(eip_service_json_string);
 			result.putString(ERRORS, reason_to_fail);
 			result.putBoolean(RESULT_KEY, false);
 		}
@@ -540,6 +544,18 @@ public class ProviderAPI extends IntentService {
 		return EIP_SERVICE_JSON_DOWNLOADED;
 	}
 	
+	private String pickErrorMessage(String string_json_error_message) {
+		String error_message = "";
+		try {
+			JSONObject json_error_message = new JSONObject(string_json_error_message);
+			error_message = json_error_message.getString(ERRORS);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			error_message = string_json_error_message;
+		}
+		
+		return error_message;
+	}
 	/**
 	 * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
 	 * 
