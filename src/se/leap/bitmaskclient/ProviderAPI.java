@@ -116,11 +116,14 @@ public class ProviderAPI extends IntentService {
     INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
     ;
 
-    public static boolean 
+    private static boolean 
     CA_CERT_DOWNLOADED = false,
     PROVIDER_JSON_DOWNLOADED = false,
     EIP_SERVICE_JSON_DOWNLOADED = false
     ;
+    
+    static private String last_provider_main_url;
+    static private boolean last_danger_on = false;
     
 	public ProviderAPI() {
 		super("ProviderAPI");
@@ -425,21 +428,28 @@ public class ProviderAPI extends IntentService {
 	 */
 	private Bundle setUpProvider(Bundle task) {
 		int progress = 0;
-		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
-		String provider_main_url = task.getString(Provider.MAIN_URL);
+		Bundle current_download = new Bundle();
+		
+		if(task != null && task.containsKey(ProviderItem.DANGER_ON) && task.containsKey(Provider.MAIN_URL)) {
+			last_danger_on = task.getBoolean(ProviderItem.DANGER_ON);
+			last_provider_main_url = task.getString(Provider.MAIN_URL);
+			CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
+		}
 
-		Bundle current_download = downloadCACert(provider_main_url, danger_on);
-		if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
+		if(!CA_CERT_DOWNLOADED)
+			current_download = downloadCACert(last_provider_main_url, last_danger_on);
+		if(CA_CERT_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
 			broadcast_progress(progress++);
-			//CA_CERT_DOWNLOADED = true;
-			current_download = getAndSetProviderJson(provider_main_url); 
-			if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
+			CA_CERT_DOWNLOADED = true;
+			if(!PROVIDER_JSON_DOWNLOADED)
+				current_download = getAndSetProviderJson(last_provider_main_url); 
+			if(PROVIDER_JSON_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
 				broadcast_progress(progress++);
-				//PROVIDER_JSON_DOWNLOADED = true;
+				PROVIDER_JSON_DOWNLOADED = true;
 				current_download = getAndSetEipServiceJson(); 
 				if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
 					broadcast_progress(progress++);
-					//EIP_SERVICE_JSON_DOWNLOADED = true;
+					EIP_SERVICE_JSON_DOWNLOADED = true;
 				}
 			}
 		}
@@ -457,15 +467,18 @@ public class ProviderAPI extends IntentService {
 			String reason_to_fail = cert_string;
 			result.putString(ERRORS, reason_to_fail);
 			result.putBoolean(RESULT_KEY, false);
-			
 		}
 		
 		return result;
 	}
 	
+	public static boolean caCertDownloaded() {
+		return CA_CERT_DOWNLOADED;
+	}
+
 	private boolean validCertificate(String cert_string) {
 		boolean result = false;
-		if(!cert_string.isEmpty()) {
+		if(!ConfigHelper.checkErrorenousDownload(cert_string)) {
 			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
 			try {
 				Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
@@ -498,6 +511,10 @@ public class ProviderAPI extends IntentService {
 	}
 
 	
+	public static boolean providerJsonDownloaded() {
+		return PROVIDER_JSON_DOWNLOADED;
+	}
+
 	private Bundle getAndSetEipServiceJson() {
 		Bundle result = new Bundle();
 		String eip_service_json_string = "";
@@ -518,6 +535,11 @@ public class ProviderAPI extends IntentService {
 		}
 		return result;
 	}
+
+	public static boolean eipServiceDownloaded() {
+		return EIP_SERVICE_JSON_DOWNLOADED;
+	}
+	
 	/**
 	 * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
 	 * 

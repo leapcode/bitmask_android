@@ -25,6 +25,11 @@ import org.json.JSONObject;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+
+import se.leap.bitmaskclient.DownloadFailedDialog.DownloadFailedDialogInterface;
+import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
+import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
+
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -61,7 +66,7 @@ import android.widget.TextView;
  *
  */
 public class ConfigurationWizard extends Activity
-implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, ProviderDetailFragment.ProviderDetailFragmentInterface, Receiver {
+implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderDetailFragmentInterface, DownloadFailedDialogInterface, Receiver {
 
 	private ProgressBar mProgressBar;
 	private TextView progressbar_description;
@@ -192,7 +197,11 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 	    startProgressBar(provider_index+1);
 	    provider_list_fragment.hideAllBut(provider_index);
-	    setUpProvider(selected_provider.providerMainUrl(), true);
+
+	    boolean danger_on = true;
+	    if(ConfigHelper.sharedPrefContainsKey(ProviderItem.DANGER_ON))
+		danger_on = ConfigHelper.getBoolFromSharedPref(ProviderItem.DANGER_ON);
+	    setUpProvider(selected_provider.providerMainUrl(), danger_on);
     }
     
     @Override
@@ -394,6 +403,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	}
 	
 	private void autoSelectProvider(String provider_main_url, boolean danger_on) {
+		ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
 		onItemSelected(getId(provider_main_url));
 	}
 	
@@ -414,6 +424,15 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 
 		startService(provider_API_command);
+	}
+
+	public void retrySetUpProvider() {
+	    Intent provider_API_command = new Intent(this, ProviderAPI.class);
+	    
+	    provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
+	    provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+	    
+	    startService(provider_API_command);
 	}
 
 	@Override

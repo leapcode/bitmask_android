@@ -11,6 +11,7 @@
     <string name="select">Select</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
+    <string name="retry">Retry</string>
     <string name="no_data">No Data</string>
     <string name="useLZO">LZO Compression</string>
     <string name="client_no_certificate">No Certificate</string>

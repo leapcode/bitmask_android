@@ -17,6 +17,8 @@
  package se.leap.bitmaskclient;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -47,7 +49,13 @@ public class DownloadFailedDialog extends DialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		
 		builder.setMessage(reason_to_fail)
-		.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+		.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				dialog.dismiss();
+				interface_with_ConfigurationWizard.retrySetUpProvider();
+			}
+		})
+		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				dialog.dismiss();
 			}
@@ -56,4 +64,21 @@ public class DownloadFailedDialog extends DialogFragment {
 		// Create the AlertDialog object and return it
 		return builder.create();
 	}
+    
+	public interface DownloadFailedDialogInterface {
+        public void retrySetUpProvider();
+    }
+
+	DownloadFailedDialogInterface interface_with_ConfigurationWizard;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+        	interface_with_ConfigurationWizard = (DownloadFailedDialogInterface) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement NoticeDialogListener");
+        }
+    }
 }
