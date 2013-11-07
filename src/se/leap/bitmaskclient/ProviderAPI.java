@@ -678,6 +678,7 @@ public class ProviderAPI extends IntentService {
 
 			int responseCode = urlConnection.getResponseCode();
 			broadcast_progress(progress++);
+			LeapSRPSession.setToken("");
 			Log.d("logout", Integer.toString(responseCode));
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
