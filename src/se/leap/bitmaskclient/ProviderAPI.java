@@ -27,6 +27,7 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -343,6 +344,9 @@ public class ProviderAPI extends IntentService {
 			session_idAndM2.put(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id_cookie.getName());
 			session_idAndM2.put(ConfigHelper.SESSION_ID_KEY, session_id_cookie.getValue());*/
 			session_idAndM2.put(LeapSRPSession.M2, ConfigHelper.trim(M2_not_trimmed));
+			CookieHandler.setDefault(null); // we don't need cookies anymore
+			String token = json_response.getString(LeapSRPSession.TOKEN);
+			LeapSRPSession.setToken(token);
 		}
 		return session_idAndM2;
 	}
@@ -516,6 +520,8 @@ public class ProviderAPI extends IntentService {
 			provider_url = new URL(string_url);
 			URLConnection url_connection = provider_url.openConnection();
 			url_connection.setConnectTimeout(seconds_of_timeout*1000);
+			if(!LeapSRPSession.getToken().isEmpty())
+				url_connection.addRequestProperty(LeapSRPSession.TOKEN, LeapSRPSession.getToken());
 			json_file_content = new Scanner(url_connection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
 			json_file_content = formatErrorMessage(R.string.malformed_url);
@@ -551,6 +557,8 @@ public class ProviderAPI extends IntentService {
 			HttpsURLConnection urlConnection =
 					(HttpsURLConnection)url.openConnection();
 			urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
+			if(!LeapSRPSession.getToken().isEmpty())
+				urlConnection.addRequestProperty(LeapSRPSession.TOKEN, LeapSRPSession.getToken());
 			json_file_content = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
 		} catch (CertificateException e) {
 			// TODO Auto-generated catch block
@@ -710,11 +718,11 @@ public class ProviderAPI extends IntentService {
 		try {
 			String type_of_certificate = task.getString(ConfigurationWizard.TYPE_OF_CERTIFICATE);
 			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
-			URL provider_main_url = new URL(provider_json.getString(Provider.API_URL));
-			String new_cert_string_url = provider_main_url.toString() + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE;
+			String provider_main_url = provider_json.getString(Provider.API_URL);
+			URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
 
 			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ProviderItem.DANGER_ON);
-			String cert_string = downloadWithProviderCA(new_cert_string_url, true);
+			String cert_string = downloadWithProviderCA(new_cert_string_url, danger_on);
 			if(!cert_string.isEmpty()) {
 				if(ConfigHelper.checkErroneousDownload(cert_string)) {
 					String reason_to_fail = provider_json.getString(ERRORS);
