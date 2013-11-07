@@ -9,6 +9,7 @@ import se.leap.bitmaskclient.R;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 public class OpenVPN {
 
@@ -57,6 +58,7 @@ public class OpenVPN {
 
 
 		public LogItem(String message) {
+			
 			mMessage = message;
 		}
 
@@ -113,7 +115,7 @@ public class OpenVPN {
 	synchronized static void logMessage(int level,String prefix, String message)
 	{
 		newlogItem(new LogItem(prefix +  message));
-
+		Log.d("OpenVPN log item", message);
 	}
 
 	synchronized static void clearLog() {
