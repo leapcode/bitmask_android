@@ -201,6 +201,12 @@ public class ProviderListFragment extends ListFragment {
     	content_adapter.notifyDataSetChanged();
     }
     
+    public void removeLastItem() {
+    	unhideAll();
+    	content_adapter.remove(content_adapter.getItem(content_adapter.getCount()-1));
+    	content_adapter.notifyDataSetChanged();
+    }
+    
     public void hideAllBut(int position) {
     	for(int i = 0; i < content_adapter.getCount(); i++)
     		if(i != position)

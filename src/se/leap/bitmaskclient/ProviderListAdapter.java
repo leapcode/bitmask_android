@@ -86,6 +86,14 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 		new_hidden[hidden.length] = false;
 		hidden = new_hidden;
 	}
+	
+	@Override
+	public void remove(T item) {
+		super.remove(item);
+		boolean[] new_hidden = new boolean[hidden.length-1];
+		System.arraycopy(hidden, 0, new_hidden, 0, hidden.length-1);
+		hidden = new_hidden;
+	}
 
 	@Override
 	public View getView(int index, View convertView, ViewGroup parent) {

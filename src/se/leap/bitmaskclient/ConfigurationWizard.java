@@ -477,6 +477,13 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		if(provider_list_fragment != null)
 			provider_list_fragment.unhideAll();
 	}
+	
+	public void removeLastProviderItem() {
+		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
+		if(provider_list_fragment != null) {
+			provider_list_fragment.removeLastItem();
+		}
+	}
 
 	@Override
 	public void login() {

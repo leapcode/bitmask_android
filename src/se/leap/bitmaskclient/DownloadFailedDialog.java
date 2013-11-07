@@ -18,6 +18,7 @@
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -57,6 +58,11 @@ public class DownloadFailedDialog extends DialogFragment {
 		})
 		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
+				ConfigHelper.removeFromSharedPref(Provider.KEY);
+				ConfigHelper.removeFromSharedPref(ProviderItem.DANGER_ON);
+				ConfigHelper.removeFromSharedPref(EIP.ALLOWED_ANON);
+				ConfigHelper.removeFromSharedPref(EIP.KEY);
+				interface_with_ConfigurationWizard.removeLastProviderItem();
 				dialog.dismiss();
 			}
 		});
@@ -67,6 +73,7 @@ public class DownloadFailedDialog extends DialogFragment {
     
 	public interface DownloadFailedDialogInterface {
         public void retrySetUpProvider();
+        public void removeLastProviderItem();
     }
 
 	DownloadFailedDialogInterface interface_with_ConfigurationWizard;
