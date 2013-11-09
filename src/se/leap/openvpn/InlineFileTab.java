@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
 
 public class InlineFileTab extends Fragment
 {

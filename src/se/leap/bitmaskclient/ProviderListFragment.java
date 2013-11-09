@@ -14,9 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.leapclient;
+ package se.leap.bitmaskclient;
 
-import se.leap.leapclient.ProviderListContent.ProviderItem;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.os.Bundle;

@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.leapclient;
+ package se.leap.bitmaskclient;
 
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
 import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;

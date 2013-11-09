@@ -1,9 +1,10 @@
-package se.leap.leapclient;
+package se.leap.bitmaskclient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import se.leap.leapclient.ProviderListContent.ProviderItem;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
 import android.app.Activity;
 import android.app.AlertDialog;

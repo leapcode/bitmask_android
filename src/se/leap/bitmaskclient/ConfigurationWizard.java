@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.leapclient;
+ package se.leap.bitmaskclient;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -22,9 +22,9 @@ import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import se.leap.leapclient.ProviderAPIResultReceiver.Receiver;
-import se.leap.leapclient.ProviderListContent.ProviderItem;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;

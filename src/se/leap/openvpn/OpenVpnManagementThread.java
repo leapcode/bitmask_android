@@ -17,7 +17,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import se.leap.leapclient.R;
+
+import se.leap.bitmaskclient.R;
 
 import android.content.SharedPreferences;
 import android.net.LocalServerSocket;

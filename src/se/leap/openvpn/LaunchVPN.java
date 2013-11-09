@@ -20,9 +20,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Vector;
 
-import se.leap.leapclient.ConfigHelper;
-import se.leap.leapclient.EIP;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.ConfigHelper;
+import se.leap.bitmaskclient.EIP;
+import se.leap.bitmaskclient.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
