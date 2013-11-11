@@ -108,7 +108,7 @@ public class VpnProfile implements  Serializable{
 	public String mKeyPassword="";
 	public boolean mPersistTun = false;
 	public String mConnectRetryMax="5";
-	public String mConnectRetry="5";
+	public String mConnectRetry="10";
 	public boolean mUserEditable=true;
 	
 	static final String MINIVPN = "miniopenvpn";
@@ -211,7 +211,7 @@ public class VpnProfile implements  Serializable{
 				cfg+="connect-retry-max " + mConnectRetryMax+ "\n";
 	
 		if(mConnectRetry==null)
-			mConnectRetry="5";
+			mConnectRetry="10";
 		
 	
 		cfg+="connect-retry " + mConnectRetry + "\n";

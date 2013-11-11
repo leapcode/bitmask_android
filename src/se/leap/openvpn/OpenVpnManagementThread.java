@@ -182,7 +182,6 @@ public class OpenVpnManagementThread implements Runnable {
 			String cmd = parts[0].substring(1);
 			String argument = parts[1];
 
-
 			if(cmd.equals("INFO")) {
 				// Ignore greeting from mgmt
 				//logStatusMessage(command);
@@ -273,13 +272,14 @@ public class OpenVpnManagementThread implements Runnable {
 	private void processState(String argument) {
 		String[] args = argument.split(",",3);
 		String currentstate = args[1];
+		Log.d("OpenVPN log", argument);
 		if(args[2].equals(",,"))
 			OpenVPN.updateStateString(currentstate,"");
 		else
 			OpenVPN.updateStateString(currentstate,args[2]);
 	}
 
-
+	private static int repeated_byte_counts = 0;
 	private void processByteCount(String argument) {
 		//   >BYTECOUNT:{BYTES_IN},{BYTES_OUT}
 		int comma = argument.indexOf(',');
@@ -288,7 +288,10 @@ public class OpenVpnManagementThread implements Runnable {
 
 		long diffin = in - mLastIn; 
 		long diffout = out - mLastOut;
-
+		if(diffin == 0 && diffout == 0)
+			repeated_byte_counts++;
+		if(repeated_byte_counts > 3)
+			Log.d("OpenVPN log", "Repeated byte count = " + repeated_byte_counts);
 		mLastIn=in;
 		mLastOut=out;
 
@@ -330,7 +333,8 @@ public class OpenVpnManagementThread implements Runnable {
 			mOpenVPNService.setDomain(extra);
 		} else if (needed.equals("ROUTE")) {
 			String[] routeparts = extra.split(" ");
-			mOpenVPNService.addRoute(routeparts[0], routeparts[1]);
+			if(!mOpenVPNService.isRunning()) // We cannot add routes to an existing openvpn session
+				mOpenVPNService.addRoute(routeparts[0], routeparts[1]);
 		} else if (needed.equals("ROUTE6")) {
 			mOpenVPNService.addRoutev6(extra);
 		} else if (needed.equals("IFCONFIG")) {
