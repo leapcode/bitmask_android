@@ -83,7 +83,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
-
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -355,6 +354,24 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	}
 	
 	/**
+	 * Open the new provider dialog with data
+	 */
+	public void addAndSelectNewProvider(String main_url, boolean danger_on) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+		Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(NewProviderDialog.TAG);
+		if (previous_new_provider_dialog != null) {
+			fragment_transaction.remove(previous_new_provider_dialog);
+		}
+		
+		DialogFragment newFragment = NewProviderDialog.newInstance();
+		Bundle data = new Bundle();
+		data.putString(Provider.MAIN_URL, main_url);
+		data.putBoolean(ProviderItem.DANGER_ON, danger_on);
+		newFragment.setArguments(data);
+		newFragment.show(fragment_transaction, NewProviderDialog.TAG);
+	}
+	
+	/**
 	 * Once selected a provider, this fragment offers the user to log in, 
 	 * use it anonymously (if possible) 
 	 * or cancel his/her election pressing the back button.
@@ -427,6 +444,15 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	}
 
 	public void retrySetUpProvider() {
+	    removeLastProviderItem();
+	    addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl(), ProviderAPI.lastDangerOn());
+		/*
+		Intent provider_API_command = new Intent(this, ProviderAPI.class);
+		startService(provider_API_command);
+		*/
+	}
+
+	public void retrySetUpProvider() {
 	    Intent provider_API_command = new Intent(this, ProviderAPI.class);
 	    
 	    provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
@@ -478,7 +504,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 			provider_list_fragment.unhideAll();
 	}
 	
-	public void removeLastProviderItem() {
+	private void removeLastProviderItem() {
 		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
 		if(provider_list_fragment != null) {
 			provider_list_fragment.removeLastItem();

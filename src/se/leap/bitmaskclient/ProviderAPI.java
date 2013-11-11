@@ -122,8 +122,8 @@ public class ProviderAPI extends IntentService {
     EIP_SERVICE_JSON_DOWNLOADED = false
     ;
     
-    static private String last_provider_main_url;
-    static private boolean last_danger_on = false;
+    private static String last_provider_main_url;
+    private static boolean last_danger_on = false;
     
 	public ProviderAPI() {
 		super("ProviderAPI");
@@ -137,6 +137,14 @@ public class ProviderAPI extends IntentService {
 		CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER) );
 	}
 	
+	public static String lastProviderMainUrl() {
+		return last_provider_main_url;
+	}
+	
+    public static boolean lastDangerOn() {
+    	return last_danger_on;
+    }
+    
 	private String formatErrorMessage(final int toast_string_id) {
 		return "{ \"" + ERRORS + "\" : \""+getResources().getString(toast_string_id)+"\" }";
 	}

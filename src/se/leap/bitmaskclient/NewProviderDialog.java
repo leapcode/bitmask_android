@@ -16,7 +16,8 @@
  */
  package se.leap.bitmaskclient;
 
-import se.leap.bitmaskclient.R;
+import se.leap.leapclient.ProviderListContent.ProviderItem;
+import se.leap.leapclient.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -71,7 +72,14 @@ public class NewProviderDialog extends DialogFragment {
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		View new_provider_dialog_view = inflater.inflate(R.layout.new_provider_dialog, null);
 		final EditText url_input_field = (EditText)new_provider_dialog_view.findViewById(R.id.new_provider_url);
+		if(getArguments() != null && getArguments().containsKey(Provider.MAIN_URL)) {
+			url_input_field.setText(getArguments().getString(Provider.MAIN_URL));
+		}
 		final CheckBox danger_checkbox = (CheckBox)new_provider_dialog_view.findViewById(R.id.danger_checkbox);
+		if(getArguments() != null && getArguments().containsKey(ProviderItem.DANGER_ON)) {
+			danger_checkbox.setActivated(getArguments().getBoolean(ProviderItem.DANGER_ON));
+		}
+		
 		builder.setView(new_provider_dialog_view)
 			.setMessage(R.string.introduce_new_provider)
 			.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {

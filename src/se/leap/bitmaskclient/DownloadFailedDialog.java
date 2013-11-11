@@ -62,7 +62,7 @@ public class DownloadFailedDialog extends DialogFragment {
 				ConfigHelper.removeFromSharedPref(ProviderItem.DANGER_ON);
 				ConfigHelper.removeFromSharedPref(EIP.ALLOWED_ANON);
 				ConfigHelper.removeFromSharedPref(EIP.KEY);
-				interface_with_ConfigurationWizard.removeLastProviderItem();
+				interface_with_ConfigurationWizard.retrySetUpProvider();
 				dialog.dismiss();
 			}
 		});
@@ -73,7 +73,6 @@ public class DownloadFailedDialog extends DialogFragment {
     
 	public interface DownloadFailedDialogInterface {
         public void retrySetUpProvider();
-        public void removeLastProviderItem();
     }
 
 	DownloadFailedDialogInterface interface_with_ConfigurationWizard;
