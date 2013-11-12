@@ -7,5 +7,5 @@ then
 	./compile-native-openvpn.sh
 fi
 
-android update project --path . --name "Bitmask for Android" --target android-15
+android update project --path . --name "Bitmask for Android" --target android-17
 ant debug
