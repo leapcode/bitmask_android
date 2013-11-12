@@ -444,23 +444,19 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	}
 
 	public void retrySetUpProvider() {
-	    removeLastProviderItem();
-	    addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl(), ProviderAPI.lastDangerOn());
-		/*
-		Intent provider_API_command = new Intent(this, ProviderAPI.class);
-		startService(provider_API_command);
-		*/
-	}
+		cancelSettingUpProvider();
+		if(!ProviderAPI.caCertDownloaded()) {
+			addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl(), ProviderAPI.lastDangerOn());
+		} else {
+			Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
-	public void retrySetUpProvider() {
-	    Intent provider_API_command = new Intent(this, ProviderAPI.class);
-	    
-	    provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-	    provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-	    
-	    startService(provider_API_command);
-	}
+			provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
+			provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 
+			startService(provider_API_command);
+		}
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
@@ -504,11 +500,16 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 			provider_list_fragment.unhideAll();
 	}
 	
-	private void removeLastProviderItem() {
+	public void cancelSettingUpProvider() {
 		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
-		if(provider_list_fragment != null) {
+		if(provider_list_fragment != null && ConfigHelper.sharedPrefContainsKey(ProviderItem.DANGER_ON)) {
 			provider_list_fragment.removeLastItem();
 		}
+
+		ConfigHelper.removeFromSharedPref(Provider.KEY);
+		ConfigHelper.removeFromSharedPref(ProviderItem.DANGER_ON);
+		ConfigHelper.removeFromSharedPref(EIP.ALLOWED_ANON);
+		ConfigHelper.removeFromSharedPref(EIP.KEY);
 	}
 
 	@Override
