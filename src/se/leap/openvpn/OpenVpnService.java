@@ -350,12 +350,13 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		bconfig[4] = getString(R.string.routes_info, joinString(mRoutes));
 		bconfig[5] = getString(R.string.routes_info6, joinString(mRoutesv6));
 
-		String session = mProfile.mName;
+		String session = mProfile.mName.substring(mProfile.mName.indexOf(".")+1);
+		/* we don't want the IP address in the notification bar
 		if(mLocalIP!=null && mLocalIPv6!=null)
 			session = getString(R.string.session_ipv6string,session, mLocalIP, mLocalIPv6);
 		else if (mLocalIP !=null)
 			session= getString(R.string.session_ipv4string, session, mLocalIP);
-
+		 */
 		builder.setSession(session);
 
 
