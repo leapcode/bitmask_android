@@ -16,8 +16,8 @@
  */
  package se.leap.bitmaskclient;
 
-import se.leap.leapclient.ProviderListContent.ProviderItem;
-import se.leap.leapclient.R;
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+import se.leap.bitmaskclient.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
