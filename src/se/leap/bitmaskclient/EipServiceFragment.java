@@ -132,6 +132,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							eipCommand(EIP.ACTION_STOP_EIP);
+							mEipStartPending = false;
 						}
 					})
 					.setNegativeButton(getResources().getString(R.string.eip_cancel_connect_false), new DialogInterface.OnClickListener() {
@@ -177,18 +178,21 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 					String statusMessage = "";
 					String prefix = getString(localizedResId);
 					if (state.equals("CONNECTED")){
-						statusMessage = "Connection Secure";
+						statusMessage = getString(R.string.eip_state_connected);
 						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
 					} else if (state.equals("BYTECOUNT")) {
 						statusMessage = logmessage;
 					} else if ( (state.equals("NOPROCESS") && !mEipStartPending ) || state.equals("EXITING")) {
-						statusMessage = "Not running! Connection not secure!";
+						statusMessage = getString(R.string.eip_state_not_connected);
 						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
 						switchState = false;
-					} else {
-						statusMessage = prefix + logmessage;
+					} else if (state.equals("NOPROCESS")){
+						statusMessage = logmessage;
+					}
+					else {
+						statusMessage = prefix + " " + logmessage;
 					}
 					
 					eipAutoSwitched = true;
