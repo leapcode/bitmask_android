@@ -25,7 +25,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
-//import android.util.Log;
 import se.leap.openvpn.OpenVPN.StateListener;
 
 public class OpenVpnService extends VpnService implements StateListener, Callback {
@@ -103,11 +102,11 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		}
 	}
 
-	private void showNotification(String msg, String tickerText, boolean lowpriority, long when, boolean persistant) {
+	private void showNotification(String state, String msg, String tickerText, boolean lowpriority, long when, boolean persistant) {
 		String ns = Context.NOTIFICATION_SERVICE;
 		mNotificationManager = (NotificationManager) getSystemService(ns);
 		int icon;
-		if (tickerText == getString(R.string.state_noprocess)){
+		if (state.equals("NOPROCESS") || state.equals("AUTH_FAILED") || state.equals("NONETWORK")){
 			icon = R.drawable.ic_vpn_disconnected;
 		}else{	
 			icon = R.drawable.ic_stat_vpn;
@@ -469,8 +468,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		// If the process is not running, ignore any state, 
 		// Notification should be invisible in this state
 		if(mProcessThread==null)
-			return;
-
+			return;	
 		if("CONNECTED".equals(state)) {
 			mNotificationManager.cancel(OPENVPN_STATUS);
 		} else if(!"BYTECOUNT".equals(state)) {
@@ -479,9 +477,14 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 			// This also mean we are no longer connected, ignore bytecount messages until next
 			// CONNECTED
 			String ticker = getString(resid);
-			boolean persist = ("NOPROCESS".equals(state)) ? false : true;
-			showNotification(getString(resid) +" " + logmessage,ticker,false,0,persist);
-			 
+			boolean persist = false;
+			if (("NOPROCESS".equals(state) ) || ("EXIT").equals(state)){
+				showNotification(state, getString(R.string.eip_state_not_connected), ticker, false, 0, persist);
+			}
+			else{
+				persist = true;
+				showNotification(state, getString(resid) +" " + logmessage,ticker,false,0,persist);
+			}			 
 		}
 	}
 
