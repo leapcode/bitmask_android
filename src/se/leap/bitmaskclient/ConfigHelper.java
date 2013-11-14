@@ -178,6 +178,18 @@ public class ConfigHelper {
 		shared_preferences_editor.remove(shared_preferences_key);
 		return shared_preferences_editor.commit();
 	}
+	
+	public static boolean checkErroneousDownload(String downloaded_string) {
+		try {
+			if(new JSONObject(downloaded_string).has(ProviderAPI.ERRORS) || downloaded_string.isEmpty()) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch(JSONException e) {
+			return false;
+		}
+	}
 
 	/**
 	 *  Treat the input as the MSB representation of a number,
