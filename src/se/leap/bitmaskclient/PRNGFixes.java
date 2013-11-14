@@ -1,5 +1,3 @@
-package se.leap.leapclient;
-
 /*
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will Google be held liable for any damages
@@ -12,6 +10,7 @@ package se.leap.leapclient;
 
 import android.os.Build;
 import android.os.Process;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -213,10 +212,13 @@ public final class PRNGFixes {
                 }
                 out.write(bytes);
                 out.flush();
-                mSeeded = true;
             } catch (IOException e) {
-                throw new SecurityException(
-                        "Failed to mix seed into " + URANDOM_FILE, e);
+                // On a small fraction of devices /dev/urandom is not writable.
+                // Log and ignore.
+                Log.w(PRNGFixes.class.getSimpleName(),
+                        "Failed to mix seed into " + URANDOM_FILE);
+            } finally {
+                mSeeded = true;
             }
         }
 
@@ -267,15 +269,10 @@ public final class PRNGFixes {
             }
         }
 
-        private OutputStream getUrandomOutputStream() {
+        private OutputStream getUrandomOutputStream() throws IOException {
             synchronized (sLock) {
                 if (sUrandomOut == null) {
-                    try {
-                        sUrandomOut = new FileOutputStream(URANDOM_FILE);
-                    } catch (IOException e) {
-                        throw new SecurityException("Failed to open "
-                                + URANDOM_FILE + " for writing", e);
-                    }
+                    sUrandomOut = new FileOutputStream(URANDOM_FILE);
                 }
                 return sUrandomOut;
             }
