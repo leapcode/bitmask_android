@@ -207,60 +207,63 @@ public class LeapSRPSession {
 	 */
 	public byte[] response(byte[] salt_bytes, byte[] Bbytes) throws NoSuchAlgorithmException {
 		// Calculate x = H(s | H(U | ':' | password))
-		byte[] xb = calculatePasswordHash(username, password, ConfigHelper.trim(salt_bytes));
-		this.x = new BigInteger(1, xb);
+		byte[] M1 = null;
+		if(new BigInteger(1, Bbytes).mod(new BigInteger(1, N_bytes)) != BigInteger.ZERO) {
+			byte[] xb = calculatePasswordHash(username, password, ConfigHelper.trim(salt_bytes));
+			this.x = new BigInteger(1, xb);
 
-		// Calculate v = kg^x mod N
-		String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
-		this.v = calculateV(k_string);
+			// Calculate v = kg^x mod N
+			String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
+			this.v = calculateV(k_string);
 
-		// H(N)
-		byte[] digest_of_n = newDigest().digest(N_bytes);
-		
-		// H(g)
-		byte[] digest_of_g = newDigest().digest(params.g);
-		
-		// clientHash = H(N) xor H(g)
-		byte[] xor_digest = xor(digest_of_n, digest_of_g);
-		clientHash.update(xor_digest);
-		
-		// clientHash = H(N) xor H(g) | H(U)
-		byte[] username_digest = newDigest().digest(ConfigHelper.trim(username.getBytes()));
-		username_digest = ConfigHelper.trim(username_digest);
-		clientHash.update(username_digest);
-		
-		// clientHash = H(N) xor H(g) | H(U) | s
-		clientHash.update(ConfigHelper.trim(salt_bytes));
-		
-		K = null;
+			// H(N)
+			byte[] digest_of_n = newDigest().digest(N_bytes);
 
-		// clientHash = H(N) xor H(g) | H(U) | A
-		byte[] Abytes = ConfigHelper.trim(A.toByteArray());
-		clientHash.update(Abytes);
-		
-		// clientHash = H(N) xor H(g) | H(U) | s | A | B
-		Bbytes = ConfigHelper.trim(Bbytes);
-		clientHash.update(Bbytes);
-		
-		// Calculate S = (B - kg^x) ^ (a + u * x) % N
-		BigInteger S = calculateS(Bbytes);
-		byte[] S_bytes = ConfigHelper.trim(S.toByteArray());
+			// H(g)
+			byte[] digest_of_g = newDigest().digest(params.g);
 
-		// K = SessionHash(S)
-		String hash_algorithm = params.hashAlgorithm;
-		MessageDigest sessionDigest = MessageDigest.getInstance(hash_algorithm);
-		K = ConfigHelper.trim(sessionDigest.digest(S_bytes));
-		
-		// clientHash = H(N) xor H(g) | H(U) | A | B | K
-		clientHash.update(K);
-		
-		byte[] M1 = ConfigHelper.trim(clientHash.digest());
-		
-		// serverHash = Astr + M + K
-		serverHash.update(Abytes);
-		serverHash.update(M1);
-		serverHash.update(K);
-		
+			// clientHash = H(N) xor H(g)
+			byte[] xor_digest = xor(digest_of_n, digest_of_g);
+			clientHash.update(xor_digest);
+
+			// clientHash = H(N) xor H(g) | H(U)
+			byte[] username_digest = newDigest().digest(ConfigHelper.trim(username.getBytes()));
+			username_digest = ConfigHelper.trim(username_digest);
+			clientHash.update(username_digest);
+
+			// clientHash = H(N) xor H(g) | H(U) | s
+			clientHash.update(ConfigHelper.trim(salt_bytes));
+
+			K = null;
+
+			// clientHash = H(N) xor H(g) | H(U) | A
+			byte[] Abytes = ConfigHelper.trim(A.toByteArray());
+			clientHash.update(Abytes);
+
+			// clientHash = H(N) xor H(g) | H(U) | s | A | B
+			Bbytes = ConfigHelper.trim(Bbytes);
+			clientHash.update(Bbytes);
+
+			// Calculate S = (B - kg^x) ^ (a + u * x) % N
+			BigInteger S = calculateS(Bbytes);
+			byte[] S_bytes = ConfigHelper.trim(S.toByteArray());
+
+			// K = SessionHash(S)
+			String hash_algorithm = params.hashAlgorithm;
+			MessageDigest sessionDigest = MessageDigest.getInstance(hash_algorithm);
+			K = ConfigHelper.trim(sessionDigest.digest(S_bytes));
+
+			// clientHash = H(N) xor H(g) | H(U) | A | B | K
+			clientHash.update(K);
+
+			M1 = ConfigHelper.trim(clientHash.digest());
+
+			// serverHash = Astr + M + K
+			serverHash.update(Abytes);
+			serverHash.update(M1);
+			serverHash.update(K);
+
+		}
 		return M1;
 	}
 
