@@ -259,6 +259,7 @@ public class ProviderAPI extends IntentService {
 					String salt = saltAndB.getString(LeapSRPSession.SALT);
 					byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
 					byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
+					if(M1 != null) {
 					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
 					if(session_idAndM2.has(LeapSRPSession.M2) && client.verify((byte[])session_idAndM2.get(LeapSRPSession.M2))) {
 						session_id_bundle.putBoolean(RESULT_KEY, true);
@@ -266,6 +267,11 @@ public class ProviderAPI extends IntentService {
 						session_id_bundle.putBoolean(RESULT_KEY, false);
 						session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
 						session_id_bundle.putString(LogInDialog.USERNAME, username);
+					}
+					} else {
+						session_id_bundle.putBoolean(RESULT_KEY, false);
+						session_id_bundle.putString(LogInDialog.USERNAME, username);
+						session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_srp_math_error_user_message));
 					}
 				} else {
 					session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
