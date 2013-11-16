@@ -1,3 +1,16 @@
+0.2.2 - Nov 15 2013 - the "rampant growth" release:
+Features
+- Rebranded to Bitmask
+- Updated docs
+- Disconnected notification icon
+- Progress bar and other UI improvements
+Bugs Fixed
+- Android PRNG insecurity
+- SRP B value validation
+- VPN reconnect hang
+- Complex certificate verification
+- Remember authentication status
+- Widget shortcut crashes app
 0.2.1 - Oct 21 2013 - the "get on that rolling bandwagon" release:
 Bugs Fixed
 - SRP tests should be runnable localhost
