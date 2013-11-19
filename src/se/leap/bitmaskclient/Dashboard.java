@@ -112,6 +112,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			if ( resultCode == RESULT_OK ){		
 				ConfigHelper.saveSharedPref(EIP.PARSED_SERIAL, 0);
 				ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
+
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
 
@@ -357,7 +358,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			setResult(RESULT_OK);
 
 			authed_eip = true;
-			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
+			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
 			invalidateOptionsMenu();
 
         	mProgressBar.setVisibility(ProgressBar.GONE);
@@ -370,7 +371,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
-			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
+			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
 
 			changeStatusMessage(resultCode);
 			mProgressBar.setVisibility(ProgressBar.GONE);
