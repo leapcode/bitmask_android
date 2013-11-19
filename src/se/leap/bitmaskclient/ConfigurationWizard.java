@@ -141,10 +141,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 		if(resultCode == ProviderAPI.PROVIDER_OK) {
-			JSONObject provider_json;
-			try {
-				provider_json = new JSONObject(resultData.getString(Provider.KEY));
-				boolean danger_on = resultData.getBoolean(ProviderItem.DANGER_ON);
 				mConfigState.setAction(PROVIDER_SET);
 
 				if (ConfigHelper.getBoolFromSharedPref(EIP.ALLOWED_ANON)){
@@ -157,14 +153,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 					setResult(RESULT_OK);
 					showProviderDetails(getCurrentFocus());
 				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			    mProgressBar.setVisibility(ProgressBar.GONE);
-			    progressbar_description.setVisibility(TextView.GONE);
-				//refreshProviderList(0);
-				//Toast.makeText(this, getResources().getString(R.string.config_error_parsing), Toast.LENGTH_LONG);
-				setResult(RESULT_CANCELED, mConfigState);
-			}
 		} else if(resultCode == ProviderAPI.PROVIDER_NOK) {
 			//refreshProviderList(0);
 			String reason_to_fail = resultData.getString(ProviderAPI.ERRORS);

@@ -103,7 +103,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if ( requestCode == CONFIGURE_LEAP ) {
 			if ( resultCode == RESULT_OK){
-				ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
+				ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
 				if(data != null && data.hasExtra(LogInDialog.VERB)) {
