@@ -723,7 +723,7 @@ public class ProviderAPI extends IntentService {
 			URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
 
 			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ProviderItem.DANGER_ON);
-			String cert_string = downloadWithProviderCA(new_cert_string_url, danger_on);
+			String cert_string = downloadWithProviderCA(new_cert_string_url.toString(), danger_on);
 			if(!cert_string.isEmpty()) {
 				if(ConfigHelper.checkErroneousDownload(cert_string)) {
 					String reason_to_fail = provider_json.getString(ERRORS);
