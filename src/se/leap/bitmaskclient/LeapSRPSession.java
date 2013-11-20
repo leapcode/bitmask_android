@@ -35,9 +35,12 @@ import org.jboss.security.srp.SRPParameters;
  */
 public class LeapSRPSession {
 	
+	private static String token = "";
+	
 	final public static String SALT = "salt";
 	final public static String M1 = "M1";
 	final public static String M2 = "M2";
+	final public static String TOKEN = "token";
 
 	private SRPParameters params;
 	private String username;
@@ -311,6 +314,14 @@ public class LeapSRPSession {
 		byte[] myM2 = ConfigHelper.trim(serverHash.digest());
 		boolean valid = Arrays.equals(M2, myM2);
 		return valid;
+	}
+	
+	protected static void setToken(String token) {
+		LeapSRPSession.token = token;
+	}
+	
+	protected static String getToken() {
+		return token;
 	}
 
 	/**
