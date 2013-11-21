@@ -269,6 +269,7 @@
     <string name="authed_secured_status">Connection secure using your own certificate.</string>
     <string name="eip_service_label">Encrypted Internet</string>
     <string name="title_activity_configuration_wizard">Select a service provider</string>
+    <string name="top_padding">Top padding</string>
     <string name="new_provider_button">Add new Provider</string>
     <string name="introduce_new_provider">Add a new service provider</string>
     <string name="save">Save</string>
@@ -284,6 +285,7 @@
     <string name="username_ask">Please enter your username</string>
     <string name="password_hint">password</string>
     <string name="user_message">User message</string>
+    <string name="error_srp_math_error_user_message">Try again: server math error.</string>    
     <string name="error_bad_user_password_user_message">Incorrect username or password.</string>
     <string name="error_not_valid_password_user_message">It should have at least 8 characters.</string>
     <string name="error_client_http_user_message">Try again: Client HTTP error</string>

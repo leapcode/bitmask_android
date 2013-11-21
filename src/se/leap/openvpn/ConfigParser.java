@@ -355,6 +355,12 @@ public class ConfigParser {
 				np.mServerName = remote.get(1);
 			}
 		}
+		
+		// Parse remote config
+		Vector<String> location = getOption("location",1,2);
+		if(location != null && location.size() == 2){
+			np.mLocation = location.get(1).replace("__", ", ");
+		}
 
 		Vector<Vector<String>> dhcpoptions = getAllOption("dhcp-option", 2, 2);
 		if(dhcpoptions!=null) {
