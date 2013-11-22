@@ -66,7 +66,7 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 	public void testLogInAndOut() {
 		long miliseconds_to_log_in = 40 * 1000;
 		solo.clickOnActionBarItem(R.id.login_button);
-		solo.enterText(0, "parmegv");
+		solo.enterText(0, "parmegvtest1");
 		solo.enterText(1, " S_Zw3'-");
 		solo.clickOnText("Log In");
 		solo.waitForDialogToClose();

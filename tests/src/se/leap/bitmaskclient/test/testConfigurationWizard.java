@@ -3,7 +3,6 @@ package se.leap.bitmaskclient.test;
 import java.io.IOException;
 
 import se.leap.bitmaskclient.AboutFragment;
-import se.leap.bitmaskclient.ConfigHelper;
 import se.leap.bitmaskclient.ConfigurationWizard;
 import se.leap.bitmaskclient.ProviderDetailFragment;
 import se.leap.bitmaskclient.R;
@@ -46,7 +45,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 	}
 	
 	public void testAddNewProvider() {
-		solo.clickOnText(solo.getString(R.string.new_provider_button));
+		solo.clickOnActionBarItem(R.id.new_provider);
 		solo.enterText(0, "dev.bitmask.net");
 		solo.clickOnCheckBox(0);
 		solo.clickOnText(solo.getString(R.string.save));
