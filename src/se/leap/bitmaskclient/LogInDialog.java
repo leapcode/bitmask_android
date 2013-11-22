@@ -86,8 +86,8 @@ public class LogInDialog extends DialogFragment {
 		builder.setView(log_in_dialog_view)
 			.setPositiveButton(R.string.login_button, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
-					String username = username_field.getText().toString().trim();
-					String password = password_field.getText().toString().trim();
+					String username = username_field.getText().toString();
+					String password = password_field.getText().toString();
 					dialog.dismiss();
 					interface_with_Dashboard.authenticate(username, password);
 				}
