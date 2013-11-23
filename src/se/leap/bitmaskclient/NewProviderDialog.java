@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +39,8 @@ import android.widget.Toast;
 public class NewProviderDialog extends DialogFragment {
 
     final public static String TAG = "newProviderDialog";
-    
+    final public static int URL_MALFORMED = "url_not_valid".hashCode();
+        
 	public interface NewProviderDialogInterface {
         public void saveAndSelectProvider(String url_provider, boolean danger_on);
     }
@@ -68,16 +70,18 @@ public class NewProviderDialog extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		LayoutInflater inflater = getActivity().getLayoutInflater();
-		View new_provider_dialog_view = inflater.inflate(R.layout.new_provider_dialog, null);
+		final View new_provider_dialog_view = inflater.inflate(R.layout.new_provider_dialog, null);
 		final EditText url_input_field = (EditText)new_provider_dialog_view.findViewById(R.id.new_provider_url);
 		final CheckBox danger_checkbox = (CheckBox)new_provider_dialog_view.findViewById(R.id.danger_checkbox);
-		
 		builder.setView(new_provider_dialog_view)
 			.setMessage(R.string.introduce_new_provider)
 			.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					String entered_url = url_input_field.getText().toString().trim();
 					if(!entered_url.startsWith("https://")) {
+						if (entered_url.startsWith("http://")){
+							entered_url = entered_url.substring("http://".length());
+						}
 						entered_url = "https://".concat(entered_url);
 					}
 					boolean danger_on = danger_checkbox.isChecked();
@@ -86,7 +90,8 @@ public class NewProviderDialog extends DialogFragment {
 						Toast.makeText(getActivity().getApplicationContext(), R.string.valid_url_entered, Toast.LENGTH_LONG).show();
 					} else {
 						url_input_field.setText("");
-						Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();
+						danger_checkbox.setChecked(false);
+						Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();;
 					}
 				}
 			})
@@ -105,6 +110,7 @@ public class NewProviderDialog extends DialogFragment {
      * @return true if it's not empty nor contains only the protocol.
      */
 	boolean validURL(String entered_url) {
-		return !entered_url.isEmpty() && entered_url.matches("http[s]?://.+") && !entered_url.replaceFirst("http[s]?://", "").isEmpty();
+		//return !entered_url.isEmpty() && entered_url.matches("http[s]?://.+") && !entered_url.replaceFirst("http[s]?://", "").isEmpty();
+		return android.util.Patterns.WEB_URL.matcher(entered_url).matches();
 	}
 }
