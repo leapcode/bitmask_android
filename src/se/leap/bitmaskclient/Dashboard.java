@@ -40,6 +40,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -63,12 +64,17 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	protected static final int CONFIGURE_LEAP = 0;
 	protected static final int SWITCH_PROVIDER = 1;
+	
 
 	private static final String TAG_EIP_FRAGMENT = "EIP_DASHBOARD_FRAGMENT";
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
 	public static final String REQUEST_CODE = "request_code";
+	public static final String LOGOUT_FIRST = "logout_first";
+	public static final String STOP_FIRST = "stop_first";
 
+	
+	
 	private ProgressBar mProgressBar;
 	private TextView eipStatus;
 	private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
@@ -89,8 +95,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		app = this;
 		
 		PRNGFixes.apply();
-	    //mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
-
+	//	mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
+	//    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
+	//	eipStatus = (TextView) findViewById(R.id.eipStatus);
 
 	    providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
 	    IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_ACTION);
@@ -115,20 +122,37 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
-		if ( requestCode == CONFIGURE_LEAP ) {
-			if ( resultCode == RESULT_OK ){
-				ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
-				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
-				buildDashboard();
-				if(data != null && data.hasExtra(LogInDialog.VERB)) {
-					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-					logInDialog(view, Bundle.EMPTY);
-				}
-			} else if(resultCode == RESULT_CANCELED && data.hasExtra(ACTION_QUIT)) {
-				finish();
-			} else
-				configErrorDialog();
-		}
+		if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
+				if ( resultCode == RESULT_OK ){
+					if ((data != null) && (data.hasExtra(LOGOUT_FIRST))){
+						Log.d(TAG_EIP_FRAGMENT, "onActivityResult() -> Logout!");
+						logOut();
+					}else{
+						Log.d(TAG_EIP_FRAGMENT, "onActivityResult() -> has no Extra LOGOUT_FIRST");
+					}
+
+					if ((data != null) && (data.hasExtra(STOP_FIRST))){
+						Log.d(TAG_EIP_FRAGMENT, "onActivityResult() -> eipStop!");
+						eipStop();
+					}else{
+						Log.d(TAG_EIP_FRAGMENT, "onActivityResult() -> has no Extra STOP_FIRST");
+					}
+					
+
+					ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
+					startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
+					buildDashboard();
+
+					
+					if(data != null && data.hasExtra(LogInDialog.VERB)) {
+						View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
+						logInDialog(view, Bundle.EMPTY);
+					}
+				} else if(resultCode == RESULT_CANCELED && data.hasExtra(ACTION_QUIT)) {
+					finish();
+				} else
+					configErrorDialog();
+			}
 	}
 	
 	/**
@@ -299,12 +323,16 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
-		//if(mProgressDialog != null) mProgressDialog.dismiss();
-		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
+		
+		if (mProgressBar == null) mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
+		if (eipStatus == null) eipStatus = (TextView) findViewById(R.id.eipStatus);
+
+
 		mProgressBar.setVisibility(ProgressBar.VISIBLE);
 		eipStatus.setText("Starting to logout");
-		//mProgressBar.setMax(1);
 		startService(provider_API_command);
+		//mProgressBar.setMax(1);
+
 	}
 	
 	/**
@@ -454,7 +482,21 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
 		startService(eip_intent);
 	}
+	
+	/**
+	 * Send a command to EIP
+	 * 	
+	 */
+	private void eipStop(){
+		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
+		Intent eip_intent = new Intent(this, EIP.class);
+		eip_intent.setAction(EIP.ACTION_STOP_EIP);
+	//	eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
+		startService(eip_intent);
+		Log.d(TAG_EIP_FRAGMENT, "eipStop() -> service started to stop");
 
+	}
+	
 	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
 
 		@Override
