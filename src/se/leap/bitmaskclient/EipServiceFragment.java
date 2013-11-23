@@ -57,6 +57,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 		eipStatus.setOnClickListener(this);
 
 		eipSwitch = (Switch) eipFragment.findViewById(R.id.eipSwitch);
+
+			
 		eipSwitch.setOnTouchListener(new View.OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -65,6 +67,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 			}
 		});
 		eipSwitch.setOnCheckedChangeListener(this);
+		
 		
 		return eipFragment;
 	}
@@ -151,6 +154,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 		}
 		eipAutoSwitched = true;
 	}
+	
+
 	
 	/**
 	 * Send a command to EIP

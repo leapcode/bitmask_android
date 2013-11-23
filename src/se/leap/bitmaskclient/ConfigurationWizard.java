@@ -25,7 +25,6 @@ import org.json.JSONObject;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -37,6 +36,7 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,6 +68,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	private ProviderListFragment provider_list_fragment;
 	private Intent mConfigState = new Intent();
 	
+	final public static String TAG = "se.leap.bitmaskclient.ConfigurationWizard";
 	final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
 	final public static String ANON_CERTIFICATE = "anon_certificate";
 	final public static String AUTHED_CERTIFICATE = "authed_certificate";
@@ -101,6 +102,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     		Bundle arguments = new Bundle();
     		int configuration_wizard_request_code = getIntent().getIntExtra(Dashboard.REQUEST_CODE, -1);
     		if(configuration_wizard_request_code == Dashboard.SWITCH_PROVIDER) {
+        		Log.d(TAG, "onCreate - Request_Code: Switch Provider");
     			arguments.putBoolean(ProviderListFragment.SHOW_ALL_PROVIDERS, true);
     		}
 			provider_list_fragment.setArguments(arguments);
@@ -231,10 +233,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     @Override
     public void onItemSelected(String id) {
 	    //TODO Code 2 pane view
+	//	resetOldConnection();
 	    ProviderItem selected_provider = getProvider(id);
 	    int provider_index = getProviderIndex(id);
 	    startProgressBar(provider_index);
 	    mSelectedProvider = selected_provider;
+	    
 	    saveProviderJson(mSelectedProvider);
     }
     
@@ -365,6 +369,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     			downloadJSONFiles(mSelectedProvider);
     		}
     	} catch (JSONException e) {
+    		Log.d(TAG, "saveProviderJson("+provider.id + " = " + provider.name + ") failed");
     		setResult(RESULT_CANCELED);
     		finish();
     	}
@@ -484,8 +489,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	 * @param danger_on tells if HTTPS client should bypass certificate errors
 	 */
 	public void updateProviderDotJson(String provider_name, String provider_json_url, boolean danger_on) {
+		
+		
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
-
 		Bundle parameters = new Bundle();
 		parameters.putString(Provider.NAME, provider_name);
 		parameters.putString(Provider.DOT_JSON_URL, provider_json_url);
@@ -494,9 +500,18 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DOTJSON);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-		
+		Log.d(TAG, "updateProviderDotJson... right after resetting old connection, starts Service  ");
+
 		startService(provider_API_command);
 	}
+	/*private void resetOldConnection(){
+		Log.d(TAG, "resetOldConnection... EIPStop()");
+		if (Provider.getInstance().hasEIP()){
+			Log.d(TAG, "resetOldConnection... Provider has EIP");
+			eipStop();
+		}
+	
+	}*/
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -535,6 +550,14 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		}
 	}
 	
+/*	private void eipStop(){
+		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
+		Intent eip_intent = new Intent(this, EIP.class);
+		eip_intent.setAction(EIP.ACTION_STOP_EIP);
+	//	eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
+		startService(eip_intent);
+	}
+*/	
 	public void showAllProviders() {
 		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
 		if(provider_list_fragment != null)
@@ -543,15 +566,39 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 	@Override
 	public void login() {
+		
+		
 		Intent ask_login = new Intent();
 		ask_login.putExtra(LogInDialog.VERB, LogInDialog.VERB);
+		
+		if (Provider.getInstance().hasEIP()){
+			if (ConfigHelper.getBoolFromSharedPref(EIP.AUTHED_EIP)){
+				ask_login.putExtra(Dashboard.LOGOUT_FIRST, Dashboard.LOGOUT_FIRST);
+				Log.d(TAG, "login() -> there was an authed EIP authed before");
+			}
+			Log.d(TAG, "use_anonymously() -> STOP_FIRST!");
+			ask_login.putExtra(Dashboard.STOP_FIRST, Dashboard.STOP_FIRST);
+			Log.d(TAG, "use_anonymously() -> ask_login has: " + ask_login.getExtras());
+
+		}
 		setResult(RESULT_OK, ask_login);
 		finish();
 	}
 
 	@Override
 	public void use_anonymously() {
-		setResult(RESULT_OK);
+		Intent stopFirst = new Intent();
+		if (Provider.getInstance().hasEIP()){
+			if (ConfigHelper.getBoolFromSharedPref(EIP.AUTHED_EIP)){
+				stopFirst.putExtra(Dashboard.LOGOUT_FIRST, Dashboard.LOGOUT_FIRST);
+				Log.d(TAG, "use_anonymously() -> there was an authed EIP before");
+			}
+			Log.d(TAG, "use_anonymously() -> STOP_FIRST!");
+				stopFirst.putExtra(Dashboard.STOP_FIRST, Dashboard.STOP_FIRST);
+			
+		}
+		Log.d(TAG, "use_anonymously() ");
+		setResult(RESULT_OK, stopFirst);
 		finish();
 	}
 }
