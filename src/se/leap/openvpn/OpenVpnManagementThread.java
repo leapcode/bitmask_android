@@ -211,8 +211,11 @@ public class OpenVpnManagementThread implements Runnable {
 				OpenVPN.logMessage(0, "MGMT:", "Got unrecognized command" + command);
 				Log.i(TAG, "Got unrecognized command" + command);
 			}
-		} else if (command.startsWith("SUCCESS:")) {
-			// ignore
+		} else if (command.startsWith("SUCCESS:")) { //Fixes bug LEAP #4565
+				if (command.equals("SUCCESS: signal SIGINT thrown")){
+					Log.d(TAG, "SUCCESS: signal SIGINT thrown");
+					processState(",EXITING,SIGINT,,");
+				}
 		} else {
 			Log.i(TAG, "Got unrecognized line from managment" + command);
 			OpenVPN.logMessage(0, "MGMT:", "Got unrecognized line from management:" + command);
