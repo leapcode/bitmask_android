@@ -58,7 +58,8 @@ public class ConfigHelper {
     
     private static boolean checkSharedPrefs() {
     	try {
-    		shared_preferences = Dashboard.getAppContext().getSharedPreferences(Dashboard.SHARED_PREFERENCES,Context.MODE_PRIVATE);
+    		if(shared_preferences == null)
+    			shared_preferences = Dashboard.getAppContext().getSharedPreferences(Dashboard.SHARED_PREFERENCES,Context.MODE_PRIVATE);
     	} catch (Exception e) {
     		return false;
     	}
