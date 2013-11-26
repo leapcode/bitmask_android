@@ -51,6 +51,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 		solo.clickOnText(solo.getString(R.string.save));
 		added_providers = added_providers+1;
 		assertTrue("Provider details dialog did not appear", solo.waitForFragmentByTag(ProviderDetailFragment.TAG, 60*1000));
+		solo.goBack();
 	}
 	
 	public void testShowAbout() {
