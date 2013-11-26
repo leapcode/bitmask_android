@@ -19,7 +19,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import se.leap.bitmaskclient.R;
-
 import android.content.SharedPreferences;
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
@@ -177,11 +176,12 @@ public class OpenVpnManagementThread implements Runnable {
 
 
 	private void processCommand(String command) {
+		Log.d(TAG, "processCommand: " + command);
+
 		if (command.startsWith(">") && command.contains(":")) {
 			String[] parts = command.split(":",2);
 			String cmd = parts[0].substring(1);
 			String argument = parts[1];
-
 			if(cmd.equals("INFO")) {
 				// Ignore greeting from mgmt
 				//logStatusMessage(command);
@@ -195,6 +195,8 @@ public class OpenVpnManagementThread implements Runnable {
 				processByteCount(argument);
 			} else if (cmd.equals("STATE")) {
 				processState(argument);
+			} else if (cmd.equals("FATAL")){
+				processState(","+cmd+","); 	//handles FATAL as state
 			} else if (cmd.equals("PROXY")) {
 				processProxyCMD(argument);
 			} else if (cmd.equals("LOG")) {
@@ -272,11 +274,17 @@ public class OpenVpnManagementThread implements Runnable {
 	private void processState(String argument) {
 		String[] args = argument.split(",",3);
 		String currentstate = args[1];
-		Log.d("OpenVPN log", argument);
-		if(args[2].equals(",,"))
+		if(args[2].equals(",,")){
 			OpenVPN.updateStateString(currentstate,"");
-		else
+		}
+		else if (args[2].endsWith(",,")){ //fixes LEAP Bug #4546
+			args[2] = (String) args[2].subSequence(0, args[2].length()-2);
+			Log.d(TAG, "processState() STATE: "+ currentstate + "   msg: " + args[2]);
 			OpenVPN.updateStateString(currentstate,args[2]);
+		}
+		else{
+			OpenVPN.updateStateString(currentstate,args[2]);
+		}
 	}
 
 	private static int repeated_byte_counts = 0;
