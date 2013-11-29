@@ -2,6 +2,7 @@ obj
 bin
 gen
 libs
+.settings
 openvpn/.git
 openvpn/autom4te.cache
 openvpn/aclocal.m4
