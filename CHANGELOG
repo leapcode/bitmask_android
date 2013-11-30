@@ -1,3 +1,12 @@
+0.2.3-rc1 Nov 29 2013
+Features
+- Begin integrating tests into repository
+- Clearer wording in some places
+- Show VPN Gateway location in notification
+Bugs Fixed
+- URL parsing error if http entered for custom provider
+
+
 0.2.2 - Nov 15 2013 - the "rampant growth" release:
 Features
 - Rebranded to Bitmask
@@ -11,6 +20,8 @@ Bugs Fixed
 - Complex certificate verification
 - Remember authentication status
 - Widget shortcut crashes app
+
+
 0.2.1 - Oct 21 2013 - the "get on that rolling bandwagon" release:
 Bugs Fixed
 - SRP tests should be runnable localhost
