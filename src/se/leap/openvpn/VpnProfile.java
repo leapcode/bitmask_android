@@ -68,6 +68,7 @@ public class VpnProfile implements  Serializable{
 	private UUID mUuid;
 	public int mAuthenticationType = TYPE_CERTIFICATES ;
 	public String mName;
+	public String mLocation;
 	public String mAlias;
 	public String mClientCertFilename;
 	public String mTLSAuthDirection="";
