@@ -59,6 +59,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 
+import com.dubsar_dictionary.SecureClient.SecureSocketFactory;
+
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import android.app.IntentService;
@@ -662,11 +664,17 @@ public class ProviderAPI extends IntentService {
 		TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
 		tmf.init(keyStore);
 
-		// Create an SSLContext that uses our TrustManager
-		SSLContext context = SSLContext.getInstance("TLS");
-		context.init(null, tmf.getTrustManagers(), null);
+		SecureSocketFactory.setEnabledProtocols(new String[] { "TLS", "TLSv1.1", "TLSv1.2" });
 
-		return context.getSocketFactory();
+	    // order does matter here. specify ciphers in preference order
+	    SecureSocketFactory.setEnabledCipherSuites(new String[] {
+	        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+	        "TLS_ECDHE_RSA_WITH_RC4_128_SHA"
+	    });
+	    
+	    SecureSocketFactory.setTrustManager(tmf);
+	    SecureSocketFactory secure_socket_factory = SecureSocketFactory.getHttpSocketFactory(0);
+		return SecureSocketFactory.getHttpSocketFactory(0).getSocketFactory();
 	}
 	
 	/**
