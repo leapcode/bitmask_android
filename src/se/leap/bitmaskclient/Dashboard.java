@@ -301,7 +301,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 		//if(mProgressDialog != null) mProgressDialog.dismiss();
 		//mProgressDialog = ProgressDialog.show(this, getResources().getString(R.string.logout_title), getResources().getString(R.string.logout_message), true);
+		if(mProgressBar == null) mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 		mProgressBar.setVisibility(ProgressBar.VISIBLE);
+		if(eipStatus == null) eipStatus = (TextView) findViewById(R.id.eipStatus);
 		eipStatus.setText("Starting to logout");
 		//mProgressBar.setMax(1);
 		startService(provider_API_command);
