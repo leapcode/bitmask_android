@@ -106,7 +106,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    
 		ConfigHelper.setSharedPreferences(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE));
 		preferences = ConfigHelper.shared_preferences;
-		
+
 		authed_eip = ConfigHelper.getBoolFromSharedPref(EIP.AUTHED_EIP);
 		if (ConfigHelper.getStringFromSharedPref(Provider.KEY).isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
@@ -139,6 +139,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 					}
 					
 
+
+					ConfigHelper.saveSharedPref(EIP.PARSED_SERIAL, 0);
 					ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
 					startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 					buildDashboard();

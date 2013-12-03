@@ -229,7 +229,10 @@ public class ProviderAPI extends IntentService {
 				result.putString(ERRORS, reason_to_fail);
 				result.putBoolean(RESULT_KEY, false);
 			}
-			else ConfigHelper.saveSharedPref(EIP.KEY, eip_service_json);
+			else {
+				ConfigHelper.saveSharedPref(EIP.KEY, eip_service_json);
+				ConfigHelper.saveSharedPref(EIP.PARSED_SERIAL, 0);
+			}
 
 			result.putBoolean(RESULT_KEY, true);
 		} catch (JSONException e) {
