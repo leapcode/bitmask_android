@@ -252,9 +252,18 @@ public final class EIP extends IntentService {
 	private void updateEIPService() {
 		try {
 			eipDefinition = ConfigHelper.getJsonFromSharedPref(EIP.KEY);
+			parsedEipSerial = ConfigHelper.getIntFromSharedPref(PARSED_SERIAL);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		if(parsedEipSerial == 0) {
+			// Delete all vpn profiles
+			ProfileManager vpl = ProfileManager.getInstance(context);
+			Collection<VpnProfile> profiles = vpl.getProfiles();
+			for (VpnProfile profile : profiles){
+				vpl.removeProfile(context, profile);
+			}
 		}
 		if (eipDefinition.optInt("serial") > parsedEipSerial)
 			updateGateways();
