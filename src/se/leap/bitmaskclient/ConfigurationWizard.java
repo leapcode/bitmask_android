@@ -102,7 +102,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     		Bundle arguments = new Bundle();
     		int configuration_wizard_request_code = getIntent().getIntExtra(Dashboard.REQUEST_CODE, -1);
     		if(configuration_wizard_request_code == Dashboard.SWITCH_PROVIDER) {
-        		Log.d(TAG, "onCreate - Request_Code: Switch Provider");
     			arguments.putBoolean(ProviderListFragment.SHOW_ALL_PROVIDERS, true);
     		}
 			provider_list_fragment.setArguments(arguments);
@@ -369,7 +368,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     			downloadJSONFiles(mSelectedProvider);
     		}
     	} catch (JSONException e) {
-    		Log.d(TAG, "saveProviderJson("+provider.id + " = " + provider.name + ") failed");
     		setResult(RESULT_CANCELED);
     		finish();
     	}
@@ -500,19 +498,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DOTJSON);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-		Log.d(TAG, "updateProviderDotJson... right after resetting old connection, starts Service  ");
 
 		startService(provider_API_command);
 	}
-	/*private void resetOldConnection(){
-		Log.d(TAG, "resetOldConnection... EIPStop()");
-		if (Provider.getInstance().hasEIP()){
-			Log.d(TAG, "resetOldConnection... Provider has EIP");
-			eipStop();
-		}
-	
-	}*/
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
@@ -549,15 +538,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			fragment_transaction.replace(R.id.configuration_wizard_layout, newFragment, AboutFragment.TAG).commit();
 		}
 	}
-	
-/*	private void eipStop(){
-		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
-		Intent eip_intent = new Intent(this, EIP.class);
-		eip_intent.setAction(EIP.ACTION_STOP_EIP);
-	//	eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
-		startService(eip_intent);
-	}
-*/	
+		
 	public void showAllProviders() {
 		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
 		if(provider_list_fragment != null)
@@ -568,37 +549,16 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	public void login() {
 		
 		
-		Intent ask_login = new Intent();
+		Intent ask_login = new Intent(this, Dashboard.class);
 		ask_login.putExtra(LogInDialog.VERB, LogInDialog.VERB);
-		
-		if (Provider.getInstance().hasEIP()){
-			if (ConfigHelper.getBoolFromSharedPref(EIP.AUTHED_EIP)){
-				ask_login.putExtra(Dashboard.LOGOUT_FIRST, Dashboard.LOGOUT_FIRST);
-				Log.d(TAG, "login() -> there was an authed EIP authed before");
-			}
-			Log.d(TAG, "use_anonymously() -> STOP_FIRST!");
-			ask_login.putExtra(Dashboard.STOP_FIRST, Dashboard.STOP_FIRST);
-			Log.d(TAG, "use_anonymously() -> ask_login has: " + ask_login.getExtras());
-
-		}
-		setResult(RESULT_OK, ask_login);
+		startActivityForResult(ask_login, Dashboard.CONFIGURE_LEAP);
 		finish();
 	}
 
 	@Override
 	public void use_anonymously() {
-		Intent stopFirst = new Intent();
-		if (Provider.getInstance().hasEIP()){
-			if (ConfigHelper.getBoolFromSharedPref(EIP.AUTHED_EIP)){
-				stopFirst.putExtra(Dashboard.LOGOUT_FIRST, Dashboard.LOGOUT_FIRST);
-				Log.d(TAG, "use_anonymously() -> there was an authed EIP before");
-			}
-			Log.d(TAG, "use_anonymously() -> STOP_FIRST!");
-				stopFirst.putExtra(Dashboard.STOP_FIRST, Dashboard.STOP_FIRST);
-			
-		}
-		Log.d(TAG, "use_anonymously() ");
-		setResult(RESULT_OK, stopFirst);
+		Intent intent = new Intent(this, Dashboard.class);
+		startActivityForResult(intent, Dashboard.CONFIGURE_LEAP);
 		finish();
 	}
 }

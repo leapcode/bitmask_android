@@ -70,8 +70,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
 	public static final String REQUEST_CODE = "request_code";
-	public static final String LOGOUT_FIRST = "logout_first";
-	public static final String STOP_FIRST = "stop_first";
+
 
 	
 	
@@ -122,30 +121,15 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
-		if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
-				if ( resultCode == RESULT_OK ){
-					if ((data != null) && (data.hasExtra(LOGOUT_FIRST))){
-						Log.d(TAG_EIP_FRAGMENT, "onActivityResult() -> Logout!");
-						logOut();
-					}else{
-						Log.d(TAG_EIP_FRAGMENT, "onActivityResult() -> has no Extra LOGOUT_FIRST");
-					}
-
-					if ((data != null) && (data.hasExtra(STOP_FIRST))){
-						Log.d(TAG_EIP_FRAGMENT, "onActivityResult() -> eipStop!");
-						eipStop();
-					}else{
-						Log.d(TAG_EIP_FRAGMENT, "onActivityResult() -> has no Extra STOP_FIRST");
-					}
-					
+		if ( (requestCode == CONFIGURE_LEAP)) {
+				if ( resultCode == RESULT_OK ){		
 
 
 					ConfigHelper.saveSharedPref(EIP.PARSED_SERIAL, 0);
 					ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
 					startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 					buildDashboard();
-
-					
+			
 					if(data != null && data.hasExtra(LogInDialog.VERB)) {
 						View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
 						logInDialog(view, Bundle.EMPTY);
@@ -254,6 +238,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			startActivity(intent);
 			return true;
 		case R.id.switch_provider:
+			if (Provider.getInstance().hasEIP()){
+				if (ConfigHelper.getBoolFromSharedPref(EIP.AUTHED_EIP)){
+					logOut();
+				}
+				eipStop();
+			}
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;
 		case R.id.login_button:
@@ -495,7 +485,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		eip_intent.setAction(EIP.ACTION_STOP_EIP);
 	//	eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
 		startService(eip_intent);
-		Log.d(TAG_EIP_FRAGMENT, "eipStop() -> service started to stop");
 
 	}
 	
