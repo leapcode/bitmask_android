@@ -547,18 +547,15 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 
 	@Override
 	public void login() {
-		
-		
-		Intent ask_login = new Intent(this, Dashboard.class);
+		Intent ask_login = new Intent();
 		ask_login.putExtra(LogInDialog.VERB, LogInDialog.VERB);
-		startActivityForResult(ask_login, Dashboard.CONFIGURE_LEAP);
+		setResult(RESULT_OK, ask_login);
 		finish();
 	}
 
 	@Override
 	public void use_anonymously() {
-		Intent intent = new Intent(this, Dashboard.class);
-		startActivityForResult(intent, Dashboard.CONFIGURE_LEAP);
+		setResult(RESULT_OK);
 		finish();
 	}
 }
