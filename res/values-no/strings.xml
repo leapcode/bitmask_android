@@ -14,7 +14,7 @@
   <string name="client_pkcs12_title">PKCS12 fil</string>
   <string name="ca_title">CA-sertifikat</string>
   <string name="about">Om</string>
-  <string name="about_summary">Om LEAP Android</string>
+  <string name="about_summary">Om Bitmask Android</string>
   <string name="vpn_list_summary">Liste over alle konfigurerte VPN-tilkoblinger</string>
   <string name="vpn_list_title">VPN-profiler</string>
   <string name="vpn_type">Type</string>

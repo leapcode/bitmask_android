@@ -14,7 +14,7 @@
   <string name="client_pkcs12_title">Fitxer PKCS12</string>
   <string name="ca_title">Certificat CA</string>
   <string name="about">Quan a</string>
-  <string name="about_summary">Quan a LEAP per Android</string>
+  <string name="about_summary">Quan a Bitmask per Android</string>
   <string name="vpn_list_summary">Llista de VPNs configurades</string>
   <string name="vpn_list_title">Perfils VPN</string>
   <string name="vpn_type">Tipus</string>

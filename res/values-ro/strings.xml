@@ -18,7 +18,7 @@
   <string name="repository_url_text">Cod sursă şi tracker probleme disponibile la https://github.com/leapcode/bitmask_android/</string>
   <string name="copyright_others">Acest program utilizează următoarele componente; a se vedea codul sursă pentru mai multe detalii despre licente</string>
   <string name="about">Despre</string>
-  <string name="about_summary">Despre LEAP pentru Android</string>
+  <string name="about_summary">Despre Bitmask pentru Android</string>
   <string name="vpn_list_summary">Lista tuturor VPN-urilor configurate</string>
   <string name="vpn_list_title">Profile VPN</string>
   <string name="vpn_type">Tip</string>

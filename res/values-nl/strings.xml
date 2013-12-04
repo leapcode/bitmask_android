@@ -14,7 +14,7 @@
   <string name="client_pkcs12_title">PKCS12 Bestand</string>
   <string name="ca_title">CA Certificaat</string>
   <string name="about">Over</string>
-  <string name="about_summary">Over LEAP voor Android</string>
+  <string name="about_summary">Over Bitmask voor Android</string>
   <string name="vpn_list_summary">Lijst van alle geconfigureerde VPN verbindingen</string>
   <string name="vpn_list_title">VPN Profielen</string>
   <string name="vpn_type">Type</string>

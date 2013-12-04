@@ -18,7 +18,7 @@
   <string name="repository_url_text">Zdrojové kódy a seznam problémů je na https://github.com/leapcode/bitmask_android/</string>
   <string name="copyright_others">Tento program používá následující komponenty; viz zdrojový kód pro detaily o licenci</string>
   <string name="about">O programu</string>
-  <string name="about_summary">O programu LEAP pro Android</string>
+  <string name="about_summary">O programu Bitmask pro Android</string>
   <string name="vpn_list_summary">Seznam všech nakonfigurovaných VPN</string>
   <string name="vpn_list_title">Všechny VPN</string>
   <string name="vpn_type">Typ</string>
