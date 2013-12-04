@@ -106,7 +106,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		String ns = Context.NOTIFICATION_SERVICE;
 		mNotificationManager = (NotificationManager) getSystemService(ns);
 		int icon;
-		if (state.equals("NOPROCESS") || state.equals("AUTH_FAILED") || state.equals("NONETWORK")){
+		if (state.equals("NOPROCESS") || state.equals("AUTH_FAILED") || state.equals("NONETWORK") || state.equals("EXITING")){
 			icon = R.drawable.ic_vpn_disconnected;
 		}else{	
 			icon = R.drawable.ic_stat_vpn;
@@ -479,7 +479,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 			// CONNECTED
 			String ticker = getString(resid);
 			boolean persist = false;
-			if (("NOPROCESS".equals(state) ) || ("EXIT").equals(state)){
+			if (("NOPROCESS".equals(state) ) || ("EXITING").equals(state)){
 				showNotification(state, getString(R.string.eip_state_not_connected), ticker, false, 0, persist);
 			}
 			else{
