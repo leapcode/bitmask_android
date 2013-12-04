@@ -25,7 +25,6 @@ import org.json.JSONObject;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -37,6 +36,7 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,6 +68,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	private ProviderListFragment provider_list_fragment;
 	private Intent mConfigState = new Intent();
 	
+	final public static String TAG = "se.leap.bitmaskclient.ConfigurationWizard";
 	final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
 	final public static String ANON_CERTIFICATE = "anon_certificate";
 	final public static String AUTHED_CERTIFICATE = "authed_certificate";
@@ -231,10 +232,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
     @Override
     public void onItemSelected(String id) {
 	    //TODO Code 2 pane view
+	//	resetOldConnection();
 	    ProviderItem selected_provider = getProvider(id);
 	    int provider_index = getProviderIndex(id);
 	    startProgressBar(provider_index);
 	    mSelectedProvider = selected_provider;
+	    
 	    saveProviderJson(mSelectedProvider);
     }
     
@@ -484,8 +487,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	 * @param danger_on tells if HTTPS client should bypass certificate errors
 	 */
 	public void updateProviderDotJson(String provider_name, String provider_json_url, boolean danger_on) {
+		
+		
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
-
 		Bundle parameters = new Bundle();
 		parameters.putString(Provider.NAME, provider_name);
 		parameters.putString(Provider.DOT_JSON_URL, provider_json_url);
@@ -494,10 +498,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DOTJSON);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-		
+
 		startService(provider_API_command);
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
@@ -534,7 +538,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 			fragment_transaction.replace(R.id.configuration_wizard_layout, newFragment, AboutFragment.TAG).commit();
 		}
 	}
-	
+		
 	public void showAllProviders() {
 		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
 		if(provider_list_fragment != null)

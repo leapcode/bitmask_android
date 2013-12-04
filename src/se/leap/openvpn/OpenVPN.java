@@ -25,6 +25,7 @@ public class OpenVPN {
 	private static String mLaststate;
 
 	private static int mLastStateresid=R.string.state_noprocess;
+	public static String TAG="se.leap.openvpn.OpenVPN";
 
 	static {
 		logbuffer  = new LinkedList<LogItem>();
@@ -166,6 +167,8 @@ public class OpenVPN {
 			return R.string.state_resolve;
 		else if (state.equals("TCP_CONNECT"))
 			return R.string.state_tcp_connect;
+		else if (state.equals("FATAL"))
+			return R.string.eip_state_not_connected;
 		else
 			return R.string.unknown_state;
 
@@ -197,7 +200,7 @@ public class OpenVPN {
 
 	}
 
-	public static void updateStateString (String state, String msg) {
+	public static void updateStateString (String state, String msg) {	
 		int rid = getLocalizedState(state);
 		updateStateString(state, msg,rid);
 	}

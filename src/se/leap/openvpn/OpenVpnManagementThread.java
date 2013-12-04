@@ -19,7 +19,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import se.leap.bitmaskclient.R;
-
 import android.content.SharedPreferences;
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
@@ -177,11 +176,12 @@ public class OpenVpnManagementThread implements Runnable {
 
 
 	private void processCommand(String command) {
+		Log.d(TAG, "processCommand: " + command);
+
 		if (command.startsWith(">") && command.contains(":")) {
 			String[] parts = command.split(":",2);
 			String cmd = parts[0].substring(1);
 			String argument = parts[1];
-
 			if(cmd.equals("INFO")) {
 				// Ignore greeting from mgmt
 				//logStatusMessage(command);
@@ -195,6 +195,8 @@ public class OpenVpnManagementThread implements Runnable {
 				processByteCount(argument);
 			} else if (cmd.equals("STATE")) {
 				processState(argument);
+			} else if (cmd.equals("FATAL")){
+				processState(","+cmd+","); 	//handles FATAL as state
 			} else if (cmd.equals("PROXY")) {
 				processProxyCMD(argument);
 			} else if (cmd.equals("LOG")) {
@@ -209,8 +211,11 @@ public class OpenVpnManagementThread implements Runnable {
 				OpenVPN.logMessage(0, "MGMT:", "Got unrecognized command" + command);
 				Log.i(TAG, "Got unrecognized command" + command);
 			}
-		} else if (command.startsWith("SUCCESS:")) {
-			// ignore
+		} else if (command.startsWith("SUCCESS:")) { //Fixes bug LEAP #4565
+				if (command.equals("SUCCESS: signal SIGINT thrown")){
+					Log.d(TAG, "SUCCESS: signal SIGINT thrown");
+					processState(",EXITING,SIGINT,,");
+				}
 		} else {
 			Log.i(TAG, "Got unrecognized line from managment" + command);
 			OpenVPN.logMessage(0, "MGMT:", "Got unrecognized line from management:" + command);
@@ -272,11 +277,17 @@ public class OpenVpnManagementThread implements Runnable {
 	private void processState(String argument) {
 		String[] args = argument.split(",",3);
 		String currentstate = args[1];
-		Log.d("OpenVPN log", argument);
-		if(args[2].equals(",,"))
+		if(args[2].equals(",,")){
 			OpenVPN.updateStateString(currentstate,"");
-		else
+		}
+		else if (args[2].endsWith(",,")){ //fixes LEAP Bug #4546
+			args[2] = (String) args[2].subSequence(0, args[2].length()-2);
+			Log.d(TAG, "processState() STATE: "+ currentstate + "   msg: " + args[2]);
 			OpenVPN.updateStateString(currentstate,args[2]);
+		}
+		else{
+			OpenVPN.updateStateString(currentstate,args[2]);
+		}
 	}
 
 	private static int repeated_byte_counts = 0;
@@ -333,8 +344,7 @@ public class OpenVpnManagementThread implements Runnable {
 			mOpenVPNService.setDomain(extra);
 		} else if (needed.equals("ROUTE")) {
 			String[] routeparts = extra.split(" ");
-			if(!mOpenVPNService.isRunning()) // We cannot add routes to an existing openvpn session
-				mOpenVPNService.addRoute(routeparts[0], routeparts[1]);
+			mOpenVPNService.addRoute(routeparts[0], routeparts[1]);
 		} else if (needed.equals("ROUTE6")) {
 			mOpenVPNService.addRoutev6(extra);
 		} else if (needed.equals("IFCONFIG")) {
