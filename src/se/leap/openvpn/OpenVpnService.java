@@ -479,7 +479,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 			// CONNECTED
 			String ticker = getString(resid);
 			boolean persist = false;
-			if (("NOPROCESS".equals(state) ) || ("EXIT").equals(state)){
+			if (("NOPROCESS".equals(state) ) || ("EXITING").equals(state)){
 				showNotification(state, getString(R.string.eip_state_not_connected), ticker, false, 0, persist);
 			}
 			else{
