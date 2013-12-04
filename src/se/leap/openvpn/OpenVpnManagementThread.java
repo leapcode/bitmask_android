@@ -344,8 +344,7 @@ public class OpenVpnManagementThread implements Runnable {
 			mOpenVPNService.setDomain(extra);
 		} else if (needed.equals("ROUTE")) {
 			String[] routeparts = extra.split(" ");
-			if(!mOpenVPNService.isRunning()) // We cannot add routes to an existing openvpn session
-				mOpenVPNService.addRoute(routeparts[0], routeparts[1]);
+			mOpenVPNService.addRoute(routeparts[0], routeparts[1]);
 		} else if (needed.equals("ROUTE6")) {
 			mOpenVPNService.addRoutev6(extra);
 		} else if (needed.equals("IFCONFIG")) {
