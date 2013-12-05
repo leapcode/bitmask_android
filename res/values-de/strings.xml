@@ -235,7 +235,7 @@
   <string name="minidump_generated">Der OpenVPN Prozess ist unerwartet abgestürzt. Bitte erwägen Sie die Option \"Minidump senden\" im Hauptmenü</string>
   <string name="send_minidump">Minidump an Entwickler senden</string>
   <string name="send_minidump_summary">Sendet Debugging Informationen des letzten Absturzes an den Entwickler</string>
-  <string name="notifcation_title">OpenVPN - %s</string>
+  <string name="notifcation_title">Bitmask - %s</string>
   <string name="session_ipv4string">%1$s - %2$s</string>
   <string name="session_ipv6string">%1$s - %3$s, %2$s</string>
   <string name="state_connecting">Verbinde</string>

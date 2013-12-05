@@ -114,7 +114,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 		
 		android.app.Notification.Builder nbuilder = new Notification.Builder(this);
 
-		nbuilder.setContentTitle(getString(R.string.notifcation_title,mProfile.mName));
+		nbuilder.setContentTitle(getString(R.string.notifcation_title,mProfile.mLocation));
 		nbuilder.setContentText(msg);
 		nbuilder.setOnlyAlertOnce(true);
 		nbuilder.setOngoing(persistant);
@@ -481,6 +481,9 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 			boolean persist = false;
 			if (("NOPROCESS".equals(state) ) || ("EXITING").equals(state)){
 				showNotification(state, getString(R.string.eip_state_not_connected), ticker, false, 0, persist);
+			}
+			else if (state.equals("GET_CONFIG")){
+				
 			}
 			else{
 				persist = true;
