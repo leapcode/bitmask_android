@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +39,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 
     private EIPReceiver mEIPReceiver;
 
+    
+    public static String TAG = "se.leap.bitmask.EipServiceFragment";
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -57,6 +61,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 		eipStatus.setOnClickListener(this);
 
 		eipSwitch = (Switch) eipFragment.findViewById(R.id.eipSwitch);
+
+			
 		eipSwitch.setOnTouchListener(new View.OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -65,6 +71,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 			}
 		});
 		eipSwitch.setOnCheckedChangeListener(this);
+		
 		
 		return eipFragment;
 	}
@@ -152,6 +159,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 		eipAutoSwitched = true;
 	}
 	
+
+	
 	/**
 	 * Send a command to EIP
 	 * 
@@ -186,15 +195,14 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 					statusMessage = getString(R.string.eip_state_connected); getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
                                                 mEipStartPending = false;
 						
-					} else if ( (state.equals("NOPROCESS") && !mEipStartPending ) || state.equals("EXITING")) {
+					} else if ( (state.equals("NOPROCESS") && !mEipStartPending ) || state.equals("EXITING") || state.equals("FATAL")) {
 						statusMessage = getString(R.string.eip_state_not_connected);
 						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
 						switchState = false;
 					} else if (state.equals("NOPROCESS")){
 						statusMessage = logmessage;
-					}
-					else {
+					} else {
 						statusMessage = prefix + " " + logmessage;
 					}
 					
@@ -206,6 +214,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 			}
 		});
 	}
+
 
 	/**
 	 * Inner class for handling messages related to EIP status and control requests
