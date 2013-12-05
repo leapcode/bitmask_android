@@ -5,6 +5,8 @@ Features
 - Show VPN Gateway location in notification
 Bugs Fixed
 - URL parsing error if http entered for custom provider
+- Issues with certificates and gateways when switching providers
+- SEVERE: Routes were not set on VPN connection and traffic was routed in the clear
 
 
 0.2.2 - Nov 15 2013 - the "rampant growth" release:
