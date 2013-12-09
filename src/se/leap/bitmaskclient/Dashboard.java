@@ -465,13 +465,4 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		startService(eip_intent);
 
 	}
-	
-	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			int update = intent.getIntExtra(ProviderAPI.UPDATE_DATA, 0);
-			//mProgressBar.setProgress(update);
-		}
-	}
 }
