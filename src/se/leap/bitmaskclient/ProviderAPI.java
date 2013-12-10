@@ -448,7 +448,7 @@ public class ProviderAPI extends IntentService {
 	
 	private boolean validCertificate(String cert_string) {
 		boolean result = false;
-		if(!cert_string.isEmpty()) {
+		if(!ConfigHelper.checkErroneousDownload(cert_string)) {
 			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
 			try {
 				Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
