@@ -10,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TwoLineListItem;
 
 public class ProviderListAdapter<T> extends ArrayAdapter<T> {
-	private T[] items = null;
 	private static boolean[] hidden = null;
 	
 	public void hide(int position) {
@@ -42,7 +41,7 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 	}
 	private int getHiddenCount() {
 		int count = 0;
-		for(int i=0;i<items.length;i++)
+		for(int i=0;i<hidden.length;i++)
 			if(hidden[i])
 				count++;
 		return count;
@@ -58,25 +57,23 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 
 	@Override
 	public int getCount() {
-		return (items.length - getHiddenCount());
+		return (hidden.length - getHiddenCount());
 	}
 
 	public ProviderListAdapter(Context mContext, int layout, List<T> objects) {
 		super(mContext, layout, objects);
-		items = objects.toArray((T[])new Object[0]);
 		if(hidden == null) {
-			hidden = new boolean[items.length];
-			for (int i = 0; i < items.length; i++)
+			hidden = new boolean[objects.size()];
+			for (int i = 0; i < objects.size(); i++)
 				hidden[i] = false;
 		}
 	}
 
 	public ProviderListAdapter(Context mContext, int layout, List<T> objects, boolean show_all_providers) {
 		super(mContext, layout, objects);
-		items = objects.toArray((T[])new Object[0]);
 		if(show_all_providers) {
-			hidden = new boolean[items.length];
-			for (int i = 0; i < items.length; i++)
+			hidden = new boolean[objects.size()];
+			for (int i = 0; i < objects.size(); i++)
 				hidden[i] = false;
 		}
 	}
@@ -87,6 +84,14 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 		boolean[] new_hidden = new boolean[hidden.length+1];
 		System.arraycopy(hidden, 0, new_hidden, 0, hidden.length);
 		new_hidden[hidden.length] = false;
+		hidden = new_hidden;
+	}
+	
+	@Override
+	public void remove(T item) {
+		super.remove(item);
+		boolean[] new_hidden = new boolean[hidden.length-1];
+		System.arraycopy(hidden, 0, new_hidden, 0, hidden.length-1);
 		hidden = new_hidden;
 	}
 
@@ -101,8 +106,8 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 			row = (TwoLineListItem)convertView;
 		}
 		ProviderListContent.ProviderItem data = ProviderListContent.ITEMS.get(position);
-		row.getText1().setText(data.domain);
-		row.getText2().setText(data.name);
+		row.getText1().setText(data.domain());
+		row.getText2().setText(data.name());
 
 		return row;
 	}

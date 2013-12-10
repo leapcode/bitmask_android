@@ -16,6 +16,7 @@
  */
  package se.leap.bitmaskclient;
 
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import se.leap.bitmaskclient.R;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -41,7 +42,7 @@ public class NewProviderDialog extends DialogFragment {
     final public static String TAG = "newProviderDialog";
         
 	public interface NewProviderDialogInterface {
-        public void saveAndSelectProvider(String url_provider, boolean danger_on);
+        public void showAndSelectProvider(String url_provider, boolean danger_on);
     }
 
 	NewProviderDialogInterface interface_with_ConfigurationWizard;
@@ -71,7 +72,14 @@ public class NewProviderDialog extends DialogFragment {
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		View new_provider_dialog_view = inflater.inflate(R.layout.new_provider_dialog, null);
 		final EditText url_input_field = (EditText)new_provider_dialog_view.findViewById(R.id.new_provider_url);
+		if(getArguments() != null && getArguments().containsKey(Provider.MAIN_URL)) {
+			url_input_field.setText(getArguments().getString(Provider.MAIN_URL));
+		}
 		final CheckBox danger_checkbox = (CheckBox)new_provider_dialog_view.findViewById(R.id.danger_checkbox);
+		if(getArguments() != null && getArguments().containsKey(ProviderItem.DANGER_ON)) {
+			danger_checkbox.setActivated(getArguments().getBoolean(ProviderItem.DANGER_ON));
+		}
+		
 		builder.setView(new_provider_dialog_view)
 			.setMessage(R.string.introduce_new_provider)
 			.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
@@ -85,7 +93,7 @@ public class NewProviderDialog extends DialogFragment {
 					}
 					boolean danger_on = danger_checkbox.isChecked();
 					if(validURL(entered_url)) {
-						interface_with_ConfigurationWizard.saveAndSelectProvider(entered_url, danger_on);
+						interface_with_ConfigurationWizard.showAndSelectProvider(entered_url, danger_on);
 						Toast.makeText(getActivity().getApplicationContext(), R.string.valid_url_entered, Toast.LENGTH_LONG).show();
 					} else {
 						url_input_field.setText("");
