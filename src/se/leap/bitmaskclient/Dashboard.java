@@ -358,7 +358,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			setResult(RESULT_OK);
 
 			authed_eip = true;
-			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
+			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
 			invalidateOptionsMenu();
 
         	mProgressBar.setVisibility(ProgressBar.GONE);
@@ -371,7 +371,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
-			ConfigHelper.saveSharedPref(EIP.AUTHED, authed_eip);
+			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
 
 			changeStatusMessage(resultCode);
 			mProgressBar.setVisibility(ProgressBar.GONE);
@@ -468,14 +468,5 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	//	eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
 		startService(eip_intent);
 
-	}
-	
-	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			int update = intent.getIntExtra(ProviderAPI.UPDATE_DATA, 0);
-			//mProgressBar.setProgress(update);
-		}
 	}
 }
