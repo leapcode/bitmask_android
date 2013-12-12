@@ -176,6 +176,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		    progressbar_description.setVisibility(TextView.GONE);
 			//Toast.makeText(getApplicationContext(), R.string.incorrectly_downloaded_certificate_message, Toast.LENGTH_LONG).show();
         	setResult(RESULT_CANCELED, mConfigState);
+		} else if(resultCode == AboutActivity.VIEWED) {
+		    // Do nothing, right now
+		    // I need this for CW to wait for the About activity to end before going back to Dashboard.
 		}
 	}
 
@@ -420,30 +423,13 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	public boolean onOptionsItemSelected(MenuItem item){
 		switch (item.getItemId()){
 		case R.id.about_leap:
-			showAboutFragment(getCurrentFocus());
+		    startActivityForResult(new Intent(this, AboutActivity.class), 0);
 			return true;
 		case R.id.new_provider:
 			addAndSelectNewProvider();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
-		}
-	}
-	
-	/**
-	 * Once selected a provider, this fragment offers the user to log in, 
-	 * use it anonymously (if possible) 
-	 * or cancel his/her election pressing the back button.
-	 * @param view
-	 */
-	public void showAboutFragment(View view) {
-		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-		Fragment previous_about_fragment = getFragmentManager().findFragmentByTag(AboutFragment.TAG);
-		if (previous_about_fragment == null) {
-			fragment_transaction.addToBackStack(null);
-
-			Fragment newFragment = AboutFragment.newInstance();
-			fragment_transaction.replace(R.id.configuration_wizard_layout, newFragment, AboutFragment.TAG).commit();
 		}
 	}
 		

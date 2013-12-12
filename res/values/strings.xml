@@ -285,6 +285,7 @@
     <string name="username_ask">Please enter your username</string>
     <string name="password_hint">password</string>
     <string name="user_message">User message</string>
+    <string name="title_about_activity">About Bitmask"</string>
     <string name="error_srp_math_error_user_message">Try again: server math error.</string>    
     <string name="error_bad_user_password_user_message">Incorrect username or password.</string>
     <string name="error_not_valid_password_user_message">It should have at least 8 characters.</string>
