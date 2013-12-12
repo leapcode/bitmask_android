@@ -4,7 +4,7 @@
     <string name="copyright_leapgui" translatable="false">Copyright 2012\nLEAP Encryption Access Project &lt;info@leap.se></string>
     <string name="opevpn_copyright" translatable="false">Copyright © 2002–2010 OpenVPN Technologies, Inc. &lt;sales@openvpn.net>\n
 
-	  "OpenVPN" is a trademark of OpenVPN Technologies, Inc.\n</string>
+	  "OpenVPN" is a trademark of OpenVPN Technologies, Inc.</string>
     <string name="defaultserver" translatable="false">openvpn.uni-paderborn.de</string>
     <string name="defaultport" translatable="false">1194</string>
     <string name="lzo_copyright" translatable="false">Copyright © 1996 – 2011 Markus Franz Xaver Johannes Oberhumer</string>

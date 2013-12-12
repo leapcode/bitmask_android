@@ -70,3 +70,4 @@ id.zip
 
 build.gradle
 local.properties
+*.java~
