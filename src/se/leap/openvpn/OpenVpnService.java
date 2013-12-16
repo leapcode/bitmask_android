@@ -482,8 +482,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 			if (("NOPROCESS".equals(state) ) || ("EXITING").equals(state)){
 				showNotification(state, getString(R.string.eip_state_not_connected), ticker, false, 0, persist);
 			}
-			else if (state.equals("GET_CONFIG")){
-				
+			else if (state.equals("GET_CONFIG") || state.equals("ASSIGN_IP")){ //don't show them in the notification message
 			}
 			else{
 				persist = true;
