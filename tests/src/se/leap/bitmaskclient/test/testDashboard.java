@@ -3,7 +3,6 @@ package se.leap.bitmaskclient.test;
 import se.leap.bitmaskclient.ConfigurationWizard;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
-import se.leap.openvpn.MainActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -101,16 +100,6 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 		solo.clickOnMenuItem("Switch provider");
 		solo.waitForActivity(ConfigurationWizard.class);
 		solo.goBack();
-	}
-	
-	public void testIcsOpenVpnInterface() {
-		solo.clickOnMenuItem("ICS OpenVPN Interface");
-		solo.waitForActivity(MainActivity.class);
-		
-		solo.goBack();
-		
-		solo.clickOnMenuItem("ICS OpenVPN Interface");
-		solo.waitForActivity(MainActivity.class);
 	}
 	
 	private void setAirplaneMode(boolean airplane_mode) {
