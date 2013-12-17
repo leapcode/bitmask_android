@@ -82,7 +82,7 @@ public class LogWindow extends ListActivity implements StateListener  {
 		private void shareLog() {
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
 			shareIntent.putExtra(Intent.EXTRA_TEXT, getLogStr());
-			shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.ics_openvpn_log_file));
+			shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.bitmask_openvpn_log_file));
 			shareIntent.setType("text/plain");
 			startActivity(Intent.createChooser(shareIntent, "Send Logfile"));
 		}
@@ -227,18 +227,6 @@ public class LogWindow extends ListActivity implements StateListener  {
 
 		} else if(item.getItemId()==R.id.send) {
 			ladapter.shareLog();
-		} else if(item.getItemId()==R.id.edit_vpn) {
-			VpnProfile lastConnectedprofile = ProfileManager.getLastConnectedVpn();
-
-			if(lastConnectedprofile!=null) {
-				Intent vprefintent = new Intent(this,VPNPreferences.class)
-				.putExtra(VpnProfile.EXTRA_PROFILEUUID,lastConnectedprofile.getUUIDString());
-				startActivityForResult(vprefintent,START_VPN_CONFIG);
-			} else {
-				Toast.makeText(this, R.string.log_no_last_vpn, Toast.LENGTH_LONG).show();
-			}
-
-
 		}
 
 		return super.onOptionsItemSelected(item);
