@@ -82,7 +82,7 @@ public class LogWindow extends ListActivity implements StateListener  {
 		private void shareLog() {
 			Intent shareIntent = new Intent(Intent.ACTION_SEND);
 			shareIntent.putExtra(Intent.EXTRA_TEXT, getLogStr());
-			shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.ics_openvpn_log_file));
+			shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.bitmask_openvpn_log_file));
 			shareIntent.setType("text/plain");
 			startActivity(Intent.createChooser(shareIntent, "Send Logfile"));
 		}
