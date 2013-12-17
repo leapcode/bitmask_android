@@ -16,7 +16,7 @@
   <string name="title_cancel">취소 확인</string>
   <string name="cancel_connection_query">연결된 VPN 끊기/연결시도 취소?</string>
   <string name="edit_vpn">VPN 설정 편집</string>
-  <string name="tun_error_helpful">일부 사용자 지정 ICS 이미지에서는 /dev/tun에 대한 권한이 잘못 되어 있거나 tun 모듈 자체가 누락 될 수 있습니다. CM9 이미지는 일반 설정에 있는 소유권 고치기 옵션을 사용해 보십시오.</string>
+  <string name="tun_error_helpful">일부 사용자 지정 ICS 이미지에서는 /dev/tun에 대한 권한이 잘못 되어 있거나 tun 모듈 자체가 누락 될 수 있습니다.</string>
   <string name="tun_open_error">Tun 인터페이스를 열지 못했습니다</string>
   <string name="error">"오류:"</string>
   <string name="clear">지우기</string>
@@ -35,7 +35,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">로그 파일 보내기</string>
   <string name="send">보내기</string>
-  <string name="ics_openvpn_log_file">LEAP 로그 파일</string>
+  <string name="bitmask_openvpn_log_file">LEAP 로그 파일</string>
   <string name="copied_entry">클립보드로 로그 복사</string>
   <string name="no_vpn_support_image">당신의 이미지는 VPNService API를 지원 하지 않습니다, 죄송 합니다:(</string>
   <string name="opentun_no_ipaddr">IP 정보가 없는 tun 장치 열기를 거부합니다</string>

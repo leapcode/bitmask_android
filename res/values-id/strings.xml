@@ -15,7 +15,7 @@
   <string name="title_cancel">Batal Konfirmasi</string>
   <string name="cancel_connection_query">Putuskan sambungan VPN/Batalkan usaha menyambungkan VPN?</string>
   <string name="edit_vpn">Ubah seting OpenVPN</string>
-  <string name="tun_error_helpful">Pada beberapa setelan manual gambar ICS izin pada/dev/tun mungkin salah, atau modul tun mungkin hilang sepenuhnya. Untuk gambar CM9, coba perbaiki pilihan kepemilikannya di bawah pengaturan umum</string>
+  <string name="tun_error_helpful">Pada beberapa setelan manual gambar ICS izin pada/dev/tun mungkin salah, atau modul tun mungkin hilang sepenuhnya.</string>
   <string name="tun_open_error">Gagal membuka layanan antarmuka TUN</string>
   <string name="error">"Kesalahan: "</string>
   <string name="clear">Bersihkan</string>
@@ -34,7 +34,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">Kirim berkas catatan</string>
   <string name="send">Kirim</string>
-  <string name="ics_openvpn_log_file">Berkas catatan LEAP Android</string>
+  <string name="bitmask_openvpn_log_file">Berkas catatan LEAP Android</string>
   <string name="copied_entry">Salin catatan masuk ke clipboard</string>
   <string name="no_vpn_support_image">Gambar Anda tidak mendukung VPNService API, maaf:(</string>
   <string name="opentun_no_ipaddr">TUN tidak dapat dibuka tanpa informasi IP</string>

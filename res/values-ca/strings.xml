@@ -23,7 +23,7 @@
   <string name="routes_info6">Rutes IPv6: %s</string>
   <string name="send_logfile">Envia el fitxer de registre</string>
   <string name="send">Envia</string>
-  <string name="ics_openvpn_log_file">Fitxer de registre de LEAP Android</string>
+  <string name="bitmask_openvpn_log_file">Fitxer de registre de LEAP Android</string>
   <string name="copied_entry">S\'ha copiat l\'entrada al porta-retalls</string>
   <string name="speed_waiting">Esperant el missatge d\'estat...</string>
   <string name="converted_profile">Perfil importat</string>

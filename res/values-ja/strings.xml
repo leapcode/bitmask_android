@@ -17,7 +17,7 @@
   <string name="title_cancel">キャンセルの確認</string>
   <string name="cancel_connection_query">接続中または試行中の接続をキャンセルしますか？</string>
   <string name="edit_vpn">VPN 設定の編集</string>
-  <string name="tun_error_helpful">いくつかのカスタムICSイメージは、/dev/tunのパーミッションが異常か、TUNモジュールが含まれていません。CM9イメージの場合は全般設定で所有権設定を修正してください。</string>
+  <string name="tun_error_helpful">いくつかのカスタムICSイメージは、/dev/tunのパーミッションが異常か、TUNモジュールが含まれていません。</string>
   <string name="tun_open_error">TUNデバイスを開こうとして失敗しました。</string>
   <string name="error">"エラー:"</string>
   <string name="clear">クリア</string>
@@ -36,7 +36,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">ログ ファイルを送信します。</string>
   <string name="send">送信</string>
-  <string name="ics_openvpn_log_file">LEAP Android ログ ファイル</string>
+  <string name="bitmask_openvpn_log_file">LEAP Android ログ ファイル</string>
   <string name="copied_entry">クリップ ボードにコピーされたログ エントリ</string>
   <string name="no_vpn_support_image">申し訳ありませんが、お使いの環境ではVPNサービスがサポートされていません。</string>
   <string name="opentun_no_ipaddr">IP情報なしでのTUNデバイス使用は拒否しています</string>

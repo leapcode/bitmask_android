@@ -34,7 +34,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">Отправить файл журнала</string>
   <string name="send">Отправить</string>
-  <string name="ics_openvpn_log_file">LEAP Android файла лога</string>
+  <string name="bitmask_openvpn_log_file">LEAP Android файла лога</string>
   <string name="copied_entry">Скопировать лог в буфер обмена</string>
   <string name="no_vpn_support_image">Ваша прошивка не поддерживает VPNService API, извините :(</string>
   <string name="opentun_no_ipaddr">Отказ в открытии устройства tun без информации об IP-адресе</string>

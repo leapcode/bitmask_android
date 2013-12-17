@@ -16,7 +16,7 @@
   <string name="title_cancel">Anulare confirmare</string>
   <string name="cancel_connection_query">Deconectaţi VPN-ul conectat/anulaţi încercarea de conectare?</string>
   <string name="edit_vpn">Editaţi setările VPN</string>
-  <string name="tun_error_helpful">În cazul anumitor imagini particularizate de ICS permisiile pentru /dev/tun pot fi greşite sau modulul tun lipseşte cu desăvârşire. Pentru imaginile CM9 ăncercaţi opţiunea de a repara permisiunile în cadrul setărilor generale</string>
+  <string name="tun_error_helpful">În cazul anumitor imagini particularizate de ICS permisiile pentru /dev/tun pot fi greşite sau modulul tun lipseşte cu desăvârşire.</string>
   <string name="tun_open_error">Eroare deschidere interfaţa tun</string>
   <string name="error">"Eroare:"</string>
   <string name="clear">Goleşte</string>
@@ -32,7 +32,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">Trimite fişier jurnal</string>
   <string name="send">Trimite</string>
-  <string name="ics_openvpn_log_file">Fişier jurnal LEAP Android</string>
+  <string name="bitmask_openvpn_log_file">Fişier jurnal LEAP Android</string>
   <string name="converted_profile">profil importat</string>
   <string name="converted_profile_i">profil importat %d</string>
   <string name="pkcs12_file_encryption_key">Cheie criptare fişier PKCS12</string>

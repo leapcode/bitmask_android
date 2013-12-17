@@ -17,7 +17,7 @@
   <string name="title_cancel">Conferma l\'annullamento</string>
   <string name="cancel_connection_query">Disconnetti la VPN in uso/annulli il tentativo di connessione?</string>
   <string name="edit_vpn">Modifica impostazioni VPN</string>
-  <string name="tun_error_helpful">In alcune immagini ICS personalizzate i permessi su /dev/tun potrebbero essere errati, oppure il modulo TUN completamente assente. Per le immagini CM9 provare a correggere le opzioni Proprietà nella sezione impostazioni generali</string>
+  <string name="tun_error_helpful">In alcune immagini ICS personalizzate i permessi su /dev/tun potrebbero essere errati, oppure il modulo TUN completamente assente.</string>
   <string name="tun_open_error">Impossibile accedere all\'interfaccia tun</string>
   <string name="error">"Errore:"</string>
   <string name="clear">Azzera</string>
@@ -36,7 +36,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">Invia il file di log</string>
   <string name="send">Invia</string>
-  <string name="ics_openvpn_log_file">File log di LEAP Android</string>
+  <string name="bitmask_openvpn_log_file">File log di LEAP Android</string>
   <string name="copied_entry">Voce di registro copiata negli appunti</string>
   <string name="no_vpn_support_image">La tua immagine non è supportata dal VPNService API, mi dispiace :(</string>
   <string name="opentun_no_ipaddr">Rifiuto di attivare il dispositivo tun senza informazioni sull\'IP</string>

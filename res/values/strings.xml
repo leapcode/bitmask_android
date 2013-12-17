@@ -21,7 +21,7 @@
     <string name="title_cancel">Cancel Confirmation</string>
     <string name="cancel_connection_query">Disconnect the connected VPN/cancel the connection attempt?</string>
     <string name="edit_vpn">Edit VPN Settings</string>
-    <string name="tun_error_helpful">On some custom ICS images the permission on /dev/tun might be wrong, or the tun module might be missing completely. For CM9 images try the fix ownership option under general settings</string>
+    <string name="tun_error_helpful">On some custom ICS images the permission on /dev/tun might be wrong, or the tun module might be missing completely.</string>
     <string name="tun_open_error">Failed to open the tun interface</string>
     <string name="error">"Error: "</string>
     <string name="clear">Clear</string>
@@ -40,7 +40,7 @@
     <string name="version_info">%1$s %2$s</string>
     <string name="send_logfile">Send log file</string>
     <string name="send">Send</string>
-    <string name="ics_openvpn_log_file">Bitmask OpenVPN log file</string>
+    <string name="bitmask_openvpn_log_file">Bitmask OpenVPN log file</string>
     <string name="copied_entry">Copied log entry to clip board</string>
     <string name="no_vpn_support_image">Your image does not support the VPNService API, sorry :(</string>
     <string name="opentun_no_ipaddr">Refusing to open tun device without IP information</string>
@@ -135,5 +135,5 @@
     <string name="eip_cancel_connect_cancel">Yes</string>
     <string name="eip_cancel_connect_false">No</string>
     <string name="eip_state_not_connected">"Not running! Connection not secure!"</string>
-	<string name="eip_state_connected">Connection Secure.</string>
+    <string name="eip_state_connected">Connection Secure.</string>
 </resources>
