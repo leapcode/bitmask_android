@@ -274,7 +274,7 @@ TCP keepaliveと長いタイムアウト時間は動作しますが、TCP over T
   <string name="minidump_generated">OpenVPN は予期せず終了しました。メイン メニューでミニダンプの送信オプションを検討してください。</string>
   <string name="send_minidump">ミニダンプを開発者に送信</string>
   <string name="send_minidump_summary">最後にクラッシュした時のデバッグ情報を作者に送信します。</string>
-  <string name="notifcation_title">OpenVPN - %s</string>
+  <string name="notifcation_title">Bitmask - %s</string>
   <string name="session_ipv4string">%1$s - %2$s</string>
   <string name="session_ipv6string">%1$s - %3$s, %2$s</string>
   <string name="state_connecting">接続中</string>

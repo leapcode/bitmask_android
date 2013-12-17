@@ -439,7 +439,8 @@ public final class EIP extends IntentService {
 			String ports = "ports";
 			String protos = "protocols";
 			String capabilities = "capabilities";
-			String location = "location";
+			String location_key = "location";
+			String locations = "locations";
 			
 			Vector<String> arg = new Vector<String>();
 			Vector<Vector<String>> args = new Vector<Vector<String>>();
@@ -456,7 +457,6 @@ public final class EIP extends IntentService {
 						arg.add(word);
 					value.add( (Vector<String>) arg.clone() );
 					options.put(key, (Vector<Vector<String>>) value.clone());
-
 					value.clear();
 					arg.clear();
 				}
@@ -477,16 +477,22 @@ public final class EIP extends IntentService {
 			arg.clear();
 			args.clear();
 
+
 			
 			try {
-				arg.add(location);
-				arg.add(mGateway.getString(location));
+				
+				arg.add(location_key);
+				String locationText = "";
+				locationText = eipDefinition.getJSONObject(locations).getJSONObject(mGateway.getString(location_key)).getString("name");		
+				arg.add(locationText);
+
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			args.add((Vector<String>) arg.clone());
 			options.put("location", (Vector<Vector<String>>) args.clone() );
+
 			arg.clear();
 			args.clear();
 			JSONArray protocolsJSON = null;
