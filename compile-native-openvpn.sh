@@ -1,7 +1,7 @@
 #!/bin/bash
 function compile() {
-	svn co http://google-breakpad.googlecode.com/svn/trunk/ google-breakpad
-	./build-native.sh
+    svn co http://google-breakpad.googlecode.com/svn/trunk/ google-breakpad
+    ./build-native.sh
 }
 
 if command -v $(head -n 1 build-native.sh | column | cut -d ' ' -f 1); then

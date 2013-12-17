@@ -22,7 +22,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- if you want to run the unit test for Dashboard you will need that you uncomment the following line --> 
     <!--   <uses-permission android:name="android.permission.WRITE_SETTINGS" />  -->  
     
@@ -33,29 +32,11 @@
         android:minSdkVersion="14"
         android:targetSdkVersion="17" />
 
-    <permission
-        android:name="se.leap.openvpn.REMOTE_API"
-        android:description="@string/permission_description"
-        android:label="Control OpenVPN"
-        android:permissionGroup="android.permission-group.NETWORK"
-        android:protectionLevel="dangerous" />
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:logo="@drawable/icon"
         android:label="@string/app" >
-        <activity android:name="se.leap.openvpn.AboutFragment" />
-        <activity
-            android:name="se.leap.openvpn.VPNPreferences"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="se.leap.openvpn.LogWindow"
-            android:label="@string/openvpn_log" />
-        <activity android:name="se.leap.openvpn.SendDumpActivity" />
-        <activity android:name="se.leap.openvpn.FileSelect" />
-        <activity android:name="se.leap.openvpn.MainActivity" >
-        </activity>
 
         <service
             android:name="se.leap.openvpn.OpenVpnService"
@@ -64,74 +45,12 @@
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
-        <service
-            android:name="se.leap.openvpn.api.ExternalOpenVPNService"
-            android:permission="se.leap.openvpn.REMOTE_API" >
-            <intent-filter>
-                <action android:name="se.leap.openvpn.api.IOpenVPNAPIService" />
-            </intent-filter>
-        </service>
-		<service android:name="se.leap.bitmaskclient.ProviderAPI" android:enabled="true"/>
+	<service android:name="se.leap.bitmaskclient.ProviderAPI" android:enabled="true"/>
 		
-        <activity
-            android:name="se.leap.openvpn.api.GrantPermissionsActivity"
-            android:permission="se.leap.openvpn.REMOTE_API" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-
-        <receiver android:name="se.leap.openvpn.OnBootReceiver" >
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <activity
-            android:name="se.leap.openvpn.ConfigConverter"
-            android:label="Convert Config File" >
-            <intent-filter android:label="@string/import_config" >
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:mimeType="application/x-openvpn-profile" />
-            </intent-filter>
-            <intent-filter android:label="@string/import_config" >
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:mimeType="application/ovpn" />
-            </intent-filter>
-            <intent-filter android:label="@string/import_config" >
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data
-                    android:pathPattern=".*\\.ovpn"
-                    android:scheme="content" />
-            </intent-filter>
-        </activity>
         <activity
             android:name="se.leap.openvpn.LaunchVPN"
             android:label="@string/vpn_launch_title" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
-
-        <provider
-            android:name="se.leap.openvpn.FileProvider"
-            android:authorities="se.leap.openvpn.FileProvider"
-            android:exported="true"
-            android:grantUriPermissions="true" />
 
         <activity
             android:name="se.leap.bitmaskclient.Dashboard"
