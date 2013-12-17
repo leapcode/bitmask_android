@@ -17,7 +17,7 @@
   <string name="title_cancel">Підтвердження скасування</string>
   <string name="cancel_connection_query">Відключення активних VPN/скасувати спробу підключення?</string>
   <string name="edit_vpn">Змінити налаштування VPN</string>
-  <string name="tun_error_helpful">На деяких користувацьких прошивках ICS права на /dev/tun можуть бути невірними або модуль tun може бути взагалі відсутнім. Для прошивок CM9 спробуйте виправити власника у загальних налаштуваннях</string>
+  <string name="tun_error_helpful">На деяких користувацьких прошивках ICS права на /dev/tun можуть бути невірними або модуль tun може бути взагалі відсутнім.</string>
   <string name="tun_open_error">Не вдалося відкрити інтерфейс tun</string>
   <string name="error">"Помилка: "</string>
   <string name="clear">Очистити</string>
@@ -36,7 +36,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">Надіслати файл журналу</string>
   <string name="send">Надіслати</string>
-  <string name="ics_openvpn_log_file">LEAP Android файл журналу</string>
+  <string name="bitmask_openvpn_log_file">LEAP Android файл журналу</string>
   <string name="copied_entry">Скопійовано запис журналу до буферу обміну</string>
   <string name="no_vpn_support_image">Ваша прошивка не підтримує VPNService API, вибачте :(</string>
   <string name="opentun_no_ipaddr">Відмова у відкритті пристрою tun без інформації про IP-адресу</string>

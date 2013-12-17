@@ -30,7 +30,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">分享記錄檔</string>
   <string name="send">分享</string>
-  <string name="ics_openvpn_log_file">LEAP Android 記錄檔</string>
+  <string name="bitmask_openvpn_log_file">LEAP Android 記錄檔</string>
   <string name="copied_entry">已將記錄複製到剪貼簿</string>
   <string name="no_vpn_support_image">你的Android ROM不支援VPN服務API，抱歉了。 :(</string>
   <string name="speed_waiting">等待狀態訊息...</string>

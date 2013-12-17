@@ -18,7 +18,7 @@
   <string name="title_cancel">"Annuler la confirmation"</string>
   <string name="cancel_connection_query">"Déconnecter le VPN connecté / annuler la tentative de connexion ?"</string>
   <string name="edit_vpn">"Modifier les paramètres VPN"</string>
-  <string name="tun_error_helpful">"Sur certaines ROMs ICS les permissions de /dev/tun peuvent être incorrectes, ou le module Tun peut être manquant. Pour les ROMs CM9, essayez de corriger les options dans \"General Settings\""</string>
+  <string name="tun_error_helpful">"Sur certaines ROMs ICS les permissions de /dev/tun peuvent être incorrectes, ou le module Tun peut être manquant."</string>
   <string name="tun_open_error">"L\'ouverture de l\'interface Tun a échoué."</string>
   <string name="error">"Erreur: "</string>
   <string name="clear">"Effacer"</string>
@@ -37,7 +37,7 @@
   <string name="version_info">"%1$s %2$s"</string>
   <string name="send_logfile">"Envoyer le fichier de log"</string>
   <string name="send">"Envoyer"</string>
-  <string name="ics_openvpn_log_file">"Fichier de log LEAP Android"</string>
+  <string name="bitmask_openvpn_log_file">"Fichier de log LEAP Android"</string>
   <string name="copied_entry">"Entrée du log copiée"</string>
   <string name="no_vpn_support_image">"Votre ROM ne prend pas en charge l\'API VPNService, désolé :("</string>
   <string name="opentun_no_ipaddr">"Impossible d\'ouvrir le périphérique TUN sans informations IP"</string>

@@ -17,7 +17,7 @@
   <string name="title_cancel">Zrušit potvrzení</string>
   <string name="cancel_connection_query">Odpojit/Zrušit připojování?</string>
   <string name="edit_vpn">Změnit nastavení VPN</string>
-  <string name="tun_error_helpful">Na některých ICS systémech může být oprávnění pro /dev/tun špatně nastavené, nebo tun modul může zcela chybět. Pro systém s CM9 zkus využít opravy vlastnictví v obecném nastavení</string>
+  <string name="tun_error_helpful">Na některých ICS systémech může být oprávnění pro /dev/tun špatně nastavené, nebo tun modul může zcela chybět.</string>
   <string name="tun_open_error">Chyba při otvírání tun zařízení</string>
   <string name="error">"Chyba: "</string>
   <string name="clear">Vymazat</string>
@@ -36,7 +36,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">Odeslat soubor s logem</string>
   <string name="send">Odeslat</string>
-  <string name="ics_openvpn_log_file">LEAP Android logovací soubor</string>
+  <string name="bitmask_openvpn_log_file">LEAP Android logovací soubor</string>
   <string name="copied_entry">Záznam z logu zkopírován do schránky</string>
   <string name="no_vpn_support_image">Tvůj obrázek není podporovaný rozhraním VPNService, je mi líto :-(</string>
   <string name="opentun_no_ipaddr">Odmítám otevřít tun zařízení bez informace o IP</string>

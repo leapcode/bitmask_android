@@ -31,7 +31,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">发送日志文件</string>
   <string name="send">发送</string>
-  <string name="ics_openvpn_log_file">LEAP Android 日志文件</string>
+  <string name="bitmask_openvpn_log_file">LEAP Android 日志文件</string>
   <string name="copied_entry">日志条目已复制剪贴板</string>
   <string name="opentun_no_ipaddr">无 IP 信息，拒绝打开 tun 设备</string>
   <string name="speed_waiting">等待状态消息</string>

@@ -20,7 +20,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">Send loggfilen</string>
   <string name="send">Send</string>
-  <string name="ics_openvpn_log_file">LEAP Android loggfil</string>
+  <string name="bitmask_openvpn_log_file">LEAP Android loggfil</string>
   <string name="speed_waiting">Venter på tilstands melding...</string>
   <string name="converted_profile">importert profil</string>
   <string name="converted_profile_i">importert profilen %d</string>

@@ -18,7 +18,7 @@
   <string name="title_cancel">Loobu kinnitusest</string>
   <string name="cancel_connection_query">Katkesta VPN ühendus/tühista ühendumise katse?</string>
   <string name="edit_vpn">Muuda VPN seadistusi</string>
-  <string name="tun_error_helpful">Mõnel modifitseeritud ICS versioonil võivad /dev/tun õigused olla valed, või selle moodul sootuks puududa. CM9 puhul võib probleemi lahendada üldiste seadistuste alt omanikuõiguste parandamine</string>
+  <string name="tun_error_helpful">Mõnel modifitseeritud ICS versioonil võivad /dev/tun õigused olla valed, või selle moodul sootuks puududa.</string>
   <string name="tun_open_error">Tun liidese avamine ebaõnnestus</string>
   <string name="error">"Viga:"</string>
   <string name="clear">Tühjenda</string>
@@ -37,7 +37,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">Saada logifail</string>
   <string name="send">Saada</string>
-  <string name="ics_openvpn_log_file">LEAP Androidile logifail</string>
+  <string name="bitmask_openvpn_log_file">LEAP Androidile logifail</string>
   <string name="copied_entry">Logikirje kopeeriti lõikepuhvrisse</string>
   <string name="no_vpn_support_image">Teie süsteemitarkvara ei toeta VPNService API\'t, vabandame :(</string>
   <string name="opentun_no_ipaddr">IP andmeteta keeldutakse tun liidese avamisest</string>

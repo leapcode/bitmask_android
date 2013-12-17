@@ -36,7 +36,7 @@
   <string name="version_info">%1$s %2$s</string>
   <string name="send_logfile">Sende Logdatei</string>
   <string name="send">Sende</string>
-  <string name="ics_openvpn_log_file">LEAP Android log Datei</string>
+  <string name="bitmask_openvpn_log_file">LEAP Android log Datei</string>
   <string name="copied_entry">Log Eintrag in die Zwischenablage kopiert</string>
   <string name="no_vpn_support_image">Dieses Android ROM enthält keine VPNService API. Sorry :(</string>
   <string name="opentun_no_ipaddr">Verweigere tun Gerät zu öffnen ohne IP Information</string>
