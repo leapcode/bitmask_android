@@ -665,16 +665,27 @@ public class ProviderAPI extends IntentService {
 		tmf.init(keyStore);
 
 		SecureSocketFactory.setEnabledProtocols(new String[] { "TLS", "TLSv1.1", "TLSv1.2" });
-
+		
 	    // order does matter here. specify ciphers in preference order
 	    SecureSocketFactory.setEnabledCipherSuites(new String[] {
-	        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-	        "TLS_ECDHE_RSA_WITH_RC4_128_SHA"
+		        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+		        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+		        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+		        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+		        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+		        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+		        "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+		        "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+		        "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+		        "TLS_RSA_WITH_AES_128_CBC_SHA",
+		        "TLS_RSA_WITH_AES_256_CBC_SHA",
+		        "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+		        "SSL_RSA_WITH_RC4_128_SHA",
+		        "SSL_RSA_WITH_RC4_128_MD5"
 	    });
-	    
 	    SecureSocketFactory.setTrustManager(tmf);
-	    SecureSocketFactory secure_socket_factory = SecureSocketFactory.getHttpSocketFactory(0);
-		return SecureSocketFactory.getHttpSocketFactory(0).getSocketFactory();
+	    SecureSocketFactory ssf = (SecureSocketFactory) SecureSocketFactory.getHttpSocketFactory(0);
+		return ssf.getSecureSocketFactory();
 	}
 	
 	/**
