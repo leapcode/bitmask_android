@@ -55,15 +55,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	protected static final int CONFIGURE_LEAP = 0;
 	protected static final int SWITCH_PROVIDER = 1;
-	
 
 	private static final String TAG_EIP_FRAGMENT = "EIP_DASHBOARD_FRAGMENT";
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
 	public static final String REQUEST_CODE = "request_code";
-
-
-	
 	
 	private ProgressBar mProgressBar;
 	private TextView eipStatus;
@@ -268,7 +264,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
 		mProgressBar.setVisibility(ProgressBar.VISIBLE);
-		eipStatus.setText("Starting to login");
+		eipStatus.setText(R.string.authenticating_message);
 		//mProgressBar.setMax(4);
 		startService(provider_API_command);
 	}
@@ -299,7 +295,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if(mProgressBar == null) mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 		mProgressBar.setVisibility(ProgressBar.VISIBLE);
 		if(eipStatus == null) eipStatus = (TextView) findViewById(R.id.eipStatus);
-		eipStatus.setText("Starting to logout");
+		eipStatus.setText(R.string.logout_message);
+	//	eipStatus.setText("Starting to logout");
+		
 		startService(provider_API_command);
 		//mProgressBar.setMax(1);
 
@@ -356,71 +354,73 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			authed_eip = true;
 			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
 			invalidateOptionsMenu();
-
         	mProgressBar.setVisibility(ProgressBar.GONE);
+    		changeStatusMessage(resultCode);
 
         	//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
         	downloadAuthedUserCertificate(/*session_id*/);
 		} else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_FAILED) {
         	logInDialog(getCurrentFocus(), resultData);
-    		eipStatus.setText("Login failed");
-        	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
-			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
-
-			changeStatusMessage(resultCode);
+			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);			
 			mProgressBar.setVisibility(ProgressBar.GONE);
 			mProgressBar.setProgress(0);
 			invalidateOptionsMenu();
 			setResult(RESULT_OK);
+			changeStatusMessage(resultCode);
+
 		} else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
-    		eipStatus.setText("Didn't log out");
+			changeStatusMessage(resultCode);
         	mProgressBar.setVisibility(ProgressBar.GONE);
-        	//mProgressBar.setProgress(0);
-			Toast.makeText(getApplicationContext(), R.string.log_out_failed_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_OK);
+    		changeStatusMessage(resultCode);
         	mProgressBar.setVisibility(ProgressBar.GONE);
-        	changeStatusMessage(resultCode);
-        	//mProgressBar.setProgress(0);
-			Toast.makeText(getApplicationContext(), R.string.successful_authed_cert_downloaded_message, Toast.LENGTH_LONG).show();
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
+    		changeStatusMessage(resultCode);
         	mProgressBar.setVisibility(ProgressBar.GONE);
-        	//mProgressBar.setProgress(0);
-        	changeStatusMessage(resultCode);
-			Toast.makeText(getApplicationContext(), R.string.authed_cert_download_failed_message, Toast.LENGTH_LONG).show();
-		}
+ 		}
 	}
 
 	private void changeStatusMessage(final int previous_result_code) {
 		// TODO Auto-generated method stub
 		ResultReceiver eip_status_receiver = new ResultReceiver(new Handler()){
-			@Override
-			protected void onReceiveResult(int resultCode, Bundle resultData) {
+			protected void onReceiveResult(int resultCode, Bundle resultData){
 				super.onReceiveResult(resultCode, resultData);
 				String request = resultData.getString(EIP.REQUEST_TAG);
-				if(resultCode == RESULT_OK) {
-					if(request.equalsIgnoreCase(EIP.ACTION_IS_EIP_RUNNING)) {
-						switch (previous_result_code) {
-						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.anonymous_secured_status); break;
+				if (request.equalsIgnoreCase(EIP.ACTION_IS_EIP_RUNNING)){					
+					if (resultCode == Activity.RESULT_OK){
+
+						switch(previous_result_code){
+						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: eipStatus.setText(R.string.succesful_authentication_message); break;
+						case ProviderAPI.SRP_AUTHENTICATION_FAILED: eipStatus.setText(R.string.authentication_failed_message); break;
 						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.authed_secured_status); break;
-						}
+						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.incorrectly_downloaded_certificate_message); break;
+						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.anonymous_secured_status); break;
+						case ProviderAPI.LOGOUT_FAILED: eipStatus.setText(R.string.log_out_failed_message); break;
+						
+						}	
 					}
-				} else {
-					if(request.equalsIgnoreCase(EIP.ACTION_IS_EIP_RUNNING)) {
-						switch (previous_result_code) {
-						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.future_anonymous_secured_status); break;
+					else if(resultCode == Activity.RESULT_CANCELED){
+
+						switch(previous_result_code){
+
+						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: eipStatus.setText(R.string.succesful_authentication_message); break;
+						case ProviderAPI.SRP_AUTHENTICATION_FAILED: eipStatus.setText(R.string.authentication_failed_message); break;
 						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.future_authed_secured_status); break;
+						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.incorrectly_downloaded_certificate_message); break;
+						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.future_anonymous_secured_status); break;
+						case ProviderAPI.LOGOUT_FAILED: eipStatus.setText(R.string.log_out_failed_message); break;			
 						}
 					}
 				}
+					
 			}
 		};
-		eipIsRunning(eip_status_receiver);
-		
+		eipIsRunning(eip_status_receiver);		
 	}
 
 	/**
