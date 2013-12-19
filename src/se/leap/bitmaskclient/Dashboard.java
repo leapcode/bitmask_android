@@ -409,10 +409,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			protected void onReceiveResult(int resultCode, Bundle resultData){
 				super.onReceiveResult(resultCode, resultData);
 				String request = resultData.getString(EIP.REQUEST_TAG);
-//				Log.d(TAG_EIP_FRAGMENT, "changeStatusMessage onReceiveResult request: " + request + "   previousResultCode: " +previous_result_code + "   resultCode: " + resultCode);
 				if (request.equalsIgnoreCase(EIP.ACTION_IS_EIP_RUNNING)){					
 					if (resultCode == Activity.RESULT_OK){
-//						Log.d(TAG_EIP_FRAGMENT, "changeStatusMessage onReceiveResult Activity result = ok: " + resultCode);
 
 						switch(previous_result_code){
 						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: eipStatus.setText(R.string.succesful_authentication_message); break;
@@ -425,7 +423,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 						}	
 					}
 					else if(resultCode == Activity.RESULT_CANCELED){
-//						Log.d(TAG_EIP_FRAGMENT, "changeStatusMessage onReceiveResult Activity result = canceled: " + resultCode);
 
 						switch(previous_result_code){
 

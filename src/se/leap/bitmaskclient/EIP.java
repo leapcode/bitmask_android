@@ -142,7 +142,6 @@ public final class EIP extends IntentService {
 	}
 	
 	private static ServiceConnection mVpnServiceConn = new ServiceConnection() {
-	//	private boolean running = false; 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			LocalBinder binder = (LocalBinder) service;
@@ -157,17 +156,14 @@ public final class EIP extends IntentService {
 				
 				if (mPending.equals(ACTION_IS_EIP_RUNNING)){
 					resultCode = (running) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-	//				Log.d(TAG, "changeStatusMessage -> EIP.onServiceConnected()  ACTION_IS_EIP_RUNNING resultCode: " + resultCode + " and running: " + running  );
 
 				}
 				else if (mPending.equals(ACTION_START_EIP)){
 					resultCode = (running) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-//					Log.d(TAG, "changeStatusMessage -> EIP.onServiceConnected() ACTION_START_EIP resultCode: " + resultCode + " and running: " + running  );
 				}
 				else if (mPending.equals(ACTION_STOP_EIP)){
 					resultCode = (running) ? Activity.RESULT_CANCELED
 							: Activity.RESULT_OK;
-//					Log.d(TAG, "changeStatusMessage -> EIP.onServiceConnected() ACTION_STOP_EIP resultCode: " + resultCode + " and running: " + running  );
 					}
 				Bundle resultData = new Bundle();
 				resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
@@ -227,13 +223,10 @@ public final class EIP extends IntentService {
                 	 e.printStackTrace();
                  }
                  
-//                 Log.d(TAG, "changeStatusMessage retrieved_vpn_service: " + retrieved_vpn_service + "  mBound: " + mBound);
                  if (retrieved_vpn_service && running && mReceiver != null){
-//                	  Log.d(TAG,"changeStatusMessage isRunning retrieved_vpn_service && running");
                 	  mReceiver.send(Activity.RESULT_OK, resultData);
                   }
                   else{
-//                	  Log.d(TAG,"changeStatusMessage isRunning else clause set Activity.RESULT_CANCELED");
                 	  mReceiver.send(Activity.RESULT_CANCELED, resultData);
                   }
           }
