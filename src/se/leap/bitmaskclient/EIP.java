@@ -35,13 +35,13 @@ import se.leap.openvpn.OpenVpnService;
 import se.leap.openvpn.OpenVpnService.LocalBinder;
 import se.leap.openvpn.ProfileManager;
 import se.leap.openvpn.VpnProfile;
-
 import android.app.Activity;
 import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.drm.DrmStore.Action;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
@@ -72,6 +72,7 @@ public final class EIP extends IntentService {
 	public final static String SERVICE_API_PATH = "config/eip-service.json";
 	public final static String RECEIVER_TAG = "receiverTag";
 	public final static String REQUEST_TAG = "requestTag";
+	public final static String TAG = "se.leap.bitmaskclient.EIP";
 	
 	
 	private static Context context;
@@ -141,7 +142,7 @@ public final class EIP extends IntentService {
 	}
 	
 	private static ServiceConnection mVpnServiceConn = new ServiceConnection() {
-
+	//	private boolean running = false; 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			LocalBinder binder = (LocalBinder) service;
@@ -149,17 +150,25 @@ public final class EIP extends IntentService {
 			mBound = true;
 
 			if (mReceiver != null && mPending != null) {
-				
+
 				boolean running = mVpnService.isRunning();
+				
 				int resultCode = Activity.RESULT_CANCELED;
 				
-				if (mPending.equals(ACTION_IS_EIP_RUNNING))
+				if (mPending.equals(ACTION_IS_EIP_RUNNING)){
 					resultCode = (running) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-				if (mPending.equals(ACTION_START_EIP))
+	//				Log.d(TAG, "changeStatusMessage -> EIP.onServiceConnected()  ACTION_IS_EIP_RUNNING resultCode: " + resultCode + " and running: " + running  );
+
+				}
+				else if (mPending.equals(ACTION_START_EIP)){
 					resultCode = (running) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-				else if (mPending.equals(ACTION_STOP_EIP))
+//					Log.d(TAG, "changeStatusMessage -> EIP.onServiceConnected() ACTION_START_EIP resultCode: " + resultCode + " and running: " + running  );
+				}
+				else if (mPending.equals(ACTION_STOP_EIP)){
 					resultCode = (running) ? Activity.RESULT_CANCELED
 							: Activity.RESULT_OK;
+//					Log.d(TAG, "changeStatusMessage -> EIP.onServiceConnected() ACTION_STOP_EIP resultCode: " + resultCode + " and running: " + running  );
+					}
 				Bundle resultData = new Bundle();
 				resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
 				mReceiver.send(resultCode, resultData);
@@ -178,6 +187,7 @@ public final class EIP extends IntentService {
 				mReceiver.send(Activity.RESULT_CANCELED, resultData);
 			}
 		}
+		
 	
 	};
 	
@@ -190,25 +200,45 @@ public final class EIP extends IntentService {
 	 * Note: If the request to bind OpenVpnService is successful, the ResultReceiver
 	 * will be notified in {@link onServiceConnected()}
 	 */
-	private void isRunning() {
-		Bundle resultData = new Bundle();
-		resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
-		int resultCode = Activity.RESULT_CANCELED;
-		if (mBound) {
-			resultCode = (mVpnService.isRunning()) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-			
-			if (mReceiver != null){
-				mReceiver.send(resultCode, resultData);
-			}
-		} else {
-			mPending = ACTION_IS_EIP_RUNNING;
-			boolean retrieved_vpn_service = retreiveVpnService();
-			if(!retrieved_vpn_service && mReceiver != null) {
-				mReceiver.send(resultCode, resultData);
-			}
-		}
-	}
-
+	
+	  private void isRunning() {
+          Bundle resultData = new Bundle();
+          resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
+          int resultCode = Activity.RESULT_CANCELED;
+          if (mBound) {
+                  resultCode = (mVpnService.isRunning()) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+                  
+                  if (mReceiver != null){
+                          mReceiver.send(resultCode, resultData);
+                  }
+          } else {
+                  mPending = ACTION_IS_EIP_RUNNING;
+                 boolean retrieved_vpn_service = retreiveVpnService();
+                 try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+                 boolean running = false;
+                 try {
+                	running = mVpnService.isRunning();
+                 } catch (NullPointerException e){
+                	 e.printStackTrace();
+                 }
+                 
+//                 Log.d(TAG, "changeStatusMessage retrieved_vpn_service: " + retrieved_vpn_service + "  mBound: " + mBound);
+                 if (retrieved_vpn_service && running && mReceiver != null){
+//                	  Log.d(TAG,"changeStatusMessage isRunning retrieved_vpn_service && running");
+                	  mReceiver.send(Activity.RESULT_OK, resultData);
+                  }
+                  else{
+//                	  Log.d(TAG,"changeStatusMessage isRunning else clause set Activity.RESULT_CANCELED");
+                	  mReceiver.send(Activity.RESULT_CANCELED, resultData);
+                  }
+          }
+  }
+	
 	/**
 	 * Initiates an EIP connection by selecting a gateway and preparing and sending an
 	 * Intent to {@link se.leap.openvpn.LaunchVPN}

@@ -120,6 +120,8 @@ public class ProviderAPI extends IntentService {
     INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
     ;
 
+	private static final String TAG = "se.leap.bitmaskclient.ProviderAPI";
+
 	public ProviderAPI() {
 		super("ProviderAPI");
 		Log.v("ClassName", "Provider API");
@@ -750,7 +752,7 @@ public class ProviderAPI extends IntentService {
 
 			int responseCode = urlConnection.getResponseCode();
 			broadcast_progress(progress++);
-			Log.d("logout", Integer.toString(responseCode));
+			Log.d(TAG, Integer.toString(responseCode));
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
