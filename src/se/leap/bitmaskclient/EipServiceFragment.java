@@ -202,7 +202,10 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 						switchState = false;
 					} else if (state.equals("NOPROCESS")){
 						statusMessage = logmessage;
-					} else {
+					} else if (state.equals("ASSIGN_IP")){ //don't show assigning message in eipStatus
+						statusMessage = (String) eipStatus.getText();
+					}
+					else {
 						statusMessage = prefix + " " + logmessage;
 					}
 					
