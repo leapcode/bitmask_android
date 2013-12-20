@@ -149,6 +149,10 @@
             android:label="@string/title_activity_configuration_wizard"
             android:uiOptions="splitActionBarWhenNarrow" >
         </activity>
+        <activity
+            android:name="se.leap.bitmaskclient.AboutActivity"
+            android:label="@string/title_about_activity" >
+        </activity>
         
         <service android:name="se.leap.bitmaskclient.EIP" android:exported="false">
             <intent-filter>

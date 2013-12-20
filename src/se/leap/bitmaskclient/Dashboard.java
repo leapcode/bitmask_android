@@ -210,11 +210,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		Intent intent;
 		switch (item.getItemId()){
 		case R.id.about_leap:
-			Fragment aboutFragment = new AboutFragment();
-			FragmentTransaction trans = getFragmentManager().beginTransaction();
-			trans.replace(R.id.dashboardLayout, aboutFragment);
-			trans.addToBackStack(null);
-			trans.commit();
+			intent = new Intent(this, AboutActivity.class);
+			startActivity(intent);
 			return true;
 		case R.id.legacy_interface:
 			intent = new Intent(this,MainActivity.class);

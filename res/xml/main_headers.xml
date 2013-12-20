@@ -12,9 +12,9 @@
         android:fragment="se.leap.openvpn.FaqFragment"
         android:summary="@string/faq_summary"
         android:title="@string/faq" />
-    <header
+   <!--  <header
         android:fragment="se.leap.openvpn.AboutFragment"
         android:summary="@string/about_summary"
         android:title="@string/about" />
-
+ 	-->
 </preference-headers>
