@@ -88,7 +88,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	//    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 	//	eipStatus = (TextView) findViewById(R.id.eipStatus);
 
-
 	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 	    
 		ConfigHelper.setSharedPreferences(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE));
@@ -113,6 +112,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			if ( resultCode == RESULT_OK ){		
 				ConfigHelper.saveSharedPref(EIP.PARSED_SERIAL, 0);
 				ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
+
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
 
@@ -167,6 +167,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		providerNameTV = (TextView) findViewById(R.id.providerName);
 		providerNameTV.setText(provider.getDomain());
 		providerNameTV.setTextSize(28);
+		
+	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 
 		FragmentManager fragMan = getFragmentManager();
 		if ( provider.hasEIP()){
@@ -466,5 +468,4 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		startService(eip_intent);
 
 	}
-
 }

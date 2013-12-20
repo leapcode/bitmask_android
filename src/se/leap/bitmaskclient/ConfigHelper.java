@@ -168,6 +168,9 @@ public class ConfigHelper {
 		return shared_preferences.getInt(shared_preferences_key, 0);
 	}
 	
+	protected static boolean sharedPrefContainsKey(String shared_preferences_key) {
+		return shared_preferences.contains(shared_preferences_key);
+	}
 	/*
 	 * This method defaults to false.
 	 * If you use this method, be sure to fail-closed on false!

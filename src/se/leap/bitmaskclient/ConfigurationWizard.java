@@ -22,9 +22,15 @@ import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+
+import se.leap.bitmaskclient.DownloadFailedDialog.DownloadFailedDialogInterface;
+import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
+import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
+
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -61,7 +67,7 @@ import android.widget.TextView;
  *
  */
 public class ConfigurationWizard extends Activity
-implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogInterface, ProviderDetailFragment.ProviderDetailFragmentInterface, Receiver {
+implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderDetailFragmentInterface, DownloadFailedDialogInterface, Receiver {
 
 	private ProgressBar mProgressBar;
 	private TextView progressbar_description;
@@ -189,9 +195,15 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	//	resetOldConnection();
 	    ProviderItem selected_provider = getProvider(id);
 	    int provider_index = getProviderIndex(id);
-	    startProgressBar(provider_index);
-		provider_list_fragment.hideAllBut(provider_index);
-		setUpProvider(selected_provider.providerMainUrl(), true);
+
+
+	    startProgressBar(provider_index+1);
+	    provider_list_fragment.hideAllBut(provider_index);
+
+	    boolean danger_on = true;
+	    if(ConfigHelper.sharedPrefContainsKey(ProviderItem.DANGER_ON))
+		danger_on = ConfigHelper.getBoolFromSharedPref(ProviderItem.DANGER_ON);
+	    setUpProvider(selected_provider.providerMainUrl(), danger_on);
     }
     
     @Override
@@ -235,6 +247,13 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    }
 	    return "";
     }
+
+	
+	private void startProgressBar() {
+	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
+	    mProgressBar.setProgress(0);
+	    mProgressBar.setMax(3);
+	}
 	
 	private void startProgressBar(int list_item_index) {
 	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
@@ -253,8 +272,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		    ProviderItem provider = providers_iterator.next();
 		    if(provider.name().equalsIgnoreCase(id)) {
 			    break;
-		    }
-		    index++;
+//<<<<<<< HEAD
+//		    }
+//		    index++;
+//=======
+		    } else index++;
+//>>>>>>> bug/more-detailed-response-to-CW-errors
 	    }
 	    return index;
     }
@@ -340,6 +363,24 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	}
 	
 	/**
+	 * Open the new provider dialog with data
+	 */
+	public void addAndSelectNewProvider(String main_url, boolean danger_on) {
+		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+		Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(NewProviderDialog.TAG);
+		if (previous_new_provider_dialog != null) {
+			fragment_transaction.remove(previous_new_provider_dialog);
+		}
+		
+		DialogFragment newFragment = NewProviderDialog.newInstance();
+		Bundle data = new Bundle();
+		data.putString(Provider.MAIN_URL, main_url);
+		data.putBoolean(ProviderItem.DANGER_ON, danger_on);
+		newFragment.setArguments(data);
+		newFragment.show(fragment_transaction, NewProviderDialog.TAG);
+	}
+	
+	/**
 	 * Once selected a provider, this fragment offers the user to log in, 
 	 * use it anonymously (if possible) 
 	 * or cancel his/her election pressing the back button.
@@ -388,6 +429,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	}
 	
 	private void autoSelectProvider(String provider_main_url, boolean danger_on) {
+
+		ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
 		onItemSelected(getId(provider_main_url));
 	}
 	
@@ -410,6 +453,20 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		startService(provider_API_command);
 	}
 
+	public void retrySetUpProvider() {
+		cancelSettingUpProvider();
+		if(!ProviderAPI.caCertDownloaded()) {
+			addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl(), ProviderAPI.lastDangerOn());
+		} else {
+			Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+			provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
+			provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+
+			startService(provider_API_command);
+		}
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
@@ -451,6 +508,18 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
 		if(provider_list_fragment != null)
 			provider_list_fragment.unhideAll();
+	}
+	
+	public void cancelSettingUpProvider() {
+		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
+		if(provider_list_fragment != null && ConfigHelper.sharedPrefContainsKey(ProviderItem.DANGER_ON)) {
+			provider_list_fragment.removeLastItem();
+		}
+
+		ConfigHelper.removeFromSharedPref(Provider.KEY);
+		ConfigHelper.removeFromSharedPref(ProviderItem.DANGER_ON);
+		ConfigHelper.removeFromSharedPref(EIP.ALLOWED_ANON);
+		ConfigHelper.removeFromSharedPref(EIP.KEY);
 	}
 
 	@Override
