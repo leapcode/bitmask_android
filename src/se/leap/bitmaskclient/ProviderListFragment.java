@@ -155,12 +155,7 @@ public class ProviderListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(ProviderListContent.ITEMS.get(position).id);
-        
-        for(int item_position = 0; item_position < listView.getCount(); item_position++) {
-        	if(item_position != position)
-        		content_adapter.hide(item_position);
-        }
+        mCallbacks.onItemSelected(ProviderListContent.ITEMS.get(position).name());
     }
 
     @Override
@@ -172,6 +167,9 @@ public class ProviderListFragment extends ListFragment {
         }
     }
 
+    public void notifyAdapter() {
+    	content_adapter.notifyDataSetChanged();
+    }
     /**
      * Turns on activate-on-click mode. When this mode is on, list items will be
      * given the 'activated' state when touched.
@@ -196,10 +194,19 @@ public class ProviderListFragment extends ListFragment {
     
     public void addItem(ProviderItem provider) {
     	content_adapter.add(provider);
+    	content_adapter.notifyDataSetChanged();
     }
     
-    public void hide(int position) {
-    	content_adapter.hide(position);
+    public void hideAllBut(int position) {
+    	int real_count = content_adapter.getCount();
+    	for(int i = 0; i < real_count;)
+    		if(i != position) {
+    			content_adapter.hide(i);
+    			position--;
+    			real_count--;
+    		} else {
+    			i++;
+    		}
     }
     
     public void unhideAll() {
