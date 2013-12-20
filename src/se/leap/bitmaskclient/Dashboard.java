@@ -88,6 +88,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	//    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 	//	eipStatus = (TextView) findViewById(R.id.eipStatus);
 
+
 	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 	    
 		ConfigHelper.setSharedPreferences(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE));
@@ -465,4 +466,5 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		startService(eip_intent);
 
 	}
+
 }

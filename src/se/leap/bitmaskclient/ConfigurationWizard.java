@@ -190,8 +190,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialog.NewProviderDialogIn
 	    ProviderItem selected_provider = getProvider(id);
 	    int provider_index = getProviderIndex(id);
 	    startProgressBar(provider_index);
-	    provider_list_fragment.hideAllBut(provider_index);
-	    setUpProvider(selected_provider.providerMainUrl(), true);
+		provider_list_fragment.hideAllBut(provider_index);
+		setUpProvider(selected_provider.providerMainUrl(), true);
     }
     
     @Override
