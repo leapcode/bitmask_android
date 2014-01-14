@@ -60,10 +60,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	private static final String TAG_EIP_FRAGMENT = "EIP_DASHBOARD_FRAGMENT";
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
-	public static final String REQUEST_CODE = "request_code";
-
-
-	
+	public static final String REQUEST_CODE = "request_code";	
 	
 	private ProgressBar mProgressBar;
 	private TextView eipStatus;
@@ -90,11 +87,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 	    
-		ConfigHelper.setSharedPreferences(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE));
-		preferences = ConfigHelper.shared_preferences;
+	    preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
 
-		authed_eip = ConfigHelper.getBoolFromSharedPref(EIP.AUTHED_EIP);
-		if (ConfigHelper.getStringFromSharedPref(Provider.KEY).isEmpty())
+	    authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
+		if (preferences.getString(Provider.KEY, "").isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 		else
 			buildDashboard();
@@ -110,9 +106,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
 		// It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
 			if ( resultCode == RESULT_OK ){		
-				ConfigHelper.saveSharedPref(EIP.PARSED_SERIAL, 0);
-				ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
-
+				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(EIP.PARSED_SERIAL, 0).commit();
+				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
 				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
 				buildDashboard();
 
@@ -181,8 +176,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		JSONObject provider_json;
 		try {
-			provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
+			provider_json = new JSONObject(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
 			JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
+			
 			if(service_description.getBoolean(Provider.ALLOW_REGISTRATION)) {
 				if(authed_eip) {
 					menu.findItem(R.id.login_button).setVisible(false);
@@ -219,12 +215,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			return true;
 		case R.id.switch_provider:
 			if (Provider.getInstance().hasEIP()){
-				if (ConfigHelper.getBoolFromSharedPref(EIP.AUTHED_EIP)){
+				if (getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getBoolean(EIP.AUTHED_EIP, false)){
 					logOut();
 				}
 				eipStop();
 			}
-			ConfigHelper.removeFromSharedPref(Provider.KEY);
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().remove(Provider.KEY).commit();
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;
 		case R.id.login_button:
@@ -354,7 +350,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			setResult(RESULT_OK);
 
 			authed_eip = true;
-			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
+
 			invalidateOptionsMenu();
 
         	mProgressBar.setVisibility(ProgressBar.GONE);
@@ -367,7 +364,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	mProgressBar.setVisibility(ProgressBar.GONE);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
-			ConfigHelper.saveSharedPref(EIP.AUTHED_EIP, authed_eip);
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
 
 			changeStatusMessage(resultCode);
 			mProgressBar.setVisibility(ProgressBar.GONE);
