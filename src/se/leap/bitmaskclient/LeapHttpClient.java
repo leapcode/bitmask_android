@@ -34,7 +34,6 @@ import android.content.Context;
  *
  */
 public class LeapHttpClient extends DefaultHttpClient {
-	final Context context;
 
 	private static LeapHttpClient client;
 
@@ -43,10 +42,8 @@ public class LeapHttpClient extends DefaultHttpClient {
 	 * @param context
 	 * @return the new client.
 	 */
-	public static LeapHttpClient getInstance(Context context) {
+	public static LeapHttpClient getInstance(String cert_string) {
 		if(client == null) {
-			client = new LeapHttpClient(context);
-			String cert_string = ConfigHelper.getStringFromSharedPref(Provider.CA_CERT);
 			if(cert_string != null) {
 				ConfigHelper.addTrustedCertificate("provider_ca_certificate", cert_string);
 			}
@@ -76,9 +73,5 @@ public class LeapHttpClient extends DefaultHttpClient {
 		} catch (Exception e) {
 			throw new AssertionError(e);
 		}
-	}
-
-	public LeapHttpClient(Context context) {
-		this.context = context;
 	}
 }

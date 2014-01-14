@@ -444,25 +444,6 @@ public class ProviderAPI extends IntentService {
 	 * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if the update was successful. 
 	 */
 	private Bundle setUpProvider(Bundle task) {
-//<<<<<<< HEAD
-//		Bundle result = new Bundle();
-//		int progress = 0;
-//		boolean danger_on = task.getBoolean(ProviderItem.DANGER_ON);
-//		String provider_main_url = task.getString(Provider.MAIN_URL);
-//		if(downloadCACert(provider_main_url, danger_on)) {
-//			broadcast_progress(progress++);
-//			result.putBoolean(RESULT_KEY, true);
-//			if(getAndSetProviderJson(provider_main_url)) {
-//				broadcast_progress(progress++);
-//				if(getAndSetEipServiceJson())
-//					broadcast_progress(progress++);
-//			}
-//		}
-//		return result;
-//	}
-//	
-//	
-//=======
 		int progress = 0;
 		Bundle current_download = new Bundle();
 		
@@ -496,8 +477,8 @@ public class ProviderAPI extends IntentService {
 	private Bundle downloadCACert(String provider_main_url, boolean danger_on) {
 		Bundle result = new Bundle();
 		String cert_string = downloadWithCommercialCA(provider_main_url + "/ca.crt", danger_on);
-		if(validCertificate(cert_string)) {
-			ConfigHelper.saveSharedPref(Provider.CA_CERT, cert_string);
+	    if(validCertificate(cert_string)) {
+		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.CA_CERT, cert_string).commit();
 			result.putBoolean(RESULT_KEY, true);
 		} else {
 			String reason_to_fail = pickErrorMessage(cert_string);
@@ -538,8 +519,8 @@ public class ProviderAPI extends IntentService {
 			String name = provider_json.getString(Provider.NAME);
 			//TODO setProviderName(name);
 			
-			ConfigHelper.saveSharedPref(Provider.KEY, provider_json);
-			ConfigHelper.saveSharedPref(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON));
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.KEY, provider_json.toString()).commit();
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON)).commit();
 
 			result.putBoolean(RESULT_KEY, true);
 		} catch (JSONException e) {
@@ -561,13 +542,13 @@ public class ProviderAPI extends IntentService {
 		Bundle result = new Bundle();
 		String eip_service_json_string = "";
 		try {
-			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
+			JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
 			String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
 			eip_service_json_string = downloadWithProviderCA(eip_service_url, true);
 			JSONObject eip_service_json = new JSONObject(eip_service_json_string);
 			eip_service_json.getInt(Provider.API_RETURN_SERIAL);
-
-			ConfigHelper.saveSharedPref(EIP.KEY, eip_service_json);
+			
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.KEY, eip_service_json.toString()).commit();
 
 			result.putBoolean(RESULT_KEY, true);
 		} catch (JSONException e) {
@@ -685,7 +666,7 @@ public class ProviderAPI extends IntentService {
 	}
 	
 	private javax.net.ssl.SSLSocketFactory getProviderSSLSocketFactory() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, KeyManagementException {
-		String provider_cert_string = ConfigHelper.getStringFromSharedPref(Provider.CA_CERT);
+		String provider_cert_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.CA_CERT,"");
 
 		java.security.cert.Certificate provider_certificate = ConfigHelper.parseX509CertificateFromString(provider_cert_string);
 
@@ -817,11 +798,12 @@ public class ProviderAPI extends IntentService {
 
 		try {
 			String type_of_certificate = task.getString(ConfigurationWizard.TYPE_OF_CERTIFICATE);
-			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
+			JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
+			
 			String provider_main_url = provider_json.getString(Provider.API_URL);
 			URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
 
-			boolean danger_on = ConfigHelper.getBoolFromSharedPref(ProviderItem.DANGER_ON);
+			boolean danger_on = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getBoolean(ProviderItem.DANGER_ON, false);
 
 			String cert_string = downloadWithProviderCA(new_cert_string_url.toString(), danger_on);
 
@@ -847,12 +829,12 @@ public class ProviderAPI extends IntentService {
 					try {
 						RSAPrivateKey keyCert = ConfigHelper.parseRsaKeyFromString(keyString);
 						keyString = Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT );
-						ConfigHelper.saveSharedPref(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----");
+						getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
 
 						X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
 						certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-						ConfigHelper.saveSharedPref(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----");
-
+						getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
+						
 						return true;
 					} catch (CertificateException e) {
 						// TODO Auto-generated catch block

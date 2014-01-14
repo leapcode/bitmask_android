@@ -40,6 +40,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -85,10 +86,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
 
+    private static SharedPreferences preferences;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+	    preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
         
         setContentView(R.layout.configuration_wizard_activity);
 	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_configuration_wizard);
@@ -101,10 +104,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	    IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_PROGRESSBAR);
 	    update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
 	    registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
-	    
-        ConfigHelper.setSharedPreferences(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE));
-        
-        loadPreseededProviders();
+
+	    loadPreseededProviders();
         
         // Only create our fragments if we're not restoring a saved instance
         if ( savedInstanceState == null ){
@@ -150,7 +151,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		if(resultCode == ProviderAPI.PROVIDER_OK) {
 				mConfigState.setAction(PROVIDER_SET);
 
-				if (ConfigHelper.getBoolFromSharedPref(EIP.ALLOWED_ANON)){
+				if (preferences.getBoolean(EIP.ALLOWED_ANON, false)){
 					mConfigState.putExtra(SERVICES_RETRIEVED, true);
 					downloadAnonCert();
 				} else {
@@ -166,7 +167,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 			showDownloadFailedDialog(getCurrentFocus(), reason_to_fail);
 			mProgressBar.setVisibility(ProgressBar.GONE);
 			progressbar_description.setVisibility(TextView.GONE);
-			ConfigHelper.removeFromSharedPref(Provider.KEY);
+			preferences.edit().remove(Provider.KEY).commit();
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
@@ -204,15 +205,17 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	    provider_list_fragment.hideAllBut(provider_index);
 
 	    boolean danger_on = true;
-	    if(ConfigHelper.sharedPrefContainsKey(ProviderItem.DANGER_ON))
-		danger_on = ConfigHelper.getBoolFromSharedPref(ProviderItem.DANGER_ON);
+	    if(preferences.contains(ProviderItem.DANGER_ON))
+	    	danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, false);
 	    setUpProvider(selected_provider.providerMainUrl(), danger_on);
     }
     
     @Override
     public void onBackPressed() {
     	try {
-			if(ConfigHelper.getJsonFromSharedPref(Provider.KEY) == null || ConfigHelper.getJsonFromSharedPref(Provider.KEY).length() == 0) {
+    		boolean is_provider_set_up = new JSONObject(preferences.getString(Provider.KEY, "no provider")) != null ? true : false;
+    		boolean is_provider_set_up_truly = new JSONObject(preferences.getString(Provider.KEY, "no provider")).length() != 0 ? true : false;
+			if(!is_provider_set_up || !is_provider_set_up_truly) {
 				askDashboardToQuitApp();
 			} else {
 				setResult(RESULT_OK);
@@ -275,12 +278,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		    ProviderItem provider = providers_iterator.next();
 		    if(provider.name().equalsIgnoreCase(id)) {
 			    break;
-//<<<<<<< HEAD
-//		    }
-//		    index++;
-//=======
 		    } else index++;
-//>>>>>>> bug/more-detailed-response-to-CW-errors
 	    }
 	    return index;
     }
@@ -432,8 +430,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	}
 	
 	private void autoSelectProvider(String provider_main_url, boolean danger_on) {
-
-		ConfigHelper.saveSharedPref(ProviderItem.DANGER_ON, danger_on);
+		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(ProviderItem.DANGER_ON, danger_on).commit();
 		onItemSelected(getId(provider_main_url));
 	}
 	
@@ -498,14 +495,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	
 	public void cancelSettingUpProvider() {
 		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
-		if(provider_list_fragment != null && ConfigHelper.sharedPrefContainsKey(ProviderItem.DANGER_ON)) {
+		if(provider_list_fragment != null && preferences.contains(ProviderItem.DANGER_ON)) {
 			provider_list_fragment.removeLastItem();
 		}
-
-		ConfigHelper.removeFromSharedPref(Provider.KEY);
-		ConfigHelper.removeFromSharedPref(ProviderItem.DANGER_ON);
-		ConfigHelper.removeFromSharedPref(EIP.ALLOWED_ANON);
-		ConfigHelper.removeFromSharedPref(EIP.KEY);
+		preferences.edit().remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(EIP.ALLOWED_ANON).remove(EIP.KEY).commit();
 	}
 
 	@Override
