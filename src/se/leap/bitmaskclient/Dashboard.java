@@ -103,7 +103,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
 		// It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
-			if ( resultCode == RESULT_OK ){		
+			if ( resultCode == RESULT_OK ){
 				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(EIP.PARSED_SERIAL, 0).commit();
 				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
 				Intent updateEIP = new Intent(getApplicationContext(), EIP.class);

@@ -87,6 +87,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
 
     private static SharedPreferences preferences;
+    private static boolean setting_up_provider = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,6 +160,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 				    mProgressBar.setVisibility(ProgressBar.GONE);
 				    progressbar_description.setVisibility(TextView.GONE);
 					setResult(RESULT_OK);
+					setting_up_provider = false;
 					showProviderDetails(getCurrentFocus());
 				}
 		} else if(resultCode == ProviderAPI.PROVIDER_NOK) {
@@ -168,6 +170,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 			mProgressBar.setVisibility(ProgressBar.GONE);
 			progressbar_description.setVisibility(TextView.GONE);
 			preferences.edit().remove(Provider.KEY).commit();
+			setting_up_provider = false;
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
@@ -212,17 +215,26 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     
     @Override
     public void onBackPressed() {
-    	try {
-    		boolean is_provider_set_up = new JSONObject(preferences.getString(Provider.KEY, "no provider")) != null ? true : false;
-    		boolean is_provider_set_up_truly = new JSONObject(preferences.getString(Provider.KEY, "no provider")).length() != 0 ? true : false;
-			if(!is_provider_set_up || !is_provider_set_up_truly) {
-				askDashboardToQuitApp();
-			} else {
-				setResult(RESULT_OK);
-			}
-		} catch (JSONException e) {
-			askDashboardToQuitApp();
-		}
+    	if(setting_up_provider) {
+    		ProviderAPI.stop();
+    		mProgressBar.setVisibility(ProgressBar.GONE);
+    		mProgressBar.setProgress(0);
+    		progressbar_description.setVisibility(TextView.GONE);
+    		getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().remove(Provider.KEY).commit();
+    	} else {
+    		try {
+    			boolean is_provider_set_up = new JSONObject(preferences.getString(Provider.KEY, "no provider")) != null ? true : false;
+    			boolean is_provider_set_up_truly = new JSONObject(preferences.getString(Provider.KEY, "no provider")).length() != 0 ? true : false;
+    			if(!is_provider_set_up || !is_provider_set_up_truly) {
+    				askDashboardToQuitApp();
+    			} else {
+    				setResult(RESULT_OK);
+    			}
+    		} catch (JSONException e) {
+    			askDashboardToQuitApp();
+    		}
+    	}
+    	setting_up_provider = false;
     	super.onBackPressed();
     }
     
@@ -451,6 +463,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 
 		startService(provider_API_command);
+		setting_up_provider = true;
 	}
 
 	public void retrySetUpProvider() {
@@ -466,7 +479,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 			startService(provider_API_command);
 		}
 	}
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
