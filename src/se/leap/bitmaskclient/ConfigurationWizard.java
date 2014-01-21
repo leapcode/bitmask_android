@@ -216,28 +216,37 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     @Override
     public void onBackPressed() {
     	if(setting_up_provider) {
-    		ProviderAPI.stop();
-    		mProgressBar.setVisibility(ProgressBar.GONE);
-    		mProgressBar.setProgress(0);
-    		progressbar_description.setVisibility(TextView.GONE);
-    		getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().remove(Provider.KEY).commit();
+    		stopSettingUpProvider();
     	} else {
-    		try {
-    			boolean is_provider_set_up = new JSONObject(preferences.getString(Provider.KEY, "no provider")) != null ? true : false;
-    			boolean is_provider_set_up_truly = new JSONObject(preferences.getString(Provider.KEY, "no provider")).length() != 0 ? true : false;
-    			if(!is_provider_set_up || !is_provider_set_up_truly) {
-    				askDashboardToQuitApp();
-    			} else {
-    				setResult(RESULT_OK);
-    			}
-    		} catch (JSONException e) {
-    			askDashboardToQuitApp();
-    		}
+    		usualBackButton();
     	}
-    	setting_up_provider = false;
-    	super.onBackPressed();
     }
     
+    private void stopSettingUpProvider() {
+		ProviderAPI.stop();
+		mProgressBar.setVisibility(ProgressBar.GONE);
+		mProgressBar.setProgress(0);
+		progressbar_description.setVisibility(TextView.GONE);
+		getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().remove(Provider.KEY).commit();
+    	setting_up_provider = false;
+    }
+    
+    private void usualBackButton() {
+		try {
+			boolean is_provider_set_up = new JSONObject(preferences.getString(Provider.KEY, "no provider")) != null ? true : false;
+			boolean is_provider_set_up_truly = new JSONObject(preferences.getString(Provider.KEY, "no provider")).length() != 0 ? true : false;
+			if(!is_provider_set_up || !is_provider_set_up_truly) {
+				askDashboardToQuitApp();
+			} else {
+				setResult(RESULT_OK);
+			}
+		} catch (JSONException e) {
+			askDashboardToQuitApp();
+			super.onBackPressed();
+			e.printStackTrace();
+		}
+		super.onBackPressed();
+    }
     private void askDashboardToQuitApp() {
 		Intent ask_quit = new Intent();
 		ask_quit.putExtra(Dashboard.ACTION_QUIT, Dashboard.ACTION_QUIT);

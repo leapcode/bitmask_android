@@ -126,10 +126,10 @@ public class ProviderAPI extends IntentService {
     
     private static String last_provider_main_url;
     private static boolean last_danger_on = false;
-    private static boolean working = true;
+    private static boolean setting_up_provider = true;
     
     public static void stop() {
-    	working = false;
+    	setting_up_provider = false;
     }
 
 	public ProviderAPI() {
@@ -161,11 +161,11 @@ public class ProviderAPI extends IntentService {
 		final ResultReceiver receiver = command.getParcelableExtra(RECEIVER_KEY);
 		String action = command.getAction();
 		Bundle parameters = command.getBundleExtra(PARAMETERS);
-		working = true;
+		setting_up_provider = true;
 		
 		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
 			Bundle result = setUpProvider(parameters);
-			if(working) {
+			if(setting_up_provider) {
 				if(result.getBoolean(RESULT_KEY)) {
 					receiver.send(PROVIDER_OK, result);
 				} else { 
@@ -174,29 +174,23 @@ public class ProviderAPI extends IntentService {
 			}
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
-			if(working) {
 				if(session_id_bundle.getBoolean(RESULT_KEY)) {
 					receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
 				} else {
 					receiver.send(SRP_AUTHENTICATION_FAILED, session_id_bundle);
 				}
-			}
 		} else if (action.equalsIgnoreCase(LOG_OUT)) {
-			if(working) {
 				if(logOut(parameters)) {
 					receiver.send(LOGOUT_SUCCESSFUL, Bundle.EMPTY);
 				} else {
 					receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
 				}
-			}
 		} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
-			if(working) {
 				if(getNewCert(parameters)) {
 					receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 				} else {
 					receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 				}
-			}
 		}
 	}
 	
@@ -492,7 +486,7 @@ public class ProviderAPI extends IntentService {
 		Bundle result = new Bundle();
 		String cert_string = downloadWithCommercialCA(provider_main_url + "/ca.crt", danger_on);
 
-	    if(validCertificate(cert_string)) {
+	    if(validCertificate(cert_string) && setting_up_provider) {
 	    	getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.CA_CERT, cert_string).commit();
 			result.putBoolean(RESULT_KEY, true);
 		} else {
@@ -527,7 +521,7 @@ public class ProviderAPI extends IntentService {
 	private Bundle getAndSetProviderJson(String provider_main_url) {
 		Bundle result = new Bundle();
 
-		if(working) {
+		if(setting_up_provider) {
 			String provider_dot_json_string = downloadWithProviderCA(provider_main_url + "/provider.json", true);
 
 			try {
@@ -558,7 +552,7 @@ public class ProviderAPI extends IntentService {
 	private Bundle getAndSetEipServiceJson() {
 		Bundle result = new Bundle();
 		String eip_service_json_string = "";
-		if(working) {
+		if(setting_up_provider) {
 			try {
 				JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
 				String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
