@@ -263,7 +263,7 @@ public final class EIP extends IntentService {
 			resultData.putString(REQUEST_TAG, ACTION_STOP_EIP);
 			mReceiver.send(Activity.RESULT_OK, resultData);
 		}
-		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(Dashboard.START_ON_BOOT, false).commit();
+		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().remove(Dashboard.START_ON_BOOT).commit();
 	}
 
 	/**
