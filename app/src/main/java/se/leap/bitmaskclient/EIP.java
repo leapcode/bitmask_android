@@ -245,6 +245,7 @@ public final class EIP extends IntentService {
 		intent.putExtra(RECEIVER_TAG, mReceiver);
 		startActivity(intent);
 		mPending = ACTION_START_EIP;
+		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(Dashboard.START_ON_BOOT, true).commit();
 	}
 	
 	/**
@@ -262,6 +263,7 @@ public final class EIP extends IntentService {
 			resultData.putString(REQUEST_TAG, ACTION_STOP_EIP);
 			mReceiver.send(Activity.RESULT_OK, resultData);
 		}
+		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(Dashboard.START_ON_BOOT, false).commit();
 	}
 
 	/**

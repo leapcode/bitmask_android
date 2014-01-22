@@ -27,6 +27,7 @@ import android.widget.TextView;
 public class EipServiceFragment extends Fragment implements StateListener, OnCheckedChangeListener {
 	
 	protected static final String IS_EIP_PENDING = "is_eip_pending";
+    public static final String START_ON_BOOT = "start on boot";
 	
 	private View eipFragment;
 	private static Switch eipSwitch;
@@ -73,6 +74,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		});
 		eipSwitch.setOnCheckedChangeListener(this);
 		
+		if(getArguments() != null && getArguments().containsKey(START_ON_BOOT) && getArguments().getBoolean(START_ON_BOOT))
+		    startEipFromScratch();
 		
 		return eipFragment;
 	}
@@ -122,10 +125,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		    String certificate = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.CERTIFICATE, "");
 		    if(allowed_anon || !certificate.isEmpty()) {
 			if (isChecked){
-				mEipStartPending = true;
-				eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
-				((TextView) eipFragment.findViewById(R.id.eipStatus)).setText(R.string.eip_status_start_pending);
-				eipCommand(EIP.ACTION_START_EIP);
+			    startEipFromScratch();
 			} else {
 				if (mEipStartPending){
 					AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
@@ -168,6 +168,12 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	}
 	
 
+    public void startEipFromScratch() {
+	mEipStartPending = true;
+	eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
+	((TextView) eipFragment.findViewById(R.id.eipStatus)).setText(R.string.eip_status_start_pending);
+	eipCommand(EIP.ACTION_START_EIP);
+    }
 	
 	/**
 	 * Send a command to EIP

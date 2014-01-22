@@ -14,6 +14,7 @@ public class OnBootReceiver extends BroadcastReceiver {
 	    if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
 		if (!context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Context.MODE_PRIVATE).getString(Provider.KEY, "").isEmpty()) {
 		    Intent dashboard_intent = new Intent(context, Dashboard.class);
+		    dashboard_intent.setAction(EIP.ACTION_START_EIP);
 		    dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		    context.startActivity(dashboard_intent);
 		}

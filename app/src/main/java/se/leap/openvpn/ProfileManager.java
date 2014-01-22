@@ -71,7 +71,8 @@ public class ProfileManager {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
 		Editor prefsedit = prefs.edit();
 		
-		prefsedit.putString(ONBOOTPROFILE, connectedrofile.getUUIDString());
+		//prefsedit.putString(ONBOOTPROFILE, connectedrofile.getUUIDString());
+		prefsedit.putString(ONBOOTPROFILE, VpnProfile.EXTRA_PROFILEUUID);
 		prefsedit.apply();
 		mLastConnectedVpn=connectedrofile;
 		

@@ -57,7 +57,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
-	public static final String REQUEST_CODE = "request_code";
+    public static final String REQUEST_CODE = "request_code";
+    public static final String PARAMETERS = "dashboard parameters";
+    public static final String START_ON_BOOT = "dashboard start on boot";
 	
 	private ProgressBar mProgressBar;
 	private TextView eipStatus;
@@ -86,11 +88,17 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    
 	    preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
 
+<<<<<<< HEAD:app/src/main/java/se/leap/bitmaskclient/Dashboard.java
 	    authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
 		if (preferences.getString(Provider.KEY, "").isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+=======
+		authed_eip = ConfigHelper.getBoolFromSharedPref(EIP.AUTHED_EIP);
+		if (ConfigHelper.getStringFromSharedPref(Provider.KEY).isEmpty())
+		    startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+>>>>>>> Always restore last eip status on boot.:src/se/leap/bitmaskclient/Dashboard.java
 		else
-			buildDashboard();
+		    buildDashboard();		    
 	}
 
 	@Override
@@ -166,8 +174,18 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		FragmentManager fragMan = getFragmentManager();
 		if ( provider.hasEIP()){
+<<<<<<< HEAD:app/src/main/java/se/leap/bitmaskclient/Dashboard.java
 			EipServiceFragment eipFragment = new EipServiceFragment();
 			fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG).commit();
+=======
+		    EipServiceFragment eipFragment = new EipServiceFragment();
+		    if (getSharedPreferences(Dashboard.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean(Dashboard.START_ON_BOOT, false)) {
+			Bundle arguments = new Bundle();
+			arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
+			eipFragment.setArguments(arguments);
+		    }
+			fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, TAG_EIP_FRAGMENT).commit();
+>>>>>>> Always restore last eip status on boot.:src/se/leap/bitmaskclient/Dashboard.java
 		}
 	}
 
