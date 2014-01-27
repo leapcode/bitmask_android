@@ -278,10 +278,11 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 
 	@Override
 	public void onDestroy() {
-		if (mProcessThread != null) {
+	    if (mProcessThread != null) {
 			mSocketManager.managmentCommand("signal SIGINT\n");
 
 			mProcessThread.interrupt();
+
 		}
 		if (mNetworkStateReceiver!= null) {
 			this.unregisterReceiver(mNetworkStateReceiver);

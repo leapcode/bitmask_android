@@ -60,6 +60,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     public static final String REQUEST_CODE = "request_code";
     public static final String PARAMETERS = "dashboard parameters";
     public static final String START_ON_BOOT = "dashboard start on boot";
+    final public static String ON_BOOT = "dashboard on boot";
+
 	
 	private ProgressBar mProgressBar;
 	private TextView eipStatus;
@@ -88,24 +90,26 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    
 	    preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
 
-<<<<<<< HEAD:app/src/main/java/se/leap/bitmaskclient/Dashboard.java
 	    authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
 		if (preferences.getString(Provider.KEY, "").isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
-=======
-		authed_eip = ConfigHelper.getBoolFromSharedPref(EIP.AUTHED_EIP);
-		if (ConfigHelper.getStringFromSharedPref(Provider.KEY).isEmpty())
-		    startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
->>>>>>> Always restore last eip status on boot.:src/se/leap/bitmaskclient/Dashboard.java
 		else
-		    buildDashboard();		    
+		    buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 	}
-	
+
+    protected void onPause() {
+	super.onPause();
+	Log.d("Dashboard", "eip_service_fragment.saveEipStatus()");
+	EipServiceFragment eip_service_fragment = (EipServiceFragment) getFragmentManager().findFragmentByTag(TAG_EIP_FRAGMENT);
+	if(eip_service_fragment != null)
+	    eip_service_fragment.saveEipStatus();
+    }
+    
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
@@ -160,7 +164,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * Inflates permanent UI elements of the View and contains logic for what
 	 * service dependent UI elements to include.
 	 */
-	private void buildDashboard() {
+	private void buildDashboard(boolean hide_and_turn_on_eip) {
 		provider = Provider.getInstance();
 		provider.init( this );
 
@@ -174,18 +178,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		FragmentManager fragMan = getFragmentManager();
 		if ( provider.hasEIP()){
-<<<<<<< HEAD:app/src/main/java/se/leap/bitmaskclient/Dashboard.java
 			EipServiceFragment eipFragment = new EipServiceFragment();
-			fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG).commit();
-=======
 		    EipServiceFragment eipFragment = new EipServiceFragment();
-		    if (getSharedPreferences(Dashboard.SHARED_PREFERENCES, Context.MODE_PRIVATE).getBoolean(Dashboard.START_ON_BOOT, false)) {
+		    if (hide_and_turn_on_eip) {		    
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().remove(Dashboard.START_ON_BOOT).commit();			
 			Bundle arguments = new Bundle();
 			arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
 			eipFragment.setArguments(arguments);
 		    }
-			fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, TAG_EIP_FRAGMENT).commit();
->>>>>>> Always restore last eip status on boot.:src/se/leap/bitmaskclient/Dashboard.java
+		    fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG).commit();
+
+		    if (hide_and_turn_on_eip) {
+			onBackPressed();
+		    }
 		}
 	}
 
@@ -482,9 +487,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
 		Intent eip_intent = new Intent(this, EIP.class);
 		eip_intent.setAction(EIP.ACTION_STOP_EIP);
-	//	eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
+	//	eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);fi
 		startService(eip_intent);
-
+		
 	}
 
     private void eipStart(){

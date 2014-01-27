@@ -111,13 +111,20 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 
 		OpenVPN.removeStateListener(this);
 	}
-	
+    
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(IS_EIP_PENDING, mEipStartPending);
 	}
-	
+
+    protected void saveEipStatus() {
+	boolean eip_is_on = false;
+	if(eipSwitch.isChecked()) {
+	    eip_is_on = true;
+	}
+	getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
+    }
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
