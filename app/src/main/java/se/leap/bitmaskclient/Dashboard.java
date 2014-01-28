@@ -104,10 +104,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
     protected void onPause() {
 	super.onPause();
-	Log.d("Dashboard", "eip_service_fragment.saveEipStatus()");
-	EipServiceFragment eip_service_fragment = (EipServiceFragment) getFragmentManager().findFragmentByTag(TAG_EIP_FRAGMENT);
-	if(eip_service_fragment != null)
-	    eip_service_fragment.saveEipStatus();
     }
     
 	@Override

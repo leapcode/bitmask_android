@@ -172,6 +172,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 			eipStatus.setText(R.string.state_noprocess);
 		}
 		eipAutoSwitched = true;
+		saveEipStatus();
 	}
 	
 
@@ -179,6 +180,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	mEipStartPending = true;
 	eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
 	((TextView) eipFragment.findViewById(R.id.eipStatus)).setText(R.string.eip_status_start_pending);
+	eipSwitch.setChecked(true);	
+	saveEipStatus();
 	eipCommand(EIP.ACTION_START_EIP);
     }
 	
