@@ -1,21 +1,17 @@
 package se.leap.bitmaskclient.test;
 
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.provider.Settings;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import com.jayway.android.robotium.solo.Solo;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import se.leap.bitmaskclient.ConfigurationWizard;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.test.ConnectionManager;
 import se.leap.openvpn.MainActivity;
 
 public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
@@ -30,7 +26,7 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 	protected void setUp() throws Exception {
 		super.setUp();
 		solo = new Solo(getInstrumentation(), getActivity());
-		setAirplaneMode(false);
+		ConnectionManager.setMobileDataEnabled(true, solo.getCurrentActivity().getApplicationContext());
 	}
 
 	@Override
@@ -53,21 +49,18 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 		
 		solo.clickOnView(solo.getView(R.id.eipSwitch));
 		if(!solo.waitForText("Not running! Connection not secure"))
-			fail();
-		/* setAirplaneMode isn't working right now.
-		setAirplaneMode(true);
-		if(!solo.waitForLogMessage("Service state changed"))
-			fail();
+		    fail();
+
+		ConnectionManager.setMobileDataEnabled(false, solo.getCurrentActivity().getApplicationContext());
 		
 		solo.clickOnView(solo.getView(R.id.eipSwitch));
 		if(!solo.waitForText("Initiating connection"))
 			fail();
 		if(!solo.waitForText("Waiting for usable network"))
 			fail();
-		*/
 	}
 	
-	public void testLogInAndOut() {
+    public void testLogInAndOut() {
 		long miliseconds_to_log_in = 40 * 1000;
 		solo.clickOnActionBarItem(R.id.login_button);
 		solo.enterText(0, "parmegvtest1");
@@ -112,25 +105,4 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 		solo.clickOnMenuItem("ICS OpenVPN Interface");
 		solo.waitForActivity(MainActivity.class);
 	}
-	
-    private void setAirplaneMode(boolean airplane_mode) {
-	Context context = solo.getCurrentActivity().getApplicationContext();
-	final ConnectivityManager conman = (ConnectivityManager)  context.getSystemService(Context.CONNECTIVITY_SERVICE);
-	try {
-	    final Class conmanClass = Class.forName(conman.getClass().getName());
-	    final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
-	    iConnectivityManagerField.setAccessible(true);
-	    final Object iConnectivityManager = iConnectivityManagerField.get(conman);
-	    final Class iConnectivityManagerClass =  Class.forName(iConnectivityManager.getClass().getName());
-	    final Method setMobileDataEnabledMethod = iConnectivityManagerClass.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
-	    setMobileDataEnabledMethod.setAccessible(true);
-
-	    setMobileDataEnabledMethod.invoke(iConnectivityManager, !airplane_mode);
-	} catch (ClassNotFoundException e) {
-	} catch (NoSuchMethodException e) {
-	} catch (IllegalAccessException e) {
-	} catch (NoSuchFieldException e) {
-	} catch (InvocationTargetException e) {
-	}
-    }
 }
