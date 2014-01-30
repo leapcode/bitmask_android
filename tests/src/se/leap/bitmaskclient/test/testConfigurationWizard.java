@@ -1,15 +1,14 @@
 package se.leap.bitmaskclient.test;
 
+import android.test.ActivityInstrumentationTestCase2;
+import android.widget.ListView;
+import com.jayway.android.robotium.solo.Solo;
 import java.io.IOException;
-
-import se.leap.bitmaskclient.AboutFragment;
+import se.leap.bitmaskclient.AboutActivity;
 import se.leap.bitmaskclient.ConfigurationWizard;
 import se.leap.bitmaskclient.ProviderDetailFragment;
 import se.leap.bitmaskclient.R;
-import android.test.ActivityInstrumentationTestCase2;
-import android.widget.ListView;
-
-import com.jayway.android.robotium.solo.Solo;
+import se.leap.bitmaskclient.test.ConnectionManager;
 
 public class testConfigurationWizard extends ActivityInstrumentationTestCase2<ConfigurationWizard> {
 
@@ -24,6 +23,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 	protected void setUp() throws Exception {
 		super.setUp();
 		solo = new Solo(getInstrumentation(), getActivity());
+		ConnectionManager.setMobileDataEnabled(true, solo.getCurrentActivity().getApplicationContext());
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 	
 	public void testShowAbout() {
 		solo.clickOnMenuItem(solo.getString(R.string.about));
-		assertTrue("Provider details dialog did not appear", solo.waitForFragmentByTag(AboutFragment.TAG));
+		assertTrue("Provider details dialog did not appear", solo.waitForActivity(AboutActivity.class));
 	}
 	
 	public void testShowSettings() {
