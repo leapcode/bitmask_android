@@ -2,10 +2,11 @@ package se.leap.bitmaskclient.test;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
+import android.util.Log;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import android.util.Log;
 
 public class ConnectionManager {
     static void setMobileDataEnabled(boolean enabled, Context context) {
@@ -23,5 +24,10 @@ public class ConnectionManager {
 		}
 	    }
 	}
+    }
+
+    static void setWifiEnabled(boolean enabled, Context context) {
+	WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE); 
+	wifiManager.setWifiEnabled(enabled);
     }
 }
