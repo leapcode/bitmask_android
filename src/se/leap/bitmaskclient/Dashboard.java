@@ -21,7 +21,6 @@ import org.json.JSONObject;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
-import se.leap.openvpn.MainActivity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -211,10 +210,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		switch (item.getItemId()){
 		case R.id.about_leap:
 			intent = new Intent(this, AboutActivity.class);
-			startActivity(intent);
-			return true;
-		case R.id.legacy_interface:
-			intent = new Intent(this,MainActivity.class);
 			startActivity(intent);
 			return true;
 		case R.id.switch_provider:

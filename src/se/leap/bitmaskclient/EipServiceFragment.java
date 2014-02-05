@@ -24,7 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
-public class EipServiceFragment extends Fragment implements StateListener, OnClickListener, OnCheckedChangeListener {
+public class EipServiceFragment extends Fragment implements StateListener, OnCheckedChangeListener {
 	
 	private static final String IS_EIP_PENDING = "is_eip_pending";
 	
@@ -58,7 +58,6 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 			eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
 		
 		eipStatus = (TextView) eipFragment.findViewById(R.id.eipStatus);
-		eipStatus.setOnClickListener(this);
 
 		eipSwitch = (Switch) eipFragment.findViewById(R.id.eipSwitch);
 
@@ -104,21 +103,6 @@ public class EipServiceFragment extends Fragment implements StateListener, OnCli
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(IS_EIP_PENDING, mEipStartPending);
-	}
-	
-	@Override
-	public void onClick(View buttonView) {
-		if (buttonView.equals(eipStatus))
-			showEIPLog();
-	}
-	
-	/**
-	 * Launches the se.leap.openvpn.LogWindow Activity showing detailed OpenVPN log
-	 */
-	public void showEIPLog(){
-		Intent intent = new Intent(getActivity().getBaseContext(),LogWindow.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-		startActivity(intent);
 	}
 	
 	@Override

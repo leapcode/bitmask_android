@@ -26,7 +26,6 @@
         android:title="@string/send_logfile"
         android:titleCondensed="@string/send"/>
     <item
-        android:id="@+id/edit_vpn"
         android:alphabeticShortcut="e"
         android:icon="@android:drawable/ic_menu_edit"
         android:showAsAction="withText|ifRoom"
