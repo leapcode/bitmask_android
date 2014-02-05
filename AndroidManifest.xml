@@ -127,12 +127,6 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name="se.leap.openvpn.FileProvider"
-            android:authorities="se.leap.openvpn.FileProvider"
-            android:exported="true"
-            android:grantUriPermissions="true" />
-
         <activity
             android:name="se.leap.bitmaskclient.Dashboard"
             android:label="@string/title_activity_dashboard"
