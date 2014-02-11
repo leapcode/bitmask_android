@@ -1,3 +1,17 @@
+0.4 Feb 10 2014
+Features
+- Use token based authentication
+- UI Improvements
+- Show location of VPN gateway
+- About view is now an Activity
+- Removed ics-openvpn references and unused code
+Bugs Fixed
+- Improved handling of Configuration Wizard errors
+- Use strong cert pinning for provider
+- Progress bars layout
+- References to "LEAP Android" changed to Bitmask
+- Login/logout messages clear when complete
+
 0.2.3 Nov 29 2013
 Features
 - Begin integrating tests into repository
