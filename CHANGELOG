@@ -1,4 +1,4 @@
-0.4 Feb 10 2014
+0.4 Feb 10 2014 - the "early spring cleaning" release
 Features
 - Use token based authentication
 - UI Improvements
@@ -12,7 +12,7 @@ Bugs Fixed
 - References to "LEAP Android" changed to Bitmask
 - Login/logout messages clear when complete
 
-0.2.3 Nov 29 2013
+0.2.3 Nov 29 2013 - the "three is a magic number" release
 Features
 - Begin integrating tests into repository
 - Clearer wording in some places
