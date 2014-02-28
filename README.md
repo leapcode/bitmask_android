@@ -39,6 +39,8 @@ This project uses code from [ics-openvpn project](https://code.google.com/p/ics-
 Please fork this repository and contribute back using
 [pull requests](https://github.com/leapcode/leap_android/pulls).
 
+Our preferred method for receiving translations is our [Transifex project](https://www.transifex.com/projects/p/bitmask-android).
+
 Any contributions, large or small, major features, bug fixes, additional
 language translations, unit/integration tests are welcomed and appreciated
 but will be thoroughly reviewed and discussed.
