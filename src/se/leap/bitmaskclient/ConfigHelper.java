@@ -47,141 +47,11 @@ import android.util.Base64;
  *
  */
 public class ConfigHelper {
-    
-    public static SharedPreferences shared_preferences;
     private static KeyStore keystore_trusted;
 
     final public static String NG_1024 =
     		"eeaf0ab9adb38dd69c33f80afa8fc5e86072618775ff3c0b9ea2314c9c256576d674df7496ea81d3383b4813d692c6e0e0d5d8e250b98be48e495c1d6089dad15dc7d7b46154d6b6ce8ef4ad69b15d4982559b297bcf1885c529f566660e57ec68edbc3c05726cc02fd4cbf4976eaa9afd5138fe8376435b9fc61d2fc0eb06e3";
     final public static BigInteger G = new BigInteger("2");
-	
-    
-    private static boolean checkSharedPrefs() {
-    	try {
-    		if(shared_preferences == null)
-    			shared_preferences = Dashboard.getAppContext().getSharedPreferences(Dashboard.SHARED_PREFERENCES,Context.MODE_PRIVATE);
-    	} catch (Exception e) {
-    		return false;
-    	}
-    	
-    	return true;
-    }
-    
-    /**
-     * Saves a JSON object into class scope Shared Preferences
-     * @param shared_preferences_key
-     * @param content
-     */
-	public static void saveSharedPref(String shared_preferences_key, JSONObject content) {
-
-		SharedPreferences.Editor shared_preferences_editor = shared_preferences
-				.edit();
-		shared_preferences_editor.putString(shared_preferences_key,
-				content.toString());
-		shared_preferences_editor.commit();
-	}
-
-    /**
-     * Saves a String object into class scope Shared Preferences
-     * @param shared_preferences_key
-     * @param content
-     */
-	public static void saveSharedPref(String shared_preferences_key, String content) {
-
-		SharedPreferences.Editor shared_preferences_editor = shared_preferences
-				.edit();
-		shared_preferences_editor.putString(shared_preferences_key,
-				content);
-		shared_preferences_editor.commit();
-	}
-
-    /**
-     * Saves a boolean object into class scope Shared Preferences
-     * @param shared_preferences_key
-     * @param content
-     */
-	public static void saveSharedPref(String shared_preferences_key, boolean content) {
-
-		SharedPreferences.Editor shared_preferences_editor = shared_preferences
-				.edit();
-		shared_preferences_editor.putBoolean(shared_preferences_key, content);
-		shared_preferences_editor.commit();
-	}
-	
-	/**
-	 * Saves an int into class scope Shared Preferences
-	 * 
-	 * @param shared_preferences_key
-	 * @param value
-	 */
-	protected static void saveSharedPref(String shared_preferences_key, int value) {
-		SharedPreferences.Editor shared_preferences_editor = shared_preferences.edit();
-		shared_preferences_editor.putInt(shared_preferences_key, value).commit();
-	}
-	
-	/**
-	 * Gets String object from class scope Shared Preferences
-	 * @param shared_preferences_key
-	 * @return the string correspondent to the key parameter
-	 */
-	public static String getStringFromSharedPref(String shared_preferences_key) {
-		String content = null;
-		content = shared_preferences.getString(shared_preferences_key, "");
-		return content;
-	}
-	
-	/**
-	 * Gets JSON object from class scope Shared Preferences
-	 * @param shared_preferences_key
-	 * @return the JSON object correspondent to the key parameter
-	 */
-	public static JSONObject getJsonFromSharedPref(String shared_preferences_key) throws JSONException {
-		JSONObject content = null;
-		if ( checkSharedPrefs() ) {
-			String json_string = shared_preferences.getString(shared_preferences_key, "");
-			content = new JSONObject(json_string);
-		}
-		
-		return content;
-	}
-	
-	/*
-	 * This method defaults to false.
-	 * If you use this method, be sure to fail-closed on false!
-	 * TODO This is obviously less than ideal...solve it!
-	 */
-	public static boolean getBoolFromSharedPref(String shared_preferences_key) {
-		boolean value = false;
-		if ( checkSharedPrefs() ) {
-			value = shared_preferences.getBoolean(shared_preferences_key, false);
-		}
-		return value;
-	}
-
-	/**
-	 * Get an int from SharedPreferences
-	 * 
-	 * @param shared_preferences_key	Key to retrieve
-	 * @return	The value for the key or 0
-	 */
-	protected static int getIntFromSharedPref(String shared_preferences_key) {
-		return shared_preferences.getInt(shared_preferences_key, 0);
-	}
-	
-	protected static boolean sharedPrefContainsKey(String shared_preferences_key) {
-		return shared_preferences.contains(shared_preferences_key);
-	}
-	/*
-	 * This method defaults to false.
-	 * If you use this method, be sure to fail-closed on false!
-	 * TODO This is obviously less than ideal...solve it!
-	 */
-	public static boolean removeFromSharedPref(String shared_preferences_key) {
-		SharedPreferences.Editor shared_preferences_editor = shared_preferences
-				.edit();
-		shared_preferences_editor.remove(shared_preferences_key);
-		return shared_preferences_editor.commit();
-	}
 	
 	public static boolean checkErroneousDownload(String downloaded_string) {
 		try {
@@ -213,15 +83,6 @@ public class ConfigHelper {
 		byte[] ret = new byte[len - i];
 		System.arraycopy(in, i, ret, 0, len - i);
 		return ret;
-	}
-
-	/**
-	 * Sets class scope Shared Preferences
-	 * @param shared_preferences
-	 */
-	public static void setSharedPreferences(
-			SharedPreferences shared_preferences) {
-		ConfigHelper.shared_preferences = shared_preferences;
 	}
 	
 	public static X509Certificate parseX509CertificateFromString(String certificate_string) {

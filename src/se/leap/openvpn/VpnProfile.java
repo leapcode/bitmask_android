@@ -22,6 +22,7 @@ import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
 
 import se.leap.bitmaskclient.ConfigHelper;
+import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.EIP;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
@@ -249,9 +250,10 @@ public class VpnProfile implements  Serializable{
 			cfg+=insertFileData("cert",mClientCertFilename);
 */
 			// FIXME This is all we need...The whole switch statement can go...
-			cfg+="<ca>\n"+ConfigHelper.getStringFromSharedPref(Provider.CA_CERT)+"\n</ca>\n";
-			cfg+="<key>\n"+ConfigHelper.getStringFromSharedPref(EIP.PRIVATE_KEY)+"\n</key>\n";
-			cfg+="<cert>\n"+ConfigHelper.getStringFromSharedPref(EIP.CERTIFICATE)+"\n</cert>\n";
+			SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);
+			cfg+="<ca>\n"+preferences.getString(Provider.CA_CERT, "")+"\n</ca>\n";
+			cfg+="<key>\n"+preferences.getString(EIP.PRIVATE_KEY, "")+"\n</key>\n";
+			cfg+="<cert>\n"+preferences.getString(EIP.CERTIFICATE, "")+"\n</cert>\n";
 			
 			break;
 		case VpnProfile.TYPE_USERPASS_PKCS12:

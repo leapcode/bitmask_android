@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +29,7 @@ public class ProviderDetailFragment extends DialogFragment {
 			LayoutInflater inflater = getActivity().getLayoutInflater();
 			View provider_detail_view = inflater.inflate(R.layout.provider_detail_fragment, null);
 			
-			JSONObject provider_json = ConfigHelper.getJsonFromSharedPref(Provider.KEY);
+			JSONObject provider_json = new JSONObject(getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, getActivity().MODE_PRIVATE).getString(Provider.KEY, ""));
 			
 			final TextView domain = (TextView)provider_detail_view.findViewById(R.id.provider_detail_domain);
 			domain.setText(provider_json.getString(Provider.DOMAIN));
@@ -83,10 +84,8 @@ public class ProviderDetailFragment extends DialogFragment {
 	@Override
 	public void onCancel(DialogInterface dialog) {
 		super.onCancel(dialog);
-		ConfigHelper.removeFromSharedPref(Provider.KEY);
-		ConfigHelper.removeFromSharedPref(ProviderItem.DANGER_ON);
-		ConfigHelper.removeFromSharedPref(EIP.ALLOWED_ANON);
-		ConfigHelper.removeFromSharedPref(EIP.KEY);
+		SharedPreferences.Editor editor = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit();
+		editor.remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(EIP.ALLOWED_ANON).remove(EIP.KEY).commit();
 		interface_with_configuration_wizard.showAllProviders();
 	}
 

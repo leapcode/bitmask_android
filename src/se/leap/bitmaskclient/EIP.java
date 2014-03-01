@@ -97,13 +97,7 @@ public final class EIP extends IntentService {
 		
 		context = getApplicationContext();
 		
-		try {
-			eipDefinition = ConfigHelper.getJsonFromSharedPref(KEY);
-			parsedEipSerial = ConfigHelper.getIntFromSharedPref(PARSED_SERIAL);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		updateEIPService();
 		
 		this.retreiveVpnService();
 	}
@@ -273,8 +267,8 @@ public final class EIP extends IntentService {
 	 */
 	private void updateEIPService() {
 		try {
-			eipDefinition = ConfigHelper.getJsonFromSharedPref(EIP.KEY);
-			parsedEipSerial = ConfigHelper.getIntFromSharedPref(PARSED_SERIAL);
+			eipDefinition = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(KEY, ""));
+			parsedEipSerial = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getInt(PARSED_SERIAL, 0);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -338,8 +332,7 @@ public final class EIP extends IntentService {
 				e.printStackTrace();
 			}
 		}
-		
-		ConfigHelper.saveSharedPref(PARSED_SERIAL, eipDefinition.optInt(Provider.API_RETURN_SERIAL));
+		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(PARSED_SERIAL, eipDefinition.optInt(Provider.API_RETURN_SERIAL)).commit();
 	}
 
 	/**
