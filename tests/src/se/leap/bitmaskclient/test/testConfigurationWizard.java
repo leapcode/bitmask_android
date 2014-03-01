@@ -2,7 +2,7 @@ package se.leap.bitmaskclient.test;
 
 import java.io.IOException;
 
-import se.leap.bitmaskclient.AboutFragment;
+import se.leap.bitmaskclient.AboutActivity;
 import se.leap.bitmaskclient.ConfigurationWizard;
 import se.leap.bitmaskclient.ProviderDetailFragment;
 import se.leap.bitmaskclient.R;
@@ -56,7 +56,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 	
 	public void testShowAbout() {
 		solo.clickOnMenuItem(solo.getString(R.string.about));
-		assertTrue("Provider details dialog did not appear", solo.waitForFragmentByTag(AboutFragment.TAG));
+		assertTrue("Provider details dialog did not appear", solo.waitForActivity(AboutActivity.class));
 	}
 	
 	public void testShowSettings() {
