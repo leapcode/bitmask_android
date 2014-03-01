@@ -60,6 +60,8 @@ import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.dubsar_dictionary.SecureClient.SecureSocketFactory;
+
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import android.app.IntentService;
@@ -681,11 +683,28 @@ public class ProviderAPI extends IntentService {
 		TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
 		tmf.init(keyStore);
 
-		// Create an SSLContext that uses our TrustManager
-		SSLContext context = SSLContext.getInstance("TLS");
-		context.init(null, tmf.getTrustManagers(), null);
-
-		return context.getSocketFactory();
+		SecureSocketFactory.setEnabledProtocols(new String[] { "TLS", "TLSv1.1", "TLSv1.2" });
+		
+	    // order does matter here. specify ciphers in preference order
+	    SecureSocketFactory.setEnabledCipherSuites(new String[] {
+		        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+		        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+		        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+		        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+		        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+		        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+		        "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+		        "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+		        "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+		        "TLS_RSA_WITH_AES_128_CBC_SHA",
+		        "TLS_RSA_WITH_AES_256_CBC_SHA",
+		        "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+		        "SSL_RSA_WITH_RC4_128_SHA",
+		        "SSL_RSA_WITH_RC4_128_MD5"
+	    });
+	    SecureSocketFactory.setTrustManager(tmf);
+	    SecureSocketFactory ssf = (SecureSocketFactory) SecureSocketFactory.getHttpSocketFactory(0);
+		return ssf.getSecureSocketFactory();
 	}
 	
 	/**
