@@ -106,7 +106,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			if ( resultCode == RESULT_OK ){		
 				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(EIP.PARSED_SERIAL, 0).commit();
 				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
-				startService( new Intent(EIP.ACTION_UPDATE_EIP_SERVICE) );
+				Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
+				updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
+				startService(updateEIP);
 				buildDashboard();
 
 				if(data != null && data.hasExtra(LogInDialog.VERB)) {
