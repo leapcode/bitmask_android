@@ -16,10 +16,14 @@
  */
  package se.leap.bitmaskclient;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import org.json.JSONArray;
@@ -291,10 +295,61 @@ public final class EIP extends IntentService {
 	 * @return The gateway to connect to
 	 */
 	private OVPNGateway selectGateway() {
-		// TODO Implement gateway selection logic based on TZ or preferences
-		// TODO Implement search through gateways loaded from SharedPreferences
 		// TODO Remove String arg constructor in favor of findGatewayByName(String)
-		return new OVPNGateway("first");
+		
+		Calendar cal = Calendar.getInstance();
+		int localOffset = cal.get(Calendar.ZONE_OFFSET) / 3600000;
+		TreeMap<Integer, Set<String>> offsets = new TreeMap<Integer, Set<String>>();
+		JSONObject locationsObjects = null;
+		Iterator<String> locations = null;
+		try {
+			locationsObjects = eipDefinition.getJSONObject("locations");
+			locations = locationsObjects.keys();
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		while (locations.hasNext()) {
+			String locationName = locations.next();
+			JSONObject location = null;
+			try {
+				location = locationsObjects.getJSONObject(locationName);
+				
+				// Distance along the numberline of Prime Meridian centric, assumes UTC-11 through UTC+12
+				int dist = Math.abs(localOffset - location.optInt("timezone"));
+				// Farther than 12 timezones and it's shorter around the "back"
+				if (dist > 12)
+					dist = 12 - (dist -12);  // Well i'll be.  Absolute values make equations do funny things.
+				
+				Set<String> set = offsets.get(dist);
+				if (set == null) set = new HashSet<String>();
+				set.add(locationName);
+				offsets.put(dist, set);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		String closestLocation = offsets.firstEntry().getValue().iterator().next();
+		JSONArray gateways = null;
+		String chosenHost = null;
+		try {
+			gateways = eipDefinition.getJSONArray("gateways");
+			for (int i = 0; i < gateways.length(); i++) {
+				JSONObject gw = gateways.getJSONObject(i);
+				if ( gw.getString("location").equalsIgnoreCase(closestLocation) ){
+					chosenHost = gw.getString("host");
+					break;
+				}
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return new OVPNGateway(chosenHost);
 	}
 	
 	/**
@@ -368,12 +423,10 @@ public final class EIP extends IntentService {
 			ProfileManager vpl = ProfileManager.getInstance(context);
 			
 			try {
-				if ( mName == "first" ) {
-					mName = vpl.getProfiles().iterator().next().mName;
-				}
-				
-				mVpnProfile = vpl.getProfileByName(mName);
-				
+				if ( mName == null )
+					mVpnProfile = vpl.getProfiles().iterator().next();
+				else
+					mVpnProfile = vpl.getProfileByName(mName);
 			} catch (NoSuchElementException e) {
 				updateEIPService();
 				this.loadVpnProfile();	// FIXME catch infinite loops
