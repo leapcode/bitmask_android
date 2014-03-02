@@ -452,9 +452,10 @@ public final class EIP extends IntentService {
 			for (Iterator<VpnProfile> it = profiles.iterator(); it.hasNext(); ){
 				VpnProfile p = it.next();
 				try {
-					if ( p.mName.contains( gateway.getString("host") ) )
+					if ( p.mName.equalsIgnoreCase( gateway.getString("host") ) ){
 						it.remove();
 						vpl.removeProfile(context, p);
+					}
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
