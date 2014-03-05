@@ -54,7 +54,7 @@
     <string name="building_configration">Building configuration…</string>
     <string name="cert_from_keystore">Got certificate \'%s\' from Keystore</string>
     <string name="netstatus">Network Status: %s</string>
-    <string name="keychain_nocacert">No CA Certificate returned while reading from Android keystore. Auhtentication will probably fail.</string>
+    <string name="keychain_nocacert">No CA Certificate returned while reading from Android keystore. Authentication will probably fail.</string>
     <string name="mobile_info">Running on %1$s (%2$s) %3$s, Android API %4$d</string>
     <string name="error_rsa_sign">Error signing with Android keystore key %1$s: %2$s</string>
     <string name="translationby">English translation by Arne Schwabe&lt;arne@rfc2549.org&gt;</string>
