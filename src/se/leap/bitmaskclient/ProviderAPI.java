@@ -606,7 +606,7 @@ public class ProviderAPI extends IntentService {
 		} catch (MalformedURLException e) {
 			json_file_content = formatErrorMessage(R.string.malformed_url);
 		} catch(SocketTimeoutException e) {
-			json_file_content = formatErrorMessage(R.string.server_is_down_message);
+			json_file_content = formatErrorMessage(R.string.server_unreachable_message);
 		} catch (IOException e) {
 			if(provider_url != null) {
 				json_file_content = downloadWithProviderCA(string_url, danger_on);
@@ -644,7 +644,7 @@ public class ProviderAPI extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
-			json_file_content = formatErrorMessage(R.string.server_is_down_message);
+			json_file_content = formatErrorMessage(R.string.server_unreachable_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			if(danger_on) {
@@ -727,7 +727,7 @@ public class ProviderAPI extends IntentService {
 			System.out.println("String ignoring certificate = " + string);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			string = formatErrorMessage(R.string.server_is_down_message);
+			string = formatErrorMessage(R.string.server_unreachable_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			e.printStackTrace();
