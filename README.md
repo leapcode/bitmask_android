@@ -27,7 +27,7 @@ signed with a different key.  Manually uninstall Bitmask Android from your devic
 you will then be able to install your own built version.
 To uninstall it, do: adb uninstall se.leap.bitmaskclient
 
-See [here](https://github.com/parmegv/bitmask_android/blob/feature/docs/Building_from_eclipse.md) for
+See [here](https://github.com/leapcode/bitmask_android/blob/develop/Building_from_eclipse.md) for
 instructions on building from [Eclipse](http://eclipse.org).
 
 ## Acknowledgements
