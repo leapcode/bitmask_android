@@ -39,7 +39,7 @@ public class ProviderListFragment extends ListFragment {
 
 	public static String TAG = "provider_list_fragment";
 	public static String SHOW_ALL_PROVIDERS = "show_all_providers";
-	
+	public static String TOP_PADDING = "top padding";
 	private ProviderListAdapter<ProviderItem> content_adapter;
 	
     /**
@@ -120,7 +120,7 @@ public class ProviderListFragment extends ListFragment {
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
-    	String top_padding_key = getResources().getString(R.string.top_padding);
+        String top_padding_key = TOP_PADDING;
     	if(getArguments() != null && getArguments().containsKey(top_padding_key)) {
     		int topPadding = getArguments().getInt(top_padding_key);
     		View current_view = getView();
