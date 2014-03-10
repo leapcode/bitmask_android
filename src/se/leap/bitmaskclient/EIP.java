@@ -280,9 +280,9 @@ public final class EIP extends IntentService {
 		if(parsedEipSerial == 0) {
 			// Delete all vpn profiles
 			ProfileManager vpl = ProfileManager.getInstance(context);
-			Collection<VpnProfile> profiles = vpl.getProfiles();
-			for (VpnProfile profile : profiles){
-				vpl.removeProfile(context, profile);
+			VpnProfile[] profiles = (VpnProfile[]) vpl.getProfiles().toArray(new VpnProfile[vpl.getProfiles().size()]);
+			for (int current_profile = 0; current_profile < profiles.length; current_profile++){
+				vpl.removeProfile(context, profiles[current_profile]);
 			}
 		}
 		if (eipDefinition.optInt("serial") > parsedEipSerial)
