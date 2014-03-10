@@ -94,7 +94,6 @@
     <string name="authed_secured_status">Connection secure using your own certificate.</string>
     <string name="eip_service_label">Encrypted Internet</string>
     <string name="title_activity_configuration_wizard">Select a service provider</string>
-    <string name="top_padding">Top padding</string>
     <string name="new_provider_button">Add new Provider</string>
     <string name="introduce_new_provider">Add a new service provider</string>
     <string name="save">Save</string>
