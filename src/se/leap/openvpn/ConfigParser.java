@@ -357,7 +357,7 @@ public class ConfigParser {
 		}
 		
 		// Parse remote config
-		Vector<String> location = getOption("location",1,2);
+		Vector<String> location = getOption("location",0,2);
 		if(location != null && location.size() == 2){
 			np.mLocation = location.get(1).replace("__", ", ");
 		}
