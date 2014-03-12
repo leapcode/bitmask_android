@@ -52,7 +52,7 @@
   <string name="keychain_nocacert">안드로이드 keystore에서 CA 인증서를 찾지 못했습니다. Auhtentication은 실패할 것 입니다.</string>
   <string name="mobile_info">%1$s (%2$s) %3$s, 안드로이드 API %4$d 에서 실행</string>
   <string name="error_rsa_sign">안드로이드 keystore 키 %1$s: %2$s과 싸이닝 오류</string>
-  <string name="translationby">한국어 번역 (주)기가드 안규태&lt;ktdann@gmail.com></string>
+  <string name="translationby">한국어 번역 (주)기가드 안규태&lt;ktdann@gmail.com> + https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="warn_no_dns">사용 중인 DNS 서버가 없습니다. 이름 확인이 작동 하지 않을 수 있습니다. 사용자 지정 DNS 서버의 사용을 고려해 보세요.</string>
   <string name="dns_add_error">DNS서버 \"%1$s\" 는, 시스템에 의해 거부되 추가할 수 없습니다: %2$s</string>
   <string name="getproxy_error">프록시 설정 가져오기 오류: %s</string>

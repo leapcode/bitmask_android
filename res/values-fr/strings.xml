@@ -53,7 +53,7 @@
   <string name="keychain_nocacert">"Aucun certificat CA renvoyée lors de la lecture depuis le gestionnaire de clés. L\'authentification échouera probablement."</string>
   <string name="mobile_info">"Fonctionnant sur %1$s (%2$s) %3$s , Android API %4$d"</string>
   <string name="error_rsa_sign">"Erreur de signature de la clé %1$s : %2$s par le gestionnaire d\'Android"</string>
-  <string name="translationby">French translation by Stanislas Bach&lt;stanislasbach@gmail.com&gt;</string>
+  <string name="translationby">French translation by Stanislas Bach&lt;stanislasbach@gmail.com&gt; + https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="warn_no_dns">"Pas de serveurs DNS utilisés. La résolution de noms peut ne pas fonctionner. Envisagez d\'utiliser des serveurs DNS personnalisés."</string>
   <string name="dns_add_error">"Impossible d\'ajouter le serveur DNS \"%1$s\", rejetés par le système: %2$s"</string>
   <string name="getproxy_error">"Erreur d\'obtention des paramètres de proxy: %s"</string>

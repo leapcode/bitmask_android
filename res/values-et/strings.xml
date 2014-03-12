@@ -53,7 +53,7 @@
   <string name="keychain_nocacert">Androidi võtmehoidlast lugemine ei andnud ühtegi CA sertifikaati. Suure tõenäosusega autentimine ebaõnnestub.</string>
   <string name="mobile_info">Töötamas %1$s (%2$s) %3$s peal, Android API %4$d</string>
   <string name="error_rsa_sign">Viga allkirjastamisel Androidi võtmehoidla võtmega %1$s: %2$s</string>
-  <string name="translationby">Eesti keelde tõlkis Robert Tiismus</string>
+  <string name="translationby">Eesti keelde tõlkis Robert Tiismus + https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="warn_no_dns">Ühtegi DNS serverit ei kasutata. Nimelahendus ei pruugi töötada. Vae kohandatud DNS serveri kasutust</string>
   <string name="dns_add_error">DNS serveri \"%1$s\" lisamine ebaõnnestus, süsteemi poolt keelduti: %2$s</string>
   <string name="getproxy_error">Viga proxy seadistuste vastuvõtul: %s</string>

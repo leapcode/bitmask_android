@@ -40,7 +40,7 @@
   <string name="building_configration">正在生成設定檔…</string>
   <string name="netstatus">網絡狀態: %s</string>
   <string name="mobile_info">於 %1$s (%2$s) %3$s 上運行, Android API 版本: %4$d</string>
-  <string name="translationby">繁體中文 由 羊羊@自由網絡研究中心 &lt;sora8964@gmail.com&gt; 翻譯</string>
+  <string name="translationby">繁體中文 由 羊羊@自由網絡研究中心 &lt;sora8964@gmail.com&gt; 翻譯 + https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="warn_no_dns">沒有任何DNS伺服器可用，可能無法進行網域名稱解析。請考慮設置自訂的DNS伺服器</string>
   <string name="getproxy_error">取得代理伺服器資訊時發生錯誤: %s</string>
   <string name="using_proxy">使用代理伺服器 %1$s %2$d</string>

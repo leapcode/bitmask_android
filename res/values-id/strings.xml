@@ -51,7 +51,7 @@
   <string name="keychain_nocacert">Tidak ada sertifikat CA yang didapat saat membaca dari Android Keystore. Otentifikasi mungkin gagal</string>
   <string name="mobile_info">Berjalan di %1$s (%2$s) %3$s, Android API %4$d</string>
   <string name="error_rsa_sign">Kesalahan masuk dengan kunci Android keystore %1$ s: %2$ s</string>
-  <string name="translationby">Terjemah Bahasa Indonesia oleh Dayro</string>
+  <string name="translationby">Terjemah Bahasa Indonesia oleh Dayro + https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="warn_no_dns">Tidak ada server DNS yang digunakan. Resolusi nama mungkin tidak bisa bekerja. Pertimbangkan seting server DNS yang diatur sendiri </string>
   <string name="dns_add_error">Tak bisa menambahkan Server DNS \"%1$ s\", ditolak oleh sistem: %2$ s</string>
   <string name="getproxy_error">Gagal mendapatkan pengaturan proxy: %s</string>

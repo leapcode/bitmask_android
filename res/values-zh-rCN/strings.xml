@@ -44,7 +44,7 @@
   <string name="netstatus">网络状态： %s</string>
   <string name="mobile_info">运行 %1$s （ %2$s ） %3$s ，Android API %4$d</string>
   <string name="translationby">中文翻译： 白达卫
-&lt;59539051+ovpntrans.zh@mail.dcu.ie&gt;</string>
+&lt;59539051+ovpntrans.zh@mail.dcu.ie&gt; + https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="getproxy_error">获取代理设置时出错：%s</string>
   <string name="using_proxy">使用代理 %1$s %2$d</string>
   <string name="ignore">忽略</string>

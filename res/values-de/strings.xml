@@ -52,7 +52,7 @@
   <string name="keychain_nocacert">Beim Abfragen des Android KeyStore wurde kein CA Zertifikat zurückgegeben. Überprüfen des Serverzertifikat wird wahrscheinlich fehlschlagen. Geben Sie manuell ein CA Zertifikat an.</string>
   <string name="mobile_info">Modell %1$s (%2$s) %3$s, Android API %4$d</string>
   <string name="error_rsa_sign">Fehler beim Zugriff auf den Android Keystore %1$s: %2$s</string>
-  <string name="translationby">Deutsche Übersetzung von Arne Schwabe &lt;arne@rfc2549.org&gt;</string>
+  <string name="translationby">Deutsche Übersetzung von Arne Schwabe &lt;arne@rfc2549.org&gt; + https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="warn_no_dns">Es werden keine DNS Server gesetzt. Möglicherweise wird die DNS Auflösung nicht funktionieren. Ziehen Sie in Betracht die Option \"eigene DNS Server\" zu benutzen.</string>
   <string name="dns_add_error">Konnte den DNS Server \"%1$s\" nicht hinzufügen, da das System ihn zurückweist mit %2$s</string>
   <string name="getproxy_error">Fehler beim Ermitteln der Proxy Einstellungen: %s</string>
