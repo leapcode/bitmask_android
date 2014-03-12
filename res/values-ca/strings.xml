@@ -33,7 +33,7 @@
   <string name="building_configration">Construint la configuració...</string>
   <string name="netstatus">Estat de la xarxa %s</string>
   <string name="translationby">Traducció al catala per Sergi Almacellas 
-&lt;sergi@koolpi.com&gt;</string>
+&lt;sergi@koolpi.com&gt; + https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="using_proxy">Utilitzant el proxy %1$s %2$d</string>
   <string name="ignore">Ignorar</string>
   <string name="restart">Reinicia</string>

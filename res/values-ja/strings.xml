@@ -53,7 +53,7 @@
   <string name="keychain_nocacert">認証局証明書（CA Cert）がAndroidのキーストアから取得できませんでした。認証はおそらく失敗します。</string>
   <string name="mobile_info">実行中：%1$s (%2$s)%3$s Android API %4$d</string>
   <string name="error_rsa_sign">Androidキーストアに保存されたキー %1$s: %2$sの署名エラーです</string>
-  <string name="translationby">日本語翻訳 高橋正希＠埼玉 &lt;tools@artin.nu&gt;</string>
+  <string name="translationby">日本語翻訳 高橋正希＠埼玉 &lt;tools@artin.nu&gt; + https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="warn_no_dns">使用されている DNS サーバーはありません。名前解決は動作しません。DNSサーバーの設定を見直してください。</string>
   <string name="dns_add_error">DNSサーバ \"%1$s\" の追加に失敗しました。%2$sに拒否されました。</string>
   <string name="getproxy_error">プロキシ設定でエラー： %s</string>

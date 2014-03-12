@@ -51,7 +51,7 @@
   <string name="keychain_nocacert">Не удалось получить CA из хранилища ключей Android. Аутентификация не удалась.</string>
   <string name="mobile_info">Работает на %1$s (%2$s) %3$s, Android API %4$d</string>
   <string name="error_rsa_sign">Ошибка подписи с использованием ключа из хранилища Android %1$s: %2$s</string>
-  <string name="translationby">Русский перевод от RusFox &lt;horonitel@gmail.com&gt;</string>
+  <string name="translationby">Русский перевод от RusFox &lt;horonitel@gmail.com&gt; + https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="warn_no_dns">DNS-серверы не используются. Разрешение имен может не работать. Рассмотрите возможность указания DNS-серверов</string>
   <string name="dns_add_error">Не удалось добавить DNS-сервер \"%1$s\", отклонен системой: %2$s</string>
   <string name="getproxy_error">Ошибка при получении параметров прокси-сервера: %s</string>

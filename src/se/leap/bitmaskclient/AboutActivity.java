@@ -34,14 +34,6 @@ public class AboutActivity extends Activity  {
 
     	
     	ver.setText(getString(R.string.version_info,name,version));
-    	
-    	TextView translation = (TextView) findViewById(R.id.translation);
-    	
-    	// Don't print a text for myself
-    	if ( getString(R.string.translationby).contains("Arne Schwabe"))
-	    translation.setVisibility(TextView.INVISIBLE);
-	else
-	    translation.setText(R.string.translationby);
 	setResult(VIEWED);
     }
 
