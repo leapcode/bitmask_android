@@ -601,7 +601,7 @@ public class ProviderAPI extends IntentService {
 			URLConnection url_connection = provider_url.openConnection();
 			url_connection.setConnectTimeout(seconds_of_timeout*1000);
 			if(!LeapSRPSession.getToken().isEmpty())
-				url_connection.addRequestProperty(LeapSRPSession.TOKEN, LeapSRPSession.getToken());
+				url_connection.addRequestProperty(LeapSRPSession.AUTHORIZATION_HEADER, "Token token = " + LeapSRPSession.getToken());
 			json_file_content = new Scanner(url_connection.getInputStream()).useDelimiter("\\A").next();
 		} catch (MalformedURLException e) {
 			json_file_content = formatErrorMessage(R.string.malformed_url);
@@ -638,7 +638,7 @@ public class ProviderAPI extends IntentService {
 					(HttpsURLConnection)url.openConnection();
 			urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
 			if(!LeapSRPSession.getToken().isEmpty())
-				urlConnection.addRequestProperty(LeapSRPSession.TOKEN, LeapSRPSession.getToken());
+				urlConnection.addRequestProperty(LeapSRPSession.AUTHORIZATION_HEADER, "Token token=" + LeapSRPSession.getToken());
 			json_file_content = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
 		} catch (CertificateException e) {
 			// TODO Auto-generated catch block
