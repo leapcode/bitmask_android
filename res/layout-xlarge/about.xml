@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layout_marginLeft="12sp"
     tools:context=".Dashboard" >
 
     <LinearLayout
@@ -14,64 +15,71 @@
         <TextView
             android:id="@+id/version"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="18sp" />
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="10sp" />
+            android:layout_height="12sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:autoLink="all"
             android:text="@string/copyright_leapgui" />
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="10sp" />
+            android:layout_height="12sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:autoLink="all"
             android:text="@string/repository_url_text" />
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="10sp" />
+            android:layout_height="12sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:autoLink="all"
             android:text="@string/translation_project_text" />
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="10sp" />
+            android:layout_height="12sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:autoLink="all"
             android:text="@string/translationby" />
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="10sp" />
+            android:layout_height="18sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:text="@string/copyright_others" />
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="10sp" />
+            android:layout_height="12sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:text="@string/openvpn"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         <!--
@@ -85,6 +93,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:text="@string/opevpn_copyright" />
 
         <Space
@@ -94,12 +103,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:text="@string/lzo"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:text="@string/lzo_copyright" />
 
         <Space
@@ -109,12 +120,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:text="@string/openssl"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:text="@string/copyright_openssl" />
     </LinearLayout>
 
