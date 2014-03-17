@@ -179,7 +179,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					statusMessage = getString(R.string.eip_state_connected); getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
                                                 mEipStartPending = false;
 						
-					} else if ( (state.equals("NOPROCESS") && !mEipStartPending ) || state.equals("EXITING") || state.equals("FATAL")) {
+					} else if ( (state.equals("NOPROCESS") && !mEipStartPending ) || state.equals("EXITING") && !mEipStartPending || state.equals("FATAL")) {
 						statusMessage = getString(R.string.eip_state_not_connected);
 						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
