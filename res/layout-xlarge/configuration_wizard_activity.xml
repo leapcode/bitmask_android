@@ -1,0 +1,26 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/configuration_wizard_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ConfigurationWizard" >
+
+    <ProgressBar
+        android:id="@+id/progressbar_configuration_wizard"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:max="3" />
+    
+    <TextView
+        android:id="@+id/progressbar_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fadingEdge="horizontal"
+        android:singleLine="true"
+        android:text="@string/configuring_provider"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/holo_blue_bright" />
+
+</RelativeLayout>
