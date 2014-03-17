@@ -19,6 +19,7 @@
         android:fadingEdge="horizontal"
         android:singleLine="true"
         android:text="@string/configuring_provider"
+        android:textSize="24sp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/holo_blue_bright" />
