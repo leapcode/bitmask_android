@@ -332,14 +332,15 @@ public final class EIP extends IntentService {
 			}
 		}
 		
-		String closestLocation = offsets.firstEntry().getValue().iterator().next();
+		
+		String closestLocation = offsets.isEmpty() ? "" : offsets.firstEntry().getValue().iterator().next();
 		JSONArray gateways = null;
 		String chosenHost = null;
 		try {
 			gateways = eipDefinition.getJSONArray("gateways");
 			for (int i = 0; i < gateways.length(); i++) {
 				JSONObject gw = gateways.getJSONObject(i);
-				if ( gw.getString("location").equalsIgnoreCase(closestLocation) ){
+				if ( gw.getString("location").equalsIgnoreCase(closestLocation) || closestLocation.isEmpty()){
 					chosenHost = gw.getString("host");
 					break;
 				}
