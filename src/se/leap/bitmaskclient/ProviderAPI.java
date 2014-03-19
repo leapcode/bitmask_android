@@ -126,7 +126,12 @@ public class ProviderAPI extends IntentService {
     
     private static String last_provider_main_url;
     private static boolean last_danger_on = false;
+    private static boolean setting_up_provider = true;
     
+    public static void stop() {
+    	setting_up_provider = false;
+    }
+
 	public ProviderAPI() {
 		super("ProviderAPI");
 		Log.v("ClassName", "Provider API");
@@ -156,33 +161,36 @@ public class ProviderAPI extends IntentService {
 		final ResultReceiver receiver = command.getParcelableExtra(RECEIVER_KEY);
 		String action = command.getAction();
 		Bundle parameters = command.getBundleExtra(PARAMETERS);
+		setting_up_provider = true;
 		
 		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
 			Bundle result = setUpProvider(parameters);
-			if(result.getBoolean(RESULT_KEY)) {
-				receiver.send(PROVIDER_OK, Bundle.EMPTY);
-			} else { 
-				receiver.send(PROVIDER_NOK, result);
+			if(setting_up_provider) {
+				if(result.getBoolean(RESULT_KEY)) {
+					receiver.send(PROVIDER_OK, result);
+				} else { 
+					receiver.send(PROVIDER_NOK, result);
+				}
 			}
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
-			if(session_id_bundle.getBoolean(RESULT_KEY)) {
-				receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
-			} else {
-				receiver.send(SRP_AUTHENTICATION_FAILED, session_id_bundle);
-			}
+				if(session_id_bundle.getBoolean(RESULT_KEY)) {
+					receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
+				} else {
+					receiver.send(SRP_AUTHENTICATION_FAILED, session_id_bundle);
+				}
 		} else if (action.equalsIgnoreCase(LOG_OUT)) {
-			if(logOut(parameters)) {
-				receiver.send(LOGOUT_SUCCESSFUL, Bundle.EMPTY);
-			} else {
-				receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
-			}
+				if(logOut(parameters)) {
+					receiver.send(LOGOUT_SUCCESSFUL, Bundle.EMPTY);
+				} else {
+					receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
+				}
 		} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
-			if(getNewCert(parameters)) {
-				receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
-			} else {
-				receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
-			}
+				if(getNewCert(parameters)) {
+					receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+				} else {
+					receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+				}
 		}
 	}
 	
@@ -477,8 +485,9 @@ public class ProviderAPI extends IntentService {
 	private Bundle downloadCACert(String provider_main_url, boolean danger_on) {
 		Bundle result = new Bundle();
 		String cert_string = downloadWithCommercialCA(provider_main_url + "/ca.crt", danger_on);
-	    if(validCertificate(cert_string)) {
-		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.CA_CERT, cert_string).commit();
+
+	    if(validCertificate(cert_string) && setting_up_provider) {
+	    	getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.CA_CERT, cert_string).commit();
 			result.putBoolean(RESULT_KEY, true);
 		} else {
 			String reason_to_fail = pickErrorMessage(cert_string);
@@ -512,22 +521,24 @@ public class ProviderAPI extends IntentService {
 	private Bundle getAndSetProviderJson(String provider_main_url) {
 		Bundle result = new Bundle();
 
-		String provider_dot_json_string = downloadWithProviderCA(provider_main_url + "/provider.json", true);
+		if(setting_up_provider) {
+			String provider_dot_json_string = downloadWithProviderCA(provider_main_url + "/provider.json", true);
 
-		try {
-			JSONObject provider_json = new JSONObject(provider_dot_json_string);
-			String name = provider_json.getString(Provider.NAME);
-			//TODO setProviderName(name);
-			
-			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.KEY, provider_json.toString()).commit();
-			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON)).commit();
+			try {
+				JSONObject provider_json = new JSONObject(provider_dot_json_string);
+				String name = provider_json.getString(Provider.NAME);
+				//TODO setProviderName(name);
 
-			result.putBoolean(RESULT_KEY, true);
-		} catch (JSONException e) {
-			//TODO Error message should be contained in that provider_dot_json_string
-			String reason_to_fail = pickErrorMessage(provider_dot_json_string);
-			result.putString(ERRORS, reason_to_fail);
-			result.putBoolean(RESULT_KEY, false);
+				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.KEY, provider_json.toString()).commit();
+				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON)).commit();
+
+				result.putBoolean(RESULT_KEY, true);
+			} catch (JSONException e) {
+				//TODO Error message should be contained in that provider_dot_json_string
+				String reason_to_fail = pickErrorMessage(provider_dot_json_string);
+				result.putString(ERRORS, reason_to_fail);
+				result.putBoolean(RESULT_KEY, false);
+			}
 		}
 		return result;
 	}
@@ -541,20 +552,22 @@ public class ProviderAPI extends IntentService {
 	private Bundle getAndSetEipServiceJson() {
 		Bundle result = new Bundle();
 		String eip_service_json_string = "";
-		try {
-			JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
-			String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
-			eip_service_json_string = downloadWithProviderCA(eip_service_url, true);
-			JSONObject eip_service_json = new JSONObject(eip_service_json_string);
-			eip_service_json.getInt(Provider.API_RETURN_SERIAL);
-			
-			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.KEY, eip_service_json.toString()).commit();
+		if(setting_up_provider) {
+			try {
+				JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
+				String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
+				eip_service_json_string = downloadWithProviderCA(eip_service_url, true);
+				JSONObject eip_service_json = new JSONObject(eip_service_json_string);
+				eip_service_json.getInt(Provider.API_RETURN_SERIAL);
 
-			result.putBoolean(RESULT_KEY, true);
-		} catch (JSONException e) {
-			String reason_to_fail = pickErrorMessage(eip_service_json_string);
-			result.putString(ERRORS, reason_to_fail);
-			result.putBoolean(RESULT_KEY, false);
+				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.KEY, eip_service_json.toString()).commit();
+
+				result.putBoolean(RESULT_KEY, true);
+			} catch (JSONException e) {
+				String reason_to_fail = pickErrorMessage(eip_service_json_string);
+				result.putString(ERRORS, reason_to_fail);
+				result.putBoolean(RESULT_KEY, false);
+			}
 		}
 		return result;
 	}
