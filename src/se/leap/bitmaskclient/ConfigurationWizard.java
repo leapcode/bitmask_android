@@ -178,8 +178,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		    mProgressBar.setVisibility(ProgressBar.GONE);
 		    progressbar_description.setVisibility(TextView.GONE);
 		    //refreshProviderList(0);
-			setResult(RESULT_OK);
-			showProviderDetails(getCurrentFocus());
+		    setResult(RESULT_OK);
+		    showProviderDetails(getCurrentFocus());
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 			//refreshProviderList(0);
 			mProgressBar.setVisibility(ProgressBar.GONE);
@@ -428,15 +428,17 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	 * @param view
 	 */
 	public void showProviderDetails(View view) {
-		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-		Fragment previous_provider_details_dialog = getFragmentManager().findFragmentByTag(ProviderDetailFragment.TAG);
-		if (previous_provider_details_dialog != null) {
-			fragment_transaction.remove(previous_provider_details_dialog);
+		if(setting_up_provider) {
+			FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+			Fragment previous_provider_details_dialog = getFragmentManager().findFragmentByTag(ProviderDetailFragment.TAG);
+			if (previous_provider_details_dialog != null) {
+				fragment_transaction.remove(previous_provider_details_dialog);
+			}
+			fragment_transaction.addToBackStack(null);
+
+			DialogFragment newFragment = ProviderDetailFragment.newInstance();
+			newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
 		}
-		fragment_transaction.addToBackStack(null);
-		
-		DialogFragment newFragment = ProviderDetailFragment.newInstance();
-		newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
 	}
 
 	public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
