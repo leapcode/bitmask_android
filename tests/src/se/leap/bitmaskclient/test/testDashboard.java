@@ -12,7 +12,6 @@ import se.leap.bitmaskclient.ConfigurationWizard;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.test.ConnectionManager;
-import se.leap.openvpn.MainActivity;
 
 public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 
@@ -40,24 +39,25 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 	 */
 	public void testOnOffOpenVpn() {
 		solo.clickOnView(solo.getView(R.id.eipSwitch));
-		if(!solo.waitForText("Initiating connection"))
+		if(!solo.waitForText(getActivity().getString(R.string.eip_status_start_pending)))
 			fail();
-		if(!solo.waitForText("Authenticating"))
+		if(!solo.waitForText(getActivity().getString(R.string.state_auth)))
 			fail();
-		if(!solo.waitForText("Connection Secure", 1, 30*1000))
+		if(!solo.waitForText(getActivity().getString(R.string.eip_state_connected), 1, 30*1000))
 			fail();
 		
 		solo.clickOnView(solo.getView(R.id.eipSwitch));
-		if(!solo.waitForText("Not running! Connection not secure"))
+		if(!solo.waitForText(getActivity().getString(R.string.eip_state_not_connected)))
 		    fail();
-
+		
 		ConnectionManager.setMobileDataEnabled(false, solo.getCurrentActivity().getApplicationContext());
 		
 		solo.clickOnView(solo.getView(R.id.eipSwitch));
-		if(!solo.waitForText("Initiating connection"))
+		if(!solo.waitForText(getActivity().getString(R.string.eip_status_start_pending)))
 			fail();
-		if(!solo.waitForText("Waiting for usable network"))
+		if(!solo.waitForText(getActivity().getString(R.string.state_nonetwork)))
 			fail();
+		
 	}
 	
     public void testLogInAndOut() {
@@ -68,7 +68,7 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 		solo.clickOnText("Log In");
 		solo.waitForDialogToClose();
 		solo.waitForDialogToClose(miliseconds_to_log_in);
-		if(!solo.waitForText("Your own cert has been correctly downloaded."))
+		if(!solo.waitForText(getActivity().getString(R.string.succesful_authentication_message)))
 			fail();
 
 		solo.clickOnActionBarItem(R.string.logout_button);
@@ -76,24 +76,19 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 			fail();
 	}
 	
-	public void testShowSettings() {
-		solo.clickOnActionBarItem(R.id.menu_settings);
-	}
-	
 	public void testShowAbout() {
-		solo.clickOnMenuItem("About");
+  	        solo.clickOnMenuItem(getActivity().getString(R.string.about));
 		solo.waitForText(getActivity().getString(R.string.repository_url_text));
 		solo.goBack();
 		
-		solo.clickOnMenuItem("About");
+		solo.clickOnMenuItem(getActivity().getString(R.string.about));
 		solo.waitForText(getActivity().getString(R.string.repository_url_text));
 		solo.goBack();
 	}
 	
 	public void testSwitchProvider() {
-		solo.clickOnMenuItem("Switch provider");
+  	        solo.clickOnMenuItem(getActivity().getString(R.string.switch_provider_menu_option));
 		solo.waitForActivity(ConfigurationWizard.class);
 		solo.goBack();
-	}
 	}
 }
