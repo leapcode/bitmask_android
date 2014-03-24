@@ -108,6 +108,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
+		    boolean allowed_anon = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getBoolean(EIP.ALLOWED_ANON, false);
+		    String certificate = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.CERTIFICATE, "");
+		    if(allowed_anon || !certificate.isEmpty()) {
 			if (isChecked){
 				mEipStartPending = true;
 				eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
@@ -139,6 +142,11 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					eipCommand(EIP.ACTION_STOP_EIP);
 				}
 			}
+		    }
+		    else {
+			Dashboard dashboard = (Dashboard)getActivity();
+			dashboard.logInDialog(getActivity().getCurrentFocus(), Bundle.EMPTY);
+		    }
 		}
 		eipAutoSwitched = true;
 	}
