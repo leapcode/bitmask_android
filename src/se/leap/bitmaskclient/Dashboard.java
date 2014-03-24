@@ -375,7 +375,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	setResult(RESULT_OK);
     		changeStatusMessage(resultCode);
         	mProgressBar.setVisibility(ProgressBar.GONE);
-		eipStart();
+		if(EipServiceFragment.isEipSwitchChecked())
+		    eipStart();
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
     		changeStatusMessage(resultCode);

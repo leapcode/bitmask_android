@@ -29,7 +29,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	private static final String IS_EIP_PENDING = "is_eip_pending";
 	
 	private View eipFragment;
-	private Switch eipSwitch;
+	private static Switch eipSwitch;
 	private View eipDetail;
 	private TextView eipStatus;
 
@@ -277,5 +277,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 
     public static EIPReceiver getReceiver() {
 	return mEIPReceiver;
+    }
+
+    public static boolean isEipSwitchChecked() {
+	return eipSwitch.isChecked();
     }
 }
