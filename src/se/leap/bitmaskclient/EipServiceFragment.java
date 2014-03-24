@@ -37,7 +37,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	
 	private boolean mEipStartPending = false;
 
-    private EIPReceiver mEIPReceiver;
+    private static EIPReceiver mEIPReceiver;
 
     
     public static String TAG = "se.leap.bitmask.EipServiceFragment";
@@ -273,4 +273,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 			eipAutoSwitched = false;
 		}
 	}
+    
+
+    public static EIPReceiver getReceiver() {
+	return mEIPReceiver;
+    }
 }

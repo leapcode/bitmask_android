@@ -375,6 +375,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	setResult(RESULT_OK);
     		changeStatusMessage(resultCode);
         	mProgressBar.setVisibility(ProgressBar.GONE);
+		eipStart();
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
     		changeStatusMessage(resultCode);
@@ -462,4 +463,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		startService(eip_intent);
 
 	}
+
+    private void eipStart(){
+	Intent eip_intent = new Intent(this, EIP.class);
+	eip_intent.setAction(EIP.ACTION_START_EIP);
+	eip_intent.putExtra(EIP.RECEIVER_TAG, EipServiceFragment.getReceiver());
+	startService(eip_intent);
+
+    }
 }
