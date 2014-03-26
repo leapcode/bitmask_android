@@ -137,9 +137,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     public void refreshProviderList(int top_padding) {
     	ProviderListFragment new_provider_list_fragment = new ProviderListFragment();
 		Bundle top_padding_bundle = new Bundle();
-		top_padding_bundle.putInt(getResources().getString(R.string.top_padding), top_padding);
+		top_padding_bundle.putInt(ProviderListFragment.TOP_PADDING, top_padding);
 		new_provider_list_fragment.setArguments(top_padding_bundle);
-
+		
 		FragmentManager fragmentManager = getFragmentManager();
 		fragmentManager.beginTransaction()
 		.replace(R.id.configuration_wizard_layout, new_provider_list_fragment, ProviderListFragment.TAG)

@@ -110,7 +110,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
 				startService(updateEIP);
 				buildDashboard();
-
+				invalidateOptionsMenu();
 				if(data != null && data.hasExtra(LogInDialog.VERB)) {
 					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
 					logInDialog(view, Bundle.EMPTY);

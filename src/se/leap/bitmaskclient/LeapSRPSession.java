@@ -41,7 +41,8 @@ public class LeapSRPSession {
 	final public static String M1 = "M1";
 	final public static String M2 = "M2";
 	final public static String TOKEN = "token";
-
+	final public static String AUTHORIZATION_HEADER= "Authorization";
+	
 	private SRPParameters params;
 	private String username;
 	private String password;

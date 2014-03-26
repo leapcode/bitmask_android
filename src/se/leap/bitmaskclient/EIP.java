@@ -280,9 +280,9 @@ public final class EIP extends IntentService {
 		if(parsedEipSerial == 0) {
 			// Delete all vpn profiles
 			ProfileManager vpl = ProfileManager.getInstance(context);
-			Collection<VpnProfile> profiles = vpl.getProfiles();
-			for (VpnProfile profile : profiles){
-				vpl.removeProfile(context, profile);
+			VpnProfile[] profiles = (VpnProfile[]) vpl.getProfiles().toArray(new VpnProfile[vpl.getProfiles().size()]);
+			for (int current_profile = 0; current_profile < profiles.length; current_profile++){
+				vpl.removeProfile(context, profiles[current_profile]);
 			}
 		}
 		if (eipDefinition.optInt("serial") > parsedEipSerial)
@@ -332,14 +332,15 @@ public final class EIP extends IntentService {
 			}
 		}
 		
-		String closestLocation = offsets.firstEntry().getValue().iterator().next();
+		
+		String closestLocation = offsets.isEmpty() ? "" : offsets.firstEntry().getValue().iterator().next();
 		JSONArray gateways = null;
 		String chosenHost = null;
 		try {
 			gateways = eipDefinition.getJSONArray("gateways");
 			for (int i = 0; i < gateways.length(); i++) {
 				JSONObject gw = gateways.getJSONObject(i);
-				if ( gw.getString("location").equalsIgnoreCase(closestLocation) ){
+				if ( gw.getString("location").equalsIgnoreCase(closestLocation) || closestLocation.isEmpty()){
 					chosenHost = gw.getString("host");
 					break;
 				}
