@@ -1,3 +1,16 @@
+0.5 March 26 2014 - the "soft winds" release
+Features
+- Replace bitmask.net with demo.bitmask.net
+- Transifex URL added to the About page
+Bugs Fixed
+- Tests run without problems from ant
+- Calyx.net and all registered-only EIP providers works correctly once logged in.
+- Menu gets built correctly from the beginning
+- Switching provider doesn't crash the app
+- Removed an unnecessary string from strings.xml
+- Link to the "Building with Eclipse" file corrected.
+- Clearer message when the provider isn't reachable.
+
 0.4 Feb 10 2014 - the "early spring cleaning" release
 Features
 - Use token based authentication
