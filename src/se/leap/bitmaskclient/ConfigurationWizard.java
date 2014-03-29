@@ -160,7 +160,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 				    mProgressBar.setVisibility(ProgressBar.GONE);
 				    progressbar_description.setVisibility(TextView.GONE);
 					setResult(RESULT_OK);
-					setting_up_provider = false;
 					showProviderDetails(getCurrentFocus());
 				}
 		} else if(resultCode == ProviderAPI.PROVIDER_NOK) {
@@ -529,12 +528,14 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		Intent ask_login = new Intent();
 		ask_login.putExtra(LogInDialog.VERB, LogInDialog.VERB);
 		setResult(RESULT_OK, ask_login);
+		setting_up_provider = false;
 		finish();
 	}
 
 	@Override
 	public void use_anonymously() {
 		setResult(RESULT_OK);
+		setting_up_provider = false;
 		finish();
 	}
 
