@@ -56,7 +56,7 @@ public class ProviderDetailFragment extends DialogFragment {
 					}
 				});
 			}
-			
+
 			return builder.create();
 		} catch (JSONException e) {
 			return null;
