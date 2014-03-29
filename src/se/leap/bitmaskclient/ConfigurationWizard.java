@@ -87,6 +87,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
 
     private static SharedPreferences preferences;
+    private static boolean setting_up_provider = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,6 +160,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 				    mProgressBar.setVisibility(ProgressBar.GONE);
 				    progressbar_description.setVisibility(TextView.GONE);
 					setResult(RESULT_OK);
+					setting_up_provider = false;
 					showProviderDetails(getCurrentFocus());
 				}
 		} else if(resultCode == ProviderAPI.PROVIDER_NOK) {
@@ -168,6 +170,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 			mProgressBar.setVisibility(ProgressBar.GONE);
 			progressbar_description.setVisibility(TextView.GONE);
 			preferences.edit().remove(Provider.KEY).commit();
+			setting_up_provider = false;
 			setResult(RESULT_CANCELED, mConfigState);
 		}
 		else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
@@ -175,8 +178,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		    mProgressBar.setVisibility(ProgressBar.GONE);
 		    progressbar_description.setVisibility(TextView.GONE);
 		    //refreshProviderList(0);
-			setResult(RESULT_OK);
-			showProviderDetails(getCurrentFocus());
+		    setResult(RESULT_OK);
+		    showProviderDetails(getCurrentFocus());
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 			//refreshProviderList(0);
 			mProgressBar.setVisibility(ProgressBar.GONE);
@@ -212,9 +215,26 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     
     @Override
     public void onBackPressed() {
-    	try {
-    		boolean is_provider_set_up = new JSONObject(preferences.getString(Provider.KEY, "no provider")) != null ? true : false;
-    		boolean is_provider_set_up_truly = new JSONObject(preferences.getString(Provider.KEY, "no provider")).length() != 0 ? true : false;
+    	if(setting_up_provider) {
+    		stopSettingUpProvider();
+    	} else {
+    		usualBackButton();
+    	}
+    }
+    
+    private void stopSettingUpProvider() {
+		ProviderAPI.stop();
+		mProgressBar.setVisibility(ProgressBar.GONE);
+		mProgressBar.setProgress(0);
+		progressbar_description.setVisibility(TextView.GONE);
+		getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().remove(Provider.KEY).commit();
+    	setting_up_provider = false;
+    }
+    
+    private void usualBackButton() {
+		try {
+			boolean is_provider_set_up = new JSONObject(preferences.getString(Provider.KEY, "no provider")) != null ? true : false;
+			boolean is_provider_set_up_truly = new JSONObject(preferences.getString(Provider.KEY, "no provider")).length() != 0 ? true : false;
 			if(!is_provider_set_up || !is_provider_set_up_truly) {
 				askDashboardToQuitApp();
 			} else {
@@ -222,10 +242,11 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 			}
 		} catch (JSONException e) {
 			askDashboardToQuitApp();
+			super.onBackPressed();
+			e.printStackTrace();
 		}
-    	super.onBackPressed();
+		super.onBackPressed();
     }
-    
     private void askDashboardToQuitApp() {
 		Intent ask_quit = new Intent();
 		ask_quit.putExtra(Dashboard.ACTION_QUIT, Dashboard.ACTION_QUIT);
@@ -407,15 +428,17 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	 * @param view
 	 */
 	public void showProviderDetails(View view) {
-		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
-		Fragment previous_provider_details_dialog = getFragmentManager().findFragmentByTag(ProviderDetailFragment.TAG);
-		if (previous_provider_details_dialog != null) {
-			fragment_transaction.remove(previous_provider_details_dialog);
+		if(setting_up_provider) {
+			FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+			Fragment previous_provider_details_dialog = getFragmentManager().findFragmentByTag(ProviderDetailFragment.TAG);
+			if (previous_provider_details_dialog != null) {
+				fragment_transaction.remove(previous_provider_details_dialog);
+			}
+			fragment_transaction.addToBackStack(null);
+
+			DialogFragment newFragment = ProviderDetailFragment.newInstance();
+			newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
 		}
-		fragment_transaction.addToBackStack(null);
-		
-		DialogFragment newFragment = ProviderDetailFragment.newInstance();
-		newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
 	}
 
 	public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
@@ -451,6 +474,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 
 		startService(provider_API_command);
+		setting_up_provider = true;
 	}
 
 	public void retrySetUpProvider() {
@@ -466,7 +490,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 			startService(provider_API_command);
 		}
 	}
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);

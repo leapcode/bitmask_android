@@ -101,7 +101,7 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 		int position = getRealPosition(index);
 		if (convertView == null) {
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			row = (TwoLineListItem)inflater.inflate(android.R.layout.simple_list_item_2, null);                    
+			row = (TwoLineListItem)inflater.inflate(R.layout.provider_list_item, null);                    
 		} else {
 			row = (TwoLineListItem)convertView;
 		}

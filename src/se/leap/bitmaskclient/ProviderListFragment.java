@@ -94,12 +94,12 @@ public class ProviderListFragment extends ListFragment {
     	if(getArguments().containsKey(SHOW_ALL_PROVIDERS))
     		content_adapter = new ProviderListAdapter<ProviderListContent.ProviderItem>(
     				getActivity(),
-    				android.R.layout.simple_list_item_activated_2,
+    				R.layout.provider_list_item,
     				ProviderListContent.ITEMS, getArguments().getBoolean(SHOW_ALL_PROVIDERS));
     	else
     		content_adapter = new ProviderListAdapter<ProviderListContent.ProviderItem>(
     				getActivity(),
-    				android.R.layout.simple_list_item_activated_2,
+    				R.layout.provider_list_item,
     				ProviderListContent.ITEMS);
     		
 			
