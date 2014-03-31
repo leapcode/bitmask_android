@@ -168,9 +168,11 @@ public final class Provider implements Serializable {
 					return true;
 			} catch (NullPointerException e){
 				e.printStackTrace();
+				return false;
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return false;
 			}
 		}
 		return false;
