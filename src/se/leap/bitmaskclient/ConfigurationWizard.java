@@ -16,20 +16,10 @@
  */
  package se.leap.bitmaskclient;
 
-import java.io.IOException;
-import java.util.Iterator;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
-import se.leap.bitmaskclient.DownloadFailedDialog.DownloadFailedDialogInterface;
-import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
-import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
+
 
 import android.app.Activity;
 import android.app.DialogFragment;
@@ -48,16 +38,28 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View.MeasureSpec;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.view.View.MeasureSpec;
 import android.view.WindowManager;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Iterator;
+import org.json.JSONException;
+import org.json.JSONObject;
+import se.leap.bitmaskclient.DownloadFailedDialog.DownloadFailedDialogInterface;
+import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
+import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
+import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+import se.leap.bitmaskclient.R;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -264,17 +266,44 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	    return null;
     }
     
-    private String getId(String provider_main_url) {
-	    Iterator<ProviderItem> providers_iterator = ProviderListContent.ITEMS.iterator();
-	    while(providers_iterator.hasNext()) {
-		    ProviderItem provider = providers_iterator.next();
-		    if(provider.providerMainUrl().equalsIgnoreCase(provider_main_url)) {
-			    return provider.name();
-		    }
+    private String getId(String provider_main_url_string) {
+	try {
+	URL provider_url = new URL(provider_main_url_string);
+	URL aux_provider_url;
+	Iterator<ProviderItem> providers_iterator = ProviderListContent.ITEMS.iterator();
+	while(providers_iterator.hasNext()) {
+	    ProviderItem provider = providers_iterator.next();
+	    aux_provider_url = new URL(provider.providerMainUrl());
+	    if(isSameURL(provider_url, aux_provider_url)) {
+		return provider.name();
 	    }
-	    return "";
+	}
+	} catch (MalformedURLException e) {
+	    e.printStackTrace();
+	}
+	return "";
     }
 
+    /**
+     * Checks, whether 2 urls are pointing to the same location.
+     *
+     * @param url a url
+     * @param baseUrl an other url, that should be compared.
+     * @return true, if the urls point to the same host and port and use the 
+     *         same protocol, false otherwise.
+     */
+    private boolean isSameURL(final URL url, final URL baseUrl) {
+	if (!url.getProtocol().equals(baseUrl.getProtocol())) {
+	    return false;
+	}
+	if (!url.getHost().equals(baseUrl.getHost())) {
+	    return false;
+	}
+	if (url.getPort() != baseUrl.getPort()) {
+	    return false;
+	}
+	return true;
+    }
 	
 	private void startProgressBar() {
 	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
@@ -442,8 +471,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	}
 
 	public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
+	    if(getId(provider_main_url).isEmpty())
 		showProvider(provider_main_url, danger_on);
-		autoSelectProvider(provider_main_url, danger_on);
+	    autoSelectProvider(provider_main_url, danger_on);
 	}
 	
 	private void showProvider(final String provider_main_url, final boolean danger_on) {
