@@ -228,6 +228,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		progressbar_description.setVisibility(TextView.GONE);
 		getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().remove(Provider.KEY).commit();
     	setting_up_provider = false;
+	showAllProviders();
     }
     
     private void usualBackButton() {
