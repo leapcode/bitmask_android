@@ -160,6 +160,10 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 			dashboard.logInDialog(getActivity().getCurrentFocus(), waiting_on_login);
 		    }
 		}
+		else {
+		    if(!eipSwitch.isChecked())
+			eipStatus.setText(R.string.state_noprocess);
+		}
 		eipAutoSwitched = true;
 	}
 	
