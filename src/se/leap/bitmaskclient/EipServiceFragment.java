@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 public class EipServiceFragment extends Fragment implements StateListener, OnCheckedChangeListener {
 	
-	private static final String IS_EIP_PENDING = "is_eip_pending";
+	protected static final String IS_EIP_PENDING = "is_eip_pending";
 	
 	private View eipFragment;
 	private static Switch eipSwitch;
@@ -36,6 +36,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	private boolean eipAutoSwitched = true;
 	
 	private boolean mEipStartPending = false;
+
+    private boolean set_switch_off = false;
 
     private static EIPReceiver mEIPReceiver;
 
@@ -90,8 +92,16 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		super.onResume();
 
 		OpenVPN.addStateListener(this);
+		if(set_switch_off) {
+		    eipSwitch.setChecked(false);
+		    set_switch_off = false;
+		}
 	}
 
+    protected void setSwitchOff(boolean value) {
+	set_switch_off = value;
+    }
+    
 	@Override
 	public void onPause() {
 		super.onPause();
@@ -145,7 +155,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		    }
 		    else {
 			Dashboard dashboard = (Dashboard)getActivity();
-			dashboard.logInDialog(getActivity().getCurrentFocus(), Bundle.EMPTY);
+			Bundle waiting_on_login = new Bundle();
+			waiting_on_login.putBoolean(IS_EIP_PENDING, true);
+			dashboard.logInDialog(getActivity().getCurrentFocus(), waiting_on_login);
 		    }
 		}
 		eipAutoSwitched = true;
@@ -281,5 +293,10 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 
     public static boolean isEipSwitchChecked() {
 	return eipSwitch.isChecked();
+    }
+
+    public void checkEipSwitch(boolean checked) {
+	eipSwitch.setChecked(checked);
+	onCheckedChanged(eipSwitch, checked);
     }
 }
