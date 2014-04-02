@@ -55,7 +55,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	protected static final int CONFIGURE_LEAP = 0;
 	protected static final int SWITCH_PROVIDER = 1;
 
-	private static final String TAG_EIP_FRAGMENT = "EIP_DASHBOARD_FRAGMENT";
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
 	public static final String REQUEST_CODE = "request_code";
@@ -168,7 +167,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		FragmentManager fragMan = getFragmentManager();
 		if ( provider.hasEIP()){
 			EipServiceFragment eipFragment = new EipServiceFragment();
-			fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, TAG_EIP_FRAGMENT).commit();
+			fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG).commit();
 		}
 	}
 
@@ -264,6 +263,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		//mProgressBar.setMax(4);
 		startService(provider_API_command);
 	}
+
+    public void cancelAuthedEipOn() {
+	EipServiceFragment eipFragment = (EipServiceFragment) getFragmentManager().findFragmentByTag(EipServiceFragment.TAG);
+	eipFragment.checkEipSwitch(false);
+    }
 	
 	/**
 	 * Asks ProviderAPI to log out.
@@ -375,6 +379,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	setResult(RESULT_OK);
     		changeStatusMessage(resultCode);
         	mProgressBar.setVisibility(ProgressBar.GONE);
+		if(EipServiceFragment.isEipSwitchChecked())
+		    eipStart();
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
     		changeStatusMessage(resultCode);
@@ -462,4 +468,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		startService(eip_intent);
 
 	}
+
+    private void eipStart(){
+	Intent eip_intent = new Intent(this, EIP.class);
+	eip_intent.setAction(EIP.ACTION_START_EIP);
+	eip_intent.putExtra(EIP.RECEIVER_TAG, EipServiceFragment.getReceiver());
+	startService(eip_intent);
+
+    }
 }

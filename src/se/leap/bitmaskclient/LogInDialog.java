@@ -51,7 +51,8 @@ public class LogInDialog extends DialogFragment {
 	final public static String PASSWORD = "password";
 	final public static String USERNAME_MISSING = "username missing";
 	final public static String PASSWORD_INVALID_LENGTH = "password_invalid_length";
-    
+
+    private static boolean is_eip_pending = false;
     
 	public AlertDialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -79,8 +80,11 @@ public class LogInDialog extends DialogFragment {
 			password_field.requestFocus();
 		}
 		if (getArguments() != null && getArguments().containsKey(PASSWORD_INVALID_LENGTH)) {
-			password_field.setError(getResources().getString(R.string.error_not_valid_password_user_message));
-    	}
+		    password_field.setError(getResources().getString(R.string.error_not_valid_password_user_message));
+		}
+		if(getArguments() != null && getArguments().getBoolean(EipServiceFragment.IS_EIP_PENDING, false)) {
+			is_eip_pending = true;
+		    }
 
 		
 		builder.setView(log_in_dialog_view)
@@ -113,7 +117,8 @@ public class LogInDialog extends DialogFragment {
 		 * @param username
 		 * @param password
 		 */
-        public void authenticate(String username, String password);
+	    public void authenticate(String username, String password);
+	    public void cancelAuthedEipOn();
     }
 
 	LogInDialogInterface interface_with_Dashboard;
@@ -135,5 +140,12 @@ public class LogInDialog extends DialogFragment {
             throw new ClassCastException(activity.toString()
                     + " must implement LogInDialogListener");
         }
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+	if(is_eip_pending)
+	    interface_with_Dashboard.cancelAuthedEipOn();
+	super.onCancel(dialog);	    
     }
 }
