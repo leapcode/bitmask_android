@@ -26,10 +26,10 @@ import android.widget.TextView;
 
 public class EipServiceFragment extends Fragment implements StateListener, OnCheckedChangeListener {
 	
-	private static final String IS_EIP_PENDING = "is_eip_pending";
+	protected static final String IS_EIP_PENDING = "is_eip_pending";
 	
 	private View eipFragment;
-	private Switch eipSwitch;
+	private static Switch eipSwitch;
 	private View eipDetail;
 	private TextView eipStatus;
 
@@ -37,7 +37,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	
 	private boolean mEipStartPending = false;
 
-    private EIPReceiver mEIPReceiver;
+    private boolean set_switch_off = false;
+
+    private static EIPReceiver mEIPReceiver;
 
     
     public static String TAG = "se.leap.bitmask.EipServiceFragment";
@@ -90,8 +92,16 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		super.onResume();
 
 		OpenVPN.addStateListener(this);
+		if(set_switch_off) {
+		    eipSwitch.setChecked(false);
+		    set_switch_off = false;
+		}
 	}
 
+    protected void setSwitchOff(boolean value) {
+	set_switch_off = value;
+    }
+    
 	@Override
 	public void onPause() {
 		super.onPause();
@@ -108,6 +118,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
+		    boolean allowed_anon = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getBoolean(EIP.ALLOWED_ANON, false);
+		    String certificate = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.CERTIFICATE, "");
+		    if(allowed_anon || !certificate.isEmpty()) {
 			if (isChecked){
 				mEipStartPending = true;
 				eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
@@ -139,6 +152,17 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					eipCommand(EIP.ACTION_STOP_EIP);
 				}
 			}
+		    }
+		    else {
+			Dashboard dashboard = (Dashboard)getActivity();
+			Bundle waiting_on_login = new Bundle();
+			waiting_on_login.putBoolean(IS_EIP_PENDING, true);
+			dashboard.logInDialog(getActivity().getCurrentFocus(), waiting_on_login);
+		    }
+		}
+		else {
+		    if(!eipSwitch.isChecked())
+			eipStatus.setText(R.string.state_noprocess);
 		}
 		eipAutoSwitched = true;
 	}
@@ -265,4 +289,18 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 			eipAutoSwitched = false;
 		}
 	}
+    
+
+    public static EIPReceiver getReceiver() {
+	return mEIPReceiver;
+    }
+
+    public static boolean isEipSwitchChecked() {
+	return eipSwitch.isChecked();
+    }
+
+    public void checkEipSwitch(boolean checked) {
+	eipSwitch.setChecked(checked);
+	onCheckedChanged(eipSwitch, checked);
+    }
 }
