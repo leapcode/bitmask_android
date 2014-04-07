@@ -68,6 +68,10 @@ id.zip
 /build-native.sh.bk
 /build-native.sh~
 
-build.gradle
 local.properties
-*.java~
+*~
+*.iml
+.idea
+build
+.gradle
+jniLibs

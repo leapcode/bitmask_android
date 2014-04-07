@@ -1,0 +1,32 @@
+apply plugin: 'android'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.1"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 19
+
+        testPackageName "se.leap.bitmaskclient.test"
+        testInstrumentationRunner "android.test.InstrumentationTestRunner"
+    }
+
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    lintOptions {
+    		abortOnError false
+    }
+
+    sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
+}
+
+dependencies {
+    androidTestCompile 'com.android.support:support-v4:+'
+    androidTestCompile 'com.jayway.android.robotium:robotium-solo:4.3.1'
+}
