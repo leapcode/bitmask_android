@@ -1,4 +1,25 @@
-0.4 Feb 10 2014
+0.5 April 4 2014 - the "soft winds" release
+Features
+- Replace bitmask.net with demo.bitmask.net
+- Transifex URL added to the About page
+Bugs Fixed
+- Tests run without problems from ant
+- Calyx.net and all registered-only EIP providers works correctly once logged in.
+- Menu gets built correctly from the beginning
+- Switching provider doesn't crash the app
+- Removed an unnecessary string from strings.xml
+- Link to the "Building with Eclipse" file corrected.
+- Clearer message when the provider isn't reachable.
+- Android NDK r9d support added
+- EIP switch doesn't toggle off momentarily while starting VPN
+- About text more readable: space between display's border and text
+- Font sizes scaled up for 10' devices
+- Cancelling a provider setup doesn't crash anymore
+- Providers that only offer authenticated EIP work ok
+- Cancelling a provider setup shows the complete provider list again
+- Providers cannot be added twice.
+
+0.4 Feb 10 2014 - the "early spring cleaning" release
 Features
 - Use token based authentication
 - UI Improvements
@@ -12,7 +33,7 @@ Bugs Fixed
 - References to "LEAP Android" changed to Bitmask
 - Login/logout messages clear when complete
 
-0.2.3 Nov 29 2013
+0.2.3 Nov 29 2013 - the "three is a magic number" release
 Features
 - Begin integrating tests into repository
 - Clearer wording in some places
