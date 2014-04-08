@@ -47,10 +47,10 @@ openvpn/src/Makefile.in
 openvpn/src/compat/Makefile.in
 openvpn/src/openvpnserv/Makefile.in
 openvpn/tests/Makefile.in
-assets/minivpn.armeabi
-assets/minivpn.armeabi-v7a
-assets/minivpn.mips
-assets/minivpn.x86
+app/assets/minivpn.armeabi
+app/assets/minivpn.armeabi-v7a
+app/assets/minivpn.mips
+app/assets/minivpn.x86
 openvpn/a.out.dSYM
 openvpn/config-version.h
 openvpn/config.status
@@ -75,3 +75,4 @@ local.properties
 build
 .gradle
 jniLibs
+/app/ovpnlibs/
