@@ -12,15 +12,36 @@ android {
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
 
+    signingConfigs {
+        release
+    }
+
     buildTypes {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.release
         }
     }
 
+    if (project.hasProperty('storeFile')) {
+      signingConfigs.release.storeFile = new File(storeFile)
+    }
+
+    if (project.hasProperty('storePassword')) {
+      signingConfigs.release.storePassword = storePassword
+    }
+
+    if (project.hasProperty('keyAlias')) {
+      signingConfigs.release.keyAlias = keyAlias
+    }
+
+    if (project.hasProperty('keyPassword')) {
+      signingConfigs.release.keyPassword = keyPassword
+    }
+
     lintOptions {
-    		abortOnError false
+      abortOnError false
     }
 
     sourceSets {
@@ -31,7 +52,7 @@ android {
 	  jni.srcDirs = [] //disable automatic ndk-build
 	}
     }
-}
+ }
 
 dependencies {
     androidTestCompile 'com.android.support:support-v4:+'
