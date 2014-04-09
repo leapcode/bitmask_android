@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="se.leap.bitmaskclient"
+    android:versionCode="74"
+    android:versionName="0.5" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- <uses-permission android:name="com.android.vending.BILLING" /> -->
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="18" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/icon"
+        android:logo="@drawable/icon"
+        android:label="@string/app" >
+
+        <service
+            android:name="se.leap.openvpn.OpenVpnService"
+            android:permission="android.permission.BIND_VPN_SERVICE" >
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+	<service android:name="se.leap.bitmaskclient.ProviderAPI" android:enabled="true"/>
+		
+        <activity
+            android:name="se.leap.openvpn.LaunchVPN"
+            android:label="@string/vpn_launch_title" >
+        </activity>
+
+        <activity
+            android:name="se.leap.bitmaskclient.Dashboard"
+            android:label="@string/title_activity_dashboard"
+            android:uiOptions="splitActionBarWhenNarrow" >
+
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="se.leap.bitmaskclient.ConfigurationWizard"
+            android:label="@string/title_activity_configuration_wizard"
+            android:uiOptions="splitActionBarWhenNarrow" >
+        </activity>
+        <activity
+            android:name="se.leap.bitmaskclient.AboutActivity"
+            android:label="@string/title_about_activity" >
+        </activity>
+        
+        <service android:name="se.leap.bitmaskclient.EIP" android:exported="false">
+            <intent-filter>
+                <action android:name="se.leap.bitmaskclient.UPDATE_EIP_SERVICE"/>
+                <action android:name="se.leap.bitmaskclient.START_EIP"/>
+                <action android:name="se.leap.bitmaskclient.STOP_EIP"/>
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

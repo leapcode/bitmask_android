@@ -1,0 +1,61 @@
+apply plugin: 'android'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.1"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 19
+
+        testPackageName "se.leap.bitmaskclient.test"
+        testInstrumentationRunner "android.test.InstrumentationTestRunner"
+    }
+
+    signingConfigs {
+        release
+    }
+
+    buildTypes {
+        release {
+            runProguard true
+            signingConfig signingConfigs.release
+        }
+    }
+
+    if (project.hasProperty('storeFile')) {
+      signingConfigs.release.storeFile = new File(storeFile)
+    }
+
+    if (project.hasProperty('storePassword')) {
+      signingConfigs.release.storePassword = storePassword
+    }
+
+    if (project.hasProperty('keyAlias')) {
+      signingConfigs.release.keyAlias = keyAlias
+    }
+
+    if (project.hasProperty('keyPassword')) {
+      signingConfigs.release.keyPassword = keyPassword
+    }
+
+    lintOptions {
+      abortOnError false
+    }
+
+    sourceSets {
+    	main {
+	  assets.srcDirs = ['assets', 'ovpnlibs/assets']
+	  jniLibs.srcDirs = ['ovpnlibs/jniLibs']
+	  jni.srcDirs = [] //disable automatic ndk-build
+        }
+	debug {
+ 	  assets.srcDirs = ['src/debug/assets']
+	}
+    }
+ }
+
+dependencies {
+    androidTestCompile 'com.android.support:support-v4:+'
+    androidTestCompile 'com.jayway.android.robotium:robotium-solo:4.3.1'
+}

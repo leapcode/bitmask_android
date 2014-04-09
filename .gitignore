@@ -47,10 +47,10 @@ openvpn/src/Makefile.in
 openvpn/src/compat/Makefile.in
 openvpn/src/openvpnserv/Makefile.in
 openvpn/tests/Makefile.in
-assets/minivpn.armeabi
-assets/minivpn.armeabi-v7a
-assets/minivpn.mips
-assets/minivpn.x86
+bitmask_android/assets/minivpn.armeabi
+bitmask_android/assets/minivpn.armeabi-v7a
+bitmask_android/assets/minivpn.mips
+bitmask_android/assets/minivpn.x86
 openvpn/a.out.dSYM
 openvpn/config-version.h
 openvpn/config.status
@@ -68,6 +68,12 @@ id.zip
 /build-native.sh.bk
 /build-native.sh~
 
-build.gradle
 local.properties
-*.java~
+gradle.properties*
+*~
+*.iml
+.idea
+build
+.gradle
+jniLibs
+bitmask_android/ovpnlibs/

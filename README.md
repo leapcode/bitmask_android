@@ -11,28 +11,22 @@ report any bugs or feature requests and to see the list of known issues.
 
 ## Building
 
-The build requires [Ant](https://ant.apache.org/) v1.6+, the [Android SDK](http://developer.android.com/sdk/index.html) API 17 and the [Android NDK](http://developer.android.com/tools/sdk/ndk/index.html) r8b
-to be installed in your development environment. 
+The build requires the [Android SDK](http://developer.android.com/sdk/index.html) API 17 and the [Android NDK](http://developer.android.com/tools/sdk/ndk/index.html) r9d
+to be installed in your development environment.
 
-In addition you'll need ant/bin, android/tools, 'platforms-tools' and 'android-ndk-r8b' in your enviroment path.
+In addition you'll need ant/bin, android/tools, 'platforms-tools' and 'android-ndk-r9d' in your enviroment path.
 
-After satisfying those requirements, the build is pretty simple:
+### Command line
 
-* Run `./compile.sh` from the project directory to build the APK only
+* ./gradlew build
 
-You might find that your device doesn't let you install your build if you
-already have the version from the Android Market installed.  This is standard
-Android security as it it won't let you directly replace an app that's been
-signed with a different key.  Manually uninstall Bitmask Android from your device and
-you will then be able to install your own built version.
-To uninstall it, do: adb uninstall se.leap.bitmaskclient
+### Android Studio
 
-See [here](https://github.com/leapcode/bitmask_android/blob/develop/Building_from_eclipse.md) for
-instructions on building from [Eclipse](http://eclipse.org).
+* Import project => select bitmask_android top folder
 
 ## Acknowledgements
 
-This project uses code from [ics-openvpn project](https://code.google.com/p/ics-openvpn/).
+This project bases its work in [ics-openvpn project](https://code.google.com/p/ics-openvpn/).
 
 ## Contributing
 
