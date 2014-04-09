@@ -116,7 +116,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
 				updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
 				startService(updateEIP);
-				buildDashboard();
+				buildDashboard(false);
 				invalidateOptionsMenu();
 				if(data != null && data.hasExtra(LogInDialog.VERB)) {
 					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
@@ -175,18 +175,17 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		FragmentManager fragMan = getFragmentManager();
 		if ( provider.hasEIP()){
 			EipServiceFragment eipFragment = new EipServiceFragment();
-		    EipServiceFragment eipFragment = new EipServiceFragment();
-		    if (hide_and_turn_on_eip) {		    
-			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().remove(Dashboard.START_ON_BOOT).commit();			
-			Bundle arguments = new Bundle();
-			arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
-			eipFragment.setArguments(arguments);
-		    }
-		    fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG).commit();
+			if (hide_and_turn_on_eip) {		    
+			    getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().remove(Dashboard.START_ON_BOOT).commit();			
+			    Bundle arguments = new Bundle();
+			    arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
+			    eipFragment.setArguments(arguments);
+			}
+			fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG).commit();
 
-		    if (hide_and_turn_on_eip) {
-			onBackPressed();
-		    }
+			if (hide_and_turn_on_eip) {
+			    onBackPressed();
+			}
 		}
 	}
 
