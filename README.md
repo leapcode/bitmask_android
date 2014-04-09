@@ -1,6 +1,6 @@
 # Bitmask Android App 
 
-This repository contains the source code for the [Bitmask][https://bitmask.net/] Android app.
+This repository contains the source code for the [Bitmask](https://bitmask.net/) Android app.
 
 Please see the [issues](https://github.com/leapcode/bitmask_android/issues) section to
 report any bugs or feature requests and to see the list of known issues.
