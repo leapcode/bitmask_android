@@ -16,6 +16,14 @@ to be installed in your development environment.
 
 In addition you'll need ant/bin, android/tools, 'platforms-tools' and 'android-ndk-r9d' in your enviroment path.
 
+### Native sources
+
+To build NDK sources, you need to issue these commands:
+
+* cd app
+* ./build-native.sh
+* cd .. (to get back to the project directory)
+
 ### Command line
 
 * ./gradlew build
