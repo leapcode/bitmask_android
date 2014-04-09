@@ -1,1 +1,1 @@
-include ':bitmask_android'
+include ':app'
