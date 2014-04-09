@@ -63,32 +63,7 @@ public class ProviderListContent {
 
 		/**
 		 * @param name of the provider
-		 * @param urls_file_input_stream file input stream linking with the assets url file
-		 * @param custom if it's a new provider entered by the user or not
-		 */
-		public ProviderItem(String name, InputStream urls_file_input_stream) {
-
-			try {
-				byte[] urls_file_bytes = new byte[urls_file_input_stream.available()];
-				urls_file_input_stream.read(urls_file_bytes);
-				String urls_file_content = new String(urls_file_bytes);
-				JSONObject file_contents = new JSONObject(urls_file_content);
-				provider_main_url = file_contents.getString(Provider.MAIN_URL);
-				this.name = name;
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		/**
-		 * @param name of the provider
 		 * @param provider_main_url used to download provider.json file of the provider
-		 * @param provider_json already downloaded
-		 * @param custom if it's a new provider entered by the user or not
 		 */
 		public ProviderItem(String name, String provider_main_url) {
 			this.name = name;

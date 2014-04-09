@@ -49,6 +49,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
@@ -84,6 +85,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 
 	final protected static String PROVIDER_SET = "PROVIDER SET";
 	final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
+    final protected static String ASSETS_URL_FOLDER = "urls";
     
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
@@ -354,33 +356,45 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 }
 	
     /**
-     * Loads providers data from url file contained in the project 
-     * @return true if the file was read correctly
+     * Loads providers data from url files contained in the assets folder
+     * @return true if the files were correctly read
      */
     private boolean loadPreseededProviders() {
     	boolean loaded_preseeded_providers = false;
-        AssetManager asset_manager = getAssets();
         String[] urls_filepaths = null;
-		try {
-			String url_files_folder = "urls";
-			//TODO Put that folder in a better place (also inside the "for")
-			urls_filepaths = asset_manager.list(url_files_folder); 
-			String provider_name = "";
-	        for(String url_filepath : urls_filepaths)
-	        {
-	        	boolean custom = false;
-	        	provider_name = url_filepath.subSequence(0, url_filepath.indexOf(".")).toString();
-	        	if(ProviderListContent.ITEMS.isEmpty()) //TODO I have to implement a way of checking if a provider new or is already present in that ITEMS list
-	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath)));
-	        	loaded_preseeded_providers = true;
-	        }
-		} catch (IOException e) {
-			loaded_preseeded_providers = false;
-		}
-		
-		return loaded_preseeded_providers;
+	try {
+	    //TODO Put that folder in a better place (also inside the "for")
+	    urls_filepaths = getAssets().list(ASSETS_URL_FOLDER); 
+	    String provider_name = "";
+	    for(String url_filepath : urls_filepaths) {
+		provider_name = url_filepath.subSequence(0, url_filepath.lastIndexOf(".")).toString();
+		String provider_main_url = extractProviderMainUrlFromAssetsFile(ASSETS_URL_FOLDER + "/" + url_filepath);
+		if(getId(provider_main_url).isEmpty())
+		    ProviderListContent.addItem(new ProviderItem(provider_name, provider_main_url));
+		loaded_preseeded_providers = true;
+	    }
+	} catch (IOException e) {
+	    loaded_preseeded_providers = false;
 	}
 	
+	return loaded_preseeded_providers;
+    }
+
+    private String extractProviderMainUrlFromAssetsFile(String filepath) {
+	String provider_main_url = "";
+	try {	    
+	    InputStream input_stream_file_contents = getAssets().open(filepath);
+	    byte[] urls_file_bytes = new byte[input_stream_file_contents.available()];
+	    input_stream_file_contents.read(urls_file_bytes);
+	    String urls_file_content = new String(urls_file_bytes);
+	    JSONObject file_contents = new JSONObject(urls_file_content);
+	    provider_main_url = file_contents.getString(Provider.MAIN_URL);
+	} catch (JSONException e) {
+	} catch (IOException e) {
+	}
+	return provider_main_url;
+    }
+    
 	/**
 	 * Asks ProviderAPI to download an anonymous (anon) VPN certificate.
 	 */
