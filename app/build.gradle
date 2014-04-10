@@ -13,30 +13,19 @@ android {
     }
 
     signingConfigs {
-        release
+        release {
+		storeFile project.hasProperty('storeFileProperty') ? file(storeFileProperty) : null
+		storePassword project.hasProperty('storePasswordProperty') ?  storePasswordProperty : ""
+		keyAlias project.hasProperty('keyAliasProperty') ?  keyAliasProperty : ""
+		keyPassword project.hasProperty('keyPasswordProperty') ?  keyPasswordProperty : ""
+	}
     }
 
     buildTypes {
         release {
             runProguard true
-            signingConfig signingConfigs.release
+	    signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
         }
-    }
-
-    if (project.hasProperty('storeFile')) {
-      signingConfigs.release.storeFile = new File(storeFile)
-    }
-
-    if (project.hasProperty('storePassword')) {
-      signingConfigs.release.storePassword = storePassword
-    }
-
-    if (project.hasProperty('keyAlias')) {
-      signingConfigs.release.keyAlias = keyAlias
-    }
-
-    if (project.hasProperty('keyPassword')) {
-      signingConfigs.release.keyPassword = keyPassword
     }
 
     lintOptions {
