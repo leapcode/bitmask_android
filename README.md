@@ -9,28 +9,46 @@ report any bugs or feature requests and to see the list of known issues.
 
 * [See LICENSE file](https://github.com/leapcode/bitmask_android/blob/master/LICENSE.txt)
 
-## Building
+## Build Requirements
 
-The build requires the [Android SDK](http://developer.android.com/sdk/index.html) API 17 and the [Android NDK](http://developer.android.com/tools/sdk/ndk/index.html) r9d
-to be installed in your development environment.
+Install from developer.android.com:
 
-In addition you'll need ant/bin, android/tools, 'platforms-tools' and 'android-ndk-r9d' in your enviroment path.
+* Android SDK, API 17: http://developer.android.com/sdk/index.html
+* Android NDK, r9d: http://developer.android.com/tools/sdk/ndk/index.html
 
-### Native sources
+Make sure add the necessary android tools to your bin path. For example, assuming you installed
+the SDK and NDK to `~/dev` on a linux machine, you would add this to your path:
+
+    ~/dev/android-sdk-linux/tools
+    ~/dev/android-sdk-linux/platform-tools
+    ~/dev/android-ndk-r9d
+
+Installable via `android` command (SDK Manager):
+
+* Android SDK Build-tools, 19.0.1
+* Android Support Repository, 4+
+
+Finally, install a java compiler. For example:
+
+   sudo apt-get install default-jdk
+
+### Build native sources
 
 To build NDK sources, you need to issue these commands:
 
-* cd app
-* ./build-native.sh
-* cd .. (to get back to the project directory)
+    cd app
+    ./build-native.sh
+    cd .. (to get back to the project directory)
 
-### Command line
+### Compiling from the command line
 
-* ./gradlew build
+    ./gradlew build
 
-### Android Studio
+The resulting apk(s) will be in `app/build/apk`.
 
-* Import project => select bitmask_android top folder
+### Using Android Studio
+
+* `Import project` => select bitmask_android top folder
 
 ## Acknowledgements
 
