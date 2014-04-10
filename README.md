@@ -25,7 +25,7 @@ the SDK and NDK to `~/dev` on a linux machine, you would add this to your path:
 
 Installable via `android` command (SDK Manager):
 
-* Android SDK Build-tools, 19.0.1
+* Android SDK Build-tools, 19.0.3
 * Android Support Repository, 4+
 
 Finally, install a java compiler. For example:
@@ -41,7 +41,16 @@ To build NDK sources, you need to issue these commands:
     cd .. (to get back to the project directory)
 
 ### Compiling from the command line
+#### Signed APK
 
+If you want to release a signed APK, you'll have to create a gradle.properties file in the project root with the following structure:
+    
+    storeFileProperty=fullPath
+    storePasswordProperty=store password without quotation marks
+    keyAliasProperty=key alias without quotation marks
+    keyPasswordProperty=key password without quotation marks
+    
+#### Actual command
     ./gradlew build
 
 The resulting apk(s) will be in `app/build/apk`.
