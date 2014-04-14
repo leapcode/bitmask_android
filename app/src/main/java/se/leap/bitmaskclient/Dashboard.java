@@ -114,7 +114,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
 					logInDialog(view, Bundle.EMPTY);
 				}
-			} else if(resultCode == RESULT_CANCELED && data.hasExtra(ACTION_QUIT)) {
+			} else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
 				finish();
 			} else
 				configErrorDialog();
