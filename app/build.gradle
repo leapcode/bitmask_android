@@ -31,7 +31,7 @@ android {
     lintOptions {
       abortOnError false
     }
-
+    
     sourceSets {
     	main {
 	  assets.srcDirs = ['assets', 'ovpnlibs/assets']
@@ -42,6 +42,8 @@ android {
  	  assets.srcDirs = ['src/debug/assets']
 	}
     }
+
+    check.dependsOn connectedCheck
  }
 
 dependencies {
