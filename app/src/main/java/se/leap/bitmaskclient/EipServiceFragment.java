@@ -120,13 +120,17 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 
     protected void saveEipStatus() {
 	boolean eip_is_on = false;
+	Log.d("bitmask", "saveEipStatus");
 	if(eipSwitch.isChecked()) {
 	    eip_is_on = true;
 	}
-	getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
+
+	if(getActivity() != null)
+	    getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
     }
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+	    Log.d("bitmask", "onCheckChanged");
 		if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
 		    boolean allowed_anon = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getBoolean(EIP.ALLOWED_ANON, false);
 		    String certificate = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.CERTIFICATE, "");

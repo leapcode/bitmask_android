@@ -163,7 +163,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 
 	PendingIntent getLogPendingIntent() {
 		// Let the configure Button show the Dashboard
-		Intent intent = new Intent(Dashboard.getAppContext(),Dashboard.class);
+	    Intent intent = new Intent(getApplicationContext(),Dashboard.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		PendingIntent startLW = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
