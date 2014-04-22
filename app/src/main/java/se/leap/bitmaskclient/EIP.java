@@ -108,11 +108,12 @@ public final class EIP extends IntentService {
 	
 	@Override
 	public void onDestroy() {
-		unbindService(mVpnServiceConn);
-		mBound = false;
-
-		super.onDestroy();
+	    unbindService(mVpnServiceConn);
+	    mBound = false;
+	    
+	    super.onDestroy();
 	}
+
 	
 	@Override
 	protected void onHandleIntent(Intent intent) {
