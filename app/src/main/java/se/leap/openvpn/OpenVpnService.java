@@ -470,11 +470,16 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	public void updateState(String state,String logmessage, int resid) {
 		// If the process is not running, ignore any state, 
 		// Notification should be invisible in this state
-		if(mProcessThread==null)
-			return;	
-		if("CONNECTED".equals(state)) {
-			mNotificationManager.cancel(OPENVPN_STATUS);
-		} else if(!"BYTECOUNT".equals(state)) {
+	    android.util.Log.d("OpenVpnService", "updateState(" + state + ","+logmessage);
+	    
+	    if(mProcessThread==null) {
+		if(mNotificationManager != null)
+		    mNotificationManager.cancel(OPENVPN_STATUS);
+		return;
+	    }
+	    if("CONNECTED".equalsIgnoreCase(state)) {
+		mNotificationManager.cancel(OPENVPN_STATUS);
+	    } else if(!"BYTECOUNT".equals(state)) {
 
 			// Other notifications are shown,
 			// This also mean we are no longer connected, ignore bytecount messages until next
