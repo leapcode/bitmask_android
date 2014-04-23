@@ -467,7 +467,7 @@ public class ProviderAPI extends IntentService {
 			broadcast_progress(progress++);
 			CA_CERT_DOWNLOADED = true;
 			if(!PROVIDER_JSON_DOWNLOADED)
-				current_download = getAndSetProviderJson(last_provider_main_url); 
+				current_download = getAndSetProviderJson(last_provider_main_url, last_danger_on);
 			if(PROVIDER_JSON_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
 				broadcast_progress(progress++);
 				PROVIDER_JSON_DOWNLOADED = true;
@@ -518,11 +518,11 @@ public class ProviderAPI extends IntentService {
 		return result;
 	}
 	
-	private Bundle getAndSetProviderJson(String provider_main_url) {
+	private Bundle getAndSetProviderJson(String provider_main_url, boolean danger_on) {
 		Bundle result = new Bundle();
 
 		if(setting_up_provider) {
-			String provider_dot_json_string = downloadWithProviderCA(provider_main_url + "/provider.json", true);
+			String provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json", danger_on);
 
 			try {
 				JSONObject provider_json = new JSONObject(provider_dot_json_string);

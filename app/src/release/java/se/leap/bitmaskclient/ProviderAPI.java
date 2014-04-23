@@ -516,7 +516,7 @@ public class ProviderAPI extends IntentService {
 		Bundle result = new Bundle();
 
 		if(setting_up_provider) {
-			String provider_dot_json_string = downloadWithProviderCA(provider_main_url + "/provider.json");
+			String provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json");
 
 			try {
 				JSONObject provider_json = new JSONObject(provider_dot_json_string);
