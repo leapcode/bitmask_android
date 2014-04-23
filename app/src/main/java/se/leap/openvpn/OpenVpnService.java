@@ -1,13 +1,8 @@
 package se.leap.openvpn;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Vector;
 
-import se.leap.bitmaskclient.Dashboard;
-import se.leap.bitmaskclient.R;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -20,11 +15,17 @@ import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.net.VpnService;
 import android.os.Binder;
-import android.os.Handler.Callback;
 import android.os.Build;
+import android.os.Handler.Callback;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Vector;
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.R;
 import se.leap.openvpn.OpenVPN.StateListener;
 
 public class OpenVpnService extends VpnService implements StateListener, Callback {
@@ -163,7 +164,7 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 
 	PendingIntent getLogPendingIntent() {
 		// Let the configure Button show the Dashboard
-		Intent intent = new Intent(Dashboard.getAppContext(),Dashboard.class);
+	    Intent intent = new Intent(getApplicationContext(),Dashboard.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		PendingIntent startLW = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -278,10 +279,11 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 
 	@Override
 	public void onDestroy() {
-		if (mProcessThread != null) {
+	    if (mProcessThread != null) {
 			mSocketManager.managmentCommand("signal SIGINT\n");
 
 			mProcessThread.interrupt();
+
 		}
 		if (mNetworkStateReceiver!= null) {
 			this.unregisterReceiver(mNetworkStateReceiver);
@@ -468,11 +470,16 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 	public void updateState(String state,String logmessage, int resid) {
 		// If the process is not running, ignore any state, 
 		// Notification should be invisible in this state
-		if(mProcessThread==null)
-			return;	
-		if("CONNECTED".equals(state)) {
-			mNotificationManager.cancel(OPENVPN_STATUS);
-		} else if(!"BYTECOUNT".equals(state)) {
+	    android.util.Log.d("OpenVpnService", "updateState(" + state + ","+logmessage);
+	    
+	    if(mProcessThread==null) {
+		if(mNotificationManager != null)
+		    mNotificationManager.cancel(OPENVPN_STATUS);
+		return;
+	    }
+	    if("CONNECTED".equalsIgnoreCase(state)) {
+		mNotificationManager.cancel(OPENVPN_STATUS);
+	    } else if(!"BYTECOUNT".equals(state)) {
 
 			// Other notifications are shown,
 			// This also mean we are no longer connected, ignore bytecount messages until next
@@ -481,6 +488,8 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 			boolean persist = false;
 			if (("NOPROCESS".equals(state) ) || ("EXITING").equals(state)){
 				showNotification(state, getString(R.string.eip_state_not_connected), ticker, false, 0, persist);
+				if(getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE) != null)
+				    getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().putBoolean(Dashboard.START_ON_BOOT, false).commit();
 			}
 			else if (state.equals("GET_CONFIG") || state.equals("ASSIGN_IP")){ //don't show them in the notification message
 			}

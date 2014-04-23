@@ -27,6 +27,7 @@ import android.widget.TextView;
 public class EipServiceFragment extends Fragment implements StateListener, OnCheckedChangeListener {
 	
 	protected static final String IS_EIP_PENDING = "is_eip_pending";
+    public static final String START_ON_BOOT = "start on boot";
 	
 	private View eipFragment;
 	private static Switch eipSwitch;
@@ -73,6 +74,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		});
 		eipSwitch.setOnCheckedChangeListener(this);
 		
+		if(getArguments() != null && getArguments().containsKey(START_ON_BOOT) && getArguments().getBoolean(START_ON_BOOT))
+		    startEipFromScratch();
 		
 		return eipFragment;
 	}
@@ -108,24 +111,32 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 
 		OpenVPN.removeStateListener(this);
 	}
-	
+    
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(IS_EIP_PENDING, mEipStartPending);
 	}
-	
+
+    protected void saveEipStatus() {
+	boolean eip_is_on = false;
+	Log.d("bitmask", "saveEipStatus");
+	if(eipSwitch.isChecked()) {
+	    eip_is_on = true;
+	}
+
+	if(getActivity() != null)
+	    getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
+    }
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+	    Log.d("bitmask", "onCheckChanged");
 		if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
 		    boolean allowed_anon = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getBoolean(EIP.ALLOWED_ANON, false);
 		    String certificate = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.CERTIFICATE, "");
 		    if(allowed_anon || !certificate.isEmpty()) {
 			if (isChecked){
-				mEipStartPending = true;
-				eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
-				((TextView) eipFragment.findViewById(R.id.eipStatus)).setText(R.string.eip_status_start_pending);
-				eipCommand(EIP.ACTION_START_EIP);
+			    startEipFromScratch();
 			} else {
 				if (mEipStartPending){
 					AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
@@ -165,9 +176,18 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 			eipStatus.setText(R.string.state_noprocess);
 		}
 		eipAutoSwitched = true;
+		saveEipStatus();
 	}
 	
 
+    public void startEipFromScratch() {
+	mEipStartPending = true;
+	eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
+	((TextView) eipFragment.findViewById(R.id.eipStatus)).setText(R.string.eip_status_start_pending);
+	eipSwitch.setChecked(true);	
+	saveEipStatus();
+	eipCommand(EIP.ACTION_START_EIP);
+    }
 	
 	/**
 	 * Send a command to EIP

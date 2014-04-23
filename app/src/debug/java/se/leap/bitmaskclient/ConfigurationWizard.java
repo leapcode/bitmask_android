@@ -81,7 +81,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	final public static String TAG = "se.leap.bitmaskclient.ConfigurationWizard";
 	final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
 	final public static String ANON_CERTIFICATE = "anon_certificate";
-	final public static String AUTHED_CERTIFICATE = "authed_certificate";
+        final public static String AUTHED_CERTIFICATE = "authed_certificate";
 
 	final protected static String PROVIDER_SET = "PROVIDER SET";
 	final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
