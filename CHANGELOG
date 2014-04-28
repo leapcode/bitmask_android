@@ -1,3 +1,11 @@
+0.5.1 April 26 2014 - the "blue sky" release
+Features
+- Autostart
+- Gradle build system
+Bugs Fixed
+- README file describes the building process correctly
+- Provider data is downloaded only using its commercial certificate
+
 0.5 April 4 2014 - the "soft winds" release
 Features
 - Replace bitmask.net with demo.bitmask.net
