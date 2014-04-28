@@ -46,7 +46,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 	
 	public void testAddNewProvider() {
 		solo.clickOnActionBarItem(R.id.new_provider);
-		solo.enterText(0, "dev.bitmask.net");
+		solo.enterText(0, "calyx.net");
 		solo.clickOnCheckBox(0);
 		solo.clickOnText(solo.getString(R.string.save));
 		added_providers = added_providers+1;

@@ -2,7 +2,7 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 14
@@ -12,26 +12,39 @@ android {
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
 
+    signingConfigs {
+        release {
+		storeFile project.hasProperty('storeFileProperty') ? file(storeFileProperty) : null
+		storePassword project.hasProperty('storePasswordProperty') ?  storePasswordProperty : ""
+		keyAlias project.hasProperty('keyAliasProperty') ?  keyAliasProperty : ""
+		keyPassword project.hasProperty('keyPasswordProperty') ?  keyPasswordProperty : ""
+	}
+    }
+
     buildTypes {
         release {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            //runProguard true
+	    signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
         }
     }
 
     lintOptions {
-    		abortOnError false
+      abortOnError false
     }
-
+    
     sourceSets {
-    	main
-	{
+    	main {
 	  assets.srcDirs = ['assets', 'ovpnlibs/assets']
 	  jniLibs.srcDirs = ['ovpnlibs/jniLibs']
 	  jni.srcDirs = [] //disable automatic ndk-build
+        }
+	debug {
+ 	  assets.srcDirs = ['src/debug/assets']
 	}
     }
-}
+
+    check.dependsOn connectedCheck
+ }
 
 dependencies {
     androidTestCompile 'com.android.support:support-v4:+'

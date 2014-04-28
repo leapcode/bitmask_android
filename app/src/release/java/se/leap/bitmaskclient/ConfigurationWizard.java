@@ -49,6 +49,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
@@ -84,6 +85,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 
 	final protected static String PROVIDER_SET = "PROVIDER SET";
 	final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
+    final protected static String ASSETS_URL_FOLDER = "urls";
     
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
@@ -208,10 +210,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	    startProgressBar(provider_index+1);
 	    provider_list_fragment.hideAllBut(provider_index);
 
-	    boolean danger_on = true;
-	    if(preferences.contains(ProviderItem.DANGER_ON))
-	    	danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, false);
-	    setUpProvider(selected_provider.providerMainUrl(), danger_on);
+	    setUpProvider(selected_provider.providerMainUrl());
     }
     
     @Override
@@ -353,34 +352,46 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
         return listItem.getMeasuredHeight();
 }
 	
-    /**
-     * Loads providers data from url file contained in the project 
-     * @return true if the file was read correctly
+        /**
+     * Loads providers data from url files contained in the assets folder
+     * @return true if the files were correctly read
      */
     private boolean loadPreseededProviders() {
     	boolean loaded_preseeded_providers = false;
-        AssetManager asset_manager = getAssets();
         String[] urls_filepaths = null;
-		try {
-			String url_files_folder = "urls";
-			//TODO Put that folder in a better place (also inside the "for")
-			urls_filepaths = asset_manager.list(url_files_folder); 
-			String provider_name = "";
-	        for(String url_filepath : urls_filepaths)
-	        {
-	        	boolean custom = false;
-	        	provider_name = url_filepath.subSequence(0, url_filepath.indexOf(".")).toString();
-	        	if(ProviderListContent.ITEMS.isEmpty()) //TODO I have to implement a way of checking if a provider new or is already present in that ITEMS list
-	        		ProviderListContent.addItem(new ProviderItem(provider_name, asset_manager.open(url_files_folder + "/" + url_filepath)));
-	        	loaded_preseeded_providers = true;
-	        }
-		} catch (IOException e) {
-			loaded_preseeded_providers = false;
-		}
-		
-		return loaded_preseeded_providers;
+	try {
+	    //TODO Put that folder in a better place (also inside the "for")
+	    urls_filepaths = getAssets().list(ASSETS_URL_FOLDER); 
+	    String provider_name = "";
+	    for(String url_filepath : urls_filepaths) {
+		provider_name = url_filepath.subSequence(0, url_filepath.lastIndexOf(".")).toString();
+		String provider_main_url = extractProviderMainUrlFromAssetsFile(ASSETS_URL_FOLDER + "/" + url_filepath);
+		if(getId(provider_main_url).isEmpty())
+		    ProviderListContent.addItem(new ProviderItem(provider_name, provider_main_url));
+		loaded_preseeded_providers = true;
+	    }
+	} catch (IOException e) {
+	    loaded_preseeded_providers = false;
 	}
 	
+	return loaded_preseeded_providers;
+    }
+    
+    private String extractProviderMainUrlFromAssetsFile(String filepath) {
+	String provider_main_url = "";
+	try {	    
+	    InputStream input_stream_file_contents = getAssets().open(filepath);
+	    byte[] urls_file_bytes = new byte[input_stream_file_contents.available()];
+	    input_stream_file_contents.read(urls_file_bytes);
+	    String urls_file_content = new String(urls_file_bytes);
+	    JSONObject file_contents = new JSONObject(urls_file_content);
+	    provider_main_url = file_contents.getString(Provider.MAIN_URL);
+	} catch (JSONException e) {
+	} catch (IOException e) {
+	}
+	return provider_main_url;
+    }
+    
 	/**
 	 * Asks ProviderAPI to download an anonymous (anon) VPN certificate.
 	 */
@@ -416,7 +427,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	/**
 	 * Open the new provider dialog with data
 	 */
-	public void addAndSelectNewProvider(String main_url, boolean danger_on) {
+	public void addAndSelectNewProvider(String main_url) {
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 		Fragment previous_new_provider_dialog = getFragmentManager().findFragmentByTag(NewProviderDialog.TAG);
 		if (previous_new_provider_dialog != null) {
@@ -426,7 +437,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		DialogFragment newFragment = NewProviderDialog.newInstance();
 		Bundle data = new Bundle();
 		data.putString(Provider.MAIN_URL, main_url);
-		data.putBoolean(ProviderItem.DANGER_ON, danger_on);
 		newFragment.setArguments(data);
 		newFragment.show(fragment_transaction, NewProviderDialog.TAG);
 	}
@@ -470,20 +480,19 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		}
 	}
 
-	public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
+	public void showAndSelectProvider(String provider_main_url) {
 	    if(getId(provider_main_url).isEmpty())
-		showProvider(provider_main_url, danger_on);
-	    autoSelectProvider(provider_main_url, danger_on);
+		showProvider(provider_main_url);
+	    autoSelectProvider(provider_main_url);
 	}
 	
-	private void showProvider(final String provider_main_url, final boolean danger_on) {
+	private void showProvider(final String provider_main_url) {
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
 		ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url);
 		provider_list_fragment.addItem(added_provider);
 	}
 	
-	private void autoSelectProvider(String provider_main_url, boolean danger_on) {
-		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(ProviderItem.DANGER_ON, danger_on).commit();
+	private void autoSelectProvider(String provider_main_url) {
 		onItemSelected(getId(provider_main_url));
 	}
 	
@@ -491,13 +500,11 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	 * Asks ProviderAPI to download a new provider.json file
 	 * @param provider_name
 	 * @param provider_main_url
-	 * @param danger_on tells if HTTPS client should bypass certificate errors
 	 */
-	public void setUpProvider(String provider_main_url, boolean danger_on) {
+	public void setUpProvider(String provider_main_url) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 		Bundle parameters = new Bundle();
 		parameters.putString(Provider.MAIN_URL, provider_main_url);
-		parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
 
 		provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
@@ -510,7 +517,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	public void retrySetUpProvider() {
 		cancelSettingUpProvider();
 		if(!ProviderAPI.caCertDownloaded()) {
-			addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl(), ProviderAPI.lastDangerOn());
+			addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl());
 		} else {
 			Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
@@ -548,10 +555,10 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	
 	public void cancelSettingUpProvider() {
 		provider_list_fragment = (ProviderListFragment) getFragmentManager().findFragmentByTag(ProviderListFragment.TAG);
-		if(provider_list_fragment != null && preferences.contains(ProviderItem.DANGER_ON)) {
+		if(provider_list_fragment != null) {
 			provider_list_fragment.removeLastItem();
 		}
-		preferences.edit().remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(EIP.ALLOWED_ANON).remove(EIP.KEY).commit();
+		preferences.edit().remove(Provider.KEY).remove(EIP.ALLOWED_ANON).remove(EIP.KEY).commit();
 	}
 
 	@Override

@@ -57,7 +57,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
-	public static final String REQUEST_CODE = "request_code";
+    public static final String REQUEST_CODE = "request_code";
+    public static final String PARAMETERS = "dashboard parameters";
+    public static final String START_ON_BOOT = "dashboard start on boot";
+    final public static String ON_BOOT = "dashboard on boot";
+
 	
 	private ProgressBar mProgressBar;
 	private TextView eipStatus;
@@ -90,14 +94,18 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if (preferences.getString(Provider.KEY, "").isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 		else
-			buildDashboard();
+		    buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 	}
-	
+
+    protected void onPause() {
+	super.onPause();
+    }
+    
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
@@ -108,13 +116,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
 				updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
 				startService(updateEIP);
-				buildDashboard();
+				buildDashboard(false);
 				invalidateOptionsMenu();
 				if(data != null && data.hasExtra(LogInDialog.VERB)) {
 					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
 					logInDialog(view, Bundle.EMPTY);
 				}
-			} else if(resultCode == RESULT_CANCELED && data.hasExtra(ACTION_QUIT)) {
+			} else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
 				finish();
 			} else
 				configErrorDialog();
@@ -152,7 +160,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * Inflates permanent UI elements of the View and contains logic for what
 	 * service dependent UI elements to include.
 	 */
-	private void buildDashboard() {
+	private void buildDashboard(boolean hide_and_turn_on_eip) {
 		provider = Provider.getInstance();
 		provider.init( this );
 
@@ -167,7 +175,17 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		FragmentManager fragMan = getFragmentManager();
 		if ( provider.hasEIP()){
 			EipServiceFragment eipFragment = new EipServiceFragment();
+			if (hide_and_turn_on_eip) {		    
+			    getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().remove(Dashboard.START_ON_BOOT).commit();			
+			    Bundle arguments = new Bundle();
+			    arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
+			    eipFragment.setArguments(arguments);
+			}
 			fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG).commit();
+
+			if (hide_and_turn_on_eip) {
+			    onBackPressed();
+			}
 		}
 	}
 
@@ -464,9 +482,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
 		Intent eip_intent = new Intent(this, EIP.class);
 		eip_intent.setAction(EIP.ACTION_STOP_EIP);
-	//	eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
+	//	eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);fi
 		startService(eip_intent);
-
+		
 	}
 
     private void eipStart(){

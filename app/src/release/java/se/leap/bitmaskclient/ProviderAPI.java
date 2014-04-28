@@ -125,7 +125,6 @@ public class ProviderAPI extends IntentService {
     ;
     
     private static String last_provider_main_url;
-    private static boolean last_danger_on = false;
     private static boolean setting_up_provider = true;
     
     public static void stop() {
@@ -148,10 +147,6 @@ public class ProviderAPI extends IntentService {
 		return last_provider_main_url;
 	}
 	
-    public static boolean lastDangerOn() {
-    	return last_danger_on;
-    }
-    
 	private String formatErrorMessage(final int toast_string_id) {
 		return "{ \"" + ERRORS + "\" : \""+getResources().getString(toast_string_id)+"\" }";
 	}
@@ -455,14 +450,13 @@ public class ProviderAPI extends IntentService {
 		int progress = 0;
 		Bundle current_download = new Bundle();
 		
-		if(task != null && task.containsKey(ProviderItem.DANGER_ON) && task.containsKey(Provider.MAIN_URL)) {
-			last_danger_on = task.getBoolean(ProviderItem.DANGER_ON);
+		if(task != null && task.containsKey(Provider.MAIN_URL)) {
 			last_provider_main_url = task.getString(Provider.MAIN_URL);
 			CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
 		}
 
 		if(!CA_CERT_DOWNLOADED)
-			current_download = downloadCACert(last_provider_main_url, last_danger_on);
+			current_download = downloadCACert(last_provider_main_url);
 		if(CA_CERT_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
 			broadcast_progress(progress++);
 			CA_CERT_DOWNLOADED = true;
@@ -482,9 +476,9 @@ public class ProviderAPI extends IntentService {
 		return current_download;
 	}
 	
-	private Bundle downloadCACert(String provider_main_url, boolean danger_on) {
+	private Bundle downloadCACert(String provider_main_url) {
 		Bundle result = new Bundle();
-		String cert_string = downloadWithCommercialCA(provider_main_url + "/ca.crt", danger_on);
+		String cert_string = downloadWithCommercialCA(provider_main_url + "/ca.crt");
 
 	    if(validCertificate(cert_string) && setting_up_provider) {
 	    	getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.CA_CERT, cert_string).commit();
@@ -522,7 +516,7 @@ public class ProviderAPI extends IntentService {
 		Bundle result = new Bundle();
 
 		if(setting_up_provider) {
-			String provider_dot_json_string = downloadWithProviderCA(provider_main_url + "/provider.json", true);
+			String provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json");
 
 			try {
 				JSONObject provider_json = new JSONObject(provider_dot_json_string);
@@ -556,7 +550,7 @@ public class ProviderAPI extends IntentService {
 			try {
 				JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
 				String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
-				eip_service_json_string = downloadWithProviderCA(eip_service_url, true);
+				eip_service_json_string = downloadWithProviderCA(eip_service_url);
 				JSONObject eip_service_json = new JSONObject(eip_service_json_string);
 				eip_service_json.getInt(Provider.API_RETURN_SERIAL);
 
@@ -598,12 +592,10 @@ public class ProviderAPI extends IntentService {
 	/**
 	 * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
 	 * 
-	 * If danger_on flag is true, SSL exceptions will be managed by futher methods that will try to use some bypass methods.
 	 * @param string_url
-	 * @param danger_on if the user completely trusts this provider
 	 * @return
 	 */
-	private String downloadWithCommercialCA(String string_url, boolean danger_on) {
+	private String downloadWithCommercialCA(String string_url) {
 		
 		String json_file_content = "";
 		
@@ -622,13 +614,13 @@ public class ProviderAPI extends IntentService {
 			json_file_content = formatErrorMessage(R.string.server_unreachable_message);
 		} catch (IOException e) {
 			if(provider_url != null) {
-				json_file_content = downloadWithProviderCA(string_url, danger_on);
+				json_file_content = downloadWithProviderCA(string_url);
 			} else {
 				json_file_content = formatErrorMessage(R.string.certificate_error);
 			}
 		} catch (Exception e) {
-			if(provider_url != null && danger_on) {
-				json_file_content = downloadWithProviderCA(string_url, danger_on);
+			if(provider_url != null) {
+				json_file_content = downloadWithProviderCA(string_url);
 			}
 		}
 
@@ -638,10 +630,9 @@ public class ProviderAPI extends IntentService {
 	/**
 	 * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider. 
 	 * @param url as a string
-	 * @param danger_on true to download CA certificate in case it has not been downloaded.
 	 * @return an empty string if it fails, the url content if not. 
 	 */
-	private String downloadWithProviderCA(String url_string, boolean danger_on) {
+	private String downloadWithProviderCA(String url_string) {
 		String json_file_content = "";
 
 		try {
@@ -659,12 +650,8 @@ public class ProviderAPI extends IntentService {
 		} catch (UnknownHostException e) {
 			json_file_content = formatErrorMessage(R.string.server_unreachable_message);
 		} catch (IOException e) {
-			// The downloaded certificate doesn't validate our https connection.
-			if(danger_on) {
-				json_file_content = downloadWithoutCA(url_string);
-			} else {
-				json_file_content = formatErrorMessage(R.string.certificate_error);
-			}
+		    // The downloaded certificate doesn't validate our https connection.
+		    json_file_content = formatErrorMessage(R.string.certificate_error);
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -805,7 +792,7 @@ public class ProviderAPI extends IntentService {
 	 * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.
 	 * 
 	 * @param task containing the type of the certificate to be downloaded
-	 * @return true if certificate was downloaded correctly, false if provider.json or danger_on flag are not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
+	 * @return true if certificate was downloaded correctly, false if provider.json is not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
 	 */
 	private boolean getNewCert(Bundle task) {
 
@@ -816,9 +803,7 @@ public class ProviderAPI extends IntentService {
 			String provider_main_url = provider_json.getString(Provider.API_URL);
 			URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
 
-			boolean danger_on = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getBoolean(ProviderItem.DANGER_ON, false);
-
-			String cert_string = downloadWithProviderCA(new_cert_string_url.toString(), danger_on);
+			String cert_string = downloadWithProviderCA(new_cert_string_url.toString());
 
 			if(!cert_string.isEmpty()) {
 				if(ConfigHelper.checkErroneousDownload(cert_string)) {

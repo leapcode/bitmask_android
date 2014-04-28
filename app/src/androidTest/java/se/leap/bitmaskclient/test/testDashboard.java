@@ -50,14 +50,14 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 		if(!solo.waitForText(getActivity().getString(R.string.eip_state_not_connected)))
 		    fail();
 		
-		ConnectionManager.setMobileDataEnabled(false, solo.getCurrentActivity().getApplicationContext());
+		/*ConnectionManager.setMobileDataEnabled(false, solo.getCurrentActivity().getApplicationContext());
 		
 		solo.clickOnView(solo.getView(R.id.eipSwitch));
 		if(!solo.waitForText(getActivity().getString(R.string.eip_status_start_pending)))
 			fail();
 		if(!solo.waitForText(getActivity().getString(R.string.state_nonetwork)))
 			fail();
-		
+		*/
 	}
 	
     public void testLogInAndOut() {
