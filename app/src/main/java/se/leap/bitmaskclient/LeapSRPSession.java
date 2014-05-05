@@ -172,9 +172,11 @@ public class LeapSRPSession {
 	 * Calculates the parameter V of the SRP-6a algorithm.
 	 * @return the value of V
 	 */
-	public BigInteger calculateV() {
+    public BigInteger calculateV(String username, String password, byte[] salt) {
 	    	String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
 		BigInteger k = new BigInteger(k_string, 16);
+		byte[] x_bytes = calculatePasswordHash(username, password, ConfigHelper.trim(salt));
+		x = new BigInteger(1, x_bytes);
 		BigInteger v = k.multiply(g.modPow(x, N));  // g^x % N
 		return v;
 	}
@@ -226,11 +228,8 @@ public class LeapSRPSession {
 		// Calculate x = H(s | H(U | ':' | password))
 		byte[] M1 = null;
 		if(new BigInteger(1, Bbytes).mod(new BigInteger(1, N_bytes)) != BigInteger.ZERO) {
-			byte[] xb = calculatePasswordHash(username, password, ConfigHelper.trim(salt_bytes));
-			this.x = new BigInteger(1, xb);
-
 			// Calculate v = kg^x mod N
-			this.v = calculateV();
+			this.v = calculateV(username, password, salt_bytes);
 
 			// H(N)
 			byte[] digest_of_n = newDigest().digest(N_bytes);

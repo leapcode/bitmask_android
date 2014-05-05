@@ -214,27 +214,32 @@ public class ProviderAPI extends IntentService {
 	    LeapSRPSession client = new LeapSRPSession(username, password, params);
 	    byte[] salted_password = client.calculateSaltedPassword();
 	    /* Calculate password verifier */
-	    BigInteger password_verifier = client.calculateV();
+	    BigInteger password_verifier = client.calculateV(username, password, salted_password);
 	    /* Send to the server */
 	    try {
-		sendNewUserDataToSRPServer(authentication_server, username, new BigInteger(salted_password).toString(), password_verifier.toString());
+		JSONObject result = sendNewUserDataToSRPServer(authentication_server, username, new BigInteger(salted_password).toString(16), password_verifier.toString());
+		Log.d(TAG, result.toString());
 		broadcast_progress(progress++);
 	    } catch (ClientProtocolException e) {
 		// session_id_bundle.putBoolean(RESULT_KEY, false);
 		// session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_client_http_user_message));
 		// session_id_bundle.putString(LogInDialog.USERNAME, username);
+		e.printStackTrace();
 	    } catch (IOException e) {
 		// session_id_bundle.putBoolean(RESULT_KEY, false);
 		// session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_io_exception_user_message));
 		// session_id_bundle.putString(LogInDialog.USERNAME, username);
+		e.printStackTrace();
 	    } catch (JSONException e) {
 		// session_id_bundle.putBoolean(RESULT_KEY, false);
 		// session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_json_exception_user_message));
 		// session_id_bundle.putString(LogInDialog.USERNAME, username);
+		e.printStackTrace();
 	    } catch (NoSuchAlgorithmException e) {
 		// session_id_bundle.putBoolean(RESULT_KEY, false);
 		// session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_no_such_algorithm_exception_user_message));
 		// session_id_bundle.putString(LogInDialog.USERNAME, username);
+		e.printStackTrace();
 	    } catch (KeyManagementException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

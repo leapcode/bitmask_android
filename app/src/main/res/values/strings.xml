@@ -116,6 +116,7 @@
     <string name="error_no_such_algorithm_exception_user_message">Update the app</string>
     <string name="login_button">Log In</string>
     <string name="logout_button">Log Out</string>
+    <string name="signup_button">Sign Up</string>
     <string name="setup_error_title">Configuration Error</string>
     <string name="setup_error_configure_button">Configure</string>
     <string name="setup_error_close_button">Exit</string>
