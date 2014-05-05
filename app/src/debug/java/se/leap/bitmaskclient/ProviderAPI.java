@@ -172,6 +172,13 @@ public class ProviderAPI extends IntentService {
 					receiver.send(PROVIDER_NOK, result);
 				}
 			}
+		} else if (action.equalsIgnoreCase(SRP_REGISTER)) {
+		    Bundle session_id_bundle = registerWithSRP(parameters);
+		    if(session_id_bundle.getBoolean(RESULT_KEY)) {
+			receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
+		    } else {
+			receiver.send(SRP_AUTHENTICATION_FAILED, session_id_bundle);
+		    }
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
 				if(session_id_bundle.getBoolean(RESULT_KEY)) {
@@ -193,7 +200,66 @@ public class ProviderAPI extends IntentService {
 				}
 		}
 	}
-	
+
+    private Bundle registerWithSRP(Bundle task) {
+	Bundle session_id_bundle = new Bundle();
+	int progress = 0;
+		
+	String username = (String) task.get(LogInDialog.USERNAME);
+	String password = (String) task.get(LogInDialog.PASSWORD);
+	String authentication_server = (String) task.get(Provider.API_URL);
+	if(validUserLoginData(username, password)) {
+		
+	    SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
+	    LeapSRPSession client = new LeapSRPSession(username, password, params);
+	    byte[] salted_password = client.calculateSaltedPassword();
+	    /* Calculate password verifier */
+	    BigInteger password_verifier = client.calculateV();
+	    /* Send to the server */
+	    try {
+		sendNewUserDataToSRPServer(authentication_server, username, new BigInteger(salted_password).toString(), password_verifier.toString());
+		broadcast_progress(progress++);
+	    } catch (ClientProtocolException e) {
+		// session_id_bundle.putBoolean(RESULT_KEY, false);
+		// session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_client_http_user_message));
+		// session_id_bundle.putString(LogInDialog.USERNAME, username);
+	    } catch (IOException e) {
+		// session_id_bundle.putBoolean(RESULT_KEY, false);
+		// session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_io_exception_user_message));
+		// session_id_bundle.putString(LogInDialog.USERNAME, username);
+	    } catch (JSONException e) {
+		// session_id_bundle.putBoolean(RESULT_KEY, false);
+		// session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_json_exception_user_message));
+		// session_id_bundle.putString(LogInDialog.USERNAME, username);
+	    } catch (NoSuchAlgorithmException e) {
+		// session_id_bundle.putBoolean(RESULT_KEY, false);
+		// session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_no_such_algorithm_exception_user_message));
+		// session_id_bundle.putString(LogInDialog.USERNAME, username);
+	    } catch (KeyManagementException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    } catch (KeyStoreException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    } catch (CertificateException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    }
+
+	} else {
+	    if(!wellFormedPassword(password)) {
+		session_id_bundle.putBoolean(RESULT_KEY, false);
+		session_id_bundle.putString(LogInDialog.USERNAME, username);
+		session_id_bundle.putBoolean(LogInDialog.PASSWORD_INVALID_LENGTH, true);
+	    }
+	    if(username.isEmpty()) {
+		session_id_bundle.putBoolean(RESULT_KEY, false);
+		session_id_bundle.putBoolean(LogInDialog.USERNAME_MISSING, true);
+	    }
+	}
+		
+	return session_id_bundle;
+    }
 	/**
 	 * Starts the authentication process using SRP protocol.
 	 * 
@@ -373,6 +439,32 @@ public class ProviderAPI extends IntentService {
 			LeapSRPSession.setToken(token);
 		}
 		return session_idAndM2;
+	}
+
+	/**
+	 * Sends an HTTP POST request to the authentication server to register a new user.
+	 * @param server_url
+	 * @param username
+	 * @param salted_password
+	 * @param password_verifier   
+	 * @return response from authentication server
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws JSONException
+	 * @throws CertificateException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws KeyStoreException 
+	 * @throws KeyManagementException 
+	 */
+    private JSONObject sendNewUserDataToSRPServer(String server_url, String username, String salted_password, String password_verifier) throws ClientProtocolException, IOException, JSONException, KeyManagementException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+		Map<String, String> parameters = new HashMap<String, String>();
+		parameters.put("user[login]", username);
+		parameters.put("user[password_salt]", salted_password);
+		parameters.put("user[password_verifier]", password_verifier);
+		return sendToServer(server_url + "/users.json", "POST", parameters);
+		
+		/*HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + "login=" + username + "&&" + "A=" + clientA);
+		return sendToServer(post);*/
 	}
 	
 	/**

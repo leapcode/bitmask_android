@@ -155,12 +155,25 @@ public class LeapSRPSession {
 		return x_digest_bytes;
 	}
 
+    public byte[] calculateSaltedPassword() {
+	try {
+	    BigInteger salt = new BigInteger(128, SecureRandom.getInstance("SHA1PRNG"));
+	    MessageDigest salted_password = newDigest();
+	    salted_password.update(salt.toByteArray());
+	    salted_password.update(password.getBytes());
+	    return salted_password.digest();
+	} catch (NoSuchAlgorithmException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+	return null;
+    }
 	/**
 	 * Calculates the parameter V of the SRP-6a algorithm.
-	 * @param k_string constant k predefined by the SRP server implementation.
 	 * @return the value of V
 	 */
-	private BigInteger calculateV(String k_string) {
+	public BigInteger calculateV() {
+	    	String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
 		BigInteger k = new BigInteger(k_string, 16);
 		BigInteger v = k.multiply(g.modPow(x, N));  // g^x % N
 		return v;
@@ -217,8 +230,7 @@ public class LeapSRPSession {
 			this.x = new BigInteger(1, xb);
 
 			// Calculate v = kg^x mod N
-			String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
-			this.v = calculateV(k_string);
+			this.v = calculateV();
 
 			// H(N)
 			byte[] digest_of_n = newDigest().digest(N_bytes);

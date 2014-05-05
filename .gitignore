@@ -77,3 +77,6 @@ build
 .gradle
 jniLibs
 bitmask_android/ovpnlibs/
+G*
+*.dot
+/ics-openvpn/
