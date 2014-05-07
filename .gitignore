@@ -80,3 +80,4 @@ bitmask_android/ovpnlibs/
 G*
 *.dot
 /ics-openvpn/
+/TAGS

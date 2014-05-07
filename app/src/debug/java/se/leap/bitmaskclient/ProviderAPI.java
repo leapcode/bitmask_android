@@ -212,12 +212,13 @@ public class ProviderAPI extends IntentService {
 		
 	    SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
 	    LeapSRPSession client = new LeapSRPSession(username, password, params);
-	    byte[] salted_password = client.calculateSaltedPassword();
+	    byte[] salt = ConfigHelper.trim(client.calculateNewSalt());
+	    // byte[] salted_password = client.calculatePasswordHash(username, password, salt);
 	    /* Calculate password verifier */
-	    BigInteger password_verifier = client.calculateV(username, password, salted_password);
+	    BigInteger password_verifier = client.calculateV(username, password, salt);
 	    /* Send to the server */
 	    try {
-		JSONObject result = sendNewUserDataToSRPServer(authentication_server, username, new BigInteger(salted_password).toString(16), password_verifier.toString());
+		JSONObject result = sendNewUserDataToSRPServer(authentication_server, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16));
 		Log.d(TAG, result.toString());
 		broadcast_progress(progress++);
 	    } catch (ClientProtocolException e) {
@@ -295,7 +296,7 @@ public class ProviderAPI extends IntentService {
 					if(M1 != null) {
 					broadcast_progress(progress++);
 					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
-					  if(session_idAndM2.has(LeapSRPSession.M2) && client.verify((byte[])session_idAndM2.get(LeapSRPSession.M2))) {
+					if(session_idAndM2.has(LeapSRPSession.M2) && client.verify((byte[])session_idAndM2.get(LeapSRPSession.M2))) {
 						  session_id_bundle.putBoolean(RESULT_KEY, true);
 						  broadcast_progress(progress++);
 					  } else {
@@ -461,15 +462,14 @@ public class ProviderAPI extends IntentService {
 	 * @throws KeyStoreException 
 	 * @throws KeyManagementException 
 	 */
-    private JSONObject sendNewUserDataToSRPServer(String server_url, String username, String salted_password, String password_verifier) throws ClientProtocolException, IOException, JSONException, KeyManagementException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    private JSONObject sendNewUserDataToSRPServer(String server_url, String username, String salt, String password_verifier) throws ClientProtocolException, IOException, JSONException, KeyManagementException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("user[login]", username);
-		parameters.put("user[password_salt]", salted_password);
+		parameters.put("user[password_salt]", salt);
 		parameters.put("user[password_verifier]", password_verifier);
-		return sendToServer(server_url + "/users.json", "POST", parameters);
-		
-		/*HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + "login=" + username + "&&" + "A=" + clientA);
-		return sendToServer(post);*/
+		Log.d(TAG, server_url);
+		Log.d(TAG, parameters.toString());
+		return sendToServer(server_url + "/users", "POST", parameters);
 	}
 	
 	/**
