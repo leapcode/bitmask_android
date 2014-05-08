@@ -167,6 +167,13 @@ public class ProviderAPI extends IntentService {
 					receiver.send(PROVIDER_NOK, result);
 				}
 			}
+		} else if (action.equalsIgnoreCase(SRP_REGISTER)) {
+		    Bundle session_id_bundle = registerWithSRP(parameters);
+		    if(session_id_bundle.getBoolean(RESULT_KEY)) {
+			receiver.send(SRP_REGISTRATION_SUCCESSFUL, session_id_bundle);
+		    } else {
+			receiver.send(SRP_REGISTRATION_FAILED, session_id_bundle);
+		    }
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
 				if(session_id_bundle.getBoolean(RESULT_KEY)) {
@@ -188,6 +195,47 @@ public class ProviderAPI extends IntentService {
 				}
 		}
 	}
+
+    private Bundle registerWithSRP(Bundle task) {
+	Bundle session_id_bundle = new Bundle();
+	int progress = 0;
+		
+	String username = (String) task.get(LogInDialog.USERNAME);
+	String password = (String) task.get(LogInDialog.PASSWORD);
+	String authentication_server = (String) task.get(Provider.API_URL);
+	if(validUserLoginData(username, password)) {
+		
+	    SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
+	    LeapSRPSession client = new LeapSRPSession(username, password, params);
+	    byte[] salt = ConfigHelper.trim(client.calculateNewSalt());
+	    // byte[] salted_password = client.calculatePasswordHash(username, password, salt);
+	    /* Calculate password verifier */
+	    BigInteger password_verifier = client.calculateV(username, password, salt);
+	    /* Send to the server */
+	    JSONObject result = sendNewUserDataToSRPServer(authentication_server, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16));
+	    if(result.has(ERRORS))
+		session_id_bundle = authFailedNotification(result, username);
+	    else {
+		session_id_bundle.putString(LogInDialog.USERNAME, username);
+		session_id_bundle.putString(LogInDialog.PASSWORD, password);
+		session_id_bundle.putBoolean(RESULT_KEY, true);
+	    }
+	    Log.d(TAG, result.toString());
+	    broadcast_progress(progress++);
+	} else {
+	    if(!wellFormedPassword(password)) {
+		session_id_bundle.putBoolean(RESULT_KEY, false);
+		session_id_bundle.putString(LogInDialog.USERNAME, username);
+		session_id_bundle.putBoolean(LogInDialog.PASSWORD_INVALID_LENGTH, true);
+	    }
+	    if(username.isEmpty()) {
+		session_id_bundle.putBoolean(RESULT_KEY, false);
+		session_id_bundle.putBoolean(LogInDialog.USERNAME_MISSING, true);
+	    }
+	}
+		
+	return session_id_bundle;
+    }
 	
 	/**
 	 * Starts the authentication process using SRP protocol.
@@ -196,88 +244,87 @@ public class ProviderAPI extends IntentService {
 	 * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if authentication was successful. 
 	 */
 	private Bundle authenticateBySRP(Bundle task) {
-		Bundle session_id_bundle = new Bundle();
-		int progress = 0;
+	    Bundle session_id_bundle = new Bundle();
+	    int progress = 0;
 		
-		String username = (String) task.get(LogInDialog.USERNAME);
-		String password = (String) task.get(LogInDialog.PASSWORD);
-		if(validUserLoginData(username, password)) {
+	    String username = (String) task.get(LogInDialog.USERNAME);
+	    String password = (String) task.get(LogInDialog.PASSWORD);
+	    if(validUserLoginData(username, password)) {
 		
-			String authentication_server = (String) task.get(Provider.API_URL);
+		String authentication_server = (String) task.get(Provider.API_URL);
+		JSONObject authentication_step_result = new JSONObject();
 
-			SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
-			LeapSRPSession client = new LeapSRPSession(username, password, params);
-			byte[] A = client.exponential();
+		SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
+		LeapSRPSession client = new LeapSRPSession(username, password, params);
+		byte[] A = client.exponential();
+		broadcast_progress(progress++);
+		authentication_step_result = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
+		try {
+		    String salt = authentication_step_result.getString(LeapSRPSession.SALT);
+		    broadcast_progress(progress++);
+		    byte[] Bbytes = new BigInteger(authentication_step_result.getString("B"), 16).toByteArray();
+		    byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
+		    if(M1 != null) {
 			broadcast_progress(progress++);
-			try {
-				JSONObject saltAndB = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
-				if(saltAndB.length() > 0) {
-					String salt = saltAndB.getString(LeapSRPSession.SALT);
-					broadcast_progress(progress++);
-					byte[] Bbytes = new BigInteger(saltAndB.getString("B"), 16).toByteArray();
-					byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
-					if(M1 != null) {
-					broadcast_progress(progress++);
-					JSONObject session_idAndM2 = sendM1ToSRPServer(authentication_server, username, M1);
-					  if(session_idAndM2.has(LeapSRPSession.M2) && client.verify((byte[])session_idAndM2.get(LeapSRPSession.M2))) {
-						  session_id_bundle.putBoolean(RESULT_KEY, true);
-						  broadcast_progress(progress++);
-					  } else {
-						  session_id_bundle.putBoolean(RESULT_KEY, false);
-						  session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
-						  session_id_bundle.putString(LogInDialog.USERNAME, username);
-					  }
-					} else {
-						session_id_bundle.putBoolean(RESULT_KEY, false);
-						session_id_bundle.putString(LogInDialog.USERNAME, username);
-						session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_srp_math_error_user_message));
-					}
-					broadcast_progress(progress++);
-				} else {
-					session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_bad_user_password_user_message));
-					session_id_bundle.putString(LogInDialog.USERNAME, username);
-					session_id_bundle.putBoolean(RESULT_KEY, false);
-				}
-			} catch (ClientProtocolException e) {
-				session_id_bundle.putBoolean(RESULT_KEY, false);
-				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_client_http_user_message));
-				session_id_bundle.putString(LogInDialog.USERNAME, username);
-			} catch (IOException e) {
-				session_id_bundle.putBoolean(RESULT_KEY, false);
-				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_io_exception_user_message));
-				session_id_bundle.putString(LogInDialog.USERNAME, username);
-			} catch (JSONException e) {
-				session_id_bundle.putBoolean(RESULT_KEY, false);
-				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_json_exception_user_message));
-				session_id_bundle.putString(LogInDialog.USERNAME, username);
-			} catch (NoSuchAlgorithmException e) {
-				session_id_bundle.putBoolean(RESULT_KEY, false);
-				session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_no_such_algorithm_exception_user_message));
-				session_id_bundle.putString(LogInDialog.USERNAME, username);
-			} catch (KeyManagementException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (KeyStoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (CertificateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			authentication_step_result = sendM1ToSRPServer(authentication_server, username, M1);
+			setTokenIfAvailable(authentication_step_result);
+			byte[] M2 = new BigInteger(authentication_step_result.getString(LeapSRPSession.M2), 16).toByteArray();
+			if(client.verify(M2)) {
+			    session_id_bundle.putBoolean(RESULT_KEY, true);
+			    broadcast_progress(progress++);
+			} else {
+			    authFailedNotification(authentication_step_result, username);
 			}
-		} else {
-			if(!wellFormedPassword(password)) {
-				session_id_bundle.putBoolean(RESULT_KEY, false);
-				session_id_bundle.putString(LogInDialog.USERNAME, username);
-				session_id_bundle.putBoolean(LogInDialog.PASSWORD_INVALID_LENGTH, true);
-			}
-			if(username.isEmpty()) {
-				session_id_bundle.putBoolean(RESULT_KEY, false);
-				session_id_bundle.putBoolean(LogInDialog.USERNAME_MISSING, true);
-			}
+		    } else {
+			session_id_bundle.putBoolean(RESULT_KEY, false);
+			session_id_bundle.putString(LogInDialog.USERNAME, username);
+			session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_srp_math_error_user_message));
+		    }
+		} catch (JSONException e) {
+		    session_id_bundle = authFailedNotification(authentication_step_result, username);
+		    e.printStackTrace();
 		}
+		broadcast_progress(progress++);
+	    } else {
+		if(!wellFormedPassword(password)) {
+		    session_id_bundle.putBoolean(RESULT_KEY, false);
+		    session_id_bundle.putString(LogInDialog.USERNAME, username);
+		    session_id_bundle.putBoolean(LogInDialog.PASSWORD_INVALID_LENGTH, true);
+		}
+		if(username.isEmpty()) {
+		    session_id_bundle.putBoolean(RESULT_KEY, false);
+		    session_id_bundle.putBoolean(LogInDialog.USERNAME_MISSING, true);
+		}
+	    }
 		
-		return session_id_bundle;
+	    return session_id_bundle;
 	}
+
+    private boolean setTokenIfAvailable(JSONObject authentication_step_result) {
+	try {
+	    LeapSRPSession.setToken(authentication_step_result.getString(LeapSRPSession.TOKEN));
+	    CookieHandler.setDefault(null); // we don't need cookies anymore
+	} catch(JSONException e) { //
+	    return false;
+	}
+	return true;
+    }
+    
+    private Bundle authFailedNotification(JSONObject result, String username) {
+	Bundle user_notification_bundle = new Bundle();
+	try{
+	    JSONObject error_message = result.getJSONObject(ERRORS);
+	    String error_type = error_message.keys().next().toString();
+	    String message = error_message.get(error_type).toString();
+	    user_notification_bundle.putString(getResources().getString(R.string.user_message), message);
+	} catch(JSONException e) {}
+	
+	if(!username.isEmpty())
+	    user_notification_bundle.putString(LogInDialog.USERNAME, username);
+	user_notification_bundle.putBoolean(RESULT_KEY, false);
+
+	return user_notification_bundle;
+    }
 	
 	/**
 	 * Sets up an intent with the progress value passed as a parameter
@@ -325,14 +372,11 @@ public class ProviderAPI extends IntentService {
 	 * @throws KeyStoreException 
 	 * @throws KeyManagementException 
 	 */
-	private JSONObject sendAToSRPServer(String server_url, String username, String clientA) throws ClientProtocolException, IOException, JSONException, KeyManagementException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    private JSONObject sendAToSRPServer(String server_url, String username, String clientA) {
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("login", username);
 		parameters.put("A", clientA);
 		return sendToServer(server_url + "/sessions.json", "POST", parameters);
-		
-		/*HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + "login=" + username + "&&" + "A=" + clientA);
-		return sendToServer(post);*/
 	}
 
 	/**
@@ -349,26 +393,36 @@ public class ProviderAPI extends IntentService {
 	 * @throws KeyStoreException 
 	 * @throws KeyManagementException 
 	 */
-	private JSONObject sendM1ToSRPServer(String server_url, String username, byte[] m1) throws ClientProtocolException, IOException, JSONException, KeyManagementException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    private JSONObject sendM1ToSRPServer(String server_url, String username, byte[] m1) {
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("client_auth", new BigInteger(1, ConfigHelper.trim(m1)).toString(16));
-		
-		//HttpPut put = new HttpPut(server_url + "/sessions/" + username +".json" + "?" + "client_auth" + "=" + new BigInteger(1, ConfigHelper.trim(m1)).toString(16));
-		JSONObject json_response = sendToServer(server_url + "/sessions/" + username +".json", "PUT", parameters);
-
-		JSONObject session_idAndM2 = new JSONObject();
-		if(json_response.length() > 0) {
-			byte[] M2_not_trimmed = new BigInteger(json_response.getString(LeapSRPSession.M2), 16).toByteArray();
-			/*Cookie session_id_cookie = LeapHttpClient.getInstance(getApplicationContext()).getCookieStore().getCookies().get(0);
-			session_idAndM2.put(ConfigHelper.SESSION_ID_COOKIE_KEY, session_id_cookie.getName());
-			session_idAndM2.put(ConfigHelper.SESSION_ID_KEY, session_id_cookie.getValue());*/
-			session_idAndM2.put(LeapSRPSession.M2, ConfigHelper.trim(M2_not_trimmed));
-			CookieHandler.setDefault(null); // we don't need cookies anymore
-			String token = json_response.getString(LeapSRPSession.TOKEN);
-			LeapSRPSession.setToken(token);
-		}
-		return session_idAndM2;
+		return sendToServer(server_url + "/sessions/" + username +".json", "PUT", parameters);
 	}
+
+	/**
+	 * Sends an HTTP POST request to the api server to register a new user.
+	 * @param server_url
+	 * @param username
+	 * @param salted_password
+	 * @param password_verifier   
+	 * @return response from authentication server
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws JSONException
+	 * @throws CertificateException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws KeyStoreException 
+	 * @throws KeyManagementException 
+	 */
+    private JSONObject sendNewUserDataToSRPServer(String server_url, String username, String salt, String password_verifier) {
+	Map<String, String> parameters = new HashMap<String, String>();
+	parameters.put("user[login]", username);
+	parameters.put("user[password_salt]", salt);
+	parameters.put("user[password_verifier]", password_verifier);
+	Log.d(TAG, server_url);
+	Log.d(TAG, parameters.toString());
+	return sendToServer(server_url + "/users", "POST", parameters);
+    }
 	
 	/**
 	 * Executes an HTTP request expecting a JSON response.
@@ -384,38 +438,68 @@ public class ProviderAPI extends IntentService {
 	 * @throws KeyStoreException 
 	 * @throws KeyManagementException 
 	 */
-	private JSONObject sendToServer(String url, String request_method, Map<String, String> parameters) throws JSONException, MalformedURLException, IOException, KeyManagementException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-		JSONObject json_response;
+	private JSONObject sendToServer(String url, String request_method, Map<String, String> parameters) {
+	    JSONObject json_response;
+	    HttpsURLConnection urlConnection = null;
+	    try {
 		InputStream is = null;
-		HttpsURLConnection urlConnection = (HttpsURLConnection)new URL(url).openConnection();
+		urlConnection = (HttpsURLConnection)new URL(url).openConnection();
 		urlConnection.setRequestMethod(request_method);
 		urlConnection.setChunkedStreamingMode(0);
 		urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
-		try {
-			
-			DataOutputStream writer = new DataOutputStream(urlConnection.getOutputStream());
-			writer.writeBytes(formatHttpParameters(parameters));
-			writer.close();
+		
+		DataOutputStream writer = new DataOutputStream(urlConnection.getOutputStream());
+		writer.writeBytes(formatHttpParameters(parameters));
+		writer.close();
 
-			is = urlConnection.getInputStream();
-			String plain_response = new Scanner(is).useDelimiter("\\A").next();
-			json_response = new JSONObject(plain_response);
-		} finally {
-			InputStream error_stream = urlConnection.getErrorStream();
-			if(error_stream != null) {
-				String error_response = new Scanner(error_stream).useDelimiter("\\A").next();
-				urlConnection.disconnect();
-				Log.d("Error", error_response);
-				json_response = new JSONObject(error_response);
-				if(!json_response.isNull(ERRORS) || json_response.has(ERRORS)) {
-					return new JSONObject();
-				}
-			}
-		}
+		is = urlConnection.getInputStream();
+		String plain_response = new Scanner(is).useDelimiter("\\A").next();
+		json_response = new JSONObject(plain_response);
+	    } catch (ClientProtocolException e) {
+		json_response = getErrorMessage(urlConnection);
+		e.printStackTrace();
+	    } catch (IOException e) {
+		json_response = getErrorMessage(urlConnection);
+		e.printStackTrace();
+	    } catch (JSONException e) {
+		json_response = getErrorMessage(urlConnection);
+		e.printStackTrace();
+	    } catch (NoSuchAlgorithmException e) {
+		json_response = getErrorMessage(urlConnection);
+		e.printStackTrace();
+	    } catch (KeyManagementException e) {
+		json_response = getErrorMessage(urlConnection);
+		e.printStackTrace();
+	    } catch (KeyStoreException e) {
+		json_response = getErrorMessage(urlConnection);
+		e.printStackTrace();
+	    } catch (CertificateException e) {
+		json_response = getErrorMessage(urlConnection);
+		e.printStackTrace();
+	    }
 
-		return json_response;
+	    return json_response;
 	}
-	
+
+    private JSONObject getErrorMessage(HttpsURLConnection urlConnection) {
+	JSONObject error_message = new JSONObject();
+	if(urlConnection != null) {
+	    InputStream error_stream = urlConnection.getErrorStream();
+	    if(error_stream != null) {
+		String error_response = new Scanner(error_stream).useDelimiter("\\A").next();
+		Log.d("Error", error_response);
+		try {
+		    error_message = new JSONObject(error_response);
+		} catch (JSONException e) {
+		    Log.d(TAG, e.getMessage());
+		    e.printStackTrace();
+		}
+		urlConnection.disconnect();
+	    }
+	}
+	return error_message;
+    }
+    
 	private String formatHttpParameters(Map<String, String> parameters) throws UnsupportedEncodingException	{
 	    StringBuilder result = new StringBuilder();
 	    boolean first = true;

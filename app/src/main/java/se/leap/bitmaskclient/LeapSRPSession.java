@@ -16,13 +16,13 @@
  */
  package se.leap.bitmaskclient;
 
+
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-
 import org.jboss.security.srp.SRPParameters;
 
 /**
@@ -42,6 +42,7 @@ public class LeapSRPSession {
 	final public static String M2 = "M2";
 	final public static String TOKEN = "token";
 	final public static String AUTHORIZATION_HEADER= "Authorization";
+    	final public static String TAG= "Leap SRP session class tag";
 	
 	private SRPParameters params;
 	private String username;
@@ -155,14 +156,23 @@ public class LeapSRPSession {
 		return x_digest_bytes;
 	}
 
+    public byte[] calculateNewSalt() {
+	try {
+	    BigInteger salt = new BigInteger(64, SecureRandom.getInstance("SHA1PRNG"));
+	    return salt.toByteArray();
+	} catch(NoSuchAlgorithmException e) {
+	    e.printStackTrace();
+	}
+	return null;
+    }
 	/**
 	 * Calculates the parameter V of the SRP-6a algorithm.
-	 * @param k_string constant k predefined by the SRP server implementation.
 	 * @return the value of V
 	 */
-	private BigInteger calculateV(String k_string) {
-		BigInteger k = new BigInteger(k_string, 16);
-		BigInteger v = k.multiply(g.modPow(x, N));  // g^x % N
+    public BigInteger calculateV(String username, String password, byte[] salt) {
+		byte[] x_bytes = calculatePasswordHash(username, password, ConfigHelper.trim(salt));
+		x = new BigInteger(1, x_bytes);
+		BigInteger v = g.modPow(x, N);  // g^x % N
 		return v;
 	}
 
@@ -209,17 +219,11 @@ public class LeapSRPSession {
 	 * @return the parameter M1
 	 * @throws NoSuchAlgorithmException
 	 */
-	public byte[] response(byte[] salt_bytes, byte[] Bbytes) throws NoSuchAlgorithmException {
+    public byte[] response(byte[] salt_bytes, byte[] Bbytes) {
 		// Calculate x = H(s | H(U | ':' | password))
 		byte[] M1 = null;
 		if(new BigInteger(1, Bbytes).mod(new BigInteger(1, N_bytes)) != BigInteger.ZERO) {
-			byte[] xb = calculatePasswordHash(username, password, ConfigHelper.trim(salt_bytes));
-			this.x = new BigInteger(1, xb);
-
-			// Calculate v = kg^x mod N
-			String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
-			this.v = calculateV(k_string);
-
+		    this.v = calculateV(username, password, salt_bytes);
 			// H(N)
 			byte[] digest_of_n = newDigest().digest(N_bytes);
 
@@ -253,8 +257,7 @@ public class LeapSRPSession {
 			byte[] S_bytes = ConfigHelper.trim(S.toByteArray());
 
 			// K = SessionHash(S)
-			String hash_algorithm = params.hashAlgorithm;
-			MessageDigest sessionDigest = MessageDigest.getInstance(hash_algorithm);
+			MessageDigest sessionDigest = newDigest();
 			K = ConfigHelper.trim(sessionDigest.digest(S_bytes));
 
 			// clientHash = H(N) xor H(g) | H(U) | A | B | K
@@ -283,8 +286,9 @@ public class LeapSRPSession {
 		
 		BigInteger B = new BigInteger(1, Bbytes);
 		BigInteger u = new BigInteger(1, u_bytes);
-		
-		BigInteger B_minus_v = B.subtract(v);
+		String k_string = "bf66c44a428916cad64aa7c679f3fd897ad4c375e9bbb4cbf2f5de241d618ef0";
+		BigInteger k = new BigInteger(k_string, 16);
+		BigInteger B_minus_v = B.subtract(k.multiply(v));
 		BigInteger a_ux = a.add(u.multiply(x));
 		BigInteger S = B_minus_v.modPow(a_ux, N);
 		return S;
@@ -338,4 +342,8 @@ public class LeapSRPSession {
 		}
 		return md;
 	}
+
+    public byte[] getK() {
+	return K;
+    }
 }

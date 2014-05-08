@@ -116,6 +116,7 @@
     <string name="error_no_such_algorithm_exception_user_message">Update the app</string>
     <string name="login_button">Log In</string>
     <string name="logout_button">Log Out</string>
+    <string name="signup_button">Sign Up</string>
     <string name="setup_error_title">Configuration Error</string>
     <string name="setup_error_configure_button">Configure</string>
     <string name="setup_error_close_button">Exit</string>
@@ -126,6 +127,7 @@
     <string name="configuring_provider">Configuring provider</string>
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
     <string name="authenticating_message">Logging in</string>
+    <string name="signingup_message">Signing up</string>
     <string name="logout_message">Logging out from this session.</string>
     <string name="log_out_failed_message">Didn\'t logged out.</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
