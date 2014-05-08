@@ -99,6 +99,7 @@ public class LogInDialog extends DialogFragment {
 			.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					dialog.cancel();
+					interface_with_Dashboard.cancelLoginOrSignup();
 				}
 			});
 		
@@ -119,6 +120,7 @@ public class LogInDialog extends DialogFragment {
 		 */
 	    public void authenticate(String username, String password);
 	    public void cancelAuthedEipOn();
+	    public void cancelLoginOrSignup();
     }
 
 	LogInDialogInterface interface_with_Dashboard;

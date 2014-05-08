@@ -291,6 +291,15 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	EipServiceFragment eipFragment = (EipServiceFragment) getFragmentManager().findFragmentByTag(EipServiceFragment.TAG);
 	eipFragment.checkEipSwitch(false);
     }
+
+    public void cancelLoginOrSignup() {
+	if(mProgressBar == null) mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
+	if(mProgressBar != null) {
+	    mProgressBar.setVisibility(ProgressBar.GONE);
+	    if(eipStatus == null) eipStatus = (TextView) findViewById(R.id.eipStatus);
+	    if(eipStatus != null) eipStatus.setText("");
+	}
+    }
 	
 	/**
 	 * Asks ProviderAPI to log out.
