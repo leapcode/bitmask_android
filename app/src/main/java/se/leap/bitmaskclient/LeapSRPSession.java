@@ -219,7 +219,7 @@ public class LeapSRPSession {
 	 * @return the parameter M1
 	 * @throws NoSuchAlgorithmException
 	 */
-    public byte[] response(byte[] salt_bytes, byte[] Bbytes) throws NoSuchAlgorithmException {
+    public byte[] response(byte[] salt_bytes, byte[] Bbytes) {
 		// Calculate x = H(s | H(U | ':' | password))
 		byte[] M1 = null;
 		if(new BigInteger(1, Bbytes).mod(new BigInteger(1, N_bytes)) != BigInteger.ZERO) {
@@ -257,8 +257,7 @@ public class LeapSRPSession {
 			byte[] S_bytes = ConfigHelper.trim(S.toByteArray());
 
 			// K = SessionHash(S)
-			String hash_algorithm = params.hashAlgorithm;
-			MessageDigest sessionDigest = MessageDigest.getInstance(hash_algorithm);
+			MessageDigest sessionDigest = newDigest();
 			K = ConfigHelper.trim(sessionDigest.digest(S_bytes));
 
 			// clientHash = H(N) xor H(g) | H(U) | A | B | K
