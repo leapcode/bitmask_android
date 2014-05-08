@@ -218,16 +218,9 @@ public class ProviderAPI extends IntentService {
 	    BigInteger password_verifier = client.calculateV(username, password, salt);
 	    /* Send to the server */
 	    JSONObject result = sendNewUserDataToSRPServer(authentication_server, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16));
-	    if(result.has(ERRORS)) {
-		session_id_bundle.putBoolean(RESULT_KEY, false);
-		try {
-		    // {"errors":{"login":["has already been taken","has already been taken"]}}
-		    session_id_bundle.putString(getResources().getString(R.string.user_message), result.getJSONObject(ERRORS).toString());
-		    session_id_bundle.putString(LogInDialog.USERNAME, username);
-		} catch(JSONException e) {
-		    e.printStackTrace();
-		}
-	    }
+	    if(result.has(ERRORS))
+		session_id_bundle = authFailedNotification(result, username);
+	    
 	    Log.d(TAG, result.toString());
 	    broadcast_progress(progress++);
 	} else {
@@ -318,11 +311,14 @@ public class ProviderAPI extends IntentService {
     }
     
     private Bundle authFailedNotification(JSONObject result, String username) {
-	Log.d(TAG, "authFailedNotification("+ result +")");
 	Bundle user_notification_bundle = new Bundle();
 	try{
-	    user_notification_bundle.putString(getResources().getString(R.string.user_message), result.getJSONObject(ERRORS).toString());
+	    JSONObject error_message = result.getJSONObject(ERRORS);
+	    String error_type = error_message.keys().next().toString();
+	    String message = error_message.get(error_type).toString();
+	    user_notification_bundle.putString(getResources().getString(R.string.user_message), message);
 	} catch(JSONException e) {}
+	
 	if(!username.isEmpty())
 	    user_notification_bundle.putString(LogInDialog.USERNAME, username);
 	user_notification_bundle.putBoolean(RESULT_KEY, false);
