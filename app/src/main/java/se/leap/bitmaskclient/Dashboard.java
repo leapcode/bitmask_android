@@ -373,7 +373,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 		
 	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	    eipStatus.setText(R.string.authenticating_message);
+	    eipStatus.setText(R.string.signingup_message);
 	    //mProgressBar.setMax(4);
 	    startService(provider_API_command);
 	}
@@ -421,7 +421,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
-		if(resultCode == ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL){
+	    if(resultCode == ProviderAPI.SRP_REGISTRATION_SUCCESSFUL){
+		authenticate(resultData.getString(LogInDialog.USERNAME), resultData.getString(LogInDialog.PASSWORD));
+	    } else if(resultCode == ProviderAPI.SRP_REGISTRATION_FAILED){
+		signUpDialog(((ViewGroup)findViewById(android.R.id.content)).getChildAt(0), resultData);
+	    } else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL){
 			String session_id_cookie_key = resultData.getString(ProviderAPI.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ProviderAPI.SESSION_ID_KEY);
 			setResult(RESULT_OK);
@@ -436,7 +440,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
         	downloadAuthedUserCertificate(/*session_id*/);
 		} else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_FAILED) {
-        	logInDialog(getCurrentFocus(), resultData);
+		    logInDialog(getCurrentFocus(), resultData);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
 			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();

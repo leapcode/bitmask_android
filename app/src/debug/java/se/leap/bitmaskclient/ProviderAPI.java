@@ -175,9 +175,9 @@ public class ProviderAPI extends IntentService {
 		} else if (action.equalsIgnoreCase(SRP_REGISTER)) {
 		    Bundle session_id_bundle = registerWithSRP(parameters);
 		    if(session_id_bundle.getBoolean(RESULT_KEY)) {
-			receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
+			receiver.send(SRP_REGISTRATION_SUCCESSFUL, session_id_bundle);
 		    } else {
-			receiver.send(SRP_AUTHENTICATION_FAILED, session_id_bundle);
+			receiver.send(SRP_REGISTRATION_FAILED, session_id_bundle);
 		    }
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = authenticateBySRP(parameters);
@@ -220,7 +220,11 @@ public class ProviderAPI extends IntentService {
 	    JSONObject result = sendNewUserDataToSRPServer(authentication_server, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16));
 	    if(result.has(ERRORS))
 		session_id_bundle = authFailedNotification(result, username);
-	    
+	    else {
+		session_id_bundle.putString(LogInDialog.USERNAME, username);
+		session_id_bundle.putString(LogInDialog.PASSWORD, password);
+		session_id_bundle.putBoolean(RESULT_KEY, true);
+	    }
 	    Log.d(TAG, result.toString());
 	    broadcast_progress(progress++);
 	} else {
@@ -377,9 +381,6 @@ public class ProviderAPI extends IntentService {
 		parameters.put("login", username);
 		parameters.put("A", clientA);
 		return sendToServer(server_url + "/sessions.json", "POST", parameters);
-		
-		/*HttpPost post = new HttpPost(server_url + "/sessions.json" + "?" + "login=" + username + "&&" + "A=" + clientA);
-		return sendToServer(post);*/
 	}
 
 	/**
@@ -404,7 +405,7 @@ public class ProviderAPI extends IntentService {
 	}
 
 	/**
-	 * Sends an HTTP POST request to the authentication server to register a new user.
+	 * Sends an HTTP POST request to the api server to register a new user.
 	 * @param server_url
 	 * @param username
 	 * @param salted_password
@@ -434,13 +435,6 @@ public class ProviderAPI extends IntentService {
 	 * @param request_method
 	 * @param parameters
 	 * @return response from authentication server
-	 * @throws IOException
-	 * @throws JSONException
-	 * @throws MalformedURLException 
-	 * @throws CertificateException 
-	 * @throws NoSuchAlgorithmException 
-	 * @throws KeyStoreException 
-	 * @throws KeyManagementException 
 	 */
 	private JSONObject sendToServer(String url, String request_method, Map<String, String> parameters) {
 	    JSONObject json_response;

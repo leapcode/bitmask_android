@@ -127,6 +127,7 @@
     <string name="configuring_provider">Configuring provider</string>
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
     <string name="authenticating_message">Logging in</string>
+    <string name="signingup_message">Signing up</string>
     <string name="logout_message">Logging out from this session.</string>
     <string name="log_out_failed_message">Didn\'t logged out.</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
