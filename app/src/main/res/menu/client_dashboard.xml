@@ -9,7 +9,6 @@
         android:title="@string/switch_provider_menu_option"/>
     <item
         android:id="@+id/signup_button"
-        android:showAsAction="ifRoom"
         android:title="@string/signup_button"
         android:visible="false"/>
     <item

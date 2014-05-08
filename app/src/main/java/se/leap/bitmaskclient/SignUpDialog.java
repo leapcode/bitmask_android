@@ -112,11 +112,6 @@ public class SignUpDialog extends DialogFragment {
 	 *
 	 */
 	public interface SignUpDialogInterface {
-		/**
-		 * Starts authentication process.
-		 * @param username
-		 * @param password
-		 */
 	    public void signUp(String username, String password);
 	    public void cancelAuthedEipOn();
 	    public void cancelLoginOrSignup();

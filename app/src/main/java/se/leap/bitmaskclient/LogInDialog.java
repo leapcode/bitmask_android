@@ -101,6 +101,13 @@ public class LogInDialog extends DialogFragment {
 					dialog.cancel();
 					interface_with_Dashboard.cancelLoginOrSignup();
 				}
+			})
+		    .setNeutralButton(R.string.signup_button, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					String username = username_field.getText().toString();
+					String password = password_field.getText().toString();
+					interface_with_Dashboard.signUp(username, password);
+				}
 			});
 		
 		return builder.create();
@@ -113,13 +120,9 @@ public class LogInDialog extends DialogFragment {
 	 *
 	 */
 	public interface LogInDialogInterface {
-		/**
-		 * Starts authentication process.
-		 * @param username
-		 * @param password
-		 */
 	    public void authenticate(String username, String password);
 	    public void cancelAuthedEipOn();
+	    public void signUp(String username, String password);
 	    public void cancelLoginOrSignup();
     }
 
