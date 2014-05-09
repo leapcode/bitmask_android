@@ -21,6 +21,7 @@ import org.json.JSONObject;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
+import se.leap.bitmaskclient.SignUpDialog;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -50,7 +51,7 @@ import android.widget.Toast;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author parmegv
  */
-public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface,Receiver {
+public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface, SignUpDialog.SignUpDialogInterface, Receiver {
 
 	protected static final int CONFIGURE_LEAP = 0;
 	protected static final int SWITCH_PROVIDER = 1;
@@ -204,6 +205,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 					menu.findItem(R.id.login_button).setVisible(true);
 					menu.findItem(R.id.logout_button).setVisible(false);
 				}
+				menu.findItem(R.id.signup_button).setVisible(true);
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -242,6 +244,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			return true;
 		case R.id.logout_button:
 			logOut();
+			return true;
+		case R.id.signup_button:
+			signUpDialog(((ViewGroup)findViewById(android.R.id.content)).getChildAt(0), Bundle.EMPTY);
 			return true;
 		default:
 				return super.onOptionsItemSelected(item);
@@ -285,6 +290,15 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     public void cancelAuthedEipOn() {
 	EipServiceFragment eipFragment = (EipServiceFragment) getFragmentManager().findFragmentByTag(EipServiceFragment.TAG);
 	eipFragment.checkEipSwitch(false);
+    }
+
+    public void cancelLoginOrSignup() {
+	if(mProgressBar == null) mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
+	if(mProgressBar != null) {
+	    mProgressBar.setVisibility(ProgressBar.GONE);
+	    if(eipStatus == null) eipStatus = (TextView) findViewById(R.id.eipStatus);
+	    if(eipStatus != null) eipStatus.setText("");
+	}
     }
 	
 	/**
@@ -340,6 +354,58 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    newFragment.show(fragment_transaction, LogInDialog.TAG);
 	}
 
+    	@Override
+	public void signUp(String username, String password) {
+	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
+	    eipStatus = (TextView) findViewById(R.id.eipStatus);
+		
+	    providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+	    providerAPI_result_receiver.setReceiver(this);
+		
+	    Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+	    Bundle parameters = new Bundle();
+	    parameters.putString(SignUpDialog.USERNAME, username);
+	    parameters.putString(SignUpDialog.PASSWORD, password);
+
+	    JSONObject provider_json;
+	    try {
+		provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
+		parameters.putString(Provider.API_URL, provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION));
+	    } catch (JSONException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    }
+
+	    provider_API_command.setAction(ProviderAPI.SRP_REGISTER);
+	    provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
+	    provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+		
+	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
+	    eipStatus.setText(R.string.signingup_message);
+	    //mProgressBar.setMax(4);
+	    startService(provider_API_command);
+	}
+    
+	/**
+	 * Shows the sign up dialog.
+	 * @param view from which the dialog is created.
+	 */
+	public void signUpDialog(View view, Bundle resultData) {
+	    FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
+	    Fragment previous_sign_up_dialog = getFragmentManager().findFragmentByTag(SignUpDialog.TAG);
+	    if (previous_sign_up_dialog != null) {
+	        fragment_transaction.remove(previous_sign_up_dialog);
+	    }
+	    fragment_transaction.addToBackStack(null);
+
+	    DialogFragment newFragment = SignUpDialog.newInstance();
+	    if(resultData != null && !resultData.isEmpty()) {
+	    	newFragment.setArguments(resultData);
+	    }
+	    newFragment.show(fragment_transaction, SignUpDialog.TAG);
+	}
+
 	/**
 	 * Asks ProviderAPI to download an authenticated OpenVPN certificate.
 	 * @param session_id cookie for the server to allow us to download the certificate.
@@ -364,7 +430,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
-		if(resultCode == ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL){
+	    if(resultCode == ProviderAPI.SRP_REGISTRATION_SUCCESSFUL){
+		authenticate(resultData.getString(LogInDialog.USERNAME), resultData.getString(LogInDialog.PASSWORD));
+	    } else if(resultCode == ProviderAPI.SRP_REGISTRATION_FAILED){
+		signUpDialog(((ViewGroup)findViewById(android.R.id.content)).getChildAt(0), resultData);
+	    } else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL){
 			String session_id_cookie_key = resultData.getString(ProviderAPI.SESSION_ID_COOKIE_KEY);
 			String session_id_string = resultData.getString(ProviderAPI.SESSION_ID_KEY);
 			setResult(RESULT_OK);
@@ -379,7 +449,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
         	downloadAuthedUserCertificate(/*session_id*/);
 		} else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_FAILED) {
-        	logInDialog(getCurrentFocus(), resultData);
+		    logInDialog(getCurrentFocus(), resultData);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
 			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
