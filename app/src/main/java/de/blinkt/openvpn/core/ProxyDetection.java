@@ -1,4 +1,4 @@
-package se.leap.openvpn;
+package de.blinkt.openvpn.core;
 
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -9,7 +9,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
-import se.leap.bitmaskclient.R;
+import de.blinkt.openvpn.R;
+import de.blinkt.openvpn.VpnProfile;
 
 public class ProxyDetection {
 	static SocketAddress detectProxy(VpnProfile vp) {
@@ -26,9 +27,9 @@ public class ProxyDetection {
 			}
 			
 		} catch (MalformedURLException e) {
-			OpenVPN.logError(R.string.getproxy_error,e.getLocalizedMessage());
+			VpnStatus.logError(R.string.getproxy_error, e.getLocalizedMessage());
 		} catch (URISyntaxException e) {
-			OpenVPN.logError(R.string.getproxy_error,e.getLocalizedMessage());
+			VpnStatus.logError(R.string.getproxy_error, e.getLocalizedMessage());
 		}
 		return null;
 	}

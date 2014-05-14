@@ -1,9 +1,10 @@
 package se.leap.bitmaskclient;
 
 import se.leap.bitmaskclient.R;
-import se.leap.openvpn.LogWindow;
-import se.leap.openvpn.OpenVPN;
-import se.leap.openvpn.OpenVPN.StateListener;
+import de.blinkt.openvpn.activities.LogWindow;
+import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
+import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -94,7 +95,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	public void onResume() {
 		super.onResume();
 
-		OpenVPN.addStateListener(this);
+		VpnStatus.addStateListener(this);
 		if(set_switch_off) {
 		    eipSwitch.setChecked(false);
 		    set_switch_off = false;
@@ -109,7 +110,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	public void onPause() {
 		super.onPause();
 
-		OpenVPN.removeStateListener(this);
+		VpnStatus.removeStateListener(this);
 	}
     
 	@Override
@@ -203,7 +204,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	}
 	
 	@Override
-	public void updateState(final String state, final String logmessage, final int localizedResId) {
+	public void updateState(final String state, final String logmessage, final int localizedResId, ConnectionStatus level) {
 		// Note: "states" are not organized anywhere...collected state strings:
 		//		NOPROCESS,NONETWORK,BYTECOUNT,AUTH_FAILED + some parsing thing ( WAIT(?),AUTH,GET_CONFIG,ASSIGN_IP,CONNECTED,SIGINT )
 		getActivity().runOnUiThread(new Runnable() {

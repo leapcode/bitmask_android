@@ -37,3 +37,9 @@ task pullIcsOpenVPN( type: HgPull ) {
      sourceUrl = 'https://code.google.com/p/ics-openvpn/'
      workingDir = 'ics-openvpn'
 }
+
+task copyIcsOpenVPNClasses( type: Copy ) {
+     from 'ics-openvpn/main'
+     into 'app'
+     include '**/*.java'
+}

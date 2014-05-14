@@ -1,4 +1,4 @@
-package se.leap.openvpn;
+package de.blinkt.openvpn.core;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
+import de.blinkt.openvpn.VpnProfile;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -33,7 +36,7 @@ public class ProfileManager {
 	private static VpnProfile tmpprofile=null;
 
 
-	public static VpnProfile get(String key) {
+	private static VpnProfile get(String key) {
 		if (tmpprofile!=null && tmpprofile.getUUIDString().equals(key))
 			return tmpprofile;
 			
@@ -71,8 +74,7 @@ public class ProfileManager {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
 		Editor prefsedit = prefs.edit();
 		
-		//prefsedit.putString(ONBOOTPROFILE, connectedrofile.getUUIDString());
-		prefsedit.putString(ONBOOTPROFILE, VpnProfile.EXTRA_PROFILEUUID);
+		prefsedit.putString(ONBOOTPROFILE, connectedrofile.getUUIDString());
 		prefsedit.apply();
 		mLastConnectedVpn=connectedrofile;
 		
@@ -143,13 +145,11 @@ public class ProfileManager {
 			vpnfile.close();
 		} catch (FileNotFoundException e) {
 
-			e.printStackTrace();
+            VpnStatus.logException("saving VPN profile", e);
 			throw new RuntimeException(e);
 		} catch (IOException e) {
-
-			e.printStackTrace();
+            VpnStatus.logException("saving VPN profile", e);
 			throw new RuntimeException(e);
-
 		}
 	}
 	
@@ -171,7 +171,8 @@ public class ProfileManager {
 				// Sanity check 
 				if(vp==null || vp.mName==null || vp.getUUID()==null)
 					continue;
-				
+
+                vp.upgradeProfile();
 				profiles.put(vp.getUUID().toString(), vp);
 
 			} catch (StreamCorruptedException e) {
@@ -184,7 +185,7 @@ public class ProfileManager {
 				exp=e;
 			}
 			if(exp!=null) {
-				exp.printStackTrace();
+			    VpnStatus.logException("Loading VPN List",exp);
 			}
 		}
 	}
