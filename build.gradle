@@ -42,4 +42,5 @@ task copyIcsOpenVPNClasses( type: Copy ) {
      from 'ics-openvpn/main'
      into 'app'
      include '**/*.java'
+     include '**/*.aidl'
 }
