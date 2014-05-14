@@ -19,7 +19,12 @@ allprojects {
 
 apply plugin: 'mercurial-mq'
 
-task cloneProject( type: HgClone ) {
+task cloneIcsOpenVPN( type: HgClone ) {
     sourceUrl = 'https://code.google.com/p/ics-openvpn/'
     workingDir = '.'
+}
+
+task updateIcsOpenVPN( type: HgUpdate ) {
+    workingDir = 'ics-openvpn'
+    branch = 'default'
 }
