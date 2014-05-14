@@ -1,10 +1,13 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+import au.com.coherentsoftware.gradle.mercurial.task.*
+
 buildscript {
     repositories {
         mavenCentral()
+	jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.9.+'
+        classpath 'au.com.coherentsoftware.gradle:Gradle-MercurialMqPlugin:1.1.0+'
     }
 }
 
@@ -12,4 +15,11 @@ allprojects {
     repositories {
         mavenCentral()
     }
+}
+
+apply plugin: 'mercurial-mq'
+
+task cloneProject( type: HgClone ) {
+    sourceUrl = 'https://code.google.com/p/ics-openvpn/'
+    workingDir = '.'
 }
