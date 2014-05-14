@@ -24,7 +24,12 @@ task cloneIcsOpenVPN( type: HgClone ) {
     workingDir = '.'
 }
 
-task updateIcsOpenVPN( type: HgUpdate ) {
+task updateIcsOpenVPN( type: HgUpdate, dependsOn: 'pullIcsOpenVPN' ) {
     workingDir = 'ics-openvpn'
     branch = 'default'
+}
+
+task pullIcsOpenVPN( type: HgPull ) {
+    sourceUrl = 'https://code.google.com/p/ics-openvpn/'
+    workingDir = 'ics-openvpn'
 }
