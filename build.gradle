@@ -2,53 +2,88 @@ import au.com.coherentsoftware.gradle.mercurial.task.*
 import org.apache.tools.ant.filters.ReplaceTokens
 
 buildscript {
-    repositories {
-        mavenCentral()
-	jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
-        classpath 'au.com.coherentsoftware.gradle:Gradle-MercurialMqPlugin:1.1.0+'
-    }
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:0.9.+'
+    classpath 'au.com.coherentsoftware.gradle:Gradle-MercurialMqPlugin:1.1.0+'
+  }
 }
 
 allprojects {
-    repositories {
-        mavenCentral()
-    }
+  repositories {
+    mavenCentral()
+  }
 }
 
 apply plugin: 'mercurial-mq'
 
 task cloneIcsOpenVPN( type: HgClone ) {
-     ext.srcFile = file('build.gradle')
-     ext.destDir = new File('.', 'ics-openvpn')
-     inputs.file srcFile
-     outputs.dir destDir
+  ext.srcFile = file('build.gradle')
+  ext.destDir = new File('.', 'ics-openvpn')
+  inputs.file srcFile
+  outputs.dir destDir
      
-     sourceUrl = 'https://code.google.com/p/ics-openvpn/'
+  sourceUrl = 'https://code.google.com/p/ics-openvpn/'
 }
 
 task updateIcsOpenVPN( type: HgUpdate, dependsOn: 'pullIcsOpenVPN' ) {
-     workingDir = 'ics-openvpn'
-     branch = 'default'
+  workingDir = 'ics-openvpn'
+  branch = 'default'
 }
 
 task pullIcsOpenVPN( type: HgPull ) {
-     sourceUrl = 'https://code.google.com/p/ics-openvpn/'
-     workingDir = 'ics-openvpn'
+  sourceUrl = 'https://code.google.com/p/ics-openvpn/'
+  workingDir = 'ics-openvpn'
 }
 
 task copyIcsOpenVPNClasses( type: Copy ) {
-     from ('ics-openvpn/main') {
-          include '**/*.java'
-	  include '**/*.aidl'
-	  filter {
-	  	 line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
+  from ('ics-openvpn/main') {
+    include '**/*.java'
+    include '**/*.aidl'
+    include '**/strings.xml'
+
+    rename 'strings.xml', 'strings-icsopenvpn.xml'
+    filter {
+      line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
+    }
+    filter {
+      line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
+    }
+  }
+  into 'app'
+}
+
+def processFileInplace(file, Closure processText) {
+  def text = file.text
+  file.write(processText(text))
+}
+
+// thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
+task removeDuplicatedStrings() << {
+  def resources_directory = new File('./app/src/main/res/')
+  resources_directory.eachFileRecurse {
+    if(it.name.equals('strings.xml')) {
+      def ics_openvpn_file = file(it.path.replace('strings.xml', 'strings-icsopenvpn.xml'))
+      def ics_openvpn_strings_names = (new XmlParser()).parse(ics_openvpn_file)
+      def current_file = it
+      
+      ics_openvpn_strings_names.string.each {
+	processFileInplace(current_file) { text ->
+	  text.replaceAll('.*name=\"' + it.attribute('name') + '\".*(\n)*.*string>.*\n+', '')
+	}
+      }
+
+      if(it.path.contains('/values/')) {
+	def untranslatable_strings_names = (new XmlParser()).parse(it.path.replace('strings.xml', 'untranslatable.xml'))
+	untranslatable_strings_names.string.each {
+	  processFileInplace(ics_openvpn_file) { text ->
+	    text.replaceAll('.*name=\"' + it.attribute('name') + '\".*(\n)*.*string>.*\n+', '')
 	  }
-	  filter {
-	  	 line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
-	  }
-     }
-     into 'app'
+	}
+      }
+    }
+  }
 }

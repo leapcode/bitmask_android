@@ -1,33 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="about">Over</string>
-  <string name="no_error_found">Geen fout.</string>
-  <string name="config_error_found">Fout in de configuratie</string>
-  <string name="vpn_launch_title">Met VPN verbinden</string>
-  <string name="route_rejected">Route geweigert door Android</string>
-  <string name="cancel_connection">Verbinding verbreken</string>
-  <string name="clear_log">logboek wissen</string>
-  <string name="title_cancel">Annuleer bevestiging</string>
-  <string name="cancel_connection_query">Sluit de verbonden VPN af/annuleer de verbindingspoging?</string>
-  <string name="edit_vpn">VPN Instellingen Bewerken</string>
-  <string name="error">"Fout:"</string>
-  <string name="clear">Leeg maken</string>
   <string name="info">info</string>
   <string name="show_connection_details">Details van de verbinding weergeven</string>
   <string name="last_openvpn_tun_config">Laatste interfaceconfiguratie van OpenVPN:</string>
-  <string name="local_ip_info">Lokaal IPv4: %1$s/%2$d IPv6: %3$s MTU: %4$d</string>
-  <string name="dns_server_info">DNS Server: %s</string>
   <string name="dns_domain_info">DNS Domein: %s</string>
   <string name="routes_info">Routes: %s</string>
   <string name="routes_info6">Routes IPv6: %s</string>
-  <string name="version_info">%1$s %2$s</string>
-  <string name="send_logfile">Logboek verzenden</string>
-  <string name="send">Verzenden</string>
-  <string name="speed_waiting">Wachten op status bericht…</string>
-  <string name="converted_profile">Geïmporteerd profiel</string>
-  <string name="converted_profile_i">Geïmporteerd profiel %d</string>
   <string name="error_empty_username">De gebruikersnaam moet niet leeg zijn.</string>
-  <string name="pkcs12_file_encryption_key">PKCS12 Bestand Encryptie Sleutel</string>
-  <string name="private_key_password">Privé Sleutel Wachtwoord</string>
-  <string name="password">Wachtwoord</string>
 </resources>
