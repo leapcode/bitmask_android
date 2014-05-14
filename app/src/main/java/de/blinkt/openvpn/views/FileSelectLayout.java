@@ -1,6 +1,6 @@
 package de.blinkt.openvpn.views;
 
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.activities.FileSelect;
 import de.blinkt.openvpn.core.VpnStatus;

@@ -19,7 +19,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Base64;
 
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.fragments.FileSelectionFragment;
 import de.blinkt.openvpn.fragments.InlineFileTab;

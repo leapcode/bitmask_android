@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import de.blinkt.openvpn.activities.FileSelect;
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 
 public class InlineFileTab extends Fragment
 {

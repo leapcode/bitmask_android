@@ -9,7 +9,7 @@ import android.content.pm.Signature;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;

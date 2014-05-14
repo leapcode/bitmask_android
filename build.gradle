@@ -1,4 +1,5 @@
 import au.com.coherentsoftware.gradle.mercurial.task.*
+import org.apache.tools.ant.filters.ReplaceTokens
 
 buildscript {
     repositories {
@@ -39,8 +40,15 @@ task pullIcsOpenVPN( type: HgPull ) {
 }
 
 task copyIcsOpenVPNClasses( type: Copy ) {
-     from 'ics-openvpn/main'
+     from ('ics-openvpn/main') {
+          include '**/*.java'
+	  include '**/*.aidl'
+	  filter {
+	  	 line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
+	  }
+	  filter {
+	  	 line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
+	  }
+     }
      into 'app'
-     include '**/*.java'
-     include '**/*.aidl'
 }

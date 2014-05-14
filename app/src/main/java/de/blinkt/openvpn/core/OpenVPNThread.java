@@ -1,7 +1,7 @@
 package de.blinkt.openvpn.core;
 
 import android.util.Log;
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus.LogItem;

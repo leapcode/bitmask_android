@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 
 public class FaqFragment extends Fragment  {
 

@@ -20,7 +20,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import de.blinkt.openvpn.activities.FileSelect;
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 
 public class FileSelectionFragment extends ListFragment {
 

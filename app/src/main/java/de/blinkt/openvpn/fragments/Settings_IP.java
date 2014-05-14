@@ -6,7 +6,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
 
 public class Settings_IP extends OpenVpnPreferencesFragment implements OnPreferenceChangeListener {

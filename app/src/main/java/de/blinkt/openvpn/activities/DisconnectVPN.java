@@ -5,7 +5,7 @@ import android.app.AlertDialog;
 import android.content.*;
 import android.os.IBinder;
 
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.core.OpenVpnService;
 import de.blinkt.openvpn.core.ProfileManager;
 

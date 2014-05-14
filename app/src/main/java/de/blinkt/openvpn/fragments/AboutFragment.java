@@ -22,7 +22,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.TextView;
 import com.android.vending.billing.IInAppBillingService;
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.core.VpnStatus;
 import org.json.JSONException;
 import org.json.JSONObject;

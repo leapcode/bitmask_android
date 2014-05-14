@@ -6,7 +6,7 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 
 public class Settings_Obscure extends OpenVpnPreferencesFragment implements OnPreferenceChangeListener {
 	private CheckBoxPreference mUseRandomHostName;

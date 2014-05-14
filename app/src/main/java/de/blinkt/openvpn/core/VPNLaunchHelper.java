@@ -8,7 +8,7 @@ import java.io.InputStream;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
 
 public class VPNLaunchHelper {

@@ -27,9 +27,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import de.blinkt.openvpn.views.FileSelectLayout;
-import de.blinkt.openvpn.R;
+import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.R.id;
+import se.leap.bitmaskclient.R.id;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.X509Utils;
 

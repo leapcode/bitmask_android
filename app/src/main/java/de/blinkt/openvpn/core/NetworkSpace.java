@@ -9,7 +9,7 @@ import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.util.*;
 
-import de.blinkt.openvpn.BuildConfig;
+import se.leap.bitmaskclient.BuildConfig;
 
 public class NetworkSpace {
 
