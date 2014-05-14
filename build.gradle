@@ -20,16 +20,20 @@ allprojects {
 apply plugin: 'mercurial-mq'
 
 task cloneIcsOpenVPN( type: HgClone ) {
-    sourceUrl = 'https://code.google.com/p/ics-openvpn/'
-    workingDir = '.'
+     ext.srcFile = file('build.gradle')
+     ext.destDir = new File('.', 'ics-openvpn')
+     inputs.file srcFile
+     outputs.dir destDir
+     
+     sourceUrl = 'https://code.google.com/p/ics-openvpn/'
 }
 
 task updateIcsOpenVPN( type: HgUpdate, dependsOn: 'pullIcsOpenVPN' ) {
-    workingDir = 'ics-openvpn'
-    branch = 'default'
+     workingDir = 'ics-openvpn'
+     branch = 'default'
 }
 
 task pullIcsOpenVPN( type: HgPull ) {
-    sourceUrl = 'https://code.google.com/p/ics-openvpn/'
-    workingDir = 'ics-openvpn'
+     sourceUrl = 'https://code.google.com/p/ics-openvpn/'
+     workingDir = 'ics-openvpn'
 }
