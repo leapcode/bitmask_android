@@ -56,7 +56,7 @@ import android.util.Log;
  * Internet Proxy connection.  Connections are started, stopped, and queried through
  * this IntentService.
  * Contains logic for parsing eip-service.json from the provider, configuring and selecting
- * gateways, and controlling {@link .openvpn.OpenVpnService} connections.
+ * gateways, and controlling {@link de.blinkt.openvpn.core.OpenVpnService} connections.
  * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  */

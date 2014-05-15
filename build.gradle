@@ -51,9 +51,16 @@ task copyIcsOpenVPNClasses( type: Copy ) {
     }
     filter {
       line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
-    }
-  }
-  into 'app'
+    }    
+  } into 'app'
+
+  from ('ics-openvpn/main') {
+    //TODO We should detect which drawables are needed by the classes
+    //we need (such as de.blinkt.openvpn.core.OpenVpnService)
+    include '**/ic_stat_vpn_offline.png'
+    include '**/ic_stat_vpn_outline.png'
+    include '**/ic_stat_vpn_empty_halo.png'
+  } into 'app'
 }
 
 def processFileInplace(file, Closure processText) {
@@ -62,7 +69,7 @@ def processFileInplace(file, Closure processText) {
 }
 
 // thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
-task removeDuplicatedStrings() << {
+task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNClasses' ) {
   def resources_directory = new File('./app/src/main/res/')
   resources_directory.eachFileRecurse {
     if(it.name.equals('strings.xml')) {
