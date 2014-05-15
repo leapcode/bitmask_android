@@ -33,19 +33,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 /**
- * Implements the log in dialog, currently without progress dialog.
+ * Implements the sign up dialog, currently without progress dialog.
  * 
- * It returns to the previous fragment when finished, and sends username and password to the authenticate method.
+ * It returns to the previous fragment when finished, and sends username and password to the registration method.
  * 
  * It also notifies the user if the password is not valid. 
  * 
  * @author parmegv
  *
  */
-public class LogInDialog extends DialogFragment {
-
+public class SignUpDialog extends DialogFragment {
      
-	final public static String TAG = "logInDialog";
+	final public static String TAG = "signUpDialog";
 	final public static String VERB = "log in";
 	final public static String USERNAME = "username";
 	final public static String PASSWORD = "password";
@@ -88,12 +87,12 @@ public class LogInDialog extends DialogFragment {
 
 		
 		builder.setView(log_in_dialog_view)
-			.setPositiveButton(R.string.login_button, new DialogInterface.OnClickListener() {
+			.setPositiveButton(R.string.signup_button, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					String username = username_field.getText().toString();
 					String password = password_field.getText().toString();
 					dialog.dismiss();
-					interface_with_Dashboard.authenticate(username, password);
+					interface_with_Dashboard.signUp(username, password);
 				}
 			})
 			.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -101,38 +100,30 @@ public class LogInDialog extends DialogFragment {
 					dialog.cancel();
 					interface_with_Dashboard.cancelLoginOrSignup();
 				}
-			})
-		    .setNeutralButton(R.string.signup_button, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					String username = username_field.getText().toString();
-					String password = password_field.getText().toString();
-					interface_with_Dashboard.signUp(username, password);
-				}
 			});
 		
 		return builder.create();
 	}
 	
 	/**
-	 * Interface used to communicate LogInDialog with Dashboard.
+	 * Interface used to communicate SignUpDialog with Dashboard.
 	 * 
 	 * @author parmegv
 	 *
 	 */
-	public interface LogInDialogInterface {
-	    public void authenticate(String username, String password);
-	    public void cancelAuthedEipOn();
+	public interface SignUpDialogInterface {
 	    public void signUp(String username, String password);
+	    public void cancelAuthedEipOn();
 	    public void cancelLoginOrSignup();
     }
 
-	LogInDialogInterface interface_with_Dashboard;
+	SignUpDialogInterface interface_with_Dashboard;
 
 	/**
 	 * @return a new instance of this DialogFragment.
 	 */
 	public static DialogFragment newInstance() {
-		LogInDialog dialog_fragment = new LogInDialog();
+		SignUpDialog dialog_fragment = new SignUpDialog();
 		return dialog_fragment;
 	}
 	
@@ -140,10 +131,10 @@ public class LogInDialog extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-        	interface_with_Dashboard = (LogInDialogInterface) activity;
+        	interface_with_Dashboard = (SignUpDialogInterface) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement LogInDialogListener");
+                    + " must implement SignUpDialogListener");
         }
     }
 
