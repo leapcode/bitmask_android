@@ -44,6 +44,9 @@ task copyIcsOpenVPNClasses( type: Copy ) {
     include '**/*.java'
     include '**/*.aidl'
     include '**/strings.xml'
+    exclude '**/activities/'
+    exclude '**/fragments/'
+    exclude '**/views/'
 
     rename 'strings.xml', 'strings-icsopenvpn.xml'
     filter {
@@ -63,6 +66,26 @@ task copyIcsOpenVPNClasses( type: Copy ) {
     include '**/ic_stat_vpn_offline.png'
     include '**/ic_stat_vpn_outline.png'
     include '**/ic_stat_vpn_empty_halo.png'
+  } into 'app'
+  
+  from ('ics-openvpn/main') {
+    include '**/DisconnectVPN.java'
+    include '**/LogWindow.java'
+    include '**/LogFragment.java'
+    include '**/log_window.xml'
+    filter {
+      line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
+    }
+    filter {
+      line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
+    }
+    filter {      
+      line -> line.replace('package de.blinkt.openvpn;', 'package de.blinkt.openvpn;\n\nimport se.leap.bitmaskclient.R;')
+    }
+    filter {      
+      line -> line.replace('package de.blinkt.openvpn.fragments;', 'package de.blinkt.openvpn.fragments;\n\nimport se.leap.bitmaskclient.R;')
+    }
+    
   } into 'app'
 }
 
