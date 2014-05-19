@@ -1,5 +1,7 @@
 package de.blinkt.openvpn;
 
+import se.leap.bitmaskclient.R;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

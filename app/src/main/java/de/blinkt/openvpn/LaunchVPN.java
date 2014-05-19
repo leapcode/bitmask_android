@@ -1,5 +1,7 @@
 package de.blinkt.openvpn;
 
+import se.leap.bitmaskclient.R;
+
 import java.io.IOException;
 
 import android.app.Activity;

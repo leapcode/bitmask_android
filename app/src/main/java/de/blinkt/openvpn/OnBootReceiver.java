@@ -1,5 +1,7 @@
 package de.blinkt.openvpn;
 
+import se.leap.bitmaskclient.R;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

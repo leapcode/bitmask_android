@@ -51,7 +51,10 @@ task copyIcsOpenVPNClasses( type: Copy ) {
     }
     filter {
       line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
-    }    
+    }
+    filter {      
+      line -> line.replace('package de.blinkt.openvpn;', 'package de.blinkt.openvpn;\n\nimport se.leap.bitmaskclient.R;')
+    }
   } into 'app'
 
   from ('ics-openvpn/main') {
