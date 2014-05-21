@@ -28,6 +28,9 @@ Installable via `android` command (SDK Manager):
 * Android SDK Build-tools, 19.0.3
 * Android Support Repository, 4+
 
+We need Mercurial:
+* Mercurial: http://mercurial.selenic.com/downloads
+
 Finally, install a java compiler. For example:
 
    sudo apt-get install default-jdk
