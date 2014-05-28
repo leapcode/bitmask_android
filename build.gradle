@@ -20,6 +20,10 @@ allprojects {
 
 apply plugin: 'mercurial-mq'
 
+// task checkoutIcsOpenvpn( type: GitCheckout ) {
+//   branch = 'ics-openvpn-upstream'
+// }
+
 task cloneIcsOpenVPN( type: HgClone ) {
   ext.srcFile = file('build.gradle')
   ext.destDir = new File('.', 'ics-openvpn')
@@ -37,86 +41,4 @@ task updateIcsOpenVPN( type: HgUpdate, dependsOn: 'pullIcsOpenVPN' ) {
 task pullIcsOpenVPN( type: HgPull ) {
   sourceUrl = 'https://code.google.com/p/ics-openvpn/'
   workingDir = 'ics-openvpn'
-}
-
-task copyIcsOpenVPNClasses( type: Copy ) {
-  from ('ics-openvpn/main') {
-    include '**/*.java'
-    include '**/*.aidl'
-    include '**/strings.xml'
-    exclude '**/activities/'
-    exclude '**/fragments/'
-    exclude '**/views/'
-
-    rename 'strings.xml', 'strings-icsopenvpn.xml'
-    filter {
-      line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
-    }
-    filter {
-      line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
-    }
-    filter {      
-      line -> line.replace('package de.blinkt.openvpn;', 'package de.blinkt.openvpn;\n\nimport se.leap.bitmaskclient.R;')
-    }
-  } into 'app'
-
-  from ('ics-openvpn/main') {
-    //TODO We should detect which drawables are needed by the classes
-    //we need (such as de.blinkt.openvpn.core.OpenVpnService)
-    include '**/ic_stat_vpn_offline.png'
-    include '**/ic_stat_vpn_outline.png'
-    include '**/ic_stat_vpn_empty_halo.png'
-  } into 'app'
-  
-  from ('ics-openvpn/main') {
-    include '**/DisconnectVPN.java'
-    include '**/LogWindow.java'
-    include '**/LogFragment.java'
-    include '**/log_window.xml'
-    filter {
-      line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
-    }
-    filter {
-      line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
-    }
-    filter {      
-      line -> line.replace('package de.blinkt.openvpn;', 'package de.blinkt.openvpn;\n\nimport se.leap.bitmaskclient.R;')
-    }
-    filter {      
-      line -> line.replace('package de.blinkt.openvpn.fragments;', 'package de.blinkt.openvpn.fragments;\n\nimport se.leap.bitmaskclient.R;')
-    }
-    
-  } into 'app'
-}
-
-def processFileInplace(file, Closure processText) {
-  def text = file.text
-  file.write(processText(text))
-}
-
-// thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
-task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNClasses' ) {
-  def resources_directory = new File('./app/src/main/res/')
-  resources_directory.eachFileRecurse {
-    if(it.name.equals('strings.xml')) {
-      def ics_openvpn_file = file(it.path.replace('strings.xml', 'strings-icsopenvpn.xml'))
-      def ics_openvpn_strings_names = (new XmlParser()).parse(ics_openvpn_file)
-      def current_file = it
-      
-      ics_openvpn_strings_names.string.each {
-	processFileInplace(current_file) { text ->
-	  text.replaceAll('.*name=\"' + it.attribute('name') + '\".*(\n)*.*string>.*\n+', '')
-	}
-      }
-
-      if(it.path.contains('/values/')) {
-	def untranslatable_strings_names = (new XmlParser()).parse(it.path.replace('strings.xml', 'untranslatable.xml'))
-	untranslatable_strings_names.string.each {
-	  processFileInplace(ics_openvpn_file) { text ->
-	    text.replaceAll('.*name=\"' + it.attribute('name') + '\".*(\n)*.*string>.*\n+', '')
-	  }
-	}
-      }
-    }
-  }
 }

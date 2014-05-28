@@ -2,6 +2,8 @@ package de.blinkt.openvpn.fragments;
 
 import se.leap.bitmaskclient.R;
 
+import se.leap.bitmaskclient.R;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
@@ -22,8 +24,7 @@ import android.widget.*;
 import android.widget.AdapterView.OnItemLongClickListener;
 import de.blinkt.openvpn.*;
 import de.blinkt.openvpn.activities.DisconnectVPN;
-import de.blinkt.openvpn.activities.MainActivity;
-import de.blinkt.openvpn.activities.VPNPreferences;
+import se.leap.bitmaskclient.Dashboard;
 import de.blinkt.openvpn.core.OpenVPNManagement;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
@@ -424,24 +425,14 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
             Intent intent = new Intent(getActivity(),DisconnectVPN.class);
             startActivity(intent);
             return true;
-        } else if(item.getItemId()==R.id.send) {
+		} else if(item.getItemId()==R.id.send) {
 			ladapter.shareLog();
-		} else if(item.getItemId()==R.id.edit_vpn) {
-			VpnProfile lastConnectedprofile = ProfileManager.getLastConnectedVpn();
-
-			if(lastConnectedprofile!=null) {
-				Intent vprefintent = new Intent(getActivity(),VPNPreferences.class)
-				.putExtra(VpnProfile.EXTRA_PROFILEUUID,lastConnectedprofile.getUUIDString());
-				startActivityForResult(vprefintent,START_VPN_CONFIG);
-			} else {
-				Toast.makeText(getActivity(), R.string.log_no_last_vpn, Toast.LENGTH_LONG).show();
-			}
 		} else if(item.getItemId() == R.id.toggle_time) {
 			showHideOptionsPanel();
 		} else if(item.getItemId() == android.R.id.home) {
 			// This is called when the Home (Up) button is pressed
 			// in the Action Bar.
-			Intent parentActivityIntent = new Intent(getActivity(), MainActivity.class);
+			Intent parentActivityIntent = new Intent(getActivity(), Dashboard.class);
 			parentActivityIntent.addFlags(
 					Intent.FLAG_ACTIVITY_CLEAR_TOP |
 					Intent.FLAG_ACTIVITY_NEW_TASK);
