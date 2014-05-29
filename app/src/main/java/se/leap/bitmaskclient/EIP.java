@@ -136,7 +136,7 @@ public final class EIP extends IntentService {
 	 */
 	private boolean retreiveVpnService() {
 		Intent bindIntent = new Intent(this,OpenVpnService.class);
-		bindIntent.setAction(OpenVpnService.RETRIEVE_SERVICE);
+		bindIntent.setAction(OpenVpnService.START_SERVICE);
 		return bindService(bindIntent, mVpnServiceConn, BIND_AUTO_CREATE);
 	}
 	
@@ -256,7 +256,7 @@ public final class EIP extends IntentService {
 		if (mBound)
 			mVpnService.onRevoke();
 		else
-			OpenVpnManagementThread.stopOpenVPN();
+		    mVpnService.getManagement().stopVPN();
 			
 		if (mReceiver != null){
 			Bundle resultData = new Bundle();
