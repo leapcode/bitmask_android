@@ -536,7 +536,10 @@ public final class EIP extends IntentService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
+            // We are always client, because the ifconfig will be received by a needed command
+            options.put("client", null);
+
 			try {
 				arg.add(remote);
 				arg.add(mGateway.getString(remote));

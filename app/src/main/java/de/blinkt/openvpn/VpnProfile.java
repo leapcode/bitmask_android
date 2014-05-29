@@ -727,8 +727,8 @@ public class VpnProfile implements Serializable {
     //! Return an error if somethign is wrong
     public int checkProfile(Context context) {
         if (mAuthenticationType == TYPE_KEYSTORE || mAuthenticationType == TYPE_USERPASS_KEYSTORE) {
-            if (mAlias == null)
-                return R.string.no_keystore_cert_selected;
+            // if (mAlias == null)
+            //     return R.string.no_keystore_cert_selected;
         }
 
         if (!mUsePull || mAuthenticationType == TYPE_STATICKEYS) {

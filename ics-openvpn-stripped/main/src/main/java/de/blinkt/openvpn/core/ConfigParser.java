@@ -26,6 +26,14 @@ public class ConfigParser {
 
 	private boolean extraRemotesAsCustom=false;
 
+    /*
+     * TODO: We shouldn't be using this method. 
+     * We need to figure out how to use just parseConfig, probably removing parseOptions.
+     */
+    public void setDefinition(HashMap<String,Vector<Vector<String>>> args) {
+	options = args;
+    }
+
 	public void parseConfig(Reader reader) throws IOException, ConfigParseError {
 
 

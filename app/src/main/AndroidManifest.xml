@@ -36,7 +36,7 @@
         android:label="@string/app" >
 
         <service
-            android:name="se.leap.openvpn.OpenVpnService"
+            android:name="de.blinkt.openvpn.core.OpenVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE" >
             <intent-filter>
                 <action android:name="android.net.VpnService" />
@@ -54,7 +54,7 @@
         </receiver>
 	
         <activity
-            android:name="se.leap.openvpn.LaunchVPN"
+            android:name="de.blinkt.openvpn.LaunchVPN"
             android:label="@string/vpn_launch_title" >
         </activity>
 

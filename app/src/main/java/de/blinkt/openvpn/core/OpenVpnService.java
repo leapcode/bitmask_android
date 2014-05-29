@@ -72,6 +72,14 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
     private String mLastTunCfg;
     private String mRemoteGW;
 
+    //TODO We should know if this is running or not without this method
+    public boolean isRunning() {
+	if (mStarting == true || mProcessThread != null)
+	    return true;
+	else
+	    return false;
+    }
+    
     // From: http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
     public static String humanReadableByteCount(long bytes, boolean mbit) {
         if (mbit)
