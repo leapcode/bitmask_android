@@ -69,7 +69,10 @@ task copyIcsOpenVPNClasses( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' 
     include '**/*.java'
     include '**/*.aidl'
     include '**/strings.xml'
-    include '**/log_window.xml'
+    include '**/log_*.xml'
+    include '**/vpnstatus.xml'
+    include '**/styles.xml'
+    include '**/dimens.xml'
 
     rename 'strings.xml', 'strings-icsopenvpn.xml'
     filter {

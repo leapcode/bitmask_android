@@ -117,19 +117,12 @@ public class LaunchVPN extends Activity {
 
 		if(requestCode==START_VPN_PROFILE) {
 			if(resultCode == Activity.RESULT_OK) {
-				int needpw = mSelectedProfile.needUserPWInput();
-				if(needpw !=0) {
-					VpnStatus.updateStateString("USER_VPN_PASSWORD", "", R.string.state_user_vpn_password,
-                            ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT);
-					askForPW(needpw);
-				} else {
-					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);        
-					boolean showlogwindow = prefs.getBoolean("showlogwindow", true);
+			    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);        
+			    boolean showlogwindow = prefs.getBoolean("showlogwindow", true);
 
-					if(!mhideLog && showlogwindow)
-						showLogWindow();
-					new startOpenVpnThread().start();
-				}
+			    if(!mhideLog && showlogwindow)
+				showLogWindow();
+			    new startOpenVpnThread().start();
 			} else if (resultCode == Activity.RESULT_CANCELED) {
 				// User does not want us to start, so we just vanish
 				VpnStatus.updateStateString("USER_VPN_PERMISSION_CANCELLED", "", R.string.state_user_vpn_permission_cancelled,
