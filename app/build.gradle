@@ -73,6 +73,7 @@ task copyIcsOpenVPNClasses( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' 
     include '**/vpnstatus.xml'
     include '**/styles.xml'
     include '**/dimens.xml'
+    include '**/logmenu.xml'
 
     rename 'strings.xml', 'strings-icsopenvpn.xml'
     filter {
