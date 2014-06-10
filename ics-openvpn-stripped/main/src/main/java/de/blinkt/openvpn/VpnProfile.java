@@ -2,6 +2,10 @@ package de.blinkt.openvpn;
 
 import se.leap.bitmaskclient.R;
 
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.EIP;
+import se.leap.bitmaskclient.Provider;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -79,7 +83,7 @@ public class VpnProfile implements Serializable {
     // but needs to keep wrong name to guarante loading of old
     // profiles
     public transient boolean profileDleted = false;
-    public int mAuthenticationType = TYPE_KEYSTORE;
+    public int mAuthenticationType = TYPE_CERTIFICATES;
     public String mName;
     public String mAlias;
     public String mClientCertFilename;
@@ -254,17 +258,22 @@ public class VpnProfile implements Serializable {
             cfg += " tcp-client\n";
 
 
+	android.util.Log.d("vpnprofile", Integer.toString(mAuthenticationType));
         switch (mAuthenticationType) {
             case VpnProfile.TYPE_USERPASS_CERTIFICATES:
                 cfg += "auth-user-pass\n";
             case VpnProfile.TYPE_CERTIFICATES:
                 // Ca
-                cfg += insertFileData("ca", mCaFilename);
+                // cfg += insertFileData("ca", mCaFilename);
 
-                // Client Cert + Key
-                cfg += insertFileData("key", mClientKeyFilename);
-                cfg += insertFileData("cert", mClientCertFilename);
-
+                // // Client Cert + Key
+                // cfg += insertFileData("key", mClientKeyFilename);
+                // cfg += insertFileData("cert", mClientCertFilename);
+		// FIXME This is all we need...The whole switch statement can go...
+		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);
+		cfg+="<ca>\n"+preferences.getString(Provider.CA_CERT, "")+"\n</ca>\n";
+		cfg+="<key>\n"+preferences.getString(EIP.PRIVATE_KEY, "")+"\n</key>\n";
+		cfg+="<cert>\n"+preferences.getString(EIP.CERTIFICATE, "")+"\n</cert>\n";
                 break;
             case VpnProfile.TYPE_USERPASS_PKCS12:
                 cfg += "auth-user-pass\n";
@@ -555,8 +564,8 @@ public class VpnProfile implements Serializable {
         Intent intent = new Intent(context, OpenVpnService.class);
 
         if (mAuthenticationType == VpnProfile.TYPE_KEYSTORE || mAuthenticationType == VpnProfile.TYPE_USERPASS_KEYSTORE) {
-            if (getKeyStoreCertificates(context) == null)
-                return null;
+            // if (getKeyStoreCertificates(context) == null)
+            //     return null;
         }
 
         intent.putExtra(prefix + ".ARGV", buildOpenvpnArgv(context.getCacheDir()));
