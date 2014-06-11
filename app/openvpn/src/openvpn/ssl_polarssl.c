@@ -7,6 +7,7 @@
  *
  *  Copyright (C) 2002-2010 OpenVPN Technologies, Inc. <sales@openvpn.net>
  *  Copyright (C) 2010 Fox Crypto B.V. <openvpn@fox-it.com>
+ *  Copyright (C) 2006-2010, Brainspark B.V.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -44,11 +45,12 @@
 #include "manage.h"
 #include "ssl_common.h"
 
-#include <polarssl/sha2.h>
 #include <polarssl/havege.h>
 
 #include "ssl_verify_polarssl.h"
+#include <polarssl/error.h>
 #include <polarssl/pem.h>
+#include <polarssl/sha256.h>
 
 void
 tls_init_lib()
@@ -65,23 +67,6 @@ tls_clear_error()
 {
 }
 
-static int default_ciphersuites[] =
-{
-    SSL_EDH_RSA_AES_256_SHA,
-    SSL_EDH_RSA_CAMELLIA_256_SHA,
-    SSL_EDH_RSA_AES_128_SHA,
-    SSL_EDH_RSA_CAMELLIA_128_SHA,
-    SSL_EDH_RSA_DES_168_SHA,
-    SSL_RSA_AES_256_SHA,
-    SSL_RSA_CAMELLIA_256_SHA,
-    SSL_RSA_AES_128_SHA,
-    SSL_RSA_CAMELLIA_128_SHA,
-    SSL_RSA_DES_168_SHA,
-    SSL_RSA_RC4_128_SHA,
-    SSL_RSA_RC4_128_MD5,
-    0
-};
-
 void
 tls_ctx_server_new(struct tls_root_ctx *ctx)
 {
@@ -89,10 +74,10 @@ tls_ctx_server_new(struct tls_root_ctx *ctx)
   CLEAR(*ctx);
 
   ALLOC_OBJ_CLEAR(ctx->dhm_ctx, dhm_context);
-  ALLOC_OBJ_CLEAR(ctx->priv_key, rsa_context);
+  ALLOC_OBJ_CLEAR(ctx->priv_key, pk_context);
 
-  ALLOC_OBJ_CLEAR(ctx->ca_chain, x509_cert);
-  ALLOC_OBJ_CLEAR(ctx->crt_chain, x509_cert);
+  ALLOC_OBJ_CLEAR(ctx->ca_chain, x509_crt);
+  ALLOC_OBJ_CLEAR(ctx->crt_chain, x509_crt);
 
 
   ctx->endpoint = SSL_IS_SERVER;
@@ -106,10 +91,10 @@ tls_ctx_client_new(struct tls_root_ctx *ctx)
   CLEAR(*ctx);
 
   ALLOC_OBJ_CLEAR(ctx->dhm_ctx, dhm_context);
-  ALLOC_OBJ_CLEAR(ctx->priv_key, rsa_context);
+  ALLOC_OBJ_CLEAR(ctx->priv_key, pk_context);
 
-  ALLOC_OBJ_CLEAR(ctx->ca_chain, x509_cert);
-  ALLOC_OBJ_CLEAR(ctx->crt_chain, x509_cert);
+  ALLOC_OBJ_CLEAR(ctx->ca_chain, x509_crt);
+  ALLOC_OBJ_CLEAR(ctx->crt_chain, x509_crt);
 
   ctx->endpoint = SSL_IS_CLIENT;
   ctx->initialised = true;
@@ -120,13 +105,13 @@ tls_ctx_free(struct tls_root_ctx *ctx)
 {
   if (ctx)
     {
-      rsa_free(ctx->priv_key);
+      pk_free(ctx->priv_key);
       free(ctx->priv_key);
 
-      x509_free(ctx->ca_chain);
+      x509_crt_free(ctx->ca_chain);
       free(ctx->ca_chain);
 
-      x509_free(ctx->crt_chain);
+      x509_crt_free(ctx->crt_chain);
       free(ctx->crt_chain);
 
       dhm_free(ctx->dhm_ctx);
@@ -137,6 +122,10 @@ tls_ctx_free(struct tls_root_ctx *ctx)
 	  pkcs11_priv_key_free(ctx->priv_key_pkcs11);
 	  free(ctx->priv_key_pkcs11);
       }
+#endif
+#if defined(MANAGMENT_EXTERNAL_KEY)
+      if (ctx->external_key != NULL)
+          free(ctx->external_key);
 #endif
 
       if (ctx->allowed_ciphers)
@@ -161,12 +150,36 @@ tls_ctx_set_options (struct tls_root_ctx *ctx, unsigned int ssl_flags)
 {
 }
 
+static const char *
+tls_translate_cipher_name (const char * cipher_name) {
+  const tls_cipher_name_pair * pair = tls_get_cipher_name_pair(cipher_name, strlen(cipher_name));
+
+  if (NULL == pair)
+    {
+      // No translation found, return original
+      return cipher_name;
+    }
+
+  if (0 != strcmp(cipher_name, pair->iana_name))
+    {
+      // Deprecated name found, notify user
+      msg(M_WARN, "Deprecated cipher suite name '%s', please use IANA name '%s'", pair->openssl_name, pair->iana_name);
+    }
+
+  return pair->iana_name;
+}
+
 void
 tls_ctx_restrict_ciphers(struct tls_root_ctx *ctx, const char *ciphers)
 {
   char *tmp_ciphers, *tmp_ciphers_orig, *token;
   int i, cipher_count;
-  int ciphers_len = strlen (ciphers);
+  int ciphers_len;
+
+  if (NULL == ciphers)
+    return; /* Nothing to do */
+
+  ciphers_len = strlen (ciphers);
 
   ASSERT (NULL != ctx);
   ASSERT (0 != ciphers_len);
@@ -186,7 +199,8 @@ tls_ctx_restrict_ciphers(struct tls_root_ctx *ctx, const char *ciphers)
   token = strtok (tmp_ciphers, ":");
   while(token)
     {
-      ctx->allowed_ciphers[i] = ssl_get_ciphersuite_id (token);
+      ctx->allowed_ciphers[i] = ssl_get_ciphersuite_id (
+	  tls_translate_cipher_name (token));
       if (0 != ctx->allowed_ciphers[i])
 	i++;
       token = strtok (NULL, ":");
@@ -201,17 +215,26 @@ tls_ctx_load_dh_params (struct tls_root_ctx *ctx, const char *dh_file,
 {
   if (!strcmp (dh_file, INLINE_FILE_TAG) && dh_file_inline)
     {
-      if (0 != x509parse_dhm(ctx->dhm_ctx, dh_file_inline, strlen(dh_file_inline)))
+      if (0 != dhm_parse_dhm(ctx->dhm_ctx, dh_file_inline, strlen(dh_file_inline)))
 	msg (M_FATAL, "Cannot read inline DH parameters");
   }
 else
   {
-    if (0 != x509parse_dhmfile(ctx->dhm_ctx, dh_file))
+    if (0 != dhm_parse_dhmfile(ctx->dhm_ctx, dh_file))
       msg (M_FATAL, "Cannot read DH parameters from file %s", dh_file);
   }
 
   msg (D_TLS_DEBUG_LOW, "Diffie-Hellman initialized with " counter_format " bit key",
       (counter_type) 8 * mpi_size(&ctx->dhm_ctx->P));
+}
+
+void
+tls_ctx_load_ecdh_params (struct tls_root_ctx *ctx, const char *curve_name
+    )
+{
+    if (NULL != curve_name)
+      msg(M_WARN, "WARNING: PolarSSL builds do not support specifying an ECDH "
+                  "curve, using default curves.");
 }
 
 int
@@ -234,35 +257,27 @@ tls_ctx_load_cryptoapi(struct tls_root_ctx *ctx, const char *cryptoapi_cert)
 
 void
 tls_ctx_load_cert_file (struct tls_root_ctx *ctx, const char *cert_file,
-    const char *cert_file_inline,
-    openvpn_x509_cert_t **x509
+    const char *cert_file_inline
     )
 {
   ASSERT(NULL != ctx);
-  if (NULL != x509)
-    ASSERT(NULL == *x509);
 
   if (!strcmp (cert_file, INLINE_FILE_TAG) && cert_file_inline)
     {
-      if (0 != x509parse_crt(ctx->crt_chain, cert_file_inline,
+      if (0 != x509_crt_parse(ctx->crt_chain, cert_file_inline,
 	  strlen(cert_file_inline)))
         msg (M_FATAL, "Cannot load inline certificate file");
     }
   else
     {
-      if (0 != x509parse_crtfile(ctx->crt_chain, cert_file))
-	msg (M_FATAL, "Cannot load certificate file %s", cert_file);
+      int retval = x509_crt_parse_file(ctx->crt_chain, cert_file);
+      if (0 != retval)
+	{
+	  char errstr[128];
+	  polarssl_strerror(retval, errstr, sizeof(errstr));
+	  msg (M_FATAL, "Cannot load certificate file %s (%s)", cert_file, errstr);
+	}
     }
-  if (x509)
-    {
-      *x509 = ctx->crt_chain;
-    }
-}
-
-void
-tls_ctx_free_cert_file (openvpn_x509_cert_t *x509)
-{
-  x509_free(x509);
 }
 
 int
@@ -275,26 +290,27 @@ tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_file,
 
   if (!strcmp (priv_key_file, INLINE_FILE_TAG) && priv_key_file_inline)
     {
-      status = x509parse_key(ctx->priv_key,
+      status = pk_parse_key(ctx->priv_key,
 	  priv_key_file_inline, strlen(priv_key_file_inline),
 	  NULL, 0);
+
       if (POLARSSL_ERR_PEM_PASSWORD_REQUIRED == status)
 	{
 	  char passbuf[512] = {0};
 	  pem_password_callback(passbuf, 512, 0, NULL);
-	  status = x509parse_key(ctx->priv_key,
+	  status = pk_parse_key(ctx->priv_key,
 	      priv_key_file_inline, strlen(priv_key_file_inline),
-	      passbuf, strlen(passbuf));
+	      (unsigned char *) passbuf, strlen(passbuf));
 	}
     }
   else
     {
-      status = x509parse_keyfile(ctx->priv_key, priv_key_file, NULL);
+      status = pk_parse_keyfile(ctx->priv_key, priv_key_file, NULL);
       if (POLARSSL_ERR_PEM_PASSWORD_REQUIRED == status)
 	{
 	  char passbuf[512] = {0};
 	  pem_password_callback(passbuf, 512, 0, NULL);
-	  status = x509parse_keyfile(ctx->priv_key, priv_key_file, passbuf);
+	  status = pk_parse_keyfile(ctx->priv_key, priv_key_file, passbuf);
 	}
     }
   if (0 != status)
@@ -319,13 +335,161 @@ tls_ctx_load_priv_file (struct tls_root_ctx *ctx, const char *priv_key_file,
 
 #ifdef MANAGMENT_EXTERNAL_KEY
 
+
+struct external_context {
+  size_t signature_length;
+};
+
 int
-tls_ctx_use_external_private_key (struct tls_root_ctx *ctx, openvpn_x509_cert_t *cert)
+tls_ctx_use_external_private_key (struct tls_root_ctx *ctx,
+    const char *cert_file, const char *cert_file_inline)
 {
-  msg(M_FATAL, "Use of management external keys not yet supported for PolarSSL.");
-  return false;
+  ASSERT(NULL != ctx);
+
+  tls_ctx_load_cert_file(ctx, cert_file, cert_file_inline);
+
+  if (ctx->crt_chain == NULL)
+    return 0;
+
+  /* Most of the initialization happens in key_state_ssl_init() */
+  ALLOC_OBJ_CLEAR (ctx->external_key, struct external_context);
+  ctx->external_key->signature_length = pk_get_len(&ctx->crt_chain->pk);
+
+  return 1;
 }
 
+/**
+ * external_pkcs1_sign implements a PolarSSL rsa_sign_func callback, that uses
+ * the management interface to request an RSA signature for the supplied hash.
+ *
+ * @param ctx_voidptr   Management external key context.
+ * @param f_rng         (Unused)
+ * @param p_rng         (Unused)
+ * @param mode          RSA mode (should be RSA_PRIVATE).
+ * @param md_alg        Message digest ('hash') algorithm type.
+ * @param hashlen       Length of hash (overridden by length specified by md_alg
+ *                      if md_alg != POLARSSL_MD_NONE).
+ * @param hash          The digest ('hash') to sign. Should have a size
+ *                      matching the length of md_alg (if != POLARSSL_MD_NONE),
+ *                      or hashlen otherwise.
+ * @param sig           Buffer that returns the signature. Should be at least of
+ *                      size ctx->signature_length.
+ *
+ * @return 0 on success, non-zero polarssl error code on failure.
+ */
+static inline int external_pkcs1_sign( void *ctx_voidptr,
+    int (*f_rng)(void *, unsigned char *, size_t), void *p_rng, int mode,
+    md_type_t md_alg, unsigned int hashlen, const unsigned char *hash,
+    unsigned char *sig )
+{
+  struct external_context * const ctx = ctx_voidptr;
+  char *in_b64 = NULL;
+  char *out_b64 = NULL;
+  int rv;
+  unsigned char *p = sig;
+  size_t asn_len = 0, oid_size = 0, sig_len = 0;
+  const char *oid = NULL;
+
+  if( NULL == ctx )
+    return POLARSSL_ERR_RSA_BAD_INPUT_DATA;
+
+  if( RSA_PRIVATE != mode )
+    return POLARSSL_ERR_RSA_BAD_INPUT_DATA;
+
+  /*
+   * Support a wide range of hashes. TLSv1.1 and before only need SIG_RSA_RAW,
+   * but TLSv1.2 needs the full suite of hashes.
+   *
+   * This code has been taken from PolarSSL pkcs11_sign(), under the GPLv2.0+.
+   */
+  if( md_alg != POLARSSL_MD_NONE )
+    {
+      const md_info_t *md_info = md_info_from_type( md_alg );
+      if( md_info == NULL )
+        return( POLARSSL_ERR_RSA_BAD_INPUT_DATA );
+
+      if( oid_get_oid_by_md( md_alg, &oid, &oid_size ) != 0 )
+        return( POLARSSL_ERR_RSA_BAD_INPUT_DATA );
+
+      hashlen = md_get_size( md_info );
+      asn_len = 10 + oid_size;
+    }
+
+  sig_len = ctx->signature_length;
+  if ( (SIZE_MAX - hashlen) < asn_len || (hashlen + asn_len) > sig_len )
+    return POLARSSL_ERR_RSA_BAD_INPUT_DATA;
+
+  if( md_alg != POLARSSL_MD_NONE )
+    {
+      /*
+       * DigestInfo ::= SEQUENCE {
+       *   digestAlgorithm DigestAlgorithmIdentifier,
+       *   digest Digest }
+       *
+       * DigestAlgorithmIdentifier ::= AlgorithmIdentifier
+       *
+       * Digest ::= OCTET STRING
+       */
+      *p++ = ASN1_SEQUENCE | ASN1_CONSTRUCTED;
+      *p++ = (unsigned char) ( 0x08 + oid_size + hashlen );
+      *p++ = ASN1_SEQUENCE | ASN1_CONSTRUCTED;
+      *p++ = (unsigned char) ( 0x04 + oid_size );
+      *p++ = ASN1_OID;
+      *p++ = oid_size & 0xFF;
+      memcpy( p, oid, oid_size );
+      p += oid_size;
+      *p++ = ASN1_NULL;
+      *p++ = 0x00;
+      *p++ = ASN1_OCTET_STRING;
+      *p++ = hashlen;
+
+      /* Determine added ASN length */
+      asn_len = p - sig;
+  }
+
+  /* Copy the hash to be signed */
+  memcpy( p, hash, hashlen );
+
+  /* convert 'from' to base64 */
+  if (openvpn_base64_encode (sig, asn_len + hashlen, &in_b64) <= 0)
+    {
+      rv = POLARSSL_ERR_RSA_BAD_INPUT_DATA;
+      goto done;
+    }
+
+  /* call MI for signature */
+  if (management)
+    out_b64 = management_query_rsa_sig (management, in_b64);
+  if (!out_b64)
+    {
+      rv = POLARSSL_ERR_RSA_PRIVATE_FAILED;
+      goto done;
+    }
+
+  /* decode base64 signature to binary and verify length */
+  if ( openvpn_base64_decode (out_b64, sig, ctx->signature_length) !=
+       ctx->signature_length )
+    {
+      rv = POLARSSL_ERR_RSA_PRIVATE_FAILED;
+      goto done;
+    }
+
+  rv = 0;
+
+done:
+  if (in_b64)
+    free (in_b64);
+  if (out_b64)
+    free (out_b64);
+  return rv;
+}
+
+static inline size_t external_key_len(void *vctx)
+{
+  struct external_context * const ctx = vctx;
+
+  return ctx->signature_length;
+}
 #endif
 
 void tls_ctx_load_ca (struct tls_root_ctx *ctx, const char *ca_file,
@@ -338,14 +502,20 @@ void tls_ctx_load_ca (struct tls_root_ctx *ctx, const char *ca_file,
 
   if (ca_file && !strcmp (ca_file, INLINE_FILE_TAG) && ca_file_inline)
     {
-      if (0 != x509parse_crt(ctx->ca_chain, ca_file_inline, strlen(ca_file_inline)))
+      if (0 != x509_crt_parse(ctx->ca_chain, (unsigned char *) ca_file_inline,
+	  strlen(ca_file_inline)))
 	msg (M_FATAL, "Cannot load inline CA certificates");
     }
   else
     {
       /* Load CA file for verifying peer supplied certificate */
-      if (0 != x509parse_crtfile(ctx->ca_chain, ca_file))
-	msg (M_FATAL, "Cannot load CA certificate file %s", ca_file);
+      int retval = x509_crt_parse_file(ctx->ca_chain, ca_file);
+      if (0 != retval)
+	{
+	  char errstr[128];
+	  polarssl_strerror(retval, errstr, sizeof(errstr));
+	  msg (M_FATAL, "Cannot load CA certificate file %s (%s)", ca_file, errstr);
+	}
     }
 }
 
@@ -358,13 +528,14 @@ tls_ctx_load_extra_certs (struct tls_root_ctx *ctx, const char *extra_certs_file
 
   if (!strcmp (extra_certs_file, INLINE_FILE_TAG) && extra_certs_file_inline)
     {
-      if (0 != x509parse_crt(ctx->crt_chain, extra_certs_file_inline,
+      if (0 != x509_crt_parse(ctx->crt_chain,
+          (unsigned char *) extra_certs_file_inline,
 	  strlen(extra_certs_file_inline)))
         msg (M_FATAL, "Cannot load inline extra-certs file");
     }
   else
     {
-      if (0 != x509parse_crtfile(ctx->crt_chain, extra_certs_file))
+      if (0 != x509_crt_parse_file(ctx->crt_chain, extra_certs_file))
 	msg (M_FATAL, "Cannot load extra-certs file: %s", extra_certs_file);
     }
 }
@@ -482,14 +653,14 @@ static void my_debug( void *ctx, int level, const char *str )
 void tls_ctx_personalise_random(struct tls_root_ctx *ctx)
 {
   static char old_sha256_hash[32] = {0};
-  char sha256_hash[32] = {0};
+  unsigned char sha256_hash[32] = {0};
   ctr_drbg_context *cd_ctx = rand_ctx_get();
 
   if (NULL != ctx->crt_chain)
     {
-      x509_cert *cert = ctx->crt_chain;
+      x509_crt *cert = ctx->crt_chain;
 
-      sha2(cert->tbs.p, cert->tbs.len, sha256_hash, false);
+      sha256(cert->tbs.p, cert->tbs.len, sha256_hash, false);
       if ( 0 != memcmp(old_sha256_hash, sha256_hash, sizeof(sha256_hash)))
 	{
 	  ctr_drbg_update(cd_ctx, sha256_hash, 32);
@@ -498,8 +669,20 @@ void tls_ctx_personalise_random(struct tls_root_ctx *ctx)
     }
 }
 
+int
+tls_version_max(void)
+{
+#if defined(SSL_MAJOR_VERSION_3) && defined(SSL_MINOR_VERSION_3)
+  return TLS_VER_1_2;
+#elif defined(SSL_MAJOR_VERSION_3) && defined(SSL_MINOR_VERSION_2)
+  return TLS_VER_1_1;
+#else
+  return TLS_VER_1_0;
+#endif
+}
+
 void key_state_ssl_init(struct key_state_ssl *ks_ssl,
-    const struct tls_root_ctx *ssl_ctx, bool is_server, void *session)
+    const struct tls_root_ctx *ssl_ctx, bool is_server, struct tls_session *session)
 {
   ASSERT(NULL != ssl_ctx);
   ASSERT(ks_ssl);
@@ -514,36 +697,79 @@ void key_state_ssl_init(struct key_state_ssl *ks_ssl,
 
       ssl_set_rng (ks_ssl->ctx, ctr_drbg_random, rand_ctx_get());
 
-      ALLOC_OBJ_CLEAR (ks_ssl->ssn, ssl_session);
-      ssl_set_session (ks_ssl->ctx, 0, 0, ks_ssl->ssn );
       if (ssl_ctx->allowed_ciphers)
 	ssl_set_ciphersuites (ks_ssl->ctx, ssl_ctx->allowed_ciphers);
-      else
-	ssl_set_ciphersuites (ks_ssl->ctx, default_ciphersuites);
 
       /* Initialise authentication information */
       if (is_server)
 	ssl_set_dh_param_ctx (ks_ssl->ctx, ssl_ctx->dhm_ctx );
 #if defined(ENABLE_PKCS11)
       if (ssl_ctx->priv_key_pkcs11 != NULL)
-	ssl_set_own_cert_pkcs11( ks_ssl->ctx, ssl_ctx->crt_chain,
-	    ssl_ctx->priv_key_pkcs11 );
+	ssl_set_own_cert_alt( ks_ssl->ctx, ssl_ctx->crt_chain,
+	    ssl_ctx->priv_key_pkcs11, ssl_pkcs11_decrypt, ssl_pkcs11_sign,
+	    ssl_pkcs11_key_len );
+      else
+#endif
+#if defined(MANAGMENT_EXTERNAL_KEY)
+      if (ssl_ctx->external_key != NULL)
+        ssl_set_own_cert_alt( ks_ssl->ctx, ssl_ctx->crt_chain,
+	   ssl_ctx->external_key, NULL, external_pkcs1_sign,
+	   external_key_len );
       else
 #endif
 	ssl_set_own_cert( ks_ssl->ctx, ssl_ctx->crt_chain, ssl_ctx->priv_key );
 
       /* Initialise SSL verification */
-      ssl_set_authmode (ks_ssl->ctx, SSL_VERIFY_REQUIRED);
-      ssl_set_verify (ks_ssl->ctx, verify_callback, session);
+#if P2MP_SERVER
+      if (session->opt->ssl_flags & SSLF_CLIENT_CERT_NOT_REQUIRED)
+	{
+	  msg (M_WARN, "WARNING: POTENTIALLY DANGEROUS OPTION "
+	   "--client-cert-not-required may accept clients which do not present "
+	   "a certificate");
+	}
+      else
+#endif
+      {
+	ssl_set_authmode (ks_ssl->ctx, SSL_VERIFY_REQUIRED);
+	ssl_set_verify (ks_ssl->ctx, verify_callback, session);
+      }
+
       /* TODO: PolarSSL does not currently support sending the CA chain to the client */
       ssl_set_ca_chain (ks_ssl->ctx, ssl_ctx->ca_chain, NULL, NULL );
+
+      /* Initialize minimum TLS version */
+      {
+	const int tls_version_min = (session->opt->ssl_flags >> SSLF_TLS_VERSION_SHIFT) & SSLF_TLS_VERSION_MASK;
+	int polar_major;
+	int polar_minor;
+	switch (tls_version_min)
+	  {
+	  case TLS_VER_1_0:
+	  default:
+	    polar_major = SSL_MAJOR_VERSION_3;
+	    polar_minor = SSL_MINOR_VERSION_1;
+	    break;
+#if defined(SSL_MAJOR_VERSION_3) && defined(SSL_MINOR_VERSION_2)
+	  case TLS_VER_1_1:
+	    polar_major = SSL_MAJOR_VERSION_3;
+	    polar_minor = SSL_MINOR_VERSION_2;
+	    break;
+#endif
+#if defined(SSL_MAJOR_VERSION_3) && defined(SSL_MINOR_VERSION_3)
+	  case TLS_VER_1_2:
+	    polar_major = SSL_MAJOR_VERSION_3;
+	    polar_minor = SSL_MINOR_VERSION_3;
+	    break;
+#endif
+	  }
+	ssl_set_min_version(ks_ssl->ctx, polar_major, polar_minor);
+      }
 
       /* Initialise BIOs */
       ALLOC_OBJ_CLEAR (ks_ssl->ct_in, endless_buffer);
       ALLOC_OBJ_CLEAR (ks_ssl->ct_out, endless_buffer);
       ssl_set_bio (ks_ssl->ctx, endless_buf_read, ks_ssl->ct_in,
 	  endless_buf_write, ks_ssl->ct_out);
-
     }
 }
 
@@ -556,8 +782,6 @@ key_state_ssl_free(struct key_state_ssl *ks_ssl)
 	  ssl_free(ks_ssl->ctx);
 	  free(ks_ssl->ctx);
 	}
-      if (ks_ssl->ssn)
-	free(ks_ssl->ssn);
       if (ks_ssl->ct_in) {
 	buf_free_entries(ks_ssl->ct_in);
 	free(ks_ssl->ct_in);
@@ -666,6 +890,7 @@ key_state_read_ciphertext (struct key_state_ssl *ks, struct buffer *buf,
 {
   int retval = 0;
   int len = 0;
+  char error_message[1024];
 
   perf_push (PERF_BIO_READ_CIPHERTEXT);
 
@@ -691,7 +916,8 @@ key_state_read_ciphertext (struct key_state_ssl *ks, struct buffer *buf,
       perf_pop ();
       if (POLARSSL_ERR_NET_WANT_WRITE == retval || POLARSSL_ERR_NET_WANT_READ == retval)
 	return 0;
-      msg (D_TLS_ERRORS, "TLS_ERROR: read tls_read_plaintext error");
+      error_strerror(retval, error_message, sizeof(error_message));
+      msg (D_TLS_ERRORS, "TLS_ERROR: read tls_read_ciphertext error: %d %s", retval, error_message);
       buf->len = 0;
       return -1;
     }
@@ -763,6 +989,7 @@ key_state_read_plaintext (struct key_state_ssl *ks, struct buffer *buf,
 {
   int retval = 0;
   int len = 0;
+  char error_message[1024];
 
   perf_push (PERF_BIO_READ_PLAINTEXT);
 
@@ -787,7 +1014,8 @@ key_state_read_plaintext (struct key_state_ssl *ks, struct buffer *buf,
     {
       if (POLARSSL_ERR_NET_WANT_WRITE == retval || POLARSSL_ERR_NET_WANT_READ == retval)
 	return 0;
-      msg (D_TLS_ERRORS, "TLS_ERROR: read tls_read_plaintext error");
+      error_strerror(retval, error_message, sizeof(error_message));
+      msg (D_TLS_ERRORS, "TLS_ERROR: read tls_read_plaintext error: %d %s", retval, error_message);
       buf->len = 0;
       perf_pop ();
       return -1;
@@ -818,7 +1046,7 @@ key_state_read_plaintext (struct key_state_ssl *ks, struct buffer *buf,
 void
 print_details (struct key_state_ssl * ks_ssl, const char *prefix)
 {
-  x509_cert *cert;
+  const x509_crt *cert;
   char s1[256];
   char s2[256];
 
@@ -828,19 +1056,26 @@ print_details (struct key_state_ssl * ks_ssl, const char *prefix)
 		    ssl_get_version (ks_ssl->ctx),
 		    ssl_get_ciphersuite(ks_ssl->ctx));
 
-  cert = ks_ssl->ctx->peer_cert;
+  cert = ssl_get_peer_cert(ks_ssl->ctx);
   if (cert != NULL)
     {
-      openvpn_snprintf (s2, sizeof (s2), ", " counter_format " bit RSA", (counter_type) cert->rsa.len * 8);
+      openvpn_snprintf (s2, sizeof (s2), ", %zu bit key", pk_get_size(&cert->pk));
     }
 
   msg (D_HANDSHAKE, "%s%s", s1, s2);
 }
 
 void
-show_available_tls_ciphers ()
+show_available_tls_ciphers (const char *cipher_list)
 {
+  struct tls_root_ctx tls_ctx;
   const int *ciphers = ssl_list_ciphersuites();
+
+  tls_ctx_server_new(&tls_ctx);
+  tls_ctx_restrict_ciphers(&tls_ctx, cipher_list);
+
+  if (tls_ctx.allowed_ciphers)
+    ciphers = tls_ctx.allowed_ciphers;
 
 #ifndef ENABLE_SMALL
   printf ("Available TLS Ciphers,\n");
@@ -853,6 +1088,25 @@ show_available_tls_ciphers ()
       ciphers++;
     }
   printf ("\n");
+
+  tls_ctx_free(&tls_ctx);
+}
+
+void
+show_available_curves (void)
+{
+  const ecp_curve_info *pcurve = ecp_curve_list();
+
+  if (NULL == pcurve)
+    msg (M_FATAL, "Cannot retrieve curve list from PolarSSL");
+
+  /* Print curve list */
+  printf ("Available Elliptic curves, listed in order of preference:\n\n");
+  while (POLARSSL_ECP_DP_NONE != pcurve->grp_id)
+    {
+      printf("%s\n", pcurve->name);
+      pcurve++;
+    }
 }
 
 void
@@ -865,6 +1119,16 @@ get_highest_preference_tls_cipher (char *buf, int size)
 
   cipher_name = ssl_get_ciphersuite_name(*ciphers);
   strncpynt (buf, cipher_name, size);
+}
+
+const char *
+get_ssl_library_version(void)
+{
+    static char polar_version[30];
+    unsigned int pv = version_get_number();
+    sprintf( polar_version, "PolarSSL %d.%d.%d",
+		(pv>>24)&0xff, (pv>>16)&0xff, (pv>>8)&0xff );
+    return polar_version;
 }
 
 #endif /* defined(ENABLE_SSL) && defined(ENABLE_CRYPTO_POLARSSL) */

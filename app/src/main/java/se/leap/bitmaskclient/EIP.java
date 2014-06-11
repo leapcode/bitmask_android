@@ -554,22 +554,22 @@ public final class EIP extends IntentService {
 
 
 			
-			try {
-				
-				arg.add(location_key);
-				String locationText = "";
-				locationText = eipDefinition.getJSONObject(locations).getJSONObject(mGateway.getString(location_key)).getString("name");		
-				arg.add(locationText);
+			// try {
+			// 	arg.add(location_key);
+			// 	String locationText = "";
+			// 	locationText = eipDefinition.getJSONObject(locations).getJSONObject(mGateway.getString(location_key)).getString("name");		
+			// 	arg.add(locationText);
+			//     Log.d(TAG, "location = " + locationText);
 
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			args.add((Vector<String>) arg.clone());
-			options.put("location", (Vector<Vector<String>>) args.clone() );
+			// } catch (JSONException e) {
+			// 	// TODO Auto-generated catch block
+			// 	e.printStackTrace();
+			// }
+			// args.add((Vector<String>) arg.clone());
+			// options.put("location", (Vector<Vector<String>>) args.clone() );
 
-			arg.clear();
-			args.clear();
+			// arg.clear();
+			// args.clear();
 			JSONArray protocolsJSON = null;
 			arg.add("proto");
 			try {

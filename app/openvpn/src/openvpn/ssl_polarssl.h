@@ -30,7 +30,10 @@
 #ifndef SSL_POLARSSL_H_
 #define SSL_POLARSSL_H_
 
+#include "syshead.h"
+
 #include <polarssl/ssl.h>
+#include <polarssl/x509_crt.h>
 
 #if defined(ENABLE_PKCS11)
 #include <polarssl/pkcs11.h>
@@ -62,18 +65,20 @@ struct tls_root_ctx {
     int endpoint; 		/**< Whether or not this is a server or a client */
 
     dhm_context *dhm_ctx;	/**< Diffie-Helmann-Merkle context */
-    x509_cert *crt_chain;	/**< Local Certificate chain */
-    x509_cert *ca_chain;	/**< CA chain for remote verification */
-    rsa_context *priv_key;	/**< Local private key */
+    x509_crt *crt_chain;	/**< Local Certificate chain */
+    x509_crt *ca_chain;		/**< CA chain for remote verification */
+    pk_context *priv_key;	/**< Local private key */
 #if defined(ENABLE_PKCS11)
     pkcs11_context *priv_key_pkcs11;	/**< PKCS11 private key */
+#endif
+#ifdef MANAGMENT_EXTERNAL_KEY
+    struct external_context *external_key; /**< Management external key */
 #endif
     int * allowed_ciphers;	/**< List of allowed ciphers for this connection */
 };
 
 struct key_state_ssl {
         ssl_context *ctx;
-        ssl_session *ssn;
         endless_buffer *ct_in;
         endless_buffer *ct_out;
 };

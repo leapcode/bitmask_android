@@ -39,6 +39,7 @@
 #include "ps.h"
 #include "dhcp.h"
 #include "common.h"
+#include "ssl_verify.h"
 
 #include "memdbg.h"
 
@@ -444,10 +445,10 @@ encrypt_sign (struct context *c, bool comp_frag)
 
   if (comp_frag)
     {
-#ifdef ENABLE_LZO
+#ifdef USE_COMP
       /* Compress the packet. */
-      if (lzo_defined (&c->c2.lzo_compwork))
-	lzo_compress (&c->c2.buf, b->lzo_compress_buf, &c->c2.lzo_compwork, &c->c2.frame);
+      if (c->c2.comp_context)
+	(*c->c2.comp_context->alg.compress)(&c->c2.buf, b->compress_buf, c->c2.comp_context, &c->c2.frame);
 #endif
 #ifdef ENABLE_FRAGMENT
       if (c->c2.fragment)
@@ -610,8 +611,6 @@ check_timeout_random_component (struct context *c)
     tv_add (&c->c2.timeval, &c->c2.timeout_random_component);
 }
 
-#ifdef ENABLE_SOCKS
-
 /*
  * Handle addition and removal of the 10-byte Socks5 header
  * in UDP packets.
@@ -649,7 +648,6 @@ link_socket_write_post_size_adjust (int *size,
 	*size = 0;
     }
 }
-#endif
 
 /*
  * Output: c->c2.buf
@@ -718,10 +716,8 @@ read_incoming_link (struct context *c)
   /* check recvfrom status */
   check_status (status, "read", c->c2.link_socket, NULL);
 
-#ifdef ENABLE_SOCKS
   /* Remove socks header if applicable */
   socks_postprocess_incoming_link (c);
-#endif
 
   perf_pop ();
 }
@@ -846,10 +842,10 @@ process_incoming_link (struct context *c)
 	fragment_incoming (c->c2.fragment, &c->c2.buf, &c->c2.frame_fragment);
 #endif
 
-#ifdef ENABLE_LZO
+#ifdef USE_COMP
       /* decompress the incoming packet */
-      if (lzo_defined (&c->c2.lzo_compwork))
-	lzo_decompress (&c->c2.buf, c->c2.buffers->lzo_decompress_buf, &c->c2.lzo_compwork, &c->c2.frame);
+      if (c->c2.comp_context)
+	(*c->c2.comp_context->alg.decompress)(&c->c2.buf, c->c2.buffers->decompress_buf, c->c2.comp_context, &c->c2.frame);
 #endif
 
 #ifdef PACKET_TRUNCATION_CHECK
@@ -1017,6 +1013,8 @@ process_ip_header (struct context *c, unsigned int flags, struct buffer *buf)
   if (!c->options.passtos)
     flags &= ~PIPV4_PASSTOS;
 #endif
+  if (!c->options.client_nat)
+    flags &= ~PIPV4_CLIENT_NAT;
   if (!c->options.route_gateway_via_dhcp)
     flags &= ~PIPV4_EXTRACT_DHCP_ROUTER;
 
@@ -1026,11 +1024,13 @@ process_ip_header (struct context *c, unsigned int flags, struct buffer *buf)
        * The --passtos and --mssfix options require
        * us to examine the IPv4 header.
        */
+
+      if (flags & (PIP_MSSFIX
 #if PASSTOS_CAPABILITY
-      if (flags & (PIPV4_PASSTOS|PIP_MSSFIX))
-#else
-      if (flags & PIP_MSSFIX)
+	  | PIPV4_PASSTOS
 #endif
+	  | PIPV4_CLIENT_NAT
+	  ))
 	{
 	  struct buffer ipbuf = *buf;
 	  if (is_ipv4 (TUNNEL_TYPE (c->c1.tuntap), &ipbuf))
@@ -1045,14 +1045,12 @@ process_ip_header (struct context *c, unsigned int flags, struct buffer *buf)
 	      if (flags & PIP_MSSFIX)
 		mss_fixup_ipv4 (&ipbuf, MTU_TO_MSS (TUN_MTU_SIZE_DYNAMIC (&c->c2.frame)));
 
-#ifdef ENABLE_CLIENT_NAT
 	      /* possibly do NAT on packet */
 	      if ((flags & PIPV4_CLIENT_NAT) && c->options.client_nat)
 		{
 		  const int direction = (flags & PIPV4_OUTGOING) ? CN_INCOMING : CN_OUTGOING;
 		  client_nat_transform (c->options.client_nat, &ipbuf, direction);
 		}
-#endif
 	      /* possibly extract a DHCP router message */
 	      if (flags & PIPV4_EXTRACT_DHCP_ROUTER)
 		{
@@ -1122,7 +1120,7 @@ process_outgoing_link (struct context *c)
 	    fprintf (stderr, "W");
 #endif
 	  msg (D_LINK_RW, "%s WRITE [%d] to %s: %s",
-	       proto2ascii (c->c2.link_socket->info.proto, c->c2.link_socket->info.proto, true),
+	       proto2ascii (c->c2.link_socket->info.proto, c->c2.link_socket->info.af, true),
 	       BLEN (&c->c2.to_link),
 	       print_link_socket_actual (c->c2.to_link_addr, &gc),
 	       PROTO_DUMP (&c->c2.to_link, &gc));
@@ -1130,23 +1128,18 @@ process_outgoing_link (struct context *c)
 	  /* Packet send complexified by possible Socks5 usage */
 	  {
 	    struct link_socket_actual *to_addr = c->c2.to_link_addr;
-#ifdef ENABLE_SOCKS
 	    int size_delta = 0;
-#endif
 
-#ifdef ENABLE_SOCKS
 	    /* If Socks5 over UDP, prepend header */
 	    socks_preprocess_outgoing_link (c, &to_addr, &size_delta);
-#endif
+
 	    /* Send packet */
 	    size = link_socket_write (c->c2.link_socket,
 				      &c->c2.to_link,
 				      to_addr);
 
-#ifdef ENABLE_SOCKS
 	    /* Undo effect of prepend */
 	    link_socket_write_post_size_adjust (&size, size_delta, &c->c2.to_link);
-#endif
 	  }
 
 	  if (size > 0)

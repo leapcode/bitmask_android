@@ -1105,6 +1105,19 @@ man_remote (struct management *man, const char **p)
     }
 }
 
+#ifdef TARGET_ANDROID
+static void
+man_network_change (struct management *man)
+{
+  if (man->persist.callback.network_change)
+    {
+      int fd = (*man->persist.callback.network_change)(man->persist.callback.arg);
+      man->connection.fdtosend = fd;
+        msg (M_CLIENT, "PROTECTFD: fd '%d' sent to be protected", fd);
+    }
+}
+#endif
+
 static void
 man_dispatch_command (struct management *man, struct status_output *so, const char **p, const int nparms)
 {
@@ -1148,6 +1161,12 @@ man_dispatch_command (struct management *man, struct status_output *so, const ch
       if (man_need (man, p, 1, 0))
 	man_signal (man, p[1]);
     }
+#ifdef TARGET_ANDROID
+  else if (streq (p[0], "network-change"))
+    {
+        man_network_change(man);
+    }
+#endif
   else if (streq (p[0], "load-stats"))
     {
       man_load_stats (man);
@@ -1568,9 +1587,9 @@ man_listen (struct management *man)
       else
 #endif
 	{
-	  man->connection.sd_top = create_socket_tcp (AF_INET);
+	  man->connection.sd_top = create_socket_tcp (man->settings.local);
 	  socket_bind (man->connection.sd_top, man->settings.local,
-                       AF_INET, "MANAGEMENT");
+                       man->settings.local->ai_family, "MANAGEMENT", false);
 	}
 
       /*
@@ -1635,7 +1654,7 @@ man_connect (struct management *man)
   else
 #endif
     {
-      man->connection.sd_cli = create_socket_tcp (AF_INET);
+      man->connection.sd_cli = create_socket_tcp (man->settings.local);
       status = openvpn_connect (man->connection.sd_cli,
 				man->settings.local->ai_addr,
 				5,
@@ -1781,77 +1800,118 @@ man_io_error (struct management *man, const char *prefix)
 }
 
 #ifdef TARGET_ANDROID
-static ssize_t write_fd (int fd, void *ptr, size_t nbytes, int flags, int sendfd)
+static ssize_t man_send_with_fd (int fd, void *ptr, size_t nbytes, int flags, int sendfd)
 {
-    struct msghdr msg;
-    struct iovec iov[1];
-    
-    union {
-        struct cmsghdr cm;
-        char    control[CMSG_SPACE(sizeof(int))];
-    } control_un;
-    struct cmsghdr *cmptr;
-    
-    msg.msg_control = control_un.control;
-    msg.msg_controllen = sizeof(control_un.control);
-    
-    cmptr = CMSG_FIRSTHDR(&msg);
-    cmptr->cmsg_len = CMSG_LEN(sizeof(int));
-    cmptr->cmsg_level = SOL_SOCKET;
-    cmptr->cmsg_type = SCM_RIGHTS;
-    *((int *) CMSG_DATA(cmptr)) = sendfd;
-    
-    msg.msg_name = NULL;
-    msg.msg_namelen = 0;
-    
-    iov[0].iov_base = ptr;
-    iov[0].iov_len = nbytes;
-    msg.msg_iov = iov;
-    msg.msg_iovlen = 1;
-    
-    return (sendmsg(fd, &msg, flags));
+  struct msghdr msg;
+  struct iovec iov[1];
+
+  union {
+    struct cmsghdr cm;
+    char    control[CMSG_SPACE(sizeof(int))];
+  } control_un;
+  struct cmsghdr *cmptr;
+
+  msg.msg_control = control_un.control;
+  msg.msg_controllen = sizeof(control_un.control);
+
+  cmptr = CMSG_FIRSTHDR(&msg);
+  cmptr->cmsg_len = CMSG_LEN(sizeof(int));
+  cmptr->cmsg_level = SOL_SOCKET;
+  cmptr->cmsg_type = SCM_RIGHTS;
+  *((int *) CMSG_DATA(cmptr)) = sendfd;
+
+  msg.msg_name = NULL;
+  msg.msg_namelen = 0;
+
+  iov[0].iov_base = ptr;
+  iov[0].iov_len = nbytes;
+  msg.msg_iov = iov;
+  msg.msg_iovlen = 1;
+
+  return (sendmsg(fd, &msg, flags));
 }
 
-static ssize_t read_fd(int fd, void *ptr, size_t nbytes, int flags, int *recvfd)
+static ssize_t man_recv_with_fd (int fd, void *ptr, size_t nbytes, int flags, int *recvfd)
 {
-    struct msghdr msghdr;
-    struct iovec iov[1];
-    ssize_t n;
-    
-    union {
-        struct cmsghdr cm;
-        char     control[CMSG_SPACE(sizeof (int))];
-    } control_un;
-    struct cmsghdr  *cmptr;
-    
-    msghdr.msg_control  = control_un.control;
-    msghdr.msg_controllen = sizeof(control_un.control);
-    
-    msghdr.msg_name = NULL;
-    msghdr.msg_namelen = 0;
-    
-    iov[0].iov_base = ptr;
-    iov[0].iov_len = nbytes;
-    msghdr.msg_iov = iov;
-    msghdr.msg_iovlen = 1;
-    
-    if ( (n = recvmsg(fd, &msghdr, flags)) <= 0)
-        return (n);
-    
-    if ( (cmptr = CMSG_FIRSTHDR(&msghdr)) != NULL &&
-        cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
-        if (cmptr->cmsg_level != SOL_SOCKET)
-            msg (M_ERR, "control level != SOL_SOCKET");
-        if (cmptr->cmsg_type != SCM_RIGHTS)
-            msg (M_ERR, "control type != SCM_RIGHTS");
-        *recvfd = *((int *) CMSG_DATA(cmptr));
-    } else
-        *recvfd = -1;           /* descriptor was not passed */
-    
+  struct msghdr msghdr;
+  struct iovec iov[1];
+  ssize_t n;
+
+  union {
+    struct cmsghdr cm;
+    char     control[CMSG_SPACE(sizeof (int))];
+  } control_un;
+  struct cmsghdr  *cmptr;
+
+  msghdr.msg_control  = control_un.control;
+  msghdr.msg_controllen = sizeof(control_un.control);
+
+  msghdr.msg_name = NULL;
+  msghdr.msg_namelen = 0;
+
+  iov[0].iov_base = ptr;
+  iov[0].iov_len = nbytes;
+  msghdr.msg_iov = iov;
+  msghdr.msg_iovlen = 1;
+
+  if ( (n = recvmsg(fd, &msghdr, flags)) <= 0)
     return (n);
-}
-#endif
 
+  if ( (cmptr = CMSG_FIRSTHDR(&msghdr)) != NULL &&
+       cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
+    if (cmptr->cmsg_level != SOL_SOCKET)
+      msg (M_ERR, "control level != SOL_SOCKET");
+    if (cmptr->cmsg_type != SCM_RIGHTS)
+      msg (M_ERR, "control type != SCM_RIGHTS");
+    *recvfd = *((int *) CMSG_DATA(cmptr));
+  } else
+    *recvfd = -1;           /* descriptor was not passed */
+
+  return (n);
+}
+
+/*
+ * The android control method will instruct the GUI part of openvpn to do
+ * the route/ifconfig/open tun command.   See doc/android.txt for details.
+ */
+bool management_android_control (struct management *man, const char *command, const char *msg)
+{
+  struct user_pass up;
+  CLEAR(up);
+  strncpy (up.username, msg, sizeof(up.username)-1);
+
+  management_query_user_pass(management, &up , command, GET_USER_PASS_NEED_OK,(void*) 0);
+  return strcmp ("ok", up.password)==0;
+}
+
+/*
+ * In Android 4.4 it is not possible to open a new tun device and then close the
+ * old tun device without breaking the whole VPNService stack until the device
+ * is rebooted. This management method ask the UI what method should be taken to
+ * ensure the optimal solution for the situation
+ */
+int managment_android_persisttun_action (struct management *man)
+{
+  struct user_pass up;
+  CLEAR(up);
+  strcpy(up.username,"tunmethod");
+  management_query_user_pass(management, &up , "PERSIST_TUN_ACTION",
+			     GET_USER_PASS_NEED_OK,(void*) 0);
+  if (!strcmp("NOACTION", up.password))
+    return ANDROID_KEEP_OLD_TUN;
+  else if (!strcmp ("OPEN_AFTER_CLOSE", up.password))
+    return ANDROID_OPEN_AFTER_CLOSE;
+  else if (!strcmp ("OPEN_BEFORE_CLOSE", up.password))
+    return ANDROID_OPEN_BEFORE_CLOSE;
+  else
+    msg (M_ERR, "Got unrecognised '%s' from management for PERSIST_TUN_ACTION query", up.password);
+
+  ASSERT(0);
+  return ANDROID_OPEN_AFTER_CLOSE;
+}
+
+
+#endif
 
 static int
 man_read (struct management *man)
@@ -1864,8 +1924,8 @@ man_read (struct management *man)
 
 #ifdef TARGET_ANDROID
   int fd;
-  len = read_fd (man->connection.sd_cli, buf, sizeof (buf), MSG_NOSIGNAL, &fd);
-  if(fd >= 0) 
+  len = man_recv_with_fd (man->connection.sd_cli, buf, sizeof (buf), MSG_NOSIGNAL, &fd);
+  if(fd >= 0)
      man->connection.lastfdreceived = fd;
 #else
   len = recv (man->connection.sd_cli, buf, sizeof (buf), MSG_NOSIGNAL);
@@ -1948,9 +2008,9 @@ man_write (struct management *man)
     {
       const int len = min_int (size_hint, BLEN (buf));
 #ifdef TARGET_ANDROID
-      if (man->connection.fdtosend > 0) 
+      if (man->connection.fdtosend > 0)
         {
-         sent = write_fd (man->connection.sd_cli, BPTR (buf), len, MSG_NOSIGNAL,man->connection.fdtosend);
+         sent = man_send_with_fd (man->connection.sd_cli, BPTR (buf), len, MSG_NOSIGNAL,man->connection.fdtosend);
             man->connection.fdtosend = -1;
         } else
 #endif
@@ -2110,8 +2170,14 @@ man_settings_init (struct man_settings *ms,
 	    }
 	  else
 	    {
-              int status = openvpn_getaddrinfo(GETADDR_RESOLVE|GETADDR_WARN_ON_SIGNAL|GETADDR_FATAL,
-                                               addr, port, 0, NULL, AF_INET, &ms->local);
+	      int status;
+	      int resolve_flags = GETADDR_RESOLVE|GETADDR_WARN_ON_SIGNAL|GETADDR_FATAL;
+
+	      if (! (flags & MF_CONNECT_AS_CLIENT))
+		  resolve_flags |= GETADDR_PASSIVE;
+
+              status = openvpn_getaddrinfo (resolve_flags, addr, port, 0,
+					    NULL, AF_UNSPEC, &ms->local);
               ASSERT(status==0);
 	    }
 	}
@@ -2138,6 +2204,8 @@ man_settings_init (struct man_settings *ms,
 static void
 man_settings_close (struct man_settings *ms)
 {
+  if (ms->local)
+    freeaddrinfo(ms->local);
   free (ms->write_peer_info_file);
   CLEAR (*ms);
 }
@@ -2445,33 +2513,6 @@ management_notify_generic (struct management *man, const char *str)
 
 #ifdef MANAGEMENT_DEF_AUTH
 
-static bool
-validate_peer_info_line(const char *line)
-{
-  uint8_t c;
-  int state = 0;
-  while ((c=*line++))
-    {
-      switch (state)
-	{
-	case 0:
-	case 1:
-	  if (c == '=' && state == 1)
-	    state = 2;
-	  else if (isalnum(c) || c == '_')
-	    state = 1;
-	  else
-	    return false;
-	case 2:
-	  if (isprint(c))
-	    ;
-	  else
-	    return false;
-	}
-    }
-  return (state == 2);
-}
-
 static void
 man_output_peer_info_env (struct management *man, struct man_def_auth_context *mdac)
 {
@@ -2510,7 +2551,8 @@ management_notify_client_needing_auth (struct management *management,
 	mode = "REAUTH";
       msg (M_CLIENT, ">CLIENT:%s,%lu,%u", mode, mdac->cid, mda_key_id);
       man_output_extra_env (management, "CLIENT");
-      man_output_peer_info_env(management, mdac);
+      if (management->connection.env_filter_level>0)
+        man_output_peer_info_env(management, mdac);
       man_output_env (es, true, management->connection.env_filter_level, "CLIENT");
       mdac->flags |= DAF_INITIAL_AUTH;
     }
@@ -2599,9 +2641,9 @@ management_post_tunnel_open (struct management *man, const in_addr_t tun_local_i
       /* listen on our local TUN/TAP IP address */
       struct in_addr ia;
       int ret;
-      
+
       ia.s_addr = htonl(tun_local_ip);
-      ret = openvpn_getaddrinfo(0, inet_ntoa(ia), NULL, 0, NULL,
+      ret = openvpn_getaddrinfo(GETADDR_PASSIVE, inet_ntoa(ia), NULL, 0, NULL,
                                 AF_INET, &man->settings.local);
       ASSERT (ret==0);
       man_connection_init (man);
