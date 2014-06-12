@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.SignUpDialog;
+import de.blinkt.openvpn.activities.LogWindow;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -228,6 +229,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			intent = new Intent(this, AboutActivity.class);
 			startActivity(intent);
 			return true;
+		case R.id.log_window:
+		    Intent startLW = new Intent(getAppContext(), LogWindow.class);
+		    startLW.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+		    startActivity(startLW);
+		    return true;
 		case R.id.switch_provider:
 			if (Provider.getInstance().hasEIP()){
 				if (getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getBoolean(EIP.AUTHED_EIP, false)){
