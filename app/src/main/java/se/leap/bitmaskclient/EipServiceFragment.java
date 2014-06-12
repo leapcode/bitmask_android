@@ -227,6 +227,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					} else if (level == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED) {
 					    if(state.equals("AUTH") || state.equals("GET_CONFIG"))
 						statusMessage = prefix + " " + logmessage;
+					} else if (level == ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET) {
+						statusMessage = prefix + " " + logmessage;
 					}
 					
 					eipAutoSwitched = true;
