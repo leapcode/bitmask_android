@@ -243,6 +243,7 @@ public final class EIP extends IntentService {
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.putExtra(LaunchVPN.EXTRA_KEY, activeGateway.mVpnProfile.getUUID().toString() );
 		intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.mVpnProfile.getName() );
+		intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
 		intent.putExtra(RECEIVER_TAG, mReceiver);
 		startActivity(intent);
 		mPending = ACTION_START_EIP;
