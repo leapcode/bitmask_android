@@ -52,6 +52,10 @@
             <action android:name="android.intent.action.BOOT_COMPLETED" />
           </intent-filter>
         </receiver>
+
+        <activity
+                android:theme="@android:style/Theme.DeviceDefault.Light.Dialog"
+                android:name="de.blinkt.openvpn.activities.DisconnectVPN" />
 	
         <activity
             android:name="de.blinkt.openvpn.LaunchVPN"
