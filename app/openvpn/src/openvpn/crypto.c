@@ -65,6 +65,24 @@
 #define CRYPT_ERROR(format) \
   do { msg (D_CRYPT_ERRORS, "%s: " format, error_prefix); goto error_exit; } while (false)
 
+/**
+ * As memcmp(), but constant-time.
+ * Returns 0 when data is equal, non-zero otherwise.
+ */
+static int
+memcmp_constant_time (const void *a, const void *b, size_t size) {
+  const uint8_t * a1 = a;
+  const uint8_t * b1 = b;
+  int ret = 0;
+  size_t i;
+
+  for (i = 0; i < size; i++) {
+      ret |= *a1++ ^ *b1++;
+  }
+
+  return ret;
+}
+
 void
 openvpn_encrypt (struct buffer *buf, struct buffer work,
 		 const struct crypto_options *opt,
@@ -244,7 +262,7 @@ openvpn_decrypt (struct buffer *buf, struct buffer work,
 	  hmac_ctx_final (ctx->hmac, local_hmac);
 
 	  /* Compare locally computed HMAC with packet HMAC */
-	  if (memcmp (local_hmac, BPTR (buf), hmac_len))
+	  if (memcmp_constant_time (local_hmac, BPTR (buf), hmac_len))
 	    CRYPT_ERROR ("packet HMAC authentication failed");
 
 	  ASSERT (buf_advance (buf, hmac_len));
@@ -401,7 +419,7 @@ init_key_type (struct key_type *kt, const char *ciphername,
   CLEAR (*kt);
   if (ciphername && ciphername_defined)
     {
-      kt->cipher = cipher_kt_get (ciphername);
+      kt->cipher = cipher_kt_get (translate_cipher_name_from_openvpn(ciphername));
       kt->cipher_length = cipher_kt_key_size (kt->cipher);
       if (keysize > 0 && keysize <= MAX_CIPHER_KEY_LENGTH)
 	kt->cipher_length = keysize;
@@ -1010,7 +1028,6 @@ read_passphrase_hash (const char *passphrase_file,
 		      uint8_t *output,
 		      int len)
 {
-  unsigned int outlen = 0;
   md_ctx_t md;
 
   ASSERT (len >= md_kt_size(digest));
@@ -1343,7 +1360,6 @@ prng_bytes (uint8_t *output, int len)
       const int md_size = md_kt_size (nonce_md);
       while (len > 0)
 	{
-	  unsigned int outlen = 0;
 	  const int blen = min_int (len, md_size);
 	  md_full(nonce_md, nonce_data, md_size + nonce_secret_len, nonce_data);
 	  memcpy (output, nonce_data, blen);

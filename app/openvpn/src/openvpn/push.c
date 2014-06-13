@@ -33,6 +33,7 @@
 #include "push.h"
 #include "options.h"
 #include "ssl.h"
+#include "ssl_verify.h"
 #include "manage.h"
 
 #include "memdbg.h"
@@ -49,7 +50,8 @@ void
 receive_auth_failed (struct context *c, const struct buffer *buffer)
 {
   msg (M_VERB0, "AUTH: Received control message: %s", BSTR(buffer));
-    c->options.no_advance=true;
+  c->options.no_advance=true;
+
   if (c->options.pull)
     {
       switch (auth_retry_get ())
@@ -202,8 +204,10 @@ incoming_push_message (struct context *c, const struct buffer *buffer)
     msg (D_PUSH_ERRORS, "WARNING: Received bad push/pull message: %s", sanitize_control_message(BSTR(buffer), &gc));
   else if (status == PUSH_MSG_REPLY || status == PUSH_MSG_CONTINUATION)
     {
+      c->options.push_option_types_found |= option_types_found;
+
       if (status == PUSH_MSG_REPLY)
-	do_up (c, true, option_types_found); /* delay bringing tun/tap up until --push parms received from remote */
+	do_up (c, true, c->options.push_option_types_found ); /* delay bringing tun/tap up until --push parms received from remote */
       event_timeout_clear (&c->c2.push_request_interval);
     }
 
@@ -290,10 +294,8 @@ send_push_reply (struct context *c)
   if (c->c2.push_ifconfig_defined && c->c2.push_ifconfig_local && c->c2.push_ifconfig_remote_netmask)
     {
       in_addr_t ifconfig_local = c->c2.push_ifconfig_local;
-#ifdef ENABLE_CLIENT_NAT
       if (c->c2.push_ifconfig_local_alias)
 	ifconfig_local = c->c2.push_ifconfig_local_alias;
-#endif
       buf_printf (&buf, ",ifconfig %s %s",
 		  print_in_addr_t (ifconfig_local, 0, &gc),
 		  print_in_addr_t (c->c2.push_ifconfig_remote_netmask, 0, &gc));
@@ -453,7 +455,7 @@ process_incoming_push_msg (struct context *c,
 	    }
 	  if (!c->c2.did_pre_pull_restore)
 	    {
-	      pre_pull_restore (&c->options);
+	      pre_pull_restore (&c->options, &c->c2.gc);
 	      c->c2.did_pre_pull_restore = true;
 	    }
 	  if (apply_push_options (&c->options,

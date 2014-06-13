@@ -109,20 +109,35 @@ unsigned char *x509_get_sha1_hash (openvpn_x509_cert_t *cert, struct gc_arena *g
  *
  * @return 		\c FAILURE, \c or SUCCESS
  */
-result_t x509_get_username (char *common_name, int cn_len,
+result_t backend_x509_get_username (char *common_name, int cn_len,
     char * x509_username_field, openvpn_x509_cert_t *peer_cert);
 
 /*
- * Return the certificate's serial number.
+ * Return the certificate's serial number in decimal string representation.
  *
  * The serial number is returned as a string, since it might be a bignum.
  *
  * @param cert		Certificate to retrieve the serial number from.
  * @param gc		Garbage collection arena to use when allocating string.
  *
- * @return 		The certificate's serial number.
+ * @return 		String representation of the certificate's serial number
+ * 			in decimal notation, or NULL on error.
  */
-char *x509_get_serial (openvpn_x509_cert_t *cert, struct gc_arena *gc);
+char *backend_x509_get_serial (openvpn_x509_cert_t *cert, struct gc_arena *gc);
+
+/*
+ * Return the certificate's serial number in hex string representation.
+ *
+ * The serial number is returned as a string, since it might be a bignum.
+ *
+ * @param cert		Certificate to retrieve the serial number from.
+ * @param gc		Garbage collection arena to use when allocating string.
+ *
+ * @return 		String representation of the certificate's serial number
+ * 			in hex notation, or NULL on error.
+ */
+char *backend_x509_get_serial_hex (openvpn_x509_cert_t *cert,
+    struct gc_arena *gc);
 
 /*
  * Save X509 fields to environment, using the naming convention:
@@ -189,8 +204,6 @@ void x509_setenv_track (const struct x509_track *xt, struct env_set *es,
  */
 result_t x509_verify_ns_cert_type(const openvpn_x509_cert_t *cert, const int usage);
 
-#if OPENSSL_VERSION_NUMBER >= 0x00907000L || ENABLE_CRYPTO_POLARSSL
-
 /*
  * Verify X.509 key usage extension field.
  *
@@ -218,8 +231,6 @@ result_t x509_verify_cert_ku (openvpn_x509_cert_t *x509, const unsigned * const 
  * 			usage is not enabled, or the values do not match.
  */
 result_t x509_verify_cert_eku (openvpn_x509_cert_t *x509, const char * const expected_oid);
-
-#endif
 
 /*
  * Store the given certificate in pem format in a temporary file in tmp_dir

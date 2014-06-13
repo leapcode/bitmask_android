@@ -327,19 +327,28 @@ gc_malloc (size_t size, bool clear, struct gc_arena *a)
 #endif
 {
   void *ret;
-  struct gc_entry *e;
-  ASSERT (NULL != a);
-
+  if (a)
+    {
+      struct gc_entry *e;
 #ifdef DMALLOC
-  e = (struct gc_entry *) openvpn_dmalloc (file, line, size + sizeof (struct gc_entry));
+      e = (struct gc_entry *) openvpn_dmalloc (file, line, size + sizeof (struct gc_entry));
 #else
-  e = (struct gc_entry *) malloc (size + sizeof (struct gc_entry));
+      e = (struct gc_entry *) malloc (size + sizeof (struct gc_entry));
 #endif
-  check_malloc_return (e);
-  ret = (char *) e + sizeof (struct gc_entry);
-  e->next = a->list;
-  a->list = e;
-
+      check_malloc_return (e);
+      ret = (char *) e + sizeof (struct gc_entry);
+      e->next = a->list;
+      a->list = e;
+    }
+  else
+    {
+#ifdef DMALLOC
+      ret = openvpn_dmalloc (file, line, size);
+#else
+      ret = malloc (size);
+#endif
+      check_malloc_return (ret);
+    }
 #ifndef ZERO_BUFFER_ON_ALLOC
   if (clear)
 #endif
@@ -361,6 +370,44 @@ x_gc_free (struct gc_arena *a)
       e = next;
     }
 }
+
+/*
+ * Functions to handle special objects in gc_entries
+ */
+
+void
+x_gc_freespecial (struct gc_arena *a)
+{
+  struct gc_entry_special *e;
+  e = a->list_special;
+  a->list_special = NULL;
+
+  while (e != NULL)
+    {
+      struct gc_entry_special *next = e->next;
+      e->free_fnc (e->addr);
+      free(e);
+      e = next;
+    }
+}
+
+void gc_addspecial (void *addr, void (free_function)(void*), struct gc_arena *a)
+{
+  ASSERT(a);
+  struct gc_entry_special *e;
+#ifdef DMALLOC
+  e = (struct gc_entry_special *) openvpn_dmalloc (file, line, sizeof (struct gc_entry_special));
+#else
+  e = (struct gc_entry_special *) malloc (sizeof (struct gc_entry_special));
+#endif
+  check_malloc_return (e);
+  e->free_fnc = free_function;
+  e->addr = addr;
+
+  e->next = a->list_special;
+  a->list_special = e;
+}
+
 
 /*
  * Transfer src arena to dest, resetting src to an empty arena.
@@ -929,9 +976,6 @@ valign4 (const struct buffer *buf, const char *file, const int line)
 /*
  * struct buffer_list
  */
-
-#ifdef ENABLE_BUFFER_LIST
-
 struct buffer_list *
 buffer_list_new (const int max_size)
 {
@@ -1107,5 +1151,3 @@ buffer_list_file (const char *fn, int max_line_len)
     }
   return bl;
 }
-
-#endif

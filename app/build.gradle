@@ -1,52 +1,147 @@
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.0.3"
+  compileSdkVersion 19
+  buildToolsVersion "19.1.0"
 
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 19
+  defaultConfig {
+    minSdkVersion 14
+    targetSdkVersion 19
 
-        testPackageName "se.leap.bitmaskclient.test"
-        testInstrumentationRunner "android.test.InstrumentationTestRunner"
+    testPackageName "se.leap.bitmaskclient.test"
+    testInstrumentationRunner "android.test.InstrumentationTestRunner"
+  }
+
+  signingConfigs {
+    release {
+      storeFile project.hasProperty('storeFileProperty') ? file(storeFileProperty) : null
+      storePassword project.hasProperty('storePasswordProperty') ?  storePasswordProperty : ""
+      keyAlias project.hasProperty('keyAliasProperty') ?  keyAliasProperty : ""
+      keyPassword project.hasProperty('keyPasswordProperty') ?  keyPasswordProperty : ""
     }
+  }
 
-    signingConfigs {
-        release {
-		storeFile project.hasProperty('storeFileProperty') ? file(storeFileProperty) : null
-		storePassword project.hasProperty('storePasswordProperty') ?  storePasswordProperty : ""
-		keyAlias project.hasProperty('keyAliasProperty') ?  keyAliasProperty : ""
-		keyPassword project.hasProperty('keyPasswordProperty') ?  keyPasswordProperty : ""
-	}
+  buildTypes {
+    release {
+      //runProguard true
+      signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
     }
+  }
 
-    buildTypes {
-        release {
-            //runProguard true
-	    signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
-        }
-    }
-
-    lintOptions {
-      abortOnError false
-    }
+  lintOptions {
+    abortOnError false
+  }
     
-    sourceSets {
-    	main {
-	  assets.srcDirs = ['assets', 'ovpnlibs/assets']
-	  jniLibs.srcDirs = ['ovpnlibs/jniLibs']
-	  jni.srcDirs = [] //disable automatic ndk-build
-        }
-	debug {
- 	  assets.srcDirs = ['src/debug/assets']
-	}
+  sourceSets {
+    main {
+      assets.srcDirs = ['assets', 'ovpnlibs/assets']
+      jniLibs.srcDirs = ['ovpnlibs/jniLibs']
+      jni.srcDirs = [] //disable automatic ndk-build
     }
+    debug {
+      assets.srcDirs = ['src/debug/assets']
+    }
+  }
 
-    //check.dependsOn connectedCheck
- }
+  //check.dependsOn connectedCheck
+}
 
 dependencies {
-    androidTestCompile 'com.android.support:support-v4:+'
-    androidTestCompile 'com.jayway.android.robotium:robotium-solo:4.3.1'
+  androidTestCompile 'com.android.support:support-v4:+'
+  androidTestCompile 'com.jayway.android.robotium:robotium-solo:4.3.1'
+  compile 'com.intellij:annotations:12.0'
 }
+
+def processFileInplace(file, Closure processText) {
+  def text = file.text
+  file.write(processText(text))
+}
+
+
+task checkoutStrippedIcsOpenVPN ( type: Copy ) {
+  //FIXME Checkout ics-openvpn-stripped from branch "ics-openvpn-upstream"
+  from '/tmp/bitmask_android_tmp/ics-openvpn-stripped'
+  into '../ics-openvpn-stripped'
+}
+
+task copyIcsOpenVPNClasses( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' ) {
+  from ('../ics-openvpn-stripped/main/') {
+    include '**/*.java'
+    include '**/*.aidl'
+    include '**/strings.xml'
+    include '**/log_*.xml'
+    include '**/vpnstatus.xml'
+    include '**/styles.xml'
+    include '**/dimens.xml'
+    include '**/logmenu.xml'
+
+    rename 'strings.xml', 'strings-icsopenvpn.xml'
+    filter {
+      line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
+    }
+    filter {
+      line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
+    }
+    filter {      
+      line -> line.replace('package de.blinkt.openvpn;', 'package de.blinkt.openvpn;\n\nimport se.leap.bitmaskclient.R;')
+    }
+    filter {      
+      line -> line.replace('package de.blinkt.openvpn.fragments;', 'package de.blinkt.openvpn.fragments;\n\nimport se.leap.bitmaskclient.R;')
+    }
+    filter {
+      line -> line.replaceAll('.*name="app".*', '')
+    }
+  } into '.'
+}
+
+// thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
+task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNClasses' ) << {
+  new File('.').eachFileRecurse {
+    if(it.name.equals('strings.xml')) {
+      def ics_openvpn_file = file(it.path.replace('strings.xml', 'strings-icsopenvpn.xml'))
+      if(ics_openvpn_file.exists()) { 
+	def ics_openvpn_strings_names = (new XmlParser()).parse(ics_openvpn_file)
+	def current_file = it
+      
+	ics_openvpn_strings_names.string.each {
+	  processFileInplace(current_file) { text ->
+	    text.replaceAll('.*name=\"' + it.attribute('name') + '\".*(\n)*.*string>.*\n+', '')
+	  }
+	}
+      }
+    }
+  }
+}
+
+task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
+  from ('../ics-openvpn-stripped/main/') {
+    include '**/untranslatable.xml'
+    rename 'untranslatable.xml', 'untranslatable-icsopenvpn.xml'
+  } into '.'
+  def bitmask_untranslatable = file('src/main/res/values/untranslatable.xml')
+  def ics_openvpn_untranslatable = new File(bitmask_untranslatable.path.replace('untranslatable.xml', 'untranslatable-icsopenvpn.xml'))
+  ics_openvpn_untranslatable.createNewFile()
+  def string_continuation = false;
+  ics_openvpn_untranslatable.eachLine { text ->
+    if(text.contains('string name=')) {
+      if(!bitmask_untranslatable.text.contains(text))
+	bitmask_untranslatable << text
+	if(text.contains('</string>'))
+	  string_continuation = true
+    }
+    else if(string_continuation) {
+      bitmask_untranslatable << text
+    }
+    
+    if(text.contains('</string>')) {
+      string_continuation = false
+      bitmask_untranslatable << System.getProperty("line.separator")
+    }
+  }
+  
+  bitmask_untranslatable.write(bitmask_untranslatable.text.replaceAll("</resources>", ""))
+  bitmask_untranslatable << "</resources>"
+
+  delete ics_openvpn_untranslatable
+}
+build.dependsOn ':app:mergeUntranslatable'

@@ -49,7 +49,7 @@
 #define METRIC_NOT_USED ((DWORD)-1)
 #endif
 
-static void delete_route (struct route *r, const struct tuntap *tt, unsigned int flags, const struct route_gateway_info *rgi, const struct env_set *es);
+static void delete_route (struct route_ipv4 *r, const struct tuntap *tt, unsigned int flags, const struct route_gateway_info *rgi, const struct env_set *es);
 
 static void get_bypass_addresses (struct route_bypass *rb, const unsigned int flags);
 
@@ -92,80 +92,66 @@ add_bypass_address (struct route_bypass *rb, const in_addr_t a)
 }
 
 struct route_option_list *
-new_route_option_list (const int max_routes, struct gc_arena *a)
+new_route_option_list (struct gc_arena *a)
 {
   struct route_option_list *ret;
-  ALLOC_VAR_ARRAY_CLEAR_GC (ret, struct route_option_list, struct route_option, max_routes, a);
-  ret->capacity = max_routes;
+  ALLOC_OBJ_CLEAR_GC (ret, struct route_option_list, a);
+  ret->gc = a;
   return ret;
 }
 
 struct route_ipv6_option_list *
-new_route_ipv6_option_list (const int max_routes, struct gc_arena *a)
+new_route_ipv6_option_list (struct gc_arena *a)
 {
   struct route_ipv6_option_list *ret;
-  ALLOC_VAR_ARRAY_CLEAR_GC (ret, struct route_ipv6_option_list, struct route_ipv6_option, max_routes, a);
-  ret->capacity = max_routes;
+  ALLOC_OBJ_CLEAR_GC (ret, struct route_ipv6_option_list, a);
+  ret->gc = a;
   return ret;
 }
 
+/*
+ * NOTE: structs are cloned/copied shallow by design.
+ * The routes list from src will stay intact since it is allocated using
+ * the options->gc. The cloned/copied lists will share this common tail
+ * to avoid copying the data around between pulls. Pulled routes use
+ * the c2->gc so they get freed immediately after a reconnect.
+ */
 struct route_option_list *
 clone_route_option_list (const struct route_option_list *src, struct gc_arena *a)
 {
-  const size_t rl_size = array_mult_safe (sizeof(struct route_option), src->capacity, sizeof(struct route_option_list));
-  struct route_option_list *ret = gc_malloc (rl_size, false, a);
-  memcpy (ret, src, rl_size);
+  struct route_option_list *ret;
+  ALLOC_OBJ_GC (ret, struct route_option_list, a);
+  *ret = *src;
   return ret;
 }
 
 struct route_ipv6_option_list *
 clone_route_ipv6_option_list (const struct route_ipv6_option_list *src, struct gc_arena *a)
 {
-  const size_t rl_size = array_mult_safe (sizeof(struct route_ipv6_option), src->capacity, sizeof(struct route_ipv6_option_list));
-  struct route_ipv6_option_list *ret = gc_malloc (rl_size, false, a);
-  memcpy (ret, src, rl_size);
+  struct route_ipv6_option_list *ret;
+  ALLOC_OBJ_GC (ret, struct route_ipv6_option_list, a);
+  *ret = *src;
   return ret;
 }
 
 void
-copy_route_option_list (struct route_option_list *dest, const struct route_option_list *src)
+copy_route_option_list (struct route_option_list *dest, const struct route_option_list *src, struct gc_arena *a)
 {
-  const size_t src_size = array_mult_safe (sizeof(struct route_option), src->capacity, sizeof(struct route_option_list));
-  if (src->capacity > dest->capacity)
-    msg (M_FATAL, PACKAGE_NAME " ROUTE: (copy) number of route options in src (%d) is greater than route list capacity in dest (%d)", src->capacity, dest->capacity);
-  memcpy (dest, src, src_size);
+  *dest = *src;
+  dest->gc = a;
 }
 
 void
 copy_route_ipv6_option_list (struct route_ipv6_option_list *dest,
-			     const struct route_ipv6_option_list *src)
+                             const struct route_ipv6_option_list *src,
+                             struct gc_arena *a)
 {
-  const size_t src_size = array_mult_safe (sizeof(struct route_ipv6_option), src->capacity, sizeof(struct route_ipv6_option_list));
-  if (src->capacity > dest->capacity)
-    msg (M_FATAL, PACKAGE_NAME " ROUTE: (copy) number of route options in src (%d) is greater than route list capacity in dest (%d)", src->capacity, dest->capacity);
-  memcpy (dest, src, src_size);
-}
-
-struct route_list *
-new_route_list (const int max_routes, struct gc_arena *a)
-{
-  struct route_list *ret;
-  ALLOC_VAR_ARRAY_CLEAR_GC (ret, struct route_list, struct route, max_routes, a);
-  ret->capacity = max_routes;
-  return ret;
-}
-
-struct route_ipv6_list *
-new_route_ipv6_list (const int max_routes, struct gc_arena *a)
-{
-  struct route_ipv6_list *ret;
-  ALLOC_VAR_ARRAY_CLEAR_GC (ret, struct route_ipv6_list, struct route_ipv6, max_routes, a);
-  ret->capacity = max_routes;
-  return ret;
+  *dest = *src;
+  dest->gc = a;
 }
 
 static const char *
-route_string (const struct route *r, struct gc_arena *gc)
+route_string (const struct route_ipv4 *r, struct gc_arena *gc)
 {
   struct buffer out = alloc_buf_gc (256, gc);
   buf_printf (&out, "ROUTE network %s netmask %s gateway %s",
@@ -267,7 +253,7 @@ is_special_addr (const char *addr_str)
 }
 
 static bool
-init_route (struct route *r,
+init_route (struct route_ipv4 *r,
 	    struct addrinfo **network_list,
 	    const struct route_option *ro,
 	    const struct route_list *rl)
@@ -452,15 +438,14 @@ add_route_to_option_list (struct route_option_list *l,
 			  const char *metric)
 {
   struct route_option *ro;
-  if (l->n >= l->capacity)
-    msg (M_FATAL, PACKAGE_NAME " ROUTE: cannot add more than %d routes -- please increase the max-routes option in the client configuration file",
-	 l->capacity);
-  ro = &l->routes[l->n];
+  ALLOC_OBJ_GC (ro, struct route_option, l->gc);
   ro->network = network;
   ro->netmask = netmask;
   ro->gateway = gateway;
   ro->metric = metric;
-  ++l->n;
+  ro->next = l->routes;
+  l->routes = ro;
+
 }
 
 void
@@ -470,32 +455,26 @@ add_route_ipv6_to_option_list (struct route_ipv6_option_list *l,
 			  const char *metric)
 {
   struct route_ipv6_option *ro;
-  if (l->n >= l->capacity)
-    msg (M_FATAL, PACKAGE_NAME " ROUTE: cannot add more than %d IPv6 routes -- please increase the max-routes option in the client configuration file",
-	 l->capacity);
-  ro = &l->routes_ipv6[l->n];
+  ALLOC_OBJ_GC (ro, struct route_ipv6_option, l->gc);
   ro->prefix = prefix;
   ro->gateway = gateway;
   ro->metric = metric;
-  ++l->n;
+  ro->next = l->routes_ipv6;
+  l->routes_ipv6 = ro;
 }
 
 void
 clear_route_list (struct route_list *rl)
 {
-  const int capacity = rl->capacity;
-  const size_t rl_size = array_mult_safe (sizeof(struct route), capacity, sizeof(struct route_list));
-  memset(rl, 0, rl_size);
-  rl->capacity = capacity;
+  gc_free (&rl->gc);
+  CLEAR (*rl);
 }
 
 void
 clear_route_ipv6_list (struct route_ipv6_list *rl6)
 {
-  const int capacity = rl6->capacity;
-  const size_t rl6_size = array_mult_safe (sizeof(struct route_ipv6), capacity, sizeof(struct route_ipv6_list));
-  memset(rl6, 0, rl6_size);
-  rl6->capacity = capacity;
+  gc_free (&rl6->gc);
+  CLEAR (*rl6);
 }
 
 void
@@ -503,6 +482,7 @@ route_list_add_vpn_gateway (struct route_list *rl,
 			    struct env_set *es,
 			    const in_addr_t addr)
 {
+  ASSERT(rl);
   rl->spec.remote_endpoint = addr;
   rl->spec.flags |= RTSA_REMOTE_ENDPOINT;
   setenv_route_addr (es, "vpn_gateway", rl->spec.remote_endpoint, -1);
@@ -515,24 +495,74 @@ add_block_local_item (struct route_list *rl,
 {
   const int rgi_needed = (RGI_ADDR_DEFINED|RGI_NETMASK_DEFINED);
   if ((rl->rgi.flags & rgi_needed) == rgi_needed
-      && rl->rgi.gateway.netmask < 0xFFFFFFFF
-      && (rl->n)+2 <= rl->capacity)
+      && rl->rgi.gateway.netmask < 0xFFFFFFFF)
     {
-      struct route r;
+      struct route_ipv4 *r1, *r2;
       unsigned int l2;
 
+      ALLOC_OBJ_GC (r1, struct route_ipv4, &rl->gc);
+      ALLOC_OBJ_GC (r2, struct route_ipv4, &rl->gc);
+
       /* split a route into two smaller blocking routes, and direct them to target */
-      CLEAR(r);
-      r.flags = RT_DEFINED;
-      r.gateway = target;
-      r.network = gateway->addr & gateway->netmask;
       l2 = ((~gateway->netmask)+1)>>1;
-      r.netmask = ~(l2-1);
-      rl->routes[rl->n++] = r;
-      r.network += l2;
-      rl->routes[rl->n++] = r;
+      r1->flags = RT_DEFINED;
+      r1->gateway = target;
+      r1->network = gateway->addr & gateway->netmask;
+      r1->netmask = ~(l2-1);
+      r1->next = rl->routes;
+      rl->routes = r1;
+
+      *r2 = *r1;
+      r2->network += l2;
+      r2->next = rl->routes;
+      rl->routes = r2;
     }
 }
+
+static void
+add_unblock_local (struct route_list *rl)
+{
+  const int rgi_needed = (RGI_ADDR_DEFINED|RGI_NETMASK_DEFINED);
+
+  if (rl->flags & RG_UNBLOCK_LOCAL
+      && (rl->rgi.flags & rgi_needed) == rgi_needed)
+    {
+      /* unblock access to local subnet */
+      struct route_ipv4 *r;
+
+      ALLOC_OBJ_GC (r, struct route_ipv4, &rl->gc);
+      int i;
+
+      CLEAR(*r);
+      r->flags = RT_DEFINED;
+      r->network = rl->rgi.gateway.addr & rl->rgi.gateway.netmask;
+      r->netmask = rl->rgi.gateway.netmask;
+      r->gateway = rl->rgi.gateway.addr;
+      r->next = rl->routes;
+      rl->routes = r;
+
+      /* Additional local networks */
+      for (i = 0; i < rl->rgi.n_addrs; ++i)
+	{
+	  const struct route_gateway_address *gwa = &rl->rgi.addrs[i];
+
+	  /* omit the add/subnet in &rl->rgi which we processed above */
+	  if (!((rl->rgi.gateway.addr & rl->rgi.gateway.netmask) == (gwa->addr & gwa->netmask)
+		 && rl->rgi.gateway.netmask == gwa->netmask))
+	    {
+	      ALLOC_OBJ_GC (r, struct route_ipv4, &rl->gc);
+	      CLEAR(*r);
+	      r->flags = RT_DEFINED;
+	      r->network = gwa->addr & gwa->netmask;
+	      r->netmask = gwa->netmask;
+	      r->gateway = gwa->addr;
+	      r->next = rl->routes;
+	      rl->routes=r;
+	    }
+	}
+    }
+}
+
 
 static void
 add_block_local (struct route_list *rl)
@@ -545,8 +575,10 @@ add_block_local (struct route_list *rl)
     {
       size_t i;
 
+#ifndef TARGET_ANDROID
       /* add bypass for gateway addr */
       add_bypass_address (&rl->spec.bypass, rl->rgi.gateway.addr);
+#endif
 
       /* block access to local subnet */
       add_block_local_item (rl, &rl->rgi.gateway, rl->spec.remote_endpoint);
@@ -562,6 +594,8 @@ add_block_local (struct route_list *rl)
 	}
     }
 }
+
+
 
 bool
 init_route_list (struct route_list *rl,
@@ -594,7 +628,7 @@ init_route_list (struct route_list *rl,
   if (rl->rgi.flags & RGI_ADDR_DEFINED)
     {
       setenv_route_addr (es, "net_gateway", rl->rgi.gateway.addr, -1);
-#ifdef ENABLE_DEBUG
+#if defined(ENABLE_DEBUG) && !defined(ENABLE_SMALL)
       print_default_gateway (D_ROUTE, &rl->rgi);
 #endif
     }
@@ -631,6 +665,8 @@ init_route_list (struct route_list *rl,
 	}
     }
 
+
+  add_unblock_local (rl);
   if (rl->flags & RG_ENABLE)
     {
       add_block_local (rl);
@@ -642,42 +678,29 @@ init_route_list (struct route_list *rl,
 
   /* parse the routes from opt to rl */
   {
-    int i = 0;
-    int j = rl->n;
-    bool warned = false;
-    for (i = 0; i < opt->n; ++i)
+    struct route_option *ro;
+    for (ro = opt->routes; ro; ro = ro->next)
       {
         struct addrinfo* netlist;
-	struct route r;
+	struct route_ipv4 r;
 
-	if (!init_route (&r,
-			 &netlist,
-			 &opt->routes[i],
-			 rl))
+	if (!init_route (&r, &netlist, ro, rl))
 	  ret = false;
 	else
 	  {
             struct addrinfo* curele;
+            gc_addspecial(netlist, &gc_freeaddrinfo_callback, &gc);
             for (curele	= netlist; curele; curele = curele->ai_next)
 	      {
-		if (j < rl->capacity)
-		  {
-                    r.network = ntohl(((struct sockaddr_in*)(curele)->ai_addr)->sin_addr.s_addr);
-		    rl->routes[j++] = r;
-		  }
-		else
-		  {
-		    if (!warned)
-		      {
-			msg (M_WARN, PACKAGE_NAME " ROUTE: routes dropped because number of expanded routes is greater than route list capacity (%d)", rl->capacity);
-			warned = true;
-		      }
-		  }
+                struct route_ipv4 *new;
+                ALLOC_OBJ_GC (new, struct route_ipv4, &rl->gc);
+                *new = r;
+                new->network = ntohl (((struct sockaddr_in*)curele->ai_addr)->sin_addr.s_addr);
+                new->next = rl->routes;
+                rl->routes = new;
 	      }
-            freeaddrinfo(netlist);
 	  }
       }
-    rl->n = j;
   }
 
   gc_free (&gc);
@@ -728,22 +751,21 @@ init_route_ipv6_list (struct route_ipv6_list *rl6,
     rl6->remote_endpoint_defined = false;
 
 
-  if (!(opt6->n >= 0 && opt6->n <= rl6->capacity))
-    msg (M_FATAL, PACKAGE_NAME " ROUTE6: (init) number of route options (%d) is greater than route list capacity (%d)", opt6->n, rl6->capacity);
-
-  /* parse the routes from opt to rl6 */
+  /* parse the routes from opt6 to rl6 */
   {
-    int i, j = 0;
-    for (i = 0; i < opt6->n; ++i)
+    struct route_ipv6_option *ro6;
+    for (ro6 = opt6->routes_ipv6; ro6; ro6 = ro6->next)
       {
-	if (!init_route_ipv6 (&rl6->routes_ipv6[j],
-			      &opt6->routes_ipv6[i],
-			      rl6 ))
+        struct route_ipv6 *r6;
+        ALLOC_OBJ_GC (r6, struct route_ipv6, &rl6->gc);
+        if (!init_route_ipv6 (r6, ro6, rl6))
 	  ret = false;
 	else
-	  ++j;
+          {
+            r6->next = rl6->routes_ipv6;
+            rl6->routes_ipv6 = r6;
+          }
       }
-    rl6->n = j;
   }
 
   gc_free (&gc);
@@ -759,7 +781,7 @@ add_route3 (in_addr_t network,
 	    const struct route_gateway_info *rgi,
 	    const struct env_set *es)
 {
-  struct route r;
+  struct route_ipv4 r;
   CLEAR (r);
   r.flags = RT_DEFINED;
   r.network = network;
@@ -777,7 +799,7 @@ del_route3 (in_addr_t network,
 	    const struct route_gateway_info *rgi,
 	    const struct env_set *es)
 {
-  struct route r;
+  struct route_ipv4 r;
   CLEAR (r);
   r.flags = RT_DEFINED|RT_ADDED;
   r.network = network;
@@ -851,6 +873,7 @@ redirect_default_route_to_vpn (struct route_list *rl, const struct tuntap *tt, u
 	}
       else
 	{
+#ifndef TARGET_ANDROID
 	  bool local = BOOL_CAST(rl->flags & RG_LOCAL);
 	  if (rl->flags & RG_AUTO_LOCAL) {
 	    const int tla = rl->spec.remote_host_local;
@@ -883,6 +906,7 @@ redirect_default_route_to_vpn (struct route_list *rl, const struct tuntap *tt, u
 		dmsg (D_ROUTE, "ROUTE remote_host protocol differs from tunneled");
 	      }
 	    }
+#endif
 
 	  /* route DHCP/DNS server traffic through original default gateway */
 	  add_bypass_routes (&rl->spec.bypass, rl->rgi.gateway.addr, tt, flags, &rl->rgi, es);
@@ -1012,10 +1036,10 @@ add_routes (struct route_list *rl, struct route_ipv6_list *rl6, const struct tun
   redirect_default_route_to_vpn (rl, tt, flags, es);
   if ( rl && !(rl->iflags & RL_ROUTES_ADDED) )
     {
-      int i;
+      struct route_ipv4 *r;
 
 #ifdef ENABLE_MANAGEMENT
-      if (management && rl->n)
+      if (management && rl->routes)
 	{
 	  management_set_state (management,
 				OPENVPN_STATE_ADD_ROUTES,
@@ -1024,10 +1048,9 @@ add_routes (struct route_list *rl, struct route_ipv6_list *rl6, const struct tun
 				0);
 	}
 #endif
-      
-      for (i = 0; i < rl->n; ++i)
+
+      for (r = rl->routes; r; r = r->next)
 	{
-	  struct route *r = &rl->routes[i];
 	  check_subnet_conflict (r->network, r->netmask, "route");
 	  if (flags & ROUTE_DELETE_FIRST)
 	    delete_route (r, tt, flags, &rl->rgi, es);
@@ -1037,11 +1060,9 @@ add_routes (struct route_list *rl, struct route_ipv6_list *rl6, const struct tun
     }
   if (rl6 && !rl6->routes_added)
     {
-      int i;
-
-      for (i = 0; i < rl6->n; ++i)
+      struct route_ipv6 *r;
+      for (r = rl6->routes_ipv6; r; r = r->next)
 	{
-	  struct route_ipv6 *r = &rl6->routes_ipv6[i];
 	  if (flags & ROUTE_DELETE_FIRST)
 	    delete_route_ipv6 (r, tt, flags, es);
 	  add_route_ipv6 (r, tt, flags, es);
@@ -1056,10 +1077,9 @@ delete_routes (struct route_list *rl, struct route_ipv6_list *rl6,
 {
   if ( rl && rl->iflags & RL_ROUTES_ADDED )
     {
-      int i;
-      for (i = rl->n - 1; i >= 0; --i)
+      struct route_ipv4 *r;
+      for (r = rl->routes; r; r = r->next)
 	{
-	  struct route * r = &rl->routes[i];
 	  delete_route (r, tt, flags, &rl->rgi, es);
 	}
       rl->iflags &= ~RL_ROUTES_ADDED;
@@ -1074,10 +1094,9 @@ delete_routes (struct route_list *rl, struct route_ipv6_list *rl6,
 
   if ( rl6 && rl6->routes_added )
     {
-      int i;
-      for (i = rl6->n - 1; i >= 0; --i)
+      struct route_ipv6 *r6;
+      for (r6 = rl6->routes_ipv6; r6; r6 = r6->next)
 	{
-	  const struct route_ipv6 *r6 = &rl6->routes_ipv6[i];
 	  delete_route_ipv6 (r6, tt, flags, es);
 	}
       rl6->routes_added = false;
@@ -1089,7 +1108,7 @@ delete_routes (struct route_list *rl, struct route_ipv6_list *rl6,
     }
 }
 
-#ifdef ENABLE_DEBUG
+#ifndef ENABLE_SMALL
 
 static const char *
 show_opt (const char *option)
@@ -1114,12 +1133,12 @@ void
 print_route_options (const struct route_option_list *rol,
 		     int level)
 {
-  int i;
+  struct route_option *ro;
   if (rol->flags & RG_ENABLE)
     msg (level, "  [redirect_default_gateway local=%d]",
 	 (rol->flags & RG_LOCAL) != 0);
-  for (i = 0; i < rol->n; ++i)
-    print_route_option (&rol->routes[i], level);
+  for (ro = rol->routes; ro; ro = ro->next)
+    print_route_option (ro, level);
 }
 
 void
@@ -1153,7 +1172,7 @@ print_default_gateway(const int msglevel, const struct route_gateway_info *rgi)
 #endif
 
 static void
-print_route (const struct route *r, int level)
+print_route (const struct route_ipv4 *r, int level)
 {
   struct gc_arena gc = gc_new ();
   if (r->flags & RT_DEFINED)
@@ -1164,13 +1183,13 @@ print_route (const struct route *r, int level)
 void
 print_routes (const struct route_list *rl, int level)
 {
-  int i;
-  for (i = 0; i < rl->n; ++i)
-    print_route (&rl->routes[i], level);
+  struct route_ipv4 *r;
+  for (r = rl->routes; r; r = r->next)
+    print_route (r, level);
 }
 
 static void
-setenv_route (struct env_set *es, const struct route *r, int i)
+setenv_route (struct env_set *es, const struct route_ipv4 *r, int i)
 {
   struct gc_arena gc = gc_new ();
   if (r->flags & RT_DEFINED)
@@ -1192,9 +1211,10 @@ setenv_route (struct env_set *es, const struct route *r, int i)
 void
 setenv_routes (struct env_set *es, const struct route_list *rl)
 {
-  int i;
-  for (i = 0; i < rl->n; ++i)
-    setenv_route (es, &rl->routes[i], i + 1);
+  int i = 1;
+  struct route_ipv4 *r;
+  for (r = rl->routes; r; r = r->next)
+    setenv_route (es, r, i++);
 }
 
 static void
@@ -1220,9 +1240,10 @@ setenv_route_ipv6 (struct env_set *es, const struct route_ipv6 *r6, int i)
 void
 setenv_routes_ipv6 (struct env_set *es, const struct route_ipv6_list *rl6)
 {
-  int i;
-  for (i = 0; i < rl6->n; ++i)
-    setenv_route_ipv6 (es, &rl6->routes_ipv6[i], i + 1);
+  int i = 1;
+  struct route_ipv6 *r6;
+  for (r6 = rl6->routes_ipv6; r6; r6 = r6->next)
+    setenv_route_ipv6 (es, r6, i++);
 }
 
 /*
@@ -1287,7 +1308,7 @@ is_on_link (const int is_local_route, const unsigned int flags, const struct rou
 }
 
 void
-add_route (struct route *r,
+add_route (struct route_ipv4 *r,
 	   const struct tuntap *tt,
 	   unsigned int flags,
 	   const struct route_gateway_info *rgi, /* may be NULL */
@@ -1343,15 +1364,13 @@ add_route (struct route *r,
   status = openvpn_execve_check (&argv, es, 0, "ERROR: Linux route add command failed");
 
 #elif defined (TARGET_ANDROID)
+  struct buffer out = alloc_buf_gc (128, &gc);
 
-    struct user_pass up;    
-    struct buffer out = alloc_buf_gc (64, &gc);
-
-    buf_printf (&out, "%s %s", network, netmask);
-
-    strcpy(up.username, buf_bptr(&out));
-    management_query_user_pass(management, &up , "ROUTE", GET_USER_PASS_NEED_OK,(void*) 0);
-
+  if (rgi)
+    buf_printf (&out, "%s %s %s dev %s", network, netmask, gateway, rgi->iface);
+  else
+    buf_printf (&out, "%s %s %s", network, netmask, gateway);
+  management_android_control (management, "ROUTE", buf_bptr(&out));
 
 #elif defined (WIN32)
   {
@@ -1408,17 +1427,20 @@ add_route (struct route *r,
   argv_printf (&argv, "%s add",
 		ROUTE_PATH);
 
-#if 0
-  if (r->flags & RT_METRIC_DEFINED)
-    argv_printf_cat (&argv, "-rtt %d", r->metric);
-#endif
-
   argv_printf_cat (&argv, "%s -netmask %s %s",
 	      network,
 	      netmask,
 	      gateway);
 
-  /* FIXME -- add on-link support for Solaris */
+  /* Solaris can only distinguish between "metric 0" == "on-link on the
+   * interface where the IP address given is configured" and "metric > 0"
+   * == "use gateway specified" (no finer-grained route metrics available)
+   *
+   * More recent versions of Solaris can also do "-interface", but that
+   * would break backwards compatibility with older versions for no gain.
+   */
+  if (r->flags & RT_METRIC_DEFINED )
+    argv_printf_cat (&argv, "%d", r->metric);
 
   argv_msg (D_ROUTE, &argv);
   status = openvpn_execve_check (&argv, es, 0, "ERROR: Solaris route add command failed");
@@ -1625,13 +1647,11 @@ add_route_ipv6 (struct route_ipv6 *r6, const struct tuntap *tt, unsigned int fla
   status = openvpn_execve_check (&argv, es, 0, "ERROR: Linux route -6/-A inet6 add command failed");
 
 #elif defined (TARGET_ANDROID)
-    struct user_pass up;    
     struct buffer out = alloc_buf_gc (64, &gc);
-    
-    buf_printf (&out, "%s/%d", network, r6->netbits);
-    
-    strcpy(up.username, buf_bptr(&out));
-    management_query_user_pass(management, &up , "ROUTE6", GET_USER_PASS_NEED_OK,(void*) 0);
+
+    buf_printf (&out, "%s/%d %s", network, r6->netbits, device);
+
+    management_android_control (management, "ROUTE6", buf_bptr(&out));
 
 #elif defined (WIN32)
 
@@ -1744,7 +1764,7 @@ add_route_ipv6 (struct route_ipv6 *r6, const struct tuntap *tt, unsigned int fla
 }
 
 static void
-delete_route (struct route *r,
+delete_route (struct route_ipv4 *r,
 	      const struct tuntap *tt,
 	      unsigned int flags,
 	      const struct route_gateway_info *rgi,
@@ -1991,10 +2011,16 @@ delete_route_ipv6 (const struct route_ipv6 *r6, const struct tuntap *tt, unsigne
     argv_printf_cat (&argv, "METRIC %d", r->metric);
 #endif
 
+  /* Windows XP to 7 "just delete" routes, wherever they came from, but
+   * in Windows 8(.1?), if you create them with "store=active", this is
+   * how you should delete them as well (pointed out by Cedric Tabary)
+   */
+  argv_printf_cat( &argv, " store=active" );
+
   argv_msg (D_ROUTE, &argv);
 
   netcmd_semaphore_lock ();
-  openvpn_execve_check (&argv, es, 0, "ERROR: Windows route add ipv6 command failed");
+  openvpn_execve_check (&argv, es, 0, "ERROR: Windows route delete ipv6 command failed");
   netcmd_semaphore_release ();
 
 #elif defined (TARGET_SOLARIS)
@@ -2140,6 +2166,7 @@ test_routes (const struct route_list *rl, const struct tuntap *tt)
   int count = 0;
   int good = 0;
   int ambig = 0;
+  int len = -1;
   bool adapter_up = false;
 
   if (is_adapter_up (tt, adapters))
@@ -2149,9 +2176,9 @@ test_routes (const struct route_list *rl, const struct tuntap *tt)
 
       if (rl)
 	{
-	  int i;
-	  for (i = 0; i < rl->n; ++i)
-	    test_route_helper (&ret, &count, &good, &ambig, adapters, rl->routes[i].gateway);
+	  struct route_ipv4 *r;
+	  for (r = rl->routes, len = 0; r; r = r->next, ++len)
+	    test_route_helper (&ret, &count, &good, &ambig, adapters, r->gateway);
 
 	  if ((rl->flags & RG_ENABLE) && (rl->spec.flags & RTSA_REMOTE_ENDPOINT))
 	    test_route_helper (&ret, &count, &good, &ambig, adapters, rl->spec.remote_endpoint);
@@ -2161,7 +2188,7 @@ test_routes (const struct route_list *rl, const struct tuntap *tt)
   msg (D_ROUTE, "TEST ROUTES: %d/%d succeeded len=%d ret=%d a=%d u/d=%s",
        good,
        count,
-       rl ? rl->n : -1,
+       len,
        (int)ret,
        ambig,
        adapter_up ? "up" : "down");
@@ -2249,7 +2276,7 @@ get_default_gateway (struct route_gateway_info *rgi)
 }
 
 static DWORD
-windows_route_find_if_index (const struct route *r, const struct tuntap *tt)
+windows_route_find_if_index (const struct route_ipv4 *r, const struct tuntap *tt)
 {
   struct gc_arena gc = gc_new ();
   DWORD ret = TUN_ADAPTER_INDEX_INVALID;
@@ -2294,7 +2321,7 @@ windows_route_find_if_index (const struct route *r, const struct tuntap *tt)
 }
 
 bool
-add_route_ipapi (const struct route *r, const struct tuntap *tt, DWORD adapter_index)
+add_route_ipapi (const struct route_ipv4 *r, const struct tuntap *tt, DWORD adapter_index)
 {
   struct gc_arena gc = gc_new ();
   bool ret = false;
@@ -2368,7 +2395,7 @@ add_route_ipapi (const struct route *r, const struct tuntap *tt, DWORD adapter_i
 }
 
 bool
-del_route_ipapi (const struct route *r, const struct tuntap *tt)
+del_route_ipapi (const struct route_ipv4 *r, const struct tuntap *tt)
 {
   struct gc_arena gc = gc_new ();
   bool ret = false;
@@ -2609,164 +2636,9 @@ get_default_gateway (struct route_gateway_info *rgi)
   gc_free (&gc);
 }
 
-#elif defined(TARGET_FREEBSD)||defined(TARGET_DRAGONFLY)
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
-/* all of this is taken from <net/route.h> in FreeBSD */
-#define RTA_DST     0x1
-#define RTA_GATEWAY 0x2
-#define RTA_NETMASK 0x4
-
-#define RTM_GET     0x4
-#define RTM_VERSION 5
-
-#define RTF_UP      0x1
-#define RTF_GATEWAY 0x2
-
-/*
- * These numbers are used by reliable protocols for determining
- * retransmission behavior and are included in the routing structure.
- */
-struct rt_metrics {
-        u_long  rmx_locks;      /* Kernel must leave these values alone */
-        u_long  rmx_mtu;        /* MTU for this path */
-        u_long  rmx_hopcount;   /* max hops expected */
-        u_long  rmx_expire;     /* lifetime for route, e.g. redirect */
-        u_long  rmx_recvpipe;   /* inbound delay-bandwidth product */
-        u_long  rmx_sendpipe;   /* outbound delay-bandwidth product */
-        u_long  rmx_ssthresh;   /* outbound gateway buffer limit */
-        u_long  rmx_rtt;        /* estimated round trip time */
-        u_long  rmx_rttvar;     /* estimated rtt variance */
-        u_long  rmx_pksent;     /* packets sent using this route */
-        u_long  rmx_filler[4];  /* will be used for T/TCP later */
-};
-
-/*
- * Structures for routing messages.
- */
-struct rt_msghdr {
-        u_short rtm_msglen;     /* to skip over non-understood messages */
-        u_char  rtm_version;    /* future binary compatibility */
-        u_char  rtm_type;       /* message type */
-        u_short rtm_index;      /* index for associated ifp */
-        int     rtm_flags;      /* flags, incl. kern & message, e.g. DONE */
-        int     rtm_addrs;      /* bitmask identifying sockaddrs in msg */
-        pid_t   rtm_pid;        /* identify sender */
-        int     rtm_seq;        /* for sender to identify action */
-        int     rtm_errno;      /* why failed */
-        int     rtm_use;        /* from rtentry */
-        u_long  rtm_inits;      /* which metrics we are initializing */
-        struct  rt_metrics rtm_rmx; /* metrics themselves */
-};
-
-struct {
-  struct rt_msghdr m_rtm;
-  char       m_space[512];
-} m_rtmsg;
-
-#define ROUNDUP(a) \
-        ((a) > 0 ? (1 + (((a) - 1) | (sizeof(long) - 1))) : sizeof(long))
-
-/*
- * FIXME -- add support for netmask, hwaddr, and iface
- */
-void
-get_default_gateway (struct route_gateway_info *rgi)
-{
-  struct gc_arena gc = gc_new ();
-  int s, seq, l, pid, rtm_addrs, i;
-  struct sockaddr so_dst, so_mask;
-  char *cp = m_rtmsg.m_space; 
-  struct sockaddr *gate = NULL, *sa;
-  struct  rt_msghdr *rtm_aux;
-
-#define NEXTADDR(w, u) \
-        if (rtm_addrs & (w)) {\
-            l = ROUNDUP(u.sa_len); memmove(cp, &(u), l); cp += l;\
-        }
-
-#define ADVANCE(x, n) (x += ROUNDUP((n)->sa_len))
-
-#define rtm m_rtmsg.m_rtm
-
-  CLEAR(*rgi);
-
-  pid = getpid();
-  seq = 0;
-  rtm_addrs = RTA_DST | RTA_NETMASK;
-
-  bzero(&so_dst, sizeof(so_dst));
-  bzero(&so_mask, sizeof(so_mask));
-  bzero(&rtm, sizeof(struct rt_msghdr));
-
-  rtm.rtm_type = RTM_GET;
-  rtm.rtm_flags = RTF_UP | RTF_GATEWAY;
-  rtm.rtm_version = RTM_VERSION;
-  rtm.rtm_seq = ++seq;
-  rtm.rtm_addrs = rtm_addrs; 
-
-  so_dst.sa_family = AF_INET;
-  so_dst.sa_len = sizeof(struct sockaddr_in);
-  so_mask.sa_family = AF_INET;
-  so_mask.sa_len = sizeof(struct sockaddr_in);
-
-  NEXTADDR(RTA_DST, so_dst);
-  NEXTADDR(RTA_NETMASK, so_mask);
-
-  rtm.rtm_msglen = l = cp - (char *)&m_rtmsg;
-
-  s = socket(PF_ROUTE, SOCK_RAW, 0);
-
-  if (write(s, (char *)&m_rtmsg, l) < 0)
-    {
-      msg(M_WARN|M_ERRNO, "Could not retrieve default gateway from route socket:");
-      gc_free (&gc);
-      close(s);
-      return;
-    }
-
-  do {
-    l = read(s, (char *)&m_rtmsg, sizeof(m_rtmsg));
-  } while (l > 0 && (rtm.rtm_seq != seq || rtm.rtm_pid != pid));
-                        
-  close(s);
-
-  rtm_aux = &rtm;
-
-  cp = ((char *)(rtm_aux + 1));
-  if (rtm_aux->rtm_addrs) {
-    for (i = 1; i; i <<= 1)
-      if (i & rtm_aux->rtm_addrs) {
-	sa = (struct sockaddr *)cp;
-	if (i == RTA_GATEWAY )
-	  gate = sa;
-	ADVANCE(cp, sa);
-      }
-  }
-  else
-    {
-      gc_free (&gc);
-      return;
-    }
-
-
-  if (gate != NULL )
-    {
-      rgi->gateway.addr = ntohl(((struct sockaddr_in *)gate)->sin_addr.s_addr);
-      rgi->flags |= RGI_ADDR_DEFINED;
-
-      gc_free (&gc);
-    }
-  else
-    {
-      gc_free (&gc);
-    }
-}
-
-#elif defined(TARGET_DARWIN)
+#elif defined(TARGET_DARWIN) || \
+	defined(TARGET_FREEBSD) || defined(TARGET_DRAGONFLY) || \
+	defined(TARGET_OPENBSD) || defined(TARGET_NETBSD)
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -2779,8 +2651,25 @@ struct rtmsg {
   char       m_space[512];
 };
 
-#define ROUNDUP(a) \
+/* the route socket code is identical for all 4 supported BSDs and for
+ * MacOS X (Darwin), with one crucial difference: when going from
+ * 32 bit to 64 bit, the BSDs increased the structure size but kept
+ * source code compatibility by keeping the use of "long", while
+ * MacOS X decided to keep binary compatibility by *changing* the API
+ * to use "uint32_t", thus 32 bit on all OS X variants
+ *
+ * We used to have a large amount of duplicate code here which really
+ * differed only in this (long) vs. (uint32_t) - IMHO, worse than
+ * having a combined block for all BSDs with this single #ifdef inside
+ */
+
+#if defined(TARGET_DARWIN)
+# define ROUNDUP(a) \
         ((a) > 0 ? (1 + (((a) - 1) | (sizeof(uint32_t) - 1))) : sizeof(uint32_t))
+#else
+# define ROUNDUP(a) \
+        ((a) > 0 ? (1 + (((a) - 1) | (sizeof(long) - 1))) : sizeof(long))
+#endif
 
 #define NEXTADDR(w, u) \
         if (rtm_addrs & (w)) {\
@@ -2884,7 +2773,6 @@ get_default_gateway (struct route_gateway_info *rgi)
 	{
 	  /* get interface name */
 	  const struct sockaddr_dl *adl = (struct sockaddr_dl *) ifp;
-	  int len = adl->sdl_nlen;
 	  if (adl->sdl_nlen && adl->sdl_nlen < sizeof(rgi->iface))
 	    {
 	      memcpy (rgi->iface, adl->sdl_data, adl->sdl_nlen);
@@ -2974,163 +2862,6 @@ get_default_gateway (struct route_gateway_info *rgi)
 }
 
 #undef max
-
-#elif defined(TARGET_OPENBSD) || defined(TARGET_NETBSD)
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
-/* all of this is taken from <net/route.h> in OpenBSD 3.6 */
-#define RTA_DST		0x1	/* destination sockaddr present */
-#define RTA_GATEWAY	0x2	/* gateway sockaddr present */
-#define RTA_NETMASK	0x4	/* netmask sockaddr present */
-
-#define RTM_GET		0x4	/* Report Metrics */
-
-#define RTM_VERSION	3	/* Up the ante and ignore older versions */
-
-#define	RTF_UP		0x1		/* route usable */
-#define	RTF_GATEWAY	0x2		/* destination is a gateway */
-
-/*
- * Huge version for userland compatibility.
- */
-struct rt_metrics {
-	u_long	rmx_locks;	/* Kernel must leave these values alone */
-	u_long	rmx_mtu;	/* MTU for this path */
-	u_long	rmx_hopcount;	/* max hops expected */
-	u_long	rmx_expire;	/* lifetime for route, e.g. redirect */
-	u_long	rmx_recvpipe;	/* inbound delay-bandwidth product */
-	u_long	rmx_sendpipe;	/* outbound delay-bandwidth product */
-	u_long	rmx_ssthresh;	/* outbound gateway buffer limit */
-	u_long	rmx_rtt;	/* estimated round trip time */
-	u_long	rmx_rttvar;	/* estimated rtt variance */
-	u_long	rmx_pksent;	/* packets sent using this route */
-};
-
-/*
- * Structures for routing messages.
- */
-struct rt_msghdr {
-	u_short	rtm_msglen;	/* to skip over non-understood messages */
-	u_char	rtm_version;	/* future binary compatibility */
-	u_char	rtm_type;	/* message type */
-	u_short	rtm_index;	/* index for associated ifp */
-	int	rtm_flags;	/* flags, incl. kern & message, e.g. DONE */
-	int	rtm_addrs;	/* bitmask identifying sockaddrs in msg */
-	pid_t	rtm_pid;	/* identify sender */
-	int	rtm_seq;	/* for sender to identify action */
-	int	rtm_errno;	/* why failed */
-	int	rtm_use;	/* from rtentry */
-	u_long	rtm_inits;	/* which metrics we are initializing */
-	struct	rt_metrics rtm_rmx; /* metrics themselves */
-};
-
-struct {
-  struct rt_msghdr m_rtm;
-  char       m_space[512];
-} m_rtmsg;
-
-#define ROUNDUP(a) \
-        ((a) > 0 ? (1 + (((a) - 1) | (sizeof(long) - 1))) : sizeof(long))
-
-/*
- * FIXME -- add support for netmask, hwaddr, and iface
- */
-void
-get_default_gateway (struct route_gateway_info *rgi)
-{
-  struct gc_arena gc = gc_new ();
-  int s, seq, l, rtm_addrs, i;
-  pid_t pid;
-  struct sockaddr so_dst, so_mask;
-  char *cp = m_rtmsg.m_space; 
-  struct sockaddr *gate = NULL, *sa;
-  struct  rt_msghdr *rtm_aux;
-
-#define NEXTADDR(w, u) \
-        if (rtm_addrs & (w)) {\
-            l = ROUNDUP(u.sa_len); memmove(cp, &(u), l); cp += l;\
-        }
-
-#define ADVANCE(x, n) (x += ROUNDUP((n)->sa_len))
-
-#define rtm m_rtmsg.m_rtm
-
-  CLEAR(*rgi);
-
-  pid = getpid();
-  seq = 0;
-  rtm_addrs = RTA_DST | RTA_NETMASK;
-
-  bzero(&so_dst, sizeof(so_dst));
-  bzero(&so_mask, sizeof(so_mask));
-  bzero(&rtm, sizeof(struct rt_msghdr));
-
-  rtm.rtm_type = RTM_GET;
-  rtm.rtm_flags = RTF_UP | RTF_GATEWAY;
-  rtm.rtm_version = RTM_VERSION;
-  rtm.rtm_seq = ++seq;
-  rtm.rtm_addrs = rtm_addrs; 
-
-  so_dst.sa_family = AF_INET;
-  so_dst.sa_len = sizeof(struct sockaddr_in);
-  so_mask.sa_family = AF_INET;
-  so_mask.sa_len = sizeof(struct sockaddr_in);
-
-  NEXTADDR(RTA_DST, so_dst);
-  NEXTADDR(RTA_NETMASK, so_mask);
-
-  rtm.rtm_msglen = l = cp - (char *)&m_rtmsg;
-
-  s = socket(PF_ROUTE, SOCK_RAW, 0);
-
-  if (write(s, (char *)&m_rtmsg, l) < 0)
-    {
-      msg(M_WARN|M_ERRNO, "Could not retrieve default gateway from route socket:");
-      gc_free (&gc);
-      close(s);
-      return;
-    }
-
-  do {
-    l = read(s, (char *)&m_rtmsg, sizeof(m_rtmsg));
-  } while (l > 0 && (rtm.rtm_seq != seq || rtm.rtm_pid != pid));
-                        
-  close(s);
-
-  rtm_aux = &rtm;
-
-  cp = ((char *)(rtm_aux + 1));
-  if (rtm_aux->rtm_addrs) {
-    for (i = 1; i; i <<= 1)
-      if (i & rtm_aux->rtm_addrs) {
-	sa = (struct sockaddr *)cp;
-	if (i == RTA_GATEWAY )
-	  gate = sa;
-	ADVANCE(cp, sa);
-      }
-  }
-  else
-    {
-      gc_free (&gc);
-      return;
-    }
-
-
-  if (gate != NULL )
-    {
-      rgi->gateway.addr = ntohl(((struct sockaddr_in *)gate)->sin_addr.s_addr);
-      rgi->flags |= RGI_ADDR_DEFINED;
-
-      gc_free (&gc);
-    }
-  else
-    {
-      gc_free (&gc);
-    }
-}
 
 #else
 

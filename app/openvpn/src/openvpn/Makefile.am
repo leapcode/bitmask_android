@@ -18,7 +18,7 @@ EXTRA_DIST = \
 	openvpn.vcxproj \
 	openvpn.vcxproj.filters
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/src/compat
 
@@ -26,6 +26,8 @@ AM_CFLAGS = \
 	$(TAP_CFLAGS) \
 	$(OPTIONAL_CRYPTO_CFLAGS) \
 	$(OPTIONAL_LZO_CFLAGS) \
+	$(OPTIONAL_SNAPPY_CFLAGS) \
+	$(OPTIONAL_LZ4_CFLAGS) \
 	$(OPTIONAL_PKCS11_HELPER_CFLAGS)
 if WIN32
 # we want unicode entry point but not the macro
@@ -41,6 +43,8 @@ openvpn_SOURCES = \
 	circ_list.h \
 	clinat.c clinat.h \
 	common.h \
+	comp.c comp.h compstub.c \
+	comp-lz4.c comp-lz4.h \
 	crypto.c crypto.h crypto_backend.h \
 	crypto_openssl.c crypto_openssl.h \
 	crypto_polarssl.c crypto_polarssl.h \
@@ -98,6 +102,7 @@ openvpn_SOURCES = \
 	session_id.c session_id.h \
 	shaper.c shaper.h \
 	sig.c sig.h \
+	snappy.c snappy.h \
 	socket.c socket.h \
 	socks.c socks.h \
 	ssl.c ssl.h  ssl_backend.h \
@@ -116,6 +121,8 @@ openvpn_LDADD = \
 	$(top_builddir)/src/compat/libcompat.la \
 	$(SOCKETS_LIBS) \
 	$(OPTIONAL_LZO_LIBS) \
+	$(OPTIONAL_SNAPPY_LIBS) \
+	$(OPTIONAL_LZ4_LIBS) \
 	$(OPTIONAL_PKCS11_HELPER_LIBS) \
 	$(OPTIONAL_CRYPTO_LIBS) \
 	$(OPTIONAL_SELINUX_LIBS) \

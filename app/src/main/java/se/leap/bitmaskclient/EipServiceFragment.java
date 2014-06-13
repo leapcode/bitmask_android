@@ -1,9 +1,10 @@
 package se.leap.bitmaskclient;
 
 import se.leap.bitmaskclient.R;
-import se.leap.openvpn.LogWindow;
-import se.leap.openvpn.OpenVPN;
-import se.leap.openvpn.OpenVPN.StateListener;
+import de.blinkt.openvpn.activities.LogWindow;
+import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
+import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -94,7 +95,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	public void onResume() {
 		super.onResume();
 
-		OpenVPN.addStateListener(this);
+		VpnStatus.addStateListener(this);
 		if(set_switch_off) {
 		    eipSwitch.setChecked(false);
 		    set_switch_off = false;
@@ -109,7 +110,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	public void onPause() {
 		super.onPause();
 
-		OpenVPN.removeStateListener(this);
+		VpnStatus.removeStateListener(this);
 	}
     
 	@Override
@@ -203,7 +204,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	}
 	
 	@Override
-	public void updateState(final String state, final String logmessage, final int localizedResId) {
+	public void updateState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
 		// Note: "states" are not organized anywhere...collected state strings:
 		//		NOPROCESS,NONETWORK,BYTECOUNT,AUTH_FAILED + some parsing thing ( WAIT(?),AUTH,GET_CONFIG,ASSIGN_IP,CONNECTED,SIGINT )
 		getActivity().runOnUiThread(new Runnable() {
@@ -214,26 +215,19 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					boolean switchState = true;
 					String statusMessage = "";
 					String prefix = getString(localizedResId);
-					if (state.equals("CONNECTED")){
-
+					if (level == ConnectionStatus.LEVEL_CONNECTED){
 						statusMessage = getString(R.string.eip_state_connected);
 						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
-					} else if (state.equals("BYTECOUNT")) {
-					statusMessage = getString(R.string.eip_state_connected); getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
-                                                mEipStartPending = false;
-						
-					} else if ( (state.equals("NOPROCESS") && !mEipStartPending ) || state.equals("EXITING") && !mEipStartPending || state.equals("FATAL")) {
+					} else if ( level == ConnectionStatus.LEVEL_NONETWORK || level == ConnectionStatus.LEVEL_NOTCONNECTED || level == ConnectionStatus.LEVEL_AUTH_FAILED) {
 						statusMessage = getString(R.string.eip_state_not_connected);
 						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
 						switchState = false;
-					} else if (state.equals("NOPROCESS")){
-						statusMessage = logmessage;
-					} else if (state.equals("ASSIGN_IP")){ //don't show assigning message in eipStatus
-						statusMessage = (String) eipStatus.getText();
-					}
-					else {
+					} else if (level == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED) {
+					    if(state.equals("AUTH") || state.equals("GET_CONFIG"))
+						statusMessage = prefix + " " + logmessage;
+					} else if (level == ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET) {
 						statusMessage = prefix + " " + logmessage;
 					}
 					
@@ -278,6 +272,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 				switch (resultCode){
 				case Activity.RESULT_OK:
 					checked = true;
+					eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
 					break;
 				case Activity.RESULT_CANCELED:
 					checked = false;

@@ -1,52 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="repository_url_text">取得原始碼與個案追蹤，可上 https://github.com/leapcode/bitmask_android/</string>
-  <string name="copyright_others">本程序使用了以下元件，其作者和授權資訊如下</string>
-  <string name="about">關於</string>
-  <string name="no_error_found">未有找到錯誤</string>
-  <string name="config_error_found">設定中含有錯誤</string>
-  <string name="ipv4_format_error">解析IPv4地址時發生錯誤</string>
-  <string name="custom_route_format_error">解析自訂路由時發生錯誤</string>
-  <string name="vpn_launch_title">連接到VPN</string>
-  <string name="shortcut_profile_notfound">在快捷方式找不到指定的設定檔</string>
-  <string name="route_rejected">路由被Android拒絕</string>
-  <string name="cancel_connection">斷線</string>
-  <string name="clear_log">清除記錄檔</string>
-  <string name="title_cancel">確認取消</string>
-  <string name="edit_vpn">編輯VPN設定</string>
-  <string name="tun_error_helpful">一些自訂的Android4.0 ROM存在/dev/tun的擁有者權限問題，甚至完全沒有Tun模組。CM9用家請嘗試於\"全域設置\"下修正Tun擁有者。</string>
-  <string name="tun_open_error">無法開啟Tun網絡介面</string>
-  <string name="error">"錯誤: "</string>
-  <string name="clear">清除</string>
-  <string name="info">資訊</string>
   <string name="show_connection_details">顯示連線的詳細資訊</string>
-  <string name="local_ip_info">本地IPv4: %1$s/%2$d IPv6: %3$s MTU: %4$d</string>
-  <string name="dns_server_info">DNS伺服器: %s</string>
   <string name="dns_domain_info">DNS網域: %s</string>
   <string name="routes_info">路徑: %s</string>
   <string name="routes_info6">IPv6路由: %s</string>
-  <string name="version_info">%1$s %2$s</string>
-  <string name="send_logfile">分享記錄檔</string>
-  <string name="send">分享</string>
-  <string name="bitmask_openvpn_log_file">LEAP Android 記錄檔</string>
-  <string name="copied_entry">已將記錄複製到剪貼簿</string>
-  <string name="no_vpn_support_image">你的Android ROM不支援VPN服務API，抱歉了。 :(</string>
-  <string name="speed_waiting">等待狀態訊息...</string>
-  <string name="error_empty_username">使用者名稱不能為空。</string>
-  <string name="pkcs12_file_encryption_key">PKCS12檔加密金鑰</string>
-  <string name="private_key_password">私密金鑰密碼</string>
-  <string name="password">密碼</string>
-  <string name="building_configration">正在生成設定檔…</string>
-  <string name="netstatus">網絡狀態: %s</string>
-  <string name="mobile_info">於 %1$s (%2$s) %3$s 上運行, Android API 版本: %4$d</string>
-  <string name="translationby">繁體中文 由 羊羊@自由網絡研究中心 &lt;sora8964@gmail.com&gt; 翻譯</string>
-  <string name="warn_no_dns">沒有任何DNS伺服器可用，可能無法進行網域名稱解析。請考慮設置自訂的DNS伺服器</string>
-  <string name="getproxy_error">取得代理伺服器資訊時發生錯誤: %s</string>
-  <string name="using_proxy">使用代理伺服器 %1$s %2$d</string>
-  <string name="ignore">忽略</string>
-  <string name="restart">重置</string>
-  <string name="restart_vpn_after_change">配置變更只會在重新啟動VPN時才生效，現在要(重新)啟動VPN嗎？</string>
-  <string name="configuration_changed">設定已變更</string>
-
-  <string name="minidump_generated">OpenVPN非預期地崩潰，你或者會考慮在主選單下傳送Minidump給開發人員。</string>
 </resources>

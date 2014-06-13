@@ -3,15 +3,31 @@ LOCAL_PATH:= $(call my-dir)/
 include $(CLEAR_VARS)
 
 LOCAL_LDLIBS := -lz 
-LOCAL_C_INCLUDES := openssl/include lzo/include openssl/crypto openssl openvpn/src/compat openvpn/src/openvpn openvpn/include
+LOCAL_C_INCLUDES := openssl/include lzo/include openssl/crypto openssl openvpn/src/compat openvpn/src/openvpn openvpn/include google-breakpad/src google-breakpad/src/common/android/include polarssl/include snappy
 
-LOCAL_SHARED_LIBRARIES :=  libssl libcrypto 
-#LOCAL_STATIC_LIBRARIES :=  libssl_static libcrypto_static  liblzo-static
+
+
 
 LOCAL_CFLAGS= -DHAVE_CONFIG_H -DTARGET_ABI=\"${TARGET_ABI}\"
-LOCAL_STATIC_LIBRARIES :=  liblzo-static
+LOCAL_STATIC_LIBRARIES :=  liblzo-static snappy-static
+
+ifeq ($(WITH_POLAR),1)
+LOCAL_STATIC_LIBRARIES +=  polarssl-static
+LOCAL_CFLAGS += -DENABLE_CRYPTO_POLARSSL=1
+else
+#LOCAL_SHARED_LIBRARIES :=  libssl libcrypto 
+LOCAL_STATIC_LIBRARIES +=  libssl_static libcrypto_static  
+LOCAL_CFLAGS += -DENABLE_CRYPTO_OPENSSL=1
+endif
+
+ifeq ($(WITH_BREAKPAD),1)
+LOCAL_STATIC_LIBRARIES += breakpad_client
+LOCAL_CFLAGS += -DGOOGLE_BREAKPAD=1
+endif
 
 LOCAL_MODULE = openvpn
+
+
 
 LOCAL_SRC_FILES:= \
 	src/compat/compat-basename.c \
@@ -20,13 +36,14 @@ LOCAL_SRC_FILES:= \
 	src/compat/compat-gettimeofday.c \
 	src/compat/compat-inet_ntop.c \
 	src/compat/compat-inet_pton.c \
-	src/compat/compat-rsa_generate_key.c \
+	src/compat/compat-lz4.c \
 	src/openvpn/base64.c \
 	src/openvpn/buffer.c \
 	src/openvpn/clinat.c \
 	src/openvpn/console.c \
 	src/openvpn/crypto.c \
 	src/openvpn/crypto_openssl.c \
+	src/openvpn/crypto_polarssl.c \
 	src/openvpn/cryptoapi.c \
 	src/openvpn/dhcp.c \
 	src/openvpn/error.c \
@@ -80,11 +97,22 @@ LOCAL_SRC_FILES:= \
 	src/openvpn/socks.c \
 	src/openvpn/ssl.c \
 	src/openvpn/ssl_openssl.c \
+	src/openvpn/ssl_polarssl.c \
 	src/openvpn/ssl_verify.c \
 	src/openvpn/ssl_verify_openssl.c \
 	src/openvpn/ssl_verify_polarssl.c \
 	src/openvpn/status.c \
-	src/openvpn/tun.c  
+	src/openvpn/tun.c \
+	src/openvpn/snappy.c \
+	src/openvpn/comp-lz4.c \
+	src/openvpn/comp.c \
+	src/openvpn/compstub.c \
+
+
+ifeq ($(WITH_BREAKPAD),1)
+LOCAL_SRC_FILES+=src/openvpn/breakpad.cpp
+endif
+
 
 include $(BUILD_SHARED_LIBRARY)
 #include $(BUILD_EXECUTABLE)

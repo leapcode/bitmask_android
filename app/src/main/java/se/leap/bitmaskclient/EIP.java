@@ -31,14 +31,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import se.leap.bitmaskclient.R;
-import se.leap.openvpn.ConfigParser;
-import se.leap.openvpn.ConfigParser.ConfigParseError;
-import se.leap.openvpn.LaunchVPN;
-import se.leap.openvpn.OpenVpnManagementThread;
-import se.leap.openvpn.OpenVpnService;
-import se.leap.openvpn.OpenVpnService.LocalBinder;
-import se.leap.openvpn.ProfileManager;
-import se.leap.openvpn.VpnProfile;
+import de.blinkt.openvpn.activities.DisconnectVPN;
+import de.blinkt.openvpn.core.ConfigParser;
+import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
+import de.blinkt.openvpn.LaunchVPN;
+import de.blinkt.openvpn.core.OpenVpnManagementThread;
+import de.blinkt.openvpn.core.OpenVpnService;
+import de.blinkt.openvpn.core.OpenVpnService.LocalBinder;
+import de.blinkt.openvpn.core.ProfileManager;
+import de.blinkt.openvpn.VpnProfile;
 import android.app.Activity;
 import android.app.IntentService;
 import android.content.ComponentName;
@@ -56,7 +57,7 @@ import android.util.Log;
  * Internet Proxy connection.  Connections are started, stopped, and queried through
  * this IntentService.
  * Contains logic for parsing eip-service.json from the provider, configuring and selecting
- * gateways, and controlling {@link .openvpn.OpenVpnService} connections.
+ * gateways, and controlling {@link de.blinkt.openvpn.core.OpenVpnService} connections.
  * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  */
@@ -68,6 +69,7 @@ public final class EIP extends IntentService {
 	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.bitmaskclient.UPDATE_EIP_SERVICE";
 	public final static String ACTION_IS_EIP_RUNNING = "se.leap.bitmaskclient.IS_RUNNING";
 	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
+    	public final static String STATUS = "eip status";
 	public final static String ALLOWED_ANON = "allow_anonymous";
 	public final static String CERTIFICATE = "cert";
 	public final static String PRIVATE_KEY = "private_key";
@@ -136,7 +138,7 @@ public final class EIP extends IntentService {
 	 */
 	private boolean retreiveVpnService() {
 		Intent bindIntent = new Intent(this,OpenVpnService.class);
-		bindIntent.setAction(OpenVpnService.RETRIEVE_SERVICE);
+		bindIntent.setAction(OpenVpnService.START_SERVICE);
 		return bindService(bindIntent, mVpnServiceConn, BIND_AUTO_CREATE);
 	}
 	
@@ -200,8 +202,9 @@ public final class EIP extends IntentService {
           Bundle resultData = new Bundle();
           resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
           int resultCode = Activity.RESULT_CANCELED;
+	  boolean is_connected = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").equalsIgnoreCase("LEVEL_CONNECTED");
           if (mBound) {
-                  resultCode = (mVpnService.isRunning()) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+                  resultCode = (is_connected) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
                   
                   if (mReceiver != null){
                           mReceiver.send(resultCode, resultData);
@@ -215,12 +218,7 @@ public final class EIP extends IntentService {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-                 boolean running = false;
-                 try {
-                	running = mVpnService.isRunning();
-                 } catch (NullPointerException e){
-                	 e.printStackTrace();
-                 }
+                 boolean running = is_connected;
                  
                  if (retrieved_vpn_service && running && mReceiver != null){
                 	  mReceiver.send(Activity.RESULT_OK, resultData);
@@ -243,6 +241,7 @@ public final class EIP extends IntentService {
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.putExtra(LaunchVPN.EXTRA_KEY, activeGateway.mVpnProfile.getUUID().toString() );
 		intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.mVpnProfile.getName() );
+		intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
 		intent.putExtra(RECEIVER_TAG, mReceiver);
 		startActivity(intent);
 		mPending = ACTION_START_EIP;
@@ -255,8 +254,11 @@ public final class EIP extends IntentService {
 	private void stopEIP() {
 		if (mBound)
 			mVpnService.onRevoke();
-		else
-			OpenVpnManagementThread.stopOpenVPN();
+		else if(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").startsWith("LEVEL_CONNECT")){
+		    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
+		    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		    startActivity(disconnect_vpn);
+		}
 			
 		if (mReceiver != null){
 			Bundle resultData = new Bundle();
@@ -536,7 +538,10 @@ public final class EIP extends IntentService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
+            // We are always client, because the ifconfig will be received by a needed command
+            options.put("client", null);
+
 			try {
 				arg.add(remote);
 				arg.add(mGateway.getString(remote));
@@ -551,22 +556,22 @@ public final class EIP extends IntentService {
 
 
 			
-			try {
-				
-				arg.add(location_key);
-				String locationText = "";
-				locationText = eipDefinition.getJSONObject(locations).getJSONObject(mGateway.getString(location_key)).getString("name");		
-				arg.add(locationText);
+			// try {
+			// 	arg.add(location_key);
+			// 	String locationText = "";
+			// 	locationText = eipDefinition.getJSONObject(locations).getJSONObject(mGateway.getString(location_key)).getString("name");		
+			// 	arg.add(locationText);
+			//     Log.d(TAG, "location = " + locationText);
 
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			args.add((Vector<String>) arg.clone());
-			options.put("location", (Vector<Vector<String>>) args.clone() );
+			// } catch (JSONException e) {
+			// 	// TODO Auto-generated catch block
+			// 	e.printStackTrace();
+			// }
+			// args.add((Vector<String>) arg.clone());
+			// options.put("location", (Vector<Vector<String>>) args.clone() );
 
-			arg.clear();
-			args.clear();
+			// arg.clear();
+			// args.clear();
 			JSONArray protocolsJSON = null;
 			arg.add("proto");
 			try {

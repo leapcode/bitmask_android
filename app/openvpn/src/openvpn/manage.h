@@ -173,6 +173,9 @@ struct management_callback
 #endif
   bool (*proxy_cmd) (void *arg, const char **p);
   bool (*remote_cmd) (void *arg, const char **p);
+#ifdef TARGET_ANDROID
+  int (*network_change) (void *arg);
+#endif
 };
 
 /*
@@ -300,8 +303,8 @@ struct man_connection {
   struct buffer_list *rsa_sig;
 #endif
 #ifdef TARGET_ANDROID
-    int fdtosend;
-    int lastfdreceived;
+  int fdtosend;
+  int lastfdreceived;
 #endif
 };
 
@@ -375,6 +378,15 @@ bool management_query_user_pass (struct management *man,
 				 const char *type,
 				 const unsigned int flags,
 				 const char *static_challenge);
+
+#ifdef TARGET_ANDROID
+bool management_android_control (struct management *man, const char *command, const char *msg);
+
+#define ANDROID_KEEP_OLD_TUN 1
+#define ANDROID_OPEN_AFTER_CLOSE 2
+#define ANDROID_OPEN_BEFORE_CLOSE 3
+int managment_android_persisttun_action (struct management *man);
+#endif
 
 bool management_should_daemonize (struct management *man);
 bool management_would_hold (struct management *man);
