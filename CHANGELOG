@@ -1,3 +1,13 @@
+0.5.2 June 13 2014 - the "new beginning" release
+Features
+- Updated ics-openvpn codebase!
+- Disconnecting prompts you before doing anything
+- UI for signup more accessible
+- Error messages are shown as they arrive from the server
+
+Bugs Fixed
+- Cancelling a failed signup/login stops progressbar
+
 0.5.1 April 26 2014 - the "blue sky" release
 Features
 - Autostart
