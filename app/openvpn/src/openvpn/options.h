@@ -39,7 +39,7 @@
 #include "plugin.h"
 #include "manage.h"
 #include "proxy.h"
-#include "lzo.h"
+#include "comp.h"
 #include "pushlist.h"
 #include "clinat.h"
 
@@ -71,10 +71,8 @@ struct options_pre_pull
   bool routes_ipv6_defined;
   struct route_ipv6_option_list *routes_ipv6;
 
-#ifdef ENABLE_CLIENT_NAT
   bool client_nat_defined;
   struct client_nat_option_list *client_nat;
-#endif
 
   int foreign_option_index;
 };
@@ -90,24 +88,21 @@ struct connection_entry
   sa_family_t af;
   const char* local_port;
   bool local_port_defined;
-  const char* remote_port;
+  const char *remote_port;
   const char *local;
   const char *remote;
   bool remote_float;
   bool bind_defined;
+  bool bind_ipv6_only;
   bool bind_local;
   int connect_retry_seconds;
   int connect_timeout;
   bool connect_timeout_defined;
-#ifdef ENABLE_HTTP_PROXY
   struct http_proxy_options *http_proxy_options;
-#endif  
-#ifdef ENABLE_SOCKS
   const char *socks_proxy_server;
   const char *socks_proxy_port;
   const char *socks_proxy_authfile;
   bool socks_proxy_retry;
-#endif
 
   int tun_mtu;           /* MTU of tun device */
   bool tun_mtu_defined;  /* true if user overriding parm with command line option */
@@ -186,6 +181,8 @@ struct options
 
   /* enable forward compatibility for post-2.1 features */
   bool forward_compatible;
+  /* list of options that should be ignored even if unkown */
+  const char **  ignore_unknown_option;
 
   /* persist parms */
   bool persist_config;
@@ -198,6 +195,7 @@ struct options
   bool show_engines;
 #ifdef ENABLE_SSL
   bool show_tls_ciphers;
+  bool show_curves;
 #endif
   bool genkey;
 #endif
@@ -213,7 +211,7 @@ struct options
   /* Counts the number of unsuccessful connection attempts */
   unsigned int unsuccessful_attempts;
 
-#if HTTP_PROXY_OVERRIDE
+#if ENABLE_MANAGEMENT
   struct http_proxy_options *http_proxy_override;
 #endif
 
@@ -275,6 +273,8 @@ struct options
 #endif
 
   int resolve_retry_seconds;    /* If hostname resolve fails, retry for n seconds */
+  bool resolve_in_advance;
+  const char *ip_remote_hint;
 
   struct tuntap_options tuntap_options;
 
@@ -289,6 +289,7 @@ struct options
   const char *writepid;
   const char *up_script;
   const char *down_script;
+  bool user_script_used;
   bool down_pre;
   bool up_delay;
   bool up_restart;
@@ -301,6 +302,7 @@ struct options
 
   bool log;
   bool suppress_timestamps;
+  bool machine_readable_output;
   int nice;
   int verbosity;
   int mute;
@@ -316,9 +318,8 @@ struct options
   /* optimize TUN/TAP/UDP writes */
   bool fast_io;
 
-#ifdef ENABLE_LZO
-  /* LZO_x flags from lzo.h */
-  unsigned int lzo;
+#ifdef USE_COMP
+  struct compress_options comp;
 #endif
 
   /* buffer sizes */
@@ -340,16 +341,12 @@ struct options
   int route_delay;
   int route_delay_window;
   bool route_delay_defined;
-  int max_routes;
   struct route_option_list *routes;
   struct route_ipv6_option_list *routes_ipv6;			/* IPv6 */
   bool route_nopull;
   bool route_gateway_via_dhcp;
   bool allow_pull_fqdn; /* as a client, allow server to push a FQDN for certain parameters */
-
-#ifdef ENABLE_CLIENT_NAT
   struct client_nat_option_list *client_nat;
-#endif
 
 #ifdef ENABLE_OCC
   /* Enable options consistency check between peers */
@@ -430,9 +427,7 @@ struct options
   bool push_ifconfig_defined;
   in_addr_t push_ifconfig_local;
   in_addr_t push_ifconfig_remote_netmask;
-#ifdef ENABLE_CLIENT_NAT
   in_addr_t push_ifconfig_local_alias;
-#endif
   bool push_ifconfig_constraint_defined;
   in_addr_t push_ifconfig_constraint_network;
   in_addr_t push_ifconfig_constraint_netmask;
@@ -461,6 +456,7 @@ struct options
   bool client;
   bool pull; /* client pull of config options from server */
   int push_continuation;
+  unsigned int push_option_types_found;
   const char *auth_user_pass_file;
   struct options_pre_pull *pre_pull;
 
@@ -509,9 +505,11 @@ struct options
   const char *priv_key_file;
   const char *pkcs12_file;
   const char *cipher_list;
+  const char *ecdh_curve;
   const char *tls_verify;
+  int verify_x509_type;
+  const char *verify_x509_name;
   const char *tls_export_cert;
-  const char *tls_remote;
   const char *crl_file;
 
   const char *ca_file_inline;
@@ -682,6 +680,8 @@ void notnull (const char *arg, const char *description);
 
 void usage_small (void);
 
+void show_library_versions(const unsigned int flags);
+
 void init_options (struct options *o, const bool init_gc);
 void uninit_options (struct options *o);
 
@@ -710,7 +710,7 @@ void options_warning (char *actual, const char *expected);
 void options_postprocess (struct options *options);
 
 void pre_pull_save (struct options *o);
-void pre_pull_restore (struct options *o);
+void pre_pull_restore (struct options *o, struct gc_arena *gc);
 
 bool apply_push_options (struct options *options,
 			 struct buffer *buf,

@@ -1,51 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="repository_url_text">Cod sursă şi tracker probleme disponibile la https://github.com/leapcode/bitmask_android/</string>
-  <string name="copyright_others">Acest program utilizează următoarele componente; a se vedea codul sursă pentru mai multe detalii despre licente</string>
-  <string name="about">Despre</string>
-  <string name="no_error_found">Nu s-a găsit nici o eroare</string>
-  <string name="config_error_found">Eroare în configurare</string>
-  <string name="ipv4_format_error">Eroare parsare adresă IPv4</string>
-  <string name="custom_route_format_error">Eroare parsare rute particularizate</string>
-  <string name="vpn_launch_title">Conectare la VPN</string>
-  <string name="shortcut_profile_notfound">Profilul specificat în comanda rapidă nu a fost găsit</string>
-  <string name="route_rejected">Rută respinsă de Android</string>
-  <string name="cancel_connection">Deconectaţi</string>
-  <string name="clear_log">Golire jurnal</string>
-  <string name="title_cancel">Anulare confirmare</string>
-  <string name="cancel_connection_query">Deconectaţi VPN-ul conectat/anulaţi încercarea de conectare?</string>
-  <string name="edit_vpn">Editaţi setările VPN</string>
-  <string name="tun_error_helpful">În cazul anumitor imagini particularizate de ICS permisiile pentru /dev/tun pot fi greşite sau modulul tun lipseşte cu desăvârşire.</string>
-  <string name="tun_open_error">Eroare deschidere interfaţa tun</string>
-  <string name="error">"Eroare:"</string>
-  <string name="clear">Goleşte</string>
   <string name="info">info</string>
   <string name="show_connection_details">Arată detaliile conexiunii</string>
-  <string name="last_openvpn_tun_config">Ultima configurare interfaţă din OpenVPN:</string>
-  <string name="local_ip_info">Local IPv4: %1$s/%2$d IPv6: %3$s MTU: %4$d</string>
-  <string name="dns_server_info">Server DNS: %s</string>
-  <string name="dns_domain_info">Domeniu DNS: %s</string>
   <string name="routes_info">Rute: %s</string>
   <string name="routes_info6">Rute IPv6: %s</string>
-  <string name="ip_not_cidr">S-au primit informaţiile despre interfaţă %1$s şi %2$s, presupun că a doua adresă este adresa peer a serverlui remote. Folosesc netmask /32 pentru IP local. Modul dat de OpenVPN este \"%3$s\".</string>
-  <string name="version_info">%1$s %2$s</string>
-  <string name="send_logfile">Trimite fişier jurnal</string>
-  <string name="send">Trimite</string>
   <string name="bitmask_openvpn_log_file">Fişier jurnal LEAP Android</string>
-  <string name="converted_profile">profil importat</string>
-  <string name="converted_profile_i">profil importat %d</string>
-  <string name="pkcs12_file_encryption_key">Cheie criptare fişier PKCS12</string>
-  <string name="private_key_password">Parola cheie privată</string>
-  <string name="password">Parola</string>
-  <string name="building_configration">Se generează configurarea…</string>
   <string name="cert_from_keystore">Am primit certificatul \'%s\' din Keystore</string>
-  <string name="netstatus">Statutus reţea: %s</string>
-  <string name="mobile_info">Rulează pe %1$s (%2$s) %3$s, Android API %4$d</string>
-  <string name="error_rsa_sign">Eroare semnare cu Android keystore key %1$s: %2$s</string>
-  <string name="using_proxy">Folosesc proxy %1$ s %2$ d</string>
-  <string name="ignore">Ignora</string>
-  <string name="restart">Restart</string>
-  <string name="configuration_changed">Configuraţie schimbată</string>
-
-  <string name="minidump_generated">OpenVPN sa oprit în mod neaşteptat. Vă rugăm să consideraţi opţiunea de trimitere a unui Minidump din meniul principal</string>
 </resources>

@@ -31,7 +31,7 @@
 #include "crypto.h"
 #include "ssl.h"
 #include "packet_id.h"
-#include "lzo.h"
+#include "comp.h"
 #include "tun.h"
 #include "interval.h"
 #include "status.h"
@@ -104,10 +104,10 @@ struct context_buffers
   struct buffer decrypt_buf;
 #endif
 
-  /* workspace buffers for LZO compression */
-#ifdef ENABLE_LZO
-  struct buffer lzo_compress_buf;
-  struct buffer lzo_decompress_buf;
+  /* workspace buffers for compression */
+#ifdef USE_COMP
+  struct buffer compress_buf;
+  struct buffer decompress_buf;
 #endif
 
   /*
@@ -166,6 +166,9 @@ struct context_1
   /* tunnel session keys */
   struct key_schedule ks;
 
+  /* preresolved and cached host names */
+  struct cached_dns_entry *dns_cache;
+
   /* persist crypto sequence number to/from file */
   struct packet_id_persist pid_persist;
 
@@ -185,17 +188,13 @@ struct context_1
   struct status_output *status_output;
   bool status_output_owned;
 
-#ifdef ENABLE_HTTP_PROXY
   /* HTTP proxy object */
   struct http_proxy_info *http_proxy;
   bool http_proxy_owned;
-#endif
 
-#ifdef ENABLE_SOCKS
   /* SOCKS proxy object */
   struct socks_proxy_info *socks_proxy;
   bool socks_proxy_owned;
-#endif
 
 #if P2MP
 
@@ -372,9 +371,9 @@ struct context_2
 
 #endif /* ENABLE_CRYPTO */
 
-#ifdef ENABLE_LZO
-  struct lzo_compress_workspace lzo_compwork;
-                                /**< Compression workspace used by the
+#ifdef USE_COMP
+  struct compress_context *comp_context;
+                                /**< Compression context used by the
                                  *   \link compression Data Channel
                                  *   Compression module\endlink. */
 #endif
@@ -451,9 +450,7 @@ struct context_2
   time_t sent_push_reply_expiry;
   in_addr_t push_ifconfig_local;
   in_addr_t push_ifconfig_remote_netmask;
-#ifdef ENABLE_CLIENT_NAT
   in_addr_t push_ifconfig_local_alias;
-#endif
 
   bool            push_ifconfig_ipv6_defined;
   struct in6_addr push_ifconfig_ipv6_local;

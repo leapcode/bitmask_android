@@ -1,41 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="cancel">Cancel·la</string>
-  <string name="about">Quan a</string>
-  <string name="no_error_found">No s\'ha trobat cap error</string>
-  <string name="config_error_found">S\'ha trobat un error a la configuració</string>
-  <string name="vpn_launch_title">Conecta a la VPN</string>
-  <string name="shortcut_profile_notfound">No s\'ha trobat el perfil especificat a l\'accès directe</string>
-  <string name="route_rejected">La ruta ha estat refusas per Android</string>
-  <string name="cancel_connection">Desconecta</string>
-  <string name="clear_log">Neteja el registre</string>
-  <string name="title_cancel">Cancela la confirmació</string>
-  <string name="cancel_connection_query">Desconcta la conexió VPN/cancela l\'intent de conexió?</string>
-  <string name="edit_vpn">Edita la configuració VPN</string>
-  <string name="error">"Error: "</string>
-  <string name="clear">Neteja</string>
   <string name="info">info</string>
   <string name="show_connection_details">Mostra els detalls de conexió</string>
   <string name="dns_server_info">Servidor DNS: %s</string>
   <string name="dns_domain_info">Domini DNS: %s</string>
   <string name="routes_info">Rutes: %s</string>
   <string name="routes_info6">Rutes IPv6: %s</string>
-  <string name="send_logfile">Envia el fitxer de registre</string>
-  <string name="send">Envia</string>
   <string name="bitmask_openvpn_log_file">Fitxer de registre de LEAP Android</string>
-  <string name="copied_entry">S\'ha copiat l\'entrada al porta-retalls</string>
-  <string name="speed_waiting">Esperant el missatge d\'estat...</string>
-  <string name="converted_profile">Perfil importat</string>
-  <string name="converted_profile_i">Perfil importat %d</string>
-  <string name="private_key_password">Contrasenya de la clau privada</string>
-  <string name="password">Contrasenya</string>
-  <string name="building_configration">Construint la configuració...</string>
-  <string name="netstatus">Estat de la xarxa %s</string>
-  <string name="translationby">Traducció al catala per Sergi Almacellas 
-&lt;sergi@koolpi.com&gt;</string>
-  <string name="using_proxy">Utilitzant el proxy %1$s %2$d</string>
-  <string name="ignore">Ignorar</string>
-  <string name="restart">Reinicia</string>
-  <string name="restart_vpn_after_change">Els canvis de configuració s\'apliquen desprès de reinicar la VPN. (Re)inicar la VPN ara?</string>
-  <string name="configuration_changed">S\'ha canviat la configuració</string>
 </resources>

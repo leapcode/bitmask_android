@@ -701,21 +701,6 @@ env_set_remove_from_environment (const struct env_set *es)
     }
 }
 
-#ifdef HAVE_PUTENV
-
-/* companion functions to putenv */
-
-static struct env_item *global_env = NULL; /* GLOBAL */
-
-void
-manage_env (char *str)
-{
-  remove_env_item (str, true, &global_env);
-  add_env_item (str, false, &global_env, NULL);
-}
-
-#endif
-
 /* add/modify/delete environmental strings */
 
 void
@@ -789,27 +774,18 @@ setenv_str_ex (struct env_set *es,
   if (value)
     val_tmp = string_mod_const (value, value_include, value_exclude, value_replace, &gc);
 
-  if (es)
+  ASSERT (es);
+
+  if (val_tmp)
     {
-      if (val_tmp)
-	{
-	  const char *str = construct_name_value (name_tmp, val_tmp, &gc);
-	  env_set_add (es, str);
+      const char *str = construct_name_value (name_tmp, val_tmp, &gc);
+      env_set_add (es, str);
 #if DEBUG_VERBOSE_SETENV
-	  msg (M_INFO, "SETENV_ES '%s'", str);
+      msg (M_INFO, "SETENV_ES '%s'", str);
 #endif
-	}
-      else
-	env_set_del (es, name_tmp);
     }
   else
-    {
-      char *str = construct_name_value (name_tmp, val_tmp, NULL);
-      if (platform_putenv(str))
-      {
-        msg (M_WARN | M_ERRNO, "putenv('%s') failed", str);
-      }
-    }
+    env_set_del (es, name_tmp);
 
   gc_free (&gc);
 }
@@ -950,32 +926,23 @@ create_temp_file (const char *directory, const char *prefix, struct gc_arena *gc
 }
 
 /*
- * Add a random string to first DNS label of hostname to prevent DNS caching.
+ * Prepend a random string to hostname to prevent DNS caching.
  * For example, foo.bar.gov would be modified to <random-chars>.foo.bar.gov.
- * Of course, this requires explicit support in the DNS server.
+ * Of course, this requires explicit support in the DNS server (wildcard).
  */
 const char *
 hostname_randomize(const char *hostname, struct gc_arena *gc)
 {
 # define n_rnd_bytes 6
 
-  char *hst = string_alloc(hostname, gc);
-  char *dot = strchr(hst, '.');
+  uint8_t rnd_bytes[n_rnd_bytes];
+  const char *rnd_str;
+  struct buffer hname = alloc_buf_gc (strlen(hostname)+sizeof(rnd_bytes)*2+4, gc);
 
-  if (dot)
-    {
-      uint8_t rnd_bytes[n_rnd_bytes];
-      const char *rnd_str;
-      struct buffer hname = alloc_buf_gc (strlen(hostname)+sizeof(rnd_bytes)*2+4, gc);
-
-      *dot++ = '\0';
-      prng_bytes (rnd_bytes, sizeof (rnd_bytes));
-      rnd_str = format_hex_ex (rnd_bytes, sizeof (rnd_bytes), 40, 0, NULL, gc);
-      buf_printf(&hname, "%s-0x%s.%s", hst, rnd_str, dot);
-      return BSTR(&hname);
-    }
-  else
-    return hostname;
+  prng_bytes (rnd_bytes, sizeof (rnd_bytes));
+  rnd_str = format_hex_ex (rnd_bytes, sizeof (rnd_bytes), 40, 0, NULL, gc);
+  buf_printf(&hname, "%s.%s", rnd_str, hostname);
+  return BSTR(&hname);
 # undef n_rnd_bytes
 }
 
@@ -2087,3 +2054,59 @@ compat_flag (unsigned int flag)
   return (compat_flags & (flag >> 1));
 
 }
+
+#if P2MP_SERVER
+
+/* helper to parse peer_info received from multi client, validate
+ * (this is untrusted data) and put into environment
+ */
+bool
+validate_peer_info_line(char *line)
+{
+  uint8_t c;
+  int state = 0;
+  while (*line)
+    {
+      c = *line;
+      switch (state)
+	{
+	case 0:
+	case 1:
+	  if (c == '=' && state == 1)
+	    state = 2;
+	  else if (isalnum(c) || c == '_')
+	    state = 1;
+	  else
+	    return false;
+	case 2:
+	  /* after the '=', replace non-printable or shell meta with '_' */
+	  if (!isprint(c) || isspace(c) ||
+	       c == '$' || c == '(' || c == '`' )
+	    *line = '_';
+	}
+      line++;
+    }
+  return (state == 2);
+}
+
+void
+output_peer_info_env (struct env_set *es, const char * peer_info)
+{
+  char line[256];
+  struct buffer buf;
+  buf_set_read (&buf, (const uint8_t *) peer_info, strlen(peer_info));
+  while (buf_parse (&buf, '\n', line, sizeof (line)))
+    {
+      chomp (line);
+      if (validate_peer_info_line(line) &&
+            (strncmp(line, "IV_", 3) == 0 || strncmp(line, "UV_", 3) == 0) )
+	{
+	  msg (M_INFO, "peer info: %s", line);
+	  env_set_add(es, line);
+	}
+      else
+	msg (M_WARN, "validation failed on peer_info line received from client");
+    }
+}
+
+#endif /* P2MP_SERVER */

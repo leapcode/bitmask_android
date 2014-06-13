@@ -35,8 +35,8 @@
 #if defined(ENABLE_PF)
 
 #include "init.h"
-
 #include "memdbg.h"
+#include "ssl_verify.h"
 
 #include "pf-inline.h"
 
@@ -417,7 +417,7 @@ lookup_cn_rule (struct hash *h, const char *cn, const uint32_t cn_hash)
 bool
 pf_cn_test (struct pf_set *pfs, const struct tls_multi *tm, const int type, const char *prefix)
 {
-  if (!pfs->kill)
+  if (pfs && !pfs->kill)
     {
       const char *cn;
       uint32_t cn_hash;

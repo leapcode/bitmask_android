@@ -32,7 +32,7 @@ m4_include(compat.m4)
 AC_DEFINE([OPENVPN_VERSION_RESOURCE], [PRODUCT_VERSION_RESOURCE], [Version in windows resource format])
 
 AC_CONFIG_AUX_DIR([.])
-AM_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([src/openvpn/syshead.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -46,11 +46,22 @@ AC_ARG_ENABLE(
 	[enable_lzo="yes"]
 )
 
-AC_ARG_ENABLE(
-	[lzo-stub],
-	[AS_HELP_STRING([--enable-lzo-stub], [don't compile LZO compression support but still allow limited interoperability with LZO-enabled peers @<:@default=no@:>@])],
-	,
-	[enable_lzo_stub="no"]
+AC_ARG_ENABLE(snappy,
+	[  --disable-snappy        Disable Snappy compression support],
+	[enable_snappy="$enableval"],
+	[enable_snappy="yes"]
+)
+
+AC_ARG_ENABLE(lz4,
+	[  --disable-lz4           Disable LZ4 compression support],
+	[enable_lz4="$enableval"],
+	[enable_lz4="yes"]
+)
+
+AC_ARG_ENABLE(comp-stub,
+	[  --enable-comp-stub      Don't compile compression support but still allow limited interoperability with compression-enabled peers],
+	[enable_comp_stub="$enableval"],
+	[enable_comp_stub="no"]
 )
 
 AC_ARG_ENABLE(
@@ -96,13 +107,6 @@ AC_ARG_ENABLE(
 )
 
 AC_ARG_ENABLE(
-	[eurephia],
-	[AS_HELP_STRING([--disable-eurephia], [disable support for the eurephia plug-in @<:@default=yes@:>@])],
-	,
-	[enable_eurephia="yes"]
-)
-
-AC_ARG_ENABLE(
 	[management],
 	[AS_HELP_STRING([--disable-management], [disable management server support @<:@default=yes@:>@])],
 	,
@@ -114,20 +118,6 @@ AC_ARG_ENABLE(
 	[AS_HELP_STRING([--enable-pkcs11], [enable pkcs11 support @<:@default=no@:>@])],
 	,
 	[enable_pkcs11="no"]
-)
-
-AC_ARG_ENABLE(
-	[socks],
-	[AS_HELP_STRING([--disable-socks], [disable Socks support @<:@default=yes@:>@])],
-	,
-	[enable_socks="yes"]
-)
-
-AC_ARG_ENABLE(
-	[http-proxy],
-	[AS_HELP_STRING([--disable-http-proxy], [disable HTTP proxy support @<:@default=yes@:>@])],
-	,
-	[enable_http_proxy="yes"]
 )
 
 AC_ARG_ENABLE(
@@ -237,6 +227,13 @@ AC_ARG_ENABLE(
 	[AS_HELP_STRING([--enable-pedantic], [enable pedantic compiler warnings, will not generate a working executable (debugging option) @<:@default=no@:>@])],
 	,
 	[enable_pedantic="no"]
+)
+
+AC_ARG_ENABLE(
+	[werror],
+	[AS_HELP_STRING([--enable-werror], [promote compiler warnings to errors, will cause builds to fail is the compiler issues warnings (debugging option) @<:@default=no@:>@])],
+	,
+	[enable_werror="no"]
 )
 
 AC_ARG_ENABLE(
@@ -454,7 +451,7 @@ SOCKET_INCLUDES="
 "
 
 AC_CHECK_HEADERS(
-	[net/if.h netinet/ip.h netinet/if_ether.h resolv.h sys/un.h],
+	[net/if.h netinet/ip.h netinet/if_ether.h resolv.h sys/un.h net/if_utun.h sys/kern_control.h],
 	,
 	,
 	[[${SOCKET_INCLUDES}]]
@@ -495,6 +492,12 @@ AC_CHECK_TYPE(
 	[AC_DEFINE([HAVE_IN_PKTINFO], [1], [struct in_pktinfo needed for IP_PKTINFO support])],
 	,
 	[[${SOCKET_INCLUDES}]]
+)
+AC_CHECK_TYPE(
+        [sa_family_t],
+        [AC_DEFINE([HAVE_SA_FAMILY_T], [1], [sa_family_t, needed to hold AF_* info])],
+        ,
+        [[${SOCKET_INCLUDES}]]
 )
 AC_CHECK_TYPE(
 	[struct sockaddr_in6],
@@ -676,7 +679,7 @@ fi
 
 case "${with_mem_check}" in
 	valgrind)
-		AC_CHECK_HEADER(
+		AC_CHECK_HEADERS(
 			[valgrind/memcheck.h],
 			[
 				CFLAGS="${CFLAGS} -g -fno-inline"
@@ -690,7 +693,7 @@ case "${with_mem_check}" in
 		)
 		;;
 	dmalloc)
-		AC_CHECK_HEADER(
+		AC_CHECK_HEADERS(
 			[dmalloc.h],
 			[AC_CHECK_LIB(
 				[dmalloc],
@@ -726,8 +729,15 @@ case "${with_mem_check}" in
 esac
 
 PKG_CHECK_MODULES(
+	[PKCS11_HELPER],
+	[libpkcs11-helper-1 >= 1.11],
+	[have_pkcs11_helper="yes"],
+	[]
+)
+
+PKG_CHECK_MODULES(
 	[OPENSSL_CRYPTO],
-	[libcrypto >= 0.9.6],
+	[libcrypto >= 0.9.8],
 	[have_openssl_crypto="yes"],
 	[AC_CHECK_LIB(
 		[crypto],
@@ -741,7 +751,7 @@ PKG_CHECK_MODULES(
 
 PKG_CHECK_MODULES(
 	[OPENSSL_SSL],
-	[libssl >= 0.9.6],
+	[libssl >= 0.9.8],
 	[have_openssl_ssl="yes"],
 	[AC_CHECK_LIB(
 		[ssl],
@@ -749,7 +759,9 @@ PKG_CHECK_MODULES(
 		[
 			have_openssl_ssl="yes"
 			OPENSSL_SSL_LIBS="-lssl"
-		]
+		],
+		[],
+		[-lcrypto]
 	)]
 )
 
@@ -774,6 +786,24 @@ if test "${have_openssl_crypto}" = "yes"; then
 	LIBS="${saved_LIBS}"
 fi
 
+if test "${have_openssl_ssl}" = "yes"; then
+    saved_CPPFLAGS="${CPPFLAGS}"
+    CPPFLAGS="${CPPFLAGS} ${OPENSSL_CRYPTO_CFLAGS}"
+    AC_MSG_CHECKING([for SSL_OP_NO_TICKET flag in OpenSSL])
+    AC_EGREP_CPP(have_ssl_op_no_ticket, [
+    #include <openssl/ssl.h>
+    #ifdef SSL_OP_NO_TICKET
+    have_ssl_op_no_ticket
+    #endif
+    ], [
+        AC_MSG_RESULT([yes])
+    ], [
+        AC_MSG_RESULT([no])
+        AC_ERROR([OpenVPN 2.4+ requires SSL_OP_NO_TICKET in OpenSSL])
+    ])
+    CPPFLAGS="${saved_CPPFLAGS}"
+fi
+
 AC_ARG_VAR([POLARSSL_CFLAGS], [C compiler flags for polarssl])
 AC_ARG_VAR([POLARSSL_LIBS], [linker flags for polarssl])
 have_polarssl_ssl="yes"
@@ -789,9 +819,11 @@ if test -z "${POLARSSL_LIBS}"; then
 				[polarssl],
 				[aes_crypt_cbc],
 				,
-				[have_polarssl_crypto="no"]
+				[have_polarssl_crypto="no"],
+				[${PKCS11_HELPER_LIBS}]
 			)
-		]
+		],
+		[${PKCS11_HELPER_LIBS}]
 	)
 fi
 
@@ -805,15 +837,45 @@ if test "${with_crypto_library}" = "polarssl" ; then
 #include <polarssl/version.h>
 			]],
 			[[
-#if POLARSSL_VERSION_NUMBER < 0x01010000
+#if POLARSSL_VERSION_NUMBER < 0x01030300 || POLARSSL_VERSION_NUMBER >= 0x01040000
 #error invalid version
 #endif
 			]]
 		)],
 		[AC_MSG_RESULT([ok])],
-		[AC_MSG_ERROR([invalid polarssl version])]
+		[AC_MSG_ERROR([PolarSSL 1.3.x required and must be 1.3.3 or later])]
 	)
+
+	polarssl_with_pkcs11="no"
+	AC_COMPILE_IFELSE(
+		[AC_LANG_PROGRAM(
+			[[
+#include <polarssl/config.h>
+			]],
+			[[
+#ifndef POLARSSL_PKCS11_C
+#error pkcs11 wrapper missing
+#endif
+			]]
+		)],
+		polarssl_with_pkcs11="yes")
 	CFLAGS="${old_CFLAGS}"
+
+	AC_MSG_CHECKING([polarssl pkcs11 support])
+	if test "${enable_pkcs11}" = "yes"; then
+		if test "${polarssl_with_pkcs11}" = "yes"; then
+			AC_MSG_RESULT([ok])
+		else
+			AC_MSG_ERROR([polarssl has no pkcs11 wrapper compiled in])
+		fi
+	else
+		if test "${polarssl_with_pkcs11}" != "yes"; then
+			AC_MSG_RESULT([ok])
+		else
+			AC_MSG_ERROR([PolarSSL compiled with PKCS11, while OpenVPN is not])
+		fi
+	fi
+
 fi
 
 AC_ARG_VAR([LZO_CFLAGS], [C compiler flags for lzo])
@@ -856,12 +918,87 @@ if test "${have_lzo}" = "yes"; then
 	CFLAGS="${saved_CFLAGS}"
 fi
 
-PKG_CHECK_MODULES(
-	[PKCS11_HELPER],
-	[libpkcs11-helper-1 >= 1.02],
-	[have_pkcs11_helper="yes"],
-	[]
-)
+dnl
+dnl check for Snappy library
+dnl
+
+AC_ARG_VAR([SNAPPY_CFLAGS], [C compiler flags for snappy])
+AC_ARG_VAR([SNAPPY_LIBS], [linker flags for snappy])
+if test "$enable_snappy" = "yes" && test "$enable_comp_stub" = "no"; then
+    AC_CHECKING([for Snappy Library and Header files])
+    havesnappylib=1
+
+    # if SNAPPY_LIBS is set, we assume it will work, otherwise test
+    if test -z "${SNAPPY_LIBS}"; then
+	AC_CHECK_LIB(snappy, snappy_compress,
+	    [ SNAPPY_LIBS="-lsnappy" ],
+	    [
+	        AC_MSG_RESULT([Snappy library not found.])
+	        havesnappylib=0
+	    ])
+    fi
+
+    saved_CFLAGS="${CFLAGS}"
+    CFLAGS="${CFLAGS} ${SNAPPY_CFLAGS}"
+    AC_CHECK_HEADERS(snappy-c.h,
+       ,
+       [
+	   AC_MSG_RESULT([Snappy headers not found.])
+	   havesnappylib=0
+       ])
+
+    if test $havesnappylib = 0 ; then
+	AC_MSG_RESULT([Snappy library available from http://code.google.com/p/snappy/])
+        AC_MSG_ERROR([Or try ./configure --disable-snappy OR ./configure --enable-comp-stub])
+    fi
+    OPTIONAL_SNAPPY_CFLAGS="${SNAPPY_CFLAGS}"
+    OPTIONAL_SNAPPY_LIBS="${SNAPPY_LIBS}"
+    AC_DEFINE(ENABLE_SNAPPY, 1, [Enable Snappy compression library])
+    CFLAGS="${saved_CFLAGS}"
+fi
+
+dnl
+dnl check for LZ4 library
+dnl
+
+AC_ARG_VAR([LZ4_CFLAGS], [C compiler flags for lz4])
+AC_ARG_VAR([LZ4_LIBS], [linker flags for lz4])
+if test "$enable_lz4" = "yes" && test "$enable_comp_stub" = "no"; then
+    AC_CHECKING([for LZ4 Library and Header files])
+    havelz4lib=1
+
+    # if LZ4_LIBS is set, we assume it will work, otherwise test
+    if test -z "${LZ4_LIBS}"; then
+	AC_CHECK_LIB(lz4, LZ4_compress,
+	    [ LZ4_LIBS="-llz4" ],
+	    [
+	        AC_MSG_RESULT([LZ4 library not found.])
+	        havelz4lib=0
+	    ])
+    fi
+
+    saved_CFLAGS="${CFLAGS}"
+    CFLAGS="${CFLAGS} ${LZ4_CFLAGS}"
+    AC_CHECK_HEADERS(lz4.h,
+       ,
+       [
+	   AC_MSG_RESULT([LZ4 headers not found.])
+	   havelz4lib=0
+       ])
+
+    if test $havelz4lib = 0 ; then
+	AC_MSG_RESULT([LZ4 library or header not found, using version in src/compat/compat-lz4.*])
+	AC_DEFINE([NEED_COMPAT_LZ4], [1], [use copy of LZ4 source in compat/])
+	LZ4_LIBS=""
+    fi
+    OPTIONAL_LZ4_CFLAGS="${LZ4_CFLAGS}"
+    OPTIONAL_LZ4_LIBS="${LZ4_LIBS}"
+    AC_DEFINE(ENABLE_LZ4, 1, [Enable LZ4 compression library])
+    CFLAGS="${saved_CFLAGS}"
+fi
+
+
+
 
 AC_MSG_CHECKING([git checkout])
 GIT_CHECKOUT="no"
@@ -892,8 +1029,6 @@ test "${ac_cv_header_sys_uio_h}" = "yes" && AC_DEFINE([HAVE_IOVEC], [1], [struct
 test "${enable_multi}" = "yes" && AC_DEFINE([ENABLE_CLIENT_SERVER], [1], [Enable client/server capability])
 test "${enable_server}" = "no" && AC_DEFINE([ENABLE_CLIENT_ONLY], [1], [Enable client capability only])
 test "${enable_management}" = "yes" && AC_DEFINE([ENABLE_MANAGEMENT], [1], [Enable management server capability])
-test "${enable_socks}" = "yes" && AC_DEFINE([ENABLE_SOCKS], [1], [Enable Socks proxy support])
-test "${enable_http_proxy}" = "yes" && AC_DEFINE([ENABLE_HTTP_PROXY], [1], [Enable HTTP proxy support])
 test "${enable_multihome}" = "yes" && AC_DEFINE([ENABLE_MULTIHOME], [1], [Enable multi-homed UDP server capability])
 test "${enable_debug}" = "yes" && AC_DEFINE([ENABLE_DEBUG], [1], [Enable debugging support])
 test "${enable_small}" = "yes" && AC_DEFINE([ENABLE_SMALL], [1], [Enable smaller executable size])
@@ -942,8 +1077,7 @@ fi
 
 if test "${enable_plugins}" = "yes"; then
 	OPTIONAL_DL_LIBS="${DL_LIBS}"
-	AC_DEFINE([ENABLE_PLUGIN], [1], [Enable systemd support])
-	test "${enable_eurephia}" = "yes" && AC_DEFINE([ENABLE_EUREPHIA], [1], [Enable support for the eurephia plug-in])
+	AC_DEFINE([ENABLE_PLUGIN], [1], [Enable plug-in support])
 else
 	enable_plugin_auth_pam="no"
 	enable_plugin_down_root="no"
@@ -971,10 +1105,11 @@ if test "${enable_lzo}" = "yes"; then
 	OPTIONAL_LZO_LIBS="${LZO_LIBS}"
 	AC_DEFINE([ENABLE_LZO], [1], [Enable LZO compression library])
 fi
-if test "${enable_lzo_stub}" = "yes"; then
-	test "${enable_lzo}" = "yes" && AC_MSG_ERROR([Cannot have both lzo stub and lzo enabled])
-	AC_DEFINE([ENABLE_LZO_STUB], [1], [Enable LZO stub capability])
-	AC_DEFINE([ENABLE_LZO], [1], [Enable LZO compression library])
+if test "${enable_comp_stub}" = "yes"; then
+	test "${enable_lzo}" = "yes" && AC_MSG_ERROR([Cannot have both comp stub and lzo enabled (use --disable-lzo)])
+	test "${enable_snappy}" = "yes" && AC_MSG_ERROR([Cannot have both comp stub and snappy enabled (use --disable-snappy)])
+	test "${enable_lz4}" = "yes" && AC_MSG_ERROR([Cannot have both comp stub and LZ4 enabled (use --disable-lz4)])
+	AC_DEFINE([ENABLE_COMP_STUB], [1], [Enable compression stub capability])
 fi
 
 if test "${enable_pkcs11}" = "yes"; then
@@ -992,6 +1127,9 @@ if test "${enable_pedantic}" = "yes"; then
 fi
 if test "${enable_strict}" = "yes"; then
 	CFLAGS="${CFLAGS} -Wall -Wno-unused-parameter -Wno-unused-function"
+fi
+if test "${enable_werror}" = "yes"; then
+	CFLAGS="${CFLAGS} -Werror"
 fi
 
 if test "${WIN32}" = "yes"; then
@@ -1028,6 +1166,10 @@ AC_SUBST([OPTIONAL_CRYPTO_CFLAGS])
 AC_SUBST([OPTIONAL_CRYPTO_LIBS])
 AC_SUBST([OPTIONAL_LZO_CFLAGS])
 AC_SUBST([OPTIONAL_LZO_LIBS])
+AC_SUBST([OPTIONAL_SNAPPY_CFLAGS])
+AC_SUBST([OPTIONAL_SNAPPY_LIBS])
+AC_SUBST([OPTIONAL_LZ4_CFLAGS])
+AC_SUBST([OPTIONAL_LZ4_LIBS])
 AC_SUBST([OPTIONAL_PKCS11_HELPER_CFLAGS])
 AC_SUBST([OPTIONAL_PKCS11_HELPER_LIBS])
 

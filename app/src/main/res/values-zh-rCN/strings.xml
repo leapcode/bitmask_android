@@ -1,52 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="repository_url_text">请前往 https://github.com/leapcode/bitmask_android/ 源码或提供问题反馈</string>
-  <string name="copyright_others">本程序使用以下组件，请在 Licenses 查看源码获取更详细内容。</string>
-  <string name="about">关于</string>
-  <string name="no_error_found">未找到错误</string>
-  <string name="config_error_found">配置有错误</string>
-  <string name="ipv4_format_error">无法解析 IPv4 地址</string>
-  <string name="custom_route_format_error">无法解析自定义路由</string>
-  <string name="vpn_launch_title">连接到 VPN</string>
-  <string name="shortcut_profile_notfound">未找到快捷方式中指定的配置文件</string>
-  <string name="route_rejected">Android 拒绝了路由</string>
-  <string name="cancel_connection">断开</string>
-  <string name="clear_log">清除日志</string>
-  <string name="title_cancel">取消确认</string>
-  <string name="cancel_connection_query">断开已连接的 VPN / 取消连接尝试？</string>
-  <string name="edit_vpn">编辑 VPN 设置</string>
-  <string name="tun_open_error">未能打开 tun 模块</string>
-  <string name="error">错误</string>
-  <string name="clear">清除</string>
-  <string name="info">信息</string>
   <string name="show_connection_details">显示连接信息</string>
-  <string name="last_openvpn_tun_config">最后 OpenVPN 接口配置：</string>
-  <string name="local_ip_info">本地 IPv4： %1$s/%2$d IPv6： %3$s MTU： %4$d</string>
-  <string name="dns_server_info">DNS 服务器： %s</string>
-  <string name="dns_domain_info">DNS 域： %s</string>
   <string name="routes_info">IPv4 路由： %s</string>
   <string name="routes_info6">IPv6 路由： %s</string>
-  <string name="version_info">%1$s %2$s</string>
-  <string name="send_logfile">发送日志文件</string>
-  <string name="send">发送</string>
-  <string name="bitmask_openvpn_log_file">LEAP Android 日志文件</string>
-  <string name="copied_entry">日志条目已复制剪贴板</string>
-  <string name="opentun_no_ipaddr">无 IP 信息，拒绝打开 tun 设备</string>
-  <string name="speed_waiting">等待状态消息</string>
-  <string name="converted_profile">已导入配置文件</string>
-  <string name="converted_profile_i">已导入配置文件 %d</string>
-  <string name="error_empty_username">用户名不能为空。</string>
-  <string name="pkcs12_file_encryption_key">PKCS12 文件加密密钥</string>
-  <string name="private_key_password">私钥密码</string>
-  <string name="password">密码</string>
-  <string name="building_configration">正在生成配置</string>
-  <string name="netstatus">网络状态： %s</string>
-  <string name="mobile_info">运行 %1$s （ %2$s ） %3$s ，Android API %4$d</string>
-  <string name="translationby">中文翻译： 白达卫
-&lt;59539051+ovpntrans.zh@mail.dcu.ie&gt;</string>
-  <string name="getproxy_error">获取代理设置时出错：%s</string>
-  <string name="using_proxy">使用代理 %1$s %2$d</string>
-  <string name="ignore">忽略</string>
-  <string name="restart">重启</string>
-  <string name="configuration_changed">配置已更改</string>
 </resources>
