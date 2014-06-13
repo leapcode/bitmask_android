@@ -74,6 +74,14 @@ static void solaris_error_close (struct tuntap *tt, const struct env_set *es, co
 #include <stropts.h>
 #endif
 
+#if defined(TARGET_DARWIN) && HAVE_NET_IF_UTUN_H
+#include <sys/kern_control.h>
+#include <net/if_utun.h>
+#include <sys/sys_domain.h>
+#endif
+
+static void clear_tuntap (struct tuntap *tuntap);
+
 bool
 is_dev_type (const char *dev, const char *dev_type, const char *match_type)
 {
@@ -299,16 +307,6 @@ warn_on_use_of_common_subnets (void)
 }
 
 /*
- * Complain if --dev tap and --ifconfig is used on an OS for which
- * we don't have a custom tap ifconfig template below.
- */
-static void
-no_tap_ifconfig ()
-{
-  msg (M_FATAL, "Sorry but you cannot use --dev tap and --ifconfig together on this OS because I have not yet been programmed to understand the appropriate ifconfig syntax to use for TAP-style devices on this OS.  Your best alternative is to use an --up script and do the ifconfig command manually.");
-}
-
-/*
  * Return a string to be used for options compatibility check
  * between peers.
  */
@@ -468,15 +466,15 @@ init_tun (const char *dev,       /* --dev option */
        */
       if (strict_warn)
 	{
-          struct addrinfo *curele;
+	  struct addrinfo *curele;
 	  ifconfig_sanity_check (tt->type == DEV_TYPE_TUN, tt->remote_netmask, tt->topology);
 
 	  /*
 	   * If local_public or remote_public addresses are defined,
 	   * make sure they do not clash with our virtual subnet.
 	   */
-          
-          for(curele=remote_public;curele;curele=curele->ai_next) {
+
+          for(curele=local_public;curele;curele=curele->ai_next) {
             if(curele->ai_family == AF_INET)
               check_addr_clash ("local",
 			    tt->type,
@@ -485,14 +483,14 @@ init_tun (const char *dev,       /* --dev option */
 			    tt->remote_netmask);
           }
 
-          for(curele=remote_public;curele;curele=curele->ai_next) {
-            if(curele->ai_family == AF_INET)
-              check_addr_clash ("remote",
-                                tt->type,
-                                ((struct sockaddr_in*)curele->ai_addr)->sin_addr.s_addr,
-			        tt->local,
-			        tt->remote_netmask);
-          }
+	  for (curele=remote_public;curele;curele=curele->ai_next) {
+	    if (curele->ai_family == AF_INET)
+	      check_addr_clash ("remote",
+				tt->type,
+				((struct sockaddr_in*)curele->ai_addr)->sin_addr.s_addr,
+				tt->local,
+				tt->remote_netmask);
+         }
 
 	  if (tt->type == DEV_TYPE_TAP || (tt->type == DEV_TYPE_TUN && tt->topology == TOP_SUBNET))
 	    check_subnet_conflict (tt->local, tt->remote_netmask, "TUN/TAP adapter");
@@ -781,39 +779,33 @@ do_ifconfig (struct tuntap *tt,
 
 #endif /*ENABLE_IPROUTE*/
 #elif defined(TARGET_ANDROID)
-        
-        
-        if (do_ipv6) {
-            struct user_pass up6;    
-            struct buffer out6 = alloc_buf_gc (64, &gc);
-            buf_printf (&out6, "%s/%d", ifconfig_ipv6_local,tt->netbits_ipv6);
-            strcpy(up6.username, buf_bptr(&out6));
-            management_query_user_pass(management, &up6 , "IFCONFIG6", GET_USER_PASS_NEED_OK,(void*) 0);
-        }
 
-        struct user_pass up;    
-        struct buffer out = alloc_buf_gc (64, &gc);
-        char* top;
-        switch(tt->topology) {
-            case TOP_NET30:
-                top = "net30";
-                break;
-            case TOP_P2P:
-                top="p2p";
-                break;
-            case TOP_SUBNET:
-                top="subnet";
-                break;
-            default:
-                top="undef";
-        }
-        
-        buf_printf (&out, "%s %s %d %s", ifconfig_local, ifconfig_remote_netmask, tun_mtu,top);
-        strcpy(up.username, buf_bptr(&out));
-        management_query_user_pass(management, &up , "IFCONFIG", GET_USER_PASS_NEED_OK,(void*) 0);
+      if (do_ipv6) {
+          struct buffer out6 = alloc_buf_gc (64, &gc);
+          buf_printf (&out6, "%s/%d", ifconfig_ipv6_local,tt->netbits_ipv6);
+          management_android_control(management, "IFCONFIG6",buf_bptr(&out6));
+      }
 
+      struct buffer out = alloc_buf_gc (64, &gc);
 
-        
+      char* top;
+      switch(tt->topology) {
+      case TOP_NET30:
+          top="net30";
+          break;
+      case TOP_P2P:
+          top="p2p";
+          break;
+      case TOP_SUBNET:
+          top="subnet";
+          break;
+      default:
+          top="undef";
+      }
+
+      buf_printf (&out, "%s %s %d %s", ifconfig_local, ifconfig_remote_netmask, tun_mtu, top);
+      management_android_control (management, "IFCONFIG", buf_bptr(&out));
+
 #elif defined(TARGET_SOLARIS)
 
       /* Solaris 2.6 (and 7?) cannot set all parameters in one go...
@@ -917,7 +909,7 @@ do_ifconfig (struct tuntap *tt,
       if (!tun && tt->topology == TOP_SUBNET)
 	{
 	  /* Add a network route for the local tun interface */
-	  struct route r;
+	  struct route_ipv4 r;
 	  CLEAR (r);      
 	  r.flags = RT_DEFINED | RT_METRIC_DEFINED;
 	  r.network = tt->local & tt->remote_netmask;
@@ -1114,7 +1106,7 @@ do_ifconfig (struct tuntap *tt,
       /* Add a network route for the local tun interface */
       if (!tun && tt->topology == TOP_SUBNET)
 	{
-	  struct route r;
+	  struct route_ipv4 r;
 	  CLEAR (r);
 	  r.flags = RT_DEFINED;
 	  r.network = tt->local & tt->remote_netmask;
@@ -1180,7 +1172,7 @@ do_ifconfig (struct tuntap *tt,
 	/* Add a network route for the local tun interface */
       if (!tun && tt->topology == TOP_SUBNET)
         {
-          struct route r;
+          struct route_ipv4 r;
           CLEAR (r);
           r.flags = RT_DEFINED;
           r.network = tt->local & tt->remote_netmask;
@@ -1297,6 +1289,87 @@ open_null (struct tuntap *tt)
 {
   tt->actual_name = string_alloc ("null", NULL);
 }
+
+
+#if defined (TARGET_OPENBSD) || (defined(TARGET_DARWIN) && HAVE_NET_IF_UTUN_H)
+
+/*
+ * OpenBSD and Mac OS X when using utun
+ * have a slightly incompatible TUN device from
+ * the rest of the world, in that it prepends a
+ * uint32 to the beginning of the IP header
+ * to designate the protocol (why not just
+ * look at the version field in the IP header to
+ * determine v4 or v6?).
+ *
+ * We strip off this field on reads and
+ * put it back on writes.
+ *
+ * I have not tested TAP devices on OpenBSD,
+ * but I have conditionalized the special
+ * TUN handling code described above to
+ * go away for TAP devices.
+ */
+
+#include <netinet/ip.h>
+#include <sys/uio.h>
+
+static inline int
+header_modify_read_write_return (int len)
+{
+    if (len > 0)
+        return len > sizeof (u_int32_t) ? len - sizeof (u_int32_t) : 0;
+    else
+        return len;
+}
+
+int
+write_tun_header (struct tuntap* tt, uint8_t *buf, int len)
+{
+    if (tt->type == DEV_TYPE_TUN)
+      {
+        u_int32_t type;
+        struct iovec iv[2];
+        struct ip *iph;
+
+        iph = (struct ip *) buf;
+
+        if (tt->ipv6 && iph->ip_v == 6)
+            type = htonl (AF_INET6);
+        else
+            type = htonl (AF_INET);
+
+        iv[0].iov_base = &type;
+        iv[0].iov_len = sizeof (type);
+        iv[1].iov_base = buf;
+        iv[1].iov_len = len;
+
+        return header_modify_read_write_return (writev (tt->fd, iv, 2));
+      }
+    else
+        return write (tt->fd, buf, len);
+}
+
+int
+read_tun_header (struct tuntap* tt, uint8_t *buf, int len)
+{
+    if (tt->type == DEV_TYPE_TUN)
+      {
+        u_int32_t type;
+        struct iovec iv[2];
+
+        iv[0].iov_base = &type;
+        iv[0].iov_len = sizeof (type);
+        iv[1].iov_base = buf;
+        iv[1].iov_len = len;
+
+        return header_modify_read_write_return (readv (tt->fd, iv, 2));
+      }
+    else
+        return read (tt->fd, buf, len);
+}
+#endif
+
 
 #ifndef WIN32
 static void
@@ -1422,33 +1495,52 @@ close_tun_generic (struct tuntap *tt)
 void
 open_tun (const char *dev, const char *dev_type, const char *dev_node, struct tuntap *tt)
 {
-    int i;
-    struct user_pass up;
-    struct gc_arena gc = gc_new ();
-    
-    for (i = 0; i < tt->options.dns_len; ++i) {
-        strcpy(up.username, print_in_addr_t(tt->options.dns[i], 0, &gc));
-        management_query_user_pass(management, &up , "DNSSERVER", GET_USER_PASS_NEED_OK,(void*) 0);
+#define ANDROID_TUNNAME "vpnservice-tun"
+  int i;
+  struct user_pass up;
+  struct gc_arena gc = gc_new ();
+  bool opentun;
+
+  int oldtunfd = tt->fd;
+
+  for (i = 0; i < tt->options.dns_len; ++i) {
+    management_android_control (management, "DNSSERVER",
+				print_in_addr_t(tt->options.dns[i], 0, &gc));
+  }
+
+  if(tt->options.domain)
+    management_android_control (management, "DNSDOMAIN", tt->options.domain);
+
+  int android_method = managment_android_persisttun_action (management);
+
+  /* Android 4.4 workaround */
+  if (oldtunfd >=0 && android_method == ANDROID_OPEN_AFTER_CLOSE)
+    {
+      close(oldtunfd);
+      openvpn_sleep(2);
     }
 
-    if(tt->options.domain) {
-        strcpy(up.username , tt->options.domain);
-        management_query_user_pass(management, &up , "DNSDOMAIN", GET_USER_PASS_NEED_OK,(void*) 0);
-    }
-    
-    strcpy(up.username , dev);
-    management_query_user_pass(management, &up , "OPENTUN", GET_USER_PASS_NEED_OK,(void*) 0);
-
+  if (oldtunfd >=0  && android_method == ANDROID_KEEP_OLD_TUN) {
+    /* keep the old fd */
+    opentun = true;
+  } else {
+    opentun = management_android_control (management, "OPENTUN", dev);
+    /* Pick up the fd from management interface after calling the
+     * OPENTUN command */
     tt->fd = management->connection.lastfdreceived;
     management->connection.lastfdreceived=-1;
-    
-    if( (tt->fd < 0) || ! (strcmp("ok",up.password)==0)) {
-        msg (M_ERR, "ERROR: Cannot open TUN");
-    }
-    /* Set the actual name to a dummy name to enable scripts */
-    tt->actual_name = (char *) malloc(32);
-    strncpy(tt->actual_name, "vpnservice-tun",32);
-    gc_free (&gc);
+  }
+
+  if (oldtunfd>=0 && android_method == ANDROID_OPEN_BEFORE_CLOSE)
+    close(oldtunfd);
+
+  /* Set the actual name to a dummy name */
+  tt->actual_name = string_alloc (ANDROID_TUNNAME, NULL);
+
+  if ((tt->fd < 0) || !opentun)
+    msg (M_ERR, "ERROR: Cannot open TUN");
+
+  gc_free (&gc);
 }
 
 void
@@ -2076,23 +2168,6 @@ read_tun (struct tuntap* tt, uint8_t *buf, int len)
 
 #elif defined(TARGET_OPENBSD)
 
-/*
- * OpenBSD has a slightly incompatible TUN device from
- * the rest of the world, in that it prepends a
- * uint32 to the beginning of the IP header
- * to designate the protocol (why not just
- * look at the version field in the IP header to
- * determine v4 or v6?).
- *
- * We strip off this field on reads and
- * put it back on writes.
- *
- * I have not tested TAP devices on OpenBSD,
- * but I have conditionalized the special
- * TUN handling code described above to
- * go away for TAP devices.
- */
-
 void
 open_tun (const char *dev, const char *dev_type, const char *dev_node, struct tuntap *tt)
 {
@@ -2159,59 +2234,16 @@ close_tun (struct tuntap* tt)
     }
 }
 
-static inline int
-openbsd_modify_read_write_return (int len)
+int
+write_tun(struct tuntap *tt, uint8_t *buf, int len)
 {
- if (len > 0)
-    return len > sizeof (u_int32_t) ? len - sizeof (u_int32_t) : 0;
-  else
-    return len;
+  return write_tun_header (tt, buf, len);
 }
 
 int
-write_tun (struct tuntap* tt, uint8_t *buf, int len)
+read_tun (struct tuntap *tt, uint8_t *buf, int len)
 {
-  if (tt->type == DEV_TYPE_TUN)
-    {
-      u_int32_t type;
-      struct iovec iv[2];
-      struct ip *iph;
-
-      iph = (struct ip *) buf;
-
-      if (tt->ipv6 && iph->ip_v == 6)
-	type = htonl (AF_INET6);
-      else 
-	type = htonl (AF_INET);
-
-      iv[0].iov_base = &type;
-      iv[0].iov_len = sizeof (type);
-      iv[1].iov_base = buf;
-      iv[1].iov_len = len;
-
-      return openbsd_modify_read_write_return (writev (tt->fd, iv, 2));
-    }
-  else
-    return write (tt->fd, buf, len);
-}
-
-int
-read_tun (struct tuntap* tt, uint8_t *buf, int len)
-{
-  if (tt->type == DEV_TYPE_TUN)
-    {
-      u_int32_t type;
-      struct iovec iv[2];
-
-      iv[0].iov_base = &type;
-      iv[0].iov_len = sizeof (type);
-      iv[1].iov_base = buf;
-      iv[1].iov_len = len;
-
-      return openbsd_modify_read_write_return (readv (tt->fd, iv, 2));
-    }
-  else
-    return read (tt->fd, buf, len);
+    return read_tun_header (tt, buf, len);
 }
 
 #elif defined(TARGET_NETBSD)
@@ -2571,10 +2603,177 @@ read_tun (struct tuntap* tt, uint8_t *buf, int len)
  * pointing to lo0.  Need to unconfigure...  (observed on 10.5)
  */
 
+/*
+ * utun is the native Darwin tun driver present since at least 10.7
+ * Thanks goes to Jonathan Levin for providing an example how to utun
+ * (http://newosxbook.com/src.jl?tree=listings&file=17-15-utun.c)
+ */
+
+#ifdef HAVE_NET_IF_UTUN_H
+
+/* Helper functions that tries to open utun device
+   return -2 on early initialization failures (utun not supported
+   at all (old OS X) and -1 on initlization failure of utun
+   device (utun works but utunX is already used */
+static
+int utun_open_helper (struct ctl_info ctlInfo, int utunnum)
+{
+  struct sockaddr_ctl sc;
+  int fd;
+
+  fd = socket(PF_SYSTEM, SOCK_DGRAM, SYSPROTO_CONTROL);
+
+  if (fd < 0)
+    {
+      msg (M_INFO, "Opening utun (%s): %s", "socket(SYSPROTO_CONTROL)",
+           strerror (errno));
+      return -2;
+    }
+
+  if (ioctl(fd, CTLIOCGINFO, &ctlInfo) == -1)
+    {
+      close (fd);
+      msg (M_INFO, "Opening utun (%s): %s", "ioctl(CTLIOCGINFO)",
+           strerror (errno));
+      return -2;
+    }
+
+
+  sc.sc_id = ctlInfo.ctl_id;
+  sc.sc_len = sizeof(sc);
+  sc.sc_family = AF_SYSTEM;
+  sc.ss_sysaddr = AF_SYS_CONTROL;
+
+  sc.sc_unit = utunnum+1;
+
+
+  /* If the connect is successful, a utun%d device will be created, where "%d"
+   * is (sc.sc_unit - 1) */
+
+  if (connect (fd, (struct sockaddr *)&sc, sizeof(sc)) < 0)
+    {
+      msg (M_INFO, "Opening utun (%s): %s", "connect(AF_SYS_CONTROL)",
+           strerror (errno));
+      close(fd);
+      return -1;
+    }
+
+  set_nonblock (fd);
+  set_cloexec (fd); /* don't pass fd to scripts */
+
+  return fd;
+}
+
+void
+open_darwin_utun (const char *dev, const char *dev_type, const char *dev_node, struct tuntap *tt)
+{
+  struct ctl_info ctlInfo;
+  int fd;
+  char utunname[20];
+  int utunnum =-1;
+  socklen_t utunname_len = sizeof(utunname);
+
+  /* dev_node is simply utun, do the normal dynamic utun
+   * otherwise try to parse the utun number */
+  if (dev_node && !strcmp ("utun", dev_node)==0)
+    {
+      if (!sscanf (dev_node, "utun%d", &utunnum)==1)
+        msg (M_FATAL, "Cannot parse 'dev-node %s' please use 'dev-node utunX'"
+             "to use a utun device number X", dev_node);
+    }
+
+
+
+  CLEAR (ctlInfo);
+  if (strlcpy(ctlInfo.ctl_name, UTUN_CONTROL_NAME, sizeof(ctlInfo.ctl_name)) >=
+      sizeof(ctlInfo.ctl_name))
+    {
+      msg (M_ERR, "Opening utun: UTUN_CONTROL_NAME too long");
+    }
+
+  /* try to open first available utun device if no specific utun is requested */
+  if (utunnum == -1)
+    {
+      for (utunnum=0; utunnum<255; utunnum++)
+        {
+          fd = utun_open_helper (ctlInfo, utunnum);
+          /* Break if the fd is valid,
+           * or if early initalization failed (-2) */
+          if (fd !=-1)
+            break;
+        }
+    }
+  else
+    {
+      fd = utun_open_helper (ctlInfo, utunnum);
+    }
+
+  /* opening an utun device failed */
+  tt->fd = fd;
+
+  if (fd < 0)
+      return;
+
+  /* Retrieve the assigned interface name. */
+  if (getsockopt (fd, SYSPROTO_CONTROL, UTUN_OPT_IFNAME, utunname, &utunname_len))
+   msg (M_ERR | M_ERRNO, "Error retrieving utun interface name");
+
+  tt->actual_name = string_alloc (utunname, NULL);
+
+  msg (M_INFO, "Opened utun device %s", utunname);
+  tt->is_utun = true;
+}
+
+#endif
+
 void
 open_tun (const char *dev, const char *dev_type, const char *dev_node, struct tuntap *tt)
 {
-  open_tun_generic (dev, dev_type, dev_node, true, true, tt);
+#ifdef HAVE_NET_IF_UTUN_H
+  /* If dev_node does not start start with utun assume regular tun/tap */
+  if ((!dev_node && tt->type==DEV_TYPE_TUN) ||
+      (dev_node && !strncmp (dev_node, "utun", 4)))
+    {
+
+      /* Check if user has specific dev_type tap and forced utun with
+         dev-node utun */
+      if (tt->type!=DEV_TYPE_TUN)
+        msg (M_FATAL, "Cannot use utun devices with --dev-type %s",
+             dev_type_string (dev, dev_type));
+
+      /* Try utun first and fall back to normal tun if utun fails
+         and dev_node is not specified */
+      open_darwin_utun(dev, dev_type, dev_node, tt);
+
+      if (!tt->is_utun)
+        {
+          if (!dev_node)
+            {
+              /* No explicit utun and utun failed, try the generic way) */
+              msg (M_INFO, "Failed to open utun device. Falling back to /dev/tun device");
+              open_tun_generic (dev, dev_type, NULL, true, true, tt);
+            }
+          else
+            {
+              /* Specific utun device or generic utun request with no tun
+                 fall back failed, consider this a fatal failure */
+              msg (M_FATAL, "Cannot open utun device");
+            }
+        }
+    }
+  else
+#endif
+    {
+
+      /* Use plain dev-node tun to select /dev/tun style
+       * Unset dev_node variable prior to passing to open_tun_generic to
+       * let open_tun_generic pick the first available tun device */
+
+      if (dev_node && strcmp (dev_node, "tun")==0)
+        dev_node=NULL;
+
+      open_tun_generic (dev, dev_type, dev_node, true, true, tt);
+    }
 }
 
 void
@@ -2607,13 +2806,23 @@ close_tun (struct tuntap* tt)
 int
 write_tun (struct tuntap* tt, uint8_t *buf, int len)
 {
-  return write (tt->fd, buf, len);
+#ifdef HAVE_NET_IF_UTUN_H
+  if (tt->is_utun)
+    return write_tun_header (tt, buf, len);
+  else
+#endif
+    return write (tt->fd, buf, len);
 }
 
 int
 read_tun (struct tuntap* tt, uint8_t *buf, int len)
 {
-  return read (tt->fd, buf, len);
+#ifdef HAVE_NET_IF_UTUN_H
+  if (tt->is_utun)
+    return read_tun_header (tt, buf, len);
+  else
+#endif
+    return read (tt->fd, buf, len);
 }
 
 #elif defined(WIN32)
@@ -2958,9 +3167,9 @@ get_panel_reg (struct gc_arena *gc)
       char enum_name[256];
       char connection_string[256];
       HKEY connection_key;
-      char name_data[256];
+      WCHAR name_data[256];
       DWORD name_type;
-      const char name_string[] = "Name";
+      const WCHAR name_string[] = L"Name";
 
       len = sizeof (enum_name);
       status = RegEnumKeyEx(
@@ -2994,12 +3203,12 @@ get_panel_reg (struct gc_arena *gc)
       else
 	{
 	  len = sizeof (name_data);
-	  status = RegQueryValueEx(
+	  status = RegQueryValueExW(
 				   connection_key,
 				   name_string,
 				   NULL,
 				   &name_type,
-				   name_data,
+				   (LPBYTE) name_data,
 				   &len);
 
 	  if (status != ERROR_SUCCESS || name_type != REG_SZ)
@@ -3007,10 +3216,15 @@ get_panel_reg (struct gc_arena *gc)
 		 NETWORK_CONNECTIONS_KEY, connection_string, name_string);
 	  else
 	    {
+              int n;
+              LPSTR name;
 	      struct panel_reg *reg;
 
 	      ALLOC_OBJ_CLEAR_GC (reg, struct panel_reg, gc);
-	      reg->name = string_alloc (name_data, gc);
+              n = WideCharToMultiByte (CP_UTF8, 0, name_data, -1, NULL, 0, NULL, NULL);
+              name = gc_malloc (n, false, gc);
+              WideCharToMultiByte (CP_UTF8, 0, name_data, -1, name, n, NULL, NULL);
+              reg->name = name;
 	      reg->guid = string_alloc (enum_name, gc);
 		      
 	      /* link into return list */
@@ -3220,7 +3434,7 @@ static void
 at_least_one_tap_win (const struct tap_reg *tap_reg)
 {
   if (!tap_reg)
-    msg (M_FATAL, "There are no TAP-Windows adapters on this system.  You should be able to create a TAP-Windows adapter by going to Start -> All Programs -> " PACKAGE_NAME " -> Add a new TAP-Windows virtual ethernet adapter.");
+    msg (M_FATAL, "There are no TAP-Windows adapters on this system.  You should be able to create a TAP-Windows adapter by going to Start -> All Programs -> TAP-Windows -> Utilities -> Add a new TAP-Windows virtual ethernet adapter.");
 }
 
 /*
@@ -5091,10 +5305,14 @@ close_tun (struct tuntap *tt)
 	  /* remove route pointing to interface */
 	  delete_route_connected_v6_net(tt, NULL);
 
+	  /* "store=active" is needed in Windows 8(.1) to delete the
+	   * address we added (pointed out by Cedric Tabary).
+	   */
+
 	  /* netsh interface ipv6 delete address \"%s\" %s */
 	  ifconfig_ipv6_local = print_in6_addr (tt->local_ipv6, 0,  &gc);
 	  argv_printf (&argv,
-		    "%s%sc interface ipv6 delete address %s %s",
+		    "%s%sc interface ipv6 delete address %s %s store=active",
 		     get_win_sys_path(),
 		     NETSH_PATH_SUFFIX,
 		     tt->actual_name,

@@ -15,7 +15,8 @@
      limitations under the License.
 -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="se.leap.bitmaskclient">
 
     <!-- if you want to run test, this permissions are needed. Gradle will get rid of them once we implement it. --> 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />    

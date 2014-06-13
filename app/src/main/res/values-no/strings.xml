@@ -1,38 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="about">Om</string>
-  <string name="no_error_found">Ingen feil funnet</string>
-  <string name="config_error_found">Feil i konfigurasjonen</string>
-  <string name="vpn_launch_title">Koble til VPN</string>
-  <string name="cancel_connection">Koble fra</string>
-  <string name="clear_log">Tøm logg</string>
-  <string name="title_cancel">Avbryt bekreftelse</string>
-  <string name="edit_vpn">Rediger VPN-innstillinger</string>
-  <string name="error">"Feil:"</string>
-  <string name="clear">Fjern</string>
   <string name="info">info</string>
   <string name="show_connection_details">Vis Tilkoblingsdetaljer</string>
   <string name="dns_server_info">DNS-server: %s</string>
   <string name="dns_domain_info">DNS-domene: %s</string>
   <string name="routes_info">Ruter: %s</string>
-  <string name="version_info">%1$s %2$s</string>
-  <string name="send_logfile">Send loggfilen</string>
-  <string name="send">Send</string>
-  <string name="bitmask_openvpn_log_file">LEAP Android loggfil</string>
-  <string name="speed_waiting">Venter på tilstands melding...</string>
-  <string name="converted_profile">importert profil</string>
-  <string name="converted_profile_i">importert profilen %d</string>
-  <string name="error_empty_username">Brukernavnet kan ikke være tomt.</string>
-  <string name="pkcs12_file_encryption_key">PKCS12 Filkrypteringsnøkkel</string>
-  <string name="private_key_password">Privat nøkkel passord</string>
-  <string name="password">Passord</string>
-  <string name="building_configration">Lager konfigurasjon...</string>
-  <string name="netstatus">Nettverksstatus: %s</string>
-  <string name="mobile_info">Kjører på %1$s (%2$s) %3$s, Android API %4$d</string>
-  <string name="translationby">Norsk oversettelse av Jonny</string>
-  <string name="getproxy_error">Feil ved henting av proxy-innstillinger: %s</string>
-  <string name="using_proxy">Bruker proxy %1$s %2$d</string>
-  <string name="ignore">Ignorer</string>
-  <string name="restart">Start på nytt</string>
-  <string name="configuration_changed">Konfigurasjon endret</string>
 </resources>

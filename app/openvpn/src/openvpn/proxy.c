@@ -42,8 +42,6 @@
 #include "ntlm.h"
 #include "memdbg.h"
 
-#ifdef ENABLE_HTTP_PROXY
-
 #define UP_TYPE_PROXY        "HTTP Proxy"
 
 struct http_proxy_options *
@@ -439,7 +437,6 @@ struct http_proxy_info *
 http_proxy_new (const struct http_proxy_options *o)
 {
   struct http_proxy_info *p;
-  struct http_proxy_options opt;
 
   if (!o || !o->server)
     msg (M_FATAL, "HTTP_PROXY: server not specified");
@@ -490,6 +487,67 @@ http_proxy_close (struct http_proxy_info *hp)
 }
 
 bool
+add_proxy_headers (struct http_proxy_info *p,
+		  socket_descriptor_t sd, /* already open to proxy */
+		  const char *host,	  /* openvpn server remote */
+		  const char* port	  /* openvpn server port */
+		  )
+{
+  char buf[512];
+  int i;
+  bool host_header_sent=false;
+
+  /*
+   * Send custom headers if provided
+   * If content is NULL the whole header is in name
+   * Also remember if we already sent a Host: header
+   */
+  for  (i=0; i < MAX_CUSTOM_HTTP_HEADER && p->options.custom_headers[i].name;i++)
+    {
+      if (p->options.custom_headers[i].content)
+	{
+	  openvpn_snprintf (buf, sizeof(buf), "%s: %s",
+			    p->options.custom_headers[i].name,
+			    p->options.custom_headers[i].content);
+	  if (!strcasecmp(p->options.custom_headers[i].name, "Host"))
+	      host_header_sent=true;
+	}
+      else
+	{
+	  openvpn_snprintf (buf, sizeof(buf), "%s",
+			    p->options.custom_headers[i].name);
+	  if (!strncasecmp(p->options.custom_headers[i].name, "Host:", 5))
+	      host_header_sent=true;
+	}
+
+      msg (D_PROXY, "Send to HTTP proxy: '%s'", buf);
+      if (!send_line_crlf (sd, buf))
+	return false;
+    }
+
+  if (!host_header_sent)
+    {
+      openvpn_snprintf (buf, sizeof(buf), "Host: %s", host);
+      msg (D_PROXY, "Send to HTTP proxy: '%s'", buf);
+      if (!send_line_crlf(sd, buf))
+        return false;
+    }
+
+  /* send User-Agent string if provided */
+  if (p->options.user_agent)
+    {
+      openvpn_snprintf (buf, sizeof(buf), "User-Agent: %s",
+			p->options.user_agent);
+      msg (D_PROXY, "Send to HTTP proxy: '%s'", buf);
+      if (!send_line_crlf (sd, buf))
+	return false;
+    }
+
+  return true;
+}
+
+
+bool
 establish_http_proxy_passthru (struct http_proxy_info *p,
 			       socket_descriptor_t sd, /* already open to proxy */
 			       const char *host,       /* openvpn server remote */
@@ -499,7 +557,7 @@ establish_http_proxy_passthru (struct http_proxy_info *p,
 {
   struct gc_arena gc = gc_new ();
   char buf[512];
-  char buf2[128];
+  char buf2[129];
   char get[80];
   int status;
   int nparms;
@@ -532,18 +590,8 @@ establish_http_proxy_passthru (struct http_proxy_info *p,
       if (!send_line_crlf (sd, buf))
 	goto error;
 
-      openvpn_snprintf(buf, sizeof(buf), "Host: %s", host);
-      if (!send_line_crlf(sd, buf))
-        goto error;
-
-      /* send User-Agent string if provided */
-      if (p->options.user_agent)
-	{
-	  openvpn_snprintf (buf, sizeof(buf), "User-Agent: %s",
-			    p->options.user_agent);
-	  if (!send_line_crlf (sd, buf))
-	    goto error;
-	}
+      if (!add_proxy_headers (p, sd, host, port))
+	goto error;
 
       /* auth specified? */
       switch (p->auth_method)
@@ -622,7 +670,7 @@ establish_http_proxy_passthru (struct http_proxy_info *p,
 
               openvpn_snprintf (get, sizeof get, "%%*s NTLM %%%ds", (int) sizeof (buf2) - 1);
               nparms = sscanf (buf, get, buf2);
-              buf2[127] = 0; /* we only need the beginning - ensure it's null terminated. */
+              buf2[128] = 0; /* we only need the beginning - ensure it's null terminated. */
 
               /* check for "Proxy-Authenticate: NTLM TlRM..." */
               if (nparms == 1)
@@ -658,14 +706,11 @@ establish_http_proxy_passthru (struct http_proxy_info *p,
           if (!send_line_crlf (sd, buf))
             goto error;
 
-          
           /* send HOST etc, */
-          openvpn_snprintf (buf, sizeof(buf), "Host: %s", host);
-          msg (D_PROXY, "Send to HTTP proxy: '%s'", buf);
-          if (!send_line_crlf (sd, buf))
-            goto error;
+	  if (!add_proxy_headers (p, sd, host, port))
+	    goto error;
 
-          msg (D_PROXY, "Attempting NTLM Proxy-Authorization phase 3");
+	  msg (D_PROXY, "Attempting NTLM Proxy-Authorization phase 3");
 	  {
 	    const char *np3 = ntlm_phase_3 (p, buf2, &gc);
 	    if (!np3)
@@ -771,9 +816,7 @@ establish_http_proxy_passthru (struct http_proxy_info *p,
 		goto error;
 
 	      /* send HOST etc, */
-	      openvpn_snprintf (buf, sizeof(buf), "Host: %s", host);
-	      msg (D_PROXY, "Send to HTTP proxy: '%s'", buf);
-	      if (!send_line_crlf (sd, buf))
+	      if (!add_proxy_headers (p, sd, host, port))
 		goto error;
 
 	      /* send digest response */
@@ -900,8 +943,3 @@ establish_http_proxy_passthru (struct http_proxy_info *p,
   gc_free (&gc);
   return ret;
 }
-
-#else
-static void dummy(void) {}
-#endif /* ENABLE_HTTP_PROXY */
-

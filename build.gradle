@@ -1,15 +1,44 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+import au.com.coherentsoftware.gradle.mercurial.task.*
+import org.apache.tools.ant.filters.ReplaceTokens
+
 buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
-    }
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:0.11.+'
+    classpath 'au.com.coherentsoftware.gradle:Gradle-MercurialMqPlugin:1.1.0+'
+  }
 }
 
 allprojects {
-    repositories {
-        mavenCentral()
-    }
+  repositories {
+    mavenCentral()
+  }
+}
+
+apply plugin: 'mercurial-mq'
+
+// task checkoutIcsOpenvpn( type: GitCheckout ) {
+//   branch = 'ics-openvpn-upstream'
+// }
+
+task cloneIcsOpenVPN( type: HgClone ) {
+  ext.srcFile = file('build.gradle')
+  ext.destDir = new File('.', 'ics-openvpn')
+  inputs.file srcFile
+  outputs.dir destDir
+     
+  sourceUrl = 'https://code.google.com/p/ics-openvpn/'
+}
+
+task updateIcsOpenVPN( type: HgUpdate, dependsOn: 'pullIcsOpenVPN' ) {
+  workingDir = 'ics-openvpn'
+  branch = 'default'
+}
+
+task pullIcsOpenVPN( type: HgPull ) {
+  sourceUrl = 'https://code.google.com/p/ics-openvpn/'
+  workingDir = 'ics-openvpn'
 }

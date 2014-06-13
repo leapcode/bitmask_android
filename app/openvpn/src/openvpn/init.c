@@ -43,6 +43,7 @@
 #include "lladdr.h"
 #include "ping.h"
 #include "mstats.h"
+#include "ssl_verify.h"
 
 #include "memdbg.h"
 
@@ -127,11 +128,9 @@ management_callback_proxy_cmd (void *arg, const char **p)
     {
       if (streq (p[1], "HTTP"))
         {
-#ifndef ENABLE_HTTP_PROXY
-          msg (M_WARN, "HTTP proxy support is not available");
-#else
           struct http_proxy_options *ho;
-          if (ce->proto != PROTO_TCP && ce->proto != PROTO_TCP_CLIENT )            {
+          if (ce->proto != PROTO_TCP && ce->proto != PROTO_TCP_CLIENT )
+            {
               msg (M_WARN, "HTTP proxy support only works for TCP based connections");
               return false;
             }
@@ -141,17 +140,12 @@ management_callback_proxy_cmd (void *arg, const char **p)
           ho->retry = true;
           ho->auth_retry = (p[4] && streq (p[4], "nct") ? PAR_NCT : PAR_ALL);
           ret = true;
-#endif
         }
       else if (streq (p[1], "SOCKS"))
         {
-#ifndef ENABLE_SOCKS
-          msg (M_WARN, "SOCKS proxy support is not available");
-#else
           ce->socks_proxy_server = string_alloc (p[2], gc);
           ce->socks_proxy_port = p[3];
           ret = true;
-#endif
         }
     }
   else
@@ -174,10 +168,12 @@ ce_management_query_proxy (struct context *c)
   if (management)
     {
       gc = gc_new ();
-      struct buffer out = alloc_buf_gc (256, &gc);
-      buf_printf (&out, ">PROXY:%u,%s,%s", (l ? l->current : 0) + 1,
-                  (proto_is_udp (ce->proto) ? "UDP" : "TCP"), np (ce->remote));
-      management_notify_generic (management, BSTR (&out));
+      {
+	struct buffer out = alloc_buf_gc (256, &gc);
+	buf_printf (&out, ">PROXY:%u,%s,%s", (l ? l->current : 0) + 1,
+		    (proto_is_udp (ce->proto) ? "UDP" : "TCP"), np (ce->remote));
+	management_notify_generic (management, BSTR (&out));
+      }
       ce->flags |= CE_MAN_QUERY_PROXY;
       while (ce->flags & CE_MAN_QUERY_PROXY)
         {
@@ -282,6 +278,7 @@ static void
 init_connection_list (struct context *c)
 {
   struct connection_list *l = c->options.connection_list;
+
   l->current = -1;
   if (c->options.remote_random)
     {
@@ -303,11 +300,10 @@ init_connection_list (struct context *c)
 /*
  * Clear the remote address list
  */
-static void clear_remote_addrlist (struct link_socket_addr *lsa)
+static void clear_remote_addrlist (struct link_socket_addr *lsa, bool free)
 {
-    if (lsa->remote_list) {
-        freeaddrinfo(lsa->remote_list);
-    }
+    if (lsa->remote_list && free)
+      freeaddrinfo(lsa->remote_list);
     lsa->remote_list = NULL;
     lsa->current_remote = NULL;
 }
@@ -322,7 +318,7 @@ next_connection_entry (struct context *c)
   bool ce_defined;
   struct connection_entry *ce;
   int n_cycles = 0;
-  
+
   do {
     ce_defined = true;
     if (c->options.no_advance && l->current >= 0)
@@ -345,9 +341,12 @@ next_connection_entry (struct context *c)
              * this is broken probably ever since connection lists and multiple
              * remote existed
              */
-            
             if (!c->options.persist_remote_ip)
-                clear_remote_addrlist (&c->c1.link_socket_addr);
+	      {
+		/* close_instance should have cleared the addrinfo objects */
+		ASSERT (c->c1.link_socket_addr.current_remote == NULL);
+		ASSERT (c->c1.link_socket_addr.remote_list == NULL);
+	      }
             else
                 c->c1.link_socket_addr.current_remote =
                 c->c1.link_socket_addr.remote_list;
@@ -357,7 +356,7 @@ next_connection_entry (struct context *c)
              * If this is connect-retry-max * size(l)
              * OpenVPN will quit
              */
-            
+
             c->options.unsuccessful_attempts++;
 
             if (++l->current >= l->len)
@@ -396,7 +395,7 @@ next_connection_entry (struct context *c)
         }
 #endif
   } while (!ce_defined);
-  
+
   /* Check if this connection attempt would bring us over the limit */
   if (c->options.connect_retry_max > 0 &&
       c->options.unsuccessful_attempts > (l->len  * c->options.connect_retry_max))
@@ -434,41 +433,30 @@ init_query_passwords (struct context *c)
  * Initialize/Uninitialize HTTP or SOCKS proxy
  */
 
-#ifdef GENERAL_PROXY_SUPPORT
-
 static void
 uninit_proxy_dowork (struct context *c)
 {
-#ifdef ENABLE_HTTP_PROXY
   if (c->c1.http_proxy_owned && c->c1.http_proxy)
     {
       http_proxy_close (c->c1.http_proxy);
       c->c1.http_proxy = NULL;
       c->c1.http_proxy_owned = false;
     }
-#endif
-#ifdef ENABLE_SOCKS
   if (c->c1.socks_proxy_owned && c->c1.socks_proxy)
     {
       socks_proxy_close (c->c1.socks_proxy);
       c->c1.socks_proxy = NULL;
       c->c1.socks_proxy_owned = false;
     }
-#endif
 }
 
 static void
 init_proxy_dowork (struct context *c)
 {
-#ifdef ENABLE_HTTP_PROXY
   bool did_http = false;
-#else
-  const bool did_http = false;
-#endif
 
   uninit_proxy_dowork (c);
 
-#ifdef ENABLE_HTTP_PROXY
   if (c->options.ce.http_proxy_options)
     {
       /* Possible HTTP proxy user/pass input */
@@ -479,10 +467,8 @@ init_proxy_dowork (struct context *c)
 	  c->c1.http_proxy_owned = true;
 	}
     }
-#endif
 
-#ifdef ENABLE_SOCKS
-  if (!did_http && c->options.ce.socks_proxy_server)
+    if (!did_http && c->options.ce.socks_proxy_server)
     {
       c->c1.socks_proxy = socks_proxy_new (c->options.ce.socks_proxy_server,
 					   c->options.ce.socks_proxy_port,
@@ -493,7 +479,6 @@ init_proxy_dowork (struct context *c)
 	  c->c1.socks_proxy_owned = true;
 	}
     }
-#endif
 }
 
 static void
@@ -507,20 +492,6 @@ uninit_proxy (struct context *c)
 {
    uninit_proxy_dowork (c);
 }
-
-#else
-
-static inline void
-init_proxy (struct context *c, const int scope)
-{
-}
-
-static inline void
-uninit_proxy (struct context *c)
-{
-}
-
-#endif
 
 void
 context_init_1 (struct context *c)
@@ -865,7 +836,7 @@ print_openssl_info (const struct options *options)
 #ifdef ENABLE_CRYPTO
   if (options->show_ciphers || options->show_digests || options->show_engines
 #ifdef ENABLE_SSL
-      || options->show_tls_ciphers
+      || options->show_tls_ciphers || options->show_curves
 #endif
     )
     {
@@ -877,7 +848,9 @@ print_openssl_info (const struct options *options)
 	show_available_engines ();
 #ifdef ENABLE_SSL
       if (options->show_tls_ciphers)
-	show_available_tls_ciphers ();
+	show_available_tls_ciphers (options->cipher_list);
+      if (options->show_curves)
+	show_available_curves();
 #endif
       return true;
     }
@@ -1156,16 +1129,17 @@ do_init_traffic_shaper (struct context *c)
 }
 
 /*
- * Allocate a route list structure if at least one
- * --route option was specified.
+ * Allocate route list structures for IPv4 and IPv6
+ * (we do this for IPv4 even if no --route option has been seen, as other
+ * parts of OpenVPN might want to fill the route-list with info, e.g. DHCP)
  */
 static void
 do_alloc_route_list (struct context *c)
 {
-  if (c->options.routes && !c->c1.route_list)
-    c->c1.route_list = new_route_list (c->options.max_routes, &c->gc);
+  if (!c->c1.route_list)
+    ALLOC_OBJ_CLEAR_GC (c->c1.route_list, struct route_list, &c->gc);
   if (c->options.routes_ipv6 && !c->c1.route_ipv6_list)
-    c->c1.route_ipv6_list = new_route_ipv6_list (c->options.max_routes, &c->gc);
+    ALLOC_OBJ_CLEAR_GC (c->c1.route_ipv6_list, struct route_ipv6_list, &c->gc);
 }
 
 
@@ -1215,7 +1189,6 @@ do_init_route_ipv6_list (const struct options *options,
 		    struct env_set *es)
 {
   const char *gw = NULL;
-  int dev = dev_type_enum (options->dev, options->dev_type);
   int metric = -1;		/* no metric set */
 
   gw = options->ifconfig_ipv6_remote;		/* default GW = remote end */
@@ -1251,7 +1224,7 @@ void
 initialization_sequence_completed (struct context *c, const unsigned int flags)
 {
   static const char message[] = "Initialization Sequence Completed";
-    
+
   /* Reset the unsuccessful connection counter on complete initialisation */
   c->options.unsuccessful_attempts=0;
 
@@ -1420,15 +1393,15 @@ do_open_tun (struct context *c)
   if (!c->c1.tuntap)
     {
 #endif
-      
+
 #ifdef TARGET_ANDROID
       /* If we emulate persist-tun on android we still have to open a new tun and
-         then close the old */
+       * then close the old */
       int oldtunfd=-1;
-      if(c->c1.tuntap)
-          oldtunfd = c->c1.tuntap->fd;
+      if (c->c1.tuntap)
+	oldtunfd = c->c1.tuntap->fd;
 #endif
-        
+
       /* initialize (but do not open) tun/tap object */
       do_init_tun (c);
 
@@ -1455,19 +1428,19 @@ do_open_tun (struct context *c)
 	}
 
       /* possibly add routes */
-      if(ifconfig_order() == ROUTE_BEFORE_TUN) {
-		  /* Ignore route_delay, would cause ROUTE_BEFORE_TUN to be ignored */
-		  do_route (&c->options, c->c1.route_list, c->c1.route_ipv6_list,
-					c->c1.tuntap, c->plugins, c->c2.es);
-    }
-
+      if (route_order() == ROUTE_BEFORE_TUN) {
+        /* Ignore route_delay, would cause ROUTE_BEFORE_TUN to be ignored */
+        do_route (&c->options, c->c1.route_list, c->c1.route_ipv6_list,
+                  c->c1.tuntap, c->plugins, c->c2.es);
+      }
+#ifdef TARGET_ANDROID
+	/* Store the old fd inside the fd so open_tun can use it */
+	c->c1.tuntap->fd = oldtunfd;
+#endif
       /* open the tun device */
       open_tun (c->options.dev, c->options.dev_type, c->options.dev_node,
 		c->c1.tuntap);
-#ifdef TARGET_ANDROID
-      if(oldtunfd>=0)
-        close(oldtunfd);
-#endif
+
       /* set the hardware address */
       if (c->options.lladdr)
 	  set_lladdr(c->c1.tuntap->actual_name, c->options.lladdr, c->c2.es);
@@ -1495,7 +1468,7 @@ do_open_tun (struct context *c)
 		   c->c2.es);
 
       /* possibly add routes */
-      if ((ifconfig_order() == ROUTE_AFTER_TUN) && (!c->options.route_delay_defined))
+      if ((route_order() == ROUTE_AFTER_TUN) && (!c->options.route_delay_defined))
 	do_route (&c->options, c->c1.route_list, c->c1.route_ipv6_list,
 		  c->c1.tuntap, c->plugins, c->c2.es);
 
@@ -1578,7 +1551,7 @@ do_close_tun (struct context *c, bool force)
 
 	  /* delete any routes we added */
 	  if (c->c1.route_list || c->c1.route_ipv6_list )
-            {
+           {
               run_up_down (c->options.route_predown_script,
                            c->plugins,
                            OPENVPN_PLUGIN_ROUTE_PREDOWN,
@@ -1705,7 +1678,7 @@ do_up (struct context *c, bool pulled_options, unsigned int option_types_found)
 #endif
 
 	  /* if --route-delay was specified, start timer */
-	  if ((ifconfig_order() == ROUTE_AFTER_TUN) && c->options.route_delay_defined)
+	  if ((route_order() == ROUTE_AFTER_TUN) && c->options.route_delay_defined)
 	    {
 	      event_timeout_init (&c->c2.route_wakeup, c->options.route_delay, now);
 	      event_timeout_init (&c->c2.route_wakeup_expire, c->options.route_delay + c->options.route_delay_window, now);
@@ -1783,14 +1756,12 @@ do_deferred_options (struct context *c, const unsigned int found)
     }
 #endif
 
-#ifdef ENABLE_LZO
+#ifdef USE_COMP
   if (found & OPT_P_COMP)
     {
-      if (lzo_defined (&c->c2.lzo_compwork))
-	{
-	  msg (D_PUSH, "OPTIONS IMPORT: LZO parms modified");
-	  lzo_modify_flags (&c->c2.lzo_compwork, c->options.lzo);
-	}
+      msg (D_PUSH, "OPTIONS IMPORT: compression parms modified");
+      comp_uninit (c->c2.comp_context);
+      c->c2.comp_context = comp_init (&c->options.comp);
     }
 #endif
 
@@ -1853,17 +1824,7 @@ do_hold (struct context *c)
 static void
 socket_restart_pause (struct context *c)
 {
-  bool proxy = false;
   int sec = 2;
-
-#ifdef ENABLE_HTTP_PROXY
-  if (c->options.ce.http_proxy_options)
-    proxy = true;
-#endif
-#ifdef ENABLE_SOCKS
-  if (c->options.ce.socks_proxy_server)
-    proxy = true;
-#endif
 
   switch (c->options.ce.proto)
     {
@@ -2222,7 +2183,12 @@ do_init_crypto_tls (struct context *c, const unsigned int flags)
   to.renegotiate_seconds = options->renegotiate_seconds;
   to.single_session = options->single_session;
 #ifdef ENABLE_PUSH_PEER_INFO
-  to.push_peer_info = options->push_peer_info;
+  if (options->push_peer_info)		/* all there is */
+    to.push_peer_info_detail = 2;
+  else if (options->pull)		/* pull clients send some details */
+    to.push_peer_info_detail = 1;
+  else					/* default: no peer-info at all */
+    to.push_peer_info_detail = 0;
 #endif
 
   /* should we not xmit any packets until we get an initial
@@ -2236,7 +2202,8 @@ do_init_crypto_tls (struct context *c, const unsigned int flags)
 
   to.verify_command = options->tls_verify;
   to.verify_export_cert = options->tls_export_cert;
-  to.verify_x509name = options->tls_remote;
+  to.verify_x509_type = (options->verify_x509_type & 0xff);
+  to.verify_x509_name = options->verify_x509_name;
   to.crl_file = options->crl_file;
   to.ssl_flags = options->ssl_flags;
   to.ns_cert_type = options->ns_cert_type;
@@ -2276,6 +2243,10 @@ do_init_crypto_tls (struct context *c, const unsigned int flags)
 #ifdef ENABLE_CLIENT_CR
   to.sci = &options->sc_info;
 #endif
+#endif
+
+#ifdef USE_COMP
+  to.comp_options = options->comp;
 #endif
 
   /* TLS handshake authentication (--tls-auth) */
@@ -2360,38 +2331,56 @@ do_init_crypto (struct context *c, const unsigned int flags)
 static void
 do_init_frame (struct context *c)
 {
-#ifdef ENABLE_LZO
+#ifdef USE_COMP
   /*
-   * Initialize LZO compression library.
+   * modify frame parameters if compression is enabled
    */
-  if (c->options.lzo & LZO_SELECTED)
+  if (comp_enabled(&c->options.comp))
     {
-      lzo_adjust_frame_parameters (&c->c2.frame);
+      comp_add_to_extra_frame (&c->c2.frame);
 
+#if !defined(ENABLE_SNAPPY) && !defined(ENABLE_LZ4)
       /*
-       * LZO usage affects buffer alignment.
+       * Compression usage affects buffer alignment when non-swapped algs
+       * such as LZO is used.
+       * Newer algs like Snappy and comp-stub with COMP_F_SWAP don't need
+       * any special alignment because of the control-byte swap approach.
+       * LZO alignment (on the other hand) is problematic because
+       * the presence of the control byte means that either the output of
+       * decryption must be written to an unaligned buffer, or the input
+       * to compression (or packet dispatch if packet is uncompressed)
+       * must be read from an unaligned buffer.
+       * This code tries to align the input to compression (or packet
+       * dispatch if packet is uncompressed) at the cost of requiring
+       * decryption output to be written to an unaligned buffer, so
+       * it's more of a tradeoff than an optimal solution and we don't
+       * include it when we are doing a modern build with Snappy or LZ4.
+       * Strictly speaking, on the server it would be better to execute
+       * this code for every connection after we decide the compression
+       * method, but currently the frame code doesn't appear to be
+       * flexible enough for this, since the frame is already established
+       * before it is known which compression options will be pushed.
        */
-      if (CIPHER_ENABLED (c))
+      if (comp_unswapped_prefix (&c->options.comp) && CIPHER_ENABLED (c))
 	{
-	  frame_add_to_align_adjust (&c->c2.frame, LZO_PREFIX_LEN);
+	  frame_add_to_align_adjust (&c->c2.frame, COMP_PREFIX_LEN);
 	  frame_or_align_flags (&c->c2.frame,
 				FRAME_HEADROOM_MARKER_FRAGMENT
 				|FRAME_HEADROOM_MARKER_DECRYPT);
 	}
+#endif
 
 #ifdef ENABLE_FRAGMENT
-      lzo_adjust_frame_parameters (&c->c2.frame_fragment_omit);	/* omit LZO frame delta from final frame_fragment */
+      comp_add_to_extra_frame (&c->c2.frame_fragment_omit); /* omit compression frame delta from final frame_fragment */
 #endif
     }
-#endif /* ENABLE_LZO */
+#endif /* USE_COMP */
 
-#ifdef ENABLE_SOCKS
   /*
    * Adjust frame size for UDP Socks support.
    */
   if (c->options.ce.socks_proxy_server)
     socks_adjust_frame_parameters (&c->c2.frame, c->options.ce.proto);
-#endif
 
   /*
    * Adjust frame size based on the --tun-mtu-extra parameter.
@@ -2411,6 +2400,17 @@ do_init_frame (struct context *c)
    * make sure values are rational, etc.
    */
   frame_finalize_options (c, NULL);
+
+#ifdef USE_COMP
+  /*
+   * Modify frame parameters if compression is compiled in.
+   * Should be called after frame_finalize_options.
+   */
+  comp_add_to_extra_buffer (&c->c2.frame);
+#ifdef ENABLE_FRAGMENT
+  comp_add_to_extra_buffer (&c->c2.frame_fragment_omit); /* omit compression frame delta from final frame_fragment */
+#endif
+#endif /* USE_COMP */
 
 #ifdef ENABLE_FRAGMENT
   /*
@@ -2498,12 +2498,10 @@ do_option_warnings (struct context *c)
     warn_on_use_of_common_subnets ();
   if (o->tls_client
       && !o->tls_verify
-      && !o->tls_remote
+      && o->verify_x509_type == VERIFY_X509_NONE
       && !(o->ns_cert_type & NS_CERT_CHECK_SERVER)
       && !o->remote_cert_eku)
     msg (M_WARN, "WARNING: No server certificate verification method has been enabled.  See http://openvpn.net/howto.html#mitm for more info.");
-  if (o->tls_remote)
-    msg (M_WARN, "WARNING: Make sure you understand the semantics of --tls-remote before using it (see the man page).");
 #endif
 #endif
 
@@ -2512,6 +2510,16 @@ do_option_warnings (struct context *c)
     msg (M_WARN, "NOTE: --connect-timeout option is not supported on this OS");
 #endif
 
+  /* If a script is used, print appropiate warnings */
+  if (o->user_script_used)
+   {
+     if (script_security >= SSEC_SCRIPTS)
+       msg (M_WARN, "NOTE: the current --script-security setting may allow this configuration to call user-defined scripts");
+     else if (script_security >= SSEC_PW_ENV)
+       msg (M_WARN, "WARNING: the current --script-security setting may allow passwords to be passed to scripts via environmental variables");
+     else
+       msg (M_WARN, "NOTE: starting with " PACKAGE_NAME " 2.1, '--script-security 2' or higher is required to call user-defined scripts or executables");
+   }
 }
 
 static void
@@ -2539,9 +2547,9 @@ init_context_buffers (const struct frame *frame)
   b->decrypt_buf = alloc_buf (BUF_SIZE (frame));
 #endif
 
-#ifdef ENABLE_LZO
-  b->lzo_compress_buf = alloc_buf (BUF_SIZE (frame));
-  b->lzo_decompress_buf = alloc_buf (BUF_SIZE (frame));
+#ifdef USE_COMP
+  b->compress_buf = alloc_buf (BUF_SIZE (frame));
+  b->decompress_buf = alloc_buf (BUF_SIZE (frame));
 #endif
 
   return b;
@@ -2556,9 +2564,9 @@ free_context_buffers (struct context_buffers *b)
       free_buf (&b->read_tun_buf);
       free_buf (&b->aux_buf);
 
-#ifdef ENABLE_LZO
-      free_buf (&b->lzo_compress_buf);
-      free_buf (&b->lzo_decompress_buf);
+#ifdef USE_COMP
+      free_buf (&b->compress_buf);
+      free_buf (&b->decompress_buf);
 #endif
 
 #ifdef ENABLE_CRYPTO
@@ -2638,16 +2646,14 @@ do_init_socket_1 (struct context *c, const int mode)
 			   c->options.ce.local_port,
 			   c->options.ce.remote,
 			   c->options.ce.remote_port,
+			   c->c1.dns_cache,
 			   c->options.ce.proto,
-         c->options.ce.af,
+			   c->options.ce.af,
+			   c->options.ce.bind_ipv6_only,
 			   mode,
 			   c->c2.accept_from,
-#ifdef ENABLE_HTTP_PROXY
 			   c->c1.http_proxy,
-#endif
-#ifdef ENABLE_SOCKS
 			   c->c1.socks_proxy,
-#endif
 #ifdef ENABLE_DEBUG
 			   c->options.gremlin,
 #endif
@@ -2857,7 +2863,7 @@ do_close_link_socket (struct context *c)
            || c->options.no_advance))
          )))
     {
-      clear_remote_addrlist(&c->c1.link_socket_addr);
+      clear_remote_addrlist(&c->c1.link_socket_addr, !c->options.resolve_in_advance);
     }
 
     /* Clear the remote actual address when persist_remote_ip is not in use */
@@ -2865,8 +2871,9 @@ do_close_link_socket (struct context *c)
       CLEAR (c->c1.link_socket_addr.actual);
 
   if (!(c->sig->signal_received == SIGUSR1 && c->options.persist_local_ip)) {
-    if (c->c1.link_socket_addr.bind_local)
-        freeaddrinfo(c->c1.link_socket_addr.bind_local);
+    if (c->c1.link_socket_addr.bind_local && !c->options.resolve_in_advance)
+	freeaddrinfo(c->c1.link_socket_addr.bind_local);
+
     c->c1.link_socket_addr.bind_local=NULL;
   }
 }
@@ -3003,7 +3010,7 @@ do_close_ifconfig_pool_persist (struct context *c)
 static void
 do_inherit_env (struct context *c, const struct env_set *src)
 {
-  c->c2.es = env_set_create (&c->c2.gc);
+  c->c2.es = env_set_create (NULL);
   c->c2.es_owned = true;
   env_set_inherit (c->c2.es, src);
 }
@@ -3154,6 +3161,20 @@ management_show_net_callback (void *arg, const int msglevel)
 #endif
 }
 
+#ifdef TARGET_ANDROID
+int
+managmenet_callback_network_change (void *arg)
+{
+  struct context *c = (struct context *) arg;
+  if (!c->c2.link_socket)
+    return -1;
+  if (c->c2.link_socket->sd == SOCKET_UNDEFINED)
+    return -1;
+
+  return c->c2.link_socket->sd;
+}
+#endif
+
 #endif
 
 void
@@ -3169,6 +3190,9 @@ init_management_callback_p2p (struct context *c)
       cb.show_net = management_show_net_callback;
       cb.proxy_cmd = management_callback_proxy_cmd;
       cb.remote_cmd = management_callback_remote_cmd;
+#ifdef TARGET_ANDROID
+      cb.network_change = managmenet_callback_network_change;
+#endif
       management_set_callback (management, &cb);
     }
 #endif
@@ -3288,6 +3312,10 @@ init_instance (struct context *c, const struct env_set *env, const unsigned int 
   /* init garbage collection level */
   gc_init (&c->c2.gc);
 
+  /* inherit environmental variables */
+  if (env)
+     do_inherit_env (c, env);
+
   /* signals caught here will abort */
   c->sig->signal_received = 0;
   c->sig->signal_text = NULL;
@@ -3300,6 +3328,13 @@ init_instance (struct context *c, const struct env_set *env, const unsigned int 
   if (c->mode == CM_P2P || c->mode == CM_TOP)
     {
       do_startup_pause (c);
+      if (IS_SIG (c))
+	goto sig;
+    }
+
+  if (c->options.resolve_in_advance)
+    {
+      do_preresolve (c);
       if (IS_SIG (c))
 	goto sig;
     }
@@ -3338,10 +3373,6 @@ init_instance (struct context *c, const struct env_set *env, const unsigned int 
   /* warn about inconsistent options */
   if (c->mode == CM_P2P || c->mode == CM_TOP)
     do_option_warnings (c);
-
-  /* inherit environmental variables */
-  if (env)
-    do_inherit_env (c, env);
 
 #ifdef ENABLE_PLUGIN
   /* initialize plugins */
@@ -3403,10 +3434,10 @@ init_instance (struct context *c, const struct env_set *env, const unsigned int 
       goto sig;
   }
 
-#ifdef ENABLE_LZO
-  /* initialize LZO compression library. */
-  if ((options->lzo & LZO_SELECTED) && (c->mode == CM_P2P || child))
-    lzo_compress_init (&c->c2.lzo_compwork, options->lzo);
+#ifdef USE_COMP
+  /* initialize compression library. */
+  if (comp_enabled(&options->comp) && (c->mode == CM_P2P || child))
+    c->c2.comp_context = comp_init (&options->comp);
 #endif
 
   /* initialize MTU variables */
@@ -3520,9 +3551,12 @@ close_instance (struct context *c)
 	/* if xinetd/inetd mode, don't allow restart */
 	do_close_check_if_restart_permitted (c);
 
-#ifdef ENABLE_LZO
-	if (lzo_defined (&c->c2.lzo_compwork))
-	  lzo_compress_uninit (&c->c2.lzo_compwork);
+#ifdef USE_COMP
+	if (c->c2.comp_context)
+	  {
+	    comp_uninit (c->c2.comp_context);
+	    c->c2.comp_context = NULL;
+	  }
 #endif
 
 	/* free buffers */
@@ -3694,6 +3728,10 @@ inherit_context_top (struct context *dest,
   dest->c2.event_set = NULL;
   if (proto_is_dgram(src->options.ce.proto))
     do_event_set_init (dest, false);
+
+#ifdef USE_COMP
+  dest->c2.comp_context = NULL;
+#endif
 }
 
 void
@@ -3737,6 +3775,7 @@ test_crypto_thread (void *arg)
   ASSERT (options->test_crypto);
   init_verb_mute (c, IVM_LEVEL_1);
   context_init_1 (c);
+  next_connection_entry(c);
   do_init_crypto_static (c, 0);
 
   frame_finalize_options (c, options);

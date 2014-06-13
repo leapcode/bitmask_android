@@ -31,13 +31,11 @@
 #define SSL_VERIFY_POLARSSL_H_
 
 #include "syshead.h"
-#include "misc.h"
-#include "manage.h"
-#include <polarssl/x509.h>
+#include <polarssl/x509_crt.h>
 
 #ifndef __OPENVPN_X509_CERT_T_DECLARED
 #define __OPENVPN_X509_CERT_T_DECLARED
-typedef x509_cert openvpn_x509_cert_t;
+typedef x509_crt openvpn_x509_cert_t;
 #endif
 
 /** @name Function for authenticating a new connection from a remote OpenVPN peer
@@ -55,27 +53,25 @@ typedef x509_cert openvpn_x509_cert_t;
  * calls the PolarSSL library's \c ssl_set_verify_callback() function with \c
  * verify_callback() as its callback argument.
  *
- * It checks preverify_ok, and registers the certificate hash. If these steps
- * succeed, it calls the \c verify_cert() function, which performs
- * OpenVPN-specific verification.
+ * It checks *flags and registers the certificate hash. If these steps succeed,
+ * it calls the \c verify_cert() function, which performs OpenVPN-specific
+ * verification.
  *
  * @param session_obj  - The OpenVPN \c tls_session associated with this object,
  *                       as set during SSL session setup.
  * @param cert         - The certificate used by PolarSSL.
  * @param cert_depth   - The depth of the current certificate in the chain, with
  *                       0 being the actual certificate.
- * @param preverify_ok - Whether the remote OpenVPN peer's certificate
- *                       past verification.  A value of 1 means it
- *                       verified successfully, 0 means it failed.
+ * @param flags        - Whether the remote OpenVPN peer's certificate
+ *                       passed verification.  A value of 0 means it
+ *                       verified successfully, any other value means it
+ *                       failed. \c verify_callback() is considered to have
+ *                       ok'ed this certificate if flags is 0 when it returns.
  *
- * @return The return value indicates whether the supplied certificate is
- *     allowed to set up a VPN tunnel.  The following values can be
- *     returned:
- *      - \c 0: failure, this certificate is not allowed to connect.
- *      - \c 1: success, this certificate is allowed to connect.
+ * @return The return value is 0 unless a fatal error occurred.
  */
-int verify_callback (void *session_obj, x509_cert *cert, int cert_depth,
-    int preverify_ok);
+int verify_callback (void *session_obj, x509_crt *cert, int cert_depth,
+    int *flags);
 
 /** @} name Function for authenticating a new connection from a remote OpenVPN peer */
 

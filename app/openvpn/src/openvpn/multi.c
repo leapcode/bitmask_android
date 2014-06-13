@@ -38,6 +38,7 @@
 #include "otime.h"
 #include "gremlin.h"
 #include "mstats.h"
+#include "ssl_verify.h"
 
 #include "memdbg.h"
 
@@ -450,10 +451,10 @@ multi_del_iroutes (struct multi_context *m,
   if (TUNNEL_TYPE (mi->context.c1.tuntap) == DEV_TYPE_TUN)
     {
       for (ir = mi->context.options.iroutes; ir != NULL; ir = ir->next)
-	mroute_helper_del_iroute (m->route_helper, ir);
+	mroute_helper_del_iroute46 (m->route_helper, ir->netbits);
 
       for ( ir6 = mi->context.options.iroutes_ipv6; ir6 != NULL; ir6 = ir6->next )
-	mroute_helper_del_iroute6 (m->route_helper, ir6);
+	mroute_helper_del_iroute46 (m->route_helper, ir6->netbits);
     }
 }
 
@@ -807,8 +808,8 @@ multi_print_status (struct multi_context *m, struct status_output *so, const int
 	   */
 	  status_printf (so, "TITLE%c%s", sep, title_string);
 	  status_printf (so, "TIME%c%s%c%u", sep, time_string (now, 0, false, &gc_top), sep, (unsigned int)now);
-	  status_printf (so, "HEADER%cCLIENT_LIST%cCommon Name%cReal Address%cVirtual Address%cBytes Received%cBytes Sent%cConnected Since%cConnected Since (time_t)%cUsername",
-			 sep, sep, sep, sep, sep, sep, sep, sep, sep);
+	  status_printf (so, "HEADER%cCLIENT_LIST%cCommon Name%cReal Address%cVirtual Address%cVirtual IPv6 Address%cBytes Received%cBytes Sent%cConnected Since%cConnected Since (time_t)%cUsername%cClient ID",
+			 sep, sep, sep, sep, sep, sep, sep, sep, sep, sep, sep);
 	  hash_iterator_init (m->hash, &hi);
 	  while ((he = hash_iterator_next (&hi)))
 	    {
@@ -817,15 +818,26 @@ multi_print_status (struct multi_context *m, struct status_output *so, const int
 
 	      if (!mi->halt)
 		{
-		  status_printf (so, "CLIENT_LIST%c%s%c%s%c%s%c" counter_format "%c" counter_format "%c%s%c%u%c%s",
+		  status_printf (so, "CLIENT_LIST%c%s%c%s%c%s%c%s%c" counter_format "%c" counter_format "%c%s%c%u%c%s%c"
+#ifdef MANAGEMENT_DEF_AUTH
+				 "%lu",
+#else
+				 "",
+#endif
 				 sep, tls_common_name (mi->context.c2.tls_multi, false),
 				 sep, mroute_addr_print (&mi->real, &gc),
 				 sep, print_in_addr_t (mi->reporting_addr, IA_EMPTY_IF_UNDEF, &gc),
+				 sep, print_in6_addr (mi->reporting_addr_ipv6, IA_EMPTY_IF_UNDEF, &gc),
 				 sep, mi->context.c2.link_read_bytes,
 				 sep, mi->context.c2.link_write_bytes,
 				 sep, time_string (mi->created, 0, false, &gc),
 				 sep, (unsigned int)mi->created,
-				 sep, tls_username (mi->context.c2.tls_multi, false));
+				 sep, tls_username (mi->context.c2.tls_multi, false),
+#ifdef MANAGEMENT_DEF_AUTH
+				 sep, mi->context.c2.mda_context.cid);
+#else
+				 sep);
+#endif
 		}
 	      gc_free (&gc);
 	    }
@@ -1158,23 +1170,18 @@ multi_add_iroutes (struct multi_context *m,
 		 print_in_addr_t (ir->network, 0, &gc),
 		 multi_instance_string (mi, false, &gc));
 
-	  mroute_helper_add_iroute (m->route_helper, ir);
+	  mroute_helper_add_iroute46 (m->route_helper, ir->netbits);
       
 	  multi_learn_in_addr_t (m, mi, ir->network, ir->netbits, false);
 	}
       for ( ir6 = mi->context.options.iroutes_ipv6; ir6 != NULL; ir6 = ir6->next )
 	{
-	  if (ir6->netbits >= 0)
-	    msg (D_MULTI_LOW, "MULTI: internal route %s/%d -> %s",
+	  msg (D_MULTI_LOW, "MULTI: internal route %s/%d -> %s",
 		 print_in6_addr (ir6->network, 0, &gc),
 		 ir6->netbits,
 		 multi_instance_string (mi, false, &gc));
-	  else
-	    msg (D_MULTI_LOW, "MULTI: internal route %s -> %s",
-		 print_in6_addr (ir6->network, 0, &gc),
-		 multi_instance_string (mi, false, &gc));
 
-	  mroute_helper_add_iroute6 (m->route_helper, ir6);
+	  mroute_helper_add_iroute46 (m->route_helper, ir6->netbits);
       
 	  multi_learn_in6_addr (m, mi, ir6->network, ir6->netbits, false);
 	}
@@ -1289,9 +1296,7 @@ multi_select_virtual_addr (struct multi_context *m, struct multi_instance *mi)
       mi->context.c2.push_ifconfig_defined = true;
       mi->context.c2.push_ifconfig_local = mi->context.options.push_ifconfig_local;
       mi->context.c2.push_ifconfig_remote_netmask = mi->context.options.push_ifconfig_remote_netmask;
-#ifdef ENABLE_CLIENT_NAT
       mi->context.c2.push_ifconfig_local_alias = mi->context.options.push_ifconfig_local_alias;
-#endif
 
       /* the current implementation does not allow "static IPv4, pool IPv6",
        * (see below) so issue a warning if that happens - don't break the
@@ -1847,6 +1852,7 @@ multi_connection_established (struct multi_context *m, struct multi_instance *mi
 
 	  /* set our client's VPN endpoint for status reporting purposes */
 	  mi->reporting_addr = mi->context.c2.push_ifconfig_local;
+	  mi->reporting_addr_ipv6 = mi->context.c2.push_ifconfig_ipv6_local;
 
 	  /* set context-level authentication flag */
 	  mi->context.c2.context_auth = CAS_SUCCEEDED;
