@@ -31,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import se.leap.bitmaskclient.R;
+import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
 import de.blinkt.openvpn.LaunchVPN;
@@ -68,6 +69,7 @@ public final class EIP extends IntentService {
 	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.bitmaskclient.UPDATE_EIP_SERVICE";
 	public final static String ACTION_IS_EIP_RUNNING = "se.leap.bitmaskclient.IS_RUNNING";
 	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
+    	public final static String STATUS = "eip status";
 	public final static String ALLOWED_ANON = "allow_anonymous";
 	public final static String CERTIFICATE = "cert";
 	public final static String PRIVATE_KEY = "private_key";
@@ -200,8 +202,9 @@ public final class EIP extends IntentService {
           Bundle resultData = new Bundle();
           resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
           int resultCode = Activity.RESULT_CANCELED;
+	  boolean is_connected = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").equalsIgnoreCase("LEVEL_CONNECTED");
           if (mBound) {
-                  resultCode = (mVpnService.isRunning()) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+                  resultCode = (is_connected) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
                   
                   if (mReceiver != null){
                           mReceiver.send(resultCode, resultData);
@@ -215,12 +218,7 @@ public final class EIP extends IntentService {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-                 boolean running = false;
-                 try {
-                	running = mVpnService.isRunning();
-                 } catch (NullPointerException e){
-                	 e.printStackTrace();
-                 }
+                 boolean running = is_connected;
                  
                  if (retrieved_vpn_service && running && mReceiver != null){
                 	  mReceiver.send(Activity.RESULT_OK, resultData);
@@ -256,8 +254,11 @@ public final class EIP extends IntentService {
 	private void stopEIP() {
 		if (mBound)
 			mVpnService.onRevoke();
-		else
-		    mVpnService.getManagement().stopVPN();
+		else if(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").startsWith("LEVEL_CONNECT")){
+		    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
+		    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		    startActivity(disconnect_vpn);
+		}
 			
 		if (mReceiver != null){
 			Bundle resultData = new Bundle();
