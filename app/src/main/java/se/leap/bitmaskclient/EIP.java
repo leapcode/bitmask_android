@@ -234,8 +234,9 @@ public final class EIP extends IntentService {
 	 * Intent to {@link se.leap.openvpn.LaunchVPN}
 	 */
 	private void startEIP() {
-		activeGateway = selectGateway();
+	    activeGateway = selectGateway();
 		
+	    if(activeGateway != null && activeGateway.mVpnProfile != null) {
 		Intent intent = new Intent(this,LaunchVPN.class);
 		intent.setAction(Intent.ACTION_MAIN);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -245,6 +246,7 @@ public final class EIP extends IntentService {
 		intent.putExtra(RECEIVER_TAG, mReceiver);
 		startActivity(intent);
 		mPending = ACTION_START_EIP;
+	    }
 	}
 	
 	/**
