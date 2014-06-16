@@ -33,7 +33,7 @@ public class ConfigParser {
     public void setDefinition(HashMap<String,Vector<Vector<String>>> args) {
 	options = args;
     }
-
+    
 	public void parseConfig(Reader reader) throws IOException, ConfigParseError {
 
 

@@ -2,8 +2,8 @@ package de.blinkt.openvpn;
 
 import se.leap.bitmaskclient.R;
 
-import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.EIP;
+import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.Provider;
 
 import android.content.Context;
@@ -18,18 +18,16 @@ import android.security.KeyChain;
 import android.security.KeyChainException;
 import android.util.Base64;
 
-import de.blinkt.openvpn.core.NativeUtils;
-import de.blinkt.openvpn.core.VpnStatus;
-import de.blinkt.openvpn.core.OpenVpnService;
-import de.blinkt.openvpn.core.X509Utils;
 import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.InvalidKeyException;
@@ -43,6 +41,16 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.Vector;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
+import de.blinkt.openvpn.core.NativeUtils;
+import de.blinkt.openvpn.core.OpenVpnService;
+import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.core.X509Utils;
+
 public class VpnProfile implements Serializable {
     // Note that this class cannot be moved to core where it belongs since
     // the profile loading depends on it being here
@@ -54,7 +62,9 @@ public class VpnProfile implements Serializable {
     public static final String EXTRA_PROFILEUUID = "de.blinkt.openvpn.profileUUID";
     public static final String INLINE_TAG = "[[INLINE]]";
     public static final String DISPLAYNAME_TAG = "[[NAME]]";
-    public static final String MINIVPN = "miniopenvpn";
+    private static final String MININONPIEVPN = "nopievpn";
+    private static final String MINIPIEVPN = "pievpn";
+
     private static final long serialVersionUID = 7085688938959334563L;
     private static final String OVPNCONFIGFILE = "android.conf";
     public static final int MAXLOGLEVEL = 4;
@@ -142,6 +152,14 @@ public class VpnProfile implements Serializable {
         mUuid = UUID.randomUUID();
         mName = name;
         mProfileVersion = CURRENT_PROFILE_VERSION;
+    }
+
+    public static String getMiniVPNExecutableName()
+    {
+        if (Build.VERSION.SDK_INT  >= Build.VERSION_CODES.JELLY_BEAN)
+            return VpnProfile.MINIPIEVPN;
+        else
+            return VpnProfile.MININONPIEVPN;
     }
 
     public static String openVpnEscape(String unescaped) {
@@ -258,22 +276,16 @@ public class VpnProfile implements Serializable {
             cfg += " tcp-client\n";
 
 
-	android.util.Log.d("vpnprofile", Integer.toString(mAuthenticationType));
         switch (mAuthenticationType) {
             case VpnProfile.TYPE_USERPASS_CERTIFICATES:
                 cfg += "auth-user-pass\n";
-            case VpnProfile.TYPE_CERTIFICATES:
-                // Ca
-                // cfg += insertFileData("ca", mCaFilename);
-
-                // // Client Cert + Key
-                // cfg += insertFileData("key", mClientKeyFilename);
-                // cfg += insertFileData("cert", mClientCertFilename);
+            case VpnProfile.TYPE_CERTIFICATES:		
 		// FIXME This is all we need...The whole switch statement can go...
 		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);
 		cfg+="<ca>\n"+preferences.getString(Provider.CA_CERT, "")+"\n</ca>\n";
 		cfg+="<key>\n"+preferences.getString(EIP.PRIVATE_KEY, "")+"\n</key>\n";
 		cfg+="<cert>\n"+preferences.getString(EIP.CERTIFICATE, "")+"\n</cert>\n";
+		
                 break;
             case VpnProfile.TYPE_USERPASS_PKCS12:
                 cfg += "auth-user-pass\n";
@@ -549,7 +561,7 @@ public class VpnProfile implements Serializable {
 
         // Add fixed paramenters
         //args.add("/data/data/de.blinkt.openvpn/lib/openvpn");
-        args.add(cacheDir.getAbsolutePath() + "/" + VpnProfile.MINIVPN);
+        args.add(cacheDir.getAbsolutePath() + "/" + getMiniVPNExecutableName());
 
         args.add("--config");
         args.add(cacheDir.getAbsolutePath() + "/" + OVPNCONFIGFILE);
@@ -558,14 +570,16 @@ public class VpnProfile implements Serializable {
         return args.toArray(new String[args.size()]);
     }
 
+
+
     public Intent prepareIntent(Context context) {
         String prefix = context.getPackageName();
 
         Intent intent = new Intent(context, OpenVpnService.class);
 
         if (mAuthenticationType == VpnProfile.TYPE_KEYSTORE || mAuthenticationType == VpnProfile.TYPE_USERPASS_KEYSTORE) {
-            // if (getKeyStoreCertificates(context) == null)
-            //     return null;
+            if (getKeyStoreCertificates(context) == null)
+                return null;
         }
 
         intent.putExtra(prefix + ".ARGV", buildOpenvpnArgv(context.getCacheDir()));
@@ -734,8 +748,8 @@ public class VpnProfile implements Serializable {
     //! Return an error if somethign is wrong
     public int checkProfile(Context context) {
         if (mAuthenticationType == TYPE_KEYSTORE || mAuthenticationType == TYPE_USERPASS_KEYSTORE) {
-            // if (mAlias == null)
-            //     return R.string.no_keystore_cert_selected;
+            if (mAlias == null)
+                return R.string.no_keystore_cert_selected;
         }
 
         if (!mUsePull || mAuthenticationType == TYPE_STATICKEYS) {
