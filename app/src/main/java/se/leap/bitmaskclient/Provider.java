@@ -51,6 +51,7 @@ public final class Provider implements Serializable {
 	SERVICE = "service",
 	KEY = "provider",
 	CA_CERT = "ca_cert",
+	CA_CERT_URI = "ca_cert_uri",
 	NAME = "name",
 	DESCRIPTION = "description",
 	DOMAIN = "domain",

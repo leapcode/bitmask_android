@@ -421,7 +421,7 @@ public class ProviderAPI extends IntentService {
 	parameters.put("user[password_verifier]", password_verifier);
 	Log.d(TAG, server_url);
 	Log.d(TAG, parameters.toString());
-	return sendToServer(server_url + "/users", "POST", parameters);
+	return sendToServer(server_url + "/users.json", "POST", parameters);
     }
 	
 	/**
@@ -530,47 +530,57 @@ public class ProviderAPI extends IntentService {
 	 * @param task containing a boolean meaning if the provider is custom or not, another boolean meaning if the user completely trusts this provider, the provider name and its provider.json url.
 	 * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if the update was successful. 
 	 */
-	private Bundle setUpProvider(Bundle task) {
-		int progress = 0;
-		Bundle current_download = new Bundle();
+    private Bundle setUpProvider(Bundle task) {
+	int progress = 0;
+	Bundle current_download = new Bundle();
 		
-		if(task != null && task.containsKey(Provider.MAIN_URL)) {
-			last_provider_main_url = task.getString(Provider.MAIN_URL);
-			CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
-		}
+	if(task != null && task.containsKey(Provider.MAIN_URL)) {
+	    last_provider_main_url = task.getString(Provider.MAIN_URL);
+	    CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
+	}
 
-		if(!CA_CERT_DOWNLOADED)
-			current_download = downloadCACert(last_provider_main_url);
-		if(CA_CERT_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
-			broadcast_progress(progress++);
-			CA_CERT_DOWNLOADED = true;
-			if(!PROVIDER_JSON_DOWNLOADED)
-				current_download = getAndSetProviderJson(last_provider_main_url); 
-			if(PROVIDER_JSON_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
-				broadcast_progress(progress++);
-				PROVIDER_JSON_DOWNLOADED = true;
-				current_download = getAndSetEipServiceJson(); 
-				if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
-					broadcast_progress(progress++);
-					EIP_SERVICE_JSON_DOWNLOADED = true;
-				}
-			}
+	if(!PROVIDER_JSON_DOWNLOADED)
+	    current_download = getAndSetProviderJson(last_provider_main_url); 
+	if(PROVIDER_JSON_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
+	    broadcast_progress(progress++);
+	    PROVIDER_JSON_DOWNLOADED = true;
+				
+	    if(!CA_CERT_DOWNLOADED)
+		current_download = downloadCACert();
+	    if(CA_CERT_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
+		broadcast_progress(progress++);
+		CA_CERT_DOWNLOADED = true;
+		current_download = getAndSetEipServiceJson(); 
+		if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
+		    broadcast_progress(progress++);
+		    EIP_SERVICE_JSON_DOWNLOADED = true;
 		}
+	    }
+	}
 		
-		return current_download;
+	return current_download;
 	}
 	
-	private Bundle downloadCACert(String provider_main_url) {
+	private Bundle downloadCACert() {
 		Bundle result = new Bundle();
-		String cert_string = downloadWithCommercialCA(provider_main_url + "/ca.crt");
+		try {
+		    JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
+		    String ca_cert_url = provider_json.getString(Provider.CA_CERT_URI);
+		    String cert_string = downloadWithCommercialCA(ca_cert_url);
+		    result.putBoolean(RESULT_KEY, true);
 
-	    if(validCertificate(cert_string) && setting_up_provider) {
-	    	getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.CA_CERT, cert_string).commit();
+		    if(validCertificate(cert_string) && setting_up_provider) {
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.CA_CERT, cert_string).commit();
 			result.putBoolean(RESULT_KEY, true);
-		} else {
+		    } else {
 			String reason_to_fail = pickErrorMessage(cert_string);
 			result.putString(ERRORS, reason_to_fail);
 			result.putBoolean(RESULT_KEY, false);
+		    }
+		} catch (JSONException e) {
+		    String reason_to_fail = formatErrorMessage(R.string.malformed_url);
+		    result.putString(ERRORS, reason_to_fail);
+		    result.putBoolean(RESULT_KEY, false);
 		}
 		
 		return result;
