@@ -142,7 +142,7 @@ public final class EIP extends IntentService {
 		return bindService(bindIntent, mVpnServiceConn, BIND_AUTO_CREATE);
 	}
 	
-	private static ServiceConnection mVpnServiceConn = new ServiceConnection() {
+	private ServiceConnection mVpnServiceConn = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			LocalBinder binder = (LocalBinder) service;
@@ -151,7 +151,7 @@ public final class EIP extends IntentService {
 
 			if (mReceiver != null && mPending != null) {
 
-				boolean running = mVpnService.isRunning();
+			    boolean running = isConnected();
 				
 				int resultCode = Activity.RESULT_CANCELED;
 				
@@ -202,7 +202,7 @@ public final class EIP extends IntentService {
           Bundle resultData = new Bundle();
           resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
           int resultCode = Activity.RESULT_CANCELED;
-	  boolean is_connected = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").equalsIgnoreCase("LEVEL_CONNECTED");
+	  boolean is_connected = isConnected();
           if (mBound) {
                   resultCode = (is_connected) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
                   
@@ -228,6 +228,10 @@ public final class EIP extends IntentService {
                   }
           }
   }
+
+    private boolean isConnected() {
+	return getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").equalsIgnoreCase("LEVEL_CONNECTED");
+    }
 	
 	/**
 	 * Initiates an EIP connection by selecting a gateway and preparing and sending an
