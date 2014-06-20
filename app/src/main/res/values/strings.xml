@@ -52,6 +52,7 @@
     <string name="server_unreachable_message">Server is unreachable, please try again.</string>
     <string name="malformed_url">It doesn\'t seem to be a Bitmask provider.</string>
     <string name="certificate_error">This is not a trusted Bitmask provider.</string>
+    <string name="service_is_down_error">Service is down.</string>
     <string name="configuring_provider">Configuring provider</string>
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
     <string name="authenticating_message">Logging in</string>

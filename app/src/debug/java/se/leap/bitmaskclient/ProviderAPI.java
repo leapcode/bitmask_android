@@ -16,12 +16,20 @@
  */
  package se.leap.bitmaskclient;
 
+import android.app.IntentService;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
+import android.util.Base64;
+import android.util.Log;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -45,30 +53,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-
 import org.apache.http.client.ClientProtocolException;
 import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-import android.app.IntentService;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
-import android.util.Base64;
-import android.util.Log;
+import se.leap.bitmaskclient.R;
 
 
 /**
@@ -705,12 +704,16 @@ public class ProviderAPI extends IntentService {
 			json_file_content = formatErrorMessage(R.string.malformed_url);
 		} catch(SocketTimeoutException e) {
 			json_file_content = formatErrorMessage(R.string.server_unreachable_message);
-		} catch (IOException e) {
+		} catch (SSLHandshakeException e) {
 			if(provider_url != null) {
-				json_file_content = downloadWithProviderCA(string_url, danger_on);
+			    json_file_content = downloadWithProviderCA(string_url, danger_on);
 			} else {
 				json_file_content = formatErrorMessage(R.string.certificate_error);
 			}
+		} catch(ConnectException e) {
+		    json_file_content = formatErrorMessage(R.string.service_is_down_error);
+		} catch (FileNotFoundException e) {
+		    json_file_content = formatErrorMessage(R.string.malformed_url);
 		} catch (Exception e) {
 			if(provider_url != null && danger_on) {
 				json_file_content = downloadWithProviderCA(string_url, danger_on);
@@ -825,7 +828,7 @@ public class ProviderAPI extends IntentService {
 			System.out.println("String ignoring certificate = " + string);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			string = formatErrorMessage(R.string.server_unreachable_message);
+			string = formatErrorMessage(R.string.malformed_url);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			e.printStackTrace();
