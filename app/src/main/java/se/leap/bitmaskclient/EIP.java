@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.bitmaskclient;
+package se.leap.bitmaskclient;
 
 import java.io.StringReader;
 import java.io.IOException;
@@ -33,6 +33,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.Provider;
+
 import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
@@ -42,12 +45,14 @@ import de.blinkt.openvpn.core.OpenVpnService;
 import de.blinkt.openvpn.core.OpenVpnService.LocalBinder;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.VpnProfile;
+
 import android.app.Activity;
 import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.drm.DrmStore.Action;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -62,6 +67,7 @@ import android.util.Log;
  * gateways, and controlling {@link de.blinkt.openvpn.core.OpenVpnService} connections.
  * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
+ * @author Parménides GV <parmegv@sdf.org>
  */
 public final class EIP extends IntentService {
 	
@@ -512,7 +518,7 @@ public final class EIP extends IntentService {
 	    /**
 	     * Parses data from eip-service.json to a section of the openvpn config file
 	     */
-	    private StringReader configFromEipServiceDotJson() {
+	    private String configFromEipServiceDotJson() {
 		String parsed_configuration = "";
 		    
 		String common_options = "openvpn_configuration";
@@ -582,19 +588,70 @@ public final class EIP extends IntentService {
 		// arg.clear();
 		// args.clear();
 		
-		Log.d("EIP", "parsed configuration");
-		Log.d("EIP", parsed_configuration);
-		return new StringReader(parsed_configuration.trim());
+		return parsed_configuration;
 	    }
+
+
+	    private String caSecretFromSharedPreferences() {
+		String secret_lines = "";
+		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);
 		
+		System.getProperty("line.separator");
+		secret_lines += "<ca>";
+		secret_lines += System.getProperty("line.separator");
+		secret_lines += preferences.getString(Provider.CA_CERT, "");
+		secret_lines += System.getProperty("line.separator");
+		secret_lines += "</ca>";
+		
+		return secret_lines;
+	    }
+
+	    private String keySecretFromSharedPreferences() {
+		String secret_lines = "";
+		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);
+	
+		secret_lines += System.getProperty("line.separator");
+		secret_lines +="<key>";
+		secret_lines += System.getProperty("line.separator");
+		secret_lines += preferences.getString(EIP.PRIVATE_KEY, "");
+		secret_lines += System.getProperty("line.separator");
+		secret_lines += "</key>";
+		secret_lines += System.getProperty("line.separator");
+
+		return secret_lines;
+	    }
+
+	    private String certSecretFromSharedPreferences() {
+		String secret_lines = "";
+		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);	
+		
+		secret_lines += System.getProperty("line.separator");
+		secret_lines +="<cert>";
+		secret_lines += System.getProperty("line.separator");
+		secret_lines += preferences.getString(EIP.CERTIFICATE, "");
+		secret_lines += System.getProperty("line.separator");
+		secret_lines += "</cert>";
+		secret_lines += System.getProperty("line.separator");
+
+		return secret_lines;
+	    }
+	    
 		/**
 		 * Create and attach the VpnProfile to our gateway object
 		 */
 		protected void createVPNProfile(){
 			try {
 				ConfigParser cp = new ConfigParser();
-				cp.parseConfig(configFromEipServiceDotJson());
+				Log.d(TAG, configFromEipServiceDotJson());
+				Log.d(TAG, caSecretFromSharedPreferences());
+				Log.d(TAG, keySecretFromSharedPreferences());
+				Log.d(TAG, certSecretFromSharedPreferences());
+				cp.parseConfig(new StringReader(configFromEipServiceDotJson()));
+				cp.parseConfig(new StringReader(caSecretFromSharedPreferences()));
+				cp.parseConfig(new StringReader(keySecretFromSharedPreferences()));
+				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
 				VpnProfile vp = cp.convertProfile();
+				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
 				mVpnProfile = vp;
 				Log.v(TAG,"Created VPNProfile");
 			} catch (ConfigParseError e) {
