@@ -25,7 +25,7 @@ public class ConfigParser {
 
 
 	private boolean extraRemotesAsCustom=false;
-    
+
 	public void parseConfig(Reader reader) throws IOException, ConfigParseError {
 
 

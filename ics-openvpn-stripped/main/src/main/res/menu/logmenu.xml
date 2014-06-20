@@ -33,6 +33,7 @@
             android:alphabeticShortcut="e"
             android:icon="@android:drawable/ic_menu_edit"
             android:showAsAction="withText|ifRoom"
-            android:title="@string/edit_vpn"/>
+            android:title="@string/edit_vpn"
+	    android:visible="false"/>
 
 </menu>
