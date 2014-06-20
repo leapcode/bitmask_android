@@ -7,33 +7,39 @@ import se.leap.bitmaskclient.R;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.app.*;
-import android.content.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ListFragment;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
-import android.os.IBinder;
 import android.os.Message;
 import android.text.SpannableString;
 import android.text.format.DateFormat;
 import android.text.style.ImageSpan;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
-import de.blinkt.openvpn.*;
-import de.blinkt.openvpn.activities.DisconnectVPN;
-import se.leap.bitmaskclient.Dashboard;
-import de.blinkt.openvpn.core.OpenVPNManagement;
-import de.blinkt.openvpn.core.VpnStatus;
-import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
-import de.blinkt.openvpn.core.VpnStatus.LogItem;
-import de.blinkt.openvpn.core.VpnStatus.LogListener;
-import de.blinkt.openvpn.core.VpnStatus.StateListener;
-import de.blinkt.openvpn.core.OpenVpnService;
-import de.blinkt.openvpn.core.OpenVpnService.LocalBinder;
-import de.blinkt.openvpn.core.ProfileManager;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.RadioGroup;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
@@ -42,30 +48,28 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Vector;
 
+import de.blinkt.openvpn.LaunchVPN;
+import se.leap.bitmaskclient.R;
+import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.activities.DisconnectVPN;
+import de.blinkt.openvpn.core.OpenVPNManagement;
+import de.blinkt.openvpn.core.OpenVpnService;
+import de.blinkt.openvpn.core.ProfileManager;
+import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
+import de.blinkt.openvpn.core.VpnStatus.LogItem;
+import de.blinkt.openvpn.core.VpnStatus.LogListener;
+import de.blinkt.openvpn.core.VpnStatus.StateListener;
+
 import static de.blinkt.openvpn.core.OpenVpnService.humanReadableByteCount;
+
+import se.leap.bitmaskclient.Dashboard;
 
 public class LogFragment extends ListFragment implements StateListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, VpnStatus.ByteCountListener {
 	private static final String LOGTIMEFORMAT = "logtimeformat";
 	private static final int START_VPN_CONFIG = 0;
     private static final String VERBOSITYLEVEL = "verbositylevel";
-    protected OpenVpnService mService;
-	private ServiceConnection mConnection = new ServiceConnection() {
 
-
-		@Override
-		public void onServiceConnected(ComponentName className,
-				IBinder service) {
-			// We've bound to LocalService, cast the IBinder and get LocalService instance
-			LocalBinder binder = (LocalBinder) service;
-			mService = binder.getService();
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName arg0) {
-			mService =null;
-		}
-
-	};
 
     private SeekBar mLogLevelSlider;
     private LinearLayout mOptionsLayout;
@@ -425,8 +429,18 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
             Intent intent = new Intent(getActivity(),DisconnectVPN.class);
             startActivity(intent);
             return true;
-		} else if(item.getItemId()==R.id.send) {
+        } else if(item.getItemId()==R.id.send) {
 			ladapter.shareLog();
+		} else if(item.getItemId()==R.id.edit_vpn) {
+			VpnProfile lastConnectedprofile = ProfileManager.getLastConnectedVpn();
+
+			if(lastConnectedprofile!=null) {
+				Intent vprefintent = new Intent(getActivity(),Dashboard.class)
+				.putExtra(VpnProfile.EXTRA_PROFILEUUID,lastConnectedprofile.getUUIDString());
+				startActivityForResult(vprefintent,START_VPN_CONFIG);
+			} else {
+				Toast.makeText(getActivity(), R.string.log_no_last_vpn, Toast.LENGTH_LONG).show();
+			}
 		} else if(item.getItemId() == R.id.toggle_time) {
 			showHideOptionsPanel();
 		} else if(item.getItemId() == android.R.id.home) {
@@ -492,10 +506,6 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
         Intent intent = new Intent(getActivity(), OpenVpnService.class);
         intent.setAction(OpenVpnService.START_SERVICE);
 
-        getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-
-
-
     }
 
 
@@ -531,14 +541,13 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	@Override
+
+    @Override
     public void onStop() {
 		super.onStop();
 		VpnStatus.removeStateListener(this);
         VpnStatus.removeByteCountListener(this);
 
-        if(mService!=null)
-            getActivity().unbindService(mConnection);
         getActivity().getPreferences(0).edit().putInt(LOGTIMEFORMAT, ladapter.mTimeFormat)
                                 .putInt(VERBOSITYLEVEL, ladapter.mLogLevel).apply();
 

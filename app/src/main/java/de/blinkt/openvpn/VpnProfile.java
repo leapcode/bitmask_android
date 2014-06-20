@@ -4,10 +4,6 @@ import se.leap.bitmaskclient.R;
 
 import se.leap.bitmaskclient.R;
 
-import se.leap.bitmaskclient.EIP;
-import se.leap.bitmaskclient.Dashboard;
-import se.leap.bitmaskclient.Provider;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -95,7 +91,7 @@ public class VpnProfile implements Serializable {
     // but needs to keep wrong name to guarante loading of old
     // profiles
     public transient boolean profileDleted = false;
-    public int mAuthenticationType = TYPE_CERTIFICATES;
+    public int mAuthenticationType = TYPE_KEYSTORE;
     public String mName;
     public String mAlias;
     public String mClientCertFilename;
@@ -281,13 +277,14 @@ public class VpnProfile implements Serializable {
         switch (mAuthenticationType) {
             case VpnProfile.TYPE_USERPASS_CERTIFICATES:
                 cfg += "auth-user-pass\n";
-            case VpnProfile.TYPE_CERTIFICATES:		
-		// FIXME This is all we need...The whole switch statement can go...
-		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);
-		cfg+="<ca>\n"+preferences.getString(Provider.CA_CERT, "")+"\n</ca>\n";
-		cfg+="<key>\n"+preferences.getString(EIP.PRIVATE_KEY, "")+"\n</key>\n";
-		cfg+="<cert>\n"+preferences.getString(EIP.CERTIFICATE, "")+"\n</cert>\n";
-		
+            case VpnProfile.TYPE_CERTIFICATES:
+                // Ca
+                cfg += insertFileData("ca", mCaFilename);
+
+                // Client Cert + Key
+                cfg += insertFileData("key", mClientKeyFilename);
+                cfg += insertFileData("cert", mClientCertFilename);
+
                 break;
             case VpnProfile.TYPE_USERPASS_PKCS12:
                 cfg += "auth-user-pass\n";
