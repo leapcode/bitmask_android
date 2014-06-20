@@ -25,6 +25,7 @@ import java.math.BigInteger;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
@@ -32,6 +33,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import javax.net.ssl.SSLHandshakeException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -705,14 +707,20 @@ public class ProviderAPI extends IntentService {
 		} catch (MalformedURLException e) {
 			json_file_content = formatErrorMessage(R.string.malformed_url);
 		} catch(SocketTimeoutException e) {
+		    e.printStackTrace();
 			json_file_content = formatErrorMessage(R.string.server_unreachable_message);
-		} catch (IOException e) {
+		} catch (SSLHandshakeException e) {
 			if(provider_url != null) {
 				json_file_content = downloadWithProviderCA(string_url);
 			} else {
 				json_file_content = formatErrorMessage(R.string.certificate_error);
 			}
+		} catch(ConnectException e) {
+		    json_file_content = formatErrorMessage(R.string.service_is_down_error);
+		} catch (FileNotFoundException e) {
+		    json_file_content = formatErrorMessage(R.string.malformed_url);
 		} catch (Exception e) {
+		    e.printStackTrace();
 			if(provider_url != null) {
 				json_file_content = downloadWithProviderCA(string_url);
 			}
@@ -821,7 +829,7 @@ public class ProviderAPI extends IntentService {
 			System.out.println("String ignoring certificate = " + string);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			string = formatErrorMessage(R.string.server_unreachable_message);
+			string = formatErrorMessage(R.string.malformed_url);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			e.printStackTrace();
