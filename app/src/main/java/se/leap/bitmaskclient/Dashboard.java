@@ -507,9 +507,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: eipStatus.setText(R.string.succesful_authentication_message); break;
 						case ProviderAPI.SRP_AUTHENTICATION_FAILED: eipStatus.setText(R.string.authentication_failed_message); break;
-						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.future_authed_secured_status); break;
+						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: break;
 						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.incorrectly_downloaded_certificate_message); break;
-						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.future_anonymous_secured_status); break;
+						case ProviderAPI.LOGOUT_SUCCESSFUL: break;
 						case ProviderAPI.LOGOUT_FAILED: eipStatus.setText(R.string.log_out_failed_message); break;			
 						}
 					}
