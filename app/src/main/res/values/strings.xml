@@ -2,7 +2,8 @@
 <resources>
 
     <string name="retry">Retry</string>
-    <string name="repository_url_text">Source code and issue tracker available at https://github.com/leapcode/bitmask_android/</string>
+    <string name="repository_url_text">Source code available at https://github.com/leapcode/bitmask_android/</string>
+    <string name="leap_tracker">Tracker available at https://leap.se/code</string>
     <string name="translation_project_text">Translations welcome and appreciated.  See our Transifex project at https://www.transifex.com/projects/p/bitmask-android/</string>
     <string name="switch_provider_menu_option">Switch provider</string>
     <string name="info">info</string>
