@@ -57,6 +57,7 @@
     <string name="authenticating_message">Logging in</string>
     <string name="signingup_message">Signing up</string>
     <string name="logout_message">Logging out from this session.</string>
+    <string name="logged_out_message">Logged out.</string>
     <string name="log_out_failed_message">Didn\'t logged out.</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
