@@ -190,7 +190,7 @@ public class ProviderAPI extends IntentService {
 					receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
 				}
 		} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
-				if(getNewCert(parameters)) {
+				if(updateVpnCertificate()) {
 					receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 				} else {
 					receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
@@ -890,16 +890,25 @@ public class ProviderAPI extends IntentService {
 		return true;
 	}
 
+    private boolean updateVpnCertificate() {
+	getNewCert();
+
+	getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(EIP.PARSED_SERIAL, 0).commit();
+	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
+	updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
+	startService(updateEIP);
+
+	return true;
+    }
+    
 	/**
 	 * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.
 	 * 
-	 * @param task containing the type of the certificate to be downloaded
 	 * @return true if certificate was downloaded correctly, false if provider.json is not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
 	 */
-	private boolean getNewCert(Bundle task) {
+	private boolean getNewCert() {
 
 		try {
-			String type_of_certificate = task.getString(ConfigurationWizard.TYPE_OF_CERTIFICATE);
 			JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
 			
 			String provider_main_url = provider_json.getString(Provider.API_URL);
