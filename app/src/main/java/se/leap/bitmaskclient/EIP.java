@@ -27,6 +27,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.security.cert.X509Certificate;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -72,6 +75,7 @@ import android.util.Log;
 public final class EIP extends IntentService {
 	
 	public final static String AUTHED_EIP = "authed eip";
+	public final static String ACTION_CHECK_CERT_VALIDITY = "se.leap.bitmaskclient.CHECK_CERT_VALIDITY";
 	public final static String ACTION_START_EIP = "se.leap.bitmaskclient.START_EIP";
 	public final static String ACTION_STOP_EIP = "se.leap.bitmaskclient.STOP_EIP";
 	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.bitmaskclient.UPDATE_EIP_SERVICE";
@@ -138,6 +142,8 @@ public final class EIP extends IntentService {
 			this.startEIP();
 		else if ( action == ACTION_STOP_EIP )
 			this.stopEIP();
+		else if ( action == ACTION_CHECK_CERT_VALIDITY )
+			this.checkCertValidity();
 	}
 	
 	/**
@@ -407,6 +413,25 @@ public final class EIP extends IntentService {
 		}
 		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(PARSED_SERIAL, eipDefinition.optInt(Provider.API_RETURN_SERIAL)).commit();
 	}
+
+    private void checkCertValidity() {
+	Log.d(TAG, "check cert validity");
+	String certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(CERTIFICATE, "");
+	X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate_string);
+	// Fetch a new certificate if the current one is going to expire in less than 7 days
+	Calendar offset_date = Calendar.getInstance();
+	offset_date.add(Calendar.DATE, 10);
+	Bundle result_data = new Bundle();
+	result_data.putString(REQUEST_TAG, ACTION_CHECK_CERT_VALIDITY);
+	try {
+	    certificate_x509.checkValidity(offset_date.getTime());
+	    mReceiver.send(Activity.RESULT_OK, result_data);
+	} catch(CertificateExpiredException e) {
+	    mReceiver.send(Activity.RESULT_CANCELED, result_data);
+	} catch(CertificateNotYetValidException e) {
+	    mReceiver.send(Activity.RESULT_CANCELED, result_data);
+	}
+    }
 
 	/**
 	 * OVPNGateway provides objects defining gateways and their options and metadata.

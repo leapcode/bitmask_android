@@ -54,6 +54,7 @@
     <string name="service_is_down_error">Service is down.</string>
     <string name="configuring_provider">Configuring provider</string>
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
+    <string name="updating_certificate_message">Updating EIP certificate</string>
     <string name="authenticating_message">Logging in</string>
     <string name="signingup_message">Signing up</string>
     <string name="logout_message">Logging out from this session.</string>
