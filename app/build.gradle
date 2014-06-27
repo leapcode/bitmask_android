@@ -144,4 +144,4 @@ task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
 
   delete ics_openvpn_untranslatable
 }
-build.dependsOn ':app:mergeUntranslatable'
+//build.dependsOn ':app:mergeUntranslatable'

@@ -221,7 +221,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 						mEipStartPending = false;
 					} else if ( level == ConnectionStatus.LEVEL_NONETWORK || level == ConnectionStatus.LEVEL_NOTCONNECTED || level == ConnectionStatus.LEVEL_AUTH_FAILED) {
 						statusMessage = getString(R.string.eip_state_not_connected);
-						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
+						if(getActivity() != null && getActivity().findViewById(R.id.eipProgress) != null)
+						    getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
 						switchState = false;
 					} else if (level == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED) {

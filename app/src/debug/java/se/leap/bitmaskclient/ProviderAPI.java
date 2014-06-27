@@ -16,12 +16,20 @@
  */
  package se.leap.bitmaskclient;
 
+import android.app.IntentService;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
+import android.util.Base64;
+import android.util.Log;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -45,30 +53,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-
 import org.apache.http.client.ClientProtocolException;
 import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-import android.app.IntentService;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
-import android.util.Base64;
-import android.util.Log;
+import se.leap.bitmaskclient.R;
 
 
 /**
@@ -193,7 +192,7 @@ public class ProviderAPI extends IntentService {
 					receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
 				}
 		} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
-				if(getNewCert(parameters)) {
+				if(updateVpnCertificate()) {
 					receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 				} else {
 					receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
@@ -426,7 +425,7 @@ public class ProviderAPI extends IntentService {
 	parameters.put("user[password_verifier]", password_verifier);
 	Log.d(TAG, server_url);
 	Log.d(TAG, parameters.toString());
-	return sendToServer(server_url + "/users", "POST", parameters);
+	return sendToServer(server_url + "/users.json", "POST", parameters);
     }
 	
 	/**
@@ -538,16 +537,16 @@ public class ProviderAPI extends IntentService {
 			CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
 		}
 
-		if(!CA_CERT_DOWNLOADED)
-			current_download = downloadCACert(last_provider_main_url, last_danger_on);
-		if(CA_CERT_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
-			broadcast_progress(progress++);
-			CA_CERT_DOWNLOADED = true;
 			if(!PROVIDER_JSON_DOWNLOADED)
 				current_download = getAndSetProviderJson(last_provider_main_url, last_danger_on);
 			if(PROVIDER_JSON_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
+			    broadcast_progress(progress++);
+			    PROVIDER_JSON_DOWNLOADED = true;
+			    current_download = downloadCACert(last_danger_on);
+			    
+			    if(CA_CERT_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
 				broadcast_progress(progress++);
-				PROVIDER_JSON_DOWNLOADED = true;
+				CA_CERT_DOWNLOADED = true;
 				current_download = getAndSetEipServiceJson(); 
 				if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
 					broadcast_progress(progress++);
@@ -559,17 +558,25 @@ public class ProviderAPI extends IntentService {
 		return current_download;
 	}
 	
-	private Bundle downloadCACert(String provider_main_url, boolean danger_on) {
+	private Bundle downloadCACert(boolean danger_on) {
 		Bundle result = new Bundle();
-		String cert_string = downloadWithCommercialCA(provider_main_url + "/ca.crt", danger_on);
+		try {
+		    JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
+		    String ca_cert_url = provider_json.getString(Provider.CA_CERT_URI);
+		    String cert_string = downloadWithCommercialCA(ca_cert_url, danger_on);
 
-	    if(validCertificate(cert_string) && setting_up_provider) {
-	    	getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.CA_CERT, cert_string).commit();
+		    if(validCertificate(cert_string) && setting_up_provider) {
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.CA_CERT, cert_string).commit();
 			result.putBoolean(RESULT_KEY, true);
-		} else {
+		    } else {
 			String reason_to_fail = pickErrorMessage(cert_string);
 			result.putString(ERRORS, reason_to_fail);
 			result.putBoolean(RESULT_KEY, false);
+		    }
+		} catch (JSONException e) {
+		    String reason_to_fail = formatErrorMessage(R.string.malformed_url);
+		    result.putString(ERRORS, reason_to_fail);
+		    result.putBoolean(RESULT_KEY, false);
 		}
 		
 		return result;
@@ -697,12 +704,16 @@ public class ProviderAPI extends IntentService {
 			json_file_content = formatErrorMessage(R.string.malformed_url);
 		} catch(SocketTimeoutException e) {
 			json_file_content = formatErrorMessage(R.string.server_unreachable_message);
-		} catch (IOException e) {
+		} catch (SSLHandshakeException e) {
 			if(provider_url != null) {
-				json_file_content = downloadWithProviderCA(string_url, danger_on);
+			    json_file_content = downloadWithProviderCA(string_url, danger_on);
 			} else {
 				json_file_content = formatErrorMessage(R.string.certificate_error);
 			}
+		} catch(ConnectException e) {
+		    json_file_content = formatErrorMessage(R.string.service_is_down_error);
+		} catch (FileNotFoundException e) {
+		    json_file_content = formatErrorMessage(R.string.malformed_url);
 		} catch (Exception e) {
 			if(provider_url != null && danger_on) {
 				json_file_content = downloadWithProviderCA(string_url, danger_on);
@@ -817,7 +828,7 @@ public class ProviderAPI extends IntentService {
 			System.out.println("String ignoring certificate = " + string);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			string = formatErrorMessage(R.string.server_unreachable_message);
+			string = formatErrorMessage(R.string.malformed_url);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
 			e.printStackTrace();
@@ -878,16 +889,24 @@ public class ProviderAPI extends IntentService {
 		return true;
 	}
 
+    private boolean updateVpnCertificate() {
+	getNewCert();
+
+	getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(EIP.PARSED_SERIAL, 0).commit();
+	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
+	updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
+	startService(updateEIP);
+
+	return true;
+    }
 	/**
 	 * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.
 	 * 
-	 * @param task containing the type of the certificate to be downloaded
 	 * @return true if certificate was downloaded correctly, false if provider.json or danger_on flag are not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
 	 */
-	private boolean getNewCert(Bundle task) {
+	private boolean getNewCert() {
 
 		try {
-			String type_of_certificate = task.getString(ConfigurationWizard.TYPE_OF_CERTIFICATE);
 			JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
 			
 			String provider_main_url = provider_json.getString(Provider.API_URL);
