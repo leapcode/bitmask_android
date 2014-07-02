@@ -279,7 +279,7 @@ public final class EIP extends IntentService {
 		    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		    startActivity(disconnect_vpn);
 		}
-			
+		
 		if (mReceiver != null){
 			Bundle resultData = new Bundle();
 			resultData.putString(REQUEST_TAG, ACTION_STOP_EIP);
@@ -415,19 +415,21 @@ public final class EIP extends IntentService {
 	}
 
     private void checkCertValidity() {
-	Log.d(TAG, "check cert validity");
 	String certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(CERTIFICATE, "");
 	X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate_string);
 	// Fetch a new certificate if the current one is going to expire in less than 7 days
 	Calendar offset_date = Calendar.getInstance();
-	offset_date.add(Calendar.DATE, 10);
+	offset_date.add(Calendar.DATE, 7);
+	
 	Bundle result_data = new Bundle();
 	result_data.putString(REQUEST_TAG, ACTION_CHECK_CERT_VALIDITY);
 	try {
 	    certificate_x509.checkValidity(offset_date.getTime());
 	    mReceiver.send(Activity.RESULT_OK, result_data);
+	    Log.d(TAG, "Valid certificate");
 	} catch(CertificateExpiredException e) {
 	    mReceiver.send(Activity.RESULT_CANCELED, result_data);
+	    Log.d(TAG, "Updating certificate");
 	} catch(CertificateNotYetValidException e) {
 	    mReceiver.send(Activity.RESULT_CANCELED, result_data);
 	}

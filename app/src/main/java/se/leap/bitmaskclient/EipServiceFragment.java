@@ -44,8 +44,6 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	
  	private boolean mEipStartPending = false;
 
-    private boolean set_switch_off = false;
-
     private static EIPReceiver mEIPReceiver;
 
     
@@ -101,17 +99,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		super.onResume();
 
 		VpnStatus.addStateListener(this);
-		if(set_switch_off) {
-		    eipSwitch.setChecked(false);
-		    set_switch_off = false;
-		}
 		
 		eipCommand(EIP.ACTION_CHECK_CERT_VALIDITY);
 	}
-
-    protected void setSwitchOff(boolean value) {
-	set_switch_off = value;
-    }
     
 	@Override
 	public void onPause() {
@@ -138,8 +128,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
     }
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-	    Log.d("bitmask", "onCheckChanged");
-		if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
+	    if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
 		    boolean allowed_anon = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getBoolean(EIP.ALLOWED_ANON, false);
 		    String certificate = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.CERTIFICATE, "");
 		    if(allowed_anon || !certificate.isEmpty()) {
@@ -307,20 +296,25 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					break;
 				}
 			} else if (request == EIP.ACTION_CHECK_CERT_VALIDITY) {
+			    checked = eipSwitch.isChecked();
+			    
 			    switch (resultCode) {
 			    case Activity.RESULT_OK:
 				break;
 			    case Activity.RESULT_CANCELED:
 				Dashboard dashboard = (Dashboard) getActivity();
+				
 				dashboard.setProgressBarVisibility(ProgressBar.VISIBLE);
 				dashboard.setEipStatus(R.string.updating_certificate_message);
-				ProviderAPIResultReceiver providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-				providerAPI_result_receiver.setReceiver((Receiver)getActivity());
 				
 				Intent provider_API_command = new Intent(getActivity(), ProviderAPI.class);
+				if(dashboard.providerAPI_result_receiver == null) {
+				    dashboard.providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+				    dashboard.providerAPI_result_receiver.setReceiver(dashboard);
+				}
+				
 				provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
-				provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-		
+				provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, dashboard.providerAPI_result_receiver);
 				getActivity().startService(provider_API_command);
 				break;
 			    }

@@ -190,6 +190,7 @@ public class ProviderAPI extends IntentService {
 					receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
 				}
 		} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
+		    Log.d(TAG, "action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)");
 				if(updateVpnCertificate()) {
 					receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 				} else {
