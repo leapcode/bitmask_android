@@ -169,8 +169,12 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		    }
 		}
 		else {
-		    if(!eipSwitch.isChecked())
-			eipStatus.setText(R.string.state_noprocess);
+		    if(!eipSwitch.isChecked()) {
+			if(getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.STATUS, "").equalsIgnoreCase(ConnectionStatus.LEVEL_AUTH_FAILED.toString()))
+			    startEipFromScratch();
+			else
+			    eipStatus.setText(R.string.state_noprocess);
+			}
 		}
 		eipAutoSwitched = true;
 		saveEipStatus();
