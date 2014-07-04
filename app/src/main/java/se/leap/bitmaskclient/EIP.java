@@ -424,43 +424,38 @@ public final class EIP extends IntentService {
 			for (Iterator<VpnProfile> it = profiles.iterator(); it.hasNext(); ){
 				VpnProfile p = it.next();
 				
-				try {
-				    String name = eipDefinition.getJSONObject("locations").getJSONObject(mGateway.getString("location")).getString("name");
-					if ( p.mName.equalsIgnoreCase( name ) ) {
-						it.remove();
-						vpl.removeProfile(context, p);
-					}
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				if ( p.mName.equalsIgnoreCase( mName ) ) {
+				    it.remove();
+				    vpl.removeProfile(context, p);
 				}
 			}
 			
 			this.createVPNProfile();
 			
-			setUniqueProfileName(vpl);
+			setUniqueProfileName();
 			vpl.addProfile(mVpnProfile);
 			vpl.saveProfile(context, mVpnProfile);
 			vpl.saveProfileList(context);
 		}
+
+	    
+	    public String locationAsName() {
+		try {
+		    return eipDefinition.getJSONObject("locations").getJSONObject(mGateway.getString("location")).getString("name");
+		} catch (JSONException e) {
+		    Log.v(TAG,"Couldn't read gateway name for profile creation! Returning original name = " + mName);
+		    e.printStackTrace();
+		    return mName;
+		}
+	    }
+
 		
 		/**
-		 * Attempts to create a unique profile name from the hostname of the gateway
-		 * 
-		 * @param profileManager
+		 * Attempts to create a unique profile name 
+		 * based on the location of the gateway.
 		 */
-		private void setUniqueProfileName(ProfileManager profileManager) {
-			int i=0;
-
-			try {
-				String newname = eipDefinition.getJSONObject("locations").getJSONObject(mGateway.getString("location")).getString("name");
-				mVpnProfile.mName=newname;
-				mName = newname;
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				Log.v(TAG,"Couldn't read gateway name for profile creation!");
-				e.printStackTrace();
-			}
+		private void setUniqueProfileName() {
+		    mVpnProfile.mName = mName = locationAsName();
 		}
 	    
 		/**
