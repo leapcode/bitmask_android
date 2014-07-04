@@ -182,11 +182,11 @@ public final class EIP extends IntentService {
 	    activeGateway = selectGateway();
 		
 	    if(activeGateway != null && activeGateway.mVpnProfile != null) {
-		launchVpn();
+		launchActiveGateway();
 	    }
 	}
 
-    private void launchVpn() {
+    private void launchActiveGateway() {
 	Intent intent = new Intent(this,LaunchVPN.class);
 	intent.setAction(Intent.ACTION_MAIN);
 	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -203,12 +203,12 @@ public final class EIP extends IntentService {
 	 * if there is no bound service.  Sends a message to the requesting ResultReceiver.
 	 */
 	private void stopEIP() {
-		if(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").startsWith("LEVEL_CONNECT")){
+	    if(isConnected()) {
 		    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
 		    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		    startActivity(disconnect_vpn);
 		}
-		
+
 		if (mReceiver != null){
 			Bundle resultData = new Bundle();
 			resultData.putString(REQUEST_TAG, ACTION_STOP_EIP);
@@ -232,7 +232,7 @@ public final class EIP extends IntentService {
 		if(parsedEipSerial == 0) {
 		    deleteAllVpnProfiles();
 		}
-		if (eipDefinition.optInt("serial") > parsedEipSerial)
+		if (eipDefinition != null && eipDefinition.optInt("serial") > parsedEipSerial)
 			updateGateways();
 	}
 
@@ -508,19 +508,19 @@ public final class EIP extends IntentService {
 	    }
 
 	    private String extractCommonOptionsFromEipServiceDotJson() {
-		String parsed_configuration = "";
+		String common_options = "";
 		try {
-		    String common_options = "openvpn_configuration";
-		    JSONObject openvpn_configuration = eipDefinition.getJSONObject(common_options);
+		    String common_options_key = "openvpn_configuration";
+		    JSONObject openvpn_configuration = eipDefinition.getJSONObject(common_options_key);
 		    Iterator keys = openvpn_configuration.keys();
 		    Vector<Vector<String>> value = new Vector<Vector<String>>();
 		    while ( keys.hasNext() ){
 			String key = keys.next().toString();
 					
-			parsed_configuration += key + " ";
+			common_options += key + " ";
 			for ( String word : openvpn_configuration.getString(key).split(" ") )
-			    parsed_configuration += word + " ";
-			parsed_configuration += System.getProperty("line.separator");
+			    common_options += word + " ";
+			common_options += System.getProperty("line.separator");
 			
 		    }
 		} catch (JSONException e) {
@@ -528,40 +528,42 @@ public final class EIP extends IntentService {
 		    e.printStackTrace();
 		}
 
-		parsed_configuration += "client" + System.getProperty("line.separator");
+		common_options += "client" + System.getProperty("line.separator");
 
-		return parsed_configuration;
+		return common_options;
 	    }
 		
 	    
 	    private String extractRemotesFromEipServiceDotJson() {
-		String parsed_configuration = "";
+		String remotes = "";
 		
 		String remote = "ip_address";
+		String remote_openvpn_keyword = "remote";
 		String ports = "ports";
 		String protos = "protocols";
 		String capabilities = "capabilities";
+		String udp = "udp";
 		
 		try {
 		    JSONArray protocolsJSON = mGateway.getJSONObject(capabilities).getJSONArray(protos);
-		    String remote_line = "remote";
 		    for ( int i=0; i<protocolsJSON.length(); i++ ) {
+			String remote_line = remote_openvpn_keyword;
 			remote_line += " " + mGateway.getString(remote);
 			remote_line += " " + mGateway.getJSONObject(capabilities).getJSONArray(ports).optString(0);
 			remote_line += " " + protocolsJSON.optString(i);
-			if(remote_line.endsWith("udp"))
-			    parsed_configuration = parsed_configuration.replaceFirst(System.getProperty("line.separator") + "remote", System.getProperty("line.separator") + remote_line + System.getProperty("line.separator") + "remote");
+			if(remote_line.endsWith(udp))
+			    remotes = remotes.replaceFirst(remote_openvpn_keyword, remote_line + System.getProperty("line.separator") + remote_openvpn_keyword);
 			else
-			    parsed_configuration += remote_line;
-			remote_line = "remote";
-			parsed_configuration += System.getProperty("line.separator");
+			    remotes += remote_line;
+			remotes += System.getProperty("line.separator");
 		    }
 		} catch (JSONException e) {
 		    // TODO Auto-generated catch block
 		    e.printStackTrace();
 		}
 		
-		return parsed_configuration;
+		Log.d(TAG, "remotes = " + remotes);
+		return remotes;
 	    }
 
 	    private String caSecretFromSharedPreferences() {
