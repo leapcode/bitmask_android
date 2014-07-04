@@ -369,7 +369,7 @@ public final class EIP extends IntentService {
 			for (int i = 0; i < gateways.length(); i++) {
 				JSONObject gw = gateways.getJSONObject(i);
 				if ( gw.getString("location").equalsIgnoreCase(closestLocation) || closestLocation.isEmpty()){
-					chosenHost = gw.getString("host");
+					chosenHost = eipDefinition.getJSONObject("locations").getJSONObject(gw.getString("location")).getString("name");
 					break;
 				}
 			}
@@ -480,7 +480,6 @@ public final class EIP extends IntentService {
 		
 		private void loadVpnProfile() {
 			ProfileManager vpl = ProfileManager.getInstance(context);
-			
 			try {
 				if ( mName == null )
 					mVpnProfile = vpl.getProfiles().iterator().next();
@@ -510,8 +509,10 @@ public final class EIP extends IntentService {
 			Collection<VpnProfile> profiles = vpl.getProfiles();
 			for (Iterator<VpnProfile> it = profiles.iterator(); it.hasNext(); ){
 				VpnProfile p = it.next();
+				
 				try {
-					if ( p.mName.equalsIgnoreCase( gateway.getString("host") ) ){
+				    String name = eipDefinition.getJSONObject("locations").getJSONObject(mGateway.getString("location")).getString("name");
+					if ( p.mName.equalsIgnoreCase( name ) ) {
 						it.remove();
 						vpl.removeProfile(context, p);
 					}
@@ -548,7 +549,9 @@ public final class EIP extends IntentService {
 						newname = getString(R.string.converted_profile_i,i);
 				}
 
+				newname = eipDefinition.getJSONObject("locations").getJSONObject(mGateway.getString("location")).getString("name");
 				mVpnProfile.mName=newname;
+				mName = newname;
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				Log.v(TAG,"Couldn't read gateway name for profile creation!");
