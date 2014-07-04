@@ -121,13 +121,11 @@ public final class EIP extends IntentService {
 		context = getApplicationContext();
 		
 		updateEIPService();
-		
-		this.retreiveVpnService();
 	}
 	
 	@Override
 	public void onDestroy() {
-	    unbindService(mVpnServiceConn);
+
 	    mBound = false;
 	    
 	    super.onDestroy();
@@ -152,101 +150,25 @@ public final class EIP extends IntentService {
 	}
 	
 	/**
-	 * Sends an Intent to bind OpenVpnService.
-	 * Used when OpenVpnService isn't bound but might be running.
-	 */
-	private boolean retreiveVpnService() {
-		Intent bindIntent = new Intent(this,OpenVpnService.class);
-		bindIntent.setAction(OpenVpnService.START_SERVICE);
-		return bindService(bindIntent, mVpnServiceConn, BIND_AUTO_CREATE);
-	}
-	
-	private ServiceConnection mVpnServiceConn = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			LocalBinder binder = (LocalBinder) service;
-			mVpnService = binder.getService();
-			mBound = true;
-
-			if (mReceiver != null && mPending != null) {
-
-			    boolean running = isConnected();
-				
-				int resultCode = Activity.RESULT_CANCELED;
-				
-				if (mPending.equals(ACTION_IS_EIP_RUNNING)){
-					resultCode = (running) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-
-				}
-				else if (mPending.equals(ACTION_START_EIP)){
-					resultCode = (running) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-				}
-				else if (mPending.equals(ACTION_STOP_EIP)){
-					resultCode = (running) ? Activity.RESULT_CANCELED
-							: Activity.RESULT_OK;
-					}
-				Bundle resultData = new Bundle();
-				resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
-				mReceiver.send(resultCode, resultData);
-				
-				mPending = null;
-			}
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mBound = false;
-			
-			if (mReceiver != null){
-				Bundle resultData = new Bundle();
-				resultData.putString(REQUEST_TAG, EIP_NOTIFICATION);
-				mReceiver.send(Activity.RESULT_CANCELED, resultData);
-			}
-		}
-		
-	
-	};
-	
-	/**
-	 * Attempts to determine if OpenVpnService has an established VPN connection
-	 * through the bound ServiceConnection.  If there is no bound service, this
-	 * method will attempt to bind a running OpenVpnService and send
-	 * <code>Activity.RESULT_CANCELED</code> to the ResultReceiver that made the
-	 * request.
-	 * Note: If the request to bind OpenVpnService is successful, the ResultReceiver
-	 * will be notified in {@link onServiceConnected()}
+	 * Checks the last stored status notified by ics-openvpn
+	 * Sends <code>Activity.RESULT_CANCELED</code> to the ResultReceiver that made the
+	 * request if it's not connected, <code>Activity.RESULT_OK</code> otherwise.
 	 */
 	
 	  private void isRunning() {
-          Bundle resultData = new Bundle();
-          resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
-          int resultCode = Activity.RESULT_CANCELED;
-	  boolean is_connected = isConnected();
-          if (mBound) {
-                  resultCode = (is_connected) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+	      Bundle resultData = new Bundle();
+	      resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
+	      int resultCode = Activity.RESULT_CANCELED;
+	      boolean is_connected = isConnected();
+
+	      resultCode = (is_connected) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
                   
-                  if (mReceiver != null){
-                          mReceiver.send(resultCode, resultData);
-                  }
-          } else {
-                  mPending = ACTION_IS_EIP_RUNNING;
-                 boolean retrieved_vpn_service = retreiveVpnService();
-                 try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-                 boolean running = is_connected;
-                 
-                 if (retrieved_vpn_service && running && mReceiver != null){
-                	  mReceiver.send(Activity.RESULT_OK, resultData);
-                  }
-                  else{
-                	  mReceiver.send(Activity.RESULT_CANCELED, resultData);
-                  }
-          }
-  }
+	      if (mReceiver != null){
+		  mReceiver.send(resultCode, resultData);
+	      }
+
+	      Log.d(TAG, "isRunning() = " + is_connected);
+	  }
 
     private boolean isConnected() {
 	return getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").equalsIgnoreCase("LEVEL_CONNECTED");
