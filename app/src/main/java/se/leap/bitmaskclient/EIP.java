@@ -260,26 +260,28 @@ public final class EIP extends IntentService {
 	    activeGateway = selectGateway();
 		
 	    if(activeGateway != null && activeGateway.mVpnProfile != null) {
-		Intent intent = new Intent(this,LaunchVPN.class);
-		intent.setAction(Intent.ACTION_MAIN);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.putExtra(LaunchVPN.EXTRA_KEY, activeGateway.mVpnProfile.getUUID().toString() );
-		intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.mVpnProfile.getName() );
-		intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
-		intent.putExtra(RECEIVER_TAG, mReceiver);
-		startActivity(intent);
-		mPending = ACTION_START_EIP;
+		launchVpn();
 	    }
 	}
+
+    private void launchVpn() {
+	Intent intent = new Intent(this,LaunchVPN.class);
+	intent.setAction(Intent.ACTION_MAIN);
+	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	intent.putExtra(LaunchVPN.EXTRA_KEY, activeGateway.mVpnProfile.getUUID().toString() );
+	intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.mVpnProfile.getName() );
+	intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
+	intent.putExtra(RECEIVER_TAG, mReceiver);
+	startActivity(intent);
+	mPending = ACTION_START_EIP;
+    }
 	
 	/**
 	 * Disconnects the EIP connection gracefully through the bound service or forcefully
 	 * if there is no bound service.  Sends a message to the requesting ResultReceiver.
 	 */
 	private void stopEIP() {
-		if (mBound)
-			mVpnService.onRevoke();
-		else if(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").startsWith("LEVEL_CONNECT")){
+		if(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").startsWith("LEVEL_CONNECT")){
 		    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
 		    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		    startActivity(disconnect_vpn);
@@ -306,62 +308,27 @@ public final class EIP extends IntentService {
 			e.printStackTrace();
 		}
 		if(parsedEipSerial == 0) {
-			// Delete all vpn profiles
-			ProfileManager vpl = ProfileManager.getInstance(context);
-			VpnProfile[] profiles = (VpnProfile[]) vpl.getProfiles().toArray(new VpnProfile[vpl.getProfiles().size()]);
-			for (int current_profile = 0; current_profile < profiles.length; current_profile++){
-				vpl.removeProfile(context, profiles[current_profile]);
-			}
+		    deleteAllVpnProfiles();
 		}
 		if (eipDefinition.optInt("serial") > parsedEipSerial)
 			updateGateways();
 	}
-	
+
+    private void deleteAllVpnProfiles() {
+	ProfileManager vpl = ProfileManager.getInstance(context);
+	VpnProfile[] profiles = (VpnProfile[]) vpl.getProfiles().toArray(new VpnProfile[vpl.getProfiles().size()]);
+	for (int current_profile = 0; current_profile < profiles.length; current_profile++){
+	    vpl.removeProfile(context, profiles[current_profile]);
+	}
+    }
 	/**
 	 * Choose a gateway to connect to based on timezone from system locale data
 	 * 
 	 * @return The gateway to connect to
 	 */
 	private OVPNGateway selectGateway() {
-		// TODO Remove String arg constructor in favor of findGatewayByName(String)
+		String closestLocation = closestGateway();
 		
-		Calendar cal = Calendar.getInstance();
-		int localOffset = cal.get(Calendar.ZONE_OFFSET) / 3600000;
-		TreeMap<Integer, Set<String>> offsets = new TreeMap<Integer, Set<String>>();
-		JSONObject locationsObjects = null;
-		Iterator<String> locations = null;
-		try {
-			locationsObjects = eipDefinition.getJSONObject("locations");
-			locations = locationsObjects.keys();
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		while (locations.hasNext()) {
-			String locationName = locations.next();
-			JSONObject location = null;
-			try {
-				location = locationsObjects.getJSONObject(locationName);
-				
-				// Distance along the numberline of Prime Meridian centric, assumes UTC-11 through UTC+12
-				int dist = Math.abs(localOffset - location.optInt("timezone"));
-				// Farther than 12 timezones and it's shorter around the "back"
-				if (dist > 12)
-					dist = 12 - (dist -12);  // Well i'll be.  Absolute values make equations do funny things.
-				
-				Set<String> set = offsets.get(dist);
-				if (set == null) set = new HashSet<String>();
-				set.add(locationName);
-				offsets.put(dist, set);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		
-		String closestLocation = offsets.isEmpty() ? "" : offsets.firstEntry().getValue().iterator().next();
 		JSONArray gateways = null;
 		String chosenHost = null;
 		try {
@@ -380,6 +347,44 @@ public final class EIP extends IntentService {
 
 		return new OVPNGateway(chosenHost);
 	}
+
+    private String closestGateway() {
+	Calendar cal = Calendar.getInstance();
+	int localOffset = cal.get(Calendar.ZONE_OFFSET) / 3600000;
+	TreeMap<Integer, Set<String>> offsets = new TreeMap<Integer, Set<String>>();
+	JSONObject locationsObjects = null;
+	Iterator<String> locations = null;
+	try {
+	    locationsObjects = eipDefinition.getJSONObject("locations");
+	    locations = locationsObjects.keys();
+	} catch (JSONException e1) {
+	    // TODO Auto-generated catch block
+	    e1.printStackTrace();
+	}
+		
+	while (locations.hasNext()) {
+	    String locationName = locations.next();
+	    JSONObject location = null;
+	    try {
+		location = locationsObjects.getJSONObject(locationName);
+				
+		// Distance along the numberline of Prime Meridian centric, assumes UTC-11 through UTC+12
+		int dist = Math.abs(localOffset - location.optInt("timezone"));
+		// Farther than 12 timezones and it's shorter around the "back"
+		if (dist > 12)
+		    dist = 12 - (dist -12);  // Well i'll be.  Absolute values make equations do funny things.
+				
+		Set<String> set = offsets.get(dist);
+		if (set == null) set = new HashSet<String>();
+		set.add(locationName);
+		offsets.put(dist, set);
+	    } catch (JSONException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    }
+	}		
+	return offsets.isEmpty() ? "" : offsets.firstEntry().getValue().iterator().next();
+    }
 	
 	/**
 	 * Walk the list of gateways defined in eip-service.json and parse them into
@@ -390,32 +395,19 @@ public final class EIP extends IntentService {
 		JSONArray gatewaysDefined = null;
 		
 		try {
-			gatewaysDefined = eipDefinition.getJSONArray("gateways");
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			gatewaysDefined = eipDefinition.getJSONArray("gateways");		
+			for ( int i=0 ; i < gatewaysDefined.length(); i++ ){			
+			    JSONObject gw = null;			
+			    gw = gatewaysDefined.getJSONObject(i);
+			
+			    if ( gw.getJSONObject("capabilities").getJSONArray("transport").toString().contains("openvpn") )
+				new OVPNGateway(gw);
+			}
+		} catch (JSONException e) {
+		    // TODO Auto-generated catch block
+		    e.printStackTrace();
 		}
 		
-		for ( int i=0 ; i < gatewaysDefined.length(); i++ ){
-			
-			JSONObject gw = null;
-			
-			try {
-				gw = gatewaysDefined.getJSONObject(i);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			try {
-				if ( gw.getJSONObject("capabilities").getJSONArray("transport").toString().contains("openvpn") ){
-					new OVPNGateway(gw);
-				}
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(PARSED_SERIAL, eipDefinition.optInt(Provider.API_RETURN_SERIAL)).commit();
 	}
 
@@ -538,23 +530,42 @@ public final class EIP extends IntentService {
 		private void setUniqueProfileName(ProfileManager profileManager) {
 			int i=0;
 
-			String newname;
 			try {
-				newname = mGateway.getString("host");
-				while(profileManager.getProfileByName(newname)!=null) {
-					i++;
-					if(i==1)
-						newname = getString(R.string.converted_profile);
-					else
-						newname = getString(R.string.converted_profile_i,i);
-				}
-
-				newname = eipDefinition.getJSONObject("locations").getJSONObject(mGateway.getString("location")).getString("name");
+				String newname = eipDefinition.getJSONObject("locations").getJSONObject(mGateway.getString("location")).getString("name");
 				mVpnProfile.mName=newname;
 				mName = newname;
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				Log.v(TAG,"Couldn't read gateway name for profile creation!");
+				e.printStackTrace();
+			}
+		}
+	    
+		/**
+		 * Create and attach the VpnProfile to our gateway object
+		 */
+		protected void createVPNProfile(){
+			try {
+				ConfigParser cp = new ConfigParser();
+				Log.d(TAG, configFromEipServiceDotJson());
+				Log.d(TAG, caSecretFromSharedPreferences());
+				Log.d(TAG, keySecretFromSharedPreferences());
+				Log.d(TAG, certSecretFromSharedPreferences());
+				cp.parseConfig(new StringReader(configFromEipServiceDotJson()));
+				cp.parseConfig(new StringReader(caSecretFromSharedPreferences()));
+				cp.parseConfig(new StringReader(keySecretFromSharedPreferences()));
+				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
+				VpnProfile vp = cp.convertProfile();
+				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
+				mVpnProfile = vp;
+				Log.v(TAG,"Created VPNProfile");
+			} catch (ConfigParseError e) {
+				// FIXME We didn't get a VpnProfile!  Error handling! and log level
+				Log.v(TAG,"Error creating VPNProfile");
+				e.printStackTrace();
+			} catch (IOException e) {
+				// FIXME We didn't get a VpnProfile!  Error handling! and log level
+				Log.v(TAG,"Error creating VPNProfile");
 				e.printStackTrace();
 			}
 		}
@@ -564,19 +575,20 @@ public final class EIP extends IntentService {
 	     */
 	    private String configFromEipServiceDotJson() {
 		String parsed_configuration = "";
-		    
-		String common_options = "openvpn_configuration";
-		String remote = "ip_address";
-		String ports = "ports";
-		String protos = "protocols";
-		String capabilities = "capabilities";
+		
 		String location_key = "location";
 		String locations = "locations";
-		
-		Vector<String> arg = new Vector<String>();
-		Vector<Vector<String>> args = new Vector<Vector<String>>();
-			
+
+		parsed_configuration += extractCommonOptionsFromEipServiceDotJson();
+		parsed_configuration += extractRemotesFromEipServiceDotJson();
+
+		return parsed_configuration;
+	    }
+
+	    private String extractCommonOptionsFromEipServiceDotJson() {
+		String parsed_configuration = "";
 		try {
+		    String common_options = "openvpn_configuration";
 		    JSONObject openvpn_configuration = eipDefinition.getJSONObject(common_options);
 		    Iterator keys = openvpn_configuration.keys();
 		    Vector<Vector<String>> value = new Vector<Vector<String>>();
@@ -596,7 +608,19 @@ public final class EIP extends IntentService {
 
 		parsed_configuration += "client" + System.getProperty("line.separator");
 
-		try {		    
+		return parsed_configuration;
+	    }
+		
+	    
+	    private String extractRemotesFromEipServiceDotJson() {
+		String parsed_configuration = "";
+		
+		String remote = "ip_address";
+		String ports = "ports";
+		String protos = "protocols";
+		String capabilities = "capabilities";
+		
+		try {
 		    JSONArray protocolsJSON = mGateway.getJSONObject(capabilities).getJSONArray(protos);
 		    String remote_line = "remote";
 		    for ( int i=0; i<protocolsJSON.length(); i++ ) {
@@ -615,26 +639,8 @@ public final class EIP extends IntentService {
 		    e.printStackTrace();
 		}
 		
-		// try {
-		// 	arg.add(location_key);
-		// 	String locationText = "";
-		// 	locationText = eipDefinition.getJSONObject(locations).getJSONObject(mGateway.getString(location_key)).getString("name");		
-		// 	arg.add(locationText);
-		//     Log.d(TAG, "location = " + locationText);
-
-		// } catch (JSONException e) {
-		// 	// TODO Auto-generated catch block
-		// 	e.printStackTrace();
-		// }
-		// args.add((Vector<String>) arg.clone());
-		// options.put("location", (Vector<Vector<String>>) args.clone() );
-
-		// arg.clear();
-		// args.clear();
-		
 		return parsed_configuration;
 	    }
-
 
 	    private String caSecretFromSharedPreferences() {
 		String secret_lines = "";
@@ -679,35 +685,6 @@ public final class EIP extends IntentService {
 
 		return secret_lines;
 	    }
-	    
-		/**
-		 * Create and attach the VpnProfile to our gateway object
-		 */
-		protected void createVPNProfile(){
-			try {
-				ConfigParser cp = new ConfigParser();
-				Log.d(TAG, configFromEipServiceDotJson());
-				Log.d(TAG, caSecretFromSharedPreferences());
-				Log.d(TAG, keySecretFromSharedPreferences());
-				Log.d(TAG, certSecretFromSharedPreferences());
-				cp.parseConfig(new StringReader(configFromEipServiceDotJson()));
-				cp.parseConfig(new StringReader(caSecretFromSharedPreferences()));
-				cp.parseConfig(new StringReader(keySecretFromSharedPreferences()));
-				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
-				VpnProfile vp = cp.convertProfile();
-				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
-				mVpnProfile = vp;
-				Log.v(TAG,"Created VPNProfile");
-			} catch (ConfigParseError e) {
-				// FIXME We didn't get a VpnProfile!  Error handling! and log level
-				Log.v(TAG,"Error creating VPNProfile");
-				e.printStackTrace();
-			} catch (IOException e) {
-				// FIXME We didn't get a VpnProfile!  Error handling! and log level
-				Log.v(TAG,"Error creating VPNProfile");
-				e.printStackTrace();
-			}
-		}
 	}
 
 }
