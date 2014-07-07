@@ -16,38 +16,9 @@
  */
 package se.leap.bitmaskclient;
 
-import java.io.StringReader;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.Vector;
-import java.security.cert.X509Certificate;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.Dashboard;
-import se.leap.bitmaskclient.Provider;
 
-import de.blinkt.openvpn.activities.DisconnectVPN;
-import de.blinkt.openvpn.core.ConfigParser;
-import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
-import de.blinkt.openvpn.LaunchVPN;
-import de.blinkt.openvpn.core.OpenVpnManagementThread;
-import de.blinkt.openvpn.core.OpenVpnService;
-import de.blinkt.openvpn.core.OpenVpnService.LocalBinder;
-import de.blinkt.openvpn.core.ProfileManager;
-import de.blinkt.openvpn.VpnProfile;
 
 import android.app.Activity;
 import android.app.IntentService;
@@ -61,6 +32,38 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.util.Log;
+import de.blinkt.openvpn.LaunchVPN;
+import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.activities.DisconnectVPN;
+import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
+import de.blinkt.openvpn.core.ConfigParser;
+import de.blinkt.openvpn.core.OpenVpnManagementThread;
+import de.blinkt.openvpn.core.OpenVpnService.LocalBinder;
+import de.blinkt.openvpn.core.OpenVpnService;
+import de.blinkt.openvpn.core.ProfileManager;
+import java.io.IOException;
+import java.io.StringReader;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.Vector;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.R;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -82,6 +85,7 @@ public final class EIP extends IntentService {
 	public final static String ACTION_IS_EIP_RUNNING = "se.leap.bitmaskclient.IS_RUNNING";
 	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
     	public final static String STATUS = "eip status";
+    	public final static String DATE_FROM_CERTIFICATE = "date from certificate";
 	public final static String ALLOWED_ANON = "allow_anonymous";
 	public final static String CERTIFICATE = "cert";
 	public final static String PRIVATE_KEY = "private_key";
@@ -91,8 +95,9 @@ public final class EIP extends IntentService {
 	public final static String RECEIVER_TAG = "receiverTag";
 	public final static String REQUEST_TAG = "requestTag";
 	public final static String TAG = "se.leap.bitmaskclient.EIP";
-	
-	
+
+    public final static SimpleDateFormat certificate_date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+    
 	private static Context context;
 	private static ResultReceiver mReceiver;
 	private static OpenVpnService mVpnService;
@@ -416,14 +421,23 @@ public final class EIP extends IntentService {
 
     private void checkCertValidity() {
 	String certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(CERTIFICATE, "");
+	String date_from_certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(DATE_FROM_CERTIFICATE, Calendar.getInstance().getTime().toString());
 	X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate_string);
-	// Fetch a new certificate if the current one is going to expire in less than 7 days
+
 	Calendar offset_date = Calendar.getInstance();
-	offset_date.add(Calendar.DATE, 7);
+	try {
+	    long difference = Math.abs(certificate_date_format.parse(date_from_certificate_string).getTime() - certificate_x509.getNotAfter().getTime())/2;
+	    long current_date_millis = offset_date.getTimeInMillis();
+	    offset_date.setTimeInMillis(current_date_millis + difference);
+	    Log.d(TAG, "certificate not after = " + certificate_x509.getNotAfter());
+	} catch(ParseException e) {
+	    e.printStackTrace();
+	}
 	
 	Bundle result_data = new Bundle();
 	result_data.putString(REQUEST_TAG, ACTION_CHECK_CERT_VALIDITY);
 	try {
+	    Log.d(TAG, "offset_date = " + offset_date.getTime().toString());
 	    certificate_x509.checkValidity(offset_date.getTime());
 	    mReceiver.send(Activity.RESULT_OK, result_data);
 	    Log.d(TAG, "Valid certificate");
