@@ -8,6 +8,8 @@ import android.provider.Settings;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import com.robotium.solo.Solo;
+
+import de.blinkt.openvpn.activities.DisconnectVPN;
 import se.leap.bitmaskclient.ConfigurationWizard;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
@@ -38,25 +40,58 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 	 * I cannot automate that dialog.
 	 */
 	public void testOnOffOpenVpn() {
-		solo.clickOnView(solo.getView(R.id.eipSwitch));
-		if(!solo.waitForText(getActivity().getString(R.string.state_auth)))
-			fail();
-		if(!solo.waitForText(getActivity().getString(R.string.eip_state_connected), 1, 30*1000))
-			fail();
-		
-		solo.clickOnView(solo.getView(R.id.eipSwitch));
-		if(!solo.waitForText(getActivity().getString(R.string.eip_state_not_connected)))
-		    fail();
-		
-		ConnectionManager.setMobileDataEnabled(false, solo.getCurrentActivity().getApplicationContext());
-		
-		solo.clickOnView(solo.getView(R.id.eipSwitch));
-		// if(!solo.waitForText(getActivity().getString(R.string.eip_status_start_pending)))
-		// 	fail();
-		if(!solo.waitForText(getActivity().getString(R.string.state_nonetwork)))
-			fail();
+	    solo.clickOnView(solo.getView(R.id.eipSwitch));
+	    testEipTurningOn();
+	    
+	    solo.clickOnView(solo.getView(R.id.eipSwitch));
+	    testEipTurningOff();
+	    
+	    solo.clickOnView(solo.getView(R.id.eipSwitch));
+	    testEipTurningOn();
+	    
+	    solo.clickOnView(solo.getView(R.id.eipSwitch));
+	    testEipTurningOff();
+	    
+	    solo.clickOnView(solo.getView(R.id.eipSwitch));
+	    testEipTurningOn();
+	    
+	    solo.clickOnView(solo.getView(R.id.eipSwitch));
+	    testEipTurningOff();
+
+	    solo.clickOnView(solo.getView(R.id.eipSwitch));
+	    testEipTurningOn();
+	    
+	    testEipIsOnNoNetwork();
+	    
 	}
-	
+
+    private void testEipTurningOn() {
+	if(!solo.waitForText(getActivity().getString(R.string.state_auth)))
+	    fail();
+	if(!solo.waitForText(getActivity().getString(R.string.eip_state_connected), 1, 30*1000))
+	    fail();
+	solo.sleep(2*1000);
+    }
+
+    private void testEipTurningOff() {
+	sayOkToDisconnect();
+	if(!solo.waitForText(getActivity().getString(R.string.eip_state_not_connected)))
+	    fail();
+	solo.sleep(2*1000);
+    }
+
+    private void sayOkToDisconnect() {
+	if(!solo.waitForActivity(DisconnectVPN.class))
+	    fail();
+	solo.clickOnText(getActivity().getString(android.R.string.yes));
+    }
+    
+    private void testEipIsOnNoNetwork() {
+	ConnectionManager.setMobileDataEnabled(false, solo.getCurrentActivity().getApplicationContext());
+	if(!solo.waitForText(getActivity().getString(R.string.eip_state_not_connected), 1, 15*1000))
+	    fail();
+    }
+    
     public void testLogInAndOut() {
 		long miliseconds_to_log_in = 40 * 1000;
 		solo.clickOnActionBarItem(R.id.login_button);
