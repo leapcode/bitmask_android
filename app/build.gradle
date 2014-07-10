@@ -2,13 +2,12 @@ apply plugin: 'android'
 
 android {
   compileSdkVersion 19
-  buildToolsVersion "19.1.0"
+  buildToolsVersion "20"
 
   defaultConfig {
     minSdkVersion 14
     targetSdkVersion 19
 
-    testPackageName "se.leap.bitmaskclient.test"
     testInstrumentationRunner "android.test.InstrumentationTestRunner"
   }
 
@@ -47,7 +46,8 @@ android {
 }
 
 dependencies {
-  androidTestCompile 'com.android.support:support-v4:+'
+  androidTestCompile 'com.android.support:support-v4:20+'
+  androidTestCompile 'com.android.support:appcompat-v7:20.+'
   androidTestCompile 'com.jayway.android.robotium:robotium-solo:4.3.1'
   compile 'com.intellij:annotations:12.0'
 }
