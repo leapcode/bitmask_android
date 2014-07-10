@@ -46,9 +46,9 @@ android {
 }
 
 dependencies {
-  androidTestCompile 'com.android.support:support-v4:20+'
-  androidTestCompile 'com.android.support:appcompat-v7:20.+'
-  androidTestCompile 'com.jayway.android.robotium:robotium-solo:4.3.1'
+  // androidTestCompile 'com.android.support:support-v4:20+'
+  // androidTestCompile 'com.android.support:appcompat-v7:20.+'
+  androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.2.1'
   compile 'com.intellij:annotations:12.0'
 }
 

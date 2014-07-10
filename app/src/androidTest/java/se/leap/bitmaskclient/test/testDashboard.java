@@ -7,7 +7,7 @@ import android.content.IntentFilter;
 import android.provider.Settings;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
-import com.jayway.android.robotium.solo.Solo;
+import com.robotium.solo.Solo;
 import se.leap.bitmaskclient.ConfigurationWizard;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
@@ -39,8 +39,6 @@ public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
 	 */
 	public void testOnOffOpenVpn() {
 		solo.clickOnView(solo.getView(R.id.eipSwitch));
-		if(!solo.waitForText(getActivity().getString(R.string.eip_status_start_pending)))
-			fail();
 		if(!solo.waitForText(getActivity().getString(R.string.state_auth)))
 			fail();
 		if(!solo.waitForText(getActivity().getString(R.string.eip_state_connected), 1, 30*1000))
