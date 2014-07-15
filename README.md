@@ -62,6 +62,21 @@ The resulting apk(s) will be in `app/build/apk`.
 
 * `Import project` => select bitmask_android top folder
 
+## Running tests
+
+To run the automated tests:
+   1. Run an emulator
+   2. Unlock Android
+   3. Issue the command ./gradlew connectedCheck
+   4. Pay attention and check the "Trust this app" checkbox, if you don't do so tests won't run.
+
+Due to the nature of some tests, adb will lose its connectivity and you won't receive any tests results. To look for failed tests, do the following:
+   1. adb kill-server
+   2. adb logcat | less
+   3. Look for: "failed: test"
+
+We'll polish this process soon, but right now that's what we're doing (well, in fact, we run "adb logcat" in Emacs and then search "failed: test" in the corresponding buffer ;) ).
+
 ## Acknowledgements
 
 This project bases its work in [ics-openvpn project](https://code.google.com/p/ics-openvpn/).
