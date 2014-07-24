@@ -2,7 +2,8 @@
 <resources>
 
     <string name="retry">Retry</string>
-    <string name="repository_url_text">Source code and issue tracker available at https://github.com/leapcode/bitmask_android/</string>
+    <string name="repository_url_text">Source code available at https://github.com/leapcode/bitmask_android/</string>
+    <string name="leap_tracker">Tracker available at https://leap.se/code</string>
     <string name="translation_project_text">Translations welcome and appreciated.  See our Transifex project at https://www.transifex.com/projects/p/bitmask-android/</string>
     <string name="switch_provider_menu_option">Switch provider</string>
     <string name="info">info</string>
@@ -16,9 +17,7 @@
     <string name="provider_label_none">No provider configured</string>
     <string name="eip_settings_button_description">Access EIP connection settings</string>
     <string name="status_unknown">Status unknown.</string>
-    <string name="future_anonymous_secured_status">Connection will be secure using an anonymous certificate.</string>
     <string name="anonymous_secured_status">Connection secure using an anonymous certificate.</string>
-    <string name="future_authed_secured_status">Connection will be secure using your own certificate.</string>
     <string name="authed_secured_status">Connection secure using your own certificate.</string>
     <string name="eip_service_label">Encrypted Internet</string>
     <string name="title_activity_configuration_wizard">Select a service provider</string>
@@ -52,11 +51,14 @@
     <string name="server_unreachable_message">Server is unreachable, please try again.</string>
     <string name="malformed_url">It doesn\'t seem to be a Bitmask provider.</string>
     <string name="certificate_error">This is not a trusted Bitmask provider.</string>
+    <string name="service_is_down_error">Service is down.</string>
     <string name="configuring_provider">Configuring provider</string>
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
+    <string name="updating_certificate_message">Updating EIP certificate</string>
     <string name="authenticating_message">Logging in</string>
     <string name="signingup_message">Signing up</string>
     <string name="logout_message">Logging out from this session.</string>
+    <string name="logged_out_message">Logged out.</string>
     <string name="log_out_failed_message">Didn\'t logged out.</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>

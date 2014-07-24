@@ -1,6 +1,10 @@
 package se.leap.bitmaskclient;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.ProviderAPIResultReceiver;
+import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
+import se.leap.bitmaskclient.Dashboard;
+
 import de.blinkt.openvpn.activities.LogWindow;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
@@ -21,6 +25,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -37,9 +42,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 
 	private boolean eipAutoSwitched = true;
 	
-	private boolean mEipStartPending = false;
-
-    private boolean set_switch_off = false;
+ 	private boolean mEipStartPending = false;
 
     private static EIPReceiver mEIPReceiver;
 
@@ -96,15 +99,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		super.onResume();
 
 		VpnStatus.addStateListener(this);
-		if(set_switch_off) {
-		    eipSwitch.setChecked(false);
-		    set_switch_off = false;
-		}
+		
+		eipCommand(EIP.ACTION_CHECK_CERT_VALIDITY);
 	}
-
-    protected void setSwitchOff(boolean value) {
-	set_switch_off = value;
-    }
     
 	@Override
 	public void onPause() {
@@ -131,8 +128,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
     }
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-	    Log.d("bitmask", "onCheckChanged");
-		if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
+	    if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
 		    boolean allowed_anon = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getBoolean(EIP.ALLOWED_ANON, false);
 		    String certificate = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.CERTIFICATE, "");
 		    if(allowed_anon || !certificate.isEmpty()) {
@@ -173,8 +169,12 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		    }
 		}
 		else {
-		    if(!eipSwitch.isChecked())
-			eipStatus.setText(R.string.state_noprocess);
+		    if(!eipSwitch.isChecked()) {
+			if(getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.STATUS, "").equalsIgnoreCase(ConnectionStatus.LEVEL_AUTH_FAILED.toString()))
+			    startEipFromScratch();
+			else
+			    eipStatus.setText(R.string.state_noprocess);
+			}
 		}
 		eipAutoSwitched = true;
 		saveEipStatus();
@@ -198,9 +198,10 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	 */
 	private void eipCommand(String action){
 		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
-		Intent vpnIntent = new Intent(action);
-		vpnIntent.putExtra(EIP.RECEIVER_TAG, mEIPReceiver);
-		getActivity().startService(vpnIntent);
+	    Intent vpn_intent = new Intent(getActivity().getApplicationContext(), EIP.class);
+	    vpn_intent.setAction(action);
+	    vpn_intent.putExtra(EIP.RECEIVER_TAG, mEIPReceiver);
+	    getActivity().startService(vpn_intent);
 	}
 	
 	@Override
@@ -221,7 +222,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 						mEipStartPending = false;
 					} else if ( level == ConnectionStatus.LEVEL_NONETWORK || level == ConnectionStatus.LEVEL_NOTCONNECTED || level == ConnectionStatus.LEVEL_AUTH_FAILED) {
 						statusMessage = getString(R.string.eip_state_not_connected);
-						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
+						if(getActivity() != null && getActivity().findViewById(R.id.eipProgress) != null)
+						    getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
 						mEipStartPending = false;
 						switchState = false;
 					} else if (level == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED) {
@@ -255,7 +257,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		@Override
 		protected void onReceiveResult(int resultCode, Bundle resultData) {
 			super.onReceiveResult(resultCode, resultData);
-			
+		
 			String request = resultData.getString(EIP.REQUEST_TAG);
 			boolean checked = false;
 			
@@ -297,6 +299,29 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					checked = false;
 					break;
 				}
+			} else if (request == EIP.ACTION_CHECK_CERT_VALIDITY) {
+			    checked = eipSwitch.isChecked();
+			    
+			    switch (resultCode) {
+			    case Activity.RESULT_OK:
+				break;
+			    case Activity.RESULT_CANCELED:
+				Dashboard dashboard = (Dashboard) getActivity();
+				
+				dashboard.setProgressBarVisibility(ProgressBar.VISIBLE);
+				dashboard.setEipStatus(R.string.updating_certificate_message);
+				
+				Intent provider_API_command = new Intent(getActivity(), ProviderAPI.class);
+				if(dashboard.providerAPI_result_receiver == null) {
+				    dashboard.providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+				    dashboard.providerAPI_result_receiver.setReceiver(dashboard);
+				}
+				
+				provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
+				provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, dashboard.providerAPI_result_receiver);
+				getActivity().startService(provider_API_command);
+				break;
+			    }
 			}
 			
 			eipAutoSwitched = true;

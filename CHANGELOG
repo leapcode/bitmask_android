@@ -1,3 +1,21 @@
+0.5.4 July 21 2014 - the "meetup" release
+Features
+- Renewal of the certificate soon enough
+- After signing up, eip restarts to use the new certificate
+- EIP profiles are named according to their locations
+- Developers: tests run, and network tests are more intensive
+
+0.5.3 June 27 2014- the "beautiful oak" release
+Features
+- Updated ics-openvpn (again).
+- Support for riseup leap provider
+- Always use latests certificate
+Bugs Fixed
+- UI inconsistencies (notification, messages)
+- About text contains correct tracker
+- Long provider names are shown correctly
+- Fewer glue code for ics-openvpn customizations
+
 0.5.2 June 13 2014 - the "new beginning" release
 Features
 - Updated ics-openvpn codebase!
