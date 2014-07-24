@@ -445,7 +445,7 @@ public final class EIP extends IntentService {
 		} catch (JSONException e) {
 		    Log.v(TAG,"Couldn't read gateway name for profile creation! Returning original name = " + mName);
 		    e.printStackTrace();
-		    return mName;
+		    return (mName != null) ? mName : "";
 		}
 	    }
 

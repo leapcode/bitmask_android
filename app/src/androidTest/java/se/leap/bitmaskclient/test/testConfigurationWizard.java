@@ -2,7 +2,7 @@ package se.leap.bitmaskclient.test;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.ListView;
-import com.jayway.android.robotium.solo.Solo;
+import com.robotium.solo.Solo;
 import java.io.IOException;
 import se.leap.bitmaskclient.AboutActivity;
 import se.leap.bitmaskclient.ConfigurationWizard;
