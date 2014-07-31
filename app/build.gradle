@@ -144,4 +144,15 @@ task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
 
   delete ics_openvpn_untranslatable
 }
+
+task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') {
+  from('../ics-openvpn-stripped/main') { 
+    include 'openvpn/**'
+    include 'lzo/**'
+    include 'jni/**'
+    include 'misc/**'
+    include 'ovpn3/**'
+    include 'snappy/**'
+  } into '.'
+}
 //build.dependsOn ':app:mergeUntranslatable'
