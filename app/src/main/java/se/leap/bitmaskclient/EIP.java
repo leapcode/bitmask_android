@@ -207,6 +207,7 @@ public final class EIP extends IntentService {
 		    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
 		    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		    startActivity(disconnect_vpn);
+		    // getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().remove(EIP.STATUS).commit();
 		}
 
 		if (mReceiver != null){
