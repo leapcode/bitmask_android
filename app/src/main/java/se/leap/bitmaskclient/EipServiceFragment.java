@@ -40,7 +40,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	private View eipDetail;
 	private TextView eipStatus;
 
-	private boolean eipAutoSwitched = true;
+	// private boolean eipAutoSwitched = true;
 	
  	private boolean mEipStartPending = false;
 
@@ -53,8 +53,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
-		eipFragment = inflater.inflate(R.layout.eip_service_fragment, container, false);
-		
+		eipFragment = inflater.inflate(R.layout.eip_service_fragment, container, false);		
 		eipDetail = ((RelativeLayout) eipFragment.findViewById(R.id.eipDetail));
 		eipDetail.setVisibility(View.VISIBLE);
 
@@ -67,15 +66,6 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		eipStatus = (TextView) eipFragment.findViewById(R.id.eipStatus);
 
 		eipSwitch = (Switch) eipFragment.findViewById(R.id.eipSwitch);
-
-			
-		eipSwitch.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				eipAutoSwitched = false;
-				return false;
-			}
-		});
 		eipSwitch.setOnCheckedChangeListener(this);
 		
 		if(getArguments() != null && getArguments().containsKey(START_ON_BOOT) && getArguments().getBoolean(START_ON_BOOT))
@@ -128,36 +118,39 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
     }
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-	    if (buttonView.equals(eipSwitch) && !eipAutoSwitched){
+	    if (buttonView.equals(eipSwitch) // && !eipAutoSwitched
+		){
 		    boolean allowed_anon = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getBoolean(EIP.ALLOWED_ANON, false);
 		    String certificate = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.CERTIFICATE, "");
+		    Log.d(TAG, "allowed_anon = " + allowed_anon + " certificate.isEmpty = " + certificate.isEmpty());
 		    if(allowed_anon || !certificate.isEmpty()) {
-			if (isChecked){
+			Log.d(TAG, "switched.isChecked() = " + isChecked);
+			if (isChecked && !mEipStartPending){
 			    startEipFromScratch();
 			} else {
+			    Log.d(TAG, "mEipStartPending = " + mEipStartPending);
 				if (mEipStartPending){
-					AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-					alertBuilder.setTitle(getResources().getString(R.string.eip_cancel_connect_title));
-					alertBuilder
+				    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+				    alertBuilder.setTitle(getResources().getString(R.string.eip_cancel_connect_title))
 					.setMessage(getResources().getString(R.string.eip_cancel_connect_text))
 					.setPositiveButton(getResources().getString(R.string.eip_cancel_connect_cancel), new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							eipCommand(EIP.ACTION_STOP_EIP);
-							mEipStartPending = false;
+						    eipCommand(EIP.ACTION_STOP_EIP);
+						    mEipStartPending = false;
 						}
-					})
+					    })
 					.setNegativeButton(getResources().getString(R.string.eip_cancel_connect_false), new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							eipAutoSwitched = true;
-							eipSwitch.setChecked(true);
-							eipAutoSwitched = false;
+						    // eipAutoSwitched = true;
+						    // eipSwitch.setChecked(true);
+						    // eipAutoSwitched = false;
 						}
-					})
+					    })
 					.show();
 				} else {
-					eipCommand(EIP.ACTION_STOP_EIP);
+				    eipCommand(EIP.ACTION_STOP_EIP);
 				}
 			}
 		    }
@@ -169,24 +162,31 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		    }
 		}
 		else {
-		    if(!eipSwitch.isChecked()) {
+		    Log.d(TAG, "switched.isChecked() = " + isChecked);
+		    if(!isChecked) {
 			if(getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(EIP.STATUS, "").equalsIgnoreCase(ConnectionStatus.LEVEL_AUTH_FAILED.toString()))
 			    startEipFromScratch();
 			else
 			    eipStatus.setText(R.string.state_noprocess);
 			}
+		    else {
+			eipCommand(EIP.ACTION_STOP_EIP);
+		    }
 		}
-		eipAutoSwitched = true;
+		// eipAutoSwitched = true;
 		saveEipStatus();
 	}
 	
 
     public void startEipFromScratch() {
 	mEipStartPending = true;
-	eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
-	((TextView) eipFragment.findViewById(R.id.eipStatus)).setText(R.string.eip_status_start_pending);
-	eipSwitch.setChecked(true);	
-	saveEipStatus();
+	    eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
+	    ((TextView) eipFragment.findViewById(R.id.eipStatus)).setText(R.string.eip_status_start_pending);
+	
+	if(!eipSwitch.isChecked()) {
+	    eipSwitch.setChecked(true);	
+	    saveEipStatus();
+	}
 	eipCommand(EIP.ACTION_START_EIP);
     }
 	
@@ -219,12 +219,12 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					if (level == ConnectionStatus.LEVEL_CONNECTED){
 						statusMessage = getString(R.string.eip_state_connected);
 						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
-						mEipStartPending = false;
+						// mEipStartPending = false;
 					} else if ( level == ConnectionStatus.LEVEL_NONETWORK || level == ConnectionStatus.LEVEL_NOTCONNECTED || level == ConnectionStatus.LEVEL_AUTH_FAILED) {
 						statusMessage = getString(R.string.eip_state_not_connected);
 						if(getActivity() != null && getActivity().findViewById(R.id.eipProgress) != null)
 						    getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
-						mEipStartPending = false;
+						// mEipStartPending = false;
 						switchState = false;
 					} else if (level == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED) {
 					    if(state.equals("AUTH") || state.equals("GET_CONFIG"))
@@ -233,9 +233,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 						statusMessage = prefix + " " + logmessage;
 					}
 					
-					eipAutoSwitched = true;
-					eipSwitch.setChecked(switchState);
-					eipAutoSwitched = false;
+					// eipAutoSwitched = true;
+					// eipSwitch.setChecked(switchState);
+					// eipAutoSwitched = false;
 					eipStatus.setText(statusMessage);
 				}
 			}
@@ -324,9 +324,9 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 			    }
 			}
 			
-			eipAutoSwitched = true;
-			eipSwitch.setChecked(checked);
-			eipAutoSwitched = false;
+			// eipAutoSwitched = true;
+			// eipSwitch.setChecked(checked);
+			// eipAutoSwitched = false;
 		}
 	}
     
@@ -341,6 +341,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 
     public void checkEipSwitch(boolean checked) {
 	eipSwitch.setChecked(checked);
+	Log.d(TAG, "checkEipSwitch");
 	onCheckedChanged(eipSwitch, checked);
     }
 }
