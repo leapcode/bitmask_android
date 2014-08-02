@@ -24,21 +24,21 @@ apply plugin: 'mercurial-mq'
 //   branch = 'ics-openvpn-upstream'
 // }
 
-task cloneIcsOpenVPN( type: HgClone ) {
-  ext.srcFile = file('build.gradle')
-  ext.destDir = new File('.', 'ics-openvpn')
-  inputs.file srcFile
-  outputs.dir destDir
+// task cloneIcsOpenVPN( type: HgClone ) {
+//   ext.srcFile = file('build.gradle')
+//   ext.destDir = new File('.', 'ics-openvpn')
+//   inputs.file srcFile
+//   outputs.dir destDir
      
-  sourceUrl = 'https://code.google.com/p/ics-openvpn/'
-}
+//   sourceUrl = 'https://code.google.com/p/ics-openvpn/'
+// }
 
-task updateIcsOpenVPN( type: HgUpdate, dependsOn: 'pullIcsOpenVPN' ) {
-  workingDir = 'ics-openvpn'
-  branch = 'default'
-}
+// task updateIcsOpenVPN( type: HgUpdate, dependsOn: 'pullIcsOpenVPN' ) {
+//   workingDir = 'ics-openvpn'
+//   branch = 'default'
+// }
 
-task pullIcsOpenVPN( type: HgPull ) {
-  sourceUrl = 'https://code.google.com/p/ics-openvpn/'
-  workingDir = 'ics-openvpn'
-}
+// task pullIcsOpenVPN( type: HgPull ) {
+//   sourceUrl = 'https://code.google.com/p/ics-openvpn/'
+//   workingDir = 'ics-openvpn'
+// }
