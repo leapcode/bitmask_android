@@ -33,6 +33,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -63,12 +64,14 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     public static final String PARAMETERS = "dashboard parameters";
     public static final String START_ON_BOOT = "dashboard start on boot";
     final public static String ON_BOOT = "dashboard on boot";
+    public static final String APP_VERSION = "bitmask version";
 
-	
+
+    private EipServiceFragment eipFragment;
 	private ProgressBar mProgressBar;
 	private TextView eipStatus;
 	private static Context app;
-	private static SharedPreferences preferences;
+	protected static SharedPreferences preferences;
 	private static Provider provider;
 
 	private TextView providerNameTV;
@@ -81,17 +84,15 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		app = this;
+		app = this;		
 		
 		PRNGFixes.apply();
-	//	mProgressBar = (ProgressBar) findViewById(R.id.progressbar_dashboard);
-	//    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
-	//	eipStatus = (TextView) findViewById(R.id.eipStatus);
 
 	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 	    
 	    preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-
+	    handleVersion();
+	    
 	    authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
 		if (preferences.getString(Provider.KEY, "").isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
@@ -99,8 +100,21 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		    buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
 	}
 
+    private void handleVersion() {
+	try {
+	    int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+	    int lastDetectedVersion = preferences.getInt(APP_VERSION, 0);
+	    if(lastDetectedVersion == 0) // New install
+		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(APP_VERSION, versionCode);
+	    else if(lastDetectedVersion < versionCode) {
+	    }		    
+	} catch (NameNotFoundException e) {
+	}
+    }
+
 	@Override
 	protected void onDestroy() {
+	    
 		super.onDestroy();
 	}
 
@@ -176,9 +190,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		FragmentManager fragMan = getFragmentManager();
 		if ( provider.hasEIP()){
-			EipServiceFragment eipFragment = new EipServiceFragment();
-			if (hide_and_turn_on_eip) {		    
-			    getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().remove(Dashboard.START_ON_BOOT).commit();			
+			eipFragment = new EipServiceFragment();
+			if (hide_and_turn_on_eip) {
+			    getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().remove(Dashboard.START_ON_BOOT).commit();
 			    Bundle arguments = new Bundle();
 			    arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
 			    eipFragment.setArguments(arguments);
@@ -238,10 +252,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			if (Provider.getInstance().hasEIP()){
 				if (getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getBoolean(EIP.AUTHED_EIP, false)){
 					logOut();
-				}
+				}				
 				eipStop();
 			}
-			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().remove(Provider.KEY).commit();
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().clear();
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;
 		case R.id.login_button:
@@ -578,11 +592,5 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	if(mProgressBar == null)
 	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);	    
 	mProgressBar.setVisibility(visibility);
-    }
-
-    protected void setEipStatus(int status) {
-	if(eipStatus == null)
-	    eipStatus = (TextView) findViewById(R.id.eipStatus);
-	eipStatus.setText(status);
     }
 }

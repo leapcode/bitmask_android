@@ -53,15 +53,6 @@
           </intent-filter>
         </receiver>
 
-        <receiver
-            android:name="se.leap.bitmaskclient.EipStatusReceiver"
-            android:enabled="true"
-            android:permission="android.permission.ACCESS_NETWORK_STATE" >
-          <intent-filter>
-            <action android:name="de.blinkt.openvpn.VPN_STATUS" />
-          </intent-filter>
-        </receiver>
-	
         <activity
                 android:theme="@android:style/Theme.DeviceDefault.Light.Dialog"
                 android:name="de.blinkt.openvpn.activities.DisconnectVPN" />
