@@ -88,18 +88,6 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		
 		eipCommand(EIP.ACTION_CHECK_CERT_VALIDITY);
 	}
-
-    private void adjustSwitch() {	
-	if(EIP.isConnected()) {
-	    if(!eipSwitch.isChecked()) {
-		eipSwitch.setChecked(true);
-	    }
-	} else {
-	    if(eipSwitch.isChecked()) {
-		eipSwitch.setChecked(false);
-	    }
-	}
-    }
     
 	@Override
 	public void onPause() {
@@ -272,6 +260,18 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	String status = getString(R.string.eip_state_not_connected);
 	setEipStatus(status);
 	adjustSwitch();
+    }
+
+    private void adjustSwitch() {	
+	if(EIP.isConnected()) {
+	    if(!eipSwitch.isChecked()) {
+		eipSwitch.setChecked(true);
+	    }
+	} else {
+	    if(eipSwitch.isChecked()) {
+		eipSwitch.setChecked(false);
+	    }
+	}
     }
 
     private void setNoServerReplyUI(int localizedResId, String logmessage) {
