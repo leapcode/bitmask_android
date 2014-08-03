@@ -40,10 +40,6 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	private View eipDetail;
 	private TextView eipStatus;
 
-	// private boolean eipAutoSwitched = true;
-    
- 	private boolean mEipStartPending = false;
-
     private static EIPReceiver mEIPReceiver;
 
     
@@ -60,8 +56,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		View eipSettings = eipFragment.findViewById(R.id.eipSettings);
 		eipSettings.setVisibility(View.GONE); // FIXME too!
 
-		if (mEipStartPending)
-			eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
+		if (EIP.mIsStarting)
+		    eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
 		
 		eipStatus = (TextView) eipFragment.findViewById(R.id.eipStatus);
 
@@ -81,7 +77,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		mEIPReceiver = new EIPReceiver(new Handler());
 
 		if (savedInstanceState != null)
-			mEipStartPending = savedInstanceState.getBoolean(IS_EIP_PENDING);
+			EIP.mIsStarting = savedInstanceState.getBoolean(IS_EIP_PENDING);
 	}
 
 	@Override
@@ -91,11 +87,19 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		VpnStatus.addStateListener(this);
 		
 		eipCommand(EIP.ACTION_CHECK_CERT_VALIDITY);
-		
-		if(isEipConnected()) {
-		    eipSwitch.setChecked(true);
-		}
 	}
+
+    private void adjustSwitch() {	
+	if(EIP.isConnected()) {
+	    if(!eipSwitch.isChecked()) {
+		eipSwitch.setChecked(true);
+	    }
+	} else {
+	    if(eipSwitch.isChecked()) {
+		eipSwitch.setChecked(false);
+	    }
+	}
+    }
     
 	@Override
 	public void onPause() {
@@ -107,7 +111,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean(IS_EIP_PENDING, mEipStartPending);
+		outState.putBoolean(IS_EIP_PENDING, EIP.mIsStarting);
 	}
 
     protected void saveEipStatus() {
@@ -118,87 +122,86 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	}
 
 	if(getActivity() != null)
-	    getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
+	    Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
     }
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 	if (buttonView.equals(eipSwitch)){
-	    handleEipSwitch(isChecked);
+	    handleSwitch(isChecked);
 	}
-    }
-
-    private boolean isAllowedAnon() {
-	return getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getBoolean(EIP.ALLOWED_ANON, false);
-    }
-    private boolean isEipConnected() {
-	return getEIPString(EIP.STATUS).equalsIgnoreCase("LEVEL_CONNECTED");
-    }
-    private String getEIPString(String feature) {
-	return getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).getString(feature, "");
-    }
-
-    private boolean canStartEIP() {
-	return (isAllowedAnon() || !getEIPString(EIP.CERTIFICATE).isEmpty()) && !mEipStartPending && !isEipConnected();
     }
     
-    private void handleEipSwitch(boolean isChecked) {
-	if(isChecked) {
-	    handleEipSwitchOn();
-	} else {
-	    handleEipSwitchOff();
-	}
+    private boolean canStartEIP() {
+	boolean certificateExists = !Dashboard.preferences.getString(EIP.CERTIFICATE, "").isEmpty();
+	boolean isAllowedAnon = Dashboard.preferences.getBoolean(EIP.ALLOWED_ANON, false);
+	return (isAllowedAnon || certificateExists) && !EIP.mIsStarting && !EIP.isConnected();
+    }
+    
+    private void handleSwitch(boolean isChecked) {
+	if(isChecked)
+	    handleSwitchOn();
+	else
+	    handleSwitchOff();
+	
 	saveEipStatus();
     }
 
-    private void handleEipSwitchOn() {
-	if(canStartEIP()) {
+    private void handleSwitchOn() {
+	if(canStartEIP())
 	    startEipFromScratch();
-	}
     }
 
-    private void handleEipSwitchOff() {
-	if(mEipStartPending) {
-	    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-	    alertBuilder.setTitle(getResources().getString(R.string.eip_cancel_connect_title))
-		.setMessage(getResources().getString(R.string.eip_cancel_connect_text))
-		.setPositiveButton((R.string.eip_cancel_connect_cancel), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			    stopEIP();
-			}
-		    })
-		.setNegativeButton(getResources().getString(R.string.eip_cancel_connect_cancel), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			    eipSwitch.setChecked(true);
-			}
-		    })
-		.show();
-	} else if(isEipConnected()) {
+    private void handleSwitchOff() {
+	if(EIP.mIsStarting) {
+	    askPendingStartCancellation();
+	} else if(EIP.isConnected()) {
 	    Log.d(TAG, "Stopping EIP");
 	    stopEIP();
 	}
     }
 
+    private void askPendingStartCancellation() {	
+	AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+	alertBuilder.setTitle(getResources().getString(R.string.eip_cancel_connect_title))
+	    .setMessage(getResources().getString(R.string.eip_cancel_connect_text))
+	    .setPositiveButton((R.string.yes), new DialogInterface.OnClickListener() {
+		    @Override
+		    public void onClick(DialogInterface dialog, int which) {
+			stopEIP();
+		    }
+		})
+	    .setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+		    @Override
+		    public void onClick(DialogInterface dialog, int which) {
+			Log.d(TAG, "askPendingStartCancellation checks the switch to true");
+			eipSwitch.setChecked(true);
+		    }
+		})
+	    .show();
+    }
+
     public void startEipFromScratch() {
-	mEipStartPending = true;
-	    eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
-	    eipStatus.setText(R.string.eip_status_start_pending);
+	EIP.mIsStarting = true;
+	eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
+	String status = getResources().getString(R.string.eip_status_start_pending);
+	setEipStatus(status);
 	
 	if(!eipSwitch.isChecked()) {
-	    eipSwitch.setChecked(true);	
+	    Log.d(TAG, "startEipFromScratch checks the switch to true");
+	    eipSwitch.setChecked(true);
 	    saveEipStatus();
 	}
 	eipCommand(EIP.ACTION_START_EIP);
     }
 
     private void stopEIP() {
-	mEipStartPending = false;
+	EIP.mIsStarting = false;
 	View eipProgressBar = getActivity().findViewById(R.id.eipProgress);
 	if(eipProgressBar != null)
 	    eipProgressBar.setVisibility(View.GONE);
-	if(eipStatus != null)
-	    eipStatus.setText(R.string.eip_state_not_connected);
+	
+	String status = getResources().getString(R.string.eip_state_not_connected);
+	setEipStatus(status);
 	eipCommand(EIP.ACTION_STOP_EIP);
     }
 	
@@ -216,45 +219,86 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	    getActivity().startService(vpn_intent);
 	}
 	
-	@Override
-	public void updateState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
-		// Note: "states" are not organized anywhere...collected state strings:
-		//		NOPROCESS,NONETWORK,BYTECOUNT,AUTH_FAILED + some parsing thing ( WAIT(?),AUTH,GET_CONFIG,ASSIGN_IP,CONNECTED,SIGINT )
-		getActivity().runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				if (eipStatus != null) {
-					boolean switchState = true;
-					String statusMessage = "";
-					String prefix = getString(localizedResId);
-					if (level == ConnectionStatus.LEVEL_CONNECTED){
-						statusMessage = getString(R.string.eip_state_connected);
-						getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
-						mEipStartPending = false; //TODO This should be done in the onReceiveResult from START_EIP command, but right now LaunchVPN isn't notifying anybody the resultcode of the request so we need to listen the states with this listener.
-					} else if ( (level == ConnectionStatus.LEVEL_NONETWORK || level == ConnectionStatus.LEVEL_NOTCONNECTED || level == ConnectionStatus.LEVEL_AUTH_FAILED) && !mEipStartPending) {
-					    Log.d(TAG, "Not connected updated state");
-						statusMessage = getString(R.string.eip_state_not_connected);
-						if(getActivity() != null && getActivity().findViewById(R.id.eipProgress) != null)
-						    getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
-						mEipStartPending = false; //TODO See above
-						switchState = false;
-					} else if (level == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED) {
-					    if(state.equals("AUTH") || state.equals("GET_CONFIG"))
-						statusMessage = prefix + " " + logmessage;
-					} else if (level == ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET) {
-						statusMessage = prefix + " " + logmessage;
-					}
-					
-					// eipAutoSwitched = true;
-					// eipSwitch.setChecked(switchState);
-					// eipAutoSwitched = false;
-					eipStatus.setText(statusMessage);
-				}
-			}
+    @Override
+    public void updateState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
+	boolean isNewLevel = EIP.lastConnectionStatusLevel != level;
+	boolean justDecidedOnDisconnect = EIP.lastConnectionStatusLevel == ConnectionStatus.UNKNOWN_LEVEL;
+	Log.d(TAG, "update state with level " + level);
+	if(isNewLevel && !justDecidedOnDisconnect) {
+	    getActivity().runOnUiThread(new Runnable() {
+		    @Override
+		    public void run() {
+			EIP.lastConnectionStatusLevel = level;
+			handleNewState(state, logmessage, localizedResId, level);
+		    }
 		});
+	} else if(justDecidedOnDisconnect && level == ConnectionStatus.LEVEL_CONNECTED) {
+	    EIP.lastConnectionStatusLevel = ConnectionStatus.LEVEL_NOTCONNECTED;
+	    updateState(state, logmessage, localizedResId, level);
 	}
+    }
 
+    private void handleNewState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
+	if (level == ConnectionStatus.LEVEL_CONNECTED)
+	    setConnectedUI();
+	else if (isDisconnectedLevel(level) && !EIP.mIsStarting)
+	    setDisconnectedUI();
+	else if (level == ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET)
+	    setNoServerReplyUI(localizedResId, logmessage);
+	else if (level == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED)
+	    setServerReplyUI(state, localizedResId, logmessage);
+    }
+
+    private boolean isDisconnectedLevel(final ConnectionStatus level) {
+	return level == ConnectionStatus.LEVEL_NONETWORK || level == ConnectionStatus.LEVEL_NOTCONNECTED || level == ConnectionStatus.LEVEL_AUTH_FAILED;
+    }
+
+    private void setConnectedUI() {
+	hideProgressBar();
+	Log.d(TAG, "mIsDisconnecting = false in setConnectedUI");
+	EIP.mIsStarting = false; //TODO This should be done in the onReceiveResult from START_EIP command, but right now LaunchVPN isn't notifying anybody the resultcode of the request so we need to listen the states with this listener.
+	EIP.mIsDisconnecting = false; //TODO See comment above
+	String status = getString(R.string.eip_state_connected);
+	setEipStatus(status);
+	adjustSwitch();
+    }
+
+    private void setDisconnectedUI(){
+	hideProgressBar();
+	EIP.mIsStarting = false; //TODO See comment in setConnectedUI()
+	Log.d(TAG, "mIsDisconnecting = false in setDisconnectedUI");
+	EIP.mIsDisconnecting = false; //TODO See comment in setConnectedUI()
+
+	String status = getString(R.string.eip_state_not_connected);
+	setEipStatus(status);
+	adjustSwitch();
+    }
+
+    private void setNoServerReplyUI(int localizedResId, String logmessage) {
+	if(eipStatus != null) {
+	    String prefix = getString(localizedResId);
+	    setEipStatus(prefix + " " + logmessage);
+	}
+    }
+
+    private void setServerReplyUI(String state, int localizedResId, String logmessage) {
+	if(eipStatus != null)
+	    if(state.equals("AUTH") || state.equals("GET_CONFIG")) {		
+		String prefix = getString(localizedResId);
+		setEipStatus(prefix + " " + logmessage);
+	    }
+    }
+
+    protected void setEipStatus(String status) {
+	if(eipStatus == null)
+	    eipStatus = (TextView) getActivity().findViewById(R.id.eipStatus);
+	eipStatus.setText(status);
+    }
+
+    private void hideProgressBar() {
+	if(getActivity() != null && getActivity().findViewById(R.id.eipProgress) != null)
+	    getActivity().findViewById(R.id.eipProgress).setVisibility(View.GONE);
+    }
 
 	/**
 	 * Inner class for handling messages related to EIP status and control requests
@@ -289,7 +333,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 				    Log.d(TAG, "Action start eip = Result OK");
 					checked = true;
 					eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
-					mEipStartPending = false;
+					EIP.mIsStarting = false;
 					break;
 				case Activity.RESULT_CANCELED:
 					checked = false;
@@ -322,9 +366,10 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 				break;
 			    case Activity.RESULT_CANCELED:
 				Dashboard dashboard = (Dashboard) getActivity();
-				
+
 				dashboard.setProgressBarVisibility(ProgressBar.VISIBLE);
-				dashboard.setEipStatus(R.string.updating_certificate_message);
+				String status = getResources().getString(R.string.updating_certificate_message);
+				setEipStatus(status);
 				
 				Intent provider_API_command = new Intent(getActivity(), ProviderAPI.class);
 				if(dashboard.providerAPI_result_receiver == null) {
@@ -338,10 +383,6 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 				break;
 			    }
 			}
-			
-			// eipAutoSwitched = true;
-			// eipSwitch.setChecked(checked);
-			// eipAutoSwitched = false;
 		}
 	}
     

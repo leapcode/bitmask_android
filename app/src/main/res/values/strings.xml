@@ -67,8 +67,8 @@
     <string name="eip_status_start_pending">Initiating connection</string>
     <string name="eip_cancel_connect_title">Cancel connection?</string>
     <string name="eip_cancel_connect_text">There is a connection attempt in progress.  Do you wish to cancel it?</string>
-    <string name="eip_cancel_connect_cancel">Yes</string>
-    <string name="eip_cancel_connect_false">No</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="eip_state_not_connected">"Not running! Connection not secure!"</string>
     <string name="eip_state_connected">Connection Secure.</string>
 </resources>

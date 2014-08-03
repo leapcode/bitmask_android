@@ -41,6 +41,7 @@ import de.blinkt.openvpn.core.OpenVpnManagementThread;
 import de.blinkt.openvpn.core.OpenVpnService.LocalBinder;
 import de.blinkt.openvpn.core.OpenVpnService;
 import de.blinkt.openvpn.core.ProfileManager;
+import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
 import java.io.IOException;
 import java.io.StringReader;
 import java.security.cert.CertificateExpiredException;
@@ -109,6 +110,10 @@ public final class EIP extends IntentService {
 	private static JSONObject eipDefinition = null;
 	
 	private static OVPNGateway activeGateway = null;
+    
+    protected static ConnectionStatus lastConnectionStatusLevel;
+    protected static boolean mIsDisconnecting = false;
+    protected static boolean mIsStarting = false;
 
 	public EIP(){
 		super("LEAPEIP");
@@ -169,10 +174,6 @@ public final class EIP extends IntentService {
 
 	      Log.d(TAG, "isRunning() = " + is_connected);
 	  }
-
-    private boolean isConnected() {
-	return getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(STATUS, "").equalsIgnoreCase("LEVEL_CONNECTED");
-    }
 	
 	/**
 	 * Initiates an EIP connection by selecting a gateway and preparing and sending an
@@ -207,7 +208,9 @@ public final class EIP extends IntentService {
 		    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
 		    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		    startActivity(disconnect_vpn);
-		    // getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().remove(EIP.STATUS).commit();
+		    mIsDisconnecting = true;
+		    lastConnectionStatusLevel = ConnectionStatus.UNKNOWN_LEVEL; // Wait for the decision of the user
+		    Log.d(TAG, "mIsDisconnecting = true");
 		}
 
 		if (mReceiver != null){
@@ -216,6 +219,10 @@ public final class EIP extends IntentService {
 			mReceiver.send(Activity.RESULT_OK, resultData);
 		}
 	}
+
+    protected static boolean isConnected() {	
+	return lastConnectionStatusLevel != null && lastConnectionStatusLevel.equals(ConnectionStatus.LEVEL_CONNECTED) && !mIsDisconnecting;
+    }
 
 	/**
 	 * Loads eip-service.json from SharedPreferences and calls {@link updateGateways()}
