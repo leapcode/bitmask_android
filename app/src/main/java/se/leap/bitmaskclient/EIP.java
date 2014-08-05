@@ -440,30 +440,9 @@ public final class EIP extends IntentService {
 			
 			this.createVPNProfile();
 			
-			setUniqueProfileName();
 			vpl.addProfile(mVpnProfile);
 			vpl.saveProfile(context, mVpnProfile);
 			vpl.saveProfileList(context);
-		}
-
-	    
-	    public String locationAsName() {
-		try {
-		    return eipDefinition.getJSONObject("locations").getJSONObject(mGateway.getString("location")).getString("name");
-		} catch (JSONException e) {
-		    Log.v(TAG,"Couldn't read gateway name for profile creation! Returning original name = " + mName);
-		    e.printStackTrace();
-		    return (mName != null) ? mName : "";
-		}
-	    }
-
-		
-		/**
-		 * Attempts to create a unique profile name 
-		 * based on the location of the gateway.
-		 */
-		private void setUniqueProfileName() {
-		    mVpnProfile.mName = mName = locationAsName();
 		}
 	    
 		/**
@@ -472,17 +451,15 @@ public final class EIP extends IntentService {
 		protected void createVPNProfile(){
 			try {
 				ConfigParser cp = new ConfigParser();
-				Log.d(TAG, configFromEipServiceDotJson());
-				Log.d(TAG, caSecretFromSharedPreferences());
-				Log.d(TAG, keySecretFromSharedPreferences());
-				Log.d(TAG, certSecretFromSharedPreferences());
 				cp.parseConfig(new StringReader(configFromEipServiceDotJson()));
 				cp.parseConfig(new StringReader(caSecretFromSharedPreferences()));
 				cp.parseConfig(new StringReader(keySecretFromSharedPreferences()));
 				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
+				cp.parseConfig(new StringReader("remote-cert-tls server"));
 				VpnProfile vp = cp.convertProfile();
 				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
 				mVpnProfile = vp;
+				mVpnProfile.mName = mName = locationAsName();
 				Log.v(TAG,"Created VPNProfile");
 			} catch (ConfigParseError e) {
 				// FIXME We didn't get a VpnProfile!  Error handling! and log level
@@ -612,6 +589,16 @@ public final class EIP extends IntentService {
 
 		return secret_lines;
 	    }
-	}
 
+	    
+	    public String locationAsName() {
+		try {
+		    return eipDefinition.getJSONObject("locations").getJSONObject(mGateway.getString("location")).getString("name");
+		} catch (JSONException e) {
+		    Log.v(TAG,"Couldn't read gateway name for profile creation! Returning original name = " + mName);
+		    e.printStackTrace();
+		    return (mName != null) ? mName : "";
+		}
+	    }
+	}
 }
