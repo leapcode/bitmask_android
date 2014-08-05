@@ -461,6 +461,7 @@ public final class EIP extends IntentService {
 				cp.parseConfig(new StringReader(keySecretFromSharedPreferences()));
 				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
 				cp.parseConfig(new StringReader("remote-cert-tls server"));
+				cp.parseConfig(new StringReader("persist-tun"));
 				VpnProfile vp = cp.convertProfile();
 				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
 				mVpnProfile = vp;
