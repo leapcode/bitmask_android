@@ -50,7 +50,7 @@ public class ProviderDetailFragment extends DialogFragment {
 			}
 
 			if(registration_allowed(provider_json)) {
-				builder.setNegativeButton(R.string.login_button, new DialogInterface.OnClickListener() {
+				builder.setNegativeButton(R.string.signup_or_login_button, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						interface_with_configuration_wizard.login();
 					}
