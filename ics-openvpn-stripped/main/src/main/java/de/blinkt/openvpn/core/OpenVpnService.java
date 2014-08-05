@@ -127,6 +127,46 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
         }
     }
 
+    private void showNotification(String msg, String tickerText, boolean lowpriority, long when, ConnectionStatus status) {
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
+
+
+        int icon = getIconByConnectionStatus(status);
+
+        android.app.Notification.Builder nbuilder = new Notification.Builder(this);
+
+        if (mProfile != null)
+            nbuilder.setContentTitle(getString(R.string.notifcation_title, mProfile.mName));
+        else
+            nbuilder.setContentTitle(getString(R.string.notifcation_title_notconnect));
+
+        nbuilder.setContentText(msg);
+        nbuilder.setOnlyAlertOnce(true);
+        nbuilder.setOngoing(true);
+        nbuilder.setContentIntent(getLogPendingIntent());
+        nbuilder.setSmallIcon(icon);
+
+
+        if (when != 0)
+            nbuilder.setWhen(when);
+
+
+        // Try to set the priority available since API 16 (Jellybean)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            jbNotificationExtras(lowpriority, nbuilder);
+
+        if (tickerText != null && !tickerText.equals(""))
+            nbuilder.setTicker(tickerText);
+
+        @SuppressWarnings("deprecation")
+        Notification notification = nbuilder.getNotification();
+
+
+        mNotificationManager.notify(OPENVPN_STATUS, notification);
+        // startForeground(OPENVPN_STATUS, notification);
+    }
+
     private int getIconByConnectionStatus(ConnectionStatus level) {
         switch (level) {
             case LEVEL_CONNECTED:
@@ -277,6 +317,12 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
 
         mProfile = ProfileManager.get(this, profileUUID);
 
+
+        String startTitle = getString(R.string.start_vpn_title, mProfile.mName);
+        String startTicker = getString(R.string.start_vpn_ticker, mProfile.mName);
+        showNotification(startTitle, startTicker,
+                false, 0, LEVEL_CONNECTING_NO_SERVER_REPLY_YET);
+	
         // Set a flag that we are starting a new VPN
         mStarting = true;
         // Stop the previous session by interrupting the thread.
@@ -653,9 +699,14 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
             } else if (level == LEVEL_CONNECTED) {
                 mDisplayBytecount = true;
                 mConnecttime = System.currentTimeMillis();
-                lowpriority = true;
+                lowpriority = true;		
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.cancel(OPENVPN_STATUS);
             } else {
                 mDisplayBytecount = false;
+		String msg = getString(resid);
+		String ticker = msg;
+		showNotification(msg + " " + logmessage, ticker, lowpriority , 0, level);
             }
 
         }
