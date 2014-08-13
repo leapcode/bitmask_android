@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.NoSuchElementException;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -765,6 +766,8 @@ public class ProviderAPI extends IntentService {
 		} catch (KeyManagementException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (NoSuchElementException e) {
+		    json_file_content = formatErrorMessage(R.string.server_unreachable_message);
 		}
 		return json_file_content;
 	}
