@@ -44,11 +44,13 @@ import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.StringBuffer;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -343,31 +345,34 @@ public final class EIP extends IntentService {
 
     private void checkCertValidity() {
 	String certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(CERTIFICATE, "");
-	String date_from_certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(DATE_FROM_CERTIFICATE, Calendar.getInstance().getTime().toString());
-	X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate_string);
+	if(!certificate_string.isEmpty()) {
+	    String date_from_certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(DATE_FROM_CERTIFICATE, certificate_date_format.format(Calendar.getInstance().getTime()).toString());
+	    X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate_string);
 
-	Calendar offset_date = Calendar.getInstance();
-	try {
-	    long difference = Math.abs(certificate_date_format.parse(date_from_certificate_string).getTime() - certificate_x509.getNotAfter().getTime())/2;
-	    long current_date_millis = offset_date.getTimeInMillis();
-	    offset_date.setTimeInMillis(current_date_millis + difference);
-	    Log.d(TAG, "certificate not after = " + certificate_x509.getNotAfter());
-	} catch(ParseException e) {
-	    e.printStackTrace();
-	}
+	    Calendar offset_date = Calendar.getInstance();
+	    try {
+		Date date_from_certificate = certificate_date_format.parse(date_from_certificate_string);
+		long difference = Math.abs(date_from_certificate.getTime() - certificate_x509.getNotAfter().getTime())/2;
+		long current_date_millis = offset_date.getTimeInMillis();
+		offset_date.setTimeInMillis(current_date_millis + difference);
+		Log.d(TAG, "certificate not after = " + certificate_x509.getNotAfter());
+	    } catch(ParseException e) {
+		e.printStackTrace();
+	    }
 	
-	Bundle result_data = new Bundle();
-	result_data.putString(REQUEST_TAG, ACTION_CHECK_CERT_VALIDITY);
-	try {
-	    Log.d(TAG, "offset_date = " + offset_date.getTime().toString());
-	    certificate_x509.checkValidity(offset_date.getTime());
-	    mReceiver.send(Activity.RESULT_OK, result_data);
-	    Log.d(TAG, "Valid certificate");
-	} catch(CertificateExpiredException e) {
-	    mReceiver.send(Activity.RESULT_CANCELED, result_data);
-	    Log.d(TAG, "Updating certificate");
-	} catch(CertificateNotYetValidException e) {
-	    mReceiver.send(Activity.RESULT_CANCELED, result_data);
+	    Bundle result_data = new Bundle();
+	    result_data.putString(REQUEST_TAG, ACTION_CHECK_CERT_VALIDITY);
+	    try {
+		Log.d(TAG, "offset_date = " + offset_date.getTime().toString());
+		certificate_x509.checkValidity(offset_date.getTime());
+		mReceiver.send(Activity.RESULT_OK, result_data);
+		Log.d(TAG, "Valid certificate");
+	    } catch(CertificateExpiredException e) {
+		mReceiver.send(Activity.RESULT_CANCELED, result_data);
+		Log.d(TAG, "Updating certificate");
+	    } catch(CertificateNotYetValidException e) {
+		mReceiver.send(Activity.RESULT_CANCELED, result_data);
+	    }
 	}
     }
 
