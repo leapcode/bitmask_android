@@ -212,7 +212,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	boolean isNewLevel = EIP.lastConnectionStatusLevel != level;
 	boolean justDecidedOnDisconnect = EIP.lastConnectionStatusLevel == ConnectionStatus.UNKNOWN_LEVEL;
 	Log.d(TAG, "update state with level " + level);
-	if(isNewLevel && !justDecidedOnDisconnect) {
+	if(!justDecidedOnDisconnect && (isNewLevel || level == ConnectionStatus.LEVEL_CONNECTED)) {
 	    getActivity().runOnUiThread(new Runnable() {
 		    @Override
 		    public void run() {
