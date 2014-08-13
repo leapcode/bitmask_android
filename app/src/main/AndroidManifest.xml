@@ -48,7 +48,7 @@
             android:name="se.leap.bitmaskclient.OnBootReceiver"
             android:enabled="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
-          <intent-filter>
+          <intent-filter android:priority="999">
             <action android:name="android.intent.action.BOOT_COMPLETED" />
           </intent-filter>
         </receiver>
