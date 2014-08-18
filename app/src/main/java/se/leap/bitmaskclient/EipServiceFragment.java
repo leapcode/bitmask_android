@@ -119,12 +119,6 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	}
     }
     
-    private boolean canStartEIP() {
-	boolean certificateExists = !Dashboard.preferences.getString(EIP.CERTIFICATE, "").isEmpty();
-	boolean isAllowedAnon = Dashboard.preferences.getBoolean(EIP.ALLOWED_ANON, false);
-	return (isAllowedAnon || certificateExists) && !EIP.mIsStarting && !EIP.isConnected();
-    }
-    
     private void handleSwitch(boolean isChecked) {
 	if(isChecked)
 	    handleSwitchOn();
@@ -137,6 +131,25 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
     private void handleSwitchOn() {
 	if(canStartEIP())
 	    startEipFromScratch();
+	else if(canLogInToStartEIP()) {
+	    Log.d(TAG, "Can Log In to start EIP");
+	    Dashboard dashboard = (Dashboard) getActivity();
+	    dashboard.logInDialog(Bundle.EMPTY);
+	}	    
+    }
+    
+    private boolean canStartEIP() {
+	boolean certificateExists = !Dashboard.preferences.getString(EIP.CERTIFICATE, "").isEmpty();
+	boolean isAllowedAnon = Dashboard.preferences.getBoolean(EIP.ALLOWED_ANON, false);
+	return (isAllowedAnon || certificateExists) && !EIP.mIsStarting && !EIP.isConnected();
+    }
+    
+    private boolean canLogInToStartEIP() {
+	boolean isAllowedRegistered = Dashboard.preferences.getBoolean(EIP.ALLOWED_REGISTERED, false);
+	boolean isLoggedIn = Dashboard.preferences.getBoolean(EIP.AUTHED_EIP, false);
+	Log.d(TAG, "Allow registered? " + isAllowedRegistered);
+	Log.d(TAG, "Is logged in? " + isLoggedIn);
+	return isAllowedRegistered && !isLoggedIn && !EIP.mIsStarting && !EIP.isConnected();
     }
 
     private void handleSwitchOff() {
