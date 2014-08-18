@@ -1,3 +1,25 @@
+0.6.0 August 18 2014 - the "persistent" release
+Features
+- Improved security:
+  - traffic always routed by VPN after you've established a connection
+  - Avoid a common security attack (a Mitm - man in the middle)
+- Clearer setup dialog: you can also sign up from the log in dialog
+- Faster autostart: Bitmask starts sooner during your phone boot process
+- Prompt to log in if you start a register only EIP provider
+
+Bugs Fixed
+- Removed second notification!
+- VPN switch more consistent with the real state
+- Changed orientation? No problem.
+- Reported bugs from Google Play fixed.
+
+0.5.4 July 21 2014 - the "meetup" release
+Features
+- Renewal of the certificate soon enough
+- After signing up, eip restarts to use the new certificate
+- EIP profiles are named according to their locations
+- Developers: tests run, and network tests are more intensive
+
 0.5.3 June 27 2014- the "beautiful oak" release
 Features
 - Updated ics-openvpn (again).

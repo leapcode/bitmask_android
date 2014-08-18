@@ -49,10 +49,12 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.NoSuchElementException;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
@@ -615,6 +617,7 @@ public class ProviderAPI extends IntentService {
 
 				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.KEY, provider_json.toString()).commit();
 				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON)).commit();
+				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_REGISTERED)).commit();
 
 				result.putBoolean(RESULT_KEY, true);
 			} catch (JSONException e) {
@@ -762,6 +765,8 @@ public class ProviderAPI extends IntentService {
 		} catch (KeyManagementException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (NoSuchElementException e) {
+		    json_file_content = formatErrorMessage(R.string.server_unreachable_message);
 		}
 		return json_file_content;
 	}
@@ -943,6 +948,7 @@ public class ProviderAPI extends IntentService {
 						X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
 						certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
 						getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
+						getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
 						
 						return true;
 					} catch (CertificateException e) {

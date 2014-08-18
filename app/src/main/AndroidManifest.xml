@@ -17,8 +17,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="se.leap.bitmaskclient"
-    android:versionCode="84"
-    android:versionName="0.5.3" >
+    android:versionCode="90"
+    android:versionName="0.6.0" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -48,20 +48,11 @@
             android:name="se.leap.bitmaskclient.OnBootReceiver"
             android:enabled="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
-          <intent-filter>
+          <intent-filter android:priority="999">
             <action android:name="android.intent.action.BOOT_COMPLETED" />
           </intent-filter>
         </receiver>
 
-        <receiver
-            android:name="se.leap.bitmaskclient.EipStatusReceiver"
-            android:enabled="true"
-            android:permission="android.permission.ACCESS_NETWORK_STATE" >
-          <intent-filter>
-            <action android:name="de.blinkt.openvpn.VPN_STATUS" />
-          </intent-filter>
-        </receiver>
-	
         <activity
                 android:theme="@android:style/Theme.DeviceDefault.Light.Dialog"
                 android:name="de.blinkt.openvpn.activities.DisconnectVPN" />

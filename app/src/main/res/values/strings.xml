@@ -41,6 +41,7 @@
     <string name="error_io_exception_user_message">Try again: I/O error</string>
     <string name="error_json_exception_user_message">Try again: Bad response from the server</string>
     <string name="error_no_such_algorithm_exception_user_message">Update the app</string>
+    <string name="signup_or_login_button">Sign Up/Log In</string>
     <string name="login_button">Log In</string>
     <string name="logout_button">Log Out</string>
     <string name="signup_button">Sign Up</string>
@@ -54,6 +55,7 @@
     <string name="service_is_down_error">Service is down.</string>
     <string name="configuring_provider">Configuring provider</string>
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
+    <string name="updating_certificate_message">Updating EIP certificate</string>
     <string name="authenticating_message">Logging in</string>
     <string name="signingup_message">Signing up</string>
     <string name="logout_message">Logging out from this session.</string>
@@ -66,8 +68,8 @@
     <string name="eip_status_start_pending">Initiating connection</string>
     <string name="eip_cancel_connect_title">Cancel connection?</string>
     <string name="eip_cancel_connect_text">There is a connection attempt in progress.  Do you wish to cancel it?</string>
-    <string name="eip_cancel_connect_cancel">Yes</string>
-    <string name="eip_cancel_connect_false">No</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="eip_state_not_connected">"Not running! Connection not secure!"</string>
     <string name="eip_state_connected">Connection Secure.</string>
 </resources>
