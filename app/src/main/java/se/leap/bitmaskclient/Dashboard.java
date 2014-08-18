@@ -257,7 +257,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				}				
 				eipStop();
 			}
-			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().clear();
+			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().clear().commit();
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;
 		case R.id.login_button:
