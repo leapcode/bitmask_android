@@ -321,6 +321,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    if(eipStatus == null) eipStatus = (TextView) findViewById(R.id.eipStatus);
 	    if(eipStatus != null) eipStatus.setText("");
 	}
+	cancelAuthedEipOn();
     }
 	
 	/**
@@ -484,7 +485,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		} else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
 			changeStatusMessage(resultCode);
-        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setVisibility(ProgressBar.GONE);		    
 		} else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_OK);
     		changeStatusMessage(resultCode);
