@@ -1,0 +1,10 @@
+* Why did I remove startForeground
+** Material
+- [[https://github.com/parmegv/stress-android][Stress for Android]]
+- Emulator with few memory
+** Conclusion
+- startForeground doesn't make any difference when Android needs to
+  cut off RAM consumption.
+** Steps to reproduce
+1. Create an emulator with 
+
