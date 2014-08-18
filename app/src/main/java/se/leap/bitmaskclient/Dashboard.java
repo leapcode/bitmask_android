@@ -136,7 +136,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				invalidateOptionsMenu();
 				if(data != null && data.hasExtra(LogInDialog.VERB)) {
 					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-					logInDialog(view, Bundle.EMPTY);
+					logInDialog(Bundle.EMPTY);
 				}
 			} else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
 				finish();
@@ -211,8 +211,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		try {
 			provider_json = new JSONObject(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
 			JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
-			
-			if(service_description.getBoolean(Provider.ALLOW_REGISTRATION)) {
+			boolean authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
+			boolean allow_registered_eip = service_description.getBoolean(Provider.ALLOW_REGISTRATION);
+			preferences.edit().putBoolean(EIP.ALLOWED_REGISTERED, allow_registered_eip);
+			if(allow_registered_eip) {
 				if(authed_eip) {
 					menu.findItem(R.id.login_button).setVisible(false);
 					menu.findItem(R.id.logout_button).setVisible(true);
@@ -260,7 +262,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			return true;
 		case R.id.login_button:
 			View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-			logInDialog(view, Bundle.EMPTY);
+			logInDialog(Bundle.EMPTY);
 			return true;
 		case R.id.logout_button:
 			logOut();
@@ -319,6 +321,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    if(eipStatus == null) eipStatus = (TextView) findViewById(R.id.eipStatus);
 	    if(eipStatus != null) eipStatus.setText("");
 	}
+	cancelAuthedEipOn();
     }
 	
 	/**
@@ -357,9 +360,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	
 	/**
 	 * Shows the log in dialog.
-	 * @param view from which the dialog is created.
 	 */
-	public void logInDialog(View view, Bundle resultData) {
+	public void logInDialog(Bundle resultData) {
+	    Log.d("Dashboard", "Log In Dialog");
 		FragmentTransaction fragment_transaction = getFragmentManager().beginTransaction();
 	    Fragment previous_log_in_dialog = getFragmentManager().findFragmentByTag(LogInDialog.TAG);
 	    if (previous_log_in_dialog != null) {
@@ -469,7 +472,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         	//Cookie session_id = new BasicClientCookie(session_id_cookie_key, session_id_string);
         	downloadAuthedUserCertificate(/*session_id*/);
 		} else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_FAILED) {
-		    logInDialog(getCurrentFocus(), resultData);
+		    logInDialog(resultData);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
 			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
@@ -482,7 +485,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		} else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
 			setResult(RESULT_CANCELED);
 			changeStatusMessage(resultCode);
-        	mProgressBar.setVisibility(ProgressBar.GONE);
+        	mProgressBar.setVisibility(ProgressBar.GONE);		    
 		} else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_OK);
     		changeStatusMessage(resultCode);

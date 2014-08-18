@@ -40,6 +40,8 @@ import de.blinkt.openvpn.core.VpnStatus.StateListener;
 
 import static de.blinkt.openvpn.core.NetworkSpace.ipAddress;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_CONNECTED;
+import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED;
+import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_NONETWORK;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 
@@ -699,15 +701,23 @@ public class OpenVpnService extends VpnService implements StateListener, Callbac
             } else if (level == LEVEL_CONNECTED) {
                 mDisplayBytecount = true;
                 mConnecttime = System.currentTimeMillis();
-                lowpriority = true;		
+                lowpriority = true;
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.cancel(OPENVPN_STATUS);
-            } else {
+            } else if(!mProfile.mPersistTun || mConnecttime == 0){
                 mDisplayBytecount = false;
 		String msg = getString(resid);
 		String ticker = msg;
 		showNotification(msg + " " + logmessage, ticker, lowpriority , 0, level);
-            }
+            } else if(mProfile.mPersistTun && level == LEVEL_NONETWORK) {
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.cancel(OPENVPN_STATUS);
+	    } else if(mProfile.mPersistTun && mConnecttime > 0) {
+                mDisplayBytecount = false;
+		String msg = "Traffic is blocked until the VPN becomes active.";
+		String ticker = msg;		
+		showNotification(msg, ticker, lowpriority , 0, level);
+	    }
 
         }
     }

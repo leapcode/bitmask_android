@@ -624,6 +624,7 @@ public class ProviderAPI extends IntentService {
 
 				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.KEY, provider_json.toString()).commit();
 				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON)).commit();
+				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_REGISTERED)).commit();
 
 				result.putBoolean(RESULT_KEY, true);
 			} catch (JSONException e) {

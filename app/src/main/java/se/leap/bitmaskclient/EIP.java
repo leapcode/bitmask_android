@@ -90,6 +90,7 @@ public final class EIP extends IntentService {
     	public final static String STATUS = "eip status";
     	public final static String DATE_FROM_CERTIFICATE = "date from certificate";
 	public final static String ALLOWED_ANON = "allow_anonymous";
+	public final static String ALLOWED_REGISTERED = "allow_registration";
 	public final static String CERTIFICATE = "cert";
 	public final static String PRIVATE_KEY = "private_key";
 	public final static String KEY = "eip";
@@ -461,6 +462,7 @@ public final class EIP extends IntentService {
 				cp.parseConfig(new StringReader(keySecretFromSharedPreferences()));
 				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
 				cp.parseConfig(new StringReader("remote-cert-tls server"));
+				cp.parseConfig(new StringReader("persist-tun"));
 				VpnProfile vp = cp.convertProfile();
 				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
 				mVpnProfile = vp;
