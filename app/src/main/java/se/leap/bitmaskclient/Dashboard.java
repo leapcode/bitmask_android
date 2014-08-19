@@ -105,17 +105,17 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
 	    int lastDetectedVersion = preferences.getInt(APP_VERSION, 0);
 	    preferences.edit().putInt(APP_VERSION, versionCode);
-	    if(lastDetectedVersion != 0) {
-		switch(versionCode) {
-		case 90: // 0.6.0
-		    if(!preferences.getString(EIP.KEY, "").isEmpty()) {
-			Intent removeVpnProfiles = new Intent(getApplicationContext(), EIP.class);
-			removeVpnProfiles.setAction(EIP.ACTION_REMOVE_PROFILES);
-			startService(removeVpnProfiles);
-		    }			
+	    Log.d("Dashboard", "detected version code: " + versionCode);
+	    Log.d("Dashboard", "last detected version code: " + lastDetectedVersion);
+
+	    switch(versionCode) {
+	    case 91: // 0.6.0 without Bug #5999
+		if(!preferences.getString(EIP.KEY, "").isEmpty()) {
+		    Intent rebuildVpnProfiles = new Intent(getApplicationContext(), EIP.class);
+		    rebuildVpnProfiles.setAction(EIP.ACTION_REBUILD_PROFILES);
+		    startService(rebuildVpnProfiles);
 		}
-		
-	    }		    
+	    }
 	} catch (NameNotFoundException e) {
 	}
     }
