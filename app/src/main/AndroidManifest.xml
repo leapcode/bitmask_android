@@ -17,7 +17,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="se.leap.bitmaskclient"
-    android:versionCode="90"
+    android:versionCode="91"
     android:versionName="0.6.0" >
 
     <uses-permission android:name="android.permission.INTERNET" />
