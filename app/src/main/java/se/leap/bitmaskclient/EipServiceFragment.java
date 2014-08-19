@@ -251,7 +251,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
     }
 
     private boolean isDisconnectedLevel(final ConnectionStatus level) {
-	return level == ConnectionStatus.LEVEL_NONETWORK || level == ConnectionStatus.LEVEL_NOTCONNECTED || level == ConnectionStatus.LEVEL_AUTH_FAILED;
+	return level == ConnectionStatus.LEVEL_NOTCONNECTED || level == ConnectionStatus.LEVEL_AUTH_FAILED;
     }
 
     private void setConnectedUI() {
