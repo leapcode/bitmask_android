@@ -104,9 +104,17 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	try {
 	    int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
 	    int lastDetectedVersion = preferences.getInt(APP_VERSION, 0);
-	    if(lastDetectedVersion == 0) // New install
-		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(APP_VERSION, versionCode);
-	    else if(lastDetectedVersion < versionCode) {
+	    preferences.edit().putInt(APP_VERSION, versionCode);
+	    if(lastDetectedVersion != 0) {
+		switch(versionCode) {
+		case 90: // 0.6.0
+		    if(!preferences.getString(EIP.KEY, "").isEmpty()) {
+			Intent removeVpnProfiles = new Intent(getApplicationContext(), EIP.class);
+			removeVpnProfiles.setAction(EIP.ACTION_REMOVE_PROFILES);
+			startService(removeVpnProfiles);
+		    }			
+		}
+		
 	    }		    
 	} catch (NameNotFoundException e) {
 	}
@@ -127,8 +135,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
 		// It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
 			if ( resultCode == RESULT_OK ){
-				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(EIP.PARSED_SERIAL, 0).commit();
-				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
+				preferences.edit().putInt(EIP.PARSED_SERIAL, 0).commit();
+				preferences.edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
 				Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
 				updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
 				startService(updateEIP);
@@ -164,8 +172,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			.setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					SharedPreferences.Editor prefsEdit = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE).edit();
-					prefsEdit.remove(Provider.KEY).commit();
+				    preferences.edit().remove(Provider.KEY).commit();
 					finish();
 				}
 			})
@@ -192,7 +199,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if ( provider.hasEIP()){
 			eipFragment = new EipServiceFragment();
 			if (hide_and_turn_on_eip) {
-			    getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().remove(Dashboard.START_ON_BOOT).commit();
+			    preferences.edit().remove(Dashboard.START_ON_BOOT).commit();
 			    Bundle arguments = new Bundle();
 			    arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
 			    eipFragment.setArguments(arguments);
@@ -209,7 +216,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		JSONObject provider_json;
 		try {
-			provider_json = new JSONObject(getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
+			provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 			JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
 			boolean authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
 			boolean allow_registered_eip = service_description.getBoolean(Provider.ALLOW_REGISTRATION);
@@ -252,12 +259,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		    return true;
 		case R.id.switch_provider:
 			if (Provider.getInstance().hasEIP()){
-				if (getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getBoolean(EIP.AUTHED_EIP, false)){
+				if (preferences.getBoolean(EIP.AUTHED_EIP, false)){
 					logOut();
 				}				
 				eipStop();
 			}
-			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().clear().commit();
+			preferences.edit().clear().commit();
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;
 		case R.id.login_button:
@@ -463,7 +470,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			setResult(RESULT_OK);
 
 			authed_eip = true;
-			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
+			preferences.edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
 
 			invalidateOptionsMenu();
         	mProgressBar.setVisibility(ProgressBar.GONE);
@@ -475,7 +482,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		    logInDialog(resultData);
 		} else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
 			authed_eip = false;
-			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
+			preferences.edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
 			mProgressBar.setVisibility(ProgressBar.GONE);
 			mProgressBar.setProgress(0);
 			invalidateOptionsMenu();

@@ -96,7 +96,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-	    preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
+	    preferences = preferences;
         
         setContentView(R.layout.configuration_wizard_activity);
 	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_configuration_wizard);
@@ -230,7 +230,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		mProgressBar.setVisibility(ProgressBar.GONE);
 		mProgressBar.setProgress(0);
 		progressbar_description.setVisibility(TextView.GONE);
-		getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().remove(Provider.KEY).commit();
+		preferences.edit().remove(Provider.KEY).commit();
     	setting_up_provider = false;
 	showAllProviders();
     }
@@ -497,7 +497,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	}
 	
 	private void autoSelectProvider(String provider_main_url, boolean danger_on) {
-		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(ProviderItem.DANGER_ON, danger_on).commit();
+		preferences.edit().putBoolean(ProviderItem.DANGER_ON, danger_on).commit();
 		onItemSelected(getId(provider_main_url));
 	}
 	
