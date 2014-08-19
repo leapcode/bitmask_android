@@ -86,6 +86,7 @@ public final class EIP extends IntentService {
 	public final static String ACTION_STOP_EIP = "se.leap.bitmaskclient.STOP_EIP";
 	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.bitmaskclient.UPDATE_EIP_SERVICE";
 	public final static String ACTION_IS_EIP_RUNNING = "se.leap.bitmaskclient.IS_RUNNING";
+	public final static String ACTION_REBUILD_PROFILES = "se.leap.bitmaskclient.REBUILD_PROFILES";
 	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
     	public final static String STATUS = "eip status";
     	public final static String DATE_FROM_CERTIFICATE = "date from certificate";
@@ -155,6 +156,9 @@ public final class EIP extends IntentService {
 			this.stopEIP();
 		else if ( action == ACTION_CHECK_CERT_VALIDITY )
 			this.checkCertValidity();
+		else if ( action == ACTION_REBUILD_PROFILES ) {
+		    this.updateGateways();		       
+		}
 	}
 	
 	/**
@@ -463,6 +467,7 @@ public final class EIP extends IntentService {
 				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
 				cp.parseConfig(new StringReader("remote-cert-tls server"));
 				cp.parseConfig(new StringReader("persist-tun"));
+				Log.d(TAG, "persist-tun");
 				VpnProfile vp = cp.convertProfile();
 				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
 				mVpnProfile = vp;
