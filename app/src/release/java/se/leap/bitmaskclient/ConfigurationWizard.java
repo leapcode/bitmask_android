@@ -227,7 +227,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		mProgressBar.setVisibility(ProgressBar.GONE);
 		mProgressBar.setProgress(0);
 		progressbar_description.setVisibility(TextView.GONE);
-		getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit().remove(Provider.KEY).commit();
+		preferences.edit().remove(Provider.KEY).commit();
     	setting_up_provider = false;
 	showAllProviders();
     }
