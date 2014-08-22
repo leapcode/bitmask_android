@@ -30,7 +30,7 @@ android {
   lintOptions {
     abortOnError false
   }
-    
+
   sourceSets {
     main {
       assets.srcDirs = ['assets', 'ovpnlibs/assets']
@@ -41,8 +41,6 @@ android {
       assets.srcDirs = ['src/debug/assets']
     }
   }
-
-  //check.dependsOn connectedCheck
 }
 
 dependencies {
@@ -155,4 +153,8 @@ task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') {
     include 'snappy/**'
   } into '.'
 }
-//build.dependsOn ':app:mergeUntranslatable'
+
+assembleRelease.dependsOn connectedCheck
+afterEvaluate {
+  installRelease.dependsOn connectedCheck
+}
