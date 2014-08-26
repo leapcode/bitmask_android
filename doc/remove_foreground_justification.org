@@ -1,0 +1,23 @@
+* Why did I remove startForeground
+** Material
+- [[https://github.com/parmegv/stress-android][Stress for Android]]
+- Emulator with few memory
+** Conclusion
+- startForeground doesn't make any difference when Android needs to
+  cut off RAM consumption.
+** Steps to reproduce
+1. Launch an emulator with 256 MB of RAM
+2. [[https://github.com/parmegv/stress-android/blob/master/README.md#install][Install]] [[Stress for Android]]
+3. Install [[https://dl.bitmask.net/client/android/Bitmask-Android-0.5.4.apk][Bitmask Android 0.5.4]] ([[https://github.com/leapcode/bitmask_android/blob/0.5.4/app/src/main/java/de/blinkt/openvpn/core/OpenVpnService.java#L164][with foreground]]) run it, connect to
+   EIP and go back to Android Home
+4. Back to adb shell, /data/tmp/stress -t 5 -m 2 => It doesn't
+   crash
+5. Repeat command: /data/tmp/stress -t 5 -m 2 => it crashes: foreground
+   doesn't stop Android to kill Bitmask
+6. Restart the emulator (to clean everything)
+7. Uninstall Bitmask Android 0.5.4
+8. Install [[https://dl.bitmask.net/client/android/Bitmask-Android-0.6.0.apk][Bitmask Android 0.6.0]] ([[https://github.com/leapcode/bitmask_android/blob/0.6.0/app/src/main/java/de/blinkt/openvpn/core/OpenVpnService.java#L169][no foreground]]), connect to EIP and
+   go back to Android Home
+9. Back to adb shell, /data/tmp/stress -t 5 -m 2 => It doesn't
+   crash, as with foreground
+10. Repeat command: /data/tmp/stress -t 5 -m 2 => the same as of 0.5.4
