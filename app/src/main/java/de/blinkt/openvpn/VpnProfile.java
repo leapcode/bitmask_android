@@ -47,7 +47,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import de.blinkt.openvpn.core.NativeUtils;
-import de.blinkt.openvpn.core.OpenVpnService;
+import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.X509Utils;
 
@@ -69,6 +69,7 @@ public class VpnProfile implements Serializable {
     private static final String OVPNCONFIGFILE = "android.conf";
     public static final int MAXLOGLEVEL = 4;
     public static final int CURRENT_PROFILE_VERSION = 2;
+    public static final int DEFAULT_MSSFIX_SIZE = 1450;
     public static String DEFAULT_DNS1 = "8.8.8.8";
     public static String DEFAULT_DNS2 = "8.8.4.4";
 
@@ -147,6 +148,9 @@ public class VpnProfile implements Serializable {
     private int mProfileVersion;
     public String mExcludedRoutes;
     public String mExcludedRoutesv6;
+    public int mMssFix =0; // -1 is default,
+
+
 
     public VpnProfile(String name) {
         mUuid = UUID.randomUUID();
@@ -186,6 +190,7 @@ public class VpnProfile implements Serializable {
         mCheckRemoteCN = false;
         mPersistTun = false;
         mAllowLocalLAN = true;
+        mMssFix = 0;
     }
 
     public UUID getUUID() {
@@ -389,6 +394,13 @@ public class VpnProfile implements Serializable {
 
         }
 
+        if (mMssFix !=0){
+            if (mMssFix!=1450)
+                cfg+=String.format("mssfix %d\n", mMssFix, Locale.US);
+            else
+                cfg+="mssfix\n";
+        }
+
         if (mNobind)
             cfg += "nobind\n";
 
@@ -570,7 +582,7 @@ public class VpnProfile implements Serializable {
     public Intent prepareIntent(Context context) {
         String prefix = context.getPackageName();
 
-        Intent intent = new Intent(context, OpenVpnService.class);
+        Intent intent = new Intent(context, OpenVPNService.class);
 
         if (mAuthenticationType == VpnProfile.TYPE_KEYSTORE || mAuthenticationType == VpnProfile.TYPE_USERPASS_KEYSTORE) {
             if (getKeyStoreCertificates(context) == null)
