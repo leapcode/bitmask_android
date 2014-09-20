@@ -1,4 +1,5 @@
 apply plugin: 'android'
+import org.ajoberstar.grgit.*
 
 android {
   compileSdkVersion 19
@@ -44,8 +45,6 @@ android {
 }
 
 dependencies {
-  // androidTestCompile 'com.android.support:support-v4:20+'
-  // androidTestCompile 'com.android.support:appcompat-v7:20.+'
   androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.2.1'
   compile 'com.intellij:annotations:12.0'
 }
@@ -58,7 +57,9 @@ def processFileInplace(file, Closure processText) {
 
 task checkoutStrippedIcsOpenVPN ( type: Copy ) {
   //FIXME Checkout ics-openvpn-stripped from branch "ics-openvpn-upstream"
-  from '/tmp/bitmask_android_tmp/ics-openvpn-stripped'
+  grgit = Grgit.open(project.file('../'))
+  
+  from '../../bitmask_android_tmp/ics-openvpn-stripped'
   into '../ics-openvpn-stripped'
 }
 
@@ -94,10 +95,10 @@ task copyIcsOpenVPNClasses( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' 
 
 // thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
 task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNClasses' ) << {
-  new File('.').eachFileRecurse {
+  new File('app').eachFileRecurse {
     if(it.name.equals('strings.xml')) {
-      def ics_openvpn_file = file(it.path.replace('strings.xml', 'strings-icsopenvpn.xml'))
-      if(ics_openvpn_file.exists()) { 
+      def ics_openvpn_file = file(it.absolutePath.replace('strings.xml', 'strings-icsopenvpn.xml'))
+      if(ics_openvpn_file.exists()) {
 	def ics_openvpn_strings_names = (new XmlParser()).parse(ics_openvpn_file)
 	def current_file = it
       
@@ -156,5 +157,5 @@ task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') {
 
 assembleRelease.dependsOn connectedCheck
 afterEvaluate {
-  installRelease.dependsOn connectedCheck
+  //installRelease.dependsOn connectedCheck
 }

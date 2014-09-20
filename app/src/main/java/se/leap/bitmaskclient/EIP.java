@@ -38,8 +38,8 @@ import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.OpenVpnManagementThread;
-import de.blinkt.openvpn.core.OpenVpnService.LocalBinder;
-import de.blinkt.openvpn.core.OpenVpnService;
+import de.blinkt.openvpn.core.OpenVPNService.LocalBinder;
+import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
 import java.io.IOException;
@@ -73,7 +73,7 @@ import se.leap.bitmaskclient.R;
  * Internet Proxy connection.  Connections are started, stopped, and queried through
  * this IntentService.
  * Contains logic for parsing eip-service.json from the provider, configuring and selecting
- * gateways, and controlling {@link de.blinkt.openvpn.core.OpenVpnService} connections.
+ * gateways, and controlling {@link de.blinkt.openvpn.core.OpenVPNService} connections.
  * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author Parménides GV <parmegv@sdf.org>
@@ -105,7 +105,6 @@ public final class EIP extends IntentService {
     
 	private static Context context;
 	private static ResultReceiver mReceiver;
-	private static OpenVpnService mVpnService;
 	private static boolean mBound = false;
 	// Used to store actions to "resume" onServiceConnection
 	private static String mPending = null;
@@ -467,7 +466,6 @@ public final class EIP extends IntentService {
 				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
 				cp.parseConfig(new StringReader("remote-cert-tls server"));
 				cp.parseConfig(new StringReader("persist-tun"));
-				Log.d(TAG, "persist-tun");
 				VpnProfile vp = cp.convertProfile();
 				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
 				mVpnProfile = vp;
