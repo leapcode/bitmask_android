@@ -156,7 +156,7 @@ task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') {
   } into '.'
 }
 
-assembleRelease.dependsOn connectedCheck
+//assembleRelease.dependsOn connectedCheck
 afterEvaluate {
   //installRelease.dependsOn connectedCheck
 }
