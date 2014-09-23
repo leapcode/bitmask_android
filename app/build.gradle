@@ -24,7 +24,8 @@ android {
   buildTypes {
     release {
       //runProguard true
-      signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
+      if(signingConfigs.contains(release))
+	signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
     }
   }
 
