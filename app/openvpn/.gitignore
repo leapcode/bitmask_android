@@ -53,7 +53,6 @@ distro/rpm/openvpn.spec
 tests/t_client.sh
 tests/t_client-*-20??????-??????/
 src/openvpn/openvpn
-config-version.h
 nbproject
 test-driver
 compile
