@@ -1,6 +1,6 @@
 # Auto-generated - DO NOT EDIT!
 # To regenerate, edit openssl.config, then run:
-#     ./import_openssl.sh import /path/to/openssl-1.0.1h.tar.gz
+#     ./import_openssl.sh import /path/to/openssl-1.0.1g.tar.gz
 #
 # This script will append to the following variables:
 #
@@ -332,6 +332,7 @@ common_src_files := \
   crypto/evp/m_md5.c \
   crypto/evp/m_mdc2.c \
   crypto/evp/m_null.c \
+  crypto/evp/m_ripemd.c \
   crypto/evp/m_sha1.c \
   crypto/evp/m_sigver.c \
   crypto/evp/m_wp.c \
@@ -437,6 +438,8 @@ common_src_files := \
   crypto/rc4/rc4_enc.c \
   crypto/rc4/rc4_skey.c \
   crypto/rc4/rc4_utl.c \
+  crypto/ripemd/rmd_dgst.c \
+  crypto/ripemd/rmd_one.c \
   crypto/rsa/rsa_ameth.c \
   crypto/rsa/rsa_asn1.c \
   crypto/rsa/rsa_chk.c \
@@ -543,7 +546,6 @@ common_c_includes := \
 arm_cflags := \
   -DAES_ASM \
   -DBSAES_ASM \
-  -DDES_UNROLL \
   -DGHASH_ASM \
   -DOPENSSL_BN_ASM_GF2m \
   -DOPENSSL_BN_ASM_MONT \
@@ -554,14 +556,12 @@ arm_cflags := \
 
 arm_src_files := \
   crypto/aes/asm/aes-armv4.S \
-  crypto/aes/asm/aesv8-armx.S \
   crypto/aes/asm/bsaes-armv7.S \
   crypto/armcap.c \
   crypto/armv4cpuid.S \
   crypto/bn/asm/armv4-gf2m.S \
   crypto/bn/asm/armv4-mont.S \
   crypto/modes/asm/ghash-armv4.S \
-  crypto/modes/asm/ghashv8-armx.S \
   crypto/sha/asm/sha1-armv4-large.S \
   crypto/sha/asm/sha256-armv4.S \
   crypto/sha/asm/sha512-armv4.S \
@@ -571,20 +571,9 @@ arm_exclude_files := \
   crypto/mem_clr.c \
 
 arm64_cflags := \
-  -DDES_UNROLL \
-  -DOPENSSL_CPUID_OBJ \
-  -DSHA1_ASM \
-  -DSHA256_ASM \
-  -DSHA512_ASM \
+  -DOPENSSL_NO_ASM \
 
-arm64_src_files := \
-  crypto/aes/asm/aesv8-armx-64.S \
-  crypto/arm64cpuid.S \
-  crypto/armcap.c \
-  crypto/modes/asm/ghashv8-armx-64.S \
-  crypto/sha/asm/sha1-armv8.S \
-  crypto/sha/asm/sha256-armv8.S \
-  crypto/sha/asm/sha512-armv8.S \
+arm64_src_files :=
 
 arm64_exclude_files :=
 
@@ -600,8 +589,6 @@ x86_cflags := \
   -DOPENSSL_BN_ASM_PART_WORDS \
   -DOPENSSL_CPUID_OBJ \
   -DOPENSSL_IA32_SSE2 \
-  -DRC4_INDEX \
-  -DRMD160_ASM \
   -DSHA1_ASM \
   -DSHA256_ASM \
   -DSHA512_ASM \
@@ -637,6 +624,8 @@ x86_exclude_files := \
 x86_64_cflags := \
   -DAES_ASM \
   -DBSAES_ASM \
+  -DDES_PTR \
+  -DDES_RISC1 \
   -DDES_UNROLL \
   -DGHASH_ASM \
   -DMD5_ASM \
@@ -644,7 +633,6 @@ x86_64_cflags := \
   -DOPENSSL_BN_ASM_MONT \
   -DOPENSSL_BN_ASM_MONT5 \
   -DOPENSSL_CPUID_OBJ \
-  -DOPENSSL_IA32_SSE2 \
   -DSHA1_ASM \
   -DSHA256_ASM \
   -DSHA512_ASM \

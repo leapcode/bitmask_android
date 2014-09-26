@@ -176,12 +176,9 @@ static void dtls1_clear_queues(SSL *s)
 
 	while ( (item = pqueue_pop(s->d1->buffered_app_data.q)) != NULL)
 		{
-		rdata = (DTLS1_RECORD_DATA *) item->data;
-		if (rdata->rbuf.buf)
-			{
-			OPENSSL_free(rdata->rbuf.buf);
-			}
-		OPENSSL_free(item->data);
+		frag = (hm_fragment *)item->data;
+		OPENSSL_free(frag->fragment);
+		OPENSSL_free(frag);
 		pitem_free(item);
 		}
 	}

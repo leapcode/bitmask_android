@@ -565,7 +565,7 @@ $code.=<<___;
 	bne		.Loop_neon
 
 	vldmia	sp!,{d8-d15}		@ epilogue
-	ret				@ bx lr
+	bx	lr
 #endif
 ___
 }
@@ -578,6 +578,5 @@ ___
 
 $code =~ s/\`([^\`]*)\`/eval $1/gem;
 $code =~ s/\bbx\s+lr\b/.word\t0xe12fff1e/gm;	# make it possible to compile with -march=armv4
-$code =~ s/\bret\b/bx	lr/gm;
 print $code;
 close STDOUT; # enforce flush
