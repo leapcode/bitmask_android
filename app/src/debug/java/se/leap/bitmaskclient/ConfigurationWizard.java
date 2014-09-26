@@ -96,7 +96,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-	    preferences = preferences;
+	preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
         
         setContentView(R.layout.configuration_wizard_activity);
 	    mProgressBar = (ProgressBar) findViewById(R.id.progressbar_configuration_wizard);

@@ -52,7 +52,6 @@ bitmask_android/assets/minivpn.armeabi-v7a
 bitmask_android/assets/minivpn.mips
 bitmask_android/assets/minivpn.x86
 openvpn/a.out.dSYM
-openvpn/config-version.h
 openvpn/config.status
 Makefile
 openvpn/libtool
@@ -76,9 +75,9 @@ gradle.properties*
 build
 .gradle
 jniLibs
-bitmask_android/ovpnlibs/
 G*
 *.dot
 /ics-openvpn/
 /TAGS
 /ics-openvpn
+app/ovpnlibs
