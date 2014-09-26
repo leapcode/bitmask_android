@@ -1,3 +1,11 @@
+0.7.0 September 26 2014 - the "quick" release
+Features
+- Restart quickly if killed
+- F-Droid ready
+Bugs Fixed
+- Vpn can be turned off with the Off switch
+- "Blocked" notification not shown if Vpn is ff
+
 0.6.0 August 18 2014 - the "persistent" release
 Features
 - Improved security:
