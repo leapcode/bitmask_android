@@ -1,6 +1,6 @@
 # Auto-generated - DO NOT EDIT!
 # To regenerate, edit openssl.config, then run:
-#     ./import_openssl.sh import /path/to/openssl-1.0.1g.tar.gz
+#     ./import_openssl.sh import /path/to/openssl-1.0.1h.tar.gz
 #
 openssl_cflags_64 := \
   -DOPENSSL_THREADS \
@@ -24,6 +24,7 @@ openssl_cflags_64 := \
   -DOPENSSL_NO_RC5 \
   -DOPENSSL_NO_RDRAND \
   -DOPENSSL_NO_RFC3779 \
+  -DOPENSSL_NO_RIPEMD \
   -DOPENSSL_NO_RSAX \
   -DOPENSSL_NO_SCTP \
   -DOPENSSL_NO_SEED \
@@ -52,6 +53,7 @@ openssl_cflags_static_64 := \
   -DOPENSSL_NO_RC5 \
   -DOPENSSL_NO_RDRAND \
   -DOPENSSL_NO_RFC3779 \
+  -DOPENSSL_NO_RIPEMD \
   -DOPENSSL_NO_RSAX \
   -DOPENSSL_NO_SCTP \
   -DOPENSSL_NO_SEED \
