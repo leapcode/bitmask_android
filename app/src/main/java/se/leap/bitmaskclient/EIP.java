@@ -38,8 +38,6 @@ import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.OpenVpnManagementThread;
-import de.blinkt.openvpn.core.OpenVPNService.LocalBinder;
-import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
 import java.io.IOException;
@@ -67,6 +65,7 @@ import org.json.JSONObject;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.VoidVpnService;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -187,12 +186,17 @@ public final class EIP extends IntentService {
 	 */
 	private void startEIP() {
 	    activeGateway = selectGateway();
-		
+	    earlyRoutes();
 	    if(activeGateway != null && activeGateway.mVpnProfile != null) {
 		launchActiveGateway();
 	    }
 	}
 
+    private void earlyRoutes() {
+	VoidVpnService voidVpn = new VoidVpnService();
+	voidVpn.setUp(context);
+    }
+    
     private void launchActiveGateway() {
 	Intent intent = new Intent(this,LaunchVPN.class);
 	intent.setAction(Intent.ACTION_MAIN);
