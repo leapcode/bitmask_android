@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 public class VoidVpnLauncher extends Activity {
 
-    private static final int VPN_USER_PERMISSION= 71;
+    private static final int VPN_USER_PERMISSION = 71;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,5 +32,6 @@ public class VoidVpnLauncher extends Activity {
 		startService(void_vpn_service);
 	    }
 	}
+	finish();
     }
 }

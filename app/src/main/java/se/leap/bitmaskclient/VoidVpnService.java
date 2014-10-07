@@ -24,6 +24,7 @@ public class VoidVpnService extends VpnService {
         
     public void blockConnections() {
 	Builder builder = new Builder();
+	builder.setSession("Blocking until running");
 	builder.addAddress("10.42.0.8",16);
 	builder.addRoute("0.0.0.0", 1);
 	builder.addRoute("128.0.0.0", 1);
