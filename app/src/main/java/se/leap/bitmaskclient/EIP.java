@@ -16,35 +16,23 @@
  */
 package se.leap.bitmaskclient;
 
-
-
-
-
 import android.app.Activity;
 import android.app.IntentService;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.drm.DrmStore.Action;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.util.Log;
 import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.activities.DisconnectVPN;
-import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
 import de.blinkt.openvpn.core.ConfigParser;
-import de.blinkt.openvpn.core.OpenVpnManagementThread;
-import de.blinkt.openvpn.core.OpenVPNService.LocalBinder;
-import de.blinkt.openvpn.core.OpenVPNService;
+import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.StringBuffer;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
@@ -106,8 +94,6 @@ public final class EIP extends IntentService {
 	private static Context context;
 	private static ResultReceiver mReceiver;
 	private static boolean mBound = false;
-	// Used to store actions to "resume" onServiceConnection
-	private static String mPending = null;
 	
 	private static int parsedEipSerial;
 	private static JSONObject eipDefinition = null;
@@ -140,59 +126,136 @@ public final class EIP extends IntentService {
 	}
 
 	
-	@Override
-	protected void onHandleIntent(Intent intent) {
-		String action = intent.getAction();
-		mReceiver = intent.getParcelableExtra(RECEIVER_TAG);
+    @Override
+    protected void onHandleIntent(Intent intent) {
+	String action = intent.getAction();
+	mReceiver = intent.getParcelableExtra(RECEIVER_TAG);
 		
-		if ( action == ACTION_IS_EIP_RUNNING )
-			this.isRunning();
-		if ( action == ACTION_UPDATE_EIP_SERVICE )
-			this.updateEIPService();
-		else if ( action == ACTION_START_EIP )
-			this.startEIP();
-		else if ( action == ACTION_STOP_EIP )
-			this.stopEIP();
-		else if ( action == ACTION_CHECK_CERT_VALIDITY )
-			this.checkCertValidity();
-		else if ( action == ACTION_REBUILD_PROFILES ) {
-		    this.updateGateways();		       
+	if ( action == ACTION_START_EIP )
+	    startEIP();
+	else if ( action == ACTION_STOP_EIP )
+	    stopEIP();
+	else if ( action == ACTION_IS_EIP_RUNNING )
+	    isRunning();
+	else if ( action == ACTION_UPDATE_EIP_SERVICE )
+	    updateEIPService();
+	else if ( action == ACTION_CHECK_CERT_VALIDITY )
+	    checkCertValidity();
+	else if ( action == ACTION_REBUILD_PROFILES )
+	    updateGateways();
+    }
+	
+    /**
+     * Initiates an EIP connection by selecting a gateway and preparing and sending an
+     * Intent to {@link se.leap.openvpn.LaunchVPN}.
+     * It also sets up early routes.
+     */
+    private void startEIP() {
+	earlyRoutes();
+	activeGateway = selectGateway();
+	    
+	if(activeGateway != null && activeGateway.mVpnProfile != null) {
+	    launchActiveGateway();
+	}
+    }
+
+    /**
+     * Early routes are routes that block traffic until a new
+     * VpnService is started properly.
+     */
+    private void earlyRoutes() {
+	Intent void_vpn_launcher = new Intent(context, VoidVpnLauncher.class);
+	void_vpn_launcher.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	startActivity(void_vpn_launcher);
+    }
+    
+    /**
+     * Choose a gateway to connect to based on timezone from system locale data
+     * 
+     * @return The gateway to connect to
+     */
+    private OVPNGateway selectGateway() {
+	String closest_location = closestGateway();
+	String chosen_host = chooseHost(closest_location);
+
+	return new OVPNGateway(chosen_host);
+    }
+
+    private String closestGateway() {
+	TreeMap<Integer, Set<String>> offsets = calculateOffsets();
+	return offsets.isEmpty() ? "" : offsets.firstEntry().getValue().iterator().next();
+    }
+
+    private TreeMap<Integer, Set<String>> calculateOffsets() {
+	TreeMap<Integer, Set<String>> offsets = new TreeMap<Integer, Set<String>>();
+	
+	int localOffset = Calendar.getInstance().get(Calendar.ZONE_OFFSET) / 3600000;
+	
+	JSONObject locations = availableLocations();
+	Iterator<String> locations_names = locations.keys();
+	while(locations_names.hasNext()) {
+	    try {
+		String location_name = locations_names.next();
+		JSONObject location = locations.getJSONObject(location_name);
+
+		int dist = timezoneDistance(localOffset, location.optInt("timezone"));
+
+		Set<String> set = (offsets.get(dist) != null) ?
+		    offsets.get(dist) : new HashSet<String>();
+		
+		set.add(location_name);
+		offsets.put(dist, set);
+	    } catch (JSONException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    }	    
+	}
+	
+	return offsets;
+    }
+
+    private JSONObject availableLocations() {
+	JSONObject locations = null;
+	try {
+	    if(eipDefinition == null) updateEIPService();
+	    locations = eipDefinition.getJSONObject("locations");
+	} catch (JSONException e1) {
+	    // TODO Auto-generated catch block
+	    e1.printStackTrace();
+	}
+
+	return locations;
+    }
+
+    private int timezoneDistance(int local_timezone, int remote_timezone) {
+	// Distance along the numberline of Prime Meridian centric, assumes UTC-11 through UTC+12
+	int dist = Math.abs(local_timezone - remote_timezone);
+	
+	// Farther than 12 timezones and it's shorter around the "back"
+	if (dist > 12)
+	    dist = 12 - (dist -12);  // Well i'll be.  Absolute values make equations do funny things.
+	
+	return dist;
+    }
+
+    private String chooseHost(String location) {
+	String chosen_host = "";
+	try {
+	    JSONArray gateways = eipDefinition.getJSONArray("gateways");
+	    for (int i = 0; i < gateways.length(); i++) {
+		JSONObject gw = gateways.getJSONObject(i);
+		if ( gw.getString("location").equalsIgnoreCase(location) || location.isEmpty()){
+		    chosen_host = eipDefinition.getJSONObject("locations").getJSONObject(gw.getString("location")).getString("name");
+		    break;
 		}
-	}
-	
-	/**
-	 * Checks the last stored status notified by ics-openvpn
-	 * Sends <code>Activity.RESULT_CANCELED</code> to the ResultReceiver that made the
-	 * request if it's not connected, <code>Activity.RESULT_OK</code> otherwise.
-	 */
-	
-	  private void isRunning() {
-	      Bundle resultData = new Bundle();
-	      resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
-	      int resultCode = Activity.RESULT_CANCELED;
-	      boolean is_connected = isConnected();
-
-	      resultCode = (is_connected) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-                  
-	      if (mReceiver != null){
-		  mReceiver.send(resultCode, resultData);
-	      }
-
-	      Log.d(TAG, "isRunning() = " + is_connected);
-	  }
-	
-	/**
-	 * Initiates an EIP connection by selecting a gateway and preparing and sending an
-	 * Intent to {@link se.leap.openvpn.LaunchVPN}
-	 */
-	private void startEIP() {
-	    activeGateway = selectGateway();
-		
-	    if(activeGateway != null && activeGateway.mVpnProfile != null) {
-		launchActiveGateway();
 	    }
+	} catch (JSONException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
-
+	return chosen_host;
+    }
+    
     private void launchActiveGateway() {
 	Intent intent = new Intent(this,LaunchVPN.class);
 	intent.setAction(Intent.ACTION_MAIN);
@@ -202,30 +265,48 @@ public final class EIP extends IntentService {
 	intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
 	intent.putExtra(RECEIVER_TAG, mReceiver);
 	startActivity(intent);
-	mPending = ACTION_START_EIP;
     }
-	
-	/**
-	 * Disconnects the EIP connection gracefully through the bound service or forcefully
-	 * if there is no bound service.  Sends a message to the requesting ResultReceiver.
-	 */
-	private void stopEIP() {
-	    if(isConnected()) {
-		    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
-		    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		    startActivity(disconnect_vpn);
-		    mIsDisconnecting = true;
-		    lastConnectionStatusLevel = ConnectionStatus.UNKNOWN_LEVEL; // Wait for the decision of the user
-		    Log.d(TAG, "mIsDisconnecting = true");
-		}
-
-		if (mReceiver != null){
-			Bundle resultData = new Bundle();
-			resultData.putString(REQUEST_TAG, ACTION_STOP_EIP);
-			mReceiver.send(Activity.RESULT_OK, resultData);
-		}
+    
+    /**
+     * Disconnects the EIP connection gracefully through the bound service or forcefully
+     * if there is no bound service.  Sends a message to the requesting ResultReceiver.
+     */
+    private void stopEIP() {
+	if(isConnected()) {
+	    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
+	    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    startActivity(disconnect_vpn);
+	    mIsDisconnecting = true;
+	    lastConnectionStatusLevel = ConnectionStatus.UNKNOWN_LEVEL; // Wait for the decision of the user
+	    Log.d(TAG, "mIsDisconnecting = true");
 	}
 
+	tellToReceiver(ACTION_STOP_EIP, Activity.RESULT_OK);
+    }
+    
+    private void tellToReceiver(String action, int resultCode) {	
+	if (mReceiver != null){
+	    Bundle resultData = new Bundle();
+	    resultData.putString(REQUEST_TAG, action);
+	    mReceiver.send(resultCode, resultData);
+	}
+    }
+	
+    /**
+     * Checks the last stored status notified by ics-openvpn
+     * Sends <code>Activity.RESULT_CANCELED</code> to the ResultReceiver that made the
+     * request if it's not connected, <code>Activity.RESULT_OK</code> otherwise.
+     */
+	
+    private void isRunning() {
+	int resultCode = Activity.RESULT_CANCELED;
+	boolean is_connected = isConnected();
+
+	resultCode = (is_connected) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+
+	tellToReceiver(ACTION_IS_EIP_RUNNING, resultCode);
+    }
+    
     protected static boolean isConnected() {	
 	return lastConnectionStatusLevel != null && lastConnectionStatusLevel.equals(ConnectionStatus.LEVEL_CONNECTED) && !mIsDisconnecting;
     }
@@ -256,70 +337,6 @@ public final class EIP extends IntentService {
 	for (int current_profile = 0; current_profile < profiles.length; current_profile++){
 	    vpl.removeProfile(context, profiles[current_profile]);
 	}
-    }
-	/**
-	 * Choose a gateway to connect to based on timezone from system locale data
-	 * 
-	 * @return The gateway to connect to
-	 */
-	private OVPNGateway selectGateway() {
-		String closestLocation = closestGateway();
-		
-		JSONArray gateways = null;
-		String chosenHost = null;
-		try {
-			gateways = eipDefinition.getJSONArray("gateways");
-			for (int i = 0; i < gateways.length(); i++) {
-				JSONObject gw = gateways.getJSONObject(i);
-				if ( gw.getString("location").equalsIgnoreCase(closestLocation) || closestLocation.isEmpty()){
-					chosenHost = eipDefinition.getJSONObject("locations").getJSONObject(gw.getString("location")).getString("name");
-					break;
-				}
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return new OVPNGateway(chosenHost);
-	}
-
-    private String closestGateway() {
-	Calendar cal = Calendar.getInstance();
-	int localOffset = cal.get(Calendar.ZONE_OFFSET) / 3600000;
-	TreeMap<Integer, Set<String>> offsets = new TreeMap<Integer, Set<String>>();
-	JSONObject locationsObjects = null;
-	Iterator<String> locations = null;
-	try {
-	    locationsObjects = eipDefinition.getJSONObject("locations");
-	    locations = locationsObjects.keys();
-	} catch (JSONException e1) {
-	    // TODO Auto-generated catch block
-	    e1.printStackTrace();
-	}
-		
-	while (locations.hasNext()) {
-	    String locationName = locations.next();
-	    JSONObject location = null;
-	    try {
-		location = locationsObjects.getJSONObject(locationName);
-				
-		// Distance along the numberline of Prime Meridian centric, assumes UTC-11 through UTC+12
-		int dist = Math.abs(localOffset - location.optInt("timezone"));
-		// Farther than 12 timezones and it's shorter around the "back"
-		if (dist > 12)
-		    dist = 12 - (dist -12);  // Well i'll be.  Absolute values make equations do funny things.
-				
-		Set<String> set = offsets.get(dist);
-		if (set == null) set = new HashSet<String>();
-		set.add(locationName);
-		offsets.put(dist, set);
-	    } catch (JSONException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    }
-	}		
-	return offsets.isEmpty() ? "" : offsets.firstEntry().getValue().iterator().next();
     }
 	
 	/**
