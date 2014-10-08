@@ -18,8 +18,9 @@ package se.leap.bitmaskclient;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.io.InputStream;
+import java.math.BigInteger;
+import java.lang.IllegalArgumentException;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -105,6 +106,8 @@ public class ConfigHelper {
 			e.printStackTrace();
 		} catch (IOException e) {
 			return null;
+		} catch (IllegalArgumentException e) {
+		    return null;
 		}
 		
 		return (X509Certificate) certificate;
