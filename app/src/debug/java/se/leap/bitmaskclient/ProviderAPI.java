@@ -43,6 +43,7 @@ import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
@@ -589,21 +590,43 @@ public class ProviderAPI extends IntentService {
 		return CA_CERT_DOWNLOADED;
 	}
 
-	private boolean validCertificate(String cert_string) {
-		boolean result = false;
-		if(!ConfigHelper.checkErroneousDownload(cert_string)) {
-			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
-			try {
-				Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-				result = true;
-			} catch (CertificateEncodingException e) {
-				Log.d(TAG, e.getLocalizedMessage());
-			}
-		}
-		
-		return result;
+    private boolean validCertificate(String cert_string) {
+	boolean result = false;
+	if(!ConfigHelper.checkErroneousDownload(cert_string)) {
+	    X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
+	    try {
+		JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
+		String fingerprint = provider_json.getString(Provider.CA_CERT_FINGERPRINT);
+		String encoding = fingerprint.split(":")[0];
+		String expected_fingerprint = fingerprint.split(":")[1];
+		String real_fingerprint = base64toHex(Base64.encodeToString(
+									    MessageDigest.getInstance(encoding).digest(certificate.getEncoded()),
+									    Base64.DEFAULT));
+
+		result = real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim());
+	    } catch (JSONException e) {
+		result = false;
+	    } catch (NoSuchAlgorithmException e) {
+		result = false;
+	    } catch (CertificateEncodingException e) {
+		result = false;
+	    }
 	}
-	
+		
+	return result;
+    }
+
+    private String base64toHex(String base64_input) {
+	byte[] byteArray = Base64.decode(base64_input, Base64.DEFAULT);
+	int readBytes = byteArray.length;
+	StringBuffer hexData = new StringBuffer();
+	int onebyte;
+	for (int i=0; i < readBytes; i++) {
+	    onebyte = ((0x000000ff & byteArray[i]) | 0xffffff00);
+	    hexData.append(Integer.toHexString(onebyte).substring(6));
+	}
+	return hexData.toString();
+    }	
 	private Bundle getAndSetProviderJson(String provider_main_url, boolean danger_on) {
 		Bundle result = new Bundle();
 

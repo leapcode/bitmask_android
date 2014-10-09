@@ -16,16 +16,26 @@
  */
  package se.leap.bitmaskclient;
 
+
+
+
+import android.app.IntentService;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
+import android.util.Base64;
+import android.util.Log;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URISyntaxException;
@@ -33,10 +43,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import javax.net.ssl.SSLHandshakeException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
@@ -47,32 +57,23 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.NoSuchElementException;
-
+import java.util.Scanner;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-
 import org.apache.http.client.ClientProtocolException;
 import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-import android.app.IntentService;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
-import android.util.Base64;
-import android.util.Log;
+import se.leap.bitmaskclient.R;
 
 
 /**
@@ -545,7 +546,7 @@ public class ProviderAPI extends IntentService {
 	}
 
 	if(!PROVIDER_JSON_DOWNLOADED)
-	    current_download = getAndSetProviderJson(last_provider_main_url); 
+	    current_download = getAndSetProviderJson(last_provider_main_url);
 	if(PROVIDER_JSON_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
 	    broadcast_progress(progress++);
 	    PROVIDER_JSON_DOWNLOADED = true;
@@ -596,20 +597,43 @@ public class ProviderAPI extends IntentService {
 		return CA_CERT_DOWNLOADED;
 	}
 
-	private boolean validCertificate(String cert_string) {
-		boolean result = false;
-		if(!ConfigHelper.checkErroneousDownload(cert_string)) {
-			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
-			try {
-				Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-				result = true;
-			} catch (CertificateEncodingException e) {
-				Log.d(TAG, e.getLocalizedMessage());
-			}
-		}
-		
-		return result;
+    private boolean validCertificate(String cert_string) {
+	boolean result = false;
+	if(!ConfigHelper.checkErroneousDownload(cert_string)) {
+	    X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
+	    try {
+		JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
+		String fingerprint = provider_json.getString(Provider.CA_CERT_FINGERPRINT);
+		String encoding = fingerprint.split(":")[0];
+		String expected_fingerprint = fingerprint.split(":")[1];
+		String real_fingerprint = base64toHex(Base64.encodeToString(
+									    MessageDigest.getInstance(encoding).digest(certificate.getEncoded()),
+									    Base64.DEFAULT));
+
+		result = real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim());
+	    } catch (JSONException e) {
+		result = false;
+	    } catch (NoSuchAlgorithmException e) {
+		result = false;
+	    } catch (CertificateEncodingException e) {
+		result = false;
+	    }
 	}
+		
+	return result;
+    }
+
+    private String base64toHex(String base64_input) {
+	byte[] byteArray = Base64.decode(base64_input, Base64.DEFAULT);
+	int readBytes = byteArray.length;
+	StringBuffer hexData = new StringBuffer();
+	int onebyte;
+	for (int i=0; i < readBytes; i++) {
+	    onebyte = ((0x000000ff & byteArray[i]) | 0xffffff00);
+	    hexData.append(Integer.toHexString(onebyte).substring(6));
+	}
+	return hexData.toString();
+    }
 	
 	private Bundle getAndSetProviderJson(String provider_main_url) {
 		Bundle result = new Bundle();
