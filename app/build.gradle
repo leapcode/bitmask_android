@@ -156,6 +156,13 @@ task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') {
   } into '.'
 }
 
+task buildNative ( type: Exec ) {
+  
+  commandLine 'sh', 'misc/build-native.sh', 'USE_BREAKPAD=0', '-j 8'
+}
+
+preBuild.dependsOn buildNative
+
 //assembleRelease.dependsOn connectedCheck
 afterEvaluate {
   //installRelease.dependsOn connectedCheck
