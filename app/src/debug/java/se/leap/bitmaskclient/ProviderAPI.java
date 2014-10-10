@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.bitmaskclient;
+package se.leap.bitmaskclient;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Base64;
 import android.util.Log;
@@ -43,6 +43,7 @@ import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
@@ -65,7 +66,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import org.apache.http.client.ClientProtocolException;
-import org.jboss.security.srp.SRPParameters;
 import org.json.JSONException;
 import org.json.JSONObject;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
@@ -83,8 +83,6 @@ import se.leap.bitmaskclient.R;
  */
 public class ProviderAPI extends IntentService {
 	
-	private Handler mHandler;
-
     final public static String
     SET_UP_PROVIDER = "setUpProvider",
     DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
@@ -128,6 +126,7 @@ public class ProviderAPI extends IntentService {
     private static String last_provider_main_url;
     private static boolean last_danger_on = false;
     private static boolean setting_up_provider = true;
+    private static SharedPreferences preferences;
     
     public static void stop() {
     	setting_up_provider = false;
@@ -138,12 +137,13 @@ public class ProviderAPI extends IntentService {
 		Log.v("ClassName", "Provider API");
 	}
 	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		mHandler = new Handler();
-		CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER) );
-	}
+    @Override
+    public void onCreate() {
+	super.onCreate();
+	
+	preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
+	CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER) );
+    }
 	
 	public static String lastProviderMainUrl() {
 		return last_provider_main_url;
@@ -174,14 +174,14 @@ public class ProviderAPI extends IntentService {
 				}
 			}
 		} else if (action.equalsIgnoreCase(SRP_REGISTER)) {
-		    Bundle session_id_bundle = registerWithSRP(parameters);
+		    Bundle session_id_bundle = tryToRegisterWithSRP(parameters);
 		    if(session_id_bundle.getBoolean(RESULT_KEY)) {
 			receiver.send(SRP_REGISTRATION_SUCCESSFUL, session_id_bundle);
 		    } else {
 			receiver.send(SRP_REGISTRATION_FAILED, session_id_bundle);
 		    }
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
-			Bundle session_id_bundle = authenticateBySRP(parameters);
+			Bundle session_id_bundle = tryToAuthenticateBySRP(parameters);
 				if(session_id_bundle.getBoolean(RESULT_KEY)) {
 					receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
 				} else {
@@ -202,7 +202,7 @@ public class ProviderAPI extends IntentService {
 		}
 	}
 
-    private Bundle registerWithSRP(Bundle task) {
+    private Bundle tryToRegisterWithSRP(Bundle task) {
 	Bundle session_id_bundle = new Bundle();
 	int progress = 0;
 		
@@ -210,23 +210,7 @@ public class ProviderAPI extends IntentService {
 	String password = (String) task.get(LogInDialog.PASSWORD);
 	String authentication_server = (String) task.get(Provider.API_URL);
 	if(validUserLoginData(username, password)) {
-		
-	    SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
-	    LeapSRPSession client = new LeapSRPSession(username, password, params);
-	    byte[] salt = ConfigHelper.trim(client.calculateNewSalt());
-	    // byte[] salted_password = client.calculatePasswordHash(username, password, salt);
-	    /* Calculate password verifier */
-	    BigInteger password_verifier = client.calculateV(username, password, salt);
-	    /* Send to the server */
-	    JSONObject result = sendNewUserDataToSRPServer(authentication_server, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16));
-	    if(result.has(ERRORS))
-		session_id_bundle = authFailedNotification(result, username);
-	    else {
-		session_id_bundle.putString(LogInDialog.USERNAME, username);
-		session_id_bundle.putString(LogInDialog.PASSWORD, password);
-		session_id_bundle.putBoolean(RESULT_KEY, true);
-	    }
-	    Log.d(TAG, result.toString());
+	    session_id_bundle = registerWithSRP(username, password, authentication_server);
 	    broadcast_progress(progress++);
 	} else {
 	    if(!wellFormedPassword(password)) {
@@ -242,68 +226,90 @@ public class ProviderAPI extends IntentService {
 		
 	return session_id_bundle;
     }
+
+    private Bundle registerWithSRP(String username, String password, String server) {	
+	LeapSRPSession client = new LeapSRPSession(username, password);
+	byte[] salt = client.calculateNewSalt();
+	
+	BigInteger password_verifier = client.calculateV(username, password, salt);
+	JSONObject api_result = sendNewUserDataToSRPServer(server, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16));
+	
+	Bundle result = new Bundle();
+	if(api_result.has(ERRORS))
+	    result = authFailedNotification(api_result, username);
+	else {
+	    result.putString(LogInDialog.USERNAME, username);
+	    result.putString(LogInDialog.PASSWORD, password);
+	    result.putBoolean(RESULT_KEY, true);
+	}
+
+	return result;
+    }
 	/**
 	 * Starts the authentication process using SRP protocol.
 	 * 
 	 * @param task containing: username, password and api url. 
 	 * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if authentication was successful. 
 	 */
-	private Bundle authenticateBySRP(Bundle task) {
-	    Bundle session_id_bundle = new Bundle();
+	private Bundle tryToAuthenticateBySRP(Bundle task) {
+	    Bundle result = new Bundle();
 	    int progress = 0;
 		
 	    String username = (String) task.get(LogInDialog.USERNAME);
 	    String password = (String) task.get(LogInDialog.PASSWORD);
 	    if(validUserLoginData(username, password)) {
-		
-		String authentication_server = (String) task.get(Provider.API_URL);
-		JSONObject authentication_step_result = new JSONObject();
+		String server = (String) task.get(Provider.API_URL);
 
-		SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
-		LeapSRPSession client = new LeapSRPSession(username, password, params);
-		byte[] A = client.exponential();
-		broadcast_progress(progress++);
-		authentication_step_result = sendAToSRPServer(authentication_server, username, new BigInteger(1, A).toString(16));
-		try {
-		    String salt = authentication_step_result.getString(LeapSRPSession.SALT);
-		    broadcast_progress(progress++);
-		    byte[] Bbytes = new BigInteger(authentication_step_result.getString("B"), 16).toByteArray();
-		    byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
-		    if(M1 != null) {
-			broadcast_progress(progress++);
-			authentication_step_result = sendM1ToSRPServer(authentication_server, username, M1);
-			setTokenIfAvailable(authentication_step_result);
-			byte[] M2 = new BigInteger(authentication_step_result.getString(LeapSRPSession.M2), 16).toByteArray();
-			if(client.verify(M2)) {
-			    session_id_bundle.putBoolean(RESULT_KEY, true);
-			    broadcast_progress(progress++);
-			} else {
-			    authFailedNotification(authentication_step_result, username);
-			}
-		    } else {
-			session_id_bundle.putBoolean(RESULT_KEY, false);
-			session_id_bundle.putString(LogInDialog.USERNAME, username);
-			session_id_bundle.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_srp_math_error_user_message));
-		    }
-		} catch (JSONException e) {
-		    session_id_bundle = authFailedNotification(authentication_step_result, username);
-		    e.printStackTrace();
-		}
+		authenticate(username, password, server);
 		broadcast_progress(progress++);
 	    } else {
 		if(!wellFormedPassword(password)) {
-		    session_id_bundle.putBoolean(RESULT_KEY, false);
-		    session_id_bundle.putString(LogInDialog.USERNAME, username);
-		    session_id_bundle.putBoolean(LogInDialog.PASSWORD_INVALID_LENGTH, true);
+		    result.putBoolean(RESULT_KEY, false);
+		    result.putString(LogInDialog.USERNAME, username);
+		    result.putBoolean(LogInDialog.PASSWORD_INVALID_LENGTH, true);
 		}
 		if(username.isEmpty()) {
-		    session_id_bundle.putBoolean(RESULT_KEY, false);
-		    session_id_bundle.putBoolean(LogInDialog.USERNAME_MISSING, true);
+		    result.putBoolean(RESULT_KEY, false);
+		    result.putBoolean(LogInDialog.USERNAME_MISSING, true);
 		}
 	    }
 		
-	    return session_id_bundle;
+	    return result;
 	}
+
+
+    private Bundle authenticate(String username, String password, String server) {
+	Bundle result = new Bundle();
+	
+	LeapSRPSession client = new LeapSRPSession(username, password);
+	byte[] A = client.exponential();
+	
+	JSONObject step_result = sendAToSRPServer(server, username, new BigInteger(1, A).toString(16));
+	try {
+	    String salt = step_result.getString(LeapSRPSession.SALT);
+	    byte[] Bbytes = new BigInteger(step_result.getString("B"), 16).toByteArray();
+	    byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
+	    if(M1 != null) {
+		step_result = sendM1ToSRPServer(server, username, M1);
+		setTokenIfAvailable(step_result);
+		byte[] M2 = new BigInteger(step_result.getString(LeapSRPSession.M2), 16).toByteArray();
+		if(client.verify(M2)) {
+		    result.putBoolean(RESULT_KEY, true);
+		} else {
+		    authFailedNotification(step_result, username);
+		}
+	    } else {
+		result.putBoolean(RESULT_KEY, false);
+		result.putString(LogInDialog.USERNAME, username);
+		result.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_srp_math_error_user_message));
+	    }
+	} catch (JSONException e) {
+	    result = authFailedNotification(step_result, username);
+	    e.printStackTrace();
+	}
+	
+	return result;
+    }
 
     private boolean setTokenIfAvailable(JSONObject authentication_step_result) {
 	try {
@@ -369,13 +375,6 @@ public class ProviderAPI extends IntentService {
 	 * @param username
 	 * @param clientA First SRP parameter sent 
 	 * @return response from authentication server
-	 * @throws ClientProtocolException
-	 * @throws IOException
-	 * @throws JSONException
-	 * @throws CertificateException 
-	 * @throws NoSuchAlgorithmException 
-	 * @throws KeyStoreException 
-	 * @throws KeyManagementException 
 	 */
 	private JSONObject sendAToSRPServer(String server_url, String username, String clientA) {
 		Map<String, String> parameters = new HashMap<String, String>();
@@ -390,13 +389,6 @@ public class ProviderAPI extends IntentService {
 	 * @param username
 	 * @param m1 Second SRP parameter sent 
 	 * @return response from authentication server
-	 * @throws ClientProtocolException
-	 * @throws IOException
-	 * @throws JSONException
-	 * @throws CertificateException 
-	 * @throws NoSuchAlgorithmException 
-	 * @throws KeyStoreException 
-	 * @throws KeyManagementException 
 	 */
 	private JSONObject sendM1ToSRPServer(String server_url, String username, byte[] m1) {
 		Map<String, String> parameters = new HashMap<String, String>();
@@ -412,13 +404,6 @@ public class ProviderAPI extends IntentService {
 	 * @param salted_password
 	 * @param password_verifier   
 	 * @return response from authentication server
-	 * @throws ClientProtocolException
-	 * @throws IOException
-	 * @throws JSONException
-	 * @throws CertificateException 
-	 * @throws NoSuchAlgorithmException 
-	 * @throws KeyStoreException 
-	 * @throws KeyManagementException 
 	 */
     private JSONObject sendNewUserDataToSRPServer(String server_url, String username, String salt, String password_verifier) {
 	Map<String, String> parameters = new HashMap<String, String>();
@@ -563,12 +548,12 @@ public class ProviderAPI extends IntentService {
 	private Bundle downloadCACert(boolean danger_on) {
 		Bundle result = new Bundle();
 		try {
-		    JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
+		    JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 		    String ca_cert_url = provider_json.getString(Provider.CA_CERT_URI);
 		    String cert_string = downloadWithCommercialCA(ca_cert_url, danger_on);
 
 		    if(validCertificate(cert_string) && setting_up_provider) {
-			getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.CA_CERT, cert_string).commit();
+			preferences.edit().putString(Provider.CA_CERT, cert_string).commit();
 			result.putBoolean(RESULT_KEY, true);
 		    } else {
 			String reason_to_fail = pickErrorMessage(cert_string);
@@ -589,21 +574,43 @@ public class ProviderAPI extends IntentService {
 		return CA_CERT_DOWNLOADED;
 	}
 
-	private boolean validCertificate(String cert_string) {
-		boolean result = false;
-		if(!ConfigHelper.checkErroneousDownload(cert_string)) {
-			X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(cert_string);
-			try {
-				Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-				result = true;
-			} catch (CertificateEncodingException e) {
-				Log.d(TAG, e.getLocalizedMessage());
-			}
-		}
-		
-		return result;
+    private boolean validCertificate(String cert_string) {
+	boolean result = false;
+	if(!ConfigHelper.checkErroneousDownload(cert_string)) {
+	    X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
+	    try {
+		JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
+		String fingerprint = provider_json.getString(Provider.CA_CERT_FINGERPRINT);
+		String encoding = fingerprint.split(":")[0];
+		String expected_fingerprint = fingerprint.split(":")[1];
+		String real_fingerprint = base64toHex(Base64.encodeToString(
+									    MessageDigest.getInstance(encoding).digest(certificate.getEncoded()),
+									    Base64.DEFAULT));
+
+		result = real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim());
+	    } catch (JSONException e) {
+		result = false;
+	    } catch (NoSuchAlgorithmException e) {
+		result = false;
+	    } catch (CertificateEncodingException e) {
+		result = false;
+	    }
 	}
-	
+		
+	return result;
+    }
+
+    private String base64toHex(String base64_input) {
+	byte[] byteArray = Base64.decode(base64_input, Base64.DEFAULT);
+	int readBytes = byteArray.length;
+	StringBuffer hexData = new StringBuffer();
+	int onebyte;
+	for (int i=0; i < readBytes; i++) {
+	    onebyte = ((0x000000ff & byteArray[i]) | 0xffffff00);
+	    hexData.append(Integer.toHexString(onebyte).substring(6));
+	}
+	return hexData.toString();
+    }	
 	private Bundle getAndSetProviderJson(String provider_main_url, boolean danger_on) {
 		Bundle result = new Bundle();
 
@@ -615,9 +622,9 @@ public class ProviderAPI extends IntentService {
 				String name = provider_json.getString(Provider.NAME);
 				//TODO setProviderName(name);
 
-				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(Provider.KEY, provider_json.toString()).commit();
-				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON)).commit();
-				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putBoolean(EIP.ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_REGISTERED)).commit();
+				preferences.edit().putString(Provider.KEY, provider_json.toString()).commit();
+				preferences.edit().putBoolean(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON)).commit();
+				preferences.edit().putBoolean(EIP.ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_REGISTERED)).commit();
 
 				result.putBoolean(RESULT_KEY, true);
 			} catch (JSONException e) {
@@ -641,13 +648,13 @@ public class ProviderAPI extends IntentService {
 		String eip_service_json_string = "";
 		if(setting_up_provider) {
 			try {
-				JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
+				JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 				String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
 				eip_service_json_string = downloadWithProviderCA(eip_service_url, true);
 				JSONObject eip_service_json = new JSONObject(eip_service_json_string);
 				eip_service_json.getInt(Provider.API_RETURN_SERIAL);
 
-				getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.KEY, eip_service_json.toString()).commit();
+				preferences.edit().putString(EIP.KEY, eip_service_json.toString()).commit();
 
 				result.putBoolean(RESULT_KEY, true);
 			} catch (JSONException e) {
@@ -772,7 +779,7 @@ public class ProviderAPI extends IntentService {
 	}
 	
 	private javax.net.ssl.SSLSocketFactory getProviderSSLSocketFactory() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, KeyManagementException {
-		String provider_cert_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.CA_CERT,"");
+		String provider_cert_string = preferences.getString(Provider.CA_CERT,"");
 
 		java.security.cert.Certificate provider_certificate = ConfigHelper.parseX509CertificateFromString(provider_cert_string);
 
@@ -897,81 +904,72 @@ public class ProviderAPI extends IntentService {
     private boolean updateVpnCertificate() {
 	getNewCert();
 
-	getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(EIP.PARSED_SERIAL, 0).commit();
+	preferences.edit().putInt(EIP.PARSED_SERIAL, 0).commit();
 	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
 	updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
 	startService(updateEIP);
 
 	return true;
     }
-	/**
-	 * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.
-	 * 
-	 * @return true if certificate was downloaded correctly, false if provider.json or danger_on flag are not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
-	 */
-	private boolean getNewCert() {
-
-		try {
-			JSONObject provider_json = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(Provider.KEY, ""));
+    
+    /**
+     * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.
+     * 
+     * @return true if certificate was downloaded correctly, false if provider.json or danger_on flag are not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
+     */
+    private boolean getNewCert() {
+	try {
+	    JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 			
-			String provider_main_url = provider_json.getString(Provider.API_URL);
-			URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
+	    String provider_main_url = provider_json.getString(Provider.API_URL);
+	    URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
 
-			boolean danger_on = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getBoolean(ProviderItem.DANGER_ON, false);
+	    boolean danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, false);
 
-			String cert_string = downloadWithProviderCA(new_cert_string_url.toString(), danger_on);
+	    String cert_string = downloadWithProviderCA(new_cert_string_url.toString(), danger_on);
 
-			if(!cert_string.isEmpty()) {
-				if(ConfigHelper.checkErroneousDownload(cert_string)) {
-					String reason_to_fail = provider_json.getString(ERRORS);
-					//result.putString(ConfigHelper.ERRORS_KEY, reason_to_fail);
-					//result.putBoolean(ConfigHelper.RESULT_KEY, false);
-					return false;
-				} else {
-					
-					// API returns concatenated cert & key.  Split them for OpenVPN options
-					String certificateString = null, keyString = null;
-					String[] certAndKey = cert_string.split("(?<=-\n)");
-					for (int i=0; i < certAndKey.length-1; i++){
-						if ( certAndKey[i].contains("KEY") ) {
-							keyString = certAndKey[i++] + certAndKey[i];
-						}
-						else if ( certAndKey[i].contains("CERTIFICATE") ) {
-							certificateString = certAndKey[i++] + certAndKey[i];
-						}
-					}
-					try {
-						RSAPrivateKey keyCert = ConfigHelper.parseRsaKeyFromString(keyString);
-						keyString = Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT );
-						getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
+	    if(cert_string.isEmpty() || ConfigHelper.checkErroneousDownload(cert_string))
+		return false;
+	    else
+		return loadCertificate(cert_string);
+	} catch (JSONException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	    return false;
+	} catch (MalformedURLException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	    return false;
+	} 
+    }
+	
+    private boolean loadCertificate(String cert_string) {
+	try {
+	    // API returns concatenated cert & key.  Split them for OpenVPN options
+	    String certificateString = null, keyString = null;
+	    String[] certAndKey = cert_string.split("(?<=-\n)");
+	    for (int i=0; i < certAndKey.length-1; i++){
+		if ( certAndKey[i].contains("KEY") ) {
+		    keyString = certAndKey[i++] + certAndKey[i];
+		}
+		else if ( certAndKey[i].contains("CERTIFICATE") ) {
+		    certificateString = certAndKey[i++] + certAndKey[i];
+		}
+	    }
+	    RSAPrivateKey keyCert = ConfigHelper.parseRsaKeyFromString(keyString);
+	    keyString = Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT );
+	    preferences.edit().putString(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
 
-						X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
-						certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-						getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
-						getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putString(EIP.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
+	    X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
+	    certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
+	    preferences.edit().putString(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
+	    preferences.edit().putString(EIP.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
 						
-						return true;
-					} catch (CertificateException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						return false;
-					}
-				}
-			} else {
-				return false;
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} /*catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}*/
+	    return true;
+	} catch (CertificateException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	    return false;
 	}
+    }
 }
