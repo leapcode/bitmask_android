@@ -92,8 +92,6 @@ public class ProviderAPI extends IntentService {
     PARAMETERS = "parameters",
     RESULT_KEY = "result",
     RECEIVER_KEY = "receiver",
-    SESSION_ID_COOKIE_KEY = "session_id_cookie_key",
-    SESSION_ID_KEY = "session_id",
     ERRORS = "errors",
     UPDATE_PROGRESSBAR = "update_progressbar",
     CURRENT_PROGRESS = "current_progress",
@@ -125,6 +123,7 @@ public class ProviderAPI extends IntentService {
     private static String last_provider_main_url;
     private static boolean setting_up_provider = true;
     private static SharedPreferences preferences;
+    private static String provider_api_url;
     
     public static void stop() {
     	setting_up_provider = false;
@@ -140,6 +139,12 @@ public class ProviderAPI extends IntentService {
 	super.onCreate();
 	preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 	CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER));
+	if(provider_api_url == null && preferences.contains(Provider.KEY)) {
+	    try {
+		JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
+		provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
+	    } catch (JSONException e) {}
+	}
     }
 	
 	public static String lastProviderMainUrl() {
@@ -181,7 +186,7 @@ public class ProviderAPI extends IntentService {
 			receiver.send(SRP_AUTHENTICATION_FAILED, result);
 		    }
 		} else if (action.equalsIgnoreCase(LOG_OUT)) {
-				if(logOut(parameters)) {
+				if(logOut()) {
 					receiver.send(LOGOUT_SUCCESSFUL, Bundle.EMPTY);
 				} else {
 					receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
@@ -199,40 +204,41 @@ public class ProviderAPI extends IntentService {
 	Bundle session_id_bundle = new Bundle();
 	int progress = 0;
 		
-	String username = (String) task.get(LogInDialog.USERNAME);
-	String password = (String) task.get(LogInDialog.PASSWORD);
-	String authentication_server = (String) task.get(Provider.API_URL);
+	String username = (String) task.get(SessionDialogInterface.USERNAME);
+	String password = (String) task.get(SessionDialogInterface.PASSWORD);
+	
 	if(validUserLoginData(username, password)) {
-	    session_id_bundle = register(username, password, authentication_server);
+	    session_id_bundle = register(username, password);
 	    broadcast_progress(progress++);
 	} else {
 	    if(!wellFormedPassword(password)) {
 		session_id_bundle.putBoolean(RESULT_KEY, false);
-		session_id_bundle.putString(LogInDialog.USERNAME, username);
-		session_id_bundle.putBoolean(LogInDialog.PASSWORD_INVALID_LENGTH, true);
+		session_id_bundle.putString(SessionDialogInterface.USERNAME, username);
+		session_id_bundle.putBoolean(SessionDialogInterface.PASSWORD_INVALID_LENGTH, true);
 	    }
 	    if(username.isEmpty()) {
 		session_id_bundle.putBoolean(RESULT_KEY, false);
-		session_id_bundle.putBoolean(LogInDialog.USERNAME_MISSING, true);
+		session_id_bundle.putBoolean(SessionDialogInterface.USERNAME_MISSING, true);
 	    }
 	}
 		
 	return session_id_bundle;
     }
 
-    private Bundle register(String username, String password, String server) {	
+    private Bundle register(String username, String password) {	
 	LeapSRPSession client = new LeapSRPSession(username, password);
 	byte[] salt = client.calculateNewSalt();
 	
 	BigInteger password_verifier = client.calculateV(username, password, salt);
-	JSONObject api_result = sendNewUserDataToSRPServer(server, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16));
+	
+	JSONObject api_result = sendNewUserDataToSRPServer(provider_api_url, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16));
 
 	Bundle result = new Bundle();	
 	if(api_result.has(ERRORS))
 	    result = authFailedNotification(api_result, username);
 	else {
-	    result.putString(LogInDialog.USERNAME, username);
-	    result.putString(LogInDialog.PASSWORD, password);
+	    result.putString(SessionDialogInterface.USERNAME, username);
+	    result.putString(SessionDialogInterface.PASSWORD, password);
 	    result.putBoolean(RESULT_KEY, true);
 	}
 
@@ -249,42 +255,39 @@ public class ProviderAPI extends IntentService {
 	    Bundle result = new Bundle();
 	    int progress = 0;
 		
-	    String username = (String) task.get(LogInDialog.USERNAME);
-	    String password = (String) task.get(LogInDialog.PASSWORD);
+	    String username = (String) task.get(SessionDialogInterface.USERNAME);
+	    String password = (String) task.get(SessionDialogInterface.PASSWORD);
 	    if(validUserLoginData(username, password)) {
-		
-		String server = (String) task.get(Provider.API_URL);
-
-		authenticate(username, password, server);
+		result = authenticate(username, password);
 		broadcast_progress(progress++);
 	    } else {
 		if(!wellFormedPassword(password)) {
 		    result.putBoolean(RESULT_KEY, false);
-		    result.putString(LogInDialog.USERNAME, username);
-		    result.putBoolean(LogInDialog.PASSWORD_INVALID_LENGTH, true);
+		    result.putString(SessionDialogInterface.USERNAME, username);
+		    result.putBoolean(SessionDialogInterface.PASSWORD_INVALID_LENGTH, true);
 		}
 		if(username.isEmpty()) {
 		    result.putBoolean(RESULT_KEY, false);
-		    result.putBoolean(LogInDialog.USERNAME_MISSING, true);
+		    result.putBoolean(SessionDialogInterface.USERNAME_MISSING, true);
 		}
 	    }
 		
 	    return result;
 	}
 
-    private Bundle authenticate(String username, String password, String server) {
+    private Bundle authenticate(String username, String password) {
 	Bundle result = new Bundle();
 	
 	LeapSRPSession client = new LeapSRPSession(username, password);
 	byte[] A = client.exponential();
 	
-	JSONObject step_result = sendAToSRPServer(server, username, new BigInteger(1, A).toString(16));
+	JSONObject step_result = sendAToSRPServer(provider_api_url, username, new BigInteger(1, A).toString(16));
 	try {
 	    String salt = step_result.getString(LeapSRPSession.SALT);
 	    byte[] Bbytes = new BigInteger(step_result.getString("B"), 16).toByteArray();
 	    byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
 	    if(M1 != null) {
-		step_result = sendM1ToSRPServer(server, username, M1);
+		step_result = sendM1ToSRPServer(provider_api_url, username, M1);
 		setTokenIfAvailable(step_result);
 		byte[] M2 = new BigInteger(step_result.getString(LeapSRPSession.M2), 16).toByteArray();
 		if(client.verify(M2)) {
@@ -294,7 +297,7 @@ public class ProviderAPI extends IntentService {
 		}
 	    } else {
 		result.putBoolean(RESULT_KEY, false);
-		result.putString(LogInDialog.USERNAME, username);
+		result.putString(SessionDialogInterface.USERNAME, username);
 		result.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_srp_math_error_user_message));
 	    }
 	} catch (JSONException e) {
@@ -325,7 +328,7 @@ public class ProviderAPI extends IntentService {
 	} catch(JSONException e) {}
 	
 	if(!username.isEmpty())
-	    user_notification_bundle.putString(LogInDialog.USERNAME, username);
+	    user_notification_bundle.putString(SessionDialogInterface.USERNAME, username);
 	user_notification_bundle.putBoolean(RESULT_KEY, false);
 
 	return user_notification_bundle;
@@ -614,6 +617,7 @@ public class ProviderAPI extends IntentService {
 
 			try {
 				JSONObject provider_json = new JSONObject(provider_dot_json_string);
+				provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
 				String name = provider_json.getString(Provider.NAME);
 				//TODO setProviderName(name);
 
@@ -847,12 +851,11 @@ public class ProviderAPI extends IntentService {
 	
 	/**
 	 * Logs out from the api url retrieved from the task.
-	 * @param task containing api url from which the user will log out
 	 * @return true if there were no exceptions
 	 */
-	private boolean logOut(Bundle task) {
+	private boolean logOut() {
 		try {
-			String delete_url = task.getString(Provider.API_URL) + "/logout";
+			String delete_url = provider_api_url + "/logout";
 			int progress = 0;
 
 			HttpsURLConnection urlConnection = (HttpsURLConnection)new URL(delete_url).openConnection();

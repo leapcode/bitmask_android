@@ -155,6 +155,7 @@ public final class EIP extends IntentService {
 	activeGateway = selectGateway();
 	    
 	if(activeGateway != null && activeGateway.mVpnProfile != null) {
+	    mReceiver = EipServiceFragment.getReceiver();
 	    launchActiveGateway();
 	}
     }
