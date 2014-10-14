@@ -42,14 +42,9 @@ import android.widget.TextView;
  * @author parmegv
  *
  */
-public class SignUpDialog extends DialogFragment {
-     
-	final public static String TAG = "signUpDialog";
-	final public static String VERB = "log in";
-	final public static String USERNAME = "username";
-	final public static String PASSWORD = "password";
-	final public static String USERNAME_MISSING = "username missing";
-	final public static String PASSWORD_INVALID_LENGTH = "password_invalid_length";
+public class SignUpDialog extends SessionDialogInterface {
+    
+    final public static String TAG = SignUpDialog.class.getSimpleName();
 
     private static boolean is_eip_pending = false;
     

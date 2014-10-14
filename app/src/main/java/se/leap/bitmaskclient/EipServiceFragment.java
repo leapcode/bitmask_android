@@ -380,7 +380,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 			    case Activity.RESULT_CANCELED:
 				Dashboard dashboard = (Dashboard) getActivity();
 
-				dashboard.setProgressBarVisibility(ProgressBar.VISIBLE);
+				dashboard.showProgressBar();
 				String status = getResources().getString(R.string.updating_certificate_message);
 				setEipStatus(status);
 				

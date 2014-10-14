@@ -571,7 +571,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	@Override
 	public void login() {
 		Intent ask_login = new Intent();
-		ask_login.putExtra(LogInDialog.VERB, LogInDialog.VERB);
+		ask_login.putExtra(LogInDialog.TAG, LogInDialog.TAG);
 		setResult(RESULT_OK, ask_login);
 		setting_up_provider = false;
 		finish();
