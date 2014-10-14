@@ -260,7 +260,7 @@ public class ProviderAPI extends IntentService {
 	    if(validUserLoginData(username, password)) {
 		String server = (String) task.get(Provider.API_URL);
 
-		authenticate(username, password, server);
+		result = authenticate(username, password, server);
 		broadcast_progress(progress++);
 	    } else {
 		if(!wellFormedPassword(password)) {

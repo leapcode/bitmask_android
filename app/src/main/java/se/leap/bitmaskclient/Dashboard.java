@@ -65,6 +65,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     public static final String START_ON_BOOT = "dashboard start on boot";
     final public static String ON_BOOT = "dashboard on boot";
     public static final String APP_VERSION = "bitmask version";
+    final public static String TAG = Dashboard.class.getSimpleName();
 
 
     private EipServiceFragment eipFragment;
@@ -498,10 +499,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     		changeStatusMessage(resultCode);
 		if(mProgressBar != null)
 		    mProgressBar.setVisibility(ProgressBar.GONE);
-		if(EipServiceFragment.isEipSwitchChecked())
-		    eipStart();
-		else
-		    eipStatus.setText(R.string.eip_state_not_connected);
+		eipStart();
 		} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
         	setResult(RESULT_CANCELED);
     		changeStatusMessage(resultCode);
