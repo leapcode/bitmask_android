@@ -180,7 +180,7 @@ public class ProviderAPI extends IntentService {
 			receiver.send(SRP_REGISTRATION_FAILED, session_id_bundle);
 		    }
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
-			Bundle session_id_bundle = tryToAuthenticateBySRP(parameters);
+			Bundle session_id_bundle = tryToAuthenticate(parameters);
 				if(session_id_bundle.getBoolean(RESULT_KEY)) {
 					receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
 				} else {
