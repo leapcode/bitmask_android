@@ -21,13 +21,14 @@ import org.json.JSONObject;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
+import se.leap.bitmaskclient.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.SignUpDialog;
+
 import de.blinkt.openvpn.activities.LogWindow;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -78,6 +79,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	private boolean authed_eip = false;
 
     public ProviderAPIResultReceiver providerAPI_result_receiver;
+    private FragmentManagerEnhanced fragment_manager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +92,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 	    
 	    preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+	    fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 	    handleVersion();
 	    
 	    authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
@@ -194,7 +197,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 
-		FragmentManager fragMan = getFragmentManager();
 		if ( provider.hasEIP()){
 			eipFragment = new EipServiceFragment();
 			if (hide_and_turn_on_eip) {
@@ -203,7 +205,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			    arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
 			    eipFragment.setArguments(arguments);
 			}
-			fragMan.beginTransaction().replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG).commit();
+			fragment_manager.replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG);
 
 			if (hide_and_turn_on_eip) {
 			    onBackPressed();
@@ -293,23 +295,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 	return command;
     }
-
-    private FragmentTransaction removePreviousFragment(String tag) {
-	FragmentTransaction transaction = getFragmentManager().beginTransaction();
-	Fragment previous_fragment = getFragmentManager().findFragmentByTag(tag);
-	if (previous_fragment != null) {
-	    transaction.remove(previous_fragment);
-	}
-	transaction.addToBackStack(null);
-
-	return transaction;
-    }
     
     /**
      * Shows the log in dialog.
      */
     public void logInDialog(Bundle resultData) {
-	FragmentTransaction transaction = removePreviousFragment(LogInDialog.TAG);
+	FragmentTransaction transaction = fragment_manager.removePreviousFragment(LogInDialog.TAG);
 
 	DialogFragment newFragment = LogInDialog.newInstance();
 	if(resultData != null && !resultData.isEmpty())
@@ -363,7 +354,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
      * Shows the sign up dialog.
      */
     public void signUpDialog(Bundle resultData) {
-	FragmentTransaction transaction = removePreviousFragment(SignUpDialog.TAG);
+	FragmentTransaction transaction = fragment_manager.removePreviousFragment(SignUpDialog.TAG);
 
 	DialogFragment newFragment = SignUpDialog.newInstance();
 	if(resultData != null && !resultData.isEmpty()) {
