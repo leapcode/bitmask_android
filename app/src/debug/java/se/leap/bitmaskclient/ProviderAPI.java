@@ -96,7 +96,7 @@ public class ProviderAPI extends IntentService {
     ERRORS = "errors",
     UPDATE_PROGRESSBAR = "update_progressbar",
     CURRENT_PROGRESS = "current_progress",
-    TAG = "provider_api_tag"
+	TAG = ProviderAPI.class.getSimpleName();
     ;
 
     final public static int
@@ -903,7 +903,6 @@ public class ProviderAPI extends IntentService {
     private boolean updateVpnCertificate() {
 	getNewCert();
 
-	preferences.edit().putInt(EIP.PARSED_SERIAL, 0).commit();
 	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
 	updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
 	startService(updateEIP);
