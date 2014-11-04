@@ -350,6 +350,7 @@ public final class EIP extends IntentService {
 	private void updateGateways(){
 		JSONArray gatewaysDefined = null;
 		try {
+		    if(eipDefinition == null) updateEIPService();
 			gatewaysDefined = eipDefinition.getJSONArray("gateways");		
 			for ( int i=0 ; i < gatewaysDefined.length(); i++ ){			
 			    JSONObject gw = null;			
