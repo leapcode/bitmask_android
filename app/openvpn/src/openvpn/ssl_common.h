@@ -496,8 +496,8 @@ struct tls_multi
 #endif
 
   /* For P_DATA_V2 */
-  uint32_t vpn_session_id;
-  int use_session_id;
+  uint32_t peer_id;
+  bool use_peer_id;
 
   /*
    * Our session objects.
