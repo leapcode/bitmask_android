@@ -213,31 +213,35 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		}
 	}
 
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		JSONObject provider_json;
-		try {
-			provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
-			JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
-			boolean authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
-			boolean allow_registered_eip = service_description.getBoolean(Provider.ALLOW_REGISTRATION);
-			preferences.edit().putBoolean(EIP.ALLOWED_REGISTERED, allow_registered_eip);
-			if(allow_registered_eip) {
-				if(authed_eip) {
-					menu.findItem(R.id.login_button).setVisible(false);
-					menu.findItem(R.id.logout_button).setVisible(true);
-				} else {
-					menu.findItem(R.id.login_button).setVisible(true);
-					menu.findItem(R.id.logout_button).setVisible(false);
-				}
-				menu.findItem(R.id.signup_button).setVisible(true);
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		return true;
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+	JSONObject provider_json;
+	try {
+	    String provider_json_string = preferences.getString(Provider.KEY, "");
+	    if(provider_json_string.isEmpty() == false) {
+		provider_json = new JSONObject(provider_json_string);
+		JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
+		boolean authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
+		boolean allow_registered_eip = service_description.getBoolean(Provider.ALLOW_REGISTRATION);
+		preferences.edit().putBoolean(EIP.ALLOWED_REGISTERED, allow_registered_eip);
+		
+		if(allow_registered_eip) {
+		    if(authed_eip) {
+			menu.findItem(R.id.login_button).setVisible(false);
+			menu.findItem(R.id.logout_button).setVisible(true);
+		    } else {
+			menu.findItem(R.id.login_button).setVisible(true);
+			menu.findItem(R.id.logout_button).setVisible(false);
+		    }
+		    menu.findItem(R.id.signup_button).setVisible(true);
+		}
+	    }
+	} catch (JSONException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
+	return true;
+    }
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -533,16 +537,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	}
 	
     private void eipStop(){
-	// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
-	Intent eip_intent = new Intent(this, EIP.class);
-	eip_intent.setAction(EIP.ACTION_STOP_EIP);
-	startService(eip_intent);		
+	EipServiceFragment eipFragment = (EipServiceFragment) getFragmentManager().findFragmentByTag(EipServiceFragment.TAG);
+	eipFragment.stopEIP();
     }
 
     private void eipStart() {
-	Intent eip_intent = new Intent(this, EIP.class);
-	eip_intent.setAction(EIP.ACTION_START_EIP);
-	startService(eip_intent);	
+	EipServiceFragment eipFragment = (EipServiceFragment) getFragmentManager().findFragmentByTag(EipServiceFragment.TAG);
+	eipFragment.startEipFromScratch();
     }
 
     protected void showProgressBar() {

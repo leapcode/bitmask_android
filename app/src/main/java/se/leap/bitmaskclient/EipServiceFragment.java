@@ -195,7 +195,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	eipCommand(EIP.ACTION_START_EIP);
     }
 
-    private void stopEIP() {
+    protected void stopEIP() {
 	EIP.mIsStarting = false;
 	View eipProgressBar = getActivity().findViewById(R.id.eipProgress);
 	if(eipProgressBar != null)
@@ -236,7 +236,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	} else if(justDecidedOnDisconnect && level == ConnectionStatus.LEVEL_CONNECTED) {
 	    EIP.lastConnectionStatusLevel = ConnectionStatus.LEVEL_NOTCONNECTED;
 	    updateState(state, logmessage, localizedResId, level);
-	}
+	} // else if(isNewLevel || level == ConnectionStatus.LEVEL_AUTH_FAILED)
+	  //   handleNewState(state, logmessage, localizedResId, level);
     }
 
     private void handleNewState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
@@ -248,6 +249,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	    setNoServerReplyUI(localizedResId, logmessage);
 	else if (level == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED)
 	    setServerReplyUI(state, localizedResId, logmessage);
+	// else if (level == ConnectionStatus.LEVEL_AUTH_FAILED)
+	//     handleSwitchOn();
     }
 
     private boolean isDisconnectedLevel(final ConnectionStatus level) {

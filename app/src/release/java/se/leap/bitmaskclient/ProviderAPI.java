@@ -95,7 +95,7 @@ public class ProviderAPI extends IntentService {
     ERRORS = "errors",
     UPDATE_PROGRESSBAR = "update_progressbar",
     CURRENT_PROGRESS = "current_progress",
-    TAG = "provider_api_tag"
+	TAG = ProviderAPI.class.getSimpleName();
     ;
 
     final public static int
@@ -897,7 +897,6 @@ public class ProviderAPI extends IntentService {
     private boolean updateVpnCertificate() {
 	getNewCert();
 
-	preferences.edit().putInt(EIP.PARSED_SERIAL, 0).commit();
 	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
 	updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
 	startService(updateEIP);
@@ -919,7 +918,6 @@ public class ProviderAPI extends IntentService {
 			URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
 
 			String cert_string = downloadWithProviderCA(new_cert_string_url.toString());
-
 			if(!cert_string.isEmpty()) {
 				if(ConfigHelper.checkErroneousDownload(cert_string)) {
 					String reason_to_fail = provider_json.getString(ERRORS);
@@ -940,12 +938,12 @@ public class ProviderAPI extends IntentService {
 						}
 					}
 					try {
-						RSAPrivateKey keyCert = ConfigHelper.parseRsaKeyFromString(keyString);
-						keyString = Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT );
+						RSAPrivateKey key = ConfigHelper.parseRsaKeyFromString(keyString);
+						keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
 						preferences.edit().putString(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
 
-						X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
-						certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
+						X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
+						certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
 						preferences.edit().putString(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
 						preferences.edit().putString(EIP.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
 						return true;

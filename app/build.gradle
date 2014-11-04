@@ -1,5 +1,5 @@
 apply plugin: 'android'
-import org.ajoberstar.grgit.*
+//import org.ajoberstar.grgit.*
 
 android {
   compileSdkVersion 19
@@ -58,7 +58,7 @@ def processFileInplace(file, Closure processText) {
 
 task checkoutStrippedIcsOpenVPN ( type: Copy ) {
   //FIXME Checkout ics-openvpn-stripped from branch "ics-openvpn-upstream"
-  grgit = Grgit.open(project.file('../'))
+  //grgit = Grgit.open(project.file('../'))
   
   from '../../bitmask_android_tmp/ics-openvpn-stripped'
   into '../ics-openvpn-stripped'
