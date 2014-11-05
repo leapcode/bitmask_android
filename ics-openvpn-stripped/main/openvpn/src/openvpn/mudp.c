@@ -105,29 +105,29 @@ multi_get_create_instance_udp (struct multi_context *m)
       struct hash_element *he;
       const uint32_t hv = hash_value (hash, &real);
       struct hash_bucket *bucket = hash_bucket (hash, hv);
-      uint8_t* ptr  = BPTR(&m->top.c2.buf);
+      uint8_t* ptr = BPTR(&m->top.c2.buf);
       uint8_t op = ptr[0] >> P_OPCODE_SHIFT;
-      uint32_t sess_id;
-      bool session_forged = false;
+      uint32_t peer_id;
+      bool hmac_mismatch = false;
 
       if (op == P_DATA_V2)
 	{
-	  sess_id = (*(uint32_t*)ptr) >> 8;
-	  if ((sess_id < m->max_clients) && (m->instances[sess_id]))
+	  peer_id = ntohl((*(uint32_t*)ptr)) & 0xFFFFFF;
+	  if ((peer_id < m->max_clients) && (m->instances[peer_id]))
 	    {
-	      mi = m->instances[sess_id];
+	      mi = m->instances[peer_id];
 
 	      if (!link_socket_actual_match(&mi->context.c2.from, &m->top.c2.from))
 		{
-		  msg(D_MULTI_MEDIUM, "floating detected from %s to %s",
-		      print_link_socket_actual (&mi->context.c2.from, &gc), print_link_socket_actual (&m->top.c2.from, &gc));
+		  msg(D_MULTI_MEDIUM, "float from %s to %s",
+			print_link_socket_actual (&mi->context.c2.from, &gc), print_link_socket_actual (&m->top.c2.from, &gc));
 
-		  /* session-id is not trusted, so check hmac */
-		  session_forged = !(crypto_test_hmac(&m->top.c2.buf, &mi->context.c2.crypto_options));
-		  if (session_forged)
+		  /* peer-id is not trusted, so check hmac */
+		  hmac_mismatch = !(crypto_test_hmac(&m->top.c2.buf, &mi->context.c2.crypto_options));
+		  if (hmac_mismatch)
 		    {
 		      mi = NULL;
-		      msg (D_MULTI_MEDIUM, "hmac verification failed, session forge detected!");
+		      msg (D_MULTI_MEDIUM, "HMAC mismatch for peer-id %d", peer_id);
 		    }
 		  else
 		    {
@@ -144,7 +144,7 @@ multi_get_create_instance_udp (struct multi_context *m)
 	      mi = (struct multi_instance *) he->value;
 	    }
 	}
-      if (!mi && !session_forged)
+      if (!mi && !hmac_mismatch)
 	{
 	  if (!m->top.c2.tls_auth_standalone
 	      || tls_pre_decrypt_lite (m->top.c2.tls_auth_standalone, &m->top.c2.from, &m->top.c2.buf))
@@ -162,7 +162,7 @@ multi_get_create_instance_udp (struct multi_context *m)
 			{
 			  if (!m->instances[i])
 			    {
-			      mi->context.c2.tls_multi->vpn_session_id = i;
+			      mi->context.c2.tls_multi->peer_id = i;
 			      m->instances[i] = mi;
 			      break;
 			    }
@@ -182,15 +182,6 @@ multi_get_create_instance_udp (struct multi_context *m)
       if (check_debug_level (D_MULTI_DEBUG))
 	{
 	  const char *status = mi ? "[ok]" : "[failed]";
-
-	  /*
-	  if (he && mi)
-	    status = "[succeeded]";
-	  else if (!he && mi)
-	    status = "[created]";
-	  else
-	    status = "[failed]";
-	  */
 
 	  dmsg (D_MULTI_DEBUG, "GET INST BY REAL: %s %s",
 	       mroute_addr_print (&real, &gc),

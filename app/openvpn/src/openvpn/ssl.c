@@ -1056,7 +1056,7 @@ tls_multi_init (struct tls_options *tls_options)
   ret->key_scan[2] = &ret->session[TM_LAME_DUCK].key[KS_LAME_DUCK];
 
   /* By default not use P_DATA_V2 */
-  ret->use_session_id = false;
+  ret->use_peer_id = false;
 
   return ret;
 }
@@ -2826,7 +2826,7 @@ tls_pre_decrypt (struct tls_multi *multi,
 		  opt->flags &= multi->opt.crypto_flags_and;
 		  opt->flags |= multi->opt.crypto_flags_or;
 
-		  ASSERT (buf_advance (buf, op == P_DATA_V1 ? 1 : 4));
+		  ASSERT (buf_advance (buf, (op == P_DATA_V2) ? 4 : 1));
 
 		  ++ks->n_packets;
 		  ks->n_bytes += buf->len;
@@ -3324,7 +3324,6 @@ tls_pre_decrypt_lite (const struct tls_auth_standalone *tas,
   return ret;
 
  error:
-
   tls_clear_error();
   gc_free (&gc);
   return ret;
@@ -3393,7 +3392,7 @@ tls_post_encrypt (struct tls_multi *multi, struct buffer *buf)
 {
   struct key_state *ks;
   uint8_t *op;
-  uint32_t sess;
+  uint32_t peer;
 
   ks = multi->save_ks;
   multi->save_ks = NULL;
@@ -3401,10 +3400,10 @@ tls_post_encrypt (struct tls_multi *multi, struct buffer *buf)
     {
       ASSERT (ks);
 
-      if (!multi->opt.server && multi->use_session_id)
+      if (!multi->opt.server && multi->use_peer_id)
 	{
-	  sess = ((P_DATA_V2 << P_OPCODE_SHIFT) | ks->key_id) | (multi->vpn_session_id << 8);
-	  ASSERT (buf_write_prepend (buf, &sess, 4));
+	  peer = htonl(((P_DATA_V2 << P_OPCODE_SHIFT) | ks->key_id) << 24 | (multi->peer_id & 0xFFFFFF));
+	  ASSERT (buf_write_prepend (buf, &peer, 4));
 	}
       else
 	{

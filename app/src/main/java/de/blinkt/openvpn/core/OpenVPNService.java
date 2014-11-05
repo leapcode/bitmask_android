@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2012-2014 Arne Schwabe
+ * Distributed under the GNU GPL v2. For full terms see the file doc/LICENSE.txt
+ */
+
 package de.blinkt.openvpn.core;
 
 import android.Manifest.permission;
@@ -19,6 +24,7 @@ import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -309,26 +315,32 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return START_REDELIVER_INTENT;
         }
 
-	String UUID = "UUID";
+        /* The intent is null when the service has been restarted */
         if (intent == null) {
-	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-	    android.util.Log.d("bitmaskclient", "UUID is " + prefs.getString(UUID, ""));
-	    mProfile = ProfileManager.get(this, prefs.getString(UUID, ""));
-	    android.util.Log.d("bitmaskclient", "mProfile is null? " + (mProfile == null));
-	    if(mProfile != null)
-		intent = mProfile.prepareIntent(getBaseContext());
-	    else
+            mProfile = ProfileManager.getLastConnectedProfile(this, false);
+
+            /* Got no profile, just stop */
+            if (mProfile==null) {
+                Log.d("OpenVPN", "Got no last connected profile on null intent. Stopping");
+                stopSelf(startId);
                 return START_NOT_STICKY;
-	}
-	if(mProfile != null)
-	    android.util.Log.d("bitmaskclient", "mProfile != null");
+            }
+            /* Do the asynchronous keychain certificate stuff */
+            mProfile.checkForRestart(this);
+
+            /* Recreate the intent */
+            intent = mProfile.getStartServiceIntent(this);
+
+        } else {
+            String profileUUID = intent.getStringExtra(getPackageName() + ".profileUUID");
+            mProfile = ProfileManager.get(this, profileUUID);
+        }
+
+
         // Extract information from the intent.
         String prefix = getPackageName();
         String[] argv = intent.getStringArrayExtra(prefix + ".ARGV");
-        String nativelibdir = intent.getStringExtra(prefix + ".nativelib");
-        String profileUUID = intent.getStringExtra(prefix + ".profileUUID");	
-
-        mProfile = ProfileManager.get(this, profileUUID);
+        String nativeLibraryDirectory = intent.getStringExtra(prefix + ".nativelib");
 
         String startTitle = getString(R.string.start_vpn_title, mProfile.mName);
         String startTicker = getString(R.string.start_vpn_ticker, mProfile.mName);
@@ -361,13 +373,12 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         // Start a new session by creating a new thread.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-	
+
         mOvpn3 = prefs.getBoolean("ovpn3", false);
         if (!"ovpn3".equals(BuildConfig.FLAVOR))
             mOvpn3 = false;
 
 
-	prefs.edit().putString(UUID, profileUUID).commit();
         // Open the Management Interface
         if (!mOvpn3) {
 
@@ -395,7 +406,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         } else {
             HashMap<String, String> env = new HashMap<String, String>();
-            processThread = new OpenVPNThread(this, argv, env, nativelibdir);
+            processThread = new OpenVPNThread(this, argv, env, nativeLibraryDirectory);
         }
 
         synchronized (mProcessLock) {
@@ -409,11 +420,12 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
 
         ProfileManager.setConnectedVpnProfile(this, mProfile);
+        /* TODO: At the moment we have no way to handle asynchronous PW input
+         * Fixing will also allow to handle challenge/responsee authentication */
+        if (mProfile.needUserPWInput(true) != 0)
+            return START_NOT_STICKY;
 
-        if (mProfile.mPersistTun)
-            return START_STICKY;
-	else
-	    return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     private OpenVPNManagement instantiateOpenVPN3Core() {
@@ -517,7 +529,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if ((Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && !release.startsWith("4.4.3")
                 &&  !release.startsWith("4.4.4") &&  !release.startsWith("4.4.5") && !release.startsWith("4.4.6"))
                 && mMtu < 1280) {
-            VpnStatus.logInfo(String.format("Forcing MTU to 1280 instead of %d to workaround Android Bug #70916", mMtu));
+            VpnStatus.logInfo(String.format(Locale.US, "Forcing MTU to 1280 instead of %d to workaround Android Bug #70916", mMtu));
             builder.setMtu(1280);
         } else {
             builder.setMtu(mMtu);
@@ -690,7 +702,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     VpnStatus.logWarning(R.string.ip_not_cidr, local, netmask, mode);
             }
         }
-        if (("p2p".equals(mode))  && mLocalIP.len < 32 || "net30".equals("net30") && mLocalIP.len < 30) {
+        if (("p2p".equals(mode)  && mLocalIP.len < 32) || ("net30".equals(mode) && mLocalIP.len < 30)) {
             VpnStatus.logWarning(R.string.ip_looks_like_subnet, local, netmask, mode);
         }
 
@@ -738,7 +750,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 		String ticker = msg;
 		showNotification(msg, ticker, lowpriority , 0, level);
 		return;
-	    } else {
+            } else {
                 mDisplayBytecount = false;
             }
 

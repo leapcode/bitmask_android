@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2012-2014 Arne Schwabe
+ * Distributed under the GNU GPL v2. For full terms see the file doc/LICENSE.txt
+ */
+
 package de.blinkt.openvpn.core;
 
 import android.content.Context;
@@ -70,7 +75,7 @@ public class VPNLaunchHelper {
 
 		VpnStatus.logInfo(R.string.building_configration);
 
-		Intent startVPN = startprofile.prepareIntent(context);
+		Intent startVPN = startprofile.prepareStartService(context);
 		if(startVPN!=null)
 			context.startService(startVPN);
 
