@@ -112,7 +112,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	    switch(versionCode) {
 	    case 91: // 0.6.0 without Bug #5999
-	    case 94: // 0.8.0 with 
+	    case 95: // 0.8.0 RC2
 		if(!preferences.getString(EIP.KEY, "").isEmpty()) {
 		    Intent rebuildVpnProfiles = new Intent(getApplicationContext(), EIP.class);
 		    rebuildVpnProfiles.setAction(EIP.ACTION_REBUILD_PROFILES);
