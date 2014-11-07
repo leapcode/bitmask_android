@@ -42,15 +42,10 @@ import android.widget.TextView;
  * @author parmegv
  *
  */
-public class LogInDialog extends DialogFragment {
+public class LogInDialog extends SessionDialogInterface {
 
      
-	final public static String TAG = "logInDialog";
-	final public static String VERB = "log in";
-	final public static String USERNAME = "username";
-	final public static String PASSWORD = "password";
-	final public static String USERNAME_MISSING = "username missing";
-	final public static String PASSWORD_INVALID_LENGTH = "password_invalid_length";
+    final public static String TAG = LogInDialog.class.getSimpleName();
 
     private static boolean is_eip_pending = false;
     
@@ -93,7 +88,7 @@ public class LogInDialog extends DialogFragment {
 					String username = username_field.getText().toString();
 					String password = password_field.getText().toString();
 					dialog.dismiss();
-					interface_with_Dashboard.authenticate(username, password);
+					interface_with_Dashboard.logIn(username, password);
 				}
 			})
 			.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -120,7 +115,7 @@ public class LogInDialog extends DialogFragment {
 	 *
 	 */
 	public interface LogInDialogInterface {
-	    public void authenticate(String username, String password);
+	    public void logIn(String username, String password);
 	    public void cancelAuthedEipOn();
 	    public void signUp(String username, String password);
 	    public void cancelLoginOrSignup();
@@ -149,8 +144,8 @@ public class LogInDialog extends DialogFragment {
 
     @Override
     public void onCancel(DialogInterface dialog) {
+	super.onCancel(dialog);
 	if(is_eip_pending)
 	    interface_with_Dashboard.cancelAuthedEipOn();
-	super.onCancel(dialog);	    
     }
 }

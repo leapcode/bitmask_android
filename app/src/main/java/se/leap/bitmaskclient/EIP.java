@@ -87,7 +87,7 @@ public final class EIP extends IntentService {
 	public final static String SERVICE_API_PATH = "config/eip-service.json";
 	public final static String RECEIVER_TAG = "receiverTag";
 	public final static String REQUEST_TAG = "requestTag";
-	public final static String TAG = "se.leap.bitmaskclient.EIP";
+    public final static String TAG = EIP.class.getSimpleName();
 
     public final static SimpleDateFormat certificate_date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
     
@@ -113,8 +113,9 @@ public final class EIP extends IntentService {
 		super.onCreate();
 		
 		context = getApplicationContext();
-		
-		updateEIPService();
+
+		// Log.d(TAG, "Update EIP Service onCreate EIP");
+		// updateEIPService();
 	}
 	
 	@Override
@@ -130,7 +131,7 @@ public final class EIP extends IntentService {
     protected void onHandleIntent(Intent intent) {
 	String action = intent.getAction();
 	mReceiver = intent.getParcelableExtra(RECEIVER_TAG);
-		
+	
 	if ( action == ACTION_START_EIP )
 	    startEIP();
 	else if ( action == ACTION_STOP_EIP )
@@ -155,6 +156,7 @@ public final class EIP extends IntentService {
 	activeGateway = selectGateway();
 	    
 	if(activeGateway != null && activeGateway.mVpnProfile != null) {
+	    mReceiver = EipServiceFragment.getReceiver();
 	    launchActiveGateway();
 	}
     }
@@ -318,8 +320,11 @@ public final class EIP extends IntentService {
 	 */
 	private void updateEIPService() {
 		try {
-			eipDefinition = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(KEY, ""));
-			parsedEipSerial = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getInt(PARSED_SERIAL, 0);
+		    String eip_definition_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(KEY, "");
+		    if(eip_definition_string.isEmpty() == false) {
+			eipDefinition = new JSONObject(eip_definition_string);
+		    }
+		    parsedEipSerial = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getInt(PARSED_SERIAL, 0);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -327,16 +332,14 @@ public final class EIP extends IntentService {
 		if(parsedEipSerial == 0) {
 		    deleteAllVpnProfiles();
 		}
-		if (eipDefinition != null && eipDefinition.optInt("serial") > parsedEipSerial)
+		if (eipDefinition != null && eipDefinition.optInt("serial") >= parsedEipSerial)
 			updateGateways();
 	}
 
     private void deleteAllVpnProfiles() {
 	ProfileManager vpl = ProfileManager.getInstance(context);
-	VpnProfile[] profiles = (VpnProfile[]) vpl.getProfiles().toArray(new VpnProfile[vpl.getProfiles().size()]);
-	for (int current_profile = 0; current_profile < profiles.length; current_profile++){
-	    vpl.removeProfile(context, profiles[current_profile]);
-	}
+	Collection<VpnProfile> profiles = vpl.getProfiles();
+	profiles.removeAll(profiles);
     }
 	
 	/**
@@ -346,8 +349,8 @@ public final class EIP extends IntentService {
 	 */
 	private void updateGateways(){
 		JSONArray gatewaysDefined = null;
-		
 		try {
+		    if(eipDefinition == null) updateEIPService();
 			gatewaysDefined = eipDefinition.getJSONArray("gateways");		
 			for ( int i=0 ; i < gatewaysDefined.length(); i++ ){			
 			    JSONObject gw = null;			
@@ -360,7 +363,6 @@ public final class EIP extends IntentService {
 		    // TODO Auto-generated catch block
 		    e.printStackTrace();
 		}
-		
 		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(PARSED_SERIAL, eipDefinition.optInt(Provider.API_RETURN_SERIAL)).commit();
 	}
 
@@ -483,6 +485,7 @@ public final class EIP extends IntentService {
 				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
 				cp.parseConfig(new StringReader("remote-cert-tls server"));
 				cp.parseConfig(new StringReader("persist-tun"));
+				cp.parseConfig(new StringReader("auth-retry nointeract"));
 				VpnProfile vp = cp.convertProfile();
 				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
 				mVpnProfile = vp;

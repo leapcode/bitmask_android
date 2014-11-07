@@ -303,7 +303,6 @@ multi_init (struct multi_context *m, struct context *t, bool tcp_mode, int threa
 			   cid_compare_function);
 #endif
 
-
   /*
    * This is our scheduler, for time-based wakeup
    * events.
@@ -374,12 +373,7 @@ multi_init (struct multi_context *m, struct context *t, bool tcp_mode, int threa
    */
   m->max_clients = t->options.max_clients;
 
-  int i;
-  m->instances = malloc(sizeof(struct multi_instance*) * m->max_clients);
-  for (i = 0; i < m->max_clients; ++ i)
-    {
-      m->instances[i] = NULL;
-    }
+  m->instances = calloc(m->max_clients, sizeof(struct multi_instance*));
 
   /*
    * Initialize multi-socket TCP I/O wait object
@@ -561,7 +555,7 @@ multi_close_instance (struct multi_context *m,
 	}
 #endif
 
-      m->instances[mi->context.c2.tls_multi->vpn_session_id] = NULL;
+      m->instances[mi->context.c2.tls_multi->peer_id] = NULL;
 
       schedule_remove_entry (m->schedule, (struct schedule_entry *) mi);
 
@@ -663,6 +657,8 @@ multi_create_instance (struct multi_context *m, const struct mroute_addr *real)
   struct multi_instance *mi;
 
   perf_push (PERF_MULTI_CREATE_INSTANCE);
+
+  msg (D_MULTI_MEDIUM, "MULTI: multi_create_instance called");
 
   ALLOC_OBJ_CLEAR (mi, struct multi_instance);
 
@@ -1467,10 +1463,6 @@ multi_client_connect_post (struct multi_context *m,
 			     option_types_found,
 			     mi->context.c2.es);
 
-      if (!platform_unlink (dc_file))
-	msg (D_MULTI_ERRORS, "MULTI: problem deleting temporary file: %s",
-	     dc_file);
-
       /*
        * If the --client-connect script generates a config file
        * with an --ifconfig-push directive, it will override any
@@ -1713,6 +1705,11 @@ multi_connection_established (struct multi_context *m, struct multi_instance *mi
 	      multi_client_connect_post (m, mi, dc_file, option_permissions_mask, &option_types_found);
 	      ++cc_succeeded_count;
 	    }
+
+	  if (!platform_unlink (dc_file))
+	    msg (D_MULTI_ERRORS, "MULTI: problem deleting temporary file: %s",
+		 dc_file);
+
         script_depr_failed:
 	  argv_reset (&argv);
 	}
@@ -1766,6 +1763,11 @@ multi_connection_established (struct multi_context *m, struct multi_instance *mi
 	    }
 	  else
 	    cc_succeeded = false;
+
+	  if (!platform_unlink (dc_file))
+	    msg (D_MULTI_ERRORS, "MULTI: problem deleting temporary file: %s",
+		 dc_file);
+
         script_failed:
 	  argv_reset (&argv);
 	}
