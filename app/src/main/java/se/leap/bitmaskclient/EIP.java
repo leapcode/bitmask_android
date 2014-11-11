@@ -88,9 +88,8 @@ public final class EIP extends IntentService {
 	public final static String RECEIVER_TAG = "receiverTag";
 	public final static String REQUEST_TAG = "requestTag";
     public final static String TAG = EIP.class.getSimpleName();
+    private static SharedPreferences preferences;
 
-    public final static SimpleDateFormat certificate_date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
-    
 	private static Context context;
 	private static ResultReceiver mReceiver;
 	private static boolean mBound = false;
@@ -104,6 +103,7 @@ public final class EIP extends IntentService {
     protected static boolean mIsDisconnecting = false;
     protected static boolean mIsStarting = false;
 
+    public static SimpleDateFormat certificate_date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
 	public EIP(){
 		super("LEAPEIP");
 	}
@@ -114,8 +114,7 @@ public final class EIP extends IntentService {
 		
 		context = getApplicationContext();
 
-		// Log.d(TAG, "Update EIP Service onCreate EIP");
-		// updateEIPService();
+		preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 	}
 	
 	@Override
@@ -320,11 +319,11 @@ public final class EIP extends IntentService {
 	 */
 	private void updateEIPService() {
 		try {
-		    String eip_definition_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(KEY, "");
+		    String eip_definition_string = preferences.getString(KEY, "");
 		    if(eip_definition_string.isEmpty() == false) {
 			eipDefinition = new JSONObject(eip_definition_string);
 		    }
-		    parsedEipSerial = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getInt(PARSED_SERIAL, 0);
+		    parsedEipSerial = preferences.getInt(PARSED_SERIAL, 0);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -363,40 +362,52 @@ public final class EIP extends IntentService {
 		    // TODO Auto-generated catch block
 		    e.printStackTrace();
 		}
-		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(PARSED_SERIAL, eipDefinition.optInt(Provider.API_RETURN_SERIAL)).commit();
+		preferences.edit().putInt(PARSED_SERIAL, eipDefinition.optInt(Provider.API_RETURN_SERIAL)).commit();
 	}
 
     private void checkCertValidity() {
-	String certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(CERTIFICATE, "");
-	if(!certificate_string.isEmpty()) {
-	    String date_from_certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(DATE_FROM_CERTIFICATE, certificate_date_format.format(Calendar.getInstance().getTime()).toString());
-	    X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate_string);
+	String certificate = preferences.getString(CERTIFICATE, "");
+	checkCertValidity(certificate);
+    }
 
-	    Calendar offset_date = Calendar.getInstance();
-	    try {
-		Date date_from_certificate = certificate_date_format.parse(date_from_certificate_string);
-		long difference = Math.abs(date_from_certificate.getTime() - certificate_x509.getNotAfter().getTime())/2;
-		long current_date_millis = offset_date.getTimeInMillis();
-		offset_date.setTimeInMillis(current_date_millis + difference);
-		Log.d(TAG, "certificate not after = " + certificate_x509.getNotAfter());
-	    } catch(ParseException e) {
-		e.printStackTrace();
-	    }
-	
-	    Bundle result_data = new Bundle();
-	    result_data.putString(REQUEST_TAG, ACTION_CHECK_CERT_VALIDITY);
+    private void checkCertValidity(String certificate_string) {
+	if(!certificate_string.isEmpty()) {
+	    X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificate_string);
+	    
+	    Calendar offset_date = calculateOffsetCertificateValidity(certificate);
+	    Bundle result = new Bundle();
+	    result.putString(REQUEST_TAG, ACTION_CHECK_CERT_VALIDITY);
 	    try {
 		Log.d(TAG, "offset_date = " + offset_date.getTime().toString());
-		certificate_x509.checkValidity(offset_date.getTime());
-		mReceiver.send(Activity.RESULT_OK, result_data);
+		certificate.checkValidity(offset_date.getTime());
+		mReceiver.send(Activity.RESULT_OK, result);
 		Log.d(TAG, "Valid certificate");
 	    } catch(CertificateExpiredException e) {
-		mReceiver.send(Activity.RESULT_CANCELED, result_data);
+		mReceiver.send(Activity.RESULT_CANCELED, result);
 		Log.d(TAG, "Updating certificate");
 	    } catch(CertificateNotYetValidException e) {
-		mReceiver.send(Activity.RESULT_CANCELED, result_data);
+		mReceiver.send(Activity.RESULT_CANCELED, result);
 	    }
 	}
+    }
+
+    private Calendar calculateOffsetCertificateValidity(X509Certificate certificate) {
+	String current_date = certificate_date_format.format(Calendar.getInstance().getTime()).toString();
+	    
+	String date_string = preferences.getString(DATE_FROM_CERTIFICATE, current_date);
+
+	Calendar offset_date = Calendar.getInstance();
+	try {
+	    Date date = certificate_date_format.parse(date_string);
+	    long difference = Math.abs(date.getTime() - certificate.getNotAfter().getTime())/2;
+	    long current_date_millis = offset_date.getTimeInMillis();
+	    offset_date.setTimeInMillis(current_date_millis + difference);
+	    Log.d(TAG, "certificate not after = " + certificate.getNotAfter());
+	} catch(ParseException e) {
+	    e.printStackTrace();
+	}
+
+	return offset_date;
     }
 
 	/**
@@ -479,18 +490,19 @@ public final class EIP extends IntentService {
 		protected void createVPNProfile(){
 			try {
 				ConfigParser cp = new ConfigParser();
-				cp.parseConfig(new StringReader(configFromEipServiceDotJson()));
-				cp.parseConfig(new StringReader(caSecretFromSharedPreferences()));
-				cp.parseConfig(new StringReader(keySecretFromSharedPreferences()));
-				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
-				cp.parseConfig(new StringReader("remote-cert-tls server"));
-				cp.parseConfig(new StringReader("persist-tun"));
-				cp.parseConfig(new StringReader("auth-retry nointeract"));
-				VpnProfile vp = cp.convertProfile();
-				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
-				mVpnProfile = vp;
+				
+				JSONObject openvpn_configuration = eipDefinition.getJSONObject("openvpn_configuration");
+				VpnConfigGenerator vpn_configuration_generator = new VpnConfigGenerator(preferences, openvpn_configuration, mGateway);
+				String configuration = vpn_configuration_generator.generate();
+				
+				cp.parseConfig(new StringReader(configuration));
+				mVpnProfile = cp.convertProfile();
 				mVpnProfile.mName = mName = locationAsName();
 				Log.v(TAG,"Created VPNProfile");
+				
+			} catch (JSONException e) {
+			    // TODO Auto-generated catch block
+			    e.printStackTrace();
 			} catch (ConfigParseError e) {
 				// FIXME We didn't get a VpnProfile!  Error handling! and log level
 				Log.v(TAG,"Error creating VPNProfile");
@@ -501,124 +513,6 @@ public final class EIP extends IntentService {
 				e.printStackTrace();
 			}
 		}
-
-	    /**
-	     * Parses data from eip-service.json to a section of the openvpn config file
-	     */
-	    private String configFromEipServiceDotJson() {
-		String parsed_configuration = "";
-		
-		String location_key = "location";
-		String locations = "locations";
-
-		parsed_configuration += extractCommonOptionsFromEipServiceDotJson();
-		parsed_configuration += extractRemotesFromEipServiceDotJson();
-
-		return parsed_configuration;
-	    }
-
-	    private String extractCommonOptionsFromEipServiceDotJson() {
-		String common_options = "";
-		try {
-		    String common_options_key = "openvpn_configuration";
-		    JSONObject openvpn_configuration = eipDefinition.getJSONObject(common_options_key);
-		    Iterator keys = openvpn_configuration.keys();
-		    Vector<Vector<String>> value = new Vector<Vector<String>>();
-		    while ( keys.hasNext() ){
-			String key = keys.next().toString();
-					
-			common_options += key + " ";
-			for ( String word : openvpn_configuration.getString(key).split(" ") )
-			    common_options += word + " ";
-			common_options += System.getProperty("line.separator");
-			
-		    }
-		} catch (JSONException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
-		}
-
-		common_options += "client" + System.getProperty("line.separator");
-
-		return common_options;
-	    }
-		
-	    
-	    private String extractRemotesFromEipServiceDotJson() {
-		String remotes = "";
-		
-		String remote = "ip_address";
-		String remote_openvpn_keyword = "remote";
-		String ports = "ports";
-		String protos = "protocols";
-		String capabilities = "capabilities";
-		String udp = "udp";
-		
-		try {
-		    JSONArray protocolsJSON = mGateway.getJSONObject(capabilities).getJSONArray(protos);
-		    for ( int i=0; i<protocolsJSON.length(); i++ ) {
-			String remote_line = remote_openvpn_keyword;
-			remote_line += " " + mGateway.getString(remote);
-			remote_line += " " + mGateway.getJSONObject(capabilities).getJSONArray(ports).optString(0);
-			remote_line += " " + protocolsJSON.optString(i);
-			if(remote_line.endsWith(udp))
-			    remotes = remotes.replaceFirst(remote_openvpn_keyword, remote_line + System.getProperty("line.separator") + remote_openvpn_keyword);
-			else
-			    remotes += remote_line;
-			remotes += System.getProperty("line.separator");
-		    }
-		} catch (JSONException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
-		}
-		
-		Log.d(TAG, "remotes = " + remotes);
-		return remotes;
-	    }
-
-	    private String caSecretFromSharedPreferences() {
-		String secret_lines = "";
-		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);
-		
-		System.getProperty("line.separator");
-		secret_lines += "<ca>";
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += preferences.getString(Provider.CA_CERT, "");
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += "</ca>";
-		
-		return secret_lines;
-	    }
-
-	    private String keySecretFromSharedPreferences() {
-		String secret_lines = "";
-		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);
-	
-		secret_lines += System.getProperty("line.separator");
-		secret_lines +="<key>";
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += preferences.getString(EIP.PRIVATE_KEY, "");
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += "</key>";
-		secret_lines += System.getProperty("line.separator");
-
-		return secret_lines;
-	    }
-
-	    private String certSecretFromSharedPreferences() {
-		String secret_lines = "";
-		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);	
-		
-		secret_lines += System.getProperty("line.separator");
-		secret_lines +="<cert>";
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += preferences.getString(EIP.CERTIFICATE, "");
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += "</cert>";
-		secret_lines += System.getProperty("line.separator");
-
-		return secret_lines;
-	    }
 
 	    
 	    public String locationAsName() {
