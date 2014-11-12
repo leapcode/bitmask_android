@@ -73,7 +73,6 @@ public final class EIP extends IntentService {
 		super.onCreate();
 		
 		context = getApplicationContext();
-
 		preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 		refreshEipDefinition();
 	}
@@ -254,14 +253,9 @@ public final class EIP extends IntentService {
 	}
 
     private void checkCertValidity() {
-	Bundle result = new Bundle();
-	result.putString(REQUEST_TAG, ACTION_CHECK_CERT_VALIDITY);
-	
 	VpnCertificateValidator validator = new VpnCertificateValidator();
-	if(validator.isValid(preferences.getString(CERTIFICATE, "")))
-	    mReceiver.send(Activity.RESULT_OK, result);
-	else
-	    mReceiver.send(Activity.RESULT_CANCELED, result);
+	boolean is_valid = validator.isValid(preferences.getString(CERTIFICATE, ""));
+	tellToReceiver(ACTION_CHECK_CERT_VALIDITY, is_valid);
     }
 
 	/**
