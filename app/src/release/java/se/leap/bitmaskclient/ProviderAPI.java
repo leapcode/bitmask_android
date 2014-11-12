@@ -502,9 +502,6 @@ public class ProviderAPI extends IntentService {
 	    return result.toString();
 	}
 	
-	
-	
-	
 	/**
 	 * Downloads a provider.json from a given URL, adding a new provider using the given name.  
 	 * @param task containing a boolean meaning if the provider is custom or not, another boolean meaning if the user completely trusts this provider, the provider name and its provider.json url.
@@ -636,12 +633,6 @@ public class ProviderAPI extends IntentService {
 		return result;
 	}
 
-
-	
-	public static boolean providerJsonDownloaded() {
-		return PROVIDER_JSON_DOWNLOADED;
-	}
-
 	private Bundle getAndSetEipServiceJson() {
 		Bundle result = new Bundle();
 		String eip_service_json_string = "";
@@ -663,10 +654,6 @@ public class ProviderAPI extends IntentService {
 			}
 		}
 		return result;
-	}
-
-	public static boolean eipServiceDownloaded() {
-		return EIP_SERVICE_JSON_DOWNLOADED;
 	}
 	
 	/**

@@ -567,7 +567,6 @@ public class ProviderAPI extends IntentService {
 		return result;
 	}
 	
-
 	public static boolean caCertDownloaded() {
 		return CA_CERT_DOWNLOADED;
 	}
@@ -636,12 +635,6 @@ public class ProviderAPI extends IntentService {
 		return result;
 	}
 
-
-	
-	public static boolean providerJsonDownloaded() {
-		return PROVIDER_JSON_DOWNLOADED;
-	}
-
 	private Bundle getAndSetEipServiceJson() {
 		Bundle result = new Bundle();
 		String eip_service_json_string = "";
@@ -663,10 +656,6 @@ public class ProviderAPI extends IntentService {
 			}
 		}
 		return result;
-	}
-
-	public static boolean eipServiceDownloaded() {
-		return EIP_SERVICE_JSON_DOWNLOADED;
 	}
 	
 	/**
