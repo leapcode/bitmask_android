@@ -42,6 +42,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	protected static final int CONFIGURE_LEAP = 0;
 	protected static final int SWITCH_PROVIDER = 1;
 
+    final public static String TAG = Dashboard.class.getSimpleName();
     final public static String SHARED_PREFERENCES = "LEAPPreferences";
     final public static String ACTION_QUIT = "quit";
     public static final String REQUEST_CODE = "request_code";
@@ -49,21 +50,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     public static final String START_ON_BOOT = "dashboard start on boot";
     final public static String ON_BOOT = "dashboard on boot";
     public static final String APP_VERSION = "bitmask version";
-    final public static String TAG = Dashboard.class.getSimpleName();
 
-
-    private EipServiceFragment eipFragment;
-	private ProgressBar mProgressBar;
-	private TextView eipStatus;
-	private static Context app;
-	protected static SharedPreferences preferences;
-	private static Provider provider;
-
-	private boolean authed_eip = false;
-
-    public ProviderAPIResultReceiver providerAPI_result_receiver;
+    private static Context app;
+    protected static SharedPreferences preferences;
     private FragmentManagerEnhanced fragment_manager;
+    
+    private EipServiceFragment eipFragment;
+    private ProgressBar mProgressBar;
+    private TextView eipStatus;
+    public ProviderAPIResultReceiver providerAPI_result_receiver;
 
+    private static Provider provider;
+    private static boolean authed_eip;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -78,11 +77,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 	    handleVersion();
 	    
-	    authed_eip = preferences.getBoolean(Constants.AUTHED_EIP, false);
-		if (preferences.getString(Provider.KEY, "").isEmpty())
-			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
-		else
-		    buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
+	    boolean provider_configured = preferences.getString(Constants.KEY, "").isEmpty();
+	    if (provider_configured)
+		startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
+	    else
+		buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
 	}
 
     private void handleVersion() {

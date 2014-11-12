@@ -925,7 +925,6 @@ public class ProviderAPI extends IntentService {
 	    certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
 
 	    preferences.edit().putString(Constants.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
-	    preferences.edit().putString(Constants.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
 						
 	    return true;
 	} catch (CertificateException e) {

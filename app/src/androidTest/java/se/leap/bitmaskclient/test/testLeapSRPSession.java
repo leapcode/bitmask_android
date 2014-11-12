@@ -33,7 +33,6 @@ public class testLeapSRPSession extends TestCase {
     public void testExponential() {
 	byte[] expected_A;
 	byte[] a_byte;
-	SRPParameters params;
 	LeapSRPSession client;
 		
 	/* Test 1: abytes = 4 */
@@ -43,8 +42,7 @@ public class testLeapSRPSession extends TestCase {
 	    salt = "64c3289d04a6ecad",
 	    a = "3565fdc2";
 	a_byte = new BigInteger(a, 16).toByteArray();
-	params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-	client = new LeapSRPSession(username, password, params, a_byte);
+	client = new LeapSRPSession(username, password, a_byte);
 		
 	byte[] A = client.exponential();
 		
@@ -55,8 +53,7 @@ public class testLeapSRPSession extends TestCase {
 	expected_A = new BigInteger("11acfacc08178d48f95c0e69adb11f6d144dd0980ee6e44b391347592e3bd5e9cb841d243b3d9ac2adb25b367a2558e8829b22dcef96c0934378412383ccf95141c3cb5f17ada20f53a0225f56a07f2b0c0469ed6bbad3646f7b71bdd4bedf5cc6fac244b26d3195d8f55877ff94a925b0c0c8f7273eca733c0355b38360442e", 16).toByteArray();
 
 	a_byte = new BigInteger(a, 16).toByteArray();
-	params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-	client = new LeapSRPSession(username, password, params, a_byte);
+	client = new LeapSRPSession(username, password, a_byte);
 		
 	A = client.exponential();
 		
@@ -73,8 +70,7 @@ public class testLeapSRPSession extends TestCase {
 	    salt = "64c3289d04a6ecad",
 	    a = "8c911355";
 	byte[] a_byte = new BigInteger(a, 16).toByteArray();
-	SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-	LeapSRPSession client = new LeapSRPSession(username, password, params, a_byte);
+	LeapSRPSession client = new LeapSRPSession(username, password, a_byte);
 		
 	byte[] x = client.calculatePasswordHash(username, password, new BigInteger(salt, 16).toByteArray());
 	assertTrue(Arrays.equals(x, expected_x));
@@ -93,8 +89,7 @@ public class testLeapSRPSession extends TestCase {
 	a = "38d5b211";
 		
 	a_byte = new BigInteger(a, 16).toByteArray();
-	params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-	client = new LeapSRPSession(username, password, params, a_byte);
+	client = new LeapSRPSession(username, password, a_byte);
 	x = client.calculatePasswordHash(username, password, new BigInteger(salt, 16).toByteArray());
 	A = client.exponential();
 		
@@ -110,8 +105,7 @@ public class testLeapSRPSession extends TestCase {
 	a = "36ee80ec";
 		
 	a_byte = new BigInteger(a, 16).toByteArray();
-	params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-	client = new LeapSRPSession(username, password, params, a_byte);
+	client = new LeapSRPSession(username, password, a_byte);
 	x = client.calculatePasswordHash(username, password, new BigInteger(salt, 16).toByteArray());
 	A = client.exponential();
 		
@@ -321,8 +315,7 @@ public class testLeapSRPSession extends TestCase {
 				salt = "64c3289d04a6ecad",
 				a = "8c911355";
 		byte[] a_byte = new BigInteger(a, 16).toByteArray();
-		SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		LeapSRPSession client = new LeapSRPSession(username, password, params, a_byte);
+		LeapSRPSession client = new LeapSRPSession(username, password, a_byte);
 		
 		byte[] x = client.calculatePasswordHash(username, password, new BigInteger(salt, 16).toByteArray());
 		assertTrue(Arrays.equals(x, expected_x));
@@ -345,8 +338,7 @@ public class testLeapSRPSession extends TestCase {
 		expected_M2 = trim(new BigInteger("517278a03a0320a52dcb391caf5264d76149d7d9b71ed2b65536233344c550cf", 16).toByteArray());
 		
 		a_byte = new BigInteger(a, 16).toByteArray();
-		params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		client = new LeapSRPSession(username, password, params, a_byte);
+		client = new LeapSRPSession(username, password, a_byte);
 		x = client.calculatePasswordHash(username, password, new BigInteger(salt, 16).toByteArray());
 		A = client.exponential();
 		
@@ -365,8 +357,7 @@ public class testLeapSRPSession extends TestCase {
 		expected_M2 = trim(new BigInteger("3bfb91c7d04b6da6381fe3d2648d992cdc6bc67b8ee16d1cfa733f786d492261", 16).toByteArray());
 		
 		a_byte = new BigInteger(a, 16).toByteArray();
-		params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		client = new LeapSRPSession(username, password, params, a_byte);
+		client = new LeapSRPSession(username, password, a_byte);
 		x = client.calculatePasswordHash(username, password, new BigInteger(salt, 16).toByteArray());
 		A = client.exponential();
 		
@@ -390,8 +381,7 @@ public class testLeapSRPSession extends TestCase {
 		expected_M2 = trim(new BigInteger("8f4552b1021a4de621d8f50f0921c4d20651e702d9d71276f8f6c15b838de018", 16).toByteArray());
 
 		a_byte = new BigInteger(a, 16).toByteArray();
-		params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		client = new LeapSRPSession(username, password, params, a_byte);
+		client = new LeapSRPSession(username, password, a_byte);
 		
 		x = client.calculatePasswordHash(username, password, trim(new BigInteger(salt, 16).toByteArray()));
 		assertTrue(Arrays.equals(x, expected_x));
@@ -418,8 +408,7 @@ public class testLeapSRPSession extends TestCase {
 		expected_M2 = trim(new BigInteger("04cf3ab3b75dbc4b116ca2fec949bf3deca1e360e016d7ab2b8a49904c534a27", 16).toByteArray());
 
 		a_byte = new BigInteger(a, 16).toByteArray();
-		params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		client = new LeapSRPSession(username, password, params, a_byte);
+		client = new LeapSRPSession(username, password, a_byte);
 		
 		x = client.calculatePasswordHash(username, password, trim(new BigInteger(salt, 16).toByteArray()));
 		assertTrue(Arrays.equals(x, expected_x));
@@ -448,8 +437,7 @@ public class testLeapSRPSession extends TestCase {
 		expected_M2 = trim(new BigInteger("082cf49ad5a34cc5ca571e3d063aec4bd96e7b96a6d951295180631650a84587", 16).toByteArray());
 
 		a_byte = new BigInteger(a, 16).toByteArray();
-		params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		client = new LeapSRPSession(username, password, params, a_byte);
+		client = new LeapSRPSession(username, password, a_byte);
 		
 		x = client.calculatePasswordHash(username, password, trim(new BigInteger(salt, 16).toByteArray()));
 		assertTrue(Arrays.equals(x, expected_x));
@@ -479,8 +467,7 @@ public class testLeapSRPSession extends TestCase {
 		expected_M2 = trim(new BigInteger("5cc3d7f0077e978c83acdef14a725af01488c1728f0cf32cd7013d24faf5d901", 16).toByteArray());
 
 		a_byte = new BigInteger(a, 16).toByteArray();
-		params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		client = new LeapSRPSession(username, password, params, a_byte);
+		client = new LeapSRPSession(username, password, a_byte);
 		
 		x = client.calculatePasswordHash(username, password, trim(new BigInteger(salt, 16).toByteArray()));
 		assertTrue(Arrays.equals(x, expected_x));
@@ -510,8 +497,7 @@ public class testLeapSRPSession extends TestCase {
 		expected_M2 = trim(new BigInteger("d78da7e0a23c9b87a2f09cdee05c510c105b4a8d471b47402c38f4cdfa49fe6d", 16).toByteArray());
 
 		a_byte = new BigInteger(a, 16).toByteArray();
-		params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		client = new LeapSRPSession(username, password, params, a_byte);
+		client = new LeapSRPSession(username, password, a_byte);
 		
 		x = client.calculatePasswordHash(username, password, trim(new BigInteger(salt, 16).toByteArray()));
 		assertTrue(Arrays.equals(x, expected_x));
@@ -541,8 +527,7 @@ public class testLeapSRPSession extends TestCase {
 		expected_M2 = trim(new BigInteger("a382025452bad8a6ccd0f703253fda90e7ea7bd0c2d466a389455080a4bd015d", 16).toByteArray());
 
 		a_byte = new BigInteger(a, 16).toByteArray();
-		params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		client = new LeapSRPSession(username, password, params, a_byte);
+		client = new LeapSRPSession(username, password, a_byte);
 		
 		x = client.calculatePasswordHash(username, password, trim(new BigInteger(salt, 16).toByteArray()));
 		assertTrue(Arrays.equals(x, expected_x));
@@ -572,8 +557,7 @@ public class testLeapSRPSession extends TestCase {
 		expected_M2 = trim(new BigInteger("9e99f9adfbfaa7add3626ed6e6aea94c9fa60dab6b8d56ad0cc950548f577d32", 16).toByteArray());
 
 		a_byte = new BigInteger(a, 16).toByteArray();
-		params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		client = new LeapSRPSession(username, password, params, a_byte);
+		client = new LeapSRPSession(username, password, a_byte);
 		
 		x = client.calculatePasswordHash(username, password, trim(new BigInteger(salt, 16).toByteArray()));
 		assertTrue(Arrays.equals(x, expected_x));
@@ -603,8 +587,7 @@ public class testLeapSRPSession extends TestCase {
 		expected_M2 = trim(new BigInteger("ffccafa0febc1771a428082b30b7ce409856de4581c7d7d986f5b80015aba0d3", 16).toByteArray());
 
 		a_byte = new BigInteger(a, 16).toByteArray();
-		params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), new BigInteger(salt, 16).toByteArray(), "SHA-256");
-		client = new LeapSRPSession(username, password, params, a_byte);
+		client = new LeapSRPSession(username, password, a_byte);
 		
 		x = client.calculatePasswordHash(username, password, trim(new BigInteger(salt, 16).toByteArray()));
 		assertTrue(Arrays.equals(x, expected_x));
@@ -626,8 +609,7 @@ public class testLeapSRPSession extends TestCase {
 	String password = "holahola2";
 	byte[] salt = new BigInteger("67e8348d1500d26c", 16).toByteArray();
 	
-	SRPParameters params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), new BigInteger("2").toByteArray(), salt, "SHA-256");
-	LeapSRPSession client = new LeapSRPSession(username, password, params);
+	LeapSRPSession client = new LeapSRPSession(username, password);
 
 	String expected_v = "12bea84e588ffa2f8fc5ae47cb5e751a8f2d9e8125268ad9ab483eff83f98cb08484350eb478bee582b8b72363ff8e7b12e9f332e86f7a0bd77689927c609d275471c6ad2cff8b1e7bbfc3664169c3b7bccb0b974154c1f1656b64274568015ca1b849c9d9890ae4437ed686341b432340809b81c30727ed2aadea8bdec6d101";
 	

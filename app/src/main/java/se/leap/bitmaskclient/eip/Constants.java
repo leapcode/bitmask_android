@@ -37,9 +37,9 @@ public interface Constants {
     public final static String EIP_NOTIFICATION = TAG + ".EIP_NOTIFICATION";
     public final static String STATUS = TAG + ".STATUS";
     public final static String DATE_FROM_CERTIFICATE = TAG + ".DATE_FROM_CERTIFICATE";
-    public final static String ALLOWED_ANON = TAG + ".ALLOW_ANONYMOUS";
-    public final static String ALLOWED_REGISTERED = TAG + ".ALLOW_REGISTRATION";
-    public final static String CERTIFICATE = TAG + ".CERTIFICATE";
+    public final static String ALLOWED_ANON = "allow_anonymous";
+    public final static String ALLOWED_REGISTERED = "allow_registration";
+    public final static String CERTIFICATE = "cert";
     public final static String PRIVATE_KEY = TAG + ".PRIVATE_KEY";
     public final static String KEY = TAG + ".KEY";
     public final static String PARSED_SERIAL = TAG + ".PARSED_SERIAL";
