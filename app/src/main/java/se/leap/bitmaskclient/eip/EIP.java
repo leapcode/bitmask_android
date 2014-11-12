@@ -14,47 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.leap.bitmaskclient;
+package se.leap.bitmaskclient.eip;
 
-import android.app.Activity;
-import android.app.IntentService;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.ResultReceiver;
+import android.app.*;
+import android.content.*;
+import android.os.*;
 import android.util.Log;
-import de.blinkt.openvpn.LaunchVPN;
-import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.activities.DisconnectVPN;
-import de.blinkt.openvpn.core.ConfigParser;
-import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
-import de.blinkt.openvpn.core.ProfileManager;
-import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
-import java.io.IOException;
-import java.io.StringReader;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.Vector;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import se.leap.bitmaskclient.Dashboard;
-import se.leap.bitmaskclient.Provider;
-import se.leap.bitmaskclient.R;
+import java.io.*;
+import java.security.cert.*;
+import java.text.*;
+import java.util.*;
+import org.json.*;
+
+import de.blinkt.openvpn.*;
+import de.blinkt.openvpn.activities.*;
+import de.blinkt.openvpn.core.*;
+import se.leap.bitmaskclient.*;
+
+import static se.leap.bitmaskclient.eip.Constants.*;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -67,27 +44,11 @@ import se.leap.bitmaskclient.R;
  * @author Parménides GV <parmegv@sdf.org>
  */
 public final class EIP extends IntentService {
-	
-	public final static String AUTHED_EIP = "authed eip";
-	public final static String ACTION_CHECK_CERT_VALIDITY = "se.leap.bitmaskclient.CHECK_CERT_VALIDITY";
-	public final static String ACTION_START_EIP = "se.leap.bitmaskclient.START_EIP";
-	public final static String ACTION_STOP_EIP = "se.leap.bitmaskclient.STOP_EIP";
-	public final static String ACTION_UPDATE_EIP_SERVICE = "se.leap.bitmaskclient.UPDATE_EIP_SERVICE";
-	public final static String ACTION_IS_EIP_RUNNING = "se.leap.bitmaskclient.IS_RUNNING";
-	public final static String ACTION_REBUILD_PROFILES = "se.leap.bitmaskclient.REBUILD_PROFILES";
-	public final static String EIP_NOTIFICATION = "EIP_NOTIFICATION";
-    	public final static String STATUS = "eip status";
-    	public final static String DATE_FROM_CERTIFICATE = "date from certificate";
-	public final static String ALLOWED_ANON = "allow_anonymous";
-	public final static String ALLOWED_REGISTERED = "allow_registration";
-	public final static String CERTIFICATE = "cert";
-	public final static String PRIVATE_KEY = "private_key";
-	public final static String KEY = "eip";
-	public final static String PARSED_SERIAL = "eip_parsed_serial";
-	public final static String SERVICE_API_PATH = "config/eip-service.json";
-	public final static String RECEIVER_TAG = "receiverTag";
-	public final static String REQUEST_TAG = "requestTag";
+
     public final static String TAG = EIP.class.getSimpleName();
+    
+    public final static String SERVICE_API_PATH = "config/eip-service.json";
+    
     private static SharedPreferences preferences;
 
 	private static Context context;
@@ -98,11 +59,12 @@ public final class EIP extends IntentService {
 	
 	private static OVPNGateway activeGateway = null;
     
-    protected static ConnectionStatus lastConnectionStatusLevel;
-    protected static boolean mIsDisconnecting = false;
-    protected static boolean mIsStarting = false;
+    public static VpnStatus.ConnectionStatus lastConnectionStatusLevel;
+    public static boolean mIsDisconnecting = false;
+    public static boolean mIsStarting = false;
 
     public static SimpleDateFormat certificate_date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+    
 	public EIP(){
 		super("LEAPEIP");
 	}
@@ -277,7 +239,7 @@ public final class EIP extends IntentService {
 	    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    startActivity(disconnect_vpn);
 	    mIsDisconnecting = true;
-	    lastConnectionStatusLevel = ConnectionStatus.UNKNOWN_LEVEL; // Wait for the decision of the user
+	    lastConnectionStatusLevel = VpnStatus.ConnectionStatus.UNKNOWN_LEVEL; // Wait for the decision of the user
 	    Log.d(TAG, "mIsDisconnecting = true");
 	}
 
@@ -307,8 +269,8 @@ public final class EIP extends IntentService {
 	tellToReceiver(ACTION_IS_EIP_RUNNING, resultCode);
     }
     
-    protected static boolean isConnected() {	
-	return lastConnectionStatusLevel != null && lastConnectionStatusLevel.equals(ConnectionStatus.LEVEL_CONNECTED) && !mIsDisconnecting;
+    public static boolean isConnected() {	
+	return lastConnectionStatusLevel != null && lastConnectionStatusLevel.equals(VpnStatus.ConnectionStatus.LEVEL_CONNECTED) && !mIsDisconnecting;
     }
 
 	/**
@@ -499,7 +461,7 @@ public final class EIP extends IntentService {
 			} catch (JSONException e) {
 			    // TODO Auto-generated catch block
 			    e.printStackTrace();
-			} catch (ConfigParseError e) {
+			} catch (ConfigParser.ConfigParseError e) {
 				// FIXME We didn't get a VpnProfile!  Error handling! and log level
 				Log.v(TAG,"Error creating VPNProfile");
 				e.printStackTrace();

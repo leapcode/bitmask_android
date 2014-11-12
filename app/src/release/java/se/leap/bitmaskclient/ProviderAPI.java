@@ -17,59 +17,22 @@
 package se.leap.bitmaskclient;
 
 import android.app.IntentService;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.ResultReceiver;
-import android.util.Base64;
-import android.util.Log;
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import android.content.*;
+import android.os.*;
+import android.util.*;
+import java.io.*;
 import java.math.BigInteger;
-import java.net.ConnectException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.net.*;
+import java.security.*;
+import java.security.cert.*;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
+import java.util.*;
+import javax.net.ssl.*;
 import org.apache.http.client.ClientProtocolException;
-import org.json.JSONException;
-import org.json.JSONObject;
-import se.leap.bitmaskclient.R;
+import org.json.*;
 
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.eip.*;
 
 /**
  * Implements HTTP api methods used to manage communications with the provider server.
@@ -619,8 +582,8 @@ public class ProviderAPI extends IntentService {
 				//TODO setProviderName(name);
 
 				preferences.edit().putString(Provider.KEY, provider_json.toString()).commit();
-				preferences.edit().putBoolean(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON)).commit();
-				preferences.edit().putBoolean(EIP.ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_REGISTERED)).commit();
+				preferences.edit().putBoolean(Constants.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(Constants.ALLOWED_ANON)).commit();
+				preferences.edit().putBoolean(Constants.ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(Constants.ALLOWED_REGISTERED)).commit();
 
 				result.putBoolean(RESULT_KEY, true);
 			} catch (JSONException e) {
@@ -644,7 +607,7 @@ public class ProviderAPI extends IntentService {
 				JSONObject eip_service_json = new JSONObject(eip_service_json_string);
 				eip_service_json.getInt(Provider.API_RETURN_SERIAL);
 
-				preferences.edit().putString(EIP.KEY, eip_service_json.toString()).commit();
+				preferences.edit().putString(Constants.KEY, eip_service_json.toString()).commit();
 
 				result.putBoolean(RESULT_KEY, true);
 			} catch (JSONException e) {
@@ -887,7 +850,7 @@ public class ProviderAPI extends IntentService {
 	getNewCert();
 
 	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
-	updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
+	updateEIP.setAction(Constants.ACTION_UPDATE_EIP_SERVICE);
 	startService(updateEIP);
 
 	return true;
@@ -903,7 +866,7 @@ public class ProviderAPI extends IntentService {
 		JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 			
 		String provider_main_url = provider_json.getString(Provider.API_URL);
-		URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
+		URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + Constants.CERTIFICATE);
 
 		String cert_string = downloadWithProviderCA(new_cert_string_url.toString());
 
@@ -937,12 +900,12 @@ public class ProviderAPI extends IntentService {
 	    }
 	    RSAPrivateKey key = ConfigHelper.parseRsaKeyFromString(keyString);
 	    keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
-	    preferences.edit().putString(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
+	    preferences.edit().putString(Constants.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
 
 	    X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
 	    certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
-	    preferences.edit().putString(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
-	    preferences.edit().putString(EIP.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
+	    preferences.edit().putString(Constants.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
+	    preferences.edit().putString(Constants.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
 	    return true;
 	} catch (CertificateException e) {
 	    // TODO Auto-generated catch block

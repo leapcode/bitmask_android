@@ -1,20 +1,15 @@
 package se.leap.bitmaskclient;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.*;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.eip.Constants;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import android.app.*;
+import android.content.*;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.view.*;
 import android.widget.TextView;
 
 public class ProviderDetailFragment extends DialogFragment {
@@ -66,7 +61,7 @@ public class ProviderDetailFragment extends DialogFragment {
 	private boolean anon_allowed(JSONObject provider_json) {
 		try {
 			JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
-			return service_description.has(EIP.ALLOWED_ANON) && service_description.getBoolean(EIP.ALLOWED_ANON);
+			return service_description.has(Constants.ALLOWED_ANON) && service_description.getBoolean(Constants.ALLOWED_ANON);
 		} catch (JSONException e) {
 			return false;
 		}
@@ -85,7 +80,7 @@ public class ProviderDetailFragment extends DialogFragment {
 	public void onCancel(DialogInterface dialog) {
 		super.onCancel(dialog);
 		SharedPreferences.Editor editor = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit();
-		editor.remove(Provider.KEY).remove(EIP.ALLOWED_ANON).remove(EIP.KEY).commit();
+		editor.remove(Provider.KEY).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).commit();
 		interface_with_configuration_wizard.showAllProviders();
 	}
 

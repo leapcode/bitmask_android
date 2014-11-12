@@ -14,38 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.bitmaskclient;
+package se.leap.bitmaskclient;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
-import se.leap.bitmaskclient.FragmentManagerEnhanced;
-import se.leap.bitmaskclient.SignUpDialog;
+import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.eip.*;
 
 import de.blinkt.openvpn.activities.LogWindow;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.DialogFragment;
-import android.app.FragmentTransaction;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.app.*;
+import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
+import android.os.*;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.*;
+import android.widget.*;
+import org.json.*;
 
 /**
  * The main user facing Activity of LEAP Android, consisting of status, controls,
@@ -54,7 +37,7 @@ import android.widget.Toast;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author parmegv
  */
-public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface, SignUpDialog.SignUpDialogInterface, Receiver {
+public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface, SignUpDialog.SignUpDialogInterface, ProviderAPIResultReceiver.Receiver {
 
 	protected static final int CONFIGURE_LEAP = 0;
 	protected static final int SWITCH_PROVIDER = 1;
@@ -95,7 +78,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 	    handleVersion();
 	    
-	    authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
+	    authed_eip = preferences.getBoolean(Constants.AUTHED_EIP, false);
 		if (preferences.getString(Provider.KEY, "").isEmpty())
 			startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 		else
@@ -113,9 +96,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    switch(versionCode) {
 	    case 91: // 0.6.0 without Bug #5999
 	    case 101: // 0.8.0
-		if(!preferences.getString(EIP.KEY, "").isEmpty()) {
+		if(!preferences.getString(Constants.KEY, "").isEmpty()) {
 		    Intent rebuildVpnProfiles = new Intent(getApplicationContext(), EIP.class);
-		    rebuildVpnProfiles.setAction(EIP.ACTION_REBUILD_PROFILES);
+		    rebuildVpnProfiles.setAction(Constants.ACTION_REBUILD_PROFILES);
 		    startService(rebuildVpnProfiles);
 		}
 		break;
@@ -139,23 +122,21 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
 		// It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
 		    if ( resultCode == RESULT_OK ){
-			preferences.edit().putInt(EIP.PARSED_SERIAL, 0).commit();
-			preferences.edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
-				
+			preferences.edit().putInt(Constants.PARSED_SERIAL, 0).commit();
+			preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).commit();
 			Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
-			updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
+			updateEIP.setAction(Constants.ACTION_UPDATE_EIP_SERVICE);
 			startService(updateEIP);
-			
 			buildDashboard(false);
 			invalidateOptionsMenu();
 			if(data != null && data.hasExtra(LogInDialog.TAG)) {
 			    View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
 			    logInDialog(Bundle.EMPTY);
 			}
-			} else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
-				finish();
-			} else
-				configErrorDialog();
+		    } else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
+			finish();
+		    } else
+			configErrorDialog();
 		}
 	}
 
@@ -227,7 +208,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
 		boolean authed_eip = !LeapSRPSession.getToken().isEmpty();
 		boolean allow_registered_eip = service_description.getBoolean(Provider.ALLOW_REGISTRATION);
-		preferences.edit().putBoolean(EIP.ALLOWED_REGISTERED, allow_registered_eip);
+		preferences.edit().putBoolean(Constants.ALLOWED_REGISTERED, allow_registered_eip);
 		
 		if(allow_registered_eip) {
 		    if(authed_eip) {
@@ -268,7 +249,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		    return true;
 		case R.id.switch_provider:
 			if (Provider.getInstance().hasEIP()){
-				if (preferences.getBoolean(EIP.AUTHED_EIP, false)){
+				if (preferences.getBoolean(Constants.AUTHED_EIP, false)){
 					logOut();
 				}				
 				eipStop();
@@ -426,7 +407,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		invalidateOptionsMenu();
 		
 		authed_eip = true;
-		preferences.edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
+		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).commit();
 
         	downloadAuthedUserCertificate();
 	    } else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_FAILED) {
@@ -441,7 +422,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		invalidateOptionsMenu();
 		
 		authed_eip = false;
-		preferences.edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
+		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).commit();
 
 	    } else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
 		changeStatusMessage(resultCode);
@@ -457,7 +438,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		ResultReceiver eip_receiver = new ResultReceiver(new Handler()){
 			protected void onReceiveResult(int resultCode, Bundle resultData){
 			    super.onReceiveResult(resultCode, resultData);
-			    String request = resultData.getString(EIP.REQUEST_TAG);
+			    String request = resultData.getString(Constants.REQUEST_TAG);
 			    if (resultCode == Activity.RESULT_OK){
 				if(authed_eip)
 				    eipStart();
@@ -466,8 +447,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				}
 			    }
 		    };
-		updateEIP.putExtra(EIP.RECEIVER_TAG, eip_receiver);
-		updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
+		updateEIP.putExtra(Constants.RECEIVER_TAG, eip_receiver);
+		updateEIP.setAction(Constants.ACTION_UPDATE_EIP_SERVICE);
 		startService(updateEIP);
 	    } else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
     		changeStatusMessage(resultCode);
@@ -481,9 +462,9 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		ResultReceiver eip_status_receiver = new ResultReceiver(new Handler()){
 			protected void onReceiveResult(int resultCode, Bundle resultData){
 				super.onReceiveResult(resultCode, resultData);
-				String request = resultData.getString(EIP.REQUEST_TAG);
+				String request = resultData.getString(Constants.REQUEST_TAG);
 				if(eipStatus == null) eipStatus = (TextView) findViewById(R.id.eipStatus);
-				if (request.equalsIgnoreCase(EIP.ACTION_IS_EIP_RUNNING)){					
+				if (request.equalsIgnoreCase(Constants.ACTION_IS_EIP_RUNNING)){					
 					if (resultCode == Activity.RESULT_OK){
 
 						switch(previous_result_code){
@@ -544,8 +525,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	private void eipIsRunning(ResultReceiver eip_receiver){
 		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
 		Intent eip_intent = new Intent(this, EIP.class);
-		eip_intent.setAction(EIP.ACTION_IS_EIP_RUNNING);
-		eip_intent.putExtra(EIP.RECEIVER_TAG, eip_receiver);
+		eip_intent.setAction(Constants.ACTION_IS_EIP_RUNNING);
+		eip_intent.putExtra(Constants.RECEIVER_TAG, eip_receiver);
 		startService(eip_intent);
 	}
 	

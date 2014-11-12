@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.leap.bitmaskclient;
+package se.leap.bitmaskclient.eip;
 
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -24,8 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
-import se.leap.bitmaskclient.Provider;
-import se.leap.bitmaskclient.EIP;
+import se.leap.bitmaskclient.*;
 
 public class VpnConfigGenerator {
 
@@ -121,14 +120,14 @@ public class VpnConfigGenerator {
 	String key =
 	    "<key>"
 	    + new_line
-	    + preferences.getString(EIP.PRIVATE_KEY, "")
+	    + preferences.getString(Constants.PRIVATE_KEY, "")
 	    + new_line
 	    + "</key>";
 		
 	String openvpn_cert =
 	    "<cert>"
 	    + new_line
-	    + preferences.getString(EIP.CERTIFICATE, "")
+	    + preferences.getString(Constants.CERTIFICATE, "")
 	    + new_line
 	    + "</cert>";
 

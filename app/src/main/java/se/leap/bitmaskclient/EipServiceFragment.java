@@ -3,34 +3,18 @@ package se.leap.bitmaskclient;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
-import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.eip.*;
 
-import de.blinkt.openvpn.activities.LogWindow;
-import de.blinkt.openvpn.core.VpnStatus;
-import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
-import de.blinkt.openvpn.core.VpnStatus.StateListener;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Fragment;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
+import de.blinkt.openvpn.activities.*;
+import de.blinkt.openvpn.core.*;
+import android.app.*;
+import android.content.*;
+import android.os.*;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.CompoundButton;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.Switch;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
 
-public class EipServiceFragment extends Fragment implements StateListener, OnCheckedChangeListener {
+public class EipServiceFragment extends Fragment implements VpnStatus.StateListener, CompoundButton.OnCheckedChangeListener {
 	
 	protected static final String IS_EIP_PENDING = "is_eip_pending";
     public static final String START_ON_BOOT = "start on boot";
@@ -85,8 +69,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		super.onResume();
 
 		VpnStatus.addStateListener(this);
-
-        eipCommand(EIP.ACTION_CHECK_CERT_VALIDITY);
+		
+		eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
 	}
     
 	@Override
@@ -139,13 +123,13 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
     }
     
     private boolean canStartEIP() {
-	boolean certificateExists = !Dashboard.preferences.getString(EIP.CERTIFICATE, "").isEmpty();
-	boolean isAllowedAnon = Dashboard.preferences.getBoolean(EIP.ALLOWED_ANON, false);
+	boolean certificateExists = !Dashboard.preferences.getString(Constants.CERTIFICATE, "").isEmpty();
+	boolean isAllowedAnon = Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false);
 	return (isAllowedAnon || certificateExists) && !EIP.mIsStarting && !EIP.isConnected();
     }
     
     private boolean canLogInToStartEIP() {
-	boolean isAllowedRegistered = Dashboard.preferences.getBoolean(EIP.ALLOWED_REGISTERED, false);
+	boolean isAllowedRegistered = Dashboard.preferences.getBoolean(Constants.ALLOWED_REGISTERED, false);
 	boolean isLoggedIn = !LeapSRPSession.getToken().isEmpty();
 	Log.d(TAG, "Allow registered? " + isAllowedRegistered);
 	Log.d(TAG, "Is logged in? " + isLoggedIn);
@@ -192,7 +176,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	    eipSwitch.setChecked(true);
 	    saveEipStatus();
 	}
-	eipCommand(EIP.ACTION_START_EIP);
+	eipCommand(Constants.ACTION_START_EIP);
     }
 
     protected void stopEIP() {
@@ -203,7 +187,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	
 	String status = getResources().getString(R.string.eip_state_not_connected);
 	setEipStatus(status);
-	eipCommand(EIP.ACTION_STOP_EIP);
+	eipCommand(Constants.ACTION_STOP_EIP);
     }
 	
 	/**
@@ -216,16 +200,16 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
 	    Intent vpn_intent = new Intent(getActivity().getApplicationContext(), EIP.class);
 	    vpn_intent.setAction(action);
-	    vpn_intent.putExtra(EIP.RECEIVER_TAG, mEIPReceiver);
+	    vpn_intent.putExtra(Constants.RECEIVER_TAG, mEIPReceiver);
 	    getActivity().startService(vpn_intent);
 	}
 	
     @Override
-    public void updateState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
+    public void updateState(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
 	boolean isNewLevel = EIP.lastConnectionStatusLevel != level;
-	boolean justDecidedOnDisconnect = EIP.lastConnectionStatusLevel == ConnectionStatus.UNKNOWN_LEVEL;
+	boolean justDecidedOnDisconnect = EIP.lastConnectionStatusLevel == VpnStatus.ConnectionStatus.UNKNOWN_LEVEL;
 	Log.d(TAG, "update state with level " + level);
-	if(!justDecidedOnDisconnect && (isNewLevel || level == ConnectionStatus.LEVEL_CONNECTED)) {
+	if(!justDecidedOnDisconnect && (isNewLevel || level == VpnStatus.ConnectionStatus.LEVEL_CONNECTED)) {
 	    getActivity().runOnUiThread(new Runnable() {
 		    @Override
 		    public void run() {
@@ -233,28 +217,28 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 			handleNewState(state, logmessage, localizedResId, level);
 		    }
 		});
-	} else if(justDecidedOnDisconnect && level == ConnectionStatus.LEVEL_CONNECTED) {
-	    EIP.lastConnectionStatusLevel = ConnectionStatus.LEVEL_NOTCONNECTED;
+	} else if(justDecidedOnDisconnect && level == VpnStatus.ConnectionStatus.LEVEL_CONNECTED) {
+	    EIP.lastConnectionStatusLevel = VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
 	    updateState(state, logmessage, localizedResId, level);
 	} // else if(isNewLevel || level == ConnectionStatus.LEVEL_AUTH_FAILED)
 	  //   handleNewState(state, logmessage, localizedResId, level);
     }
 
-    private void handleNewState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
-	if (level == ConnectionStatus.LEVEL_CONNECTED)
+    private void handleNewState(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
+	if (level == VpnStatus.ConnectionStatus.LEVEL_CONNECTED)
 	    setConnectedUI();
 	else if (isDisconnectedLevel(level) && !EIP.mIsStarting)
 	    setDisconnectedUI();
-	else if (level == ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET)
+	else if (level == VpnStatus.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET)
 	    setNoServerReplyUI(localizedResId, logmessage);
-	else if (level == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED)
+	else if (level == VpnStatus.ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED)
 	    setServerReplyUI(state, localizedResId, logmessage);
-	// else if (level == ConnectionStatus.LEVEL_AUTH_FAILED)
+	// else if (level == VpnStatus.ConnectionStatus.LEVEL_AUTH_FAILED)
 	//     handleSwitchOn();
     }
 
-    private boolean isDisconnectedLevel(final ConnectionStatus level) {
-	return level == ConnectionStatus.LEVEL_NOTCONNECTED || level == ConnectionStatus.LEVEL_AUTH_FAILED;
+    private boolean isDisconnectedLevel(final VpnStatus.ConnectionStatus level) {
+	return level == VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED || level == VpnStatus.ConnectionStatus.LEVEL_AUTH_FAILED;
     }
 
     private void setConnectedUI() {
@@ -331,10 +315,10 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		protected void onReceiveResult(int resultCode, Bundle resultData) {
 			super.onReceiveResult(resultCode, resultData);
 		
-			String request = resultData.getString(EIP.REQUEST_TAG);
+			String request = resultData.getString(Constants.REQUEST_TAG);
 			boolean checked = false;
 			
-			if (request == EIP.ACTION_IS_EIP_RUNNING) {
+			if (request == Constants.ACTION_IS_EIP_RUNNING) {
 				switch (resultCode){
 				case Activity.RESULT_OK:
 					checked = true;
@@ -343,7 +327,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					checked = false;
 					break;
 				}
-			} else if (request == EIP.ACTION_START_EIP) {
+			} else if (request == Constants.ACTION_START_EIP) {
 				switch (resultCode){
 				case Activity.RESULT_OK:
 				    Log.d(TAG, "Action start eip = Result OK");
@@ -356,7 +340,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					eipFragment.findViewById(R.id.eipProgress).setVisibility(View.GONE);
 					break;
 				}
-			} else if (request == EIP.ACTION_STOP_EIP) {
+			} else if (request == Constants.ACTION_STOP_EIP) {
 				switch (resultCode){
 				case Activity.RESULT_OK:
 					checked = false;
@@ -365,7 +349,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					checked = true;
 					break;
 				}
-			} else if (request == EIP.EIP_NOTIFICATION) {
+			} else if (request == Constants.EIP_NOTIFICATION) {
 				switch  (resultCode){
 				case Activity.RESULT_OK:
 					checked = true;
@@ -374,7 +358,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 					checked = false;
 					break;
 				}
-			} else if (request == EIP.ACTION_CHECK_CERT_VALIDITY) {
+			} else if (request == Constants.ACTION_CHECK_CERT_VALIDITY) {
 			    checked = eipSwitch.isChecked();
 			    
 			    switch (resultCode) {
@@ -387,7 +371,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 				String status = getResources().getString(R.string.updating_certificate_message);
 				setEipStatus(status);
 
-                if(LeapSRPSession.getToken().isEmpty() && !Dashboard.preferences.getBoolean(EIP.ALLOWED_ANON, false)) {
+                if(LeapSRPSession.getToken().isEmpty() && !Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false)) {
                         dashboard.logInDialog(Bundle.EMPTY);
                 } else {
 
