@@ -502,9 +502,6 @@ public class ProviderAPI extends IntentService {
 	    return result.toString();
 	}
 	
-	
-	
-	
 	/**
 	 * Downloads a provider.json from a given URL, adding a new provider using the given name.  
 	 * @param task containing a boolean meaning if the provider is custom or not, another boolean meaning if the user completely trusts this provider, the provider name and its provider.json url.
@@ -636,12 +633,6 @@ public class ProviderAPI extends IntentService {
 		return result;
 	}
 
-
-	
-	public static boolean providerJsonDownloaded() {
-		return PROVIDER_JSON_DOWNLOADED;
-	}
-
 	private Bundle getAndSetEipServiceJson() {
 		Bundle result = new Bundle();
 		String eip_service_json_string = "";
@@ -663,10 +654,6 @@ public class ProviderAPI extends IntentService {
 			}
 		}
 		return result;
-	}
-
-	public static boolean eipServiceDownloaded() {
-		return EIP_SERVICE_JSON_DOWNLOADED;
 	}
 	
 	/**
@@ -910,60 +897,55 @@ public class ProviderAPI extends IntentService {
 	 * @return true if certificate was downloaded correctly, false if provider.json is not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
 	 */
 	private boolean getNewCert() {
-
-		try {
-			JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
+	    try {
+		JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 			
-			String provider_main_url = provider_json.getString(Provider.API_URL);
-			URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
+		String provider_main_url = provider_json.getString(Provider.API_URL);
+		URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
 
-			String cert_string = downloadWithProviderCA(new_cert_string_url.toString());
-			if(!cert_string.isEmpty()) {
-				if(ConfigHelper.checkErroneousDownload(cert_string)) {
-					String reason_to_fail = provider_json.getString(ERRORS);
-					//result.putString(ConfigHelper.ERRORS_KEY, reason_to_fail);
-					//result.putBoolean(ConfigHelper.RESULT_KEY, false);
-					return false;
-				} else {
-					
-					// API returns concatenated cert & key.  Split them for OpenVPN options
-					String certificateString = null, keyString = null;
-					String[] certAndKey = cert_string.split("(?<=-\n)");
-					for (int i=0; i < certAndKey.length-1; i++){
-						if ( certAndKey[i].contains("KEY") ) {
-							keyString = certAndKey[i++] + certAndKey[i];
-						}
-						else if ( certAndKey[i].contains("CERTIFICATE") ) {
-							certificateString = certAndKey[i++] + certAndKey[i];
-						}
-					}
-					try {
-						RSAPrivateKey key = ConfigHelper.parseRsaKeyFromString(keyString);
-						keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
-						preferences.edit().putString(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
+		String cert_string = downloadWithProviderCA(new_cert_string_url.toString());
 
-						X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
-						certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
-						preferences.edit().putString(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
-						preferences.edit().putString(EIP.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
-						return true;
-					} catch (CertificateException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						return false;
-					}
-				}
-			} else {
-				return false;
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
+		if(cert_string.isEmpty() || ConfigHelper.checkErroneousDownload(cert_string))
+		    return false;
+		else
+		    return loadCertificate(cert_string);
+	    } catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		return false;
+	    } catch (JSONException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		return false;
+	    }
 	}
+
+    private boolean loadCertificate(String cert_string) {
+	try {
+	    // API returns concatenated cert & key.  Split them for OpenVPN options
+	    String certificateString = null, keyString = null;
+	    String[] certAndKey = cert_string.split("(?<=-\n)");
+	    for (int i=0; i < certAndKey.length-1; i++){
+		if ( certAndKey[i].contains("KEY") ) {
+		    keyString = certAndKey[i++] + certAndKey[i];
+		}
+		else if ( certAndKey[i].contains("CERTIFICATE") ) {
+		    certificateString = certAndKey[i++] + certAndKey[i];
+		}
+	    }
+	    RSAPrivateKey key = ConfigHelper.parseRsaKeyFromString(keyString);
+	    keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
+	    preferences.edit().putString(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
+
+	    X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
+	    certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
+	    preferences.edit().putString(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
+	    preferences.edit().putString(EIP.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
+	    return true;
+	} catch (CertificateException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	    return false;
+	}
+    }
 }
