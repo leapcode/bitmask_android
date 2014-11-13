@@ -743,6 +743,7 @@ public class ProviderAPI extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
+		    e.printStackTrace();
 			json_file_content = formatErrorMessage(R.string.server_unreachable_message);
 		} catch (IOException e) {
 			// The downloaded certificate doesn't validate our https connection.
@@ -761,6 +762,7 @@ public class ProviderAPI extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchElementException e) {
+		    e.printStackTrace();
 		    json_file_content = formatErrorMessage(R.string.server_unreachable_message);
 		}
 		return json_file_content;
