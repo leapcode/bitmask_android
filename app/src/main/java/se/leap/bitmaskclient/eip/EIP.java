@@ -101,8 +101,6 @@ public final class EIP extends IntentService {
 	    updateEIPService();
 	else if ( action == ACTION_CHECK_CERT_VALIDITY )
 	    checkCertValidity();
-	else if ( action == ACTION_REBUILD_PROFILES )
-	    updateGateways();
     }
 	
     /**
@@ -175,39 +173,28 @@ public final class EIP extends IntentService {
      */
 	
     private void isRunning() {
-	int resultCode = Activity.RESULT_CANCELED;
-	boolean is_connected = isConnected();
-
-	resultCode = (is_connected) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-
+	int resultCode = (isConnected()) ?
+	    Activity.RESULT_OK :
+	    Activity.RESULT_CANCELED;
 	tellToReceiver(ACTION_IS_EIP_RUNNING, resultCode);
     }
     
     public static boolean isConnected() {	
-	return lastConnectionStatusLevel != null && lastConnectionStatusLevel.equals(VpnStatus.ConnectionStatus.LEVEL_CONNECTED) && !mIsDisconnecting;
+	return lastConnectionStatusLevel != null
+	    && lastConnectionStatusLevel.equals(VpnStatus.ConnectionStatus.LEVEL_CONNECTED)
+	    && !mIsDisconnecting;
     }
 
-	/**
-	 * Loads eip-service.json from SharedPreferences and calls {@link updateGateways()}
-	 * to parse gateway definitions.
-	 * TODO Implement API call to refresh eip-service.json from the provider
-	 */
-	private void updateEIPService() {
-		try {
-		    String eip_definition_string = preferences.getString(KEY, "");
-		    if(eip_definition_string.isEmpty() == false) {
-			eipDefinition = new JSONObject(eip_definition_string);
-		    }
-		    deleteAllVpnProfiles();
-		    updateGateways();
-            if(mReceiver != null) mReceiver.send(Activity.RESULT_OK, Bundle.EMPTY);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	if (eip_definition != null && eip_definition.optInt("serial") >= parsedEipSerial)
-	    updateGateways();
+    /**
+     * Loads eip-service.json from SharedPreferences and calls {@link updateGateways()}
+     * to parse gateway definitions.
+     * TODO Implement API call to refresh eip-service.json from the provider
+     */
+    private void updateEIPService() {
+	refreshEipDefinition();
+	deleteAllVpnProfiles();
+	updateGateways();
+	if(mReceiver != null) mReceiver.send(Activity.RESULT_OK, Bundle.EMPTY);
     }
 
     private void refreshEipDefinition() {
@@ -233,29 +220,30 @@ public final class EIP extends IntentService {
 	 * OVPNGateway objects.
 	 * TODO Store the OVPNGateways (as Serializable) in SharedPreferences
 	 */
-	private void updateGateways(){
-		JSONArray gatewaysDefined = null;
-		try {
-		    if(eip_definition == null) updateEIPService();
-			gatewaysDefined = eip_definition.getJSONArray("gateways");		
-			for ( int i=0 ; i < gatewaysDefined.length(); i++ ){			
-			    JSONObject gw = null;			
-			    gw = gatewaysDefined.getJSONObject(i);
+    private void updateGateways(){
+	JSONArray gatewaysDefined = null;
+	try {
+	    gatewaysDefined = eip_definition.getJSONArray("gateways");		
+	    for ( int i=0 ; i < gatewaysDefined.length(); i++ ){			
+		JSONObject gw = null;			
+		gw = gatewaysDefined.getJSONObject(i);
 			
-			    if ( gw.getJSONObject("capabilities").getJSONArray("transport").toString().contains("openvpn") )
-				new OVPNGateway(gw);
-			}
-		} catch (JSONException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
-		}
-		preferences.edit().putInt(PARSED_SERIAL, eip_definition.optInt(Provider.API_RETURN_SERIAL)).commit();
+		if ( gw.getJSONObject("capabilities").getJSONArray("transport").toString().contains("openvpn") )
+		    new OVPNGateway(gw);
+	    }
+	} catch (JSONException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
+	preferences.edit().putInt(PARSED_SERIAL, eip_definition.optInt(Provider.API_RETURN_SERIAL)).commit();
+    }
 
     private void checkCertValidity() {
 	VpnCertificateValidator validator = new VpnCertificateValidator();
-	boolean is_valid = validator.isValid(preferences.getString(CERTIFICATE, ""));
-	tellToReceiver(ACTION_CHECK_CERT_VALIDITY, is_valid);
+	int resultCode = validator.isValid(preferences.getString(CERTIFICATE, "")) ?
+	    Activity.RESULT_OK :
+	    Activity.RESULT_CANCELED;
+	tellToReceiver(ACTION_CHECK_CERT_VALIDITY, resultCode);
     }
 
 	/**
