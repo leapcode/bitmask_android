@@ -94,7 +94,6 @@ public final class EIP extends IntentService {
 	private static ResultReceiver mReceiver;
 	private static boolean mBound = false;
 	
-	private static int parsedEipSerial;
 	private static JSONObject eipDefinition = null;
 	
 	private static OVPNGateway activeGateway = null;
@@ -323,16 +322,12 @@ public final class EIP extends IntentService {
 		    if(eip_definition_string.isEmpty() == false) {
 			eipDefinition = new JSONObject(eip_definition_string);
 		    }
-		    parsedEipSerial = preferences.getInt(PARSED_SERIAL, 0);
+		    deleteAllVpnProfiles();
+		    updateGateways();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(parsedEipSerial == 0) {
-		    deleteAllVpnProfiles();
-		}
-		if (eipDefinition != null && eipDefinition.optInt("serial") >= parsedEipSerial)
-			updateGateways();
 	}
 
     private void deleteAllVpnProfiles() {
