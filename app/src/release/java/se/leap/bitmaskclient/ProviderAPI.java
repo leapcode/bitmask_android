@@ -845,23 +845,13 @@ public class ProviderAPI extends IntentService {
 		}
 		return true;
 	}
-
-    private boolean updateVpnCertificate() {
-	getNewCert();
-
-	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
-	updateEIP.setAction(Constants.ACTION_UPDATE_EIP_SERVICE);
-	startService(updateEIP);
-
-	return true;
-    }
     
 	/**
 	 * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.
 	 * 
 	 * @return true if certificate was downloaded correctly, false if provider.json is not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
 	 */
-	private boolean getNewCert() {
+	private boolean updateVpnCertificate() {
 	    try {
 		JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 			
@@ -898,6 +888,7 @@ public class ProviderAPI extends IntentService {
 		    certificateString = certAndKey[i++] + certAndKey[i];
 		}
 	    }
+	    
 	    RSAPrivateKey key = ConfigHelper.parseRsaKeyFromString(keyString);
 	    keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
 	    preferences.edit().putString(Constants.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
@@ -905,7 +896,6 @@ public class ProviderAPI extends IntentService {
 	    X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
 	    certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
 	    preferences.edit().putString(Constants.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
-	    preferences.edit().putString(Constants.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
 	    return true;
 	} catch (CertificateException e) {
 	    // TODO Auto-generated catch block

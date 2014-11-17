@@ -861,23 +861,13 @@ public class ProviderAPI extends IntentService {
 	}
 	return true;
     }
-
-    private boolean updateVpnCertificate() {
-	getNewCert();
-
-	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
-	updateEIP.setAction(Constants.ACTION_UPDATE_EIP_SERVICE);
-	startService(updateEIP);
-
-	return true;
-    }
     
     /**
      * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.
      * 
      * @return true if certificate was downloaded correctly, false if provider.json or danger_on flag are not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
      */
-    private boolean getNewCert() {
+    private boolean updateVpnCertificate() {
 	try {
 	    JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 			

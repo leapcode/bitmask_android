@@ -433,28 +433,32 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		hideProgressBar();
 		
         	setResult(RESULT_OK);
-		Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
-		ResultReceiver eip_receiver = new ResultReceiver(new Handler()){
-			protected void onReceiveResult(int resultCode, Bundle resultData){
-			    super.onReceiveResult(resultCode, resultData);
-			    String request = resultData.getString(Constants.REQUEST_TAG);
-			    if (resultCode == Activity.RESULT_OK){
-				if(authed_eip)
-				    eipStart();
-				else
-				    eipStatus.setText("Certificate updated");
-				}
-			    }
-		    };
-		updateEIP.putExtra(Constants.RECEIVER_TAG, eip_receiver);
-		updateEIP.setAction(Constants.ACTION_UPDATE_EIP_SERVICE);
-		startService(updateEIP);
+		
+		updateEipService();
 	    } else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
     		changeStatusMessage(resultCode);
 		hideProgressBar();
         	setResult(RESULT_CANCELED);
 	    }
 	}
+
+    private void updateEipService() {
+	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
+	updateEIP.setAction(Constants.ACTION_UPDATE_EIP_SERVICE);
+	ResultReceiver receiver = new ResultReceiver(new Handler()) {
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+		    String request = resultData.getString(Constants.REQUEST_TAG);
+		    if(request.equalsIgnoreCase(Constants.ACTION_UPDATE_EIP_SERVICE)) {
+			if(resultCode == Activity.RESULT_OK) {
+			    if(authed_eip)
+				eipStart();
+			}
+		    }
+		}
+	    };
+	updateEIP.putExtra(Constants.RECEIVER_TAG, receiver);
+	startService(updateEIP);
+    }
 
 	private void changeStatusMessage(final int previous_result_code) {
 		// TODO Auto-generated method stub

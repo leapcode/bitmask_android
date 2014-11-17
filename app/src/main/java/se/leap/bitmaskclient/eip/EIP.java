@@ -194,7 +194,7 @@ public final class EIP extends IntentService {
 	refreshEipDefinition();
 	deleteAllVpnProfiles();
 	updateGateways();
-	if(mReceiver != null) mReceiver.send(Activity.RESULT_OK, Bundle.EMPTY);
+	tellToReceiver(ACTION_UPDATE_EIP_SERVICE, Activity.RESULT_OK);
     }
 
     private void refreshEipDefinition() {
