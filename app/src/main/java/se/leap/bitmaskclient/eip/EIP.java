@@ -58,7 +58,9 @@ public final class EIP extends IntentService {
     private static int parsedEipSerial;
     private static JSONObject eip_definition = null;
 	
-    private static OVPNGateway activeGateway = null;
+    private static Gateway activeGateway = null;
+    private static List<Gateway> gateways = new ArrayList<Gateway>();
+    ProfileManager profile_manager;
     
     public static VpnStatus.ConnectionStatus lastConnectionStatusLevel;
     public static boolean mIsDisconnecting = false;
@@ -73,6 +75,8 @@ public final class EIP extends IntentService {
 		super.onCreate();
 		
 		context = getApplicationContext();
+		profile_manager = ProfileManager.getInstance(context);
+
 		preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 		refreshEipDefinition();
 	}
@@ -110,11 +114,10 @@ public final class EIP extends IntentService {
      */
     private void startEIP() {
         earlyRoutes();
-	GatewaySelector gateway_selector = new GatewaySelector(eip_definition);
-	String selected_gateway = gateway_selector.select();
+	GatewaySelector gateway_selector = new GatewaySelector(gateways);
 	
-	activeGateway = new OVPNGateway(selected_gateway);
-	if(activeGateway != null && activeGateway.mVpnProfile != null) {
+	activeGateway = gateway_selector.select();
+	if(activeGateway != null && activeGateway.getProfile() != null) {
 	    mReceiver = EipServiceFragment.getReceiver();
 	    launchActiveGateway();
 	}
@@ -134,8 +137,8 @@ public final class EIP extends IntentService {
 	Intent intent = new Intent(this,LaunchVPN.class);
 	intent.setAction(Intent.ACTION_MAIN);
 	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	intent.putExtra(LaunchVPN.EXTRA_KEY, activeGateway.mVpnProfile.getUUID().toString() );
-	intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.mVpnProfile.getName() );
+	intent.putExtra(LaunchVPN.EXTRA_KEY, activeGateway.getProfile().getUUID().toString() );
+	intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.getProfile().getName() );
 	intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
 	intent.putExtra(RECEIVER_TAG, mReceiver);
 	startActivity(intent);
@@ -210,32 +213,43 @@ public final class EIP extends IntentService {
     }
     
     private void deleteAllVpnProfiles() {
-	ProfileManager vpl = ProfileManager.getInstance(context);
-	Collection<VpnProfile> profiles = vpl.getProfiles();
+	Collection<VpnProfile> profiles = profile_manager.getProfiles();
 	profiles.removeAll(profiles);
     }
 	
-	/**
-	 * Walk the list of gateways defined in eip-service.json and parse them into
-	 * OVPNGateway objects.
-	 * TODO Store the OVPNGateways (as Serializable) in SharedPreferences
-	 */
+    /**
+     * Walk the list of gateways defined in eip-service.json and parse them into
+     * Gateway objects.
+     * TODO Store the Gateways (as Serializable) in SharedPreferences
+     */
     private void updateGateways(){
-	JSONArray gatewaysDefined = null;
 	try {
-	    gatewaysDefined = eip_definition.getJSONArray("gateways");		
+	    JSONArray gatewaysDefined = eip_definition.getJSONArray("gateways");		
 	    for ( int i=0 ; i < gatewaysDefined.length(); i++ ){			
-		JSONObject gw = null;			
-		gw = gatewaysDefined.getJSONObject(i);
-			
-		if ( gw.getJSONObject("capabilities").getJSONArray("transport").toString().contains("openvpn") )
-		    new OVPNGateway(gw);
+		JSONObject gw = gatewaysDefined.getJSONObject(i);
+		if(isOpenVpnGateway(gw)) {
+		    addGateway(new Gateway(eip_definition, context, gw));
+		}
 	    }
 	} catch (JSONException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
 	preferences.edit().putInt(PARSED_SERIAL, eip_definition.optInt(Provider.API_RETURN_SERIAL)).commit();
+    }
+
+    private boolean isOpenVpnGateway(JSONObject gateway) {
+	try {
+	    String transport = gateway.getJSONObject("capabilities").getJSONArray("transport").toString();
+	    return transport.contains("openvpn");
+	} catch (JSONException e) {
+	    return false;
+	}
+    }
+
+    private void addGateway(Gateway gateway) {
+	profile_manager.addProfile(gateway.getProfile());
+	gateways.add(gateway);
     }
 
     private void checkCertValidity() {
@@ -245,120 +259,4 @@ public final class EIP extends IntentService {
 	    Activity.RESULT_CANCELED;
 	tellToReceiver(ACTION_CHECK_CERT_VALIDITY, resultCode);
     }
-
-	/**
-	 * OVPNGateway provides objects defining gateways and their options and metadata.
-	 * Each instance contains a VpnProfile for OpenVPN specific data and member
-	 * variables describing capabilities and location
-	 * 
-	 * @author Sean Leonard <meanderingcode@aetherislands.net>
-	 */
-	private class OVPNGateway {
-		
-		private String TAG = "OVPNGateway";
-		
-		private String mName;
-		private VpnProfile mVpnProfile;
-		private JSONObject mGateway;
-		private HashMap<String,Vector<Vector<String>>> options = new HashMap<String, Vector<Vector<String>>>();
-
-		
-		/**
-		 * Attempts to retrieve a VpnProfile by name and build an OVPNGateway around it.
-		 * FIXME This needs to become a findGatewayByName() method
-		 * 
-		 * @param name The hostname of the gateway to inflate
-		 */
-		private OVPNGateway(String name){
-			mName = name;
-			
-			this.loadVpnProfile();
-		}
-		
-		private void loadVpnProfile() {
-			ProfileManager vpl = ProfileManager.getInstance(context);
-			try {
-				if ( mName == null )
-					mVpnProfile = vpl.getProfiles().iterator().next();
-				else
-					mVpnProfile = vpl.getProfileByName(mName);
-			} catch (NoSuchElementException e) {
-				updateEIPService();
-				this.loadVpnProfile();	// FIXME catch infinite loops
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		/**
-		 * Build a gateway object from a JSON OpenVPN gateway definition in eip-service.json
-		 * and create a VpnProfile belonging to it.
-		 * 
-		 * @param gateway The JSON OpenVPN gateway definition to parse
-		 */
-		protected OVPNGateway(JSONObject gateway){
-
-			mGateway = gateway;
-			
-			// Currently deletes VpnProfile for host, if there already is one, and builds new
-			ProfileManager vpl = ProfileManager.getInstance(context);
-			Collection<VpnProfile> profiles = vpl.getProfiles();
-			for (Iterator<VpnProfile> it = profiles.iterator(); it.hasNext(); ){
-				VpnProfile p = it.next();
-				
-				if ( p.mName.equalsIgnoreCase( mName ) ) {
-				    it.remove();
-				    vpl.removeProfile(context, p);
-				}
-			}
-			
-			this.createVPNProfile();
-			
-			vpl.addProfile(mVpnProfile);
-			vpl.saveProfile(context, mVpnProfile);
-			vpl.saveProfileList(context);
-		}
-	    
-		/**
-		 * Create and attach the VpnProfile to our gateway object
-		 */
-		protected void createVPNProfile(){
-			try {
-				ConfigParser cp = new ConfigParser();
-				
-				JSONObject openvpn_configuration = eip_definition.getJSONObject("openvpn_configuration");
-				VpnConfigGenerator vpn_configuration_generator = new VpnConfigGenerator(preferences, openvpn_configuration, mGateway);
-				String configuration = vpn_configuration_generator.generate();
-				
-				cp.parseConfig(new StringReader(configuration));
-				mVpnProfile = cp.convertProfile();
-				mVpnProfile.mName = mName = locationAsName();
-				Log.v(TAG,"Created VPNProfile");
-				
-			} catch (JSONException e) {
-			    // TODO Auto-generated catch block
-			    e.printStackTrace();
-			} catch (ConfigParser.ConfigParseError e) {
-				// FIXME We didn't get a VpnProfile!  Error handling! and log level
-				Log.v(TAG,"Error creating VPNProfile");
-				e.printStackTrace();
-			} catch (IOException e) {
-				// FIXME We didn't get a VpnProfile!  Error handling! and log level
-				Log.v(TAG,"Error creating VPNProfile");
-				e.printStackTrace();
-			}
-		}
-
-	    
-	    public String locationAsName() {
-		try {
-		    return eip_definition.getJSONObject("locations").getJSONObject(mGateway.getString("location")).getString("name");
-		} catch (JSONException e) {
-		    Log.v(TAG,"Couldn't read gateway name for profile creation! Returning original name = " + mName);
-		    e.printStackTrace();
-		    return (mName != null) ? mName : "";
-		}
-	    }
-	}
 }
