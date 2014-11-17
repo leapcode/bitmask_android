@@ -31,7 +31,7 @@ public class VpnCertificateValidator {
 	if(!certificate.isEmpty()) {
 	    X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate);
 	    return isValid(certificate_x509);
-	} else return false;
+	} else return true;
     }
     
     private boolean isValid(X509Certificate certificate) {
