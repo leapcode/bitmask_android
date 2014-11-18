@@ -46,21 +46,16 @@ import static se.leap.bitmaskclient.eip.Constants.*;
 public final class EIP extends IntentService {
 
     public final static String TAG = EIP.class.getSimpleName();
-    
     public final static String SERVICE_API_PATH = "config/eip-service.json";
     
-    private static SharedPreferences preferences;
-
     private static Context context;
     private static ResultReceiver mReceiver;
-    private static boolean mBound = false;
+    private static SharedPreferences preferences;
 	
-    private static int parsedEipSerial;
     private static JSONObject eip_definition = null;
-	
-    private static Gateway activeGateway = null;
     private static List<Gateway> gateways = new ArrayList<Gateway>();
-    ProfileManager profile_manager;
+    private static ProfileManager profile_manager;
+    private static Gateway activeGateway = null;
     
     public static VpnStatus.ConnectionStatus lastConnectionStatusLevel;
     public static boolean mIsDisconnecting = false;
@@ -80,15 +75,6 @@ public final class EIP extends IntentService {
 		preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 		refreshEipDefinition();
 	}
-	
-	@Override
-	public void onDestroy() {
-
-	    mBound = false;
-	    
-	    super.onDestroy();
-	}
-
 	
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -115,7 +101,6 @@ public final class EIP extends IntentService {
     private void startEIP() {
         earlyRoutes();
 	GatewaySelector gateway_selector = new GatewaySelector(gateways);
-	
 	activeGateway = gateway_selector.select();
 	if(activeGateway != null && activeGateway.getProfile() != null) {
 	    mReceiver = EipServiceFragment.getReceiver();
@@ -137,7 +122,6 @@ public final class EIP extends IntentService {
 	Intent intent = new Intent(this,LaunchVPN.class);
 	intent.setAction(Intent.ACTION_MAIN);
 	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	intent.putExtra(LaunchVPN.EXTRA_KEY, activeGateway.getProfile().getUUID().toString() );
 	intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.getProfile().getName() );
 	intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
 	intent.putExtra(RECEIVER_TAG, mReceiver);

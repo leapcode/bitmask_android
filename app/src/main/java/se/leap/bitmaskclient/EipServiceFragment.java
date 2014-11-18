@@ -13,8 +13,9 @@ import android.os.*;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
+import java.util.*;
 
-public class EipServiceFragment extends Fragment implements VpnStatus.StateListener, CompoundButton.OnCheckedChangeListener {
+public class EipServiceFragment extends Fragment implements Observer, CompoundButton.OnCheckedChangeListener {
 	
 	protected static final String IS_EIP_PENDING = "is_eip_pending";
     public static final String START_ON_BOOT = "start on boot";
@@ -23,6 +24,7 @@ public class EipServiceFragment extends Fragment implements VpnStatus.StateListe
 	private static Switch eipSwitch;
 	private View eipDetail;
 	private TextView eipStatus;
+    private EipStatus eip_status;
 
     private static EIPReceiver mEIPReceiver;
 
@@ -57,7 +59,7 @@ public class EipServiceFragment extends Fragment implements VpnStatus.StateListe
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		EipStatus.getInstance().addObserver(this);
 		mEIPReceiver = new EIPReceiver(new Handler());
 
 		if (savedInstanceState != null)
@@ -66,18 +68,8 @@ public class EipServiceFragment extends Fragment implements VpnStatus.StateListe
 
 	@Override
 	public void onResume() {
-		super.onResume();
-
-		VpnStatus.addStateListener(this);
-		
-		eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
-	}
-    
-	@Override
-	public void onPause() {
-		super.onPause();
-
-		VpnStatus.removeStateListener(this);
+	    super.onResume();
+	    eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
 	}
     
 	@Override
@@ -205,47 +197,43 @@ public class EipServiceFragment extends Fragment implements VpnStatus.StateListe
 	}
 	
     @Override
-    public void updateState(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
-	boolean isNewLevel = EIP.lastConnectionStatusLevel != level;
-	boolean justDecidedOnDisconnect = EIP.lastConnectionStatusLevel == VpnStatus.ConnectionStatus.UNKNOWN_LEVEL;
-	Log.d(TAG, "update state with level " + level);
-	if(!justDecidedOnDisconnect && (isNewLevel || level == VpnStatus.ConnectionStatus.LEVEL_CONNECTED)) {
-	    getActivity().runOnUiThread(new Runnable() {
-		    @Override
-		    public void run() {
-			EIP.lastConnectionStatusLevel = level;
-			handleNewState(state, logmessage, localizedResId, level);
-		    }
-		});
-	} else if(justDecidedOnDisconnect && level == VpnStatus.ConnectionStatus.LEVEL_CONNECTED) {
-	    EIP.lastConnectionStatusLevel = VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
-	    updateState(state, logmessage, localizedResId, level);
-	} // else if(isNewLevel || level == ConnectionStatus.LEVEL_AUTH_FAILED)
-	  //   handleNewState(state, logmessage, localizedResId, level);
+    public void update (Observable observable, Object data) {
+	if(observable instanceof EipStatus) {
+	    final EipStatus eip_status = (EipStatus) observable;
+	    EipStatus previous_status = eip_status.getPreviousStatus();
+	    boolean isNewLevel = eip_status.getLevel() != previous_status.getLevel();
+	    if(!eip_status.wantsToDisconnect() && (isNewLevel || eip_status.isConnected())) {
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+			    handleNewState(eip_status);
+			}
+		    });
+	    } else if(eip_status.wantsToDisconnect() && eip_status.isConnected()) {
+		setDisconnectedUI();
+		// EIP.lastConnectionStatusLevel = VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
+		// updateState(state, logmessage, localizedResId, level);
+	    }
+	}
     }
 
-    private void handleNewState(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
+    private void handleNewState(EipStatus eip_status) {
+	final String state = eip_status.getState();
+	final String logmessage = eip_status.getLogMessage();
+	final int localizedResId = eip_status.getLocalizedResId();
+	final VpnStatus.ConnectionStatus level = eip_status.getLevel();
 	if (level == VpnStatus.ConnectionStatus.LEVEL_CONNECTED)
 	    setConnectedUI();
-	else if (isDisconnectedLevel(level) && !EIP.mIsStarting)
+	else if (eip_status.isDisconnected() && !eip_status.isConnecting())
 	    setDisconnectedUI();
 	else if (level == VpnStatus.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET)
 	    setNoServerReplyUI(localizedResId, logmessage);
 	else if (level == VpnStatus.ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED)
 	    setServerReplyUI(state, localizedResId, logmessage);
-	// else if (level == VpnStatus.ConnectionStatus.LEVEL_AUTH_FAILED)
-	//     handleSwitchOn();
-    }
-
-    private boolean isDisconnectedLevel(final VpnStatus.ConnectionStatus level) {
-	return level == VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED || level == VpnStatus.ConnectionStatus.LEVEL_AUTH_FAILED;
     }
 
     private void setConnectedUI() {
 	hideProgressBar();
-	Log.d(TAG, "mIsDisconnecting = false in setConnectedUI");
-	EIP.mIsStarting = false; //TODO This should be done in the onReceiveResult from START_EIP command, but right now LaunchVPN isn't notifying anybody the resultcode of the request so we need to listen the states with this listener.
-	EIP.mIsDisconnecting = false; //TODO See comment above
 	String status = getString(R.string.eip_state_connected);
 	setEipStatus(status);
 	adjustSwitch();
@@ -253,17 +241,15 @@ public class EipServiceFragment extends Fragment implements VpnStatus.StateListe
 
     private void setDisconnectedUI(){
 	hideProgressBar();
-	EIP.mIsStarting = false; //TODO See comment in setConnectedUI()
-	Log.d(TAG, "mIsDisconnecting = false in setDisconnectedUI");
-	EIP.mIsDisconnecting = false; //TODO See comment in setConnectedUI()
 
 	String status = getString(R.string.eip_state_not_connected);
 	setEipStatus(status);
 	adjustSwitch();
     }
 
-    private void adjustSwitch() {	
-	if(EIP.isConnected()) {
+    private void adjustSwitch() {
+	EipStatus eip_status = EipStatus.getInstance();
+	if(eip_status.isConnected()) {
 	    if(!eipSwitch.isChecked()) {
 		eipSwitch.setChecked(true);
 	    }
