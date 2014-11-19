@@ -57,7 +57,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     
     private EipServiceFragment eipFragment;
     private ProgressBar mProgressBar;
-    private TextView eipStatus;
+    private TextView status_message;
     public ProviderAPIResultReceiver providerAPI_result_receiver;
 
     private static Provider provider;
@@ -116,28 +116,29 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	super.onPause();
     }
     
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, final Intent data){
-		if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
-		// It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
-		    if ( resultCode == RESULT_OK ){
-			preferences.edit().putInt(Constants.PARSED_SERIAL, 0).commit();
-			preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).commit();
-			Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
-			updateEIP.setAction(Constants.ACTION_UPDATE_EIP_SERVICE);
-			startService(updateEIP);
-			buildDashboard(false);
-			invalidateOptionsMenu();
-			if(data != null && data.hasExtra(LogInDialog.TAG)) {
-			    View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-			    logInDialog(Bundle.EMPTY);
-			}
-		    } else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
-			finish();
-		    } else
-			configErrorDialog();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+	Log.d(TAG, "onActivityResult: requestCode = " + requestCode);
+	if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
+	    // It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
+	    if ( resultCode == RESULT_OK ){
+		preferences.edit().putInt(Constants.PARSED_SERIAL, 0).commit();
+		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).commit();
+		updateEipService();
+		buildDashboard(false);
+		invalidateOptionsMenu();
+		if(data != null && data.hasExtra(LogInDialog.TAG)) {
+		    View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
+		    logInDialog(Bundle.EMPTY);
 		}
+	    } else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
+		finish();
+	    } else
+		configErrorDialog();
+	} else if(requestCode == 33) {
+	    EipStatus.getInstance().setConnectedOrDisconnected();
 	}
+    }
 
 	/**
 	 * Dialog shown when encountering a configuration error.  Such errors require
@@ -273,7 +274,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
     private Intent prepareProviderAPICommand() {	    
 	mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
-	eipStatus = (TextView) findViewById(R.id.eipStatus);
+	status_message = (TextView) findViewById(R.id.status_message);
 		
 	providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 	providerAPI_result_receiver.setReceiver(this);
@@ -307,7 +308,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	parameters.putString(SessionDialogInterface.PASSWORD, password);
 
 	mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	eipStatus.setText(R.string.authenticating_message);
+	status_message.setText(R.string.authenticating_message);
 
 	provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 	provider_API_command.setAction(ProviderAPI.SRP_AUTH);
@@ -331,8 +332,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    
 	if(mProgressBar == null) mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 	mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	if(eipStatus == null) eipStatus = (TextView) findViewById(R.id.eipStatus);
-	eipStatus.setText(R.string.logout_message);
+	if(status_message == null) status_message = (TextView) findViewById(R.id.status_message);
+	status_message.setText(R.string.logout_message);
 		
 	provider_API_command.setAction(ProviderAPI.LOG_OUT);
 	startService(provider_API_command);
@@ -362,7 +363,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	parameters.putString(SessionDialogInterface.PASSWORD, password);
 	
 	mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	eipStatus.setText(R.string.signingup_message);
+	status_message.setText(R.string.signingup_message);
 	
 	provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 	provider_API_command.setAction(ProviderAPI.SRP_REGISTER);
@@ -390,6 +391,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
+	    Log.d(TAG, "onReceiveResult");
 	    if(resultCode == ProviderAPI.SRP_REGISTRATION_SUCCESSFUL) {
 		String username = resultData.getString(SessionDialogInterface.USERNAME);
 		String password = resultData.getString(SessionDialogInterface.PASSWORD);
@@ -466,17 +468,17 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			protected void onReceiveResult(int resultCode, Bundle resultData){
 				super.onReceiveResult(resultCode, resultData);
 				String request = resultData.getString(Constants.REQUEST_TAG);
-				if(eipStatus == null) eipStatus = (TextView) findViewById(R.id.eipStatus);
+				if(status_message == null) status_message = (TextView) findViewById(R.id.status_message);
 				if (request.equalsIgnoreCase(Constants.ACTION_IS_EIP_RUNNING)){					
 					if (resultCode == Activity.RESULT_OK){
 
 						switch(previous_result_code){
-						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: eipStatus.setText(R.string.succesful_authentication_message); break;
-						case ProviderAPI.SRP_AUTHENTICATION_FAILED: eipStatus.setText(R.string.authentication_failed_message); break;
-						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.authed_secured_status); break;
-						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.incorrectly_downloaded_certificate_message); break;
-						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.logged_out_message); break;
-						case ProviderAPI.LOGOUT_FAILED: eipStatus.setText(R.string.log_out_failed_message); break;
+						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: status_message.setText(R.string.succesful_authentication_message); break;
+						case ProviderAPI.SRP_AUTHENTICATION_FAILED: status_message.setText(R.string.authentication_failed_message); break;
+						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: status_message.setText(R.string.authed_secured_status); break;
+						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: status_message.setText(R.string.incorrectly_downloaded_certificate_message); break;
+						case ProviderAPI.LOGOUT_SUCCESSFUL: status_message.setText(R.string.logged_out_message); break;
+						case ProviderAPI.LOGOUT_FAILED: status_message.setText(R.string.log_out_failed_message); break;
 						
 						}	
 					}
@@ -484,13 +486,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 						switch(previous_result_code){
 
-						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: eipStatus.setText(R.string.succesful_authentication_message); break;
-						case ProviderAPI.SRP_AUTHENTICATION_FAILED: eipStatus.setText(R.string.authentication_failed_message); break;
-						case ProviderAPI.SRP_REGISTRATION_FAILED: eipStatus.setText(R.string.registration_failed_message); break;
+						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: status_message.setText(R.string.succesful_authentication_message); break;
+						case ProviderAPI.SRP_AUTHENTICATION_FAILED: status_message.setText(R.string.authentication_failed_message); break;
+						case ProviderAPI.SRP_REGISTRATION_FAILED: status_message.setText(R.string.registration_failed_message); break;
 						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: break;
-						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: eipStatus.setText(R.string.incorrectly_downloaded_certificate_message); break;
-						case ProviderAPI.LOGOUT_SUCCESSFUL: eipStatus.setText(R.string.logged_out_message); break;
-						case ProviderAPI.LOGOUT_FAILED: eipStatus.setText(R.string.log_out_failed_message); break;			
+						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: status_message.setText(R.string.incorrectly_downloaded_certificate_message); break;
+						case ProviderAPI.LOGOUT_SUCCESSFUL: status_message.setText(R.string.logged_out_message); break;
+						case ProviderAPI.LOGOUT_FAILED: status_message.setText(R.string.log_out_failed_message); break;			
 						}
 					}
 				}

@@ -57,10 +57,6 @@ public final class EIP extends IntentService {
     private static ProfileManager profile_manager;
     private static Gateway activeGateway = null;
     
-    public static VpnStatus.ConnectionStatus lastConnectionStatusLevel;
-    public static boolean mIsDisconnecting = false;
-    public static boolean mIsStarting = false;
-
 	public EIP(){
 		super("LEAPEIP");
 	}
@@ -133,16 +129,13 @@ public final class EIP extends IntentService {
      * if there is no bound service.  Sends a message to the requesting ResultReceiver.
      */
     private void stopEIP() {
-	if(isConnected()) {
-	    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
-	    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    startActivity(disconnect_vpn);
-	    mIsDisconnecting = true;
-	    lastConnectionStatusLevel = VpnStatus.ConnectionStatus.UNKNOWN_LEVEL; // Wait for the decision of the user
-	    Log.d(TAG, "mIsDisconnecting = true");
-	}
+	EipStatus eip_status = EipStatus.getInstance();
+	Log.d(TAG, "stopEip(): eip is connected? " + eip_status.isConnected());
+	int result_code = Activity.RESULT_CANCELED;
+	if(eip_status.isConnected())
+	    result_code = Activity.RESULT_OK;
 
-	tellToReceiver(ACTION_STOP_EIP, Activity.RESULT_OK);
+	tellToReceiver(ACTION_STOP_EIP, result_code);
     }
     
     private void tellToReceiver(String action, int resultCode) {	
@@ -160,16 +153,11 @@ public final class EIP extends IntentService {
      */
 	
     private void isRunning() {
-	int resultCode = (isConnected()) ?
+	EipStatus eip_status = EipStatus.getInstance();
+	int resultCode = (eip_status.isConnected()) ?
 	    Activity.RESULT_OK :
 	    Activity.RESULT_CANCELED;
 	tellToReceiver(ACTION_IS_EIP_RUNNING, resultCode);
-    }
-    
-    public static boolean isConnected() {	
-	return lastConnectionStatusLevel != null
-	    && lastConnectionStatusLevel.equals(VpnStatus.ConnectionStatus.LEVEL_CONNECTED)
-	    && !mIsDisconnecting;
     }
 
     /**

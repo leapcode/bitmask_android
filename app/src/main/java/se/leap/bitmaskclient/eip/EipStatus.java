@@ -53,6 +53,8 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 	current_status.setLocalizedResId(localizedResId);
 	current_status.setLevel(level);
 	current_status.setChanged();
+	if(isConnected() || isDisconnected())
+	    setConnectedOrDisconnected();
 	Log.d(TAG, "update state with level " + level);
 	current_status.notifyObservers();
     }
@@ -74,7 +76,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public boolean isDisconnected() {
-	return level == VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED || level == VpnStatus.ConnectionStatus.LEVEL_AUTH_FAILED;
+	return level == VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
     }
 
     public void setConnecting() {
@@ -83,11 +85,18 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 	wants_to_disconnect = false;
     }
 
+    public void setConnectedOrDisconnected() {
+	is_connecting = false;
+	is_disconnecting = false;
+	wants_to_disconnect = false;
+	current_status.setChanged();
+	current_status.notifyObservers();
+    }
+
     public void setDisconnecting() {
 	is_disconnecting = true;
 	is_connecting = false;
 	wants_to_disconnect = false;
-	level = VpnStatus.ConnectionStatus.UNKNOWN_LEVEL; // Wait for the decision of the user
     }
 
     public void setWantsToDisconnect() {

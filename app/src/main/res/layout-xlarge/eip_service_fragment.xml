@@ -61,7 +61,7 @@
             android:src="@drawable/ic_sysbar_quicksettings" />
 
         <TextView
-            android:id="@+id/eipStatus"
+            android:id="@+id/status_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"

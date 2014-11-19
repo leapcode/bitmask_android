@@ -17,70 +17,70 @@ import java.util.*;
 
 public class EipServiceFragment extends Fragment implements Observer, CompoundButton.OnCheckedChangeListener {
 	
-	protected static final String IS_EIP_PENDING = "is_eip_pending";
+    protected static final String IS_EIP_PENDING = "is_eip_pending";
     public static final String START_ON_BOOT = "start on boot";
 	
-	private View eipFragment;
-	private static Switch eipSwitch;
-	private View eipDetail;
-	private TextView eipStatus;
-    private EipStatus eip_status;
+    private View eipFragment;
+    private static Switch eipSwitch;
+    private View eipDetail;
+    private TextView status_message;
 
     private static EIPReceiver mEIPReceiver;
-
+    private static EipStatus eip_status;
     
     public static String TAG = "se.leap.bitmask.EipServiceFragment";
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+	super.onCreate(savedInstanceState);
+	eip_status = EipStatus.getInstance();
+	eip_status.addObserver(this);
+	mEIPReceiver = new EIPReceiver(new Handler());
+
+	if (savedInstanceState != null && savedInstanceState.getBoolean(IS_EIP_PENDING))
+	    eip_status.setConnecting();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			     Bundle savedInstanceState) {
 		
-		eipFragment = inflater.inflate(R.layout.eip_service_fragment, container, false);		
-		eipDetail = ((RelativeLayout) eipFragment.findViewById(R.id.eipDetail));
-		eipDetail.setVisibility(View.VISIBLE);
+	eipFragment = inflater.inflate(R.layout.eip_service_fragment, container, false);		
+	eipDetail = ((RelativeLayout) eipFragment.findViewById(R.id.eipDetail));
+	eipDetail.setVisibility(View.VISIBLE);
 
-		View eipSettings = eipFragment.findViewById(R.id.eipSettings);
-		eipSettings.setVisibility(View.GONE); // FIXME too!
+	View eipSettings = eipFragment.findViewById(R.id.eipSettings);
+	eipSettings.setVisibility(View.GONE); // FIXME too!
 
-		if (EIP.mIsStarting)
-		    eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
+	if (eip_status.isConnecting())
+	    eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
 		
-		eipStatus = (TextView) eipFragment.findViewById(R.id.eipStatus);
+	status_message = (TextView) eipFragment.findViewById(R.id.status_message);
 
-		eipSwitch = (Switch) eipFragment.findViewById(R.id.eipSwitch);
-		eipSwitch.setOnCheckedChangeListener(this);
+	eipSwitch = (Switch) eipFragment.findViewById(R.id.eipSwitch);
+	eipSwitch.setOnCheckedChangeListener(this);
 		
-		if(getArguments() != null && getArguments().containsKey(START_ON_BOOT) && getArguments().getBoolean(START_ON_BOOT))
-		    startEipFromScratch();
+	if(getArguments() != null && getArguments().containsKey(START_ON_BOOT) && getArguments().getBoolean(START_ON_BOOT))
+	    startEipFromScratch();
 		
-		return eipFragment;
-	}
+	return eipFragment;
+    }
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		EipStatus.getInstance().addObserver(this);
-		mEIPReceiver = new EIPReceiver(new Handler());
-
-		if (savedInstanceState != null)
-			EIP.mIsStarting = savedInstanceState.getBoolean(IS_EIP_PENDING);
-	}
-
-	@Override
-	public void onResume() {
-	    super.onResume();
-	    eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
-	}
+    @Override
+    public void onResume() {
+	super.onResume();
+	eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
+    }
     
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putBoolean(IS_EIP_PENDING, EIP.mIsStarting);
-	}
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+	super.onSaveInstanceState(outState);
+	outState.putBoolean(IS_EIP_PENDING, eip_status.isConnecting());
+    }
 
     protected void saveEipStatus() {
 	boolean eip_is_on = false;
-	Log.d("bitmask", "saveEipStatus");
+	Log.d(TAG, "saveEipStatus");
 	if(eipSwitch.isChecked()) {
 	    eip_is_on = true;
 	}
@@ -88,6 +88,7 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	if(getActivity() != null)
 	    Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
     }
+    
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 	if (buttonView.equals(eipSwitch)){
@@ -117,7 +118,7 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     private boolean canStartEIP() {
 	boolean certificateExists = !Dashboard.preferences.getString(Constants.CERTIFICATE, "").isEmpty();
 	boolean isAllowedAnon = Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false);
-	return (isAllowedAnon || certificateExists) && !EIP.mIsStarting && !EIP.isConnected();
+	return (isAllowedAnon || certificateExists) && !eip_status.isConnected();
     }
     
     private boolean canLogInToStartEIP() {
@@ -125,14 +126,13 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	boolean isLoggedIn = !LeapSRPSession.getToken().isEmpty();
 	Log.d(TAG, "Allow registered? " + isAllowedRegistered);
 	Log.d(TAG, "Is logged in? " + isLoggedIn);
-	return isAllowedRegistered && !isLoggedIn && !EIP.mIsStarting && !EIP.isConnected();
+	return isAllowedRegistered && !isLoggedIn && !eip_status.isConnecting() && !eip_status.isConnected();
     }
 
     private void handleSwitchOff() {
-	if(EIP.mIsStarting) {
+	if(eip_status.isConnecting()) {
 	    askPendingStartCancellation();
-	} else if(EIP.isConnected()) {
-	    Log.d(TAG, "Stopping EIP");
+	} else if(eip_status.isConnected()) {
 	    stopEIP();
 	}
     }
@@ -150,7 +150,6 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	    .setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
 		    @Override
 		    public void onClick(DialogInterface dialog, int which) {
-			Log.d(TAG, "askPendingStartCancellation checks the switch to true");
 			eipSwitch.setChecked(true);
 		    }
 		})
@@ -158,13 +157,12 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     }
 
     public void startEipFromScratch() {
-	EIP.mIsStarting = true;
+	eip_status.setConnecting();
 	eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
 	String status = getResources().getString(R.string.eip_status_start_pending);
 	setEipStatus(status);
 	
 	if(!eipSwitch.isChecked()) {
-	    Log.d(TAG, "startEipFromScratch checks the switch to true");
 	    eipSwitch.setChecked(true);
 	    saveEipStatus();
 	}
@@ -172,7 +170,6 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     }
 
     protected void stopEIP() {
-	EIP.mIsStarting = false;
 	View eipProgressBar = getActivity().findViewById(R.id.eipProgress);
 	if(eipProgressBar != null)
 	    eipProgressBar.setVisibility(View.GONE);
@@ -199,56 +196,42 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     @Override
     public void update (Observable observable, Object data) {
 	if(observable instanceof EipStatus) {
+	    this.eip_status = (EipStatus) observable;
 	    final EipStatus eip_status = (EipStatus) observable;
-	    EipStatus previous_status = eip_status.getPreviousStatus();
-	    boolean isNewLevel = eip_status.getLevel() != previous_status.getLevel();
-	    if(!eip_status.wantsToDisconnect() && (isNewLevel || eip_status.isConnected())) {
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-			    handleNewState(eip_status);
-			}
-		    });
-	    } else if(eip_status.wantsToDisconnect() && eip_status.isConnected()) {
-		setDisconnectedUI();
-		// EIP.lastConnectionStatusLevel = VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
-		// updateState(state, logmessage, localizedResId, level);
-	    }
+	    getActivity().runOnUiThread(new Runnable() {
+		    @Override
+		    public void run() {
+			handleNewState(eip_status);
+		    }
+		});
 	}
     }
 
     private void handleNewState(EipStatus eip_status) {
 	final String state = eip_status.getState();
-	final String logmessage = eip_status.getLogMessage();
-	final int localizedResId = eip_status.getLocalizedResId();
-	final VpnStatus.ConnectionStatus level = eip_status.getLevel();
-	if (level == VpnStatus.ConnectionStatus.LEVEL_CONNECTED)
+	if(eip_status.wantsToDisconnect())
+	    setDisconnectedUI();
+	else if (eip_status.isConnected())
 	    setConnectedUI();
 	else if (eip_status.isDisconnected() && !eip_status.isConnecting())
 	    setDisconnectedUI();
-	else if (level == VpnStatus.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET)
-	    setNoServerReplyUI(localizedResId, logmessage);
-	else if (level == VpnStatus.ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED)
-	    setServerReplyUI(state, localizedResId, logmessage);
+	else
+	    setInProgressUI(eip_status);
     }
 
     private void setConnectedUI() {
 	hideProgressBar();
-	String status = getString(R.string.eip_state_connected);
-	setEipStatus(status);
 	adjustSwitch();
+	setEipStatus(getString(R.string.eip_state_connected));
     }
 
     private void setDisconnectedUI(){
 	hideProgressBar();
-
-	String status = getString(R.string.eip_state_not_connected);
-	setEipStatus(status);
 	adjustSwitch();
+	setEipStatus(getString(R.string.eip_state_not_connected));
     }
 
     private void adjustSwitch() {
-	EipStatus eip_status = EipStatus.getInstance();
 	if(eip_status.isConnected()) {
 	    if(!eipSwitch.isChecked()) {
 		eipSwitch.setChecked(true);
@@ -260,25 +243,18 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	}
     }
 
-    private void setNoServerReplyUI(int localizedResId, String logmessage) {
-	if(eipStatus != null) {
-	    String prefix = getString(localizedResId);
-	    setEipStatus(prefix + " " + logmessage);
-	}
-    }
-
-    private void setServerReplyUI(String state, int localizedResId, String logmessage) {
-	if(eipStatus != null)
-	    if(state.equals("AUTH") || state.equals("GET_CONFIG")) {		
-		String prefix = getString(localizedResId);
-		setEipStatus(prefix + " " + logmessage);
-	    }
+    private void setInProgressUI(EipStatus eip_status) {
+	int localizedResId = eip_status.getLocalizedResId();
+	String logmessage = eip_status.getLogMessage();
+	String prefix = getString(localizedResId);
+	
+	setEipStatus(prefix + " " + logmessage);
     }
 
     protected void setEipStatus(String status) {
-	if(eipStatus == null)
-	    eipStatus = (TextView) getActivity().findViewById(R.id.eipStatus);
-	eipStatus.setText(status);
+	if(status_message == null)
+	    status_message = (TextView) getActivity().findViewById(R.id.status_message);
+	status_message.setText(status);
     }
 
     private void hideProgressBar() {
@@ -319,7 +295,6 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 				    Log.d(TAG, "Action start eip = Result OK");
 					checked = true;
 					eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
-					EIP.mIsStarting = false;
 					break;
 				case Activity.RESULT_CANCELED:
 					checked = false;
@@ -329,8 +304,10 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 			} else if (request == Constants.ACTION_STOP_EIP) {
 				switch (resultCode){
 				case Activity.RESULT_OK:
-					checked = false;
-					break;
+				    Intent disconnect_vpn = new Intent(getActivity(), DisconnectVPN.class);
+				    getActivity().startActivityForResult(disconnect_vpn, 33);
+				    eip_status.setDisconnecting();
+				    break;
 				case Activity.RESULT_CANCELED:
 					checked = true;
 					break;
@@ -388,7 +365,5 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 
     public void checkEipSwitch(boolean checked) {
 	eipSwitch.setChecked(checked);
-	// Log.d(TAG, "checkEipSwitch");
-	// onCheckedChanged(eipSwitch, checked);
     }
 }
