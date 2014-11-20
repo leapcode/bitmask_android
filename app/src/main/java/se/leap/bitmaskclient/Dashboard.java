@@ -135,21 +135,23 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     }
     
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data){
+	protected void onActivityResult(int requestCode, int resultCode, final Intent data){
 		if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
 		// It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
-			if ( resultCode == RESULT_OK ){
-				preferences.edit().putInt(EIP.PARSED_SERIAL, 0).commit();
-				preferences.edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
-				Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
-				updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
-				startService(updateEIP);
-				buildDashboard(false);
-				invalidateOptionsMenu();
-				if(data != null && data.hasExtra(LogInDialog.TAG)) {
-					View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-					logInDialog(Bundle.EMPTY);
-				}
+		    if ( resultCode == RESULT_OK ){
+			preferences.edit().putInt(EIP.PARSED_SERIAL, 0).commit();
+			preferences.edit().putBoolean(EIP.AUTHED_EIP, authed_eip).commit();
+				
+			Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
+			updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
+			startService(updateEIP);
+			
+			buildDashboard(false);
+			invalidateOptionsMenu();
+			if(data != null && data.hasExtra(LogInDialog.TAG)) {
+			    View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
+			    logInDialog(Bundle.EMPTY);
+			}
 			} else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
 				finish();
 			} else
@@ -451,7 +453,22 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		hideProgressBar();
 		
         	setResult(RESULT_OK);
-		eipStart();
+		Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
+		ResultReceiver eip_receiver = new ResultReceiver(new Handler()){
+			protected void onReceiveResult(int resultCode, Bundle resultData){
+			    super.onReceiveResult(resultCode, resultData);
+			    String request = resultData.getString(EIP.REQUEST_TAG);
+			    if (resultCode == Activity.RESULT_OK){
+				if(authed_eip)
+				    eipStart();
+				else
+				    eipStatus.setText("Certificate updated");
+				}
+			    }
+		    };
+		updateEIP.putExtra(EIP.RECEIVER_TAG, eip_receiver);
+		updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
+		startService(updateEIP);
 	    } else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
     		changeStatusMessage(resultCode);
 		hideProgressBar();
@@ -523,13 +540,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         intent.putExtra(Dashboard.REQUEST_CODE, requestCode);
         super.startActivityForResult(intent, requestCode);
     }
-    
-	/**
-	 * Send a command to EIP
-	 * 
-	 * @param action	A valid String constant from EIP class representing an Intent
-	 * 					filter for the EIP class 
-	 */
+
 	private void eipIsRunning(ResultReceiver eip_receiver){
 		// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
 		Intent eip_intent = new Intent(this, EIP.class);
