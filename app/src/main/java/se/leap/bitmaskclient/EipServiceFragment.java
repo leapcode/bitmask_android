@@ -69,19 +69,15 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	if(getArguments() != null && getArguments().containsKey(START_ON_BOOT) && getArguments().getBoolean(START_ON_BOOT))
 	    startEipFromScratch();
 
+        if (savedInstanceState != null) {
+            setStatusMessage(savedInstanceState.getString(STATUS_MESSAGE));
+            if(savedInstanceState.getBoolean(IS_PENDING))
+                eip_status.setConnecting();
+            else if(savedInstanceState.getBoolean(IS_CONNECTED)) {
+                eip_status.setConnectedOrDisconnected();
+            }
+        }
 	return eipFragment;
-    }
-
-    public void onViewStateRestored (Bundle savedInstanceState) {
-	super.onViewStateRestored(savedInstanceState);
-	if (savedInstanceState != null) {
-	    setStatusMessage(savedInstanceState.getString(STATUS_MESSAGE));
-	    if(savedInstanceState.getBoolean(IS_PENDING))
-		eip_status.setConnecting();
-	    else if(savedInstanceState.getBoolean(IS_CONNECTED)) {
-		eip_status.setConnectedOrDisconnected();
-	    }
-	}
     }
 
     @Override
