@@ -54,8 +54,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     private static Context app;
     protected static SharedPreferences preferences;
     private FragmentManagerEnhanced fragment_manager;
-    
-    private EipServiceFragment eipFragment;
+
     private ProgressBar mProgressBar;
     private TextView status_message;
     public ProviderAPIResultReceiver providerAPI_result_receiver;
@@ -180,21 +179,24 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		providerNameTV.setText(provider.getDomain());
 		providerNameTV.setTextSize(28);
 		
-	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
+		mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 
 		if ( provider.hasEIP()){
-			eipFragment = new EipServiceFragment();
-			if (hide_and_turn_on_eip) {
-			    preferences.edit().remove(Dashboard.START_ON_BOOT).commit();
-			    Bundle arguments = new Bundle();
-			    arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
-			    eipFragment.setArguments(arguments);
-			}
-			fragment_manager.replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG);
 
-			if (hide_and_turn_on_eip) {
-			    onBackPressed();
-			}
+		    EipServiceFragment previous_eip_fragment = (EipServiceFragment)fragment_manager.findFragmentByTag(EipServiceFragment.TAG);
+		    EipServiceFragment eipFragment = previous_eip_fragment == null ?
+			new EipServiceFragment() : previous_eip_fragment;
+		    if (hide_and_turn_on_eip) {
+			preferences.edit().remove(Dashboard.START_ON_BOOT).commit();
+			Bundle arguments = new Bundle();
+			arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
+			eipFragment.setArguments(arguments);
+		    }
+		    fragment_manager.replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG);
+
+		    if (hide_and_turn_on_eip) {
+			onBackPressed();
+		    }
 		}
 	}
 

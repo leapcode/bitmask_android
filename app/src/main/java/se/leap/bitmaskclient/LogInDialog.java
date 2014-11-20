@@ -55,32 +55,28 @@ public class LogInDialog extends SessionDialogInterface {
 		View log_in_dialog_view = inflater.inflate(R.layout.log_in_dialog, null);
 
 		final TextView user_message = (TextView)log_in_dialog_view.findViewById(R.id.user_message);
-		if(getArguments() != null && getArguments().containsKey(getResources().getString(R.string.user_message))) {
-			user_message.setText(getArguments().getString(getResources().getString(R.string.user_message)));
-		} else {
-			user_message.setVisibility(View.GONE);
-		}
-		
 		final EditText username_field = (EditText)log_in_dialog_view.findViewById(R.id.username_entered);
-		if(getArguments() != null && getArguments().containsKey(USERNAME)) {
-			String username = getArguments().getString(USERNAME);
-			username_field.setText(username);
-		}
-		if (getArguments() != null && getArguments().containsKey(USERNAME_MISSING)) {
-			username_field.setError(getResources().getString(R.string.username_ask));
-    	}
-		
 		final EditText password_field = (EditText)log_in_dialog_view.findViewById(R.id.password_entered);
+
 		if(!username_field.getText().toString().isEmpty() && password_field.isFocusable()) {
 			password_field.requestFocus();
 		}
-		if (getArguments() != null && getArguments().containsKey(PASSWORD_INVALID_LENGTH)) {
-		    password_field.setError(getResources().getString(R.string.error_not_valid_password_user_message));
-		}
-		if(getArguments() != null && getArguments().getBoolean(EipServiceFragment.IS_EIP_PENDING, false)) {
-			is_eip_pending = true;
+		if (getArguments() != null) {
+		    is_eip_pending = getArguments().getBoolean(EipServiceFragment.IS_PENDING, false);
+		    if (getArguments().containsKey(PASSWORD_INVALID_LENGTH))
+			password_field.setError(getResources().getString(R.string.error_not_valid_password_user_message));
+		    if (getArguments().containsKey(USERNAME)) {
+			String username = getArguments().getString(USERNAME);
+			username_field.setText(username);
 		    }
-
+		    if (getArguments().containsKey(USERNAME_MISSING)) {
+			username_field.setError(getResources().getString(R.string.username_ask));
+		    }
+		    if(getArguments().containsKey(getResources().getString(R.string.user_message)))
+			user_message.setText(getArguments().getString(getResources().getString(R.string.user_message)));
+		    else
+			user_message.setVisibility(View.GONE);
+		}
 		
 		builder.setView(log_in_dialog_view)
 			.setPositiveButton(R.string.login_button, new DialogInterface.OnClickListener() {
