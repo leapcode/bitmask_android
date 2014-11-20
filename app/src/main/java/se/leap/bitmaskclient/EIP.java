@@ -324,6 +324,7 @@ public final class EIP extends IntentService {
 		    }
 		    deleteAllVpnProfiles();
 		    updateGateways();
+            if(mReceiver != null) mReceiver.send(Activity.RESULT_OK, Bundle.EMPTY);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -394,7 +395,7 @@ public final class EIP extends IntentService {
 	Calendar offset_date = Calendar.getInstance();
 	try {
 	    Date date = certificate_date_format.parse(date_string);
-	    long difference = Math.abs(date.getTime() - certificate.getNotAfter().getTime())/2;
+        long difference = Math.abs(date.getTime() - certificate.getNotAfter().getTime())/2;
 	    long current_date_millis = offset_date.getTimeInMillis();
 	    offset_date.setTimeInMillis(current_date_millis + difference);
 	    Log.d(TAG, "certificate not after = " + certificate.getNotAfter());
