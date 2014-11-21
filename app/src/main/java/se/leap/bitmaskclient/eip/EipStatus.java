@@ -29,7 +29,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     private static VpnStatus.ConnectionStatus level = VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
     private static boolean wants_to_disconnect = false;
     private static boolean is_disconnecting = false;
-    private static boolean is_connecting = false;
 
     private String state, log_message;
     private int localized_res_id;
@@ -55,6 +54,8 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 	current_status.setChanged();
 	if(isConnected() || isDisconnected())
 	    setConnectedOrDisconnected();
+	else if(isConnecting())
+	    setConnecting();
 	Log.d(TAG, "update state with level " + level);
 	current_status.notifyObservers();
     }
@@ -63,12 +64,15 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 	return is_disconnecting;
     }
 
-    public boolean isConnecting() {
-	return is_connecting;
-    }
-
     public boolean wantsToDisconnect() {
 	return wants_to_disconnect;
+    }
+
+    public boolean isConnecting() {
+	return
+	    !isConnected() &&
+	    !isDisconnected() &&
+	    !isPaused();
     }
 
     public boolean isConnected() {
@@ -79,14 +83,19 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 	return level == VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
     }
 
+    public boolean isPaused() {
+	return level == VpnStatus.ConnectionStatus.LEVEL_VPNPAUSED;
+    }
+
     public void setConnecting() {
-	is_connecting = true;
 	is_disconnecting = false;
 	wants_to_disconnect = false;
+	current_status.setChanged();
+	current_status.notifyObservers();
     }
 
     public void setConnectedOrDisconnected() {
-	is_connecting = false;
+	Log.d(TAG, "setConnectedOrDisconnected()");
 	is_disconnecting = false;
 	wants_to_disconnect = false;
 	current_status.setChanged();
@@ -95,7 +104,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
     public void setDisconnecting() {
 	is_disconnecting = true;
-	is_connecting = false;
 	wants_to_disconnect = false;
     }
 
@@ -137,6 +145,11 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
     private void setLevel(VpnStatus.ConnectionStatus level) {
 	this.level = level;
+    }
+
+    @Override
+    public String toString() {
+	return "State: " + state + " Level: " + level.toString();
     }
 
 }

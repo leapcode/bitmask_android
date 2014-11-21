@@ -134,7 +134,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		finish();
 	    } else
 		configErrorDialog();
-	} else if(requestCode == 33) {
+	} else if(requestCode == EIP.DISCONNECT) {
 	    EipStatus.getInstance().setConnectedOrDisconnected();
 	}
     }
@@ -317,13 +317,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	startService(provider_API_command);
     }
 
-    public void cancelAuthedEipOn() {
-	EipServiceFragment eipFragment = (EipServiceFragment) getFragmentManager().findFragmentByTag(EipServiceFragment.TAG);
-	eipFragment.checkEipSwitch(false);
-    }
-
     public void cancelLoginOrSignup() {
-	hideProgressBar();
+      EipStatus.getInstance().setConnectedOrDisconnected();
     }
 	
     /**

@@ -103,7 +103,6 @@ public class SignUpDialog extends SessionDialogInterface {
 	 */
 	public interface SignUpDialogInterface {
 	    public void signUp(String username, String password);
-	    public void cancelAuthedEipOn();
 	    public void cancelLoginOrSignup();
     }
 
@@ -131,7 +130,7 @@ public class SignUpDialog extends SessionDialogInterface {
     @Override
     public void onCancel(DialogInterface dialog) {
 	if(is_eip_pending)
-	    interface_with_Dashboard.cancelAuthedEipOn();
+	    interface_with_Dashboard.cancelLoginOrSignup();
 	super.onCancel(dialog);	    
     }
 }

@@ -112,7 +112,6 @@ public class LogInDialog extends SessionDialogInterface {
 	 */
 	public interface LogInDialogInterface {
 	    public void logIn(String username, String password);
-	    public void cancelAuthedEipOn();
 	    public void signUp(String username, String password);
 	    public void cancelLoginOrSignup();
     }
@@ -142,6 +141,6 @@ public class LogInDialog extends SessionDialogInterface {
     public void onCancel(DialogInterface dialog) {
 	super.onCancel(dialog);
 	if(is_eip_pending)
-	    interface_with_Dashboard.cancelAuthedEipOn();
+	    interface_with_Dashboard.cancelLoginOrSignup();
     }
 }

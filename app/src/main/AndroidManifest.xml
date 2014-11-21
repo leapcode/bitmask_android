@@ -62,7 +62,9 @@
         </receiver>
 
 	<activity
-	    android:name="se.leap.bitmaskclient.eip.VoidVpnLauncher" />
+	    android:name="se.leap.bitmaskclient.eip.VoidVpnLauncher"
+	    android:theme="@android:style/Theme.NoDisplay" />
+	
         <activity
                 android:theme="@android:style/Theme.DeviceDefault.Light.Dialog"
                 android:name="de.blinkt.openvpn.activities.DisconnectVPN" />

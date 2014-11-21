@@ -23,7 +23,7 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     protected static final String IS_CONNECTED = TAG + ".is_connected";
     protected static final String STATUS_MESSAGE = TAG + ".status_message";
     public static final String START_ON_BOOT = "start on boot";
-	
+
     private View eipFragment;
     private static Switch eipSwitch;
     private View eipDetail;
@@ -174,7 +174,6 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     }
 
     public void startEipFromScratch() {
-	eip_status.setConnecting();
 	eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
 	String status = parent_activity.getString(R.string.eip_status_start_pending);
 	setStatusMessage(status);
@@ -212,6 +211,7 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	
     @Override
     public void update (Observable observable, Object data) {
+	Log.d(TAG, "handleNewState?");	
 	if(observable instanceof EipStatus) {
 	    this.eip_status = (EipStatus) observable;
 	    final EipStatus eip_status = (EipStatus) observable;
@@ -225,6 +225,7 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     }
 
     private void handleNewState(EipStatus eip_status) {
+	Log.d(TAG, "handleNewState: " + eip_status.toString());
 	if(eip_status.wantsToDisconnect())
 	    setDisconnectedUI();
 	else if (eip_status.isConnected())
@@ -249,12 +250,14 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     }
 
     private void adjustSwitch() {
-	if(eip_status.isConnected()) {
-	    Log.d(TAG, "adjustSwitch, isConnected, is checked? " + eipSwitch.isChecked());
+	if(eip_status.isConnected() || eip_status.isConnecting()) {
+	    Log.d(TAG, "adjustSwitch, isConnected || isConnecting, is checked? " + eipSwitch.isChecked());
 	    if(!eipSwitch.isChecked()) {
 		eipSwitch.setChecked(true);
 	    }
 	} else {
+	    Log.d(TAG, "adjustSwitch, !isConnected && !isConnecting? " + eip_status.toString());
+	    
 	    if(eipSwitch.isChecked()) {
 		eipSwitch.setChecked(false);
 	    }
@@ -267,6 +270,7 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	String prefix = parent_activity.getString(localizedResId);
 	
 	setStatusMessage(prefix + " " + logmessage);
+	adjustSwitch();
     }
 
     protected void setStatusMessage(String status) {
@@ -278,6 +282,14 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     private void hideProgressBar() {
 	if(parent_activity != null && parent_activity.findViewById(R.id.eipProgress) != null)
 	    parent_activity.findViewById(R.id.eipProgress).setVisibility(View.GONE);
+    }
+
+    public static EipStatus getEipStatus() {
+	return eip_status;
+    }
+
+    public void checkEipSwitch(boolean activated) {
+	eipSwitch.setChecked(activated);
     }
 
     protected class EIPReceiver extends ResultReceiver {
@@ -309,7 +321,7 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 		switch (resultCode){
 		case Activity.RESULT_OK:
 		    Intent disconnect_vpn = new Intent(parent_activity, DisconnectVPN.class);
-		    parent_activity.startActivityForResult(disconnect_vpn, 33);
+		    parent_activity.startActivityForResult(disconnect_vpn, EIP.DISCONNECT);
 		    eip_status.setDisconnecting();
 		    break;
 		case Activity.RESULT_CANCELED:
@@ -359,13 +371,4 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     public static EIPReceiver getReceiver() {
 	return mEIPReceiver;
     }
-
-    public static boolean isEipSwitchChecked() {
-	return eipSwitch.isChecked();
-    }
-
-    public void checkEipSwitch(boolean checked) {
-	eipSwitch.setChecked(checked);
-    }
-
 }

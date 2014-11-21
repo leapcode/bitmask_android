@@ -47,6 +47,9 @@ public final class EIP extends IntentService {
 
     public final static String TAG = EIP.class.getSimpleName();
     public final static String SERVICE_API_PATH = "config/eip-service.json";
+
+
+    public static final int DISCONNECT = 15;
     
     private static Context context;
     private static ResultReceiver mReceiver;
@@ -95,13 +98,13 @@ public final class EIP extends IntentService {
      * It also sets up early routes.
      */
     private void startEIP() {
-        earlyRoutes();
 	GatewaySelector gateway_selector = new GatewaySelector(gateways);
 	activeGateway = gateway_selector.select();
 	if(activeGateway != null && activeGateway.getProfile() != null) {
 	    mReceiver = EipServiceFragment.getReceiver();
 	    launchActiveGateway();
 	}
+        earlyRoutes();
     }
 
     /**
