@@ -941,7 +941,6 @@ public class ProviderAPI extends IntentService {
 	} 
     }
 
-    static boolean a = true;
     private boolean loadCertificate(String cert_string) {
 	try {
 	    // API returns concatenated cert & key.  Split them for OpenVPN options
@@ -956,60 +955,11 @@ public class ProviderAPI extends IntentService {
 		}
 	    }
 	    RSAPrivateKey keyCert = ConfigHelper.parseRsaKeyFromString(keyString);
-	    keyString = !a ? Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT ) :
-                "-----BEGIN RSA PRIVATE KEY-----" +
-                        "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDdaKQHSwg2Q2Uz9t5mae9BfV9J" +
-                        "kk+WSU6jXixsTbtLAr8gvuNcVuI0lKm2zXVqoS8aRCSsCt12vhjU/WBTSv0tvwTaT2HQYFQ1GlVU" +
-                        "BKssJEUpaVyQKL6LN9BA5ZODBpbhefRIX8z+02afxmNWdnOQfDtLU6nHSQLLIUBSmgu+Y2Q3SdIB" +
-                        "ojIl9Kj0Zt6uZkhtOXZqkwLBiMr+/ukSidpcmNgbAN0eXSfVouaduzsDPQ6MeCJTz2lhUvC0/57h" +
-                        "5mlkNLzEjyb/pAVTtnK4zdiH6XAuCxU/AkF0yzhaiQWMG0RQb4vEx/UHjkDU+K0GDy/qx1BmBB7C" +
-                        "4vHLauqSXOs1AgMBAAECggEBALDQbRXJ7N/wyHRMNOWSudgR+DO33UkGd/9tKIrBNM49fkb3Snim" +
-                        "hfU5t6Ldx2QFHqmaO7MM5jl6rDgDtJYv76pFvulctZ+EHhteUUBMjiotOPJOSvZxI2Hoi64X6Mqd" +
-                        "S4b7LoNRxlLGnlEATLpy0+1R2MRaJt6YRtvTTRvqG3DJUBo5p8cyiozPmeQraV9ZEj9/Y8PgrytI" +
-                        "jmbSKks+zjvU9kPG62qlvR6ODdkTiOTZ/t9R1cBPgCqHLUKOVKxnDzbb1MEyM0ffZl0ETh7P7MMc" +
-                        "DaTJE27wEszyg4MMmbAoirEO31DpnGc2Q+z8joFbIAOP15b/LfG0KEtPrMySayECgYEA+6x7VIyO" +
-                        "R++SgG50XM7f6w9ZZIn4R7lDglfUCw3HoigMS/PblhO7MYNARXR5ZJn5toCGasjqBRKReH+pkNsS" +
-                        "JX2FKcGeG62q937KrKhLCX9IW9QdSx1Mf7Z/8u1XbEiDZXMvSkrkeLEs9Emvjmxe6Jt/1G/tY7E" +
-                        "OpCE1FgXwp0CgYEA4Tb5dzd25eWCN8QQ+RoEx4lA93twUnbwe8kdoDCH9z6iUssCv5JzZb22BUl5" +
-                        "jOvWwvh6W3OvbEVKDDGA2Sv4f17x7Dwmvot3uZDg8ElKM/FRXG0wBcvv7ST45y5+2ri8V2ZHuRsH" +
-                        "zrlHy3CZzib806jUzh4dtgWn6F8XGQ76+3kCgYEAsLDAiXSAs7pbtXVWlo3bIRFOpkpDGD/WSJ1W" +
-                        "zkfnX04UjAJxqOTDaJiIN/r0+w8rBNkpBbF2swb9QIcISh2zmMSOB+naEf6UaFwI+LzSqaFF8Mpz" +
-                        "one4bHV5UNkWpnwmW8RJcDQyQRXKxNsyuKAW5eG+FixaksIXDjXGO7p5O/UCgYB6B0WIWR8tVfwG" +
-                        "p0/jCTwJuc7fyZyEsjl/eOt6fpFNYDyny6QDlSC9wds8ZiFcP/Uv017I6pfkfG6wyKneAjs1GIbQ" +
-                        "z47Ws879VwjqaWuxVVIWWHsqyOOJhPzwlnrZnDtAyASYwZKrai0CiFJuJyXasaIMxLiohcwC1nM3" +
-                        "eqx3UQKBgE/LcpMPNRI80L0EUijfbbAMbxyvtJNeB0t00zrR3Iz6TsBNDtB5UBuDB/Ny0q6ql3kJ" +
-                        "Uo3AU2NRiwSGo+i1TS5MHwr2MGeJX4YXjf4iKUTflWLCoVD6qdL/Bfknf6BEvYcHL1Xps+msaAuI" +
-                        "62AHevBWnJ81za0Vb9/W5E8tiJiu" +
-                        "-----END RSA PRIVATE KEY-----";
+	    keyString = Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT );
 	    preferences.edit().putString(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
 
-        if (a) certificateString =
-                "-----BEGIN CERTIFICATE-----" +
-                        "MIIEnDCCAoSgAwIBAgIRAOBkcbMKR0Jlw+xNalHn7aIwDQYJKoZIhvcNAQELBQAwdTEYMBYGA1UE" +
-                        "CgwPUmlzZXVwIE5ldHdvcmtzMRswGQYDVQQLDBJodHRwczovL3Jpc2V1cC5uZXQxPDA6BgNVBAMM" +
-                        "M1Jpc2V1cCBOZXR3b3JrcyBSb290IENBIChjbGllbnQgY2VydGlmaWNhdGVzIG9ubHkhKTAeFw0x" +
-                        "NDA5MTkwMDAwMDBaFw0xNDExMTkwMDAwMDBaMC0xKzApBgNVBAMMIlVOTElNSVRFRDcwZWhxZG9l" +
-                        "ZXQ2Z243bmc3eWx3ZWNxeGwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDdaKQHSwg2" +
-                        "Q2Uz9t5mae9BfV9Jkk+WSU6jXixsTbtLAr8gvuNcVuI0lKm2zXVqoS8aRCSsCt12vhjU/WBTSv0t" +
-                        "vwTaT2HQYFQ1GlVUBKssJEUpaVyQKL6LN9BA5ZODBpbhefRIX8z+02afxmNWdnOQfDtLU6nHSQLL" +
-                        "IUBSmgu+Y2Q3SdIBojIl9Kj0Zt6uZkhtOXZqkwLBiMr+/ukSidpcmNgbAN0eXSfVouaduzsDPQ6M" +
-                        "eCJTz2lhUvC0/57h5mlkNLzEjyb/pAVTtnK4zdiH6XAuCxU/AkF0yzhaiQWMG0RQb4vEx/UHjkDU" +
-                        "+K0GDy/qx1BmBB7C4vHLauqSXOs1AgMBAAGjbzBtMB0GA1UdDgQWBBQioBn7DdhjmtBKgQKpx/aW" +
-                        "XHYkGjALBgNVHQ8EBAMCB4AwEwYDVR0lBAwwCgYIKwYBBQUHAwIwCQYDVR0TBAIwADAfBgNVHSME" +
-                        "GDAWgBQX9BvV5SoBAU1rol02CikJlmWARjANBgkqhkiG9w0BAQsFAAOCAgEAV7q102FQ62IOX84o" +
-                        "pPvUL3hJkGtZ5chgQwZhfl2fGtEdeqpU27Hx1jLP9o3n1z9XYaZg/d8xYhpY6Mm4rFl6hA4gk81Z" +
-                        "yg/A3QeUgIjOsA0Xp+RNB5ACaLjCPUtWNk5brfuelDdFHjl1noC2P3vQ9ErhUna6TKVsxxrueimO" +
-                        "nc3sV7YMGiVfPC7wEmhERuyhQxftIUHUy2kDCY5QgXtru6IZmc3SP4FcM8LUSC49kqmU9if2GTLo" +
-                        "wQZmz6T7+N5PIJWIOiDh9PyoojRo7ep9szeIZpzgxcsoE/9ed84tg36JLOWi0GOyrdzVExv0rQQt" +
-                        "q/NpqAe1mX5XQVbY8nwgaJ8eWIWIXIn+5RB7b+fm5ZFeM4eFyWeDk99bvS8jdH6uQP5WusL55+ft" +
-                        "ADtESsmBvzUEGqxk5GL4lmmeqE+vsR5TesqGjZ+yH67rR+1+Uy2mhbqJBP0E0LHwWCCPYEVfngHj" +
-                        "aZkDF1UVQdfc9Amc5u5J5YliWrEG80BNeJF7740Gwx69DHEIhElN+BBeeqLLYIZTKmt28/9iWbKL" +
-                        "vhCrz/29wLYksL1bXmyHzvzyAcDHPpO9sQrKYiP1mGRDmXJmZU3i3cgeqQFZ8+lr55wcYdMGJOcx" +
-                        "bz+jL0VkHdnoZdzGzelrAhZtgMtsJ/kgWYRgtFmhpYF1Xtj2MYrpBDxgQck=" +
-                        "-----END CERTIFICATE-----";
 	    X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
 	    certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-        if(a) a = false;
 	    preferences.edit().putString(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
 	    preferences.edit().putString(EIP.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
 	    return true;
