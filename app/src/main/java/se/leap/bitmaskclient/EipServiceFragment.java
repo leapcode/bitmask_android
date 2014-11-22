@@ -85,8 +85,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		super.onResume();
 
 		VpnStatus.addStateListener(this);
-		
-		eipCommand(EIP.ACTION_CHECK_CERT_VALIDITY);
+
+        eipCommand(EIP.ACTION_CHECK_CERT_VALIDITY);
 	}
     
 	@Override
@@ -146,7 +146,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
     
     private boolean canLogInToStartEIP() {
 	boolean isAllowedRegistered = Dashboard.preferences.getBoolean(EIP.ALLOWED_REGISTERED, false);
-	boolean isLoggedIn = Dashboard.preferences.getBoolean(EIP.AUTHED_EIP, false);
+	boolean isLoggedIn = !LeapSRPSession.getToken().isEmpty();
 	Log.d(TAG, "Allow registered? " + isAllowedRegistered);
 	Log.d(TAG, "Is logged in? " + isLoggedIn);
 	return isAllowedRegistered && !isLoggedIn && !EIP.mIsStarting && !EIP.isConnected();
@@ -386,16 +386,21 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 				dashboard.showProgressBar();
 				String status = getResources().getString(R.string.updating_certificate_message);
 				setEipStatus(status);
-				
-				Intent provider_API_command = new Intent(getActivity(), ProviderAPI.class);
-				if(dashboard.providerAPI_result_receiver == null) {
-				    dashboard.providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-				    dashboard.providerAPI_result_receiver.setReceiver(dashboard);
-				}
-				
-				provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
-				provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, dashboard.providerAPI_result_receiver);
-				getActivity().startService(provider_API_command);
+
+                if(LeapSRPSession.getToken().isEmpty() && !Dashboard.preferences.getBoolean(EIP.ALLOWED_ANON, false)) {
+                        dashboard.logInDialog(Bundle.EMPTY);
+                } else {
+
+                    Intent provider_API_command = new Intent(getActivity(), ProviderAPI.class);
+                    if (dashboard.providerAPI_result_receiver == null) {
+                        dashboard.providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+                        dashboard.providerAPI_result_receiver.setReceiver(dashboard);
+                    }
+
+                    provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
+                    provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, dashboard.providerAPI_result_receiver);
+                    getActivity().startService(provider_API_command);
+                }
 				break;
 			    }
 			}

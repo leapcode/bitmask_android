@@ -156,7 +156,7 @@ public final class EIP extends IntentService {
 	    mReceiver = EipServiceFragment.getReceiver();
 	    launchActiveGateway();
 	}
-        earlyRoutes();
+        //earlyRoutes();
     }
 
     /**
