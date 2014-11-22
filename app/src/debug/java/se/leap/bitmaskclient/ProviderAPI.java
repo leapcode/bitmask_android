@@ -161,7 +161,15 @@ public class ProviderAPI extends IntentService {
 		final ResultReceiver receiver = command.getParcelableExtra(RECEIVER_KEY);
 		String action = command.getAction();
 		Bundle parameters = command.getBundleExtra(PARAMETERS);
-		setting_up_provider = true;
+        if(provider_api_url == null) {
+            try {
+                JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, "no provider"));
+                provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
+            } catch (JSONException e) {
+            }
+        }
+
+        setting_up_provider = true;
 		
 		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
 			Bundle result = setUpProvider(parameters);
@@ -281,7 +289,7 @@ public class ProviderAPI extends IntentService {
 	
 	LeapSRPSession client = new LeapSRPSession(username, password);
 	byte[] A = client.exponential();
-	
+
 	JSONObject step_result = sendAToSRPServer(provider_api_url, username, new BigInteger(1, A).toString(16));
 	try {
 	    String salt = step_result.getString(LeapSRPSession.SALT);
@@ -915,6 +923,7 @@ public class ProviderAPI extends IntentService {
 
 	    boolean danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, false);
 
+
 	    String cert_string = downloadWithProviderCA(new_cert_string_url.toString(), danger_on);
 
 	    if(cert_string.isEmpty() || ConfigHelper.checkErroneousDownload(cert_string))
@@ -931,7 +940,7 @@ public class ProviderAPI extends IntentService {
 	    return false;
 	} 
     }
-	
+
     private boolean loadCertificate(String cert_string) {
 	try {
 	    // API returns concatenated cert & key.  Split them for OpenVPN options

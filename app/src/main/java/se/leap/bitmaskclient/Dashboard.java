@@ -225,7 +225,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    if(provider_json_string.isEmpty() == false) {
 		provider_json = new JSONObject(provider_json_string);
 		JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
-		boolean authed_eip = preferences.getBoolean(EIP.AUTHED_EIP, false);
+		boolean authed_eip = !LeapSRPSession.getToken().isEmpty();
 		boolean allow_registered_eip = service_description.getBoolean(Provider.ALLOW_REGISTRATION);
 		preferences.edit().putBoolean(EIP.ALLOWED_REGISTERED, allow_registered_eip);
 		
