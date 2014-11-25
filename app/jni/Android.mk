@@ -5,7 +5,7 @@ JNI_DIR := $(call my-dir)
 #WITH_POLAR=1
 #WITH_OPENVPN3=1
 # Build openvpn with polar (OpenVPN3 core is always build with polar)
-WITH_BREAKPAD=0
+#WITH_BREAKPAD=0
 
 
 include lzo/Android.mk
@@ -13,15 +13,18 @@ include snappy/Android.mk
 
 include openssl/Android.mk
 
-ifneq ($(WITH_BREAKPAD),0)
-	ifneq ($(TARGET_ARCH),mips)
+ifeq ($(TARGET_ARCH),mips)
+	USE_BREAKPAD=0
+endif
+ifeq ($(TARGET_ARCH),mips64)
+	USE_BREAKPAD=0
+endif
+
+ifneq ($(USE_BREAKPAD),0)
 	WITH_BREAKPAD=1
 	include google-breakpad/android/google_breakpad/Android.mk
-	else
-	WITH_BREAKPAD=0
-	endif
 else
-WITH_BREAKPAD=0
+	WITH_BREAKPAD=0
 endif
 
 ifeq ($(WITH_POLAR),1)

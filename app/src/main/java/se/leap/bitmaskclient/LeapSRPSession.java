@@ -63,15 +63,16 @@ public class LeapSRPSession {
 
 	private static int A_LEN;
 
+    
 	/** Creates a new SRP server session object from the username, password
 	    verifier,
 	    @param username, the user ID
 	    @param password, the user clear text password
 	    @param params, the SRP parameters for the session
 	 */
-	public LeapSRPSession(String username, String password, SRPParameters params)
+	public LeapSRPSession(String username, String password)
 	{
-		this(username, password, params, null);
+		this(username, password, null);
 	}
 
 	/** Creates a new SRP server session object from the username, password
@@ -81,9 +82,9 @@ public class LeapSRPSession {
 	    @param params, the SRP parameters for the session
 	    @param abytes, the random exponent used in the A public key
 	 */
-	public LeapSRPSession(String username, String password, SRPParameters params,
-			byte[] abytes) {
-		this.params = params;
+	public LeapSRPSession(String username, String password, byte[] abytes) {
+	    
+	    params = new SRPParameters(new BigInteger(ConfigHelper.NG_1024, 16).toByteArray(), ConfigHelper.G.toByteArray(), BigInteger.ZERO.toByteArray(), "SHA-256");
 		this.g = new BigInteger(1, params.g);
 		N_bytes = ConfigHelper.trim(params.N);
 		this.N = new BigInteger(1, N_bytes);
@@ -159,7 +160,7 @@ public class LeapSRPSession {
     public byte[] calculateNewSalt() {
 	try {
 	    BigInteger salt = new BigInteger(64, SecureRandom.getInstance("SHA1PRNG"));
-	    return salt.toByteArray();
+	    return ConfigHelper.trim(salt.toByteArray());
 	} catch(NoSuchAlgorithmException e) {
 	    e.printStackTrace();
 	}

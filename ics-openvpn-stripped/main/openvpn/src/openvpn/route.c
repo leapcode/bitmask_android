@@ -863,10 +863,12 @@ redirect_default_route_to_vpn (struct route_list *rl, const struct tuntap *tt, u
 	{
 	  msg (M_WARN, "%s VPN gateway parameter (--route-gateway or --ifconfig) is missing", err);
 	}
+#ifndef TARGET_ANDROID
       else if (!(rl->rgi.flags & RGI_ADDR_DEFINED))
 	{
 	  msg (M_WARN, "%s Cannot read current default gateway from system", err);
 	}
+#endif
       else if (!(rl->spec.flags & RTSA_REMOTE_HOST))
 	{
 	  msg (M_WARN, "%s Cannot obtain current remote host address", err);
@@ -913,6 +915,16 @@ redirect_default_route_to_vpn (struct route_list *rl, const struct tuntap *tt, u
 
 	  if (rl->flags & RG_REROUTE_GW)
 	    {
+#ifdef TARGET_ANDROID
+	      add_route3 (0,
+			  0,
+			  rl->spec.remote_endpoint,
+			  tt,
+			  flags,
+			  &rl->rgi,
+			  es);
+
+#else
 	      if (rl->flags & RG_DEF1)
 		{
 		  /* add new default route (1st component) */
@@ -953,6 +965,7 @@ redirect_default_route_to_vpn (struct route_list *rl, const struct tuntap *tt, u
 			      &rl->rgi,
 			      es);
 		}
+#endif
 	    }
 
 	  /* set a flag so we can undo later */
@@ -1338,15 +1351,18 @@ add_route (struct route_ipv4 *r,
 
 #if defined(TARGET_LINUX)
 #ifdef ENABLE_IPROUTE
-  /* FIXME -- add on-link support for ENABLE_IPROUTE */
-  argv_printf (&argv, "%s route add %s/%d via %s",
+  argv_printf (&argv, "%s route add %s/%d",
   	      iproute_path,
 	      network,
-	      count_netmask_bits(netmask),
-	      gateway);
+             count_netmask_bits(netmask));
+
   if (r->flags & RT_METRIC_DEFINED)
     argv_printf_cat (&argv, "metric %d", r->metric);
 
+  if (is_on_link (is_local_route, flags, rgi))
+    argv_printf_cat (&argv, "dev %s", rgi->iface);
+  else
+    argv_printf_cat (&argv, "via %s", gateway);
 #else
   argv_printf (&argv, "%s add -net %s netmask %s",
 	       ROUTE_PATH,

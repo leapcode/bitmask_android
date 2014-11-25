@@ -1,3 +1,13 @@
+0.8.0 November 25 2014 - the "problematic" release
+Features:
+- Block connection until VPN is established
+- Start VPN automatically after logging in
+- Lollipop support
+- Update ndk and ics-openvpn codebase
+Bugs:
+- Pin provider certificate with configuration data
+- Autoupdate vpn certificate correctly
+
 0.7.0 September 26 2014 - the "quick" release
 Features
 - Restart quickly if killed

@@ -2828,35 +2828,34 @@ OPENSSL_GLOBAL SSL_CIPHER ssl3_ciphers[]={
 
 #ifndef OPENSSL_NO_PSK
     /* ECDH PSK ciphersuites from RFC 5489 */
-
-	/* Cipher C037 */
+	/* Cipher C035 */
 	{
 	1,
-	TLS1_TXT_ECDHE_PSK_WITH_AES_128_CBC_SHA256,
-	TLS1_CK_ECDHE_PSK_WITH_AES_128_CBC_SHA256,
+	TLS1_TXT_ECDHE_PSK_WITH_AES_128_CBC_SHA,
+	TLS1_CK_ECDHE_PSK_WITH_AES_128_CBC_SHA,
 	SSL_kEECDH,
 	SSL_aPSK,
 	SSL_AES128,
-	SSL_SHA256,
+	SSL_SHA1,
 	SSL_TLSV1,
-	SSL_NOT_EXP|SSL_HIGH,
-	SSL_HANDSHAKE_MAC_DEFAULT|TLS1_PRF_SHA256,
+	SSL_NOT_EXP|SSL_HIGH|SSL_FIPS,
+	SSL_HANDSHAKE_MAC_DEFAULT|TLS1_PRF,
 	128,
 	128,
 	},
 
-	/* Cipher C038 */
+	/* Cipher C036 */
 	{
 	1,
-	TLS1_TXT_ECDHE_PSK_WITH_AES_256_CBC_SHA384,
-	TLS1_CK_ECDHE_PSK_WITH_AES_256_CBC_SHA384,
+	TLS1_TXT_ECDHE_PSK_WITH_AES_256_CBC_SHA,
+	TLS1_CK_ECDHE_PSK_WITH_AES_256_CBC_SHA,
 	SSL_kEECDH,
 	SSL_aPSK,
 	SSL_AES256,
-	SSL_SHA384,
+	SSL_SHA1,
 	SSL_TLSV1,
-	SSL_NOT_EXP|SSL_HIGH,
-	SSL_HANDSHAKE_MAC_DEFAULT|TLS1_PRF_SHA384,
+	SSL_NOT_EXP|SSL_HIGH|SSL_FIPS,
+	SSL_HANDSHAKE_MAC_DEFAULT|TLS1_PRF,
 	256,
 	256,
 	},
@@ -3412,8 +3411,6 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
 		break;
 #endif
 	case SSL_CTRL_CHANNEL_ID:
-		if (!s->server)
-			break;
 		s->tlsext_channel_id_enabled = 1;
 		ret = 1;
 		break;
@@ -3429,7 +3426,7 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
 			}
 		if (s->tlsext_channel_id_private)
 			EVP_PKEY_free(s->tlsext_channel_id_private);
-		s->tlsext_channel_id_private = (EVP_PKEY*) parg;
+		s->tlsext_channel_id_private = EVP_PKEY_dup((EVP_PKEY*) parg);
 		ret = 1;
 		break;
 
@@ -3744,7 +3741,7 @@ long ssl3_ctx_ctrl(SSL_CTX *ctx, int cmd, long larg, void *parg)
 			}
 		if (ctx->tlsext_channel_id_private)
 			EVP_PKEY_free(ctx->tlsext_channel_id_private);
-		ctx->tlsext_channel_id_private = (EVP_PKEY*) parg;
+		ctx->tlsext_channel_id_private = EVP_PKEY_dup((EVP_PKEY*) parg);
 		break;
 
 	default:

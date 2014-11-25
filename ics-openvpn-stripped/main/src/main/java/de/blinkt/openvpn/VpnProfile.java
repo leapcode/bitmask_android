@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2012-2014 Arne Schwabe
+ * Distributed under the GNU GPL v2. For full terms see the file doc/LICENSE.txt
+ */
+
 package de.blinkt.openvpn;
 
 import se.leap.bitmaskclient.R;
@@ -38,6 +43,7 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.Future;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -164,6 +170,12 @@ public class VpnProfile implements Serializable {
             return VpnProfile.MININONPIEVPN;
     }
 
+    public static String[] replacePieWithNoPie(String[] mArgv)
+    {
+        mArgv[0] = mArgv[0].replace(MINIPIEVPN, MININONPIEVPN);
+        return mArgv;
+    }
+
     public static String openVpnEscape(String unescaped) {
         if (unescaped == null)
             return null;
@@ -172,7 +184,8 @@ public class VpnProfile implements Serializable {
         escapedString = escapedString.replace("\n", "\\n");
 
         if (escapedString.equals(unescaped) && !escapedString.contains(" ") &&
-                !escapedString.contains("#") && !escapedString.contains(";"))
+                !escapedString.contains("#") && !escapedString.contains(";")
+                && !escapedString.equals(""))
             return unescaped;
         else
             return '"' + escapedString + '"';
@@ -577,21 +590,15 @@ public class VpnProfile implements Serializable {
 
 
 
-    public Intent prepareIntent(Context context) {
-        String prefix = context.getPackageName();
+    public Intent prepareStartService(Context context) {
+        Intent intent = getStartServiceIntent(context);
 
-        Intent intent = new Intent(context, OpenVPNService.class);
 
         if (mAuthenticationType == VpnProfile.TYPE_KEYSTORE || mAuthenticationType == VpnProfile.TYPE_USERPASS_KEYSTORE) {
             if (getKeyStoreCertificates(context) == null)
                 return null;
         }
 
-        intent.putExtra(prefix + ".ARGV", buildOpenvpnArgv(context.getCacheDir()));
-        intent.putExtra(prefix + ".profileUUID", mUuid.toString());
-
-        ApplicationInfo info = context.getApplicationInfo();
-        intent.putExtra(prefix + ".nativelib", info.nativeLibraryDir);
 
         try {
             FileWriter cfg = new FileWriter(context.getCacheDir().getAbsolutePath() + "/" + OVPNCONFIGFILE);
@@ -602,6 +609,18 @@ public class VpnProfile implements Serializable {
             VpnStatus.logException(e);
         }
 
+        return intent;
+    }
+
+    public Intent getStartServiceIntent(Context context) {
+        String prefix = context.getPackageName();
+
+        Intent intent = new Intent(context, OpenVPNService.class);
+        intent.putExtra(prefix + ".ARGV", buildOpenvpnArgv(context.getCacheDir()));
+        intent.putExtra(prefix + ".profileUUID", mUuid.toString());
+
+        ApplicationInfo info = context.getApplicationInfo();
+        intent.putExtra(prefix + ".nativelib", info.nativeLibraryDir);
         return intent;
     }
 
@@ -631,6 +650,21 @@ public class VpnProfile implements Serializable {
             return true;
         else
             return false;
+    }
+
+    public void checkForRestart(final Context context) {
+        /* This method is called when OpenVPNService is restarted */
+
+        if ((mAuthenticationType == VpnProfile.TYPE_KEYSTORE || mAuthenticationType == VpnProfile.TYPE_USERPASS_KEYSTORE)
+                && mPrivateKey==null) {
+            new Thread( new Runnable() {
+                @Override
+                public void run() {
+                    getKeyStoreCertificates(context);
+
+                }
+            }).start();
+        }
     }
 
 
@@ -839,21 +873,23 @@ public class VpnProfile implements Serializable {
             return false;
     }
 
-    public int needUserPWInput() {
+    public int needUserPWInput(boolean ignoreTransient) {
         if ((mAuthenticationType == TYPE_PKCS12 || mAuthenticationType == TYPE_USERPASS_PKCS12) &&
                 (mPKCS12Password == null || mPKCS12Password.equals(""))) {
-            if (mTransientPCKS12PW == null)
+            if (ignoreTransient || mTransientPCKS12PW == null)
                 return R.string.pkcs12_file_encryption_key;
         }
 
         if (mAuthenticationType == TYPE_CERTIFICATES || mAuthenticationType == TYPE_USERPASS_CERTIFICATES) {
             if (requireTLSKeyPassword() && TextUtils.isEmpty(mKeyPassword))
-                if (mTransientPCKS12PW == null) {
+                if (ignoreTransient || mTransientPCKS12PW == null) {
                     return R.string.private_key_password;
                 }
         }
 
-        if (isUserPWAuth() && !(!TextUtils.isEmpty(mUsername) && (!TextUtils.isEmpty(mPassword) || mTransientPW != null))) {
+        if (isUserPWAuth() &&
+                (TextUtils.isEmpty(mUsername) ||
+                (TextUtils.isEmpty(mPassword) && (mTransientPW == null  || ignoreTransient)))) {
             return R.string.password;
         }
         return 0;

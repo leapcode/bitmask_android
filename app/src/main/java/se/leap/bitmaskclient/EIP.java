@@ -16,35 +16,23 @@
  */
 package se.leap.bitmaskclient;
 
-
-
-
-
 import android.app.Activity;
 import android.app.IntentService;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.drm.DrmStore.Action;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.util.Log;
 import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.activities.DisconnectVPN;
-import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
 import de.blinkt.openvpn.core.ConfigParser;
-import de.blinkt.openvpn.core.OpenVpnManagementThread;
-import de.blinkt.openvpn.core.OpenVPNService.LocalBinder;
-import de.blinkt.openvpn.core.OpenVPNService;
+import de.blinkt.openvpn.core.ConfigParser.ConfigParseError;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.StringBuffer;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
@@ -99,17 +87,13 @@ public final class EIP extends IntentService {
 	public final static String SERVICE_API_PATH = "config/eip-service.json";
 	public final static String RECEIVER_TAG = "receiverTag";
 	public final static String REQUEST_TAG = "requestTag";
-	public final static String TAG = "se.leap.bitmaskclient.EIP";
+    public final static String TAG = EIP.class.getSimpleName();
+    private static SharedPreferences preferences;
 
-    public final static SimpleDateFormat certificate_date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
-    
 	private static Context context;
 	private static ResultReceiver mReceiver;
 	private static boolean mBound = false;
-	// Used to store actions to "resume" onServiceConnection
-	private static String mPending = null;
 	
-	private static int parsedEipSerial;
 	private static JSONObject eipDefinition = null;
 	
 	private static OVPNGateway activeGateway = null;
@@ -118,6 +102,7 @@ public final class EIP extends IntentService {
     protected static boolean mIsDisconnecting = false;
     protected static boolean mIsStarting = false;
 
+    public static SimpleDateFormat certificate_date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
 	public EIP(){
 		super("LEAPEIP");
 	}
@@ -127,8 +112,8 @@ public final class EIP extends IntentService {
 		super.onCreate();
 		
 		context = getApplicationContext();
-		
-		updateEIPService();
+
+		preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 	}
 	
 	@Override
@@ -140,59 +125,137 @@ public final class EIP extends IntentService {
 	}
 
 	
-	@Override
-	protected void onHandleIntent(Intent intent) {
-		String action = intent.getAction();
-		mReceiver = intent.getParcelableExtra(RECEIVER_TAG);
+    @Override
+    protected void onHandleIntent(Intent intent) {
+	String action = intent.getAction();
+	mReceiver = intent.getParcelableExtra(RECEIVER_TAG);
+	
+	if ( action == ACTION_START_EIP )
+	    startEIP();
+	else if ( action == ACTION_STOP_EIP )
+	    stopEIP();
+	else if ( action == ACTION_IS_EIP_RUNNING )
+	    isRunning();
+	else if ( action == ACTION_UPDATE_EIP_SERVICE )
+	    updateEIPService();
+	else if ( action == ACTION_CHECK_CERT_VALIDITY )
+	    checkCertValidity();
+	else if ( action == ACTION_REBUILD_PROFILES )
+	    updateGateways();
+    }
+	
+    /**
+     * Initiates an EIP connection by selecting a gateway and preparing and sending an
+     * Intent to {@link se.leap.openvpn.LaunchVPN}.
+     * It also sets up early routes.
+     */
+    private void startEIP() {
+        earlyRoutes();
+	activeGateway = selectGateway();
+	    
+	if(activeGateway != null && activeGateway.mVpnProfile != null) {
+	    mReceiver = EipServiceFragment.getReceiver();
+	    launchActiveGateway();
+	}
+    }
+
+    /**
+     * Early routes are routes that block traffic until a new
+     * VpnService is started properly.
+     */
+    private void earlyRoutes() {
+	Intent void_vpn_launcher = new Intent(context, VoidVpnLauncher.class);
+	void_vpn_launcher.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	startActivity(void_vpn_launcher);
+    }
+    
+    /**
+     * Choose a gateway to connect to based on timezone from system locale data
+     * 
+     * @return The gateway to connect to
+     */
+    private OVPNGateway selectGateway() {
+	String closest_location = closestGateway();
+	String chosen_host = chooseHost(closest_location);
+
+	return new OVPNGateway(chosen_host);
+    }
+
+    private String closestGateway() {
+	TreeMap<Integer, Set<String>> offsets = calculateOffsets();
+	return offsets.isEmpty() ? "" : offsets.firstEntry().getValue().iterator().next();
+    }
+
+    private TreeMap<Integer, Set<String>> calculateOffsets() {
+	TreeMap<Integer, Set<String>> offsets = new TreeMap<Integer, Set<String>>();
+	
+	int localOffset = Calendar.getInstance().get(Calendar.ZONE_OFFSET) / 3600000;
+	
+	JSONObject locations = availableLocations();
+	Iterator<String> locations_names = locations.keys();
+	while(locations_names.hasNext()) {
+	    try {
+		String location_name = locations_names.next();
+		JSONObject location = locations.getJSONObject(location_name);
+
+		int dist = timezoneDistance(localOffset, location.optInt("timezone"));
+
+		Set<String> set = (offsets.get(dist) != null) ?
+		    offsets.get(dist) : new HashSet<String>();
 		
-		if ( action == ACTION_IS_EIP_RUNNING )
-			this.isRunning();
-		if ( action == ACTION_UPDATE_EIP_SERVICE )
-			this.updateEIPService();
-		else if ( action == ACTION_START_EIP )
-			this.startEIP();
-		else if ( action == ACTION_STOP_EIP )
-			this.stopEIP();
-		else if ( action == ACTION_CHECK_CERT_VALIDITY )
-			this.checkCertValidity();
-		else if ( action == ACTION_REBUILD_PROFILES ) {
-		    this.updateGateways();		       
+		set.add(location_name);
+		offsets.put(dist, set);
+	    } catch (JSONException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    }	    
+	}
+	
+	return offsets;
+    }
+
+    private JSONObject availableLocations() {
+	JSONObject locations = null;
+	try {
+	    if(eipDefinition == null) updateEIPService();
+	    locations = eipDefinition.getJSONObject("locations");
+	} catch (JSONException e1) {
+	    // TODO Auto-generated catch block
+	    e1.printStackTrace();
+	}
+
+	return locations;
+    }
+
+    private int timezoneDistance(int local_timezone, int remote_timezone) {
+	// Distance along the numberline of Prime Meridian centric, assumes UTC-11 through UTC+12
+	int dist = Math.abs(local_timezone - remote_timezone);
+	
+	// Farther than 12 timezones and it's shorter around the "back"
+	if (dist > 12)
+	    dist = 12 - (dist -12);  // Well i'll be.  Absolute values make equations do funny things.
+	
+	return dist;
+    }
+
+    private String chooseHost(String location) {
+	String chosen_host = "";
+	try {
+	    JSONArray gateways = eipDefinition.getJSONArray("gateways");
+	    for (int i = 0; i < gateways.length(); i++) {
+		JSONObject gw = gateways.getJSONObject(i);
+		if ( gw.getString("location").equalsIgnoreCase(location) || location.isEmpty()){
+		    chosen_host = eipDefinition.getJSONObject("locations").getJSONObject(gw.getString("location")).getString("name");
+		    break;
 		}
-	}
-	
-	/**
-	 * Checks the last stored status notified by ics-openvpn
-	 * Sends <code>Activity.RESULT_CANCELED</code> to the ResultReceiver that made the
-	 * request if it's not connected, <code>Activity.RESULT_OK</code> otherwise.
-	 */
-	
-	  private void isRunning() {
-	      Bundle resultData = new Bundle();
-	      resultData.putString(REQUEST_TAG, ACTION_IS_EIP_RUNNING);
-	      int resultCode = Activity.RESULT_CANCELED;
-	      boolean is_connected = isConnected();
-
-	      resultCode = (is_connected) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
-                  
-	      if (mReceiver != null){
-		  mReceiver.send(resultCode, resultData);
-	      }
-
-	      Log.d(TAG, "isRunning() = " + is_connected);
-	  }
-	
-	/**
-	 * Initiates an EIP connection by selecting a gateway and preparing and sending an
-	 * Intent to {@link se.leap.openvpn.LaunchVPN}
-	 */
-	private void startEIP() {
-	    activeGateway = selectGateway();
-		
-	    if(activeGateway != null && activeGateway.mVpnProfile != null) {
-		launchActiveGateway();
 	    }
+	} catch (JSONException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
-
+	return chosen_host;
+    }
+    
     private void launchActiveGateway() {
 	Intent intent = new Intent(this,LaunchVPN.class);
 	intent.setAction(Intent.ACTION_MAIN);
@@ -202,30 +265,48 @@ public final class EIP extends IntentService {
 	intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
 	intent.putExtra(RECEIVER_TAG, mReceiver);
 	startActivity(intent);
-	mPending = ACTION_START_EIP;
     }
-	
-	/**
-	 * Disconnects the EIP connection gracefully through the bound service or forcefully
-	 * if there is no bound service.  Sends a message to the requesting ResultReceiver.
-	 */
-	private void stopEIP() {
-	    if(isConnected()) {
-		    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
-		    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		    startActivity(disconnect_vpn);
-		    mIsDisconnecting = true;
-		    lastConnectionStatusLevel = ConnectionStatus.UNKNOWN_LEVEL; // Wait for the decision of the user
-		    Log.d(TAG, "mIsDisconnecting = true");
-		}
-
-		if (mReceiver != null){
-			Bundle resultData = new Bundle();
-			resultData.putString(REQUEST_TAG, ACTION_STOP_EIP);
-			mReceiver.send(Activity.RESULT_OK, resultData);
-		}
+    
+    /**
+     * Disconnects the EIP connection gracefully through the bound service or forcefully
+     * if there is no bound service.  Sends a message to the requesting ResultReceiver.
+     */
+    private void stopEIP() {
+	if(isConnected()) {
+	    Intent disconnect_vpn = new Intent(this, DisconnectVPN.class);
+	    disconnect_vpn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    startActivity(disconnect_vpn);
+	    mIsDisconnecting = true;
+	    lastConnectionStatusLevel = ConnectionStatus.UNKNOWN_LEVEL; // Wait for the decision of the user
+	    Log.d(TAG, "mIsDisconnecting = true");
 	}
 
+	tellToReceiver(ACTION_STOP_EIP, Activity.RESULT_OK);
+    }
+    
+    private void tellToReceiver(String action, int resultCode) {	
+	if (mReceiver != null){
+	    Bundle resultData = new Bundle();
+	    resultData.putString(REQUEST_TAG, action);
+	    mReceiver.send(resultCode, resultData);
+	}
+    }
+	
+    /**
+     * Checks the last stored status notified by ics-openvpn
+     * Sends <code>Activity.RESULT_CANCELED</code> to the ResultReceiver that made the
+     * request if it's not connected, <code>Activity.RESULT_OK</code> otherwise.
+     */
+	
+    private void isRunning() {
+	int resultCode = Activity.RESULT_CANCELED;
+	boolean is_connected = isConnected();
+
+	resultCode = (is_connected) ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+
+	tellToReceiver(ACTION_IS_EIP_RUNNING, resultCode);
+    }
+    
     protected static boolean isConnected() {	
 	return lastConnectionStatusLevel != null && lastConnectionStatusLevel.equals(ConnectionStatus.LEVEL_CONNECTED) && !mIsDisconnecting;
     }
@@ -237,89 +318,23 @@ public final class EIP extends IntentService {
 	 */
 	private void updateEIPService() {
 		try {
-			eipDefinition = new JSONObject(getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(KEY, ""));
-			parsedEipSerial = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getInt(PARSED_SERIAL, 0);
+		    String eip_definition_string = preferences.getString(KEY, "");
+		    if(eip_definition_string.isEmpty() == false) {
+			eipDefinition = new JSONObject(eip_definition_string);
+		    }
+		    deleteAllVpnProfiles();
+		    updateGateways();
+            if(mReceiver != null) mReceiver.send(Activity.RESULT_OK, Bundle.EMPTY);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(parsedEipSerial == 0) {
-		    deleteAllVpnProfiles();
-		}
-		if (eipDefinition != null && eipDefinition.optInt("serial") > parsedEipSerial)
-			updateGateways();
 	}
 
     private void deleteAllVpnProfiles() {
 	ProfileManager vpl = ProfileManager.getInstance(context);
-	VpnProfile[] profiles = (VpnProfile[]) vpl.getProfiles().toArray(new VpnProfile[vpl.getProfiles().size()]);
-	for (int current_profile = 0; current_profile < profiles.length; current_profile++){
-	    vpl.removeProfile(context, profiles[current_profile]);
-	}
-    }
-	/**
-	 * Choose a gateway to connect to based on timezone from system locale data
-	 * 
-	 * @return The gateway to connect to
-	 */
-	private OVPNGateway selectGateway() {
-		String closestLocation = closestGateway();
-		
-		JSONArray gateways = null;
-		String chosenHost = null;
-		try {
-			gateways = eipDefinition.getJSONArray("gateways");
-			for (int i = 0; i < gateways.length(); i++) {
-				JSONObject gw = gateways.getJSONObject(i);
-				if ( gw.getString("location").equalsIgnoreCase(closestLocation) || closestLocation.isEmpty()){
-					chosenHost = eipDefinition.getJSONObject("locations").getJSONObject(gw.getString("location")).getString("name");
-					break;
-				}
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return new OVPNGateway(chosenHost);
-	}
-
-    private String closestGateway() {
-	Calendar cal = Calendar.getInstance();
-	int localOffset = cal.get(Calendar.ZONE_OFFSET) / 3600000;
-	TreeMap<Integer, Set<String>> offsets = new TreeMap<Integer, Set<String>>();
-	JSONObject locationsObjects = null;
-	Iterator<String> locations = null;
-	try {
-	    locationsObjects = eipDefinition.getJSONObject("locations");
-	    locations = locationsObjects.keys();
-	} catch (JSONException e1) {
-	    // TODO Auto-generated catch block
-	    e1.printStackTrace();
-	}
-		
-	while (locations.hasNext()) {
-	    String locationName = locations.next();
-	    JSONObject location = null;
-	    try {
-		location = locationsObjects.getJSONObject(locationName);
-				
-		// Distance along the numberline of Prime Meridian centric, assumes UTC-11 through UTC+12
-		int dist = Math.abs(localOffset - location.optInt("timezone"));
-		// Farther than 12 timezones and it's shorter around the "back"
-		if (dist > 12)
-		    dist = 12 - (dist -12);  // Well i'll be.  Absolute values make equations do funny things.
-				
-		Set<String> set = offsets.get(dist);
-		if (set == null) set = new HashSet<String>();
-		set.add(locationName);
-		offsets.put(dist, set);
-	    } catch (JSONException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    }
-	}		
-	return offsets.isEmpty() ? "" : offsets.firstEntry().getValue().iterator().next();
+	Collection<VpnProfile> profiles = vpl.getProfiles();
+	profiles.removeAll(profiles);
     }
 	
 	/**
@@ -329,8 +344,8 @@ public final class EIP extends IntentService {
 	 */
 	private void updateGateways(){
 		JSONArray gatewaysDefined = null;
-		
 		try {
+		    if(eipDefinition == null) updateEIPService();
 			gatewaysDefined = eipDefinition.getJSONArray("gateways");		
 			for ( int i=0 ; i < gatewaysDefined.length(); i++ ){			
 			    JSONObject gw = null;			
@@ -343,41 +358,52 @@ public final class EIP extends IntentService {
 		    // TODO Auto-generated catch block
 		    e.printStackTrace();
 		}
-		
-		getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).edit().putInt(PARSED_SERIAL, eipDefinition.optInt(Provider.API_RETURN_SERIAL)).commit();
+		preferences.edit().putInt(PARSED_SERIAL, eipDefinition.optInt(Provider.API_RETURN_SERIAL)).commit();
 	}
 
     private void checkCertValidity() {
-	String certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(CERTIFICATE, "");
-	if(!certificate_string.isEmpty()) {
-	    String date_from_certificate_string = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE).getString(DATE_FROM_CERTIFICATE, certificate_date_format.format(Calendar.getInstance().getTime()).toString());
-	    X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate_string);
+	String certificate = preferences.getString(CERTIFICATE, "");
+	checkCertValidity(certificate);
+    }
 
-	    Calendar offset_date = Calendar.getInstance();
-	    try {
-		Date date_from_certificate = certificate_date_format.parse(date_from_certificate_string);
-		long difference = Math.abs(date_from_certificate.getTime() - certificate_x509.getNotAfter().getTime())/2;
-		long current_date_millis = offset_date.getTimeInMillis();
-		offset_date.setTimeInMillis(current_date_millis + difference);
-		Log.d(TAG, "certificate not after = " + certificate_x509.getNotAfter());
-	    } catch(ParseException e) {
-		e.printStackTrace();
-	    }
-	
-	    Bundle result_data = new Bundle();
-	    result_data.putString(REQUEST_TAG, ACTION_CHECK_CERT_VALIDITY);
+    private void checkCertValidity(String certificate_string) {
+	if(!certificate_string.isEmpty()) {
+	    X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificate_string);
+	    
+	    Calendar offset_date = calculateOffsetCertificateValidity(certificate);
+	    Bundle result = new Bundle();
+	    result.putString(REQUEST_TAG, ACTION_CHECK_CERT_VALIDITY);
 	    try {
 		Log.d(TAG, "offset_date = " + offset_date.getTime().toString());
-		certificate_x509.checkValidity(offset_date.getTime());
-		mReceiver.send(Activity.RESULT_OK, result_data);
+		certificate.checkValidity(offset_date.getTime());
+		mReceiver.send(Activity.RESULT_OK, result);
 		Log.d(TAG, "Valid certificate");
 	    } catch(CertificateExpiredException e) {
-		mReceiver.send(Activity.RESULT_CANCELED, result_data);
+		mReceiver.send(Activity.RESULT_CANCELED, result);
 		Log.d(TAG, "Updating certificate");
 	    } catch(CertificateNotYetValidException e) {
-		mReceiver.send(Activity.RESULT_CANCELED, result_data);
+		mReceiver.send(Activity.RESULT_CANCELED, result);
 	    }
 	}
+    }
+
+    private Calendar calculateOffsetCertificateValidity(X509Certificate certificate) {
+	String current_date = certificate_date_format.format(Calendar.getInstance().getTime()).toString();
+	    
+	String date_string = preferences.getString(DATE_FROM_CERTIFICATE, current_date);
+
+	Calendar offset_date = Calendar.getInstance();
+	try {
+	    Date date = certificate_date_format.parse(date_string);
+        long difference = Math.abs(date.getTime() - certificate.getNotAfter().getTime())/2;
+	    long current_date_millis = offset_date.getTimeInMillis();
+	    offset_date.setTimeInMillis(current_date_millis + difference);
+	    Log.d(TAG, "certificate not after = " + certificate.getNotAfter());
+	} catch(ParseException e) {
+	    e.printStackTrace();
+	}
+
+	return offset_date;
     }
 
 	/**
@@ -460,17 +486,19 @@ public final class EIP extends IntentService {
 		protected void createVPNProfile(){
 			try {
 				ConfigParser cp = new ConfigParser();
-				cp.parseConfig(new StringReader(configFromEipServiceDotJson()));
-				cp.parseConfig(new StringReader(caSecretFromSharedPreferences()));
-				cp.parseConfig(new StringReader(keySecretFromSharedPreferences()));
-				cp.parseConfig(new StringReader(certSecretFromSharedPreferences()));
-				cp.parseConfig(new StringReader("remote-cert-tls server"));
-				cp.parseConfig(new StringReader("persist-tun"));
-				VpnProfile vp = cp.convertProfile();
-				//vp.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
-				mVpnProfile = vp;
+				
+				JSONObject openvpn_configuration = eipDefinition.getJSONObject("openvpn_configuration");
+				VpnConfigGenerator vpn_configuration_generator = new VpnConfigGenerator(preferences, openvpn_configuration, mGateway);
+				String configuration = vpn_configuration_generator.generate();
+				
+				cp.parseConfig(new StringReader(configuration));
+				mVpnProfile = cp.convertProfile();
 				mVpnProfile.mName = mName = locationAsName();
 				Log.v(TAG,"Created VPNProfile");
+				
+			} catch (JSONException e) {
+			    // TODO Auto-generated catch block
+			    e.printStackTrace();
 			} catch (ConfigParseError e) {
 				// FIXME We didn't get a VpnProfile!  Error handling! and log level
 				Log.v(TAG,"Error creating VPNProfile");
@@ -481,124 +509,6 @@ public final class EIP extends IntentService {
 				e.printStackTrace();
 			}
 		}
-
-	    /**
-	     * Parses data from eip-service.json to a section of the openvpn config file
-	     */
-	    private String configFromEipServiceDotJson() {
-		String parsed_configuration = "";
-		
-		String location_key = "location";
-		String locations = "locations";
-
-		parsed_configuration += extractCommonOptionsFromEipServiceDotJson();
-		parsed_configuration += extractRemotesFromEipServiceDotJson();
-
-		return parsed_configuration;
-	    }
-
-	    private String extractCommonOptionsFromEipServiceDotJson() {
-		String common_options = "";
-		try {
-		    String common_options_key = "openvpn_configuration";
-		    JSONObject openvpn_configuration = eipDefinition.getJSONObject(common_options_key);
-		    Iterator keys = openvpn_configuration.keys();
-		    Vector<Vector<String>> value = new Vector<Vector<String>>();
-		    while ( keys.hasNext() ){
-			String key = keys.next().toString();
-					
-			common_options += key + " ";
-			for ( String word : openvpn_configuration.getString(key).split(" ") )
-			    common_options += word + " ";
-			common_options += System.getProperty("line.separator");
-			
-		    }
-		} catch (JSONException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
-		}
-
-		common_options += "client" + System.getProperty("line.separator");
-
-		return common_options;
-	    }
-		
-	    
-	    private String extractRemotesFromEipServiceDotJson() {
-		String remotes = "";
-		
-		String remote = "ip_address";
-		String remote_openvpn_keyword = "remote";
-		String ports = "ports";
-		String protos = "protocols";
-		String capabilities = "capabilities";
-		String udp = "udp";
-		
-		try {
-		    JSONArray protocolsJSON = mGateway.getJSONObject(capabilities).getJSONArray(protos);
-		    for ( int i=0; i<protocolsJSON.length(); i++ ) {
-			String remote_line = remote_openvpn_keyword;
-			remote_line += " " + mGateway.getString(remote);
-			remote_line += " " + mGateway.getJSONObject(capabilities).getJSONArray(ports).optString(0);
-			remote_line += " " + protocolsJSON.optString(i);
-			if(remote_line.endsWith(udp))
-			    remotes = remotes.replaceFirst(remote_openvpn_keyword, remote_line + System.getProperty("line.separator") + remote_openvpn_keyword);
-			else
-			    remotes += remote_line;
-			remotes += System.getProperty("line.separator");
-		    }
-		} catch (JSONException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
-		}
-		
-		Log.d(TAG, "remotes = " + remotes);
-		return remotes;
-	    }
-
-	    private String caSecretFromSharedPreferences() {
-		String secret_lines = "";
-		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);
-		
-		System.getProperty("line.separator");
-		secret_lines += "<ca>";
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += preferences.getString(Provider.CA_CERT, "");
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += "</ca>";
-		
-		return secret_lines;
-	    }
-
-	    private String keySecretFromSharedPreferences() {
-		String secret_lines = "";
-		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);
-	
-		secret_lines += System.getProperty("line.separator");
-		secret_lines +="<key>";
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += preferences.getString(EIP.PRIVATE_KEY, "");
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += "</key>";
-		secret_lines += System.getProperty("line.separator");
-
-		return secret_lines;
-	    }
-
-	    private String certSecretFromSharedPreferences() {
-		String secret_lines = "";
-		SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, context.MODE_PRIVATE);	
-		
-		secret_lines += System.getProperty("line.separator");
-		secret_lines +="<cert>";
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += preferences.getString(EIP.CERTIFICATE, "");
-		secret_lines += System.getProperty("line.separator");
-		secret_lines += "</cert>";
-		secret_lines += System.getProperty("line.separator");
-
-		return secret_lines;
-	    }
 
 	    
 	    public String locationAsName() {

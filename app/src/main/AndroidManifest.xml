@@ -17,8 +17,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="se.leap.bitmaskclient"
-    android:versionCode="93"
-    android:versionName="0.7.0" >
+    android:versionCode="102"
+    android:versionName="0.8.0" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -35,6 +35,14 @@
         android:logo="@drawable/icon"
         android:label="@string/app" >
 
+        <service
+            android:name="se.leap.bitmaskclient.VoidVpnService"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+	
         <service
             android:name="de.blinkt.openvpn.core.OpenVPNService"
             android:permission="android.permission.BIND_VPN_SERVICE">
@@ -53,6 +61,8 @@
           </intent-filter>
         </receiver>
 
+	<activity
+	    android:name="se.leap.bitmaskclient.VoidVpnLauncher" />
         <activity
                 android:theme="@android:style/Theme.DeviceDefault.Light.Dialog"
                 android:name="de.blinkt.openvpn.activities.DisconnectVPN" />

@@ -85,8 +85,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 		super.onResume();
 
 		VpnStatus.addStateListener(this);
-		
-		eipCommand(EIP.ACTION_CHECK_CERT_VALIDITY);
+
+        eipCommand(EIP.ACTION_CHECK_CERT_VALIDITY);
 	}
     
 	@Override
@@ -146,7 +146,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
     
     private boolean canLogInToStartEIP() {
 	boolean isAllowedRegistered = Dashboard.preferences.getBoolean(EIP.ALLOWED_REGISTERED, false);
-	boolean isLoggedIn = Dashboard.preferences.getBoolean(EIP.AUTHED_EIP, false);
+	boolean isLoggedIn = !LeapSRPSession.getToken().isEmpty();
 	Log.d(TAG, "Allow registered? " + isAllowedRegistered);
 	Log.d(TAG, "Is logged in? " + isLoggedIn);
 	return isAllowedRegistered && !isLoggedIn && !EIP.mIsStarting && !EIP.isConnected();
@@ -195,7 +195,7 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	eipCommand(EIP.ACTION_START_EIP);
     }
 
-    private void stopEIP() {
+    protected void stopEIP() {
 	EIP.mIsStarting = false;
 	View eipProgressBar = getActivity().findViewById(R.id.eipProgress);
 	if(eipProgressBar != null)
@@ -236,7 +236,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	} else if(justDecidedOnDisconnect && level == ConnectionStatus.LEVEL_CONNECTED) {
 	    EIP.lastConnectionStatusLevel = ConnectionStatus.LEVEL_NOTCONNECTED;
 	    updateState(state, logmessage, localizedResId, level);
-	}
+	} // else if(isNewLevel || level == ConnectionStatus.LEVEL_AUTH_FAILED)
+	  //   handleNewState(state, logmessage, localizedResId, level);
     }
 
     private void handleNewState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
@@ -248,6 +249,8 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 	    setNoServerReplyUI(localizedResId, logmessage);
 	else if (level == ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED)
 	    setServerReplyUI(state, localizedResId, logmessage);
+	// else if (level == ConnectionStatus.LEVEL_AUTH_FAILED)
+	//     handleSwitchOn();
     }
 
     private boolean isDisconnectedLevel(final ConnectionStatus level) {
@@ -380,19 +383,24 @@ public class EipServiceFragment extends Fragment implements StateListener, OnChe
 			    case Activity.RESULT_CANCELED:
 				Dashboard dashboard = (Dashboard) getActivity();
 
-				dashboard.setProgressBarVisibility(ProgressBar.VISIBLE);
+				dashboard.showProgressBar();
 				String status = getResources().getString(R.string.updating_certificate_message);
 				setEipStatus(status);
-				
-				Intent provider_API_command = new Intent(getActivity(), ProviderAPI.class);
-				if(dashboard.providerAPI_result_receiver == null) {
-				    dashboard.providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-				    dashboard.providerAPI_result_receiver.setReceiver(dashboard);
-				}
-				
-				provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
-				provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, dashboard.providerAPI_result_receiver);
-				getActivity().startService(provider_API_command);
+
+                if(LeapSRPSession.getToken().isEmpty() && !Dashboard.preferences.getBoolean(EIP.ALLOWED_ANON, false)) {
+                        dashboard.logInDialog(Bundle.EMPTY);
+                } else {
+
+                    Intent provider_API_command = new Intent(getActivity(), ProviderAPI.class);
+                    if (dashboard.providerAPI_result_receiver == null) {
+                        dashboard.providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
+                        dashboard.providerAPI_result_receiver.setReceiver(dashboard);
+                    }
+
+                    provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
+                    provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, dashboard.providerAPI_result_receiver);
+                    getActivity().startService(provider_API_command);
+                }
 				break;
 			    }
 			}

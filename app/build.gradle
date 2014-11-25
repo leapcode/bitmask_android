@@ -1,5 +1,5 @@
 apply plugin: 'android'
-import org.ajoberstar.grgit.*
+//import org.ajoberstar.grgit.*
 
 android {
   compileSdkVersion 19
@@ -58,7 +58,7 @@ def processFileInplace(file, Closure processText) {
 
 task checkoutStrippedIcsOpenVPN ( type: Copy ) {
   //FIXME Checkout ics-openvpn-stripped from branch "ics-openvpn-upstream"
-  grgit = Grgit.open(project.file('../'))
+  //grgit = Grgit.open(project.file('../'))
   
   from '../../bitmask_android_tmp/ics-openvpn-stripped'
   into '../ics-openvpn-stripped'
@@ -155,6 +155,13 @@ task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') {
     include 'snappy/**'
   } into '.'
 }
+
+task buildNative ( type: Exec ) {
+  
+  commandLine 'sh', 'misc/build-native.sh', 'USE_BREAKPAD=0', '-j 8'
+}
+
+preBuild.dependsOn buildNative
 
 //assembleRelease.dependsOn connectedCheck
 afterEvaluate {
