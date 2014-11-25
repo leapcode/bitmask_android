@@ -150,13 +150,13 @@ public final class EIP extends IntentService {
      * It also sets up early routes.
      */
     private void startEIP() {
+        earlyRoutes();
 	activeGateway = selectGateway();
 	    
 	if(activeGateway != null && activeGateway.mVpnProfile != null) {
 	    mReceiver = EipServiceFragment.getReceiver();
 	    launchActiveGateway();
 	}
-        //earlyRoutes();
     }
 
     /**
