@@ -16,19 +16,31 @@
  */
 package se.leap.bitmaskclient;
 
-import se.leap.bitmaskclient.*;
-import se.leap.bitmaskclient.eip.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import de.blinkt.openvpn.activities.LogWindow;
-
-import android.app.*;
-import android.content.*;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.*;
-import android.util.Log;
-import android.view.*;
-import android.widget.*;
-import org.json.*;
+import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.eip.EIP;
+import se.leap.bitmaskclient.eip.EipStatus;
 
 /**
  * The main user facing Activity of LEAP Android, consisting of status, controls,
@@ -59,7 +71,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     private TextView status_message;
     public ProviderAPIResultReceiver providerAPI_result_receiver;
 
-    private static Provider provider;
     private static boolean authed_eip;
     
 	@Override
@@ -87,7 +98,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	try {
 	    int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
 	    int lastDetectedVersion = preferences.getInt(APP_VERSION, 0);
-	    preferences.edit().putInt(APP_VERSION, versionCode);
+	    preferences.edit().putInt(APP_VERSION, versionCode).apply();
 	    Log.d("Dashboard", "detected version code: " + versionCode);
 	    Log.d("Dashboard", "last detected version code: " + lastDetectedVersion);
 
@@ -102,6 +113,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		break;
 	    }
 	} catch (NameNotFoundException e) {
+        Log.d(TAG, "Handle version didn't find any " + getPackageName() + " package");
 	}
     }
 
@@ -121,13 +133,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
 	    // It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
 	    if ( resultCode == RESULT_OK ){
-		preferences.edit().putInt(Constants.PARSED_SERIAL, 0).commit();
-		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).commit();
+		preferences.edit().putInt(Constants.PARSED_SERIAL, 0).apply();
+		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
 		updateEipService();
 		buildDashboard(false);
 		invalidateOptionsMenu();
 		if(data != null && data.hasExtra(LogInDialog.TAG)) {
-		    View view = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
 		    logInDialog(Bundle.EMPTY);
 		}
 	    } else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
@@ -158,7 +169,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			.setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-				    preferences.edit().remove(Provider.KEY).commit();
+				    preferences.edit().remove(Provider.KEY).apply();
 					finish();
 				}
 			})
@@ -170,7 +181,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * service dependent UI elements to include.
 	 */
 	private void buildDashboard(boolean hide_and_turn_on_eip) {
-		provider = Provider.getInstance();
+        Provider provider = Provider.getInstance();
 		provider.init( this );
 
 		setContentView(R.layout.client_dashboard);
@@ -183,16 +194,17 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		if ( provider.hasEIP()){
 
-		    EipServiceFragment previous_eip_fragment = (EipServiceFragment)fragment_manager.findFragmentByTag(EipServiceFragment.TAG);
-		    EipServiceFragment eipFragment = previous_eip_fragment == null ?
-			new EipServiceFragment() : previous_eip_fragment;
+		    EipServiceFragment eipFragment = new EipServiceFragment();
+
 		    if (hide_and_turn_on_eip) {
-			preferences.edit().remove(Dashboard.START_ON_BOOT).commit();
+			preferences.edit().remove(Dashboard.START_ON_BOOT).apply();
 			Bundle arguments = new Bundle();
 			arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
 			eipFragment.setArguments(arguments);
 		    }
-		    fragment_manager.replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG);
+
+            fragment_manager.removePreviousFragment(EipServiceFragment.TAG);
+            fragment_manager.replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG);
 
 		    if (hide_and_turn_on_eip) {
 			onBackPressed();
@@ -205,12 +217,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	JSONObject provider_json;
 	try {
 	    String provider_json_string = preferences.getString(Provider.KEY, "");
-	    if(provider_json_string.isEmpty() == false) {
+	    if(!provider_json_string.isEmpty()) {
 		provider_json = new JSONObject(provider_json_string);
 		JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
 		boolean authed_eip = !LeapSRPSession.getToken().isEmpty();
 		boolean allow_registered_eip = service_description.getBoolean(Provider.ALLOW_REGISTRATION);
-		preferences.edit().putBoolean(Constants.ALLOWED_REGISTERED, allow_registered_eip);
+		preferences.edit().putBoolean(Constants.ALLOWED_REGISTERED, allow_registered_eip).apply();
 		
 		if(allow_registered_eip) {
 		    if(authed_eip) {
@@ -256,7 +268,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 				}				
 				eipStop();
 			}
-			preferences.edit().clear().commit();
+			preferences.edit().clear().apply();
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
 			return true;
 		case R.id.login_button:
@@ -405,7 +417,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		invalidateOptionsMenu();
 		
 		authed_eip = true;
-		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).commit();
+		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
 
         	downloadAuthedUserCertificate();
 	    } else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_FAILED) {
@@ -420,7 +432,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		invalidateOptionsMenu();
 		
 		authed_eip = false;
-		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).commit();
+		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
 
 	    } else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
 		changeStatusMessage(resultCode);

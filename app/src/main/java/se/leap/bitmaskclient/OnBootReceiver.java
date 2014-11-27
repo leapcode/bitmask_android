@@ -1,7 +1,8 @@
 package se.leap.bitmaskclient;
 
-import android.content.*;
-import android.util.Log;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 
 import se.leap.bitmaskclient.eip.Constants;
 

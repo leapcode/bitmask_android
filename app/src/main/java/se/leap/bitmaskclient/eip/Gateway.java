@@ -17,16 +17,22 @@
 package se.leap.bitmaskclient.eip;
 
 import android.app.Activity;
-import android.content.*;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
-import java.io.*;
-import java.util.*;
-import org.json.*;
 
-import de.blinkt.openvpn.*;
-import de.blinkt.openvpn.activities.*;
-import de.blinkt.openvpn.core.*;
-import se.leap.bitmaskclient.*;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Collection;
+import java.util.Iterator;
+
+import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.core.ConfigParser;
+import de.blinkt.openvpn.core.ProfileManager;
+import se.leap.bitmaskclient.Dashboard;
 
 /**
  * Gateway provides objects defining gateways and their metadata.
@@ -103,9 +109,8 @@ public class Gateway {
     private JSONObject getLocationInfo(JSONObject eip_definition) {
 	try {
 	    JSONObject locations = eip_definition.getJSONObject("locations");
-	    JSONObject location = locations.getJSONObject(mGateway.getString("location"));
 
-	    return location;
+	    return locations.getJSONObject(mGateway.getString("location"));
 	} catch (JSONException e) {
 	    return new JSONObject();
 	}

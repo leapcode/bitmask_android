@@ -16,19 +16,13 @@
  */
  package se.leap.bitmaskclient;
 
-import se.leap.bitmaskclient.R;
-import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.provider.CalendarContract.Colors;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.BounceInterpolator;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -46,6 +40,8 @@ public class LogInDialog extends SessionDialogInterface {
 
      
     final public static String TAG = LogInDialog.class.getSimpleName();
+
+    private static LogInDialog dialog;
 
     private static boolean is_eip_pending = false;
     
@@ -122,8 +118,10 @@ public class LogInDialog extends SessionDialogInterface {
 	 * @return a new instance of this DialogFragment.
 	 */
 	public static DialogFragment newInstance() {
-		LogInDialog dialog_fragment = new LogInDialog();
-		return dialog_fragment;
+        if(dialog == null)
+            dialog = new LogInDialog();
+
+        return dialog;
 	}
 	
     @Override

@@ -18,13 +18,14 @@ package se.leap.bitmaskclient.eip;
 
 import android.content.SharedPreferences;
 import android.util.Log;
-import java.util.Iterator;
-import java.util.Vector;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONException;
 
-import se.leap.bitmaskclient.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Iterator;
+
+import se.leap.bitmaskclient.Provider;
 
 public class VpnConfigGenerator {
 
@@ -38,7 +39,7 @@ public class VpnConfigGenerator {
     public VpnConfigGenerator(SharedPreferences preferences, JSONObject general_configuration, JSONObject gateway) {
 	this.general_configuration = general_configuration;
 	this.gateway = gateway;
-	this.preferences = preferences;
+	VpnConfigGenerator.preferences = preferences;
     }
     
     public String generate() {
@@ -56,7 +57,6 @@ public class VpnConfigGenerator {
 	String common_options = "";
 	try {
 	    Iterator keys = general_configuration.keys();
-	    Vector<Vector<String>> value = new Vector<Vector<String>>();
 	    while ( keys.hasNext() ){
 		String key = keys.next().toString();
 					

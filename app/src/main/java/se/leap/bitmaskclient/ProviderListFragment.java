@@ -16,8 +16,6 @@
  */
  package se.leap.bitmaskclient;
 
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.os.Bundle;
@@ -26,11 +24,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+
 /**
  * A list fragment representing a list of Providers. This fragment
  * also supports tablet devices by allowing list items to be given an
- * 'activated' state upon selection. This helps indicate which item is
- * currently being viewed in a {@link DashboardFragment}.
+ * 'activated' state upon selection.
  * <p>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
@@ -123,7 +122,7 @@ public class ProviderListFragment extends ListFragment {
     	if(getArguments() != null && getArguments().containsKey(TOP_PADDING)) {
     		int topPadding = getArguments().getInt(TOP_PADDING);
     		View current_view = getView();
-    		getView().setPadding(current_view.getPaddingLeft(), topPadding, current_view.getPaddingRight(), current_view.getPaddingBottom());
+    		current_view.setPadding(current_view.getPaddingLeft(), topPadding, current_view.getPaddingRight(), current_view.getPaddingBottom());
     	}
     }
 

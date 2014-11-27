@@ -1,19 +1,28 @@
 package se.leap.bitmaskclient;
 
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.ProviderAPIResultReceiver;
-import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
-import se.leap.bitmaskclient.eip.*;
-
-import de.blinkt.openvpn.activities.*;
-import de.blinkt.openvpn.core.*;
-import android.app.*;
-import android.content.*;
-import android.os.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Fragment;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.util.Log;
-import android.view.*;
-import android.widget.*;
-import java.util.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.TextView;
+
+import java.util.Observable;
+import java.util.Observer;
+
+import de.blinkt.openvpn.activities.DisconnectVPN;
+import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.eip.EIP;
+import se.leap.bitmaskclient.eip.EipStatus;
 
 public class EipServiceFragment extends Fragment implements Observer, CompoundButton.OnCheckedChangeListener {
 	
@@ -26,7 +35,6 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 
     private View eipFragment;
     private static Switch eipSwitch;
-    private View eipDetail;
     private TextView status_message;
 
     private static Activity parent_activity;
@@ -50,8 +58,8 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
-	eipFragment = inflater.inflate(R.layout.eip_service_fragment, container, false);		
-	eipDetail = ((RelativeLayout) eipFragment.findViewById(R.id.eipDetail));
+	eipFragment = inflater.inflate(R.layout.eip_service_fragment, container, false);
+    View eipDetail = eipFragment.findViewById(R.id.eipDetail);
 	eipDetail.setVisibility(View.VISIBLE);
 
 	View eipSettings = eipFragment.findViewById(R.id.eipSettings);
@@ -213,7 +221,7 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     public void update (Observable observable, Object data) {
 	Log.d(TAG, "handleNewState?");	
 	if(observable instanceof EipStatus) {
-	    this.eip_status = (EipStatus) observable;
+	    eip_status = (EipStatus) observable;
 	    final EipStatus eip_status = (EipStatus) observable;
 	    parent_activity.runOnUiThread(new Runnable() {
 	    	    @Override
@@ -284,14 +292,6 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	    parent_activity.findViewById(R.id.eipProgress).setVisibility(View.GONE);
     }
 
-    public static EipStatus getEipStatus() {
-	return eip_status;
-    }
-
-    public void checkEipSwitch(boolean activated) {
-	eipSwitch.setChecked(activated);
-    }
-
     protected class EIPReceiver extends ResultReceiver {
 		
 	protected EIPReceiver(Handler handler){
@@ -303,21 +303,18 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	    super.onReceiveResult(resultCode, resultData);
 		
 	    String request = resultData.getString(Constants.REQUEST_TAG);
-	    boolean checked = false;
-			
-	    if (request == Constants.ACTION_START_EIP) {
+
+	    if (request.equals(Constants.ACTION_START_EIP)) {
 		switch (resultCode){
 		case Activity.RESULT_OK:
 		    Log.d(TAG, "Action start eip = Result OK");
-		    checked = true;
 		    eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
 		    break;
 		case Activity.RESULT_CANCELED:
-		    checked = false;
 		    eipFragment.findViewById(R.id.eipProgress).setVisibility(View.GONE);
 		    break;
 		}
-	    } else if (request == Constants.ACTION_STOP_EIP) {
+	    } else if (request.equals(Constants.ACTION_STOP_EIP)) {
 		switch (resultCode){
 		case Activity.RESULT_OK:
 		    Intent disconnect_vpn = new Intent(parent_activity, DisconnectVPN.class);
@@ -325,20 +322,16 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 		    eip_status.setDisconnecting();
 		    break;
 		case Activity.RESULT_CANCELED:
-		    checked = true;
 		    break;
 		}
-	    } else if (request == Constants.EIP_NOTIFICATION) {
+	    } else if (request.equals(Constants.EIP_NOTIFICATION)) {
 		switch  (resultCode){
 		case Activity.RESULT_OK:
-		    checked = true;
 		    break;
 		case Activity.RESULT_CANCELED:
-		    checked = false;
 		    break;
 		}
-	    } else if (request == Constants.ACTION_CHECK_CERT_VALIDITY) {
-		checked = eipSwitch.isChecked();
+	    } else if (request.equals(Constants.ACTION_CHECK_CERT_VALIDITY)) {
 		switch (resultCode) {
 		case Activity.RESULT_OK:
 		    break;

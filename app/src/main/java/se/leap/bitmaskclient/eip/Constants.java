@@ -34,8 +34,6 @@ public interface Constants {
     public final static String ACTION_UPDATE_EIP_SERVICE = TAG + ".UPDATE_EIP_SERVICE";
     public final static String ACTION_IS_EIP_RUNNING = TAG + ".IS_RUNNING";
     public final static String EIP_NOTIFICATION = TAG + ".EIP_NOTIFICATION";
-    public final static String STATUS = TAG + ".STATUS";
-    public final static String DATE_FROM_CERTIFICATE = TAG + ".DATE_FROM_CERTIFICATE";
     public final static String ALLOWED_ANON = "allow_anonymous";
     public final static String ALLOWED_REGISTERED = "allow_registration";
     public final static String CERTIFICATE = "cert";

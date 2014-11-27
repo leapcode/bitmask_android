@@ -1,11 +1,7 @@
 package se.leap.bitmaskclient.eip;
 
 import android.content.Intent;
-import android.os.Process;
 import android.net.VpnService;
-import android.util.Log;
-
-import static se.leap.bitmaskclient.eip.Constants.*;
 
 public class VoidVpnService extends VpnService  {
 

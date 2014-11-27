@@ -16,22 +16,40 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
+import android.app.Activity;
+import android.app.IntentService;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.util.Log;
-import java.io.*;
-import java.security.cert.*;
-import java.text.*;
-import java.util.*;
-import org.json.*;
 
-import de.blinkt.openvpn.*;
-import de.blinkt.openvpn.activities.*;
-import de.blinkt.openvpn.core.*;
-import se.leap.bitmaskclient.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import static se.leap.bitmaskclient.eip.Constants.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import de.blinkt.openvpn.LaunchVPN;
+import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.core.ProfileManager;
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.EipServiceFragment;
+import se.leap.bitmaskclient.Provider;
+
+import static se.leap.bitmaskclient.eip.Constants.ACTION_CHECK_CERT_VALIDITY;
+import static se.leap.bitmaskclient.eip.Constants.ACTION_IS_EIP_RUNNING;
+import static se.leap.bitmaskclient.eip.Constants.ACTION_START_EIP;
+import static se.leap.bitmaskclient.eip.Constants.ACTION_STOP_EIP;
+import static se.leap.bitmaskclient.eip.Constants.ACTION_UPDATE_EIP_SERVICE;
+import static se.leap.bitmaskclient.eip.Constants.CERTIFICATE;
+import static se.leap.bitmaskclient.eip.Constants.KEY;
+import static se.leap.bitmaskclient.eip.Constants.PARSED_SERIAL;
+import static se.leap.bitmaskclient.eip.Constants.RECEIVER_TAG;
+import static se.leap.bitmaskclient.eip.Constants.REQUEST_TAG;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -80,21 +98,21 @@ public final class EIP extends IntentService {
 	String action = intent.getAction();
 	mReceiver = intent.getParcelableExtra(RECEIVER_TAG);
 	
-	if ( action == ACTION_START_EIP )
+	if ( action.equals(ACTION_START_EIP))
 	    startEIP();
-	else if ( action == ACTION_STOP_EIP )
+	else if (action.equals(ACTION_STOP_EIP))
 	    stopEIP();
-	else if ( action == ACTION_IS_EIP_RUNNING )
+	else if (action.equals(ACTION_IS_EIP_RUNNING))
 	    isRunning();
-	else if ( action == ACTION_UPDATE_EIP_SERVICE )
+	else if (action.equals(ACTION_UPDATE_EIP_SERVICE))
 	    updateEIPService();
-	else if ( action == ACTION_CHECK_CERT_VALIDITY )
+	else if (action.equals(ACTION_CHECK_CERT_VALIDITY))
 	    checkCertValidity();
     }
 	
     /**
      * Initiates an EIP connection by selecting a gateway and preparing and sending an
-     * Intent to {@link se.leap.openvpn.LaunchVPN}.
+     * Intent to {@link de.blinkt.openvpn.LaunchVPN}.
      * It also sets up early routes.
      */
     private void startEIP() {
@@ -164,8 +182,7 @@ public final class EIP extends IntentService {
     }
 
     /**
-     * Loads eip-service.json from SharedPreferences and calls {@link updateGateways()}
-     * to parse gateway definitions.
+     * Loads eip-service.json from SharedPreferences, delete previous vpn profiles and add new gateways.
      * TODO Implement API call to refresh eip-service.json from the provider
      */
     private void updateEIPService() {
@@ -210,7 +227,7 @@ public final class EIP extends IntentService {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
-	preferences.edit().putInt(PARSED_SERIAL, eip_definition.optInt(Provider.API_RETURN_SERIAL)).commit();
+	preferences.edit().putInt(PARSED_SERIAL, eip_definition.optInt(Provider.API_RETURN_SERIAL)).apply();
     }
 
     private boolean isOpenVpnGateway(JSONObject gateway) {

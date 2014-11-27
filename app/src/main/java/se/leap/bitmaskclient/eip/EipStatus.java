@@ -17,18 +17,17 @@
 package se.leap.bitmaskclient.eip;
 
 import android.util.Log;
-import java.util.*;
 
-import de.blinkt.openvpn.core.*;
+import java.util.Observable;
+
+import de.blinkt.openvpn.core.VpnStatus;
 
 public class EipStatus extends Observable implements VpnStatus.StateListener {
     public static String TAG = EipStatus.class.getSimpleName();
     private static EipStatus current_status;
 
-    private static EipStatus previous_status;
     private static VpnStatus.ConnectionStatus level = VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
     private static boolean wants_to_disconnect = false;
-    private static boolean is_disconnecting = false;
 
     private String state, log_message;
     private int localized_res_id;
@@ -46,7 +45,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     @Override
     public void updateState(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
 	current_status = getInstance();
-	previous_status = current_status;
 	current_status.setState(state);
 	current_status.setLogMessage(logmessage);
 	current_status.setLocalizedResId(localizedResId);
@@ -58,10 +56,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 	    setConnecting();
 	Log.d(TAG, "update state with level " + level);
 	current_status.notifyObservers();
-    }
-
-    public boolean isDisconnecting() {
-	return is_disconnecting;
     }
 
     public boolean wantsToDisconnect() {
@@ -88,7 +82,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public void setConnecting() {
-	is_disconnecting = false;
 	wants_to_disconnect = false;
 	current_status.setChanged();
 	current_status.notifyObservers();
@@ -96,19 +89,13 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
     public void setConnectedOrDisconnected() {
 	Log.d(TAG, "setConnectedOrDisconnected()");
-	is_disconnecting = false;
 	wants_to_disconnect = false;
 	current_status.setChanged();
 	current_status.notifyObservers();
     }
 
     public void setDisconnecting() {
-	is_disconnecting = true;
 	wants_to_disconnect = false;
-    }
-
-    public void setWantsToDisconnect() {
-	wants_to_disconnect = true;
     }
 
     public String getState() {
@@ -127,10 +114,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 	return level;
     }
 
-    public EipStatus getPreviousStatus() {
-	return previous_status;
-    }
-
     private void setState(String state) {
 	this.state = state;
     }
@@ -144,7 +127,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     private void setLevel(VpnStatus.ConnectionStatus level) {
-	this.level = level;
+	EipStatus.level = level;
     }
 
     @Override
