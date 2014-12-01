@@ -16,17 +16,17 @@
  */
 package se.leap.bitmaskclient;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Locale;
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.app.Activity;
-import android.content.SharedPreferences;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * @author Sean Leonard <meanderingcode@aetherislands.net>

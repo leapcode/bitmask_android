@@ -16,39 +16,17 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.app.*;
+import android.content.*;
 import android.content.res.AssetManager;
-import android.os.Bundle;
-import android.os.Handler;
+import android.os.*;
 import android.util.Log;
-import android.view.Display;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View.MeasureSpec;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Iterator;
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.view.*;
+import android.widget.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import org.json.*;
 
 import se.leap.bitmaskclient.DownloadFailedDialog.DownloadFailedDialogInterface;
 import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
@@ -56,7 +34,7 @@ import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import se.leap.bitmaskclient.FragmentManagerEnhanced;
-
+import se.leap.bitmaskclient.eip.Constants;
 import se.leap.bitmaskclient.R;
 
 /**
@@ -165,7 +143,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	if(resultCode == ProviderAPI.PROVIDER_OK) {
 	    mConfigState.setAction(PROVIDER_SET);
 	    
-	    if (preferences.getBoolean(EIP.ALLOWED_ANON, false)){
+	    if (preferences.getBoolean(Constants.ALLOWED_ANON, false)){
 		mConfigState.putExtra(SERVICES_RETRIEVED, true);
 		
 		downloadAnonCert();
@@ -311,8 +289,8 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
         int screenWidth = display.getWidth(); // deprecated
 
         int listViewWidth = screenWidth - 10 - 10;
-        int widthSpec = MeasureSpec.makeMeasureSpec(listViewWidth,
-                    MeasureSpec.AT_MOST);
+        int widthSpec = View.MeasureSpec.makeMeasureSpec(listViewWidth,
+                    View.MeasureSpec.AT_MOST);
         listItem.measure(widthSpec, 0);
 
         return listItem.getMeasuredHeight();
@@ -544,7 +522,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		if(provider_list_fragment != null) {
 			provider_list_fragment.removeLastItem();
 		}
-		preferences.edit().remove(Provider.KEY).remove(EIP.ALLOWED_ANON).remove(EIP.KEY).commit();
+		preferences.edit().remove(Provider.KEY).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).commit();
 	}
 
 	@Override

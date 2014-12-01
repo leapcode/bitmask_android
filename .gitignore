@@ -75,7 +75,6 @@ gradle.properties*
 build
 .gradle
 jniLibs
-G*
 *.dot
 /ics-openvpn/
 /TAGS

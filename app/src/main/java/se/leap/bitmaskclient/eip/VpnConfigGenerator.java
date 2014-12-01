@@ -14,18 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.leap.bitmaskclient;
+package se.leap.bitmaskclient.eip;
 
 import android.content.SharedPreferences;
 import android.util.Log;
-import java.util.Iterator;
-import java.util.Vector;
+
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Iterator;
 
 import se.leap.bitmaskclient.Provider;
-import se.leap.bitmaskclient.EIP;
 
 public class VpnConfigGenerator {
 
@@ -39,7 +39,7 @@ public class VpnConfigGenerator {
     public VpnConfigGenerator(SharedPreferences preferences, JSONObject general_configuration, JSONObject gateway) {
 	this.general_configuration = general_configuration;
 	this.gateway = gateway;
-	this.preferences = preferences;
+	VpnConfigGenerator.preferences = preferences;
     }
     
     public String generate() {
@@ -57,7 +57,6 @@ public class VpnConfigGenerator {
 	String common_options = "";
 	try {
 	    Iterator keys = general_configuration.keys();
-	    Vector<Vector<String>> value = new Vector<Vector<String>>();
 	    while ( keys.hasNext() ){
 		String key = keys.next().toString();
 					
@@ -121,14 +120,14 @@ public class VpnConfigGenerator {
 	String key =
 	    "<key>"
 	    + new_line
-	    + preferences.getString(EIP.PRIVATE_KEY, "")
+	    + preferences.getString(Constants.PRIVATE_KEY, "")
 	    + new_line
 	    + "</key>";
 		
 	String openvpn_cert =
 	    "<cert>"
 	    + new_line
-	    + preferences.getString(EIP.CERTIFICATE, "")
+	    + preferences.getString(Constants.CERTIFICATE, "")
 	    + new_line
 	    + "</cert>";
 

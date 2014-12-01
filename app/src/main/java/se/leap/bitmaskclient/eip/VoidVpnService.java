@@ -1,19 +1,16 @@
-package se.leap.bitmaskclient;
+package se.leap.bitmaskclient.eip;
 
 import android.content.Intent;
-import android.os.Process;
 import android.net.VpnService;
-import android.util.Log;
 
 public class VoidVpnService extends VpnService  {
 
-    static final String START_BLOCKING_VPN_PROFILE = "se.leap.bitmaskclient.START_BLOCKING_VPN_PROFILE";
     static final String TAG = VoidVpnService.class.getSimpleName();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 	String action = intent.getAction();
-	if (action == START_BLOCKING_VPN_PROFILE) {
+	if (action == Constants.START_BLOCKING_VPN_PROFILE) {
 	    new Thread(new Runnable() {
 		    public void run() {			
 			Builder builder = new Builder();

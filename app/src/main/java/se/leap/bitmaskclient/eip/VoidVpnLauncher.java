@@ -1,4 +1,4 @@
-package se.leap.bitmaskclient;
+package se.leap.bitmaskclient.eip;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,7 +8,7 @@ import android.os.Bundle;
 public class VoidVpnLauncher extends Activity {
 
     private static final int VPN_USER_PERMISSION = 71;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
@@ -28,7 +28,7 @@ public class VoidVpnLauncher extends Activity {
 	if(requestCode == VPN_USER_PERMISSION) {
 	    if(resultCode == RESULT_OK) {
 		Intent void_vpn_service = new Intent(getApplicationContext(), VoidVpnService.class);
-		void_vpn_service.setAction(VoidVpnService.START_BLOCKING_VPN_PROFILE);
+		void_vpn_service.setAction(Constants.START_BLOCKING_VPN_PROFILE);
 		startService(void_vpn_service);
 	    }
 	}
