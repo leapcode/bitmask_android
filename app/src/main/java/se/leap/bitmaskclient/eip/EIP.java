@@ -116,6 +116,8 @@ public final class EIP extends IntentService {
      * It also sets up early routes.
      */
     private void startEIP() {
+	if(gateways.isEmpty())
+	    updateEIPService();
 	GatewaySelector gateway_selector = new GatewaySelector(gateways);
 	activeGateway = gateway_selector.select();
 	if(activeGateway != null && activeGateway.getProfile() != null) {

@@ -219,7 +219,6 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	
     @Override
     public void update (Observable observable, Object data) {
-	Log.d(TAG, "handleNewState?");	
 	if(observable instanceof EipStatus) {
 	    eip_status = (EipStatus) observable;
 	    final EipStatus eip_status = (EipStatus) observable;
