@@ -194,17 +194,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		if ( provider.hasEIP()){
 
-		    EipServiceFragment eipFragment = new EipServiceFragment();
+            EipServiceFragment eip_fragment = (EipServiceFragment) fragment_manager.findFragmentByTag(EipServiceFragment.TAG);
+            if(eip_fragment == null)
+                eip_fragment = new EipServiceFragment();
 
 		    if (hide_and_turn_on_eip) {
 			preferences.edit().remove(Dashboard.START_ON_BOOT).apply();
 			Bundle arguments = new Bundle();
 			arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
-			eipFragment.setArguments(arguments);
+			eip_fragment.setArguments(arguments);
 		    }
 
             fragment_manager.removePreviousFragment(EipServiceFragment.TAG);
-            fragment_manager.replace(R.id.servicesCollection, eipFragment, EipServiceFragment.TAG);
+            fragment_manager.replace(R.id.servicesCollection, eip_fragment, EipServiceFragment.TAG);
 
 		    if (hide_and_turn_on_eip) {
 			onBackPressed();
