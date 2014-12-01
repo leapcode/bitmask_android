@@ -15,11 +15,11 @@ import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.test.ConnectionManager;
 
-public class testDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
+public class testDashboardIntegration extends ActivityInstrumentationTestCase2<Dashboard> {
 
 	private Solo solo;
 	
-	public testDashboard() {
+	public testDashboardIntegration() {
 		super(Dashboard.class);
 	}
 

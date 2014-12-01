@@ -160,21 +160,12 @@ public final class EIP extends IntentService {
 
 	tellToReceiver(ACTION_STOP_EIP, result_code);
     }
-    
-    private void tellToReceiver(String action, int resultCode) {	
-	if (mReceiver != null){
-	    Bundle resultData = new Bundle();
-	    resultData.putString(REQUEST_TAG, action);
-	    mReceiver.send(resultCode, resultData);
-	}
-    }
 	
     /**
      * Checks the last stored status notified by ics-openvpn
      * Sends <code>Activity.RESULT_CANCELED</code> to the ResultReceiver that made the
      * request if it's not connected, <code>Activity.RESULT_OK</code> otherwise.
      */
-	
     private void isRunning() {
 	EipStatus eip_status = EipStatus.getInstance();
 	int resultCode = (eip_status.isConnected()) ?
@@ -252,5 +243,13 @@ public final class EIP extends IntentService {
 	    Activity.RESULT_OK :
 	    Activity.RESULT_CANCELED;
 	tellToReceiver(ACTION_CHECK_CERT_VALIDITY, resultCode);
+    }
+
+    private void tellToReceiver(String action, int resultCode) {
+        if (mReceiver != null){
+            Bundle resultData = new Bundle();
+            resultData.putString(REQUEST_TAG, action);
+            mReceiver.send(resultCode, resultData);
+        }
     }
 }
