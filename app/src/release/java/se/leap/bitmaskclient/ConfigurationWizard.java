@@ -18,9 +18,7 @@ package se.leap.bitmaskclient;
 
 import android.app.*;
 import android.content.*;
-import android.content.res.AssetManager;
 import android.os.*;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import java.io.*;
@@ -52,6 +50,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	private TextView progressbar_description;
 	private ProviderListFragment provider_list_fragment;
 	private Intent mConfigState = new Intent();
+    private ProviderItem selected_provider;
 	
     final public static String TAG = ConfigurationWizard.class.getSimpleName();
 	final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
@@ -61,6 +60,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	final protected static String PROVIDER_SET = "PROVIDER SET";
 	final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
     final protected static String ASSETS_URL_FOLDER = "urls";
+
+    final private static String PROGRESSBAR_TEXT = TAG + "PROGRESSBAR_TEXT";
+    final private static String PROGRESSBAR_NUMBER = TAG + "PROGRESSBAR_NUMBER";
     
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
@@ -68,6 +70,21 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     private static SharedPreferences preferences;
     FragmentManagerEnhanced fragment_manager;
     private static boolean setting_up_provider = false;
+    private String progressbar_text = "";
+    private String provider_name = "";
+    private int progress = -1;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if(mProgressBar != null)
+            outState.putInt(PROGRESSBAR_NUMBER, mProgressBar.getProgress());
+        if(progressbar_description != null)
+            outState.putString(PROGRESSBAR_TEXT, progressbar_description.getText().toString());
+        if(selected_provider != null)
+            outState.putString(Provider.NAME, selected_provider.name());
+        outState.putParcelable(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+        super.onSaveInstanceState(outState);
+    }
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,16 +97,31 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	loadPreseededProviders();
 
 	setUpProviderAPIResultReceiver();
-        
-        // Only create our fragments if we're not restoring a saved instance
-	if ( savedInstanceState == null ) {
-	    // TODO Some welcome screen?
-	    // We will need better flow control when we have more Fragments (e.g. user auth)
-	    setUpProviderList();
-	}
 
-        // TODO: If exposing deep links into your app, handle intents here.
-    }    
+	setUpProviderList();
+
+	if ( savedInstanceState != null ) {
+            progressbar_text = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
+            provider_name = savedInstanceState.getString(Provider.NAME, "");
+            progress = savedInstanceState.getInt(PROGRESSBAR_NUMBER, -1);
+            providerAPI_result_receiver = savedInstanceState.getParcelable(ProviderAPI.RECEIVER_KEY);
+            providerAPI_result_receiver.setReceiver(this);
+	}
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        if(!progressbar_text.isEmpty() && !provider_name.isEmpty() && progress != -1) {
+            progressbar_description.setText(progressbar_text);
+            onItemSelectedUi(getProvider(provider_name));
+            mProgressBar.setProgress(progress);
+
+            progressbar_text = "";
+            provider_name = "";
+            progress = -1;
+        }
+    }
 
     private void setUpInitialUI() {
 	setContentView(R.layout.configuration_wizard_activity);
@@ -122,11 +154,11 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	fragment_manager.replace(R.id.configuration_wizard_layout, provider_list_fragment, ProviderListFragment.TAG);
     }
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		unregisterReceiver(providerAPI_broadcast_receiver_update);
-	}
+    @Override
+    protected void onDestroy() {
+	super.onDestroy();
+	unregisterReceiver(providerAPI_broadcast_receiver_update);
+    }
 
     private void setUpProviderAPIResultReceiver() {
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
@@ -169,9 +201,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	    mProgressBar.incrementProgressBy(1);
 	    hideProgressBar();
 	    
-	    setResult(RESULT_OK);
-	    
 	    showProviderDetails();
+	    
+	    setResult(RESULT_OK);
 	} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 	    hideProgressBar();
 	    
@@ -189,13 +221,15 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     @Override
     public void onItemSelected(String id) {
 	//TODO Code 2 pane view
-	ProviderItem selected_provider = getProvider(id);
-	int provider_index = getProviderIndex(id);
-
-	startProgressBar(provider_index+1);
-	provider_list_fragment.hideAllBut(provider_index);
-
+	selected_provider = getProvider(id);
+        onItemSelectedUi(selected_provider);
 	setUpProvider(selected_provider.providerMainUrl());
+    }
+
+    private void onItemSelectedUi(ProviderItem provider) {
+        startProgressBar();
+        int provider_index = getProviderIndex(provider.name());
+        provider_list_fragment.hideAllBut(provider_index);
     }
     
     @Override
@@ -212,6 +246,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	mProgressBar.setVisibility(ProgressBar.GONE);
 	mProgressBar.setProgress(0);
 	progressbar_description.setVisibility(TextView.GONE);
+	
 	preferences.edit().remove(Provider.KEY).commit();
     	setting_up_provider = false;
 	showAllProviders();
@@ -250,19 +285,16 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	    return null;
     }
 	
-	private void startProgressBar() {
-	    mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	    progressbar_description.setVisibility(TextView.VISIBLE);
-	    mProgressBar.setProgress(0);
-	    mProgressBar.setMax(3);
-	}
-	
-	private void startProgressBar(int list_item_index) {
-	    startProgressBar();
-	    int measured_height = listItemHeight(list_item_index);
-	    mProgressBar.setTranslationY(measured_height);
-	    progressbar_description.setTranslationY(measured_height + mProgressBar.getHeight());
-	}
+    private void startProgressBar() {
+        mProgressBar.setVisibility(ProgressBar.VISIBLE);
+        progressbar_description.setVisibility(TextView.VISIBLE);
+        mProgressBar.setProgress(0);
+        mProgressBar.setMax(3);
+
+	int measured_height = listItemHeight();
+	mProgressBar.setTranslationY(measured_height);
+	progressbar_description.setTranslationY(measured_height + mProgressBar.getHeight());
+    }
 
     private int getProviderIndex(String id) {
     	int index = 0;
@@ -276,7 +308,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	    return index;
     }
     
-    private int listItemHeight(int list_item_index) {
+    private int listItemHeight() {
         ListView provider_list_view = (ListView)findViewById(android.R.id.list);
         ListAdapter provider_list_adapter = provider_list_view.getAdapter();
         View listItem = provider_list_adapter.getView(0, null, provider_list_view);
