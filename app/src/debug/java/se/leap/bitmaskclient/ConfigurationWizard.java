@@ -101,6 +101,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
         if(savedInstanceState != null) {
             progressbar_text = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
             provider_name = savedInstanceState.getString(Provider.NAME, "");
+            selected_provider = getProvider(provider_name);
             progress = savedInstanceState.getInt(PROGRESSBAR_NUMBER, -1);
             providerAPI_result_receiver = savedInstanceState.getParcelable(ProviderAPI.RECEIVER_KEY);
             providerAPI_result_receiver.setReceiver(this);
