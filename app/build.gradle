@@ -47,6 +47,7 @@ android {
 
 dependencies {
   androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.2.1'
+  compile 'com.jakewharton:butterknife:6.0.0+'
   compile 'com.intellij:annotations:12.0'
 }
 

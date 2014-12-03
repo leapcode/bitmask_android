@@ -110,11 +110,10 @@ public final class Provider implements Serializable {
 	}
 
 	protected String getDomain(){
-		String domain = "Null";
+		String domain = "";
 		try {
 			domain = definition.getString(API_TERM_DOMAIN);
 		} catch (JSONException e) {
-			domain = "Null";
 			e.printStackTrace();
 		}
 		return domain;
@@ -157,58 +156,25 @@ public final class Provider implements Serializable {
 	}
 
 	protected boolean hasEIP() {
-		JSONArray services = null;
 		try {
-			services = definition.getJSONArray(API_TERM_SERVICES); // returns ["openvpn"]
+            JSONArray services = definition.getJSONArray(API_TERM_SERVICES); // returns ["openvpn"]
+            for (int i=0;i<API_EIP_TYPES.length+1;i++){
+                try {
+                    // Walk the EIP types array looking for matches in provider's service definitions
+                    if ( Arrays.asList(API_EIP_TYPES).contains( services.getString(i) ) )
+                        return true;
+                } catch (NullPointerException e){
+                    e.printStackTrace();
+                    return false;
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    return false;
+                }
+            }
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		for (int i=0;i<API_EIP_TYPES.length+1;i++){
-			try {
-				// Walk the EIP types array looking for matches in provider's service definitions
-				if ( Arrays.asList(API_EIP_TYPES).contains( services.getString(i) ) )
-					return true;
-			} catch (NullPointerException e){
-				e.printStackTrace();
-				return false;
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			}
-		}
 		return false;
-	}
-	
-	protected String getEIPType() {
-		// FIXME!!!!!  We won't always be providing /only/ OpenVPN, will we?
-		// This will have to hook into some saved choice of EIP transport
-		if ( instance.hasEIP() )
-			return "OpenVPN";
-		else
-			return null;
-	}
-	
-	protected JSONObject getEIP() {
-		// FIXME!!!!!  We won't always be providing /only/ OpenVPN, will we?
-		// This will have to hook into some saved choice of EIP transport, cluster, gateway
-		//   with possible "choose at random" preference
-		if ( instance.hasEIP() ){
-			// TODO Might need an EIP class, but we've only got OpenVPN type right now,
-			// and only one gateway for our only provider...
-			// TODO We'll try to load from preferences, have to call ProviderAPI if we've got nothin...
-			JSONObject eipObject = null;
-			try {
-				eipObject = new JSONObject( preferences.getString(PREFS_EIP_NAME, "") );
-			} catch (JSONException e) {
-				// TODO ConfigHelper.rescueJSON()
-				// Still nothing?
-				// TODO ProviderAPI.getEIP()
-				e.printStackTrace();
-			}
-			
-			return eipObject;
-		} else
-			return null;
 	}
 }

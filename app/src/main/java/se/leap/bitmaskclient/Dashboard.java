@@ -86,8 +86,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
 	    fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 	    handleVersion();
-	    boolean provider_configured = preferences.getString(Constants.KEY, "").isEmpty();
-	    if (provider_configured)
+	    boolean no_provider_configured = preferences.getString(Constants.KEY, "").isEmpty();
+	    if (no_provider_configured)
 		startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 	    else
 		buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
@@ -135,6 +135,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		preferences.edit().putInt(Constants.PARSED_SERIAL, 0).apply();
 		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
 		updateEipService();
+        buildDashboard(false);
 		invalidateOptionsMenu();
 		if(data != null && data.hasExtra(LogInDialog.TAG)) {
 		    logInDialog(Bundle.EMPTY);
