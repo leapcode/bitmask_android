@@ -86,7 +86,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
 	    fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 	    handleVersion();
-	    
 	    boolean provider_configured = preferences.getString(Constants.KEY, "").isEmpty();
 	    if (provider_configured)
 		startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
@@ -136,7 +135,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		preferences.edit().putInt(Constants.PARSED_SERIAL, 0).apply();
 		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
 		updateEipService();
-		buildDashboard(false);
 		invalidateOptionsMenu();
 		if(data != null && data.hasExtra(LogInDialog.TAG)) {
 		    logInDialog(Bundle.EMPTY);
@@ -205,7 +203,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			eip_fragment.setArguments(arguments);
 		    }
 
-            fragment_manager.removePreviousFragment(EipServiceFragment.TAG);
             fragment_manager.replace(R.id.servicesCollection, eip_fragment, EipServiceFragment.TAG);
 
 		    if (hide_and_turn_on_eip) {
