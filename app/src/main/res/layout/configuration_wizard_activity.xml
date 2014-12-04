@@ -22,5 +22,4 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/holo_blue_bright" />
-
 </RelativeLayout>

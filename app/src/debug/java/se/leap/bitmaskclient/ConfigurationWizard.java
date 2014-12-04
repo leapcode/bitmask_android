@@ -45,7 +45,7 @@ import se.leap.bitmaskclient.eip.Constants;
  * @author parmegv
  *
  */
-public class ConfigurationWizard extends ListActivity
+public class ConfigurationWizard extends Activity
 implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderDetailFragmentInterface, DownloadFailedDialogInterface, Receiver {
 
     @InjectView(R.id.progressbar_configuration_wizard)
@@ -96,7 +96,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
-        ButterKnife.inject(this);
 
         setUpInitialUI();
 
@@ -136,7 +135,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 
     private void setUpInitialUI() {
         setContentView(R.layout.configuration_wizard_activity);
-	hideProgressBar();
+        ButterKnife.inject(this);
+
+        hideProgressBar();
     }
     
     private void hideProgressBar() {	

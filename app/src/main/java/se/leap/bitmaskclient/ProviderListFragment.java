@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import butterknife.ButterKnife;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
 /**
@@ -107,7 +108,9 @@ public class ProviderListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
-    	return inflater.inflate(R.layout.provider_list_fragment, container, false);
+    	View view = inflater.inflate(R.layout.provider_list_fragment, container, false);
+        ButterKnife.inject(this, view);
+        return view;
     }
     
     @Override
