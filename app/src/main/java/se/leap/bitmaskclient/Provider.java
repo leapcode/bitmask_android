@@ -102,6 +102,10 @@ public final class Provider implements Parcelable {
 	protected String getDomain(){
 		return main_url.getHost();
 	}
+
+    protected URL mainUrl() {
+        return main_url;
+    }
 	
 	protected String getName(){
 		// Should we pass the locale in, or query the system here?

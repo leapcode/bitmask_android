@@ -11,6 +11,8 @@ import com.pedrogomez.renderers.Renderer;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnItemClick;
+import butterknife.OnItemSelected;
 
 /**
  * Created by parmegv on 4/12/14.

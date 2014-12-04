@@ -31,6 +31,7 @@ import java.util.*;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnItemClick;
 import org.jetbrains.annotations.NotNull;
 import org.json.*;
 
@@ -53,7 +54,7 @@ import se.leap.bitmaskclient.eip.Constants;
  *
  */
 public class ConfigurationWizard extends Activity
-implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderDetailFragmentInterface, DownloadFailedDialogInterface, Receiver {
+implements NewProviderDialogInterface, ProviderDetailFragmentInterface, DownloadFailedDialogInterface, Receiver {
 
 
     @InjectView(R.id.progressbar_configuration_wizard) ProgressBar mProgressBar;
@@ -65,7 +66,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     private ProviderManager provider_manager;
 	private ProviderListFragment provider_list_fragment;
 	private Intent mConfigState = new Intent();
-    private ProviderItem selected_provider;
+    private Provider selected_provider;
 	
     final public static String TAG = ConfigurationWizard.class.getSimpleName();
 	final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
@@ -104,7 +105,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
         if(progressbar_description != null)
             outState.putString(PROGRESSBAR_TEXT, progressbar_description.getText().toString());
         if(selected_provider != null)
-            outState.putString(Provider.NAME, selected_provider.name());
+            outState.putParcelable(Provider.KEY, selected_provider);
         outState.putParcelable(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
         super.onSaveInstanceState(outState);
     }
@@ -130,7 +131,7 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     private void restoreState(Bundle savedInstanceState) {
         progressbar_text = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
         provider_name = savedInstanceState.getString(Provider.NAME, "");
-        selected_provider = getProvider(provider_name);
+        selected_provider = savedInstanceState.getParcelable(Provider.KEY);
         progress = savedInstanceState.getInt(PROGRESSBAR_NUMBER, -1);
         providerAPI_result_receiver = savedInstanceState.getParcelable(ProviderAPI.RECEIVER_KEY);
         providerAPI_result_receiver.setReceiver(this);
@@ -165,16 +166,16 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 
     private void setUpProviderList() {
         initProviderList();
-	provider_list_fragment = ProviderListFragment.newInstance();
+	// provider_list_fragment = ProviderListFragment.newInstance();
 	
-	Bundle arguments = new Bundle();
-	int configuration_wizard_request_code = getIntent().getIntExtra(Dashboard.REQUEST_CODE, -1);
-	if(configuration_wizard_request_code == Dashboard.SWITCH_PROVIDER)
-	    arguments.putBoolean(ProviderListFragment.SHOW_ALL_PROVIDERS, true);
+	// Bundle arguments = new Bundle();
+	// int configuration_wizard_request_code = getIntent().getIntExtra(Dashboard.REQUEST_CODE, -1);
+	// if(configuration_wizard_request_code == Dashboard.SWITCH_PROVIDER)
+	//     arguments.putBoolean(ProviderListFragment.SHOW_ALL_PROVIDERS, true);
 	
-	provider_list_fragment.setArguments(arguments);
+	// provider_list_fragment.setArguments(arguments);
 
-	putProviderListFragment();
+	// putProviderListFragment();
     }
 
     private void putProviderListFragment() {
@@ -241,16 +242,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	}
     }
 
-    /**
-     * Callback method from {@link ProviderListFragment.Callbacks}
-     * indicating that the item with the given ID was selected.
-     */
-    @Override
-    public void onItemSelected(String id) {
+    @OnItemClick(R.id.provider_list)
+    void onItemSelected(int position) {
 	//TODO Code 2 pane view
-	selected_provider = getProvider(id);
-        onItemSelectedUi(selected_provider);
-	setUpProvider(selected_provider.providerMainUrl());
+        selected_provider = adapter.getItem(position);
+        //onItemSelectedUi(selected_provider);
+	setUpProvider(selected_provider.mainUrl());
     }
 
     private void onItemSelectedUi(ProviderItem provider) {
@@ -447,11 +444,15 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		}
 	}
 
-	public void showAndSelectProvider(String provider_main_url) {
-	    if(getId(provider_main_url).isEmpty())
-		showProvider(provider_main_url);
-	    autoSelectProvider(provider_main_url);
+    public void showAndSelectProvider(String provider_main_url) {
+	try {
+	    selected_provider = new Provider(new URL((provider_main_url)));
+	    provider_manager.add(selected_provider);
+            autoSelectProvider(selected_provider);
+	} catch (MalformedURLException e) {
+	    e.printStackTrace();
 	}
+    }
 	
 	private void showProvider(final String provider_main_url) {
 		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
@@ -459,19 +460,20 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 		provider_list_fragment.addItem(added_provider);
 	}
 	
-	private void autoSelectProvider(String provider_main_url) {
-		onItemSelected(getId(provider_main_url));
-	}
+    private void autoSelectProvider(Provider provider) {
+	selected_provider = provider;
+	//onItemSelected(provider);
+    }
 	
 	/**
 	 * Asks ProviderAPI to download a new provider.json file
 	 * @param provider_name
 	 * @param provider_main_url
 	 */
-	public void setUpProvider(String provider_main_url) {
+	public void setUpProvider(URL provider_main_url) {
 		Intent provider_API_command = new Intent(this, ProviderAPI.class);
 		Bundle parameters = new Bundle();
-		parameters.putString(Provider.MAIN_URL, provider_main_url);
+		parameters.putString(Provider.MAIN_URL, provider_main_url.toString());
 
 		provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
 		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
