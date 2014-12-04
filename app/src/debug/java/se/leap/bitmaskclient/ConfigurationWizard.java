@@ -21,15 +21,21 @@ import android.content.*;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
+
+import com.pedrogomez.renderers.Renderer;
+import com.pedrogomez.renderers.RendererAdapter;
+
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import org.jetbrains.annotations.NotNull;
 import org.json.*;
 
-import butterknife.OnItemSelected;
+import javax.inject.Inject;
+
 import se.leap.bitmaskclient.DownloadFailedDialog.DownloadFailedDialogInterface;
 import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
@@ -48,11 +54,13 @@ import se.leap.bitmaskclient.eip.Constants;
 public class ConfigurationWizard extends Activity
 implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderDetailFragmentInterface, DownloadFailedDialogInterface, Receiver {
 
-    @InjectView(R.id.progressbar_configuration_wizard)
-	ProgressBar mProgressBar;
-    @InjectView(R.id.progressbar_description)
-	TextView progressbar_description;
+    @InjectView(R.id.progressbar_configuration_wizard) ProgressBar mProgressBar;
+    @InjectView(R.id.progressbar_description) TextView progressbar_description;
 
+    @InjectView(R.id.provider_list) ListView provider_list_view;
+    @Inject RendererAdapter<Provider> adapter;
+
+    private ProviderManager provider_manager;
 	private ProviderListFragment provider_list_fragment;
 	private Intent mConfigState = new Intent();
     private ProviderItem selected_provider;
@@ -64,7 +72,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 
 	final protected static String PROVIDER_SET = "PROVIDER SET";
 	final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
-    final protected static String ASSETS_URL_FOLDER = "urls";
 
     final private static String PROGRESSBAR_TEXT = TAG + "PROGRESSBAR_TEXT";
     final private static String PROGRESSBAR_NUMBER = TAG + "PROGRESSBAR_NUMBER";
@@ -79,6 +86,14 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     private String provider_name = "";
     private int progress = -1;
 
+    private void initProviderList() {
+        List<Renderer<Provider>> prototypes = new ArrayList<Renderer<Provider>>();
+        prototypes.add(new ProviderRenderer(this));
+        ProviderRendererBuilder providerRendererBuilder = new ProviderRendererBuilder(prototypes);
+        adapter = new RendererAdapter<Provider>(getLayoutInflater(), providerRendererBuilder, provider_manager);
+        provider_list_view.setAdapter(adapter);
+    }
+    
     @Override
     protected void onSaveInstanceState(@NotNull Bundle outState) {
         if(mProgressBar != null)
@@ -96,10 +111,9 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
+        provider_manager = new ProviderManager(getAssets());
 
         setUpInitialUI();
-
-        loadPreseededProviders();
 
         setUpProviderAPIResultReceiver();
 
@@ -146,14 +160,15 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
     }
 
     private void setUpProviderList() {
-	provider_list_fragment = ProviderListFragment.newInstance();
-	
-	Bundle arguments = new Bundle();
-	int configuration_wizard_request_code = getIntent().getIntExtra(Dashboard.REQUEST_CODE, -1);
-	if(configuration_wizard_request_code == Dashboard.SWITCH_PROVIDER)
-	    arguments.putBoolean(ProviderListFragment.SHOW_ALL_PROVIDERS, true);
-	
-	provider_list_fragment.setArguments(arguments);
+        initProviderList();
+	// provider_list_fragment = ProviderListFragment.newInstance();
+
+	// Bundle arguments = new Bundle();
+	// int configuration_wizard_request_code = getIntent().getIntExtra(Dashboard.REQUEST_CODE, -1);
+	// if(configuration_wizard_request_code == Dashboard.SWITCH_PROVIDER)
+	//     arguments.putBoolean(ProviderListFragment.SHOW_ALL_PROVIDERS, true);
+
+	// provider_list_fragment.setArguments(arguments);
 
     }
 
@@ -325,49 +340,6 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
         return listItem.getMeasuredHeight();
 }
     
-    /**
-     * Loads providers data from url files contained in the assets folder
-     * @return true if the files were correctly read
-     */
-    private boolean loadPreseededProviders() {
-    	boolean loaded_preseeded_providers = true;
-	try {
-	    //TODO Put that folder in a better place (also inside the "for")	    
-	    String[] urls_filepaths = getAssets().list(ASSETS_URL_FOLDER); 
-	    for(String url_filepath : urls_filepaths) {
-		addNewProviderToList(url_filepath);
-	    }
-	} catch (IOException e) {
-	    loaded_preseeded_providers = false;
-	}
-	
-	return loaded_preseeded_providers;
-    }
-
-    private void addNewProviderToList(String url_filepath) {
-	String provider_main_url = extractProviderMainUrlFromAssetsFile(ASSETS_URL_FOLDER + "/" + url_filepath);
-	if(getId(provider_main_url).isEmpty()) {	    
-	    String provider_name = url_filepath.subSequence(0, url_filepath.lastIndexOf(".")).toString();
-	    ProviderListContent.addItem(new ProviderItem(provider_name, provider_main_url));
-	}
-    }
-
-    private String extractProviderMainUrlFromAssetsFile(String file_path) {
-	String provider_main_url = "";
-	try {	    
-	    InputStream input_stream_file_contents = getAssets().open(file_path);
-	    byte[] urls_file_bytes = new byte[input_stream_file_contents.available()];
-	    if(input_stream_file_contents.read(urls_file_bytes) > 0) {
-            String urls_file_content = new String(urls_file_bytes);
-            JSONObject file_contents = new JSONObject(urls_file_content);
-            provider_main_url = file_contents.getString(Provider.MAIN_URL);
-        }
-	} catch (JSONException e) {
-	} catch (IOException e) {
-	}
-	return provider_main_url;
-    }
-    
     private String getId(String provider_main_url) {
 	try {
 	URL provider_url = new URL(provider_main_url);
@@ -465,15 +437,12 @@ implements ProviderListFragment.Callbacks, NewProviderDialogInterface, ProviderD
 	}
 
 	public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
-	    if(getId(provider_main_url).isEmpty())
-		showProvider(provider_main_url);
+        try {
+            provider_manager.add(new Provider(new URL((provider_main_url))));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
 	    autoSelectProvider(provider_main_url, danger_on);
-	}
-	
-	private void showProvider(final String provider_main_url) {
-		String provider_name = provider_main_url.replaceFirst("http[s]?://", "").replaceFirst("\\/", "_");
-		ProviderItem added_provider = new ProviderItem(provider_name, provider_main_url);
-		provider_list_fragment.addItem(added_provider);
 	}
 	
 	private void autoSelectProvider(String provider_main_url, boolean danger_on) {

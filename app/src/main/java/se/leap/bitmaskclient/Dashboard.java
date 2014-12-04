@@ -71,9 +71,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     private TextView status_message;
     public ProviderAPIResultReceiver providerAPI_result_receiver;
 
+    private Provider provider;
     private static boolean authed_eip;
-    
-	@Override
+
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
@@ -137,9 +138,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		updateEipService();
         buildDashboard(false);
 		invalidateOptionsMenu();
-		if(data != null && data.hasExtra(LogInDialog.TAG)) {
+		if(data != null)
+            if(data.hasExtra(LogInDialog.TAG)) {
 		    logInDialog(Bundle.EMPTY);
 		}
+            if(data.hasExtra(Provider.KEY))
+                provider = data.getParcelableExtra(Provider.KEY);
 	    } else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
 		finish();
 	    } else
@@ -180,9 +184,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * service dependent UI elements to include.
 	 */
 	private void buildDashboard(boolean hide_and_turn_on_eip) {
-        Provider provider = Provider.getInstance();
-		provider.init( this );
-
 		setContentView(R.layout.client_dashboard);
 	    
 		TextView providerNameTV = (TextView) findViewById(R.id.providerName);
@@ -262,7 +263,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		    startActivity(startLW);
 		    return true;
 		case R.id.switch_provider:
-			if (Provider.getInstance().hasEIP()){
+			if (provider.hasEIP()){
 				if (preferences.getBoolean(Constants.AUTHED_EIP, false)){
 					logOut();
 				}				
