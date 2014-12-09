@@ -91,6 +91,7 @@ public class EipServiceFragment extends Fragment implements Observer {
     public void onResume() {
 	super.onResume();
 	eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
+	handleNewState(eip_status);
     }
     
     @Override
