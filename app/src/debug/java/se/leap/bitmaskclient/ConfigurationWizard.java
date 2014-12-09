@@ -258,9 +258,10 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     @Override
     public void onBackPressed() {
     	if(setting_up_provider) {
-    		stopSettingUpProvider();
+	    stopSettingUpProvider();
     	} else {
-    		usualBackButton();
+	    askDashboardToQuitApp();
+	    super.onBackPressed();
     	}
     }
     
@@ -270,18 +271,13 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	mProgressBar.setProgress(0);
 	progressbar_description.setVisibility(TextView.GONE);
 
-	preferences.edit().remove(Provider.KEY).apply();
-    	setting_up_provider = false;
-	showAllProviders();
+	cancelSettingUpProvider();
     }
-    
-    private void usualBackButton() {
-	if(preferences.getString(Provider.KEY, "").isEmpty()) {
-	    askDashboardToQuitApp();
-	} else {
-	    setResult(RESULT_OK);
-	}
-	super.onBackPressed();
+
+    public void cancelSettingUpProvider() {
+        showAllProviders();
+        setting_up_provider = false;
+        preferences.edit().remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).commit();
     }
     
     private void askDashboardToQuitApp() {
@@ -456,11 +452,6 @@ n	 * @param provider_main_url
 		
 	public void showAllProviders() {
         adapter.showAllProviders();
-	}
-	
-	public void cancelSettingUpProvider() {
-        showAllProviders();
-		preferences.edit().remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).apply();
 	}
 
 	@Override

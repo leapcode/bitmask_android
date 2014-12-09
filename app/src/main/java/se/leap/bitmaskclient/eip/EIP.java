@@ -47,7 +47,6 @@ import static se.leap.bitmaskclient.eip.Constants.ACTION_STOP_EIP;
 import static se.leap.bitmaskclient.eip.Constants.ACTION_UPDATE_EIP_SERVICE;
 import static se.leap.bitmaskclient.eip.Constants.CERTIFICATE;
 import static se.leap.bitmaskclient.eip.Constants.KEY;
-import static se.leap.bitmaskclient.eip.Constants.PARSED_SERIAL;
 import static se.leap.bitmaskclient.eip.Constants.RECEIVER_TAG;
 import static se.leap.bitmaskclient.eip.Constants.REQUEST_TAG;
 
@@ -209,18 +208,19 @@ public final class EIP extends IntentService {
      */
     private void updateGateways(){
 	try {
-	    JSONArray gatewaysDefined = eip_definition.getJSONArray("gateways");		
-	    for ( int i=0 ; i < gatewaysDefined.length(); i++ ){			
-		JSONObject gw = gatewaysDefined.getJSONObject(i);
-		if(isOpenVpnGateway(gw)) {
-		    addGateway(new Gateway(eip_definition, context, gw));
-		}
-	    }
+        if(eip_definition != null) {
+            JSONArray gatewaysDefined = eip_definition.getJSONArray("gateways");
+            for (int i = 0; i < gatewaysDefined.length(); i++) {
+                JSONObject gw = gatewaysDefined.getJSONObject(i);
+                if (isOpenVpnGateway(gw)) {
+                    addGateway(new Gateway(eip_definition, context, gw));
+                }
+            }
+        }
 	} catch (JSONException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
-	preferences.edit().putInt(PARSED_SERIAL, eip_definition.optInt(Provider.API_RETURN_SERIAL)).apply();
     }
 
     private boolean isOpenVpnGateway(JSONObject gateway) {
