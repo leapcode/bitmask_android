@@ -87,8 +87,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
 	    fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 	    handleVersion();
-	    boolean no_provider_configured = preferences.getString(Constants.KEY, "").isEmpty();
-	    if (no_provider_configured)
+
+	    if (provider == null)
 		startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 	    else
 		buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
@@ -132,21 +132,21 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	Log.d(TAG, "onActivityResult: requestCode = " + requestCode);
 	if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
 	    // It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
-	    if ( resultCode == RESULT_OK ){
-		preferences.edit().putInt(Constants.PARSED_SERIAL, 0).apply();
-		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
-		updateEipService();
-        buildDashboard(false);
-		invalidateOptionsMenu();
-		if(data != null)
-            if(data.hasExtra(LogInDialog.TAG)) {
-		    logInDialog(Bundle.EMPTY);
-		}
-            if(data.hasExtra(Provider.KEY))
+	    if ( resultCode == RESULT_OK ) {
+            preferences.edit().putInt(Constants.PARSED_SERIAL, 0).apply();
+            preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
+            updateEipService();
+
+            if (data.hasExtra(Provider.KEY))
                 provider = data.getParcelableExtra(Provider.KEY);
-	    } else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
-		finish();
-	    } else
+            buildDashboard(false);
+            invalidateOptionsMenu();
+            if (data.hasExtra(LogInDialog.TAG)) {
+                logInDialog(Bundle.EMPTY);
+            } else if (resultCode == RESULT_CANCELED && data.hasExtra(ACTION_QUIT)) {
+                finish();
+            }
+        } else
 		configErrorDialog();
 	} else if(requestCode == EIP.DISCONNECT) {
 	    EipStatus.getInstance().setConnectedOrDisconnected();

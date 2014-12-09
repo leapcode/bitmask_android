@@ -86,14 +86,15 @@ public final class Provider implements Parcelable {
     private Provider(Parcel in) {
         try {
             main_url = new URL(in.readString());
-            definition = new JSONObject((in.readString()));
+            String definition_string = in.readString();
+            if(definition_string != null)
+                definition = new JSONObject((definition_string));
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
-
 
     protected void define(JSONObject provider_json) {
         definition = provider_json;
@@ -175,6 +176,15 @@ public final class Provider implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(main_url.toString());
-        parcel.writeString(definition.toString());
+        if(definition != null)
+            parcel.writeString(definition.toString());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Provider) {
+            Provider p = (Provider) o;
+            return p.mainUrl().equals(mainUrl());
+        } else return false;
     }
 }

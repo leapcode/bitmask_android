@@ -7,9 +7,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TwoLineListItem;
 
-import java.util.List;
+import com.pedrogomez.renderers.AdapteeCollection;
+import com.pedrogomez.renderers.RendererAdapter;
+import com.pedrogomez.renderers.RendererBuilder;
 
-public class ProviderListAdapter<T> extends ArrayAdapter<T> {
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+public class ProviderListAdapter extends RendererAdapter<Provider> {
 	private static boolean[] hidden = null;
 	
 	public void hide(int position) {
@@ -23,10 +29,23 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 		notifyDataSetChanged();
 		notifyDataSetInvalidated();
 	}
+
+    public void showAllProviders() {
+        for(int i = 0; i < hidden.length; i++)
+            hidden[i] = false;
+        notifyDataSetChanged();
+        notifyDataSetInvalidated();
+    }
     
-    public void unHideAll() {
-    	for (int provider_index = 0; provider_index < hidden.length; provider_index++)
-    		hidden[provider_index] = false;
+    public void hideAllBut(int position) {
+    	for (int i = 0; i < hidden.length; i++) {
+            if (i != position)
+                hidden[i] = true;
+            else
+                hidden[i] = false;
+        }
+        notifyDataSetChanged();
+        notifyDataSetInvalidated();
     }
 	
 	private int getRealPosition(int position) {
@@ -60,26 +79,28 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 		return (hidden.length - getHiddenCount());
 	}
 
-	public ProviderListAdapter(Context mContext, int layout, List<T> objects) {
-		super(mContext, layout, objects);
+	public ProviderListAdapter(LayoutInflater layoutInflater, RendererBuilder rendererBuilder,
+                               AdapteeCollection<Provider> collection) {
+		super(layoutInflater, rendererBuilder, collection);
 		if(hidden == null) {
-			hidden = new boolean[objects.size()];
-			for (int i = 0; i < objects.size(); i++)
+			hidden = new boolean[collection.size()];
+			for (int i = 0; i < collection.size(); i++)
 				hidden[i] = false;
 		}
 	}
 
-	public ProviderListAdapter(Context mContext, int layout, List<T> objects, boolean show_all_providers) {
-		super(mContext, layout, objects);
+	public ProviderListAdapter(LayoutInflater layoutInflater, RendererBuilder rendererBuilder,
+                               AdapteeCollection<Provider> collection, boolean show_all_providers) {
+        super(layoutInflater, rendererBuilder, collection);
 		if(show_all_providers) {
-			hidden = new boolean[objects.size()];
-			for (int i = 0; i < objects.size(); i++)
+			hidden = new boolean[collection.size()];
+			for (int i = 0; i < collection.size(); i++)
 				hidden[i] = false;
 		}
 	}
 	
 	@Override
-	public void add(T item) {
+	public void add(Provider item) {
 		super.add(item);
 		boolean[] new_hidden = new boolean[hidden.length+1];
 		System.arraycopy(hidden, 0, new_hidden, 0, hidden.length);
@@ -88,27 +109,27 @@ public class ProviderListAdapter<T> extends ArrayAdapter<T> {
 	}
 	
 	@Override
-	public void remove(T item) {
+	public void remove(Provider item) {
 		super.remove(item);
 		boolean[] new_hidden = new boolean[hidden.length-1];
 		System.arraycopy(hidden, 0, new_hidden, 0, hidden.length-1);
 		hidden = new_hidden;
 	}
 
-	@Override
-	public View getView(int index, View convertView, ViewGroup parent) {
-		TwoLineListItem row;
-		int position = getRealPosition(index);
-		if (convertView == null) {
-			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			row = (TwoLineListItem)inflater.inflate(R.layout.provider_list_item, null);                    
-		} else {
-			row = (TwoLineListItem)convertView;
-		}
-		ProviderListContent.ProviderItem data = ProviderListContent.ITEMS.get(position);
-		row.getText1().setText(data.domain());
-		row.getText2().setText(data.name());
+    protected int indexOf(Provider item) {
+        int index = 0;
+        ProviderManager provider_manager = (ProviderManager) getCollection();
+        Set<Provider> providers = provider_manager.providers();
+        for (Provider provider : providers) {
+            if (provider.equals(item)) {
+                break;
+            } else index++;
+        }
+        return index;
+    }
 
-		return row;
-	}
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        return super.getView(getRealPosition(position), convertView, parent);
+    }
 }

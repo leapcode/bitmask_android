@@ -40,7 +40,7 @@ public class ProviderListFragment extends ListFragment {
 	public static String TAG = "provider_list_fragment";
 	public static String SHOW_ALL_PROVIDERS = "show_all_providers";
 	public static String TOP_PADDING = "top padding from providerlistfragment";
-	private ProviderListAdapter<ProviderItem> content_adapter;
+	private ProviderListAdapter content_adapter;
 	
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -91,19 +91,7 @@ public class ProviderListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-    	if(getArguments().containsKey(SHOW_ALL_PROVIDERS))
-    		content_adapter = new ProviderListAdapter<ProviderListContent.ProviderItem>(
-    				getActivity(),
-    				R.layout.provider_list_item,
-    				ProviderListContent.ITEMS, getArguments().getBoolean(SHOW_ALL_PROVIDERS));
-    	else
-    		content_adapter = new ProviderListAdapter<ProviderListContent.ProviderItem>(
-    				getActivity(),
-    				R.layout.provider_list_item,
-    				ProviderListContent.ITEMS);
-    		
-			
-        setListAdapter(content_adapter);
+
     }
 
     @Override
@@ -198,12 +186,11 @@ public class ProviderListFragment extends ListFragment {
     }
     
     public void removeLastItem() {
-    	unhideAll();
     	content_adapter.remove(content_adapter.getItem(content_adapter.getCount()-1));
     	content_adapter.notifyDataSetChanged();
     }
     
-    public void addItem(ProviderItem provider) {
+    public void addItem(Provider provider) {
     	content_adapter.add(provider);
     	content_adapter.notifyDataSetChanged();
     }
@@ -218,13 +205,6 @@ public class ProviderListFragment extends ListFragment {
     		} else {
     			i++;
     		}
-    }
-    
-    public void unhideAll() {
-    	if(content_adapter != null) {
-    		content_adapter.unHideAll();
-    		content_adapter.notifyDataSetChanged();
-    	}
     }
 
 	/**

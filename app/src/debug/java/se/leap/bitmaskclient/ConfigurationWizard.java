@@ -19,22 +19,18 @@ package se.leap.bitmaskclient;
 import android.app.*;
 import android.content.*;
 import android.os.*;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
-import com.pedrogomez.renderers.Renderer;
-import com.pedrogomez.renderers.RendererAdapter;
+import com.pedrogomez.renderers.*;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnItemClick;
+import butterknife.*;
 import org.jetbrains.annotations.NotNull;
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
 
@@ -60,10 +56,9 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     @InjectView(R.id.progressbar_description) TextView progressbar_description;
 
     @InjectView(R.id.provider_list) ListView provider_list_view;
-    @Inject RendererAdapter<Provider> adapter;
+    @Inject ProviderListAdapter adapter;
 
     private ProviderManager provider_manager;
-	private ProviderListFragment provider_list_fragment;
 	private Intent mConfigState = new Intent();
     private Provider selected_provider;
 	
@@ -92,7 +87,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
         List<Renderer<Provider>> prototypes = new ArrayList<Renderer<Provider>>();
         prototypes.add(new ProviderRenderer(this));
         ProviderRendererBuilder providerRendererBuilder = new ProviderRendererBuilder(prototypes);
-        adapter = new RendererAdapter<Provider>(getLayoutInflater(), providerRendererBuilder, provider_manager);
+        adapter = new ProviderListAdapter(getLayoutInflater(), providerRendererBuilder, provider_manager);
         provider_list_view.setAdapter(adapter);
     }
     
@@ -140,7 +135,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
         super.onPostResume();
         if(!progressbar_text.isEmpty() && !provider_name.isEmpty() && progress != -1) {
             progressbar_description.setText(progressbar_text);
-            onItemSelectedUi(getProvider(provider_name));
+            //onItemSelectedUi(getProvider(provider_name));
             mProgressBar.setProgress(progress);
 
             progressbar_text = "";
@@ -196,6 +191,14 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	if(resultCode == ProviderAPI.PROVIDER_OK) {
 	    mConfigState.setAction(PROVIDER_SET);
 
+            try {
+                String provider_json_string = preferences.getString(Provider.KEY, "");
+                if(!provider_json_string.isEmpty())
+		    selected_provider.define(new JSONObject(provider_json_string));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
 	    if (preferences.getBoolean(Constants.ALLOWED_ANON, false)){
 		mConfigState.putExtra(SERVICES_RETRIEVED, true);
 		
@@ -239,7 +242,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     void onItemSelected(int position) {
         //TODO Code 2 pane view
         selected_provider = adapter.getItem(position);
-        //onItemSelectedUi(selected_provider);
+        onItemSelectedUi(selected_provider);
 
 	boolean danger_on = true;
 	if(preferences.contains(ProviderItem.DANGER_ON))
@@ -247,10 +250,9 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	setUpProvider(selected_provider.mainUrl(), danger_on);
     }
 
-    private void onItemSelectedUi(ProviderItem provider) {
+    private void onItemSelectedUi(Provider provider) {
         startProgressBar();
-        int provider_index = getProviderIndex(provider.name());
-        provider_list_fragment.hideAllBut(provider_index);
+        adapter.hideAllBut(adapter.indexOf(provider));
     }
     
     @Override
@@ -288,15 +290,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 		setResult(RESULT_CANCELED, ask_quit);
     }
 
-    private ProviderItem getProvider(String name) {
-        for (ProviderItem provider : ProviderListContent.ITEMS) {
-            if (provider.name().equalsIgnoreCase(name)) {
-                return provider;
-            }
-        }
-	    return null;
-    }
-	
     private void startProgressBar() {
         mProgressBar.setVisibility(ProgressBar.VISIBLE);
         progressbar_description.setVisibility(TextView.VISIBLE);
@@ -307,21 +300,9 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	mProgressBar.setTranslationY(measured_height);
 	progressbar_description.setTranslationY(measured_height + mProgressBar.getHeight());
     }
-
-    private int getProviderIndex(String id) {
-    	int index = 0;
-        for (ProviderItem provider : ProviderListContent.ITEMS) {
-            if (provider.name().equalsIgnoreCase(id)) {
-                break;
-            } else index++;
-        }
-	    return index;
-    }
     
     private int listItemHeight() {
-        ListView provider_list_view = (ListView)findViewById(android.R.id.list);
-        ListAdapter provider_list_adapter = provider_list_view.getAdapter();
-        View listItem = provider_list_adapter.getView(0, null, provider_list_view);
+        View listItem = adapter.getView(0, null, provider_list_view);
         listItem.setLayoutParams(new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT));
@@ -337,35 +318,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 
         return listItem.getMeasuredHeight();
 }
-    
-    private String getId(String provider_main_url) {
-	try {
-	URL provider_url = new URL(provider_main_url);
-        for (ProviderItem provider : ProviderListContent.ITEMS) {
-            URL aux_provider_url = new URL(provider.providerMainUrl());
-            if (isSameURL(provider_url, aux_provider_url)) {
-                return provider.name();
-            }
-        }
-	} catch (MalformedURLException e) {
-	    e.printStackTrace();
-	}
-	return "";
-    }
-
-    /**
-     * Checks, whether 2 urls are pointing to the same location.
-     *
-     * @param url a url
-     * @param baseUrl an other url, that should be compared.
-     * @return true, if the urls point to the same host and port and use the 
-     *         same protocol, false otherwise.
-     */
-    private boolean isSameURL(final URL url, final URL baseUrl) {
-        return url.getProtocol().equals(baseUrl.getProtocol()) &&
-                url.getHost().equals(baseUrl.getHost()) &&
-                url.getPort() == baseUrl.getPort();
-    }
     
 	/**
 	 * Asks ProviderAPI to download an anonymous (anon) VPN certificate.
@@ -503,16 +455,11 @@ n	 * @param provider_main_url
 	}
 		
 	public void showAllProviders() {
-		provider_list_fragment = (ProviderListFragment) fragment_manager.findFragmentByTag(ProviderListFragment.TAG);
-		if(provider_list_fragment != null)
-			provider_list_fragment.unhideAll();
+        adapter.showAllProviders();
 	}
 	
 	public void cancelSettingUpProvider() {
-		provider_list_fragment = (ProviderListFragment) fragment_manager.findFragmentByTag(ProviderListFragment.TAG);
-		if(provider_list_fragment != null && preferences.contains(ProviderItem.DANGER_ON)) {
-			provider_list_fragment.removeLastItem();
-		}
+        showAllProviders();
 		preferences.edit().remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).apply();
 	}
 
@@ -520,6 +467,7 @@ n	 * @param provider_main_url
 	public void login() {
 		Intent ask_login = new Intent();
 		ask_login.putExtra(LogInDialog.TAG, LogInDialog.TAG);
+        ask_login.putExtra(Provider.KEY, selected_provider);
 		setResult(RESULT_OK, ask_login);
 		setting_up_provider = false;
 		finish();
@@ -527,7 +475,9 @@ n	 * @param provider_main_url
 
 	@Override
 	public void use_anonymously() {
-		setResult(RESULT_OK);
+        Intent pass_provider = new Intent();
+        pass_provider.putExtra(Provider.KEY, selected_provider);
+		setResult(RESULT_OK, pass_provider);
 		setting_up_provider = false;
 		finish();
 	}
