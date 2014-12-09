@@ -58,7 +58,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     @Inject ProviderListAdapter adapter;
 
     private ProviderManager provider_manager;
-	private ProviderListFragment provider_list_fragment;
 	private Intent mConfigState = new Intent();
     private Provider selected_provider;
 	
@@ -160,10 +159,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 
     private void setUpProviderList() {
         initProviderList();
-    }
-
-    private void putProviderListFragment() {
-	fragment_manager.replace(R.id.configuration_wizard_layout, provider_list_fragment, ProviderListFragment.TAG);
     }
 
     @Override
@@ -463,7 +458,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	public void login() {
 		Intent ask_login = new Intent();
 		ask_login.putExtra(Provider.KEY, selected_provider);
-		ask_login.putExtra(LogInDialog.TAG, LogInDialog.TAG);
+		ask_login.putExtra(SessionDialog.TAG, SessionDialog.TAG);
 		setResult(RESULT_OK, ask_login);
 		setting_up_provider = false;
 		finish();

@@ -26,6 +26,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 /**
  * Implements the log in dialog, currently without progress dialog.
  * 
@@ -36,45 +39,56 @@ import android.widget.TextView;
  * @author parmegv
  *
  */
-public class LogInDialog extends SessionDialogInterface {
+public class SessionDialog extends DialogFragment{
 
      
-    final public static String TAG = LogInDialog.class.getSimpleName();
+    final public static String TAG = SessionDialog.class.getSimpleName();
 
-    private static LogInDialog dialog;
+    final public static String USERNAME = "username";
+    final public static String PASSWORD = "password";
+    final public static String USERNAME_MISSING = "username missing";
+    final public static String PASSWORD_INVALID_LENGTH = "password_invalid_length";
+
+    @InjectView(R.id.user_message)
+    TextView user_message;
+    @InjectView(R.id.username_entered)
+    EditText username_field;
+    @InjectView(R.id.password_entered)
+    EditText password_field;
+
+    private static SessionDialog dialog;
 
     private static boolean is_eip_pending = false;
     
 	public AlertDialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		LayoutInflater inflater = getActivity().getLayoutInflater();
-		View log_in_dialog_view = inflater.inflate(R.layout.log_in_dialog, null);
-
-		final TextView user_message = (TextView)log_in_dialog_view.findViewById(R.id.user_message);
-		final EditText username_field = (EditText)log_in_dialog_view.findViewById(R.id.username_entered);
-		final EditText password_field = (EditText)log_in_dialog_view.findViewById(R.id.password_entered);
+		View view = inflater.inflate(R.layout.session_dialog, null);
+		ButterKnife.inject(this, view);
 
 		if(!username_field.getText().toString().isEmpty() && password_field.isFocusable()) {
 			password_field.requestFocus();
 		}
-		if (getArguments() != null) {
-		    is_eip_pending = getArguments().getBoolean(EipServiceFragment.IS_PENDING, false);
-		    if (getArguments().containsKey(PASSWORD_INVALID_LENGTH))
-			password_field.setError(getResources().getString(R.string.error_not_valid_password_user_message));
-		    if (getArguments().containsKey(USERNAME)) {
-			String username = getArguments().getString(USERNAME);
+		
+		Bundle arguments = getArguments();
+		if (arguments != null) {
+		    is_eip_pending = arguments.getBoolean(EipServiceFragment.IS_PENDING, false);
+		    if (arguments.containsKey(PASSWORD_INVALID_LENGTH))
+			password_field.setError(getString(R.string.error_not_valid_password_user_message));
+		    if (arguments.containsKey(USERNAME)) {
+			String username = arguments.getString(USERNAME);
 			username_field.setText(username);
 		    }
-		    if (getArguments().containsKey(USERNAME_MISSING)) {
-			username_field.setError(getResources().getString(R.string.username_ask));
+		    if (arguments.containsKey(USERNAME_MISSING)) {
+			username_field.setError(getString(R.string.username_ask));
 		    }
-		    if(getArguments().containsKey(getResources().getString(R.string.user_message)))
-			user_message.setText(getArguments().getString(getResources().getString(R.string.user_message)));
+		    if(arguments.containsKey(getString(R.string.user_message)))
+			user_message.setText(arguments.getString(getString(R.string.user_message)));
 		    else
 			user_message.setVisibility(View.GONE);
 		}
 		
-		builder.setView(log_in_dialog_view)
+		builder.setView(view)
 			.setPositiveButton(R.string.login_button, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					String username = username_field.getText().toString();
@@ -99,9 +113,10 @@ public class LogInDialog extends SessionDialogInterface {
 		
 		return builder.create();
 	}
+
 	
 	/**
-	 * Interface used to communicate LogInDialog with Dashboard.
+	 * Interface used to communicate SessionDialog with Dashboard.
 	 * 
 	 * @author parmegv
 	 *
@@ -119,7 +134,7 @@ public class LogInDialog extends SessionDialogInterface {
 	 */
 	public static DialogFragment newInstance() {
         if(dialog == null)
-            dialog = new LogInDialog();
+            dialog = new SessionDialog();
 
         return dialog;
 	}

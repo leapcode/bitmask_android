@@ -455,7 +455,7 @@ n	 * @param provider_main_url
 	@Override
 	public void login() {
 		Intent ask_login = new Intent();
-		ask_login.putExtra(LogInDialog.TAG, LogInDialog.TAG);
+		ask_login.putExtra(SessionDialog.TAG, SessionDialog.TAG);
         ask_login.putExtra(Provider.KEY, selected_provider);
 		setResult(RESULT_OK, ask_login);
 		setting_up_provider = false;

@@ -32,6 +32,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.json.*;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.SessionDialog;
 import se.leap.bitmaskclient.eip.*;
 
 /**
@@ -169,8 +170,8 @@ public class ProviderAPI extends IntentService {
 	Bundle session_id_bundle = new Bundle();
 	int progress = 0;
 		
-	String username = (String) task.get(SessionDialogInterface.USERNAME);
-	String password = (String) task.get(SessionDialogInterface.PASSWORD);
+	String username = (String) task.get(SessionDialog.USERNAME);
+	String password = (String) task.get(SessionDialog.PASSWORD);
 	
 	if(validUserLoginData(username, password)) {
 	    session_id_bundle = register(username, password);
@@ -178,12 +179,12 @@ public class ProviderAPI extends IntentService {
 	} else {
 	    if(!wellFormedPassword(password)) {
 		session_id_bundle.putBoolean(RESULT_KEY, false);
-		session_id_bundle.putString(SessionDialogInterface.USERNAME, username);
-		session_id_bundle.putBoolean(SessionDialogInterface.PASSWORD_INVALID_LENGTH, true);
+		session_id_bundle.putString(SessionDialog.USERNAME, username);
+		session_id_bundle.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
 	    }
 	    if(username.isEmpty()) {
 		session_id_bundle.putBoolean(RESULT_KEY, false);
-		session_id_bundle.putBoolean(SessionDialogInterface.USERNAME_MISSING, true);
+		session_id_bundle.putBoolean(SessionDialog.USERNAME_MISSING, true);
 	    }
 	}
 		
@@ -202,8 +203,8 @@ public class ProviderAPI extends IntentService {
 	if(api_result.has(ERRORS))
 	    result = authFailedNotification(api_result, username);
 	else {
-	    result.putString(SessionDialogInterface.USERNAME, username);
-	    result.putString(SessionDialogInterface.PASSWORD, password);
+	    result.putString(SessionDialog.USERNAME, username);
+	    result.putString(SessionDialog.PASSWORD, password);
 	    result.putBoolean(RESULT_KEY, true);
 	}
 
@@ -220,20 +221,20 @@ public class ProviderAPI extends IntentService {
 	    Bundle result = new Bundle();
 	    int progress = 0;
 		
-	    String username = (String) task.get(SessionDialogInterface.USERNAME);
-	    String password = (String) task.get(SessionDialogInterface.PASSWORD);
+	    String username = (String) task.get(SessionDialog.USERNAME);
+	    String password = (String) task.get(SessionDialog.PASSWORD);
 	    if(validUserLoginData(username, password)) {
 		result = authenticate(username, password);
 		broadcast_progress(progress++);
 	    } else {
 		if(!wellFormedPassword(password)) {
 		    result.putBoolean(RESULT_KEY, false);
-		    result.putString(SessionDialogInterface.USERNAME, username);
-		    result.putBoolean(SessionDialogInterface.PASSWORD_INVALID_LENGTH, true);
+		    result.putString(SessionDialog.USERNAME, username);
+		    result.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
 		}
 		if(username.isEmpty()) {
 		    result.putBoolean(RESULT_KEY, false);
-		    result.putBoolean(SessionDialogInterface.USERNAME_MISSING, true);
+		    result.putBoolean(SessionDialog.USERNAME_MISSING, true);
 		}
 	    }
 		
@@ -262,7 +263,7 @@ public class ProviderAPI extends IntentService {
 		}
 	    } else {
 		result.putBoolean(RESULT_KEY, false);
-		result.putString(SessionDialogInterface.USERNAME, username);
+		result.putString(SessionDialog.USERNAME, username);
 		result.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_srp_math_error_user_message));
 	    }
 	} catch (JSONException e) {
@@ -293,7 +294,7 @@ public class ProviderAPI extends IntentService {
 	} catch(JSONException e) {}
 	
 	if(!username.isEmpty())
-	    user_notification_bundle.putString(SessionDialogInterface.USERNAME, username);
+	    user_notification_bundle.putString(SessionDialog.USERNAME, username);
 	user_notification_bundle.putBoolean(RESULT_KEY, false);
 
 	return user_notification_bundle;
