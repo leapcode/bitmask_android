@@ -54,7 +54,7 @@ import se.leap.bitmaskclient.eip.EipStatus;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author parmegv
  */
-public class Dashboard extends Activity implements SessionDialog.LogInDialogInterface, ProviderAPIResultReceiver.Receiver {
+public class Dashboard extends Activity implements SessionDialog.SessionDialogInterface, ProviderAPIResultReceiver.Receiver {
 
 	protected static final int CONFIGURE_LEAP = 0;
 	protected static final int SWITCH_PROVIDER = 1;

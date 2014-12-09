@@ -121,13 +121,13 @@ public class SessionDialog extends DialogFragment{
 	 * @author parmegv
 	 *
 	 */
-	public interface LogInDialogInterface {
+	public interface SessionDialogInterface {
 	    public void logIn(String username, String password);
 	    public void signUp(String username, String password);
 	    public void cancelLoginOrSignup();
     }
 
-	LogInDialogInterface interface_with_Dashboard;
+	SessionDialogInterface interface_with_Dashboard;
 
 	/**
 	 * @return a new instance of this DialogFragment.
@@ -143,7 +143,7 @@ public class SessionDialog extends DialogFragment{
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-        	interface_with_Dashboard = (LogInDialogInterface) activity;
+        	interface_with_Dashboard = (SessionDialogInterface) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement LogInDialogListener");

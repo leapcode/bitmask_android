@@ -129,7 +129,9 @@ public class EipServiceFragment extends Fragment implements Observer {
 	else if(canLogInToStartEIP()) {
 	    Log.d(TAG, "Can Log In to start EIP");
 	    Dashboard dashboard = (Dashboard) parent_activity;
-	    dashboard.logInDialog(Bundle.EMPTY);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(IS_PENDING, true);
+	    dashboard.logInDialog(bundle);
 	}	    
     }
     
