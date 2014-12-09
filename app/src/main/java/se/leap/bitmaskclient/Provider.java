@@ -200,4 +200,9 @@ public final class Provider implements Parcelable {
         }
         return json;
     }
+
+    @Override
+    public int hashCode() {
+        return main_url.hashCode();
+    }
 }
