@@ -331,8 +331,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	 */
 	public void addAndSelectNewProvider() {
 	    FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(NewProviderDialog.TAG);
-	    DialogFragment newFragment = NewProviderDialog.newInstance();
-	    newFragment.show(fragment_transaction, NewProviderDialog.TAG);
+        new NewProviderDialog().show(fragment_transaction, NewProviderDialog.TAG);
 	}
 	
 	/**
@@ -341,7 +340,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	public void addAndSelectNewProvider(String main_url) {
 	    FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(NewProviderDialog.TAG);
 		
-	    DialogFragment newFragment = NewProviderDialog.newInstance();
+	    DialogFragment newFragment = new NewProviderDialog();
 	    Bundle data = new Bundle();
 	    data.putString(Provider.MAIN_URL, main_url);
 	    newFragment.setArguments(data);

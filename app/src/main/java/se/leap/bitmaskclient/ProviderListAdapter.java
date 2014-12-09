@@ -90,7 +90,7 @@ public class ProviderListAdapter extends RendererAdapter<Provider> {
 	@Override
 	public void add(Provider item) {
 		super.add(item);
-        if(getCollection().size() < hidden.length) {
+        if(getCollection().size() >  hidden.length) {
             boolean[] new_hidden = new boolean[hidden.length + 1];
             System.arraycopy(hidden, 0, new_hidden, 0, hidden.length);
             new_hidden[hidden.length] = false;
