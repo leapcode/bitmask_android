@@ -32,7 +32,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.json.*;
 
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.*;
 
 /**
@@ -59,11 +58,10 @@ public class ProviderAPI extends IntentService {
     ERRORS = "errors",
     UPDATE_PROGRESSBAR = "update_progressbar",
     CURRENT_PROGRESS = "current_progress",
-	TAG = ProviderAPI.class.getSimpleName();
+	TAG = ProviderAPI.class.getSimpleName()
     ;
 
     final public static int
-    CUSTOM_PROVIDER_ADDED = 0,
     SRP_AUTHENTICATION_SUCCESSFUL = 3,
     SRP_AUTHENTICATION_FAILED = 4,
     SRP_REGISTRATION_SUCCESSFUL = 5,
@@ -73,9 +71,7 @@ public class ProviderAPI extends IntentService {
     CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
     INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
     PROVIDER_OK = 11,
-    PROVIDER_NOK = 12,
-    CORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 13,
-    INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
+    PROVIDER_NOK = 12
     ;
 
     private static boolean 
@@ -128,11 +124,11 @@ public class ProviderAPI extends IntentService {
             try {
                 JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, "no provider"));
                 provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
+                setting_up_provider = true;
             } catch (JSONException e) {
+                setting_up_provider = false;
             }
         }
-
-        setting_up_provider = true;
 		
 		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
 			Bundle result = setUpProvider(parameters);
@@ -370,7 +366,7 @@ public class ProviderAPI extends IntentService {
 	 * Sends an HTTP POST request to the api server to register a new user.
 	 * @param server_url
 	 * @param username
-	 * @param salted_password
+	 * @param salt
 	 * @param password_verifier   
 	 * @return response from authentication server
 	 */
@@ -491,6 +487,7 @@ public class ProviderAPI extends IntentService {
 			last_danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 			last_provider_main_url = task.getString(Provider.MAIN_URL);
 			CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
+            setting_up_provider = true;
 		}
 
 			if(!PROVIDER_JSON_DOWNLOADED)
@@ -694,7 +691,7 @@ public class ProviderAPI extends IntentService {
 
 	/**
 	 * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider. 
-	 * @param url as a string
+	 * @param url_string as a string
 	 * @param danger_on true to download CA certificate in case it has not been downloaded.
 	 * @return an empty string if it fails, the url content if not. 
 	 */
@@ -818,7 +815,6 @@ public class ProviderAPI extends IntentService {
 	
 	/**
 	 * Logs out from the api url retrieved from the task.
-	 * @param task containing api url from which the user will log out
 	 * @return true if there were no exceptions
 	 */
     private boolean logOut() {

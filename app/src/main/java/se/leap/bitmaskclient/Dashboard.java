@@ -37,6 +37,9 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import de.blinkt.openvpn.activities.LogWindow;
 import se.leap.bitmaskclient.eip.Constants;
 import se.leap.bitmaskclient.eip.EIP;
@@ -75,6 +78,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     private static boolean authed_eip;
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if(provider != null)
+            outState.putParcelable(Provider.KEY, provider);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
@@ -88,7 +98,19 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	    fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 	    handleVersion();
 
-	    if (provider == null)
+        if(savedInstanceState != null)
+            provider = savedInstanceState.getParcelable(Provider.KEY);
+        if(provider == null && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
+            try {
+                provider = new Provider(new URL(preferences.getString(Provider.MAIN_URL, "")));
+                provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        if (provider == null || provider.getName().isEmpty())
 		startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 	    else
 		buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
@@ -116,16 +138,6 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         Log.d(TAG, "Handle version didn't find any " + getPackageName() + " package");
 	}
     }
-
-	@Override
-	protected void onDestroy() {
-	    
-		super.onDestroy();
-	}
-
-    protected void onPause() {
-	super.onPause();
-    }
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -137,8 +149,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
             preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
             updateEipService();
 
-            if (data.hasExtra(Provider.KEY))
+            if (data.hasExtra(Provider.KEY)) {
                 provider = data.getParcelableExtra(Provider.KEY);
+                preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).commit();
+                preferences.edit().putString(Provider.MAIN_URL, provider.mainUrl().toString()).apply();
+                preferences.edit().putString(Provider.KEY, provider.definition().toString()).apply();
+            }
             buildDashboard(false);
             invalidateOptionsMenu();
             if (data.hasExtra(LogInDialog.TAG)) {
@@ -172,7 +188,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			.setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-				    preferences.edit().remove(Provider.KEY).apply();
+				    preferences.edit().remove(Provider.KEY).remove(Constants.PROVIDER_CONFIGURED).apply();
 					finish();
 				}
 			})
@@ -194,9 +210,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 		if ( provider.hasEIP()){
 
-            EipServiceFragment eip_fragment = (EipServiceFragment) fragment_manager.findFragmentByTag(EipServiceFragment.TAG);
-            if(eip_fragment == null)
-                eip_fragment = new EipServiceFragment();
+            fragment_manager.removePreviousFragment(EipServiceFragment.TAG);
+            EipServiceFragment eip_fragment = new EipServiceFragment();
 
 		    if (hide_and_turn_on_eip) {
 			preferences.edit().remove(Dashboard.START_ON_BOOT).apply();

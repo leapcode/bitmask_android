@@ -242,18 +242,23 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     void onItemSelected(int position) {
         //TODO Code 2 pane view
         selected_provider = adapter.getItem(position);
+        onItemSelectedLogic(selected_provider);
         onItemSelectedUi(selected_provider);
+    }
 
-	boolean danger_on = true;
-	if(preferences.contains(ProviderItem.DANGER_ON))
-	    danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, false);
-	setUpProvider(selected_provider.mainUrl(), danger_on);
+    private void onItemSelectedLogic(Provider selected_provider) {
+        boolean danger_on = true;
+        if(preferences.contains(ProviderItem.DANGER_ON))
+            danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, false);
+        setUpProvider(selected_provider.mainUrl(), danger_on);
     }
 
     private void onItemSelectedUi(Provider provider) {
         startProgressBar();
         adapter.hideAllBut(adapter.indexOf(provider));
     }
+    
+    
     
     @Override
     public void onBackPressed() {
@@ -395,7 +400,8 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     private void autoSelectProvider(Provider provider, boolean danger_on) {
 	preferences.edit().putBoolean(ProviderItem.DANGER_ON, danger_on).apply();
         selected_provider = provider;
-        //onItemSelectedUi(selected_provider);
+        onItemSelectedLogic(selected_provider);
+        onItemSelectedUi(selected_provider);
     }
 	
 	/**

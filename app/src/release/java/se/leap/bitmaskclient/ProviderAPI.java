@@ -58,7 +58,7 @@ public class ProviderAPI extends IntentService {
     ERRORS = "errors",
     UPDATE_PROGRESSBAR = "update_progressbar",
     CURRENT_PROGRESS = "current_progress",
-	TAG = ProviderAPI.class.getSimpleName();
+    TAG = ProviderAPI.class.getSimpleName()
     ;
 
     final public static int
@@ -72,9 +72,7 @@ public class ProviderAPI extends IntentService {
     CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
     INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
     PROVIDER_OK = 11,
-    PROVIDER_NOK = 12,
-    CORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 13,
-    INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
+    PROVIDER_NOK = 12
     ;
 
     private static boolean 
@@ -100,14 +98,9 @@ public class ProviderAPI extends IntentService {
     @Override
     public void onCreate() {
 	super.onCreate();
+
 	preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 	CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER));
-	if(provider_api_url == null && preferences.contains(Provider.KEY)) {
-	    try {
-		JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
-		provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
-	    } catch (JSONException e) {}
-	}
     }
 	
 	public static String lastProviderMainUrl() {
@@ -123,7 +116,16 @@ public class ProviderAPI extends IntentService {
 		final ResultReceiver receiver = command.getParcelableExtra(RECEIVER_KEY);
 		String action = command.getAction();
 		Bundle parameters = command.getBundleExtra(PARAMETERS);
-		setting_up_provider = true;
+		
+		if(provider_api_url == null && preferences.contains(Provider.KEY)) {
+		    try {
+			JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
+			provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
+			setting_up_provider = true;
+		    } catch (JSONException e) {
+			setting_up_provider = false;			
+		    }
+		}
 		
 		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
 			Bundle result = setUpProvider(parameters);
@@ -360,7 +362,7 @@ public class ProviderAPI extends IntentService {
 	 * Sends an HTTP POST request to the api server to register a new user.
 	 * @param server_url
 	 * @param username
-	 * @param salted_password
+	 * @param salt
 	 * @param password_verifier   
 	 * @return response from authentication server
 	 */
@@ -477,6 +479,7 @@ public class ProviderAPI extends IntentService {
 	if(task != null && task.containsKey(Provider.MAIN_URL)) {
 	    last_provider_main_url = task.getString(Provider.MAIN_URL);
 	    CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
+	    setting_up_provider = true;
 	}
 
 	if(!PROVIDER_JSON_DOWNLOADED)
@@ -684,7 +687,7 @@ public class ProviderAPI extends IntentService {
 
 	/**
 	 * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider. 
-	 * @param url as a string
+	 * @param url_string as a string
 	 * @return an empty string if it fails, the url content if not. 
 	 */
 	private String downloadWithProviderCA(String url_string) {

@@ -100,6 +100,8 @@ public final class Provider implements Parcelable {
         definition = provider_json;
     }
 
+    protected JSONObject definition() { return definition; }
+
 	protected String getDomain(){
 		return main_url.getHost();
 	}
@@ -111,14 +113,16 @@ public final class Provider implements Parcelable {
 	protected String getName(){
 		// Should we pass the locale in, or query the system here?
 		String lang = Locale.getDefault().getLanguage();
-		String name = "Null"; // Should it actually /be/ null, for error conditions?
+		String name = "";
 		try {
             if(definition != null)
 			    name = definition.getJSONObject(API_TERM_NAME).getString(lang);
             else throw new JSONException("Provider not defined");
 		} catch (JSONException e) {
-            String host = main_url.getHost();
-            name = host.substring(0, host.indexOf("."));
+            if(main_url != null) {
+                String host = main_url.getHost();
+                name = host.substring(0, host.indexOf("."));
+            }
 		}
 		
 		return name;

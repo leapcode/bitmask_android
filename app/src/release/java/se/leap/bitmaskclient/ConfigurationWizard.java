@@ -251,7 +251,11 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	//TODO Code 2 pane view
         selected_provider = adapter.getItem(position);
         onItemSelectedUi(selected_provider);
-	setUpProvider(selected_provider.mainUrl());
+	onItemSelectedLogic(selected_provider);
+    }
+
+    private void onItemSelectedLogic(Provider selected_provider) {
+        setUpProvider(selected_provider.mainUrl());
     }
 
     private void onItemSelectedUi(Provider provider) {
@@ -402,7 +406,8 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     
     private void autoSelectProvider(Provider provider) {
 	selected_provider = provider;
-	//onItemSelected(provider);
+        onItemSelectedUi(selected_provider);
+	onItemSelectedLogic(selected_provider);
     }
 	
 	/**
@@ -469,6 +474,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	@Override
 	public void login() {
 		Intent ask_login = new Intent();
+		ask_login.putExtra(Provider.KEY, selected_provider);
 		ask_login.putExtra(LogInDialog.TAG, LogInDialog.TAG);
 		setResult(RESULT_OK, ask_login);
 		setting_up_provider = false;
