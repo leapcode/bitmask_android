@@ -16,14 +16,14 @@
  */
  package se.leap.bitmaskclient;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-import se.leap.bitmaskclient.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,20 +40,17 @@ import android.widget.Toast;
 public class NewProviderDialog extends DialogFragment {
 
     final public static String TAG = "newProviderDialog";
-        
+
+    @InjectView(R.id.new_provider_url)
+    EditText url_input_field;
+    @InjectView(R.id.danger_checkbox)
+    CheckBox danger_checkbox;
+
 	public interface NewProviderDialogInterface {
         public void showAndSelectProvider(String url_provider, boolean danger_on);
     }
 
 	NewProviderDialogInterface interface_with_ConfigurationWizard;
-
-	/**
-	 * @return a new instance of this DialogFragment.
-	 */
-	public static DialogFragment newInstance() {
-		NewProviderDialog dialog_fragment = new NewProviderDialog();
-		return dialog_fragment;
-	}
 	
     @Override
     public void onAttach(Activity activity) {
@@ -70,36 +67,19 @@ public class NewProviderDialog extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		LayoutInflater inflater = getActivity().getLayoutInflater();
-		View new_provider_dialog_view = inflater.inflate(R.layout.new_provider_dialog, null);
-		final EditText url_input_field = (EditText)new_provider_dialog_view.findViewById(R.id.new_provider_url);
-		if(getArguments() != null && getArguments().containsKey(Provider.MAIN_URL)) {
-			url_input_field.setText(getArguments().getString(Provider.MAIN_URL));
-		}
-		final CheckBox danger_checkbox = (CheckBox)new_provider_dialog_view.findViewById(R.id.danger_checkbox);
-		if(getArguments() != null && getArguments().containsKey(ProviderItem.DANGER_ON)) {
-			danger_checkbox.setActivated(getArguments().getBoolean(ProviderItem.DANGER_ON));
-		}
+		View view = inflater.inflate(R.layout.new_provider_dialog, null);
+        ButterKnife.inject(this, view);
+        Bundle arguments = getArguments();
+		if(arguments != null) {
+            url_input_field.setText(arguments.getString(Provider.MAIN_URL, ""));
+            danger_checkbox.setActivated(arguments.getBoolean(ProviderItem.DANGER_ON, false));
+        }
 		
-		builder.setView(new_provider_dialog_view)
+		builder.setView(view)
 			.setMessage(R.string.introduce_new_provider)
 			.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
-					String entered_url = url_input_field.getText().toString().trim();
-					if(!entered_url.startsWith("https://")) {
-						if (entered_url.startsWith("http://")){
-							entered_url = entered_url.substring("http://".length());
-						}
-						entered_url = "https://".concat(entered_url);
-					}
-					boolean danger_on = danger_checkbox.isChecked();
-					if(validURL(entered_url)) {
-						interface_with_ConfigurationWizard.showAndSelectProvider(entered_url, danger_on);
-						Toast.makeText(getActivity().getApplicationContext(), R.string.valid_url_entered, Toast.LENGTH_LONG).show();
-					} else {
-						url_input_field.setText("");
-						danger_checkbox.setChecked(false);
-						Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();;
-					}
+                    saveProvider();
 				}
 			})
 			.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -110,6 +90,25 @@ public class NewProviderDialog extends DialogFragment {
 		// Create the AlertDialog object and return it
 		return builder.create();
 	}
+
+    private void saveProvider() {
+        String entered_url = url_input_field.getText().toString().trim();
+        if(!entered_url.startsWith("https://")) {
+            if (entered_url.startsWith("http://")){
+                entered_url = entered_url.substring("http://".length());
+            }
+            entered_url = "https://".concat(entered_url);
+        }
+        boolean danger_on = danger_checkbox.isChecked();
+        if(validURL(entered_url)) {
+            interface_with_ConfigurationWizard.showAndSelectProvider(entered_url, danger_on);
+            Toast.makeText(getActivity().getApplicationContext(), R.string.valid_url_entered, Toast.LENGTH_LONG).show();
+        } else {
+            url_input_field.setText("");
+            danger_checkbox.setChecked(false);
+            Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();;
+        }
+    }
 
     /**
      * Checks if the entered url is valid or not.

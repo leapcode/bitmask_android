@@ -37,6 +37,11 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import de.blinkt.openvpn.activities.LogWindow;
 import se.leap.bitmaskclient.eip.Constants;
 import se.leap.bitmaskclient.eip.EIP;
@@ -49,7 +54,7 @@ import se.leap.bitmaskclient.eip.EipStatus;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author parmegv
  */
-public class Dashboard extends Activity implements LogInDialog.LogInDialogInterface, SignUpDialog.SignUpDialogInterface, ProviderAPIResultReceiver.Receiver {
+public class Dashboard extends Activity implements SessionDialog.SessionDialogInterface, ProviderAPIResultReceiver.Receiver {
 
 	protected static final int CONFIGURE_LEAP = 0;
 	protected static final int SWITCH_PROVIDER = 1;
@@ -67,27 +72,46 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
     protected static SharedPreferences preferences;
     private FragmentManagerEnhanced fragment_manager;
 
-    private ProgressBar mProgressBar;
-    private TextView status_message;
+    @InjectView(R.id.providerName)
+    TextView provider_name;
+
+    EipServiceFragment eip_fragment;
+    private Provider provider;
+    private static boolean authed_eip;
     public ProviderAPIResultReceiver providerAPI_result_receiver;
 
-    private static boolean authed_eip;
-    
-	@Override
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if(provider != null)
+            outState.putParcelable(Provider.KEY, provider);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		app = this;		
 		
 		PRNGFixes.apply();
-
-	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
 	    
 	    preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
 	    fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 	    handleVersion();
-	    boolean provider_configured = preferences.getString(Constants.KEY, "").isEmpty();
-	    if (provider_configured)
+
+        if(savedInstanceState != null)
+            provider = savedInstanceState.getParcelable(Provider.KEY);
+        if(provider == null && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
+            try {
+                provider = new Provider(new URL(preferences.getString(Provider.MAIN_URL, "")));
+                provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        if (provider == null || provider.getName().isEmpty())
 		startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 	    else
 		buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
@@ -115,33 +139,31 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
         Log.d(TAG, "Handle version didn't find any " + getPackageName() + " package");
 	}
     }
-
-	@Override
-	protected void onDestroy() {
-	    
-		super.onDestroy();
-	}
-
-    protected void onPause() {
-	super.onPause();
-    }
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
 	Log.d(TAG, "onActivityResult: requestCode = " + requestCode);
 	if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
 	    // It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
-	    if ( resultCode == RESULT_OK ){
-		preferences.edit().putInt(Constants.PARSED_SERIAL, 0).apply();
-		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
-		updateEipService();
-		invalidateOptionsMenu();
-		if(data != null && data.hasExtra(LogInDialog.TAG)) {
-		    logInDialog(Bundle.EMPTY);
-		}
-	    } else if(resultCode == RESULT_CANCELED && (data == null || data.hasExtra(ACTION_QUIT))) {
-		finish();
-	    } else
+	    if ( resultCode == RESULT_OK ) {
+            preferences.edit().putInt(Constants.PARSED_SERIAL, 0).apply();
+            preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
+            updateEipService();
+
+            if (data.hasExtra(Provider.KEY)) {
+                provider = data.getParcelableExtra(Provider.KEY);
+                preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).commit();
+                preferences.edit().putString(Provider.MAIN_URL, provider.mainUrl().toString()).apply();
+                preferences.edit().putString(Provider.KEY, provider.definition().toString()).apply();
+            }
+            buildDashboard(false);
+            invalidateOptionsMenu();
+            if (data.hasExtra(SessionDialog.TAG)) {
+                logInDialog(Bundle.EMPTY);
+            }
+        } else if (resultCode == RESULT_CANCELED && data.hasExtra(ACTION_QUIT)) {
+                finish();
+        } else
 		configErrorDialog();
 	} else if(requestCode == EIP.DISCONNECT) {
 	    EipStatus.getInstance().setConnectedOrDisconnected();
@@ -167,7 +189,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			.setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-				    preferences.edit().remove(Provider.KEY).apply();
+				    preferences.edit().remove(Provider.KEY).remove(Constants.PROVIDER_CONFIGURED).apply();
 					finish();
 				}
 			})
@@ -179,28 +201,21 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	 * service dependent UI elements to include.
 	 */
 	private void buildDashboard(boolean hide_and_turn_on_eip) {
-        Provider provider = Provider.getInstance();
-		provider.init( this );
+		setContentView(R.layout.dashboard);
+        ButterKnife.inject(this);
 
-		setContentView(R.layout.client_dashboard);
-	    
-		TextView providerNameTV = (TextView) findViewById(R.id.providerName);
-		providerNameTV.setText(provider.getDomain());
-		providerNameTV.setTextSize(28);
-		
-		mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
+		provider_name.setText(provider.getDomain());
 
 		if ( provider.hasEIP()){
 
-            EipServiceFragment eip_fragment = (EipServiceFragment) fragment_manager.findFragmentByTag(EipServiceFragment.TAG);
-            if(eip_fragment == null)
-                eip_fragment = new EipServiceFragment();
+            fragment_manager.removePreviousFragment(EipServiceFragment.TAG);
+            eip_fragment = new EipServiceFragment();
 
 		    if (hide_and_turn_on_eip) {
 			preferences.edit().remove(Dashboard.START_ON_BOOT).apply();
 			Bundle arguments = new Bundle();
 			arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
-			eip_fragment.setArguments(arguments);
+                if(eip_fragment != null) eip_fragment.setArguments(arguments);
 		    }
 
             fragment_manager.replace(R.id.servicesCollection, eip_fragment, EipServiceFragment.TAG);
@@ -261,11 +276,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		    startActivity(startLW);
 		    return true;
 		case R.id.switch_provider:
-			if (Provider.getInstance().hasEIP()){
-				if (preferences.getBoolean(Constants.AUTHED_EIP, false)){
-					logOut();
-				}				
-				eipStop();
+			if (provider.hasEIP()){
+				if (preferences.getBoolean(Constants.AUTHED_EIP, false)) {
+                    logOut();
+                }
+                eip_fragment.stopEIP();
 			}
 			preferences.edit().clear().apply();
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
@@ -285,10 +300,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		
 	}
 
-    private Intent prepareProviderAPICommand() {	    
-	mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
-	status_message = (TextView) findViewById(R.id.status_message);
-		
+    private Intent prepareProviderAPICommand() {
 	providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 	providerAPI_result_receiver.setReceiver(this);
 		
@@ -302,12 +314,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
      * Shows the log in dialog.
      */
     public void logInDialog(Bundle resultData) {
-	FragmentTransaction transaction = fragment_manager.removePreviousFragment(LogInDialog.TAG);
+	FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
 
-	DialogFragment newFragment = LogInDialog.newInstance();
+	DialogFragment newFragment = SessionDialog.newInstance();
 	if(resultData != null && !resultData.isEmpty())
 	    newFragment.setArguments(resultData);
-	newFragment.show(transaction, LogInDialog.TAG);
+	newFragment.show(transaction, SessionDialog.TAG);
     }
 
     @Override
@@ -317,12 +329,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	if(parameters == null)
 	    parameters = new Bundle();
 	    
-	parameters.putString(SessionDialogInterface.USERNAME, username);
-	parameters.putString(SessionDialogInterface.PASSWORD, password);
+	parameters.putString(SessionDialog.USERNAME, username);
+	parameters.putString(SessionDialog.PASSWORD, password);
 
-	mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	status_message.setText(R.string.authenticating_message);
-
+        if(eip_fragment != null) {
+            eip_fragment.progress_bar.setVisibility(ProgressBar.VISIBLE);
+            eip_fragment.status_message.setText(R.string.authenticating_message);
+        }
 	provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 	provider_API_command.setAction(ProviderAPI.SRP_AUTH);
 	startService(provider_API_command);
@@ -337,12 +350,11 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
      */
     public void logOut() {
 	Intent provider_API_command = prepareProviderAPICommand();
-	    
-	if(mProgressBar == null) mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
-	mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	if(status_message == null) status_message = (TextView) findViewById(R.id.status_message);
-	status_message.setText(R.string.logout_message);
-		
+        if(eip_fragment != null) {
+
+            eip_fragment.progress_bar.setVisibility(ProgressBar.VISIBLE);
+            eip_fragment.status_message.setText(R.string.logout_message);
+        }
 	provider_API_command.setAction(ProviderAPI.LOG_OUT);
 	startService(provider_API_command);
     }
@@ -351,13 +363,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
      * Shows the sign up dialog.
      */
     public void signUpDialog(Bundle resultData) {
-	FragmentTransaction transaction = fragment_manager.removePreviousFragment(SignUpDialog.TAG);
+	FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
 
-	DialogFragment newFragment = SignUpDialog.newInstance();
+	DialogFragment newFragment = SessionDialog.newInstance();
 	if(resultData != null && !resultData.isEmpty()) {
 	    newFragment.setArguments(resultData);
 	}
-	newFragment.show(transaction, SignUpDialog.TAG);
+	newFragment.show(transaction, SessionDialog.TAG);
     }
 
     @Override
@@ -367,12 +379,12 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	if(parameters == null)
 	    parameters = new Bundle();
 	    
-	parameters.putString(SessionDialogInterface.USERNAME, username);
-	parameters.putString(SessionDialogInterface.PASSWORD, password);
-	
-	mProgressBar.setVisibility(ProgressBar.VISIBLE);
-	status_message.setText(R.string.signingup_message);
-	
+	parameters.putString(SessionDialog.USERNAME, username);
+	parameters.putString(SessionDialog.PASSWORD, password);
+        if(eip_fragment != null) {
+            eip_fragment.progress_bar.setVisibility(ProgressBar.VISIBLE);
+            eip_fragment.status_message.setText(R.string.signingup_message);
+        }
 	provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 	provider_API_command.setAction(ProviderAPI.SRP_REGISTER);
 	startService(provider_API_command);
@@ -401,8 +413,8 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 	    Log.d(TAG, "onReceiveResult");
 	    if(resultCode == ProviderAPI.SRP_REGISTRATION_SUCCESSFUL) {
-		String username = resultData.getString(SessionDialogInterface.USERNAME);
-		String password = resultData.getString(SessionDialogInterface.PASSWORD);
+		String username = resultData.getString(SessionDialog.USERNAME);
+		String password = resultData.getString(SessionDialog.PASSWORD);
 		logIn(username, password);
 	    } else if(resultCode == ProviderAPI.SRP_REGISTRATION_FAILED) {
 		changeStatusMessage(resultCode);
@@ -460,8 +472,7 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		    String request = resultData.getString(Constants.REQUEST_TAG);
 		    if(request.equalsIgnoreCase(Constants.ACTION_UPDATE_EIP_SERVICE)) {
 			if(resultCode == Activity.RESULT_OK) {
-			    if(authed_eip)
-				eipStart();
+			    if(authed_eip && eip_fragment != null) eip_fragment.startEipFromScratch();
 			}
 		    }
 		}
@@ -476,17 +487,16 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 			protected void onReceiveResult(int resultCode, Bundle resultData){
 				super.onReceiveResult(resultCode, resultData);
 				String request = resultData.getString(Constants.REQUEST_TAG);
-				if(status_message == null) status_message = (TextView) findViewById(R.id.status_message);
-				if (request.equalsIgnoreCase(Constants.ACTION_IS_EIP_RUNNING)){					
+				if (request.equalsIgnoreCase(Constants.ACTION_IS_EIP_RUNNING)){
 					if (resultCode == Activity.RESULT_OK){
 
 						switch(previous_result_code){
-						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: status_message.setText(R.string.succesful_authentication_message); break;
-						case ProviderAPI.SRP_AUTHENTICATION_FAILED: status_message.setText(R.string.authentication_failed_message); break;
-						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: status_message.setText(R.string.authed_secured_status); break;
-						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: status_message.setText(R.string.incorrectly_downloaded_certificate_message); break;
-						case ProviderAPI.LOGOUT_SUCCESSFUL: status_message.setText(R.string.logged_out_message); break;
-						case ProviderAPI.LOGOUT_FAILED: status_message.setText(R.string.log_out_failed_message); break;
+						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: eip_fragment.status_message.setText(R.string.succesful_authentication_message); break;
+						case ProviderAPI.SRP_AUTHENTICATION_FAILED: eip_fragment.status_message.setText(R.string.authentication_failed_message); break;
+						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: eip_fragment.status_message.setText(R.string.authed_secured_status); break;
+						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: eip_fragment.status_message.setText(R.string.incorrectly_downloaded_certificate_message); break;
+						case ProviderAPI.LOGOUT_SUCCESSFUL: eip_fragment.status_message.setText(R.string.logged_out_message); break;
+						case ProviderAPI.LOGOUT_FAILED: eip_fragment.status_message.setText(R.string.log_out_failed_message); break;
 						
 						}	
 					}
@@ -494,13 +504,13 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 
 						switch(previous_result_code){
 
-						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: status_message.setText(R.string.succesful_authentication_message); break;
-						case ProviderAPI.SRP_AUTHENTICATION_FAILED: status_message.setText(R.string.authentication_failed_message); break;
-						case ProviderAPI.SRP_REGISTRATION_FAILED: status_message.setText(R.string.registration_failed_message); break;
+						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: eip_fragment.status_message.setText(R.string.succesful_authentication_message); break;
+						case ProviderAPI.SRP_AUTHENTICATION_FAILED: eip_fragment.status_message.setText(R.string.authentication_failed_message); break;
+						case ProviderAPI.SRP_REGISTRATION_FAILED: eip_fragment.status_message.setText(R.string.registration_failed_message); break;
 						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: break;
-						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: status_message.setText(R.string.incorrectly_downloaded_certificate_message); break;
-						case ProviderAPI.LOGOUT_SUCCESSFUL: status_message.setText(R.string.logged_out_message); break;
-						case ProviderAPI.LOGOUT_FAILED: status_message.setText(R.string.log_out_failed_message); break;			
+						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: eip_fragment.status_message.setText(R.string.incorrectly_downloaded_certificate_message); break;
+						case ProviderAPI.LOGOUT_SUCCESSFUL: eip_fragment.status_message.setText(R.string.logged_out_message); break;
+						case ProviderAPI.LOGOUT_FAILED: eip_fragment.status_message.setText(R.string.log_out_failed_message); break;			
 						}
 					}
 				}
@@ -511,11 +521,10 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 	}
 
     private void hideProgressBar() {
-	if(mProgressBar == null)
-	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);
-
-	mProgressBar.setProgress(0);
-	mProgressBar.setVisibility(ProgressBar.GONE);
+        if(eip_fragment != null) {
+            eip_fragment.progress_bar.setProgress(0);
+            eip_fragment.progress_bar.setVisibility(ProgressBar.GONE);
+        }
     }
 
 	/**
@@ -542,20 +551,4 @@ public class Dashboard extends Activity implements LogInDialog.LogInDialogInterf
 		eip_intent.putExtra(Constants.RECEIVER_TAG, eip_receiver);
 		startService(eip_intent);
 	}
-	
-    private void eipStop(){
-	EipServiceFragment eipFragment = (EipServiceFragment) getFragmentManager().findFragmentByTag(EipServiceFragment.TAG);
-	eipFragment.stopEIP();
-    }
-
-    private void eipStart() {
-	EipServiceFragment eipFragment = (EipServiceFragment) getFragmentManager().findFragmentByTag(EipServiceFragment.TAG);
-	eipFragment.startEipFromScratch();
-    }
-
-    protected void showProgressBar() {
-	if(mProgressBar == null)
-	    mProgressBar = (ProgressBar) findViewById(R.id.eipProgress);	    
-	mProgressBar.setVisibility(ProgressBar.VISIBLE);
-    }
 }

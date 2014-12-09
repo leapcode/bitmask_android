@@ -32,6 +32,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.json.*;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.SessionDialog;
 import se.leap.bitmaskclient.eip.*;
 
 /**
@@ -58,7 +59,7 @@ public class ProviderAPI extends IntentService {
     ERRORS = "errors",
     UPDATE_PROGRESSBAR = "update_progressbar",
     CURRENT_PROGRESS = "current_progress",
-	TAG = ProviderAPI.class.getSimpleName();
+    TAG = ProviderAPI.class.getSimpleName()
     ;
 
     final public static int
@@ -72,9 +73,7 @@ public class ProviderAPI extends IntentService {
     CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
     INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
     PROVIDER_OK = 11,
-    PROVIDER_NOK = 12,
-    CORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 13,
-    INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
+    PROVIDER_NOK = 12
     ;
 
     private static boolean 
@@ -100,14 +99,9 @@ public class ProviderAPI extends IntentService {
     @Override
     public void onCreate() {
 	super.onCreate();
+
 	preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 	CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER));
-	if(provider_api_url == null && preferences.contains(Provider.KEY)) {
-	    try {
-		JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
-		provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
-	    } catch (JSONException e) {}
-	}
     }
 	
 	public static String lastProviderMainUrl() {
@@ -123,7 +117,16 @@ public class ProviderAPI extends IntentService {
 		final ResultReceiver receiver = command.getParcelableExtra(RECEIVER_KEY);
 		String action = command.getAction();
 		Bundle parameters = command.getBundleExtra(PARAMETERS);
-		setting_up_provider = true;
+		
+		if(provider_api_url == null && preferences.contains(Provider.KEY)) {
+		    try {
+			JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
+			provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
+			setting_up_provider = true;
+		    } catch (JSONException e) {
+			setting_up_provider = false;			
+		    }
+		}
 		
 		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
 			Bundle result = setUpProvider(parameters);
@@ -167,8 +170,8 @@ public class ProviderAPI extends IntentService {
 	Bundle session_id_bundle = new Bundle();
 	int progress = 0;
 		
-	String username = (String) task.get(SessionDialogInterface.USERNAME);
-	String password = (String) task.get(SessionDialogInterface.PASSWORD);
+	String username = (String) task.get(SessionDialog.USERNAME);
+	String password = (String) task.get(SessionDialog.PASSWORD);
 	
 	if(validUserLoginData(username, password)) {
 	    session_id_bundle = register(username, password);
@@ -176,12 +179,12 @@ public class ProviderAPI extends IntentService {
 	} else {
 	    if(!wellFormedPassword(password)) {
 		session_id_bundle.putBoolean(RESULT_KEY, false);
-		session_id_bundle.putString(SessionDialogInterface.USERNAME, username);
-		session_id_bundle.putBoolean(SessionDialogInterface.PASSWORD_INVALID_LENGTH, true);
+		session_id_bundle.putString(SessionDialog.USERNAME, username);
+		session_id_bundle.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
 	    }
 	    if(username.isEmpty()) {
 		session_id_bundle.putBoolean(RESULT_KEY, false);
-		session_id_bundle.putBoolean(SessionDialogInterface.USERNAME_MISSING, true);
+		session_id_bundle.putBoolean(SessionDialog.USERNAME_MISSING, true);
 	    }
 	}
 		
@@ -200,8 +203,8 @@ public class ProviderAPI extends IntentService {
 	if(api_result.has(ERRORS))
 	    result = authFailedNotification(api_result, username);
 	else {
-	    result.putString(SessionDialogInterface.USERNAME, username);
-	    result.putString(SessionDialogInterface.PASSWORD, password);
+	    result.putString(SessionDialog.USERNAME, username);
+	    result.putString(SessionDialog.PASSWORD, password);
 	    result.putBoolean(RESULT_KEY, true);
 	}
 
@@ -218,20 +221,20 @@ public class ProviderAPI extends IntentService {
 	    Bundle result = new Bundle();
 	    int progress = 0;
 		
-	    String username = (String) task.get(SessionDialogInterface.USERNAME);
-	    String password = (String) task.get(SessionDialogInterface.PASSWORD);
+	    String username = (String) task.get(SessionDialog.USERNAME);
+	    String password = (String) task.get(SessionDialog.PASSWORD);
 	    if(validUserLoginData(username, password)) {
 		result = authenticate(username, password);
 		broadcast_progress(progress++);
 	    } else {
 		if(!wellFormedPassword(password)) {
 		    result.putBoolean(RESULT_KEY, false);
-		    result.putString(SessionDialogInterface.USERNAME, username);
-		    result.putBoolean(SessionDialogInterface.PASSWORD_INVALID_LENGTH, true);
+		    result.putString(SessionDialog.USERNAME, username);
+		    result.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
 		}
 		if(username.isEmpty()) {
 		    result.putBoolean(RESULT_KEY, false);
-		    result.putBoolean(SessionDialogInterface.USERNAME_MISSING, true);
+		    result.putBoolean(SessionDialog.USERNAME_MISSING, true);
 		}
 	    }
 		
@@ -260,7 +263,7 @@ public class ProviderAPI extends IntentService {
 		}
 	    } else {
 		result.putBoolean(RESULT_KEY, false);
-		result.putString(SessionDialogInterface.USERNAME, username);
+		result.putString(SessionDialog.USERNAME, username);
 		result.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_srp_math_error_user_message));
 	    }
 	} catch (JSONException e) {
@@ -291,7 +294,7 @@ public class ProviderAPI extends IntentService {
 	} catch(JSONException e) {}
 	
 	if(!username.isEmpty())
-	    user_notification_bundle.putString(SessionDialogInterface.USERNAME, username);
+	    user_notification_bundle.putString(SessionDialog.USERNAME, username);
 	user_notification_bundle.putBoolean(RESULT_KEY, false);
 
 	return user_notification_bundle;
@@ -360,7 +363,7 @@ public class ProviderAPI extends IntentService {
 	 * Sends an HTTP POST request to the api server to register a new user.
 	 * @param server_url
 	 * @param username
-	 * @param salted_password
+	 * @param salt
 	 * @param password_verifier   
 	 * @return response from authentication server
 	 */
@@ -477,6 +480,7 @@ public class ProviderAPI extends IntentService {
 	if(task != null && task.containsKey(Provider.MAIN_URL)) {
 	    last_provider_main_url = task.getString(Provider.MAIN_URL);
 	    CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
+	    setting_up_provider = true;
 	}
 
 	if(!PROVIDER_JSON_DOWNLOADED)
@@ -684,7 +688,7 @@ public class ProviderAPI extends IntentService {
 
 	/**
 	 * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider. 
-	 * @param url as a string
+	 * @param url_string as a string
 	 * @return an empty string if it fails, the url content if not. 
 	 */
 	private String downloadWithProviderCA(String url_string) {

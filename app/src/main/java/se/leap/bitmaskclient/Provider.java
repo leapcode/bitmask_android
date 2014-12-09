@@ -19,12 +19,17 @@ package se.leap.bitmaskclient;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -32,16 +37,10 @@ import java.util.Locale;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  *
  */
-public final class Provider implements Serializable {
+public final class Provider implements Parcelable {
 
-	private static final long serialVersionUID = 6003835972151761353L;
-	
-	private static Provider instance = null;
-	
-	// We'll access our preferences here
-	private static SharedPreferences preferences = null;
-	// Represents our Provider's provider.json
-	private static JSONObject definition = null;
+	private JSONObject definition; // Represents our Provider's provider.json
+    private URL main_url;
 
     final public static String
     API_URL = "api_uri",
@@ -69,71 +68,64 @@ public final class Provider implements Serializable {
 	private static final String API_TERM_DEFAULT_LANGUAGE = "default_language";
 	protected static final String[] API_EIP_TYPES = {"openvpn"};
 
-	private static final String PREFS_EIP_NAME = null;
+	public Provider(URL main_url) {
+        this.main_url = main_url;
+    }
 
+    public Provider(File provider_file) {
 
-	
-	// What, no individual fields?!  We're going to gamble on org.json.JSONObject and JSONArray
-	// Supporting multiple API versions will probably break this paradigm,
-	// Forcing me to write a real constructor and rewrite getters/setters
-	// Also will refactor if i'm instantiating the same local variables all the time
-	
-	/**
-	 * 
-	 */
-	private Provider() {}
+    }
+    public static final Parcelable.Creator<Provider> CREATOR
+            = new Parcelable.Creator<Provider>() {
+        public Provider createFromParcel(Parcel in) {
+            return new Provider(in);
+        }
 
-	protected static Provider getInstance(){
-		if(instance==null){
-			instance = new Provider();
-		}
-		return instance;
-	}
+        public Provider[] newArray(int size) {
+            return new Provider[size];
+        }
+    };
 
-	protected void init(Activity activity) {
-		
-		// Load our preferences from SharedPreferences
-		//   If there's nothing there, we will end up returning a rather empty object
-		//   to whoever called getInstance() and they can run the First Run Wizard
-		//preferences = context.getgetPreferences(0); // 0 == MODE_PRIVATE, but we don't extend Android's classes...
-		
-		// Load SharedPreferences
-		preferences = activity.getSharedPreferences(Dashboard.SHARED_PREFERENCES,Context.MODE_PRIVATE);
-		// Inflate our provider.json data
-		try {
-			definition = new JSONObject( preferences.getString(Provider.KEY, "") );
-		} catch (JSONException e) {
-			// TODO: handle exception
-			
-			// FIXME!!  We want "real" data!!
-		}
-	}
+    private Provider(Parcel in) {
+        try {
+            main_url = new URL(in.readString());
+            String definition_string = in.readString();
+            if(definition_string != null)
+                definition = new JSONObject((definition_string));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void define(JSONObject provider_json) {
+        definition = provider_json;
+    }
+
+    protected JSONObject definition() { return definition; }
 
 	protected String getDomain(){
-		String domain = "Null";
-		try {
-			domain = definition.getString(API_TERM_DOMAIN);
-		} catch (JSONException e) {
-			domain = "Null";
-			e.printStackTrace();
-		}
-		return domain;
+		return main_url.getHost();
 	}
+
+    protected URL mainUrl() {
+        return main_url;
+    }
 	
 	protected String getName(){
 		// Should we pass the locale in, or query the system here?
 		String lang = Locale.getDefault().getLanguage();
-		String name = "Null"; // Should it actually /be/ null, for error conditions?
+		String name = "";
 		try {
-			name = definition.getJSONObject(API_TERM_NAME).getString(lang);
+            if(definition != null)
+			    name = definition.getJSONObject(API_TERM_NAME).getString(lang);
+            else throw new JSONException("Provider not defined");
 		} catch (JSONException e) {
-			// TODO: Nesting try/catch blocks?  Crazy
-			//  Maybe you should actually handle exception?
-			try {
-				name = definition.getJSONObject(API_TERM_NAME).getString( definition.getString(API_TERM_DEFAULT_LANGUAGE) );
-			} catch (JSONException e2) {
-				// TODO: Will you handle the exception already?
-			}
+            if(main_url != null) {
+                String host = main_url.getHost();
+                name = host.substring(0, host.indexOf("."));
+            }
 		}
 		
 		return name;
@@ -157,58 +149,60 @@ public final class Provider implements Serializable {
 	}
 
 	protected boolean hasEIP() {
-		JSONArray services = null;
 		try {
-			services = definition.getJSONArray(API_TERM_SERVICES); // returns ["openvpn"]
+            JSONArray services = definition.getJSONArray(API_TERM_SERVICES); // returns ["openvpn"]
+            for (int i=0;i<API_EIP_TYPES.length+1;i++){
+                try {
+                    // Walk the EIP types array looking for matches in provider's service definitions
+                    if ( Arrays.asList(API_EIP_TYPES).contains( services.getString(i) ) )
+                        return true;
+                } catch (NullPointerException e){
+                    e.printStackTrace();
+                    return false;
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    return false;
+                }
+            }
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		for (int i=0;i<API_EIP_TYPES.length+1;i++){
-			try {
-				// Walk the EIP types array looking for matches in provider's service definitions
-				if ( Arrays.asList(API_EIP_TYPES).contains( services.getString(i) ) )
-					return true;
-			} catch (NullPointerException e){
-				e.printStackTrace();
-				return false;
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			}
-		}
 		return false;
 	}
-	
-	protected String getEIPType() {
-		// FIXME!!!!!  We won't always be providing /only/ OpenVPN, will we?
-		// This will have to hook into some saved choice of EIP transport
-		if ( instance.hasEIP() )
-			return "OpenVPN";
-		else
-			return null;
-	}
-	
-	protected JSONObject getEIP() {
-		// FIXME!!!!!  We won't always be providing /only/ OpenVPN, will we?
-		// This will have to hook into some saved choice of EIP transport, cluster, gateway
-		//   with possible "choose at random" preference
-		if ( instance.hasEIP() ){
-			// TODO Might need an EIP class, but we've only got OpenVPN type right now,
-			// and only one gateway for our only provider...
-			// TODO We'll try to load from preferences, have to call ProviderAPI if we've got nothin...
-			JSONObject eipObject = null;
-			try {
-				eipObject = new JSONObject( preferences.getString(PREFS_EIP_NAME, "") );
-			} catch (JSONException e) {
-				// TODO ConfigHelper.rescueJSON()
-				// Still nothing?
-				// TODO ProviderAPI.getEIP()
-				e.printStackTrace();
-			}
-			
-			return eipObject;
-		} else
-			return null;
-	}
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(main_url.toString());
+        if(definition != null)
+            parcel.writeString(definition.toString());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Provider) {
+            Provider p = (Provider) o;
+            return p.mainUrl().equals(mainUrl());
+        } else return false;
+    }
+
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put(Provider.MAIN_URL, main_url);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    @Override
+    public int hashCode() {
+        return main_url.hashCode();
+    }
 }

@@ -12,19 +12,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.Observable;
 import java.util.Observer;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnCheckedChanged;
 import de.blinkt.openvpn.activities.DisconnectVPN;
 import se.leap.bitmaskclient.eip.Constants;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipStatus;
 
-public class EipServiceFragment extends Fragment implements Observer, CompoundButton.OnCheckedChangeListener {
+public class EipServiceFragment extends Fragment implements Observer {
 	
     public static String TAG = "se.leap.bitmask.EipServiceFragment";
 
@@ -33,9 +36,13 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     protected static final String STATUS_MESSAGE = TAG + ".status_message";
     public static final String START_ON_BOOT = "start on boot";
 
-    private View eipFragment;
-    private static Switch eipSwitch;
-    private TextView status_message;
+    private View view;
+    @InjectView(R.id.eipSwitch)
+    Switch eip_switch;
+    @InjectView(R.id.status_message)
+    TextView status_message;
+    @InjectView(R.id.eipProgress)
+    ProgressBar progress_bar;
 
     private static Activity parent_activity;
     private static EIPReceiver mEIPReceiver;
@@ -57,41 +64,34 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		
-	eipFragment = inflater.inflate(R.layout.eip_service_fragment, container, false);
-    View eipDetail = eipFragment.findViewById(R.id.eipDetail);
-	eipDetail.setVisibility(View.VISIBLE);
-
-	View eipSettings = eipFragment.findViewById(R.id.eipSettings);
-	eipSettings.setVisibility(View.GONE); // FIXME too!
+	view = inflater.inflate(R.layout.eip_service_fragment, container, false);
+        ButterKnife.inject(this, view);
 
 	if (eip_status.isConnecting())
-	    eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
-		
-	status_message = (TextView) eipFragment.findViewById(R.id.status_message);
+	    eip_switch.setVisibility(View.VISIBLE);
 
-	eipSwitch = (Switch) eipFragment.findViewById(R.id.eipSwitch);
-	Log.d(TAG, "onCreateView, eipSwitch is checked? " + eipSwitch.isChecked());
-	eipSwitch.setOnCheckedChangeListener(this);
-		
-	if(getArguments() != null && getArguments().containsKey(START_ON_BOOT) && getArguments().getBoolean(START_ON_BOOT))
+	Log.d(TAG, "onCreateView, eip_switch is checked? " + eip_switch.isChecked());
+
+        Bundle arguments = getArguments();
+	if(arguments != null && arguments.containsKey(START_ON_BOOT) && arguments.getBoolean(START_ON_BOOT))
 	    startEipFromScratch();
 
         if (savedInstanceState != null) {
-            setStatusMessage(savedInstanceState.getString(STATUS_MESSAGE));
+            status_message.setText(savedInstanceState.getString(STATUS_MESSAGE));
             if(savedInstanceState.getBoolean(IS_PENDING))
                 eip_status.setConnecting();
             else if(savedInstanceState.getBoolean(IS_CONNECTED)) {
                 eip_status.setConnectedOrDisconnected();
             }
         }
-	return eipFragment;
+	return view;
     }
 
     @Override
     public void onResume() {
 	super.onResume();
 	eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
+	handleNewState(eip_status);
     }
     
     @Override
@@ -106,22 +106,16 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     protected void saveEipStatus() {
 	boolean eip_is_on = false;
 	Log.d(TAG, "saveEipStatus");
-	if(eipSwitch.isChecked()) {
+	if(eip_switch.isChecked()) {
 	    eip_is_on = true;
 	}
 
 	if(parent_activity != null)
 	    Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
     }
-    
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-	if (buttonView.equals(eipSwitch)){
-	    handleSwitch(isChecked);
-	}
-    }
-    
-    private void handleSwitch(boolean isChecked) {
+
+    @OnCheckedChanged(R.id.eipSwitch)
+    void handleSwitch(boolean isChecked) {
 	if(isChecked)
 	    handleSwitchOn();
 	else
@@ -136,7 +130,9 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	else if(canLogInToStartEIP()) {
 	    Log.d(TAG, "Can Log In to start EIP");
 	    Dashboard dashboard = (Dashboard) parent_activity;
-	    dashboard.logInDialog(Bundle.EMPTY);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(IS_PENDING, true);
+	    dashboard.logInDialog(bundle);
 	}	    
     }
     
@@ -175,31 +171,30 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	    .setNegativeButton(parent_activity.getString(R.string.no), new DialogInterface.OnClickListener() {
 		    @Override
 		    public void onClick(DialogInterface dialog, int which) {
-			eipSwitch.setChecked(true);
+			eip_switch.setChecked(true);
 		    }
 		})
 	    .show();
     }
 
     public void startEipFromScratch() {
-	eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
+        progress_bar.setVisibility(View.VISIBLE);
+	eip_switch.setVisibility(View.VISIBLE);
 	String status = parent_activity.getString(R.string.eip_status_start_pending);
-	setStatusMessage(status);
+	status_message.setText(status);
 	
-	if(!eipSwitch.isChecked()) {
-	    eipSwitch.setChecked(true);
+	if(!eip_switch.isChecked()) {
+	    eip_switch.setChecked(true);
 	    saveEipStatus();
 	}
 	eipCommand(Constants.ACTION_START_EIP);
     }
 
     protected void stopEIP() {
-	View eipProgressBar = parent_activity.findViewById(R.id.eipProgress);
-	if(eipProgressBar != null)
-	    eipProgressBar.setVisibility(View.GONE);
-	
+        hideProgressBar();
+
 	String status = parent_activity.getString(R.string.eip_state_not_connected);
-	setStatusMessage(status);
+	status_message.setText(status);
 	eipCommand(Constants.ACTION_STOP_EIP);
     }
 	
@@ -247,26 +242,26 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	hideProgressBar();
 	Log.d(TAG, "setConnectedUi? " + eip_status.isConnected());
 	adjustSwitch();
-	setStatusMessage(parent_activity.getString(R.string.eip_state_connected));
+	status_message.setText(parent_activity.getString(R.string.eip_state_connected));
     }
 
     private void setDisconnectedUI(){
 	hideProgressBar();
 	adjustSwitch();
-	setStatusMessage(parent_activity.getString(R.string.eip_state_not_connected));
+	status_message.setText(parent_activity.getString(R.string.eip_state_not_connected));
     }
 
     private void adjustSwitch() {
 	if(eip_status.isConnected() || eip_status.isConnecting()) {
-	    Log.d(TAG, "adjustSwitch, isConnected || isConnecting, is checked? " + eipSwitch.isChecked());
-	    if(!eipSwitch.isChecked()) {
-		eipSwitch.setChecked(true);
+	    Log.d(TAG, "adjustSwitch, isConnected || isConnecting, is checked? " + eip_switch.isChecked());
+	    if(!eip_switch.isChecked()) {
+		eip_switch.setChecked(true);
 	    }
 	} else {
 	    Log.d(TAG, "adjustSwitch, !isConnected && !isConnecting? " + eip_status.toString());
 	    
-	    if(eipSwitch.isChecked()) {
-		eipSwitch.setChecked(false);
+	    if(eip_switch.isChecked()) {
+		eip_switch.setChecked(false);
 	    }
 	}
     }
@@ -275,8 +270,8 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 	int localizedResId = eip_status.getLocalizedResId();
 	String logmessage = eip_status.getLogMessage();
 	String prefix = parent_activity.getString(localizedResId);
-	
-	setStatusMessage(prefix + " " + logmessage);
+
+	status_message.setText(prefix + " " + logmessage);
 	adjustSwitch();
     }
 
@@ -287,8 +282,8 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
     }
 
     private void hideProgressBar() {
-	if(parent_activity != null && parent_activity.findViewById(R.id.eipProgress) != null)
-	    parent_activity.findViewById(R.id.eipProgress).setVisibility(View.GONE);
+	if(progress_bar != null)
+	    progress_bar.setVisibility(View.GONE);
     }
 
     protected class EIPReceiver extends ResultReceiver {
@@ -307,10 +302,10 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 		switch (resultCode){
 		case Activity.RESULT_OK:
 		    Log.d(TAG, "Action start eip = Result OK");
-		    eipFragment.findViewById(R.id.eipProgress).setVisibility(View.VISIBLE);
+		    progress_bar.setVisibility(View.VISIBLE);
 		    break;
 		case Activity.RESULT_CANCELED:
-		    eipFragment.findViewById(R.id.eipProgress).setVisibility(View.GONE);
+		    progress_bar.setVisibility(View.GONE);
 		    break;
 		}
 	    } else if (request.equals(Constants.ACTION_STOP_EIP)) {
@@ -337,9 +332,8 @@ public class EipServiceFragment extends Fragment implements Observer, CompoundBu
 		case Activity.RESULT_CANCELED:
 		    Dashboard dashboard = (Dashboard) parent_activity;
 
-		    dashboard.showProgressBar();
-		    String status = parent_activity.getString(R.string.updating_certificate_message);
-		    setStatusMessage(status);
+		    progress_bar.setVisibility(View.VISIBLE);
+		    status_message.setText(getString(R.string.updating_certificate_message));
 		    if(LeapSRPSession.getToken().isEmpty() && !Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false)) {
 			dashboard.logInDialog(Bundle.EMPTY);
 		    } else {	

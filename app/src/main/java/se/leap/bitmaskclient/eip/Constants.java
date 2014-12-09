@@ -43,5 +43,6 @@ public interface Constants {
     public final static String RECEIVER_TAG = TAG + ".RECEIVER_TAG";
     public final static String REQUEST_TAG = TAG + ".REQUEST_TAG";
     public final static String START_BLOCKING_VPN_PROFILE = TAG + ".START_BLOCKING_VPN_PROFILE";
+    public final static String PROVIDER_CONFIGURED = TAG + ".PROVIDER_CONFIGURED";
 
 }
