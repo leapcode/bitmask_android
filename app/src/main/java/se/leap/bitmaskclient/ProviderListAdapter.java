@@ -79,25 +79,13 @@ public class ProviderListAdapter extends RendererAdapter<Provider> {
 		return (hidden.length - getHiddenCount());
 	}
 
-	public ProviderListAdapter(LayoutInflater layoutInflater, RendererBuilder rendererBuilder,
+    public ProviderListAdapter(LayoutInflater layoutInflater, RendererBuilder rendererBuilder,
                                AdapteeCollection<Provider> collection) {
-		super(layoutInflater, rendererBuilder, collection);
-		if(hidden == null) {
-			hidden = new boolean[collection.size()];
-			for (int i = 0; i < collection.size(); i++)
-				hidden[i] = false;
-		}
-	}
-
-	public ProviderListAdapter(LayoutInflater layoutInflater, RendererBuilder rendererBuilder,
-                               AdapteeCollection<Provider> collection, boolean show_all_providers) {
-        super(layoutInflater, rendererBuilder, collection);
-		if(show_all_providers) {
-			hidden = new boolean[collection.size()];
-			for (int i = 0; i < collection.size(); i++)
-				hidden[i] = false;
-		}
-	}
+	super(layoutInflater, rendererBuilder, collection);
+	hidden = new boolean[collection.size()];
+	for (int i = 0; i < collection.size(); i++)
+	    hidden[i] = false;
+    }
 	
 	@Override
 	public void add(Provider item) {
