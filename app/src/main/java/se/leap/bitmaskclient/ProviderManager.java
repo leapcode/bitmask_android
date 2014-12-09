@@ -7,6 +7,11 @@ import com.pedrogomez.renderers.AdapteeCollection;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -22,51 +27,89 @@ import java.util.Set;
 public class ProviderManager implements AdapteeCollection<Provider> {
 
     private AssetManager assets_manager;
+    private File external_files_dir;
     private Set<Provider> default_providers;
     private Set<Provider> custom_providers;
 
+    private static ProviderManager instance;
+
     final protected static String URLS = "urls";
+
+    public static ProviderManager getInstance(AssetManager assets_manager, File external_files_dir) {
+        if(instance == null)
+            instance = new ProviderManager(assets_manager);
+
+        instance.addCustomProviders(external_files_dir);
+        return instance;
+    }
 
     public ProviderManager(AssetManager assets_manager) {
         this.assets_manager = assets_manager;
-        default_providers = default_providers();
-        custom_providers = new HashSet<Provider>();
+        addDefaultProviders(assets_manager);
     }
 
-    /**
-     * Loads providers data from url files contained in the assets folder
-     * @return true if the files were correctly read
-     */
-    private Set<Provider> default_providers() {
+    private void addDefaultProviders(AssetManager assets_manager) {
+        try {
+            default_providers = providersFromAssets(URLS, assets_manager.list(URLS));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Set<Provider> providersFromAssets(String directory, String[] relative_file_paths) {
         Set<Provider> providers = new HashSet<Provider>();
         try {
-            for(String file : assets_manager.list(URLS)) {
-                String main_url = extractProviderMainUrlFromAssetsFile(URLS + "/" + file);
+        for(String file : relative_file_paths) {
+            String main_url = extractMainUrlFromInputStream(assets_manager.open(directory + "/" + file));
+                providers.add(new Provider(new URL(main_url)));
+        }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return providers;
+    }
+
+
+    private void addCustomProviders(File external_files_dir) {
+        this.external_files_dir = external_files_dir;
+        custom_providers = external_files_dir.isDirectory() ?
+                providersFromFiles(external_files_dir.list()) :
+                new HashSet<Provider>();
+    }
+
+    private Set<Provider> providersFromFiles(String[] files) {
+        Set<Provider> providers = new HashSet<Provider>();
+        try {
+            for(String file : files) {
+                String main_url = extractMainUrlFromInputStream(new FileInputStream(external_files_dir.getAbsolutePath() + "/" + file));
                 providers.add(new Provider(new URL(main_url)));
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
         return providers;
     }
 
-    private String extractProviderMainUrlFromAssetsFile(String file_path) {
-        String provider_main_url = "";
+    private String extractMainUrlFromInputStream(InputStream input_stream_file_contents) {
+        String main_url = "";
+        byte[] bytes = new byte[0];
         try {
-            InputStream input_stream_file_contents = assets_manager.open(file_path);
-            byte[] urls_file_bytes = new byte[input_stream_file_contents.available()];
-            if(input_stream_file_contents.read(urls_file_bytes) > 0) {
-                String urls_file_content = new String(urls_file_bytes);
-                JSONObject file_contents = new JSONObject(urls_file_content);
-                provider_main_url = file_contents.getString(Provider.MAIN_URL);
+            bytes = new byte[input_stream_file_contents.available()];
+            if(input_stream_file_contents.read(bytes) > 0) {
+                JSONObject file_contents = new JSONObject(new String(bytes));
+                main_url = file_contents.getString(Provider.MAIN_URL);
             }
-        } catch (JSONException e) {
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        return provider_main_url;
+        return main_url;
     }
 
     public Set<Provider> providers() {
@@ -116,5 +159,20 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     public void clear() {
         default_providers.clear();
         custom_providers.clear();
+    }
+
+    protected void saveCustomProvidersToFile() {
+	try {
+	    for (Provider provider : custom_providers) {
+                File provider_file = new File(external_files_dir, provider.getName() + ".json");
+            if(!provider_file.exists()) {
+                FileWriter writer = new FileWriter(provider_file);
+                writer.write(provider.toJson().toString());
+                writer.close();
+            }
+	    }
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
     }
 }

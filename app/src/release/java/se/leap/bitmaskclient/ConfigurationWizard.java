@@ -24,12 +24,11 @@ import android.widget.*;
 
 import com.pedrogomez.renderers.*;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
 import butterknife.*;
-import org.jetbrains.annotations.NotNull;
+
 import org.json.*;
 
 import javax.inject.Inject;
@@ -38,8 +37,6 @@ import se.leap.bitmaskclient.DownloadFailedDialog.DownloadFailedDialogInterface;
 import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-import se.leap.bitmaskclient.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.eip.Constants;
 
 /**
@@ -112,7 +109,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
         super.onCreate(savedInstanceState);
 	preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 	fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
-        provider_manager = new ProviderManager(getAssets());
+        provider_manager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
 	
 	setUpInitialUI();
 
@@ -163,16 +160,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 
     private void setUpProviderList() {
         initProviderList();
-	// provider_list_fragment = ProviderListFragment.newInstance();
-	
-	// Bundle arguments = new Bundle();
-	// int configuration_wizard_request_code = getIntent().getIntExtra(Dashboard.REQUEST_CODE, -1);
-	// if(configuration_wizard_request_code == Dashboard.SWITCH_PROVIDER)
-	//     arguments.putBoolean(ProviderListFragment.SHOW_ALL_PROVIDERS, true);
-	
-	// provider_list_fragment.setArguments(arguments);
-
-	// putProviderListFragment();
     }
 
     private void putProviderListFragment() {
@@ -397,7 +384,8 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     public void showAndSelectProvider(String provider_main_url) {
 	try {
 	    selected_provider = new Provider(new URL((provider_main_url)));
-	    provider_manager.add(selected_provider);
+	    adapter.add(selected_provider);
+	    adapter.saveProviders();
             autoSelectProvider(selected_provider);
 	} catch (MalformedURLException e) {
 	    e.printStackTrace();

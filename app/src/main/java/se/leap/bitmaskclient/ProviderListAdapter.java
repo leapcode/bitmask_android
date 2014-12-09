@@ -120,4 +120,9 @@ public class ProviderListAdapter extends RendererAdapter<Provider> {
     public View getView(int position, View convertView, ViewGroup parent) {
         return super.getView(getRealPosition(position), convertView, parent);
     }
+
+    public void saveProviders() {
+        ProviderManager provider_manager = (ProviderManager) getCollection();
+        provider_manager.saveCustomProvidersToFile();
+    }
 }

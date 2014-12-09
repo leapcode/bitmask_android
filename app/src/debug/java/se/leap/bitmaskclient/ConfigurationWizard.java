@@ -108,7 +108,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
-        provider_manager = new ProviderManager(getAssets());
+        provider_manager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
 
         setUpInitialUI();
 
@@ -158,15 +158,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 
     private void setUpProviderList() {
         initProviderList();
-	// provider_list_fragment = ProviderListFragment.newInstance();
-
-	// Bundle arguments = new Bundle();
-	// int configuration_wizard_request_code = getIntent().getIntExtra(Dashboard.REQUEST_CODE, -1);
-	// if(configuration_wizard_request_code == Dashboard.SWITCH_PROVIDER)
-	//     arguments.putBoolean(ProviderListFragment.SHOW_ALL_PROVIDERS, true);
-
-	// provider_list_fragment.setArguments(arguments);
-
     }
 
     @Override
@@ -390,7 +381,8 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
         try {
             selected_provider = new Provider(new URL((provider_main_url)));
-            provider_manager.add(selected_provider);
+            adapter.add(selected_provider);
+            adapter.saveProviders();
             autoSelectProvider(selected_provider, danger_on);
         } catch (MalformedURLException e) {
             e.printStackTrace();

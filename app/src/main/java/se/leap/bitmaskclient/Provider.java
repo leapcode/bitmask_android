@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,7 +41,6 @@ public final class Provider implements Parcelable {
 
 	private JSONObject definition; // Represents our Provider's provider.json
     private URL main_url;
-    private boolean is_custom = false;
 
     final public static String
     API_URL = "api_uri",
@@ -72,6 +72,9 @@ public final class Provider implements Parcelable {
         this.main_url = main_url;
     }
 
+    public Provider(File provider_file) {
+
+    }
     public static final Parcelable.Creator<Provider> CREATOR
             = new Parcelable.Creator<Provider>() {
         public Provider createFromParcel(Parcel in) {
@@ -168,10 +171,6 @@ public final class Provider implements Parcelable {
 		return false;
 	}
 
-    protected boolean isCustom() {
-        return is_custom;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -190,5 +189,15 @@ public final class Provider implements Parcelable {
             Provider p = (Provider) o;
             return p.mainUrl().equals(mainUrl());
         } else return false;
+    }
+
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put(Provider.MAIN_URL, main_url);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 }
