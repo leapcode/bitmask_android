@@ -35,6 +35,7 @@ import java.util.Locale;
 
 /**
  * @author Sean Leonard <meanderingcode@aetherislands.net>
+ * @author Parménides GV <parmegv@sdf.org>
  *
  */
 public final class Provider implements Parcelable {
@@ -187,7 +188,7 @@ public final class Provider implements Parcelable {
     public boolean equals(Object o) {
         if(o instanceof Provider) {
             Provider p = (Provider) o;
-            return p.mainUrl().equals(mainUrl());
+            return p.mainUrl().getHost().equals(mainUrl().getHost());
         } else return false;
     }
 
@@ -203,6 +204,6 @@ public final class Provider implements Parcelable {
 
     @Override
     public int hashCode() {
-        return main_url.hashCode();
+        return mainUrl().getHost().hashCode();
     }
 }
