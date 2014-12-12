@@ -79,4 +79,5 @@ jniLibs
 /ics-openvpn/
 /TAGS
 /ics-openvpn
+/ics-openvpn-stripped
 app/ovpnlibs

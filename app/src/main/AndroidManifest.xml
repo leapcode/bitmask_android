@@ -27,13 +27,14 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="21"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:logo="@drawable/icon"
-        android:label="@string/app" >
+        android:label="@string/app"
+        android:theme="@style/appstyle">
 
         <service
             android:name="se.leap.bitmaskclient.eip.VoidVpnService"
@@ -66,7 +67,6 @@
 	    android:theme="@android:style/Theme.NoDisplay" />
 	
         <activity
-                android:theme="@android:style/Theme.DeviceDefault.Light.Dialog"
                 android:name="de.blinkt.openvpn.activities.DisconnectVPN" />
 	
         <activity
