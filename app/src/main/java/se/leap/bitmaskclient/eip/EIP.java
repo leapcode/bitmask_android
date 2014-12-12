@@ -354,8 +354,8 @@ public final class EIP extends IntentService {
     }
 
     private void checkCertValidity() {
-	VpnCertificateValidator validator = new VpnCertificateValidator();
-	int resultCode = validator.isValid(preferences.getString(CERTIFICATE, "")) ?
+	VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(CERTIFICATE, ""));
+	int resultCode = validator.isValid() ?
 	    Activity.RESULT_OK :
 	    Activity.RESULT_CANCELED;
 	tellToReceiver(ACTION_CHECK_CERT_VALIDITY, resultCode);
