@@ -63,12 +63,11 @@ public class ProviderAPI extends IntentService {
     ;
 
     final public static int
-    CUSTOM_PROVIDER_ADDED = 0,
-    SRP_AUTHENTICATION_SUCCESSFUL = 3,
-    SRP_AUTHENTICATION_FAILED = 4,
-    SRP_REGISTRATION_SUCCESSFUL = 5,
-    SRP_REGISTRATION_FAILED = 6,
-    LOGOUT_SUCCESSFUL = 7,
+    SUCCESSFUL_LOGIN = 3,
+    FAILED_LOGIN = 4,
+    SUCCESSFUL_SIGNUP = 5,
+    FAILED_SIGNUP = 6,
+    SUCCESSFUL_LOGOUT = 7,
     LOGOUT_FAILED = 8,
     CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
     INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
@@ -140,20 +139,20 @@ public class ProviderAPI extends IntentService {
 		} else if (action.equalsIgnoreCase(SRP_REGISTER)) {
 		    Bundle result = tryToRegister(parameters);
 		    if(result.getBoolean(RESULT_KEY)) {
-			receiver.send(SRP_REGISTRATION_SUCCESSFUL, result);
+			receiver.send(SUCCESSFUL_SIGNUP, result);
 		    } else {
-			receiver.send(SRP_REGISTRATION_FAILED, result);
+			receiver.send(FAILED_SIGNUP, result);
 		    }
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 		    Bundle result = tryToAuthenticate(parameters);
 		    if(result.getBoolean(RESULT_KEY)) {
-			receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, result);
+			receiver.send(SUCCESSFUL_LOGIN, result);
 		    } else {
-			receiver.send(SRP_AUTHENTICATION_FAILED, result);
+			receiver.send(FAILED_LOGIN, result);
 		    }
 		} else if (action.equalsIgnoreCase(LOG_OUT)) {
 				if(logOut()) {
-					receiver.send(LOGOUT_SUCCESSFUL, Bundle.EMPTY);
+					receiver.send(SUCCESSFUL_LOGOUT, Bundle.EMPTY);
 				} else {
 					receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
 				}

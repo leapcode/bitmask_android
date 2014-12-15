@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Log;
 
@@ -38,7 +39,6 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ProfileManager;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.EipServiceFragment;
-import se.leap.bitmaskclient.Provider;
 
 import static se.leap.bitmaskclient.eip.Constants.ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.eip.Constants.ACTION_IS_EIP_RUNNING;
@@ -65,20 +65,19 @@ public final class EIP extends IntentService {
     public final static String TAG = EIP.class.getSimpleName();
     public final static String SERVICE_API_PATH = "config/eip-service.json";
 
-
     public static final int DISCONNECT = 15;
     
     private static Context context;
     private static ResultReceiver mReceiver;
     private static SharedPreferences preferences;
 	
-    private static JSONObject eip_definition = null;
+    private static JSONObject eip_definition;
     private static List<Gateway> gateways = new ArrayList<Gateway>();
     private static ProfileManager profile_manager;
-    private static Gateway activeGateway = null;
+    private static Gateway gateway;
     
 	public EIP(){
-		super("LEAPEIP");
+		super(TAG);
 	}
 	
 	@Override
@@ -117,13 +116,15 @@ public final class EIP extends IntentService {
     private void startEIP() {
 	if(gateways.isEmpty())
 	    updateEIPService();
-	GatewaySelector gateway_selector = new GatewaySelector(gateways);
-	activeGateway = gateway_selector.select();
-	if(activeGateway != null && activeGateway.getProfile() != null) {
+        earlyRoutes();
+
+        GatewaySelector gateway_selector = new GatewaySelector(gateways);
+	gateway = gateway_selector.select();
+	if(gateway != null && gateway.getProfile() != null) {
 	    mReceiver = EipServiceFragment.getReceiver();
 	    launchActiveGateway();
 	}
-        earlyRoutes();
+	tellToReceiver(ACTION_START_EIP, Activity.RESULT_OK);
     }
 
     /**
@@ -140,16 +141,11 @@ public final class EIP extends IntentService {
 	Intent intent = new Intent(this,LaunchVPN.class);
 	intent.setAction(Intent.ACTION_MAIN);
 	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	intent.putExtra(LaunchVPN.EXTRA_NAME, activeGateway.getProfile().getName() );
+	intent.putExtra(LaunchVPN.EXTRA_NAME, gateway.getProfile().getName());
 	intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
-	intent.putExtra(RECEIVER_TAG, mReceiver);
 	startActivity(intent);
     }
-    
-    /**
-     * Disconnects the EIP connection gracefully through the bound service or forcefully
-     * if there is no bound service.  Sends a message to the requesting ResultReceiver.
-     */
+
     private void stopEIP() {
 	EipStatus eip_status = EipStatus.getInstance();
 	Log.d(TAG, "stopEip(): eip is connected? " + eip_status.isConnected());

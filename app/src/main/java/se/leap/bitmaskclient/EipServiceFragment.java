@@ -139,7 +139,7 @@ public class EipServiceFragment extends Fragment implements Observer {
     private boolean canStartEIP() {
 	boolean certificateExists = !Dashboard.preferences.getString(Constants.CERTIFICATE, "").isEmpty();
 	boolean isAllowedAnon = Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false);
-	return (isAllowedAnon || certificateExists) && !eip_status.isConnected();
+	return (isAllowedAnon || certificateExists) && !eip_status.isConnected() && !eip_status.isConnecting();
     }
     
     private boolean canLogInToStartEIP() {
@@ -275,19 +275,13 @@ public class EipServiceFragment extends Fragment implements Observer {
 	adjustSwitch();
     }
 
-    protected void setStatusMessage(String status) {
-	if(status_message == null)
-	    status_message = (TextView) parent_activity.findViewById(R.id.status_message);
-	status_message.setText(status);
-    }
-
     private void hideProgressBar() {
 	if(progress_bar != null)
 	    progress_bar.setVisibility(View.GONE);
     }
 
     protected class EIPReceiver extends ResultReceiver {
-		
+
 	protected EIPReceiver(Handler handler){
 	    super(handler);
 	}
@@ -295,17 +289,14 @@ public class EipServiceFragment extends Fragment implements Observer {
 	@Override
 	protected void onReceiveResult(int resultCode, Bundle resultData) {
 	    super.onReceiveResult(resultCode, resultData);
-		
+
 	    String request = resultData.getString(Constants.REQUEST_TAG);
 
 	    if (request.equals(Constants.ACTION_START_EIP)) {
 		switch (resultCode){
 		case Activity.RESULT_OK:
-		    Log.d(TAG, "Action start eip = Result OK");
-		    progress_bar.setVisibility(View.VISIBLE);
 		    break;
 		case Activity.RESULT_CANCELED:
-		    progress_bar.setVisibility(View.GONE);
 		    break;
 		}
 	    } else if (request.equals(Constants.ACTION_STOP_EIP)) {
@@ -336,13 +327,13 @@ public class EipServiceFragment extends Fragment implements Observer {
 		    status_message.setText(getString(R.string.updating_certificate_message));
 		    if(LeapSRPSession.getToken().isEmpty() && !Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false)) {
 			dashboard.logInDialog(Bundle.EMPTY);
-		    } else {	
+		    } else {
 			Intent provider_API_command = new Intent(parent_activity, ProviderAPI.class);
 			if(dashboard.providerAPI_result_receiver == null) {
 			    dashboard.providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 			    dashboard.providerAPI_result_receiver.setReceiver(dashboard);
 			}
-				
+
 			provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
 			provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, dashboard.providerAPI_result_receiver);
 			parent_activity.startService(provider_API_command);
@@ -352,7 +343,7 @@ public class EipServiceFragment extends Fragment implements Observer {
 	    }
 	}
     }
-    
+
 
     public static EIPReceiver getReceiver() {
 	return mEIPReceiver;
