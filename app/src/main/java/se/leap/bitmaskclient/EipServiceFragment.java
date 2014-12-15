@@ -47,6 +47,7 @@ public class EipServiceFragment extends Fragment implements Observer {
     private static Activity parent_activity;
     private static EIPReceiver mEIPReceiver;
     private static EipStatus eip_status;
+    private boolean is_starting_to_connect;
 
     @Override
     public void onAttach(Activity activity) {
@@ -178,6 +179,7 @@ public class EipServiceFragment extends Fragment implements Observer {
     }
 
     public void startEipFromScratch() {
+        is_starting_to_connect = true;
         progress_bar.setVisibility(View.VISIBLE);
 	eip_switch.setVisibility(View.VISIBLE);
 	String status = parent_activity.getString(R.string.eip_status_start_pending);
@@ -230,18 +232,19 @@ public class EipServiceFragment extends Fragment implements Observer {
 	Log.d(TAG, "handleNewState: " + eip_status.toString());
 	if(eip_status.wantsToDisconnect())
 	    setDisconnectedUI();
+    else if(eip_status.isConnecting() || is_starting_to_connect)
+        setInProgressUI(eip_status);
 	else if (eip_status.isConnected())
 	    setConnectedUI();
 	else if (eip_status.isDisconnected() && !eip_status.isConnecting())
 	    setDisconnectedUI();
-	else
-	    setInProgressUI(eip_status);
     }
 
     private void setConnectedUI() {
 	hideProgressBar();
 	Log.d(TAG, "setConnectedUi? " + eip_status.isConnected());
 	adjustSwitch();
+    is_starting_to_connect = false;
 	status_message.setText(parent_activity.getString(R.string.eip_state_connected));
     }
 
@@ -252,14 +255,14 @@ public class EipServiceFragment extends Fragment implements Observer {
     }
 
     private void adjustSwitch() {
-	if(eip_status.isConnected() || eip_status.isConnecting()) {
-	    Log.d(TAG, "adjustSwitch, isConnected || isConnecting, is checked? " + eip_switch.isChecked());
+	if(eip_status.isConnected() || eip_status.isConnecting() || is_starting_to_connect) {
+	    Log.d(TAG, "adjustSwitch, isConnected || isConnecting, is checked");
 	    if(!eip_switch.isChecked()) {
 		eip_switch.setChecked(true);
 	    }
 	} else {
 	    Log.d(TAG, "adjustSwitch, !isConnected && !isConnecting? " + eip_status.toString());
-	    
+
 	    if(eip_switch.isChecked()) {
 		eip_switch.setChecked(false);
 	    }
@@ -272,6 +275,7 @@ public class EipServiceFragment extends Fragment implements Observer {
 	String prefix = parent_activity.getString(localizedResId);
 
 	status_message.setText(prefix + " " + logmessage);
+        is_starting_to_connect = false;
 	adjustSwitch();
     }
 
