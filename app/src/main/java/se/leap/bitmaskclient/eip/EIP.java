@@ -195,6 +195,7 @@ public final class EIP extends IntentService {
     private void deleteAllVpnProfiles() {
 	Collection<VpnProfile> profiles = profile_manager.getProfiles();
 	profiles.removeAll(profiles);
+	gateways.clear();
     }
 	
     /**
