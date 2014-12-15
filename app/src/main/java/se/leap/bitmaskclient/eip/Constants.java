@@ -39,7 +39,6 @@ public interface Constants {
     public final static String CERTIFICATE = "cert";
     public final static String PRIVATE_KEY = TAG + ".PRIVATE_KEY";
     public final static String KEY = TAG + ".KEY";
-    public final static String PARSED_SERIAL = TAG + ".PARSED_SERIAL";
     public final static String RECEIVER_TAG = TAG + ".RECEIVER_TAG";
     public final static String REQUEST_TAG = TAG + ".REQUEST_TAG";
     public final static String START_BLOCKING_VPN_PROFILE = TAG + ".START_BLOCKING_VPN_PROFILE";

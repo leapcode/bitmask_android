@@ -16,6 +16,7 @@
  */
 package se.leap.bitmaskclient;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -34,6 +35,7 @@ import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,7 +50,7 @@ import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipStatus;
 
 /**
- * The main user facing Activity of LEAP Android, consisting of status, controls,
+ * The main user facing Activity of Bitmask Android, consisting of status, controls,
  * and access to preferences.
  * 
  * @author Sean Leonard <meanderingcode@aetherislands.net>
@@ -81,7 +83,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     public ProviderAPIResultReceiver providerAPI_result_receiver;
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         if(provider != null)
             outState.putParcelable(Provider.KEY, provider);
         super.onSaveInstanceState(outState);
@@ -99,23 +101,35 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	    fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 	    handleVersion();
 
-        if(savedInstanceState != null)
-            provider = savedInstanceState.getParcelable(Provider.KEY);
-        if(provider == null && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
-            try {
-                provider = new Provider(new URL(preferences.getString(Provider.MAIN_URL, "")));
-                provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
+        provider = getSavedProvider(savedInstanceState);
         if (provider == null || provider.getName().isEmpty())
 		startActivityForResult(new Intent(this,ConfigurationWizard.class),CONFIGURE_LEAP);
 	    else
 		buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
 	}
+
+    private Provider getSavedProvider(Bundle savedInstanceState) {
+        Provider provider = null;
+        if(savedInstanceState != null)
+            provider = savedInstanceState.getParcelable(Provider.KEY);
+        else if(preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
+            provider = getSavedProviderFromSharedPreferences();
+
+        return provider;
+    }
+
+    private Provider getSavedProviderFromSharedPreferences() {
+        Provider provider = null;
+        try {
+            provider = new Provider(new URL(preferences.getString(Provider.MAIN_URL, "")));
+            provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
+        } catch (MalformedURLException | JSONException e) {
+            e.printStackTrace();
+        }
+
+        return provider;
+    }
+
 
     private void handleVersion() {
 	try {
@@ -140,13 +154,12 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	}
     }
     
+    @SuppressLint("CommitPrefEdits")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
 	Log.d(TAG, "onActivityResult: requestCode = " + requestCode);
 	if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
-	    // It should be equivalent: if ( (requestCode == CONFIGURE_LEAP) || (data!= null && data.hasExtra(STOP_FIRST))) {
 	    if ( resultCode == RESULT_OK ) {
-            preferences.edit().putInt(Constants.PARSED_SERIAL, 0).apply();
             preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
             updateEipService();
 
@@ -205,7 +218,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         ButterKnife.inject(this);
 
 		provider_name.setText(provider.getDomain());
-
 		if ( provider.hasEIP()){
 
             fragment_manager.removePreviousFragment(EipServiceFragment.TAG);
@@ -412,16 +424,16 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 	    Log.d(TAG, "onReceiveResult");
-	    if(resultCode == ProviderAPI.SRP_REGISTRATION_SUCCESSFUL) {
+	    if(resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
 		String username = resultData.getString(SessionDialog.USERNAME);
 		String password = resultData.getString(SessionDialog.PASSWORD);
 		logIn(username, password);
-	    } else if(resultCode == ProviderAPI.SRP_REGISTRATION_FAILED) {
+	    } else if(resultCode == ProviderAPI.FAILED_SIGNUP) {
 		changeStatusMessage(resultCode);
 		hideProgressBar();
 		
 		signUpDialog(resultData);
-	    } else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL) {
+	    } else if(resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
 		changeStatusMessage(resultCode);
 		hideProgressBar();
 		
@@ -431,12 +443,12 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
 
         	downloadAuthedUserCertificate();
-	    } else if(resultCode == ProviderAPI.SRP_AUTHENTICATION_FAILED) {
+	    } else if(resultCode == ProviderAPI.FAILED_LOGIN) {
 		changeStatusMessage(resultCode);
 		hideProgressBar();
 		
 		logInDialog(resultData);
-	    } else if(resultCode == ProviderAPI.LOGOUT_SUCCESSFUL) {
+	    } else if(resultCode == ProviderAPI.SUCCESSFUL_LOGOUT) {
 		changeStatusMessage(resultCode);
 		hideProgressBar();
 		
@@ -477,7 +489,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 		    }
 		}
 	    };
-	updateEIP.putExtra(Constants.RECEIVER_TAG, receiver);
+	//updateEIP.putExtra(Constants.RECEIVER_TAG, receiver);
 	startService(updateEIP);
     }
 
@@ -491,11 +503,11 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 					if (resultCode == Activity.RESULT_OK){
 
 						switch(previous_result_code){
-						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: eip_fragment.status_message.setText(R.string.succesful_authentication_message); break;
-						case ProviderAPI.SRP_AUTHENTICATION_FAILED: eip_fragment.status_message.setText(R.string.authentication_failed_message); break;
+						case ProviderAPI.SUCCESSFUL_LOGIN: eip_fragment.status_message.setText(R.string.succesful_authentication_message); break;
+						case ProviderAPI.FAILED_LOGIN: eip_fragment.status_message.setText(R.string.authentication_failed_message); break;
 						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: eip_fragment.status_message.setText(R.string.authed_secured_status); break;
 						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: eip_fragment.status_message.setText(R.string.incorrectly_downloaded_certificate_message); break;
-						case ProviderAPI.LOGOUT_SUCCESSFUL: eip_fragment.status_message.setText(R.string.logged_out_message); break;
+						case ProviderAPI.SUCCESSFUL_LOGOUT: eip_fragment.status_message.setText(R.string.logged_out_message); break;
 						case ProviderAPI.LOGOUT_FAILED: eip_fragment.status_message.setText(R.string.log_out_failed_message); break;
 						
 						}	
@@ -504,12 +516,12 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 
 						switch(previous_result_code){
 
-						case ProviderAPI.SRP_AUTHENTICATION_SUCCESSFUL: eip_fragment.status_message.setText(R.string.succesful_authentication_message); break;
-						case ProviderAPI.SRP_AUTHENTICATION_FAILED: eip_fragment.status_message.setText(R.string.authentication_failed_message); break;
-						case ProviderAPI.SRP_REGISTRATION_FAILED: eip_fragment.status_message.setText(R.string.registration_failed_message); break;
+						case ProviderAPI.SUCCESSFUL_LOGIN: eip_fragment.status_message.setText(R.string.succesful_authentication_message); break;
+						case ProviderAPI.FAILED_LOGIN: eip_fragment.status_message.setText(R.string.authentication_failed_message); break;
+						case ProviderAPI.FAILED_SIGNUP: eip_fragment.status_message.setText(R.string.registration_failed_message); break;
 						case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: break;
 						case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: eip_fragment.status_message.setText(R.string.incorrectly_downloaded_certificate_message); break;
-						case ProviderAPI.LOGOUT_SUCCESSFUL: eip_fragment.status_message.setText(R.string.logged_out_message); break;
+						case ProviderAPI.SUCCESSFUL_LOGOUT: eip_fragment.status_message.setText(R.string.logged_out_message); break;
 						case ProviderAPI.LOGOUT_FAILED: eip_fragment.status_message.setText(R.string.log_out_failed_message); break;			
 						}
 					}
