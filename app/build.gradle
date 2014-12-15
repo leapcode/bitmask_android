@@ -164,7 +164,7 @@ task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
   delete ics_openvpn_untranslatable
 }
 
-task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') {
+task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') << {
   from('../ics-openvpn-stripped/main/src/') {
     include 'openvpn/**'
     include 'openssl/**'    
@@ -177,13 +177,7 @@ task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') {
 }
 
 task buildNative ( type: Exec ) {
-  
   commandLine 'sh', 'misc/build-native.sh', 'USE_BREAKPAD=0', '-j 8'
 }
 
 preBuild.dependsOn buildNative
-
-//assembleRelease.dependsOn connectedCheck
-afterEvaluate {
-  //installRelease.dependsOn connectedCheck
-}
