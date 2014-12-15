@@ -136,7 +136,8 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     @Override
     public void add(Provider element) {
-        custom_providers.add(element);
+        if(!default_providers.contains(element))
+            custom_providers.add(element);
     }
 
     @Override
