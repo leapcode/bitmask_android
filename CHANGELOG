@@ -1,3 +1,12 @@
+0.8.1 - the "refactored" release
+Features:
+- Material design for Android 5
+- Cleaner codebase
+Bugs:
+- Custom providers are saved and restored
+- Smoother orientation changes
+- Many small bugs fixed during the refactor
+
 0.8.0 November 25 2014 - the "problematic" release
 Features:
 - Block connection until VPN is established
