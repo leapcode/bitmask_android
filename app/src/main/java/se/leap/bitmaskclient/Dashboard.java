@@ -77,7 +77,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     @InjectView(R.id.providerName)
     TextView provider_name;
 
-    EipServiceFragment eip_fragment;
+    EipFragment eip_fragment;
     private Provider provider;
     private static boolean authed_eip;
     public ProviderAPIResultReceiver providerAPI_result_receiver;
@@ -220,17 +220,17 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 		provider_name.setText(provider.getDomain());
 		if ( provider.hasEIP()){
 
-            fragment_manager.removePreviousFragment(EipServiceFragment.TAG);
-            eip_fragment = new EipServiceFragment();
+            fragment_manager.removePreviousFragment(EipFragment.TAG);
+            eip_fragment = new EipFragment();
 
 		    if (hide_and_turn_on_eip) {
 			preferences.edit().remove(Dashboard.START_ON_BOOT).apply();
 			Bundle arguments = new Bundle();
-			arguments.putBoolean(EipServiceFragment.START_ON_BOOT, true);
+			arguments.putBoolean(EipFragment.START_ON_BOOT, true);
                 if(eip_fragment != null) eip_fragment.setArguments(arguments);
 		    }
 
-            fragment_manager.replace(R.id.servicesCollection, eip_fragment, EipServiceFragment.TAG);
+            fragment_manager.replace(R.id.servicesCollection, eip_fragment, EipFragment.TAG);
 
 		    if (hide_and_turn_on_eip) {
 			onBackPressed();
@@ -312,7 +312,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 		
 	}
 
-    private Intent prepareProviderAPICommand() {
+    protected Intent prepareProviderAPICommand() {
 	providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 	providerAPI_result_receiver.setReceiver(this);
 		
@@ -474,6 +474,13 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 		hideProgressBar();
         	setResult(RESULT_CANCELED);
 	    }
+        else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE) {
+        setResult(RESULT_OK);
+
+        updateEipService();
+        } else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE) {
+        setResult(RESULT_CANCELED);
+    }
 	}
 
     private void updateEipService() {

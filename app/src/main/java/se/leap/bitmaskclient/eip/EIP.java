@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Log;
 
@@ -38,7 +37,7 @@ import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ProfileManager;
 import se.leap.bitmaskclient.Dashboard;
-import se.leap.bitmaskclient.EipServiceFragment;
+import se.leap.bitmaskclient.EipFragment;
 
 import static se.leap.bitmaskclient.eip.Constants.ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.eip.Constants.ACTION_IS_EIP_RUNNING;
@@ -121,7 +120,7 @@ public final class EIP extends IntentService {
         GatewaySelector gateway_selector = new GatewaySelector(gateways);
 	gateway = gateway_selector.select();
 	if(gateway != null && gateway.getProfile() != null) {
-	    mReceiver = EipServiceFragment.getReceiver();
+	    mReceiver = EipFragment.getReceiver();
 	    launchActiveGateway();
 	}
 	tellToReceiver(ACTION_START_EIP, Activity.RESULT_OK);
