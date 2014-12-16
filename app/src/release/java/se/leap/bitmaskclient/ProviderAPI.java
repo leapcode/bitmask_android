@@ -31,8 +31,6 @@ import javax.net.ssl.*;
 import org.apache.http.client.ClientProtocolException;
 import org.json.*;
 
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.SessionDialog;
 import se.leap.bitmaskclient.eip.*;
 
 /**
@@ -47,6 +45,7 @@ import se.leap.bitmaskclient.eip.*;
 public class ProviderAPI extends IntentService {
 	
     final public static String
+            TAG = ProviderAPI.class.getSimpleName(),
     SET_UP_PROVIDER = "setUpProvider",
     DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
     SRP_REGISTER = "srpRegister",
@@ -59,7 +58,7 @@ public class ProviderAPI extends IntentService {
     ERRORS = "errors",
     UPDATE_PROGRESSBAR = "update_progressbar",
     CURRENT_PROGRESS = "current_progress",
-    TAG = ProviderAPI.class.getSimpleName()
+            DOWNLOAD_EIP_SERVICE = TAG + ".DOWNLOAD_EIP_SERVICE"
     ;
 
     final public static int
@@ -72,7 +71,9 @@ public class ProviderAPI extends IntentService {
     CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
     INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
     PROVIDER_OK = 11,
-    PROVIDER_NOK = 12
+    PROVIDER_NOK = 12,
+            CORRECTLY_DOWNLOADED_EIP_SERVICE = 13,
+            INCORRECTLY_DOWNLOADED_EIP_SERVICE= 14
     ;
 
     private static boolean 
@@ -82,12 +83,12 @@ public class ProviderAPI extends IntentService {
     ;
     
     private static String last_provider_main_url;
-    private static boolean setting_up_provider = true;
+    private static boolean go_ahead = true;
     private static SharedPreferences preferences;
     private static String provider_api_url;
     
     public static void stop() {
-    	setting_up_provider = false;
+    	go_ahead = false;
     }
 
 	public ProviderAPI() {
@@ -121,15 +122,15 @@ public class ProviderAPI extends IntentService {
 		    try {
 			JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 			provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
-			setting_up_provider = true;
+			go_ahead = true;
 		    } catch (JSONException e) {
-			setting_up_provider = false;			
+			go_ahead = false;
 		    }
 		}
 		
 		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
 			Bundle result = setUpProvider(parameters);
-			if(setting_up_provider) {
+			if(go_ahead) {
 				if(result.getBoolean(RESULT_KEY)) {
 					receiver.send(PROVIDER_OK, result);
 				} else { 
@@ -162,7 +163,14 @@ public class ProviderAPI extends IntentService {
 				} else {
 					receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 				}
-		}
+		} else if(action.equalsIgnoreCase(DOWNLOAD_EIP_SERVICE)) {
+            Bundle result = getAndSetEipServiceJson();
+            if(result.getBoolean(RESULT_KEY)) {
+                receiver.send(CORRECTLY_DOWNLOADED_EIP_SERVICE, result);
+            } else {
+                receiver.send(INCORRECTLY_DOWNLOADED_EIP_SERVICE, result);
+            }
+        }
 	}
 
     private Bundle tryToRegister(Bundle task) {
@@ -479,7 +487,7 @@ public class ProviderAPI extends IntentService {
 	if(task != null && task.containsKey(Provider.MAIN_URL)) {
 	    last_provider_main_url = task.getString(Provider.MAIN_URL);
 	    CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
-	    setting_up_provider = true;
+	    go_ahead = true;
 	}
 
 	if(!PROVIDER_JSON_DOWNLOADED)
@@ -512,7 +520,7 @@ public class ProviderAPI extends IntentService {
 		    String cert_string = downloadWithCommercialCA(ca_cert_url);
 		    result.putBoolean(RESULT_KEY, true);
 
-		    if(validCertificate(cert_string) && setting_up_provider) {
+		    if(validCertificate(cert_string) && go_ahead) {
 			preferences.edit().putString(Provider.CA_CERT, cert_string).commit();
 			result.putBoolean(RESULT_KEY, true);
 		    } else {
@@ -575,7 +583,7 @@ public class ProviderAPI extends IntentService {
 	private Bundle getAndSetProviderJson(String provider_main_url) {
 		Bundle result = new Bundle();
 
-		if(setting_up_provider) {
+		if(go_ahead) {
 			String provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json");
 
 			try {
@@ -602,7 +610,7 @@ public class ProviderAPI extends IntentService {
 	private Bundle getAndSetEipServiceJson() {
 		Bundle result = new Bundle();
 		String eip_service_json_string = "";
-		if(setting_up_provider) {
+		if(go_ahead) {
 			try {
 				JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 				String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
