@@ -3,6 +3,7 @@ Features:
 - RiseUp.net and Calyx.net are new preseeded providers!
 - Material design for Android 5
 - Cleaner codebase
+- Update vpn info automatically
 Bugs:
 - Custom providers are saved and restored
 - Smoother orientation changes
