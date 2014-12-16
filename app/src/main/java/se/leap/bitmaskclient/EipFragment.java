@@ -27,9 +27,9 @@ import se.leap.bitmaskclient.eip.Constants;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipStatus;
 
-public class EipServiceFragment extends Fragment implements Observer {
+public class EipFragment extends Fragment implements Observer {
 	
-    public static String TAG = "se.leap.bitmask.EipServiceFragment";
+    public static String TAG = EipFragment.class.getSimpleName();
 
     protected static final String IS_PENDING = TAG + ".is_pending";
     protected static final String IS_CONNECTED = TAG + ".is_connected";
@@ -53,6 +53,11 @@ public class EipServiceFragment extends Fragment implements Observer {
     public void onAttach(Activity activity) {
 	super.onAttach(activity);
 	parent_activity = activity;
+
+        Dashboard dashboard = (Dashboard) parent_activity;
+        Intent provider_API_command = dashboard.prepareProviderAPICommand();
+        provider_API_command.setAction(ProviderAPI.DOWNLOAD_EIP_SERVICE);
+        parent_activity.startService(provider_API_command);
     }
     
     @Override
@@ -332,14 +337,8 @@ public class EipServiceFragment extends Fragment implements Observer {
 		    if(LeapSRPSession.getToken().isEmpty() && !Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false)) {
 			dashboard.logInDialog(Bundle.EMPTY);
 		    } else {
-			Intent provider_API_command = new Intent(parent_activity, ProviderAPI.class);
-			if(dashboard.providerAPI_result_receiver == null) {
-			    dashboard.providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-			    dashboard.providerAPI_result_receiver.setReceiver(dashboard);
-			}
-
+			Intent provider_API_command = dashboard.prepareProviderAPICommand();
 			provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
-			provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, dashboard.providerAPI_result_receiver);
 			parent_activity.startService(provider_API_command);
 		    }
 		    break;

@@ -72,7 +72,7 @@ public class SessionDialog extends DialogFragment{
 		
 		Bundle arguments = getArguments();
 		if (arguments != null) {
-		    is_eip_pending = arguments.getBoolean(EipServiceFragment.IS_PENDING, false);
+		    is_eip_pending = arguments.getBoolean(EipFragment.IS_PENDING, false);
 		    if (arguments.containsKey(PASSWORD_INVALID_LENGTH))
 			password_field.setError(getString(R.string.error_not_valid_password_user_message));
 		    if (arguments.containsKey(USERNAME)) {
