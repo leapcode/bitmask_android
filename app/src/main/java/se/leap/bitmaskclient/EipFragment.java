@@ -26,6 +26,7 @@ import de.blinkt.openvpn.activities.DisconnectVPN;
 import se.leap.bitmaskclient.eip.Constants;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipStatus;
+import se.leap.bitmaskclient.eip.VoidVpnService;
 
 public class EipFragment extends Fragment implements Observer {
 	
@@ -306,14 +307,17 @@ public class EipFragment extends Fragment implements Observer {
 		case Activity.RESULT_OK:
 		    break;
 		case Activity.RESULT_CANCELED:
+		    
 		    break;
 		}
 	    } else if (request.equals(Constants.ACTION_STOP_EIP)) {
 		switch (resultCode){
 		case Activity.RESULT_OK:
-		    Intent disconnect_vpn = new Intent(parent_activity, DisconnectVPN.class);
-		    parent_activity.startActivityForResult(disconnect_vpn, EIP.DISCONNECT);
-		    eip_status.setDisconnecting();
+            if(eip_status.isConnecting())
+                VoidVpnService.stop();
+            Intent disconnect_vpn = new Intent(parent_activity, DisconnectVPN.class);
+            parent_activity.startActivityForResult(disconnect_vpn, EIP.DISCONNECT);
+            eip_status.setDisconnecting();
 		    break;
 		case Activity.RESULT_CANCELED:
 		    break;
