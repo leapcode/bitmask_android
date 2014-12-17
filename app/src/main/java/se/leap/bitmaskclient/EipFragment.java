@@ -161,7 +161,7 @@ public class EipFragment extends Fragment implements Observer {
 	if(eip_status.isConnecting()) {
 	    askPendingStartCancellation();
 	} else if(eip_status.isConnected()) {
-	    stopEIP();
+	    askToStopEIP();
 	}
     }
 
@@ -172,7 +172,7 @@ public class EipFragment extends Fragment implements Observer {
 	    .setPositiveButton((R.string.yes), new DialogInterface.OnClickListener() {
 		    @Override
 		    public void onClick(DialogInterface dialog, int which) {
-			stopEIP();
+			askToStopEIP();
 		    }
 		})
 	    .setNegativeButton(parent_activity.getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -198,7 +198,15 @@ public class EipFragment extends Fragment implements Observer {
 	eipCommand(Constants.ACTION_START_EIP);
     }
 
-    protected void stopEIP() {
+    private void stopEIP() {
+	if(eip_status.isConnecting())
+	    VoidVpnService.stop();
+	Intent disconnect_vpn = new Intent(parent_activity, DisconnectVPN.class);
+	parent_activity.startActivityForResult(disconnect_vpn, EIP.DISCONNECT);
+	eip_status.setDisconnecting();
+    }
+
+    protected void askToStopEIP() {
         hideProgressBar();
 
 	String status = parent_activity.getString(R.string.eip_state_not_connected);
@@ -313,11 +321,7 @@ public class EipFragment extends Fragment implements Observer {
 	    } else if (request.equals(Constants.ACTION_STOP_EIP)) {
 		switch (resultCode){
 		case Activity.RESULT_OK:
-            if(eip_status.isConnecting())
-                VoidVpnService.stop();
-            Intent disconnect_vpn = new Intent(parent_activity, DisconnectVPN.class);
-            parent_activity.startActivityForResult(disconnect_vpn, EIP.DISCONNECT);
-            eip_status.setDisconnecting();
+		    stopEIP();
 		    break;
 		case Activity.RESULT_CANCELED:
 		    break;
