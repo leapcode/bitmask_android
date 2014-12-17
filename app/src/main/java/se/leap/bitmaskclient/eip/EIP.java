@@ -149,7 +149,7 @@ public final class EIP extends IntentService {
 	EipStatus eip_status = EipStatus.getInstance();
 	Log.d(TAG, "stopEip(): eip is connected? " + eip_status.isConnected());
 	int result_code = Activity.RESULT_CANCELED;
-	if(eip_status.isConnected())
+	if(eip_status.isConnected() || eip_status.isConnecting())
 	    result_code = Activity.RESULT_OK;
 
 	tellToReceiver(ACTION_STOP_EIP, result_code);

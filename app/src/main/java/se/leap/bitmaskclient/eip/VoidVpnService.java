@@ -2,14 +2,18 @@ package se.leap.bitmaskclient.eip;
 
 import android.content.Intent;
 import android.net.VpnService;
+import android.os.ParcelFileDescriptor;
+
+import java.io.IOException;
 
 public class VoidVpnService extends VpnService  {
 
     static final String TAG = VoidVpnService.class.getSimpleName();
+    static ParcelFileDescriptor fd;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-	String action = intent.getAction();
+	String action = intent != null ? intent.getAction() : "";
 	if (action == Constants.START_BLOCKING_VPN_PROFILE) {
 	    new Thread(new Runnable() {
 		    public void run() {			
@@ -20,7 +24,7 @@ public class VoidVpnService extends VpnService  {
 			builder.addRoute("192.168.1.0", 24);
 			builder.addDnsServer("10.42.0.1");
 			try {
-			    builder.establish();
+			    fd = builder.establish();
 			} catch (Exception e) {
 			    e.printStackTrace();
 			}
@@ -29,5 +33,21 @@ public class VoidVpnService extends VpnService  {
 		}).run();
 	}
 	return 0;
+    }
+
+    @Override
+    public void onRevoke() {
+        super.onRevoke();
+    }
+
+    public static boolean stop() {
+        try {
+            fd.close();
+            return true;
+        } catch (IOException | NullPointerException e) {
+            android.util.Log.d(TAG, "VoidVpnService didn't stop");
+            e.printStackTrace();
+            return false;
+        }
     }
 }
