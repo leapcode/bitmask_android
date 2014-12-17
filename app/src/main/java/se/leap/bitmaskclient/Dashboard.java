@@ -292,7 +292,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 				if (preferences.getBoolean(Constants.AUTHED_EIP, false)) {
                     logOut();
                 }
-                eip_fragment.stopEIP();
+                eip_fragment.askToStopEIP();
 			}
 			preferences.edit().clear().apply();
 			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
