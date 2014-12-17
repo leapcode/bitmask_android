@@ -79,32 +79,36 @@ public class VpnConfigGenerator {
     private String gatewayConfiguration() {
 	String remotes = "";
 		
-	String remote = "ip_address";
-	String remote_openvpn_keyword = "remote";
-	String ports = "ports";
-	String protos = "protocols";
-	String capabilities = "capabilities";
+	String ip_address_keyword = "ip_address";
+	String remote_keyword = "remote";
+	String ports_keyword = "ports";
+	String protocol_keyword = "protocols";
+	String capabilities_keyword = "capabilities";
 	String udp = "udp";
 		
 	try {
-	    JSONArray protocolsJSON = gateway.getJSONObject(capabilities).getJSONArray(protos);
-	    for ( int i=0; i<protocolsJSON.length(); i++ ) {
-		String remote_line = remote_openvpn_keyword;
-		remote_line += " " + gateway.getString(remote);
-		remote_line += " " + gateway.getJSONObject(capabilities).getJSONArray(ports).optString(0);
-		remote_line += " " + protocolsJSON.optString(i);
-		if(remote_line.endsWith(udp))
-		    remotes = remotes.replaceFirst(remote_openvpn_keyword, remote_line + new_line + remote_openvpn_keyword);
-		else
-		    remotes += remote_line;
-		remotes += new_line;
+	    String ip_address = gateway.getString(ip_address_keyword);
+	    JSONObject capabilities = gateway.getJSONObject(capabilities_keyword);
+	    JSONArray ports = capabilities.getJSONArray(ports_keyword);
+	    for (int i=0; i<ports.length(); i++) {
+		String port_specific_remotes = "";
+		int port = ports.getInt(i);
+		JSONArray protocols = capabilities.getJSONArray(protocol_keyword);
+		for ( int j=0; j<protocols.length(); j++ ) {
+		    String protocol = protocols.optString(j);
+		    String new_remote = remote_keyword + " " + ip_address + " " + port + " " + protocol + new_line;
+
+		    port_specific_remotes = protocol.equalsIgnoreCase(udp) ?
+			port_specific_remotes.replaceFirst(remote_keyword, new_remote + new_line + remote_keyword) :
+			new_remote;
+		}
+		remotes += port_specific_remotes;
 	    }
 	} catch (JSONException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
 		
-	Log.d(TAG, "remotes = " + remotes);
 	return remotes;
     }
 
