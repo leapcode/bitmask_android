@@ -211,6 +211,7 @@ public class EipFragment extends Fragment implements Observer {
 
 	String status = parent_activity.getString(R.string.eip_state_not_connected);
 	status_message.setText(status);
+
 	eipCommand(Constants.ACTION_STOP_EIP);
     }
 	

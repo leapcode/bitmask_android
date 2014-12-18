@@ -81,6 +81,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     private Provider provider;
     private static boolean authed_eip;
     public ProviderAPIResultReceiver providerAPI_result_receiver;
+    private boolean switching_provider;
 
     @Override
     protected void onSaveInstanceState(@NotNull Bundle outState) {
@@ -288,15 +289,11 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 		    startActivity(startLW);
 		    return true;
 		case R.id.switch_provider:
-			if (provider.hasEIP()){
-				if (preferences.getBoolean(Constants.AUTHED_EIP, false)) {
-                    logOut();
-                }
-                eip_fragment.askToStopEIP();
-			}
-			preferences.edit().clear().apply();
-			startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
-			return true;
+		    switching_provider = true;
+		    if (preferences.getBoolean(Constants.AUTHED_EIP, false)) {
+			logOut();
+		    } else switchProvider();
+		    return true;
 		case R.id.login_button:
 			logInDialog(Bundle.EMPTY);
 			return true;
@@ -307,7 +304,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 			signUpDialog(Bundle.EMPTY);
 			return true;
 		default:
-				return super.onOptionsItemSelected(item);
+		    return super.onOptionsItemSelected(item);
 		}
 		
 	}
@@ -402,6 +399,13 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	startService(provider_API_command);
     }
 
+    private void switchProvider() {
+        if (provider.hasEIP()) eip_fragment.askToStopEIP();
+        preferences.edit().clear().apply();
+        switching_provider = false;
+        startActivityForResult(new Intent(this,ConfigurationWizard.class), SWITCH_PROVIDER);
+    }
+
 	/**
 	 * Asks ProviderAPI to download an authenticated OpenVPN certificate.
 	 */
@@ -456,7 +460,9 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 		
 		authed_eip = false;
 		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
-
+		
+		if(switching_provider) switchProvider();
+		
 	    } else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
 		changeStatusMessage(resultCode);
 		hideProgressBar();
