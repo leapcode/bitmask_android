@@ -22,8 +22,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="10dp" />
-    
-    <ProgressBar 
+
+    <ProgressBar
         android:id="@+id/eipProgress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,38 +34,18 @@
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp" />
 
-    <RelativeLayout
-        android:id="@+id/eipDetail"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/status_message"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/eipLabel"
+        android:layout_below="@id/eipProgress"
+        android:layout_centerVertical="true"
+        android:paddingTop="5dp"
         android:paddingBottom="10dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:paddingTop="10dp"
-        android:visibility="gone" >
-
-        <ImageView
-            android:id="@+id/eipSettings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_margin="10dp"
-            android:contentDescription="@string/eip_settings_button_description"
-            android:src="@drawable/ic_sysbar_quicksettings" />
-
-        <TextView
-            android:id="@+id/eipStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:clickable="true"
-            android:text="@string/status_unknown" />
-
-    </RelativeLayout>
+        android:clickable="true"
+        android:text="@string/eip_state_not_connected" />
 
 </RelativeLayout>

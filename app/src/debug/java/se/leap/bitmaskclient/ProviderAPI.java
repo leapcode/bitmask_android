@@ -17,60 +17,22 @@
 package se.leap.bitmaskclient;
 
 import android.app.IntentService;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.ResultReceiver;
-import android.util.Base64;
-import android.util.Log;
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import android.content.*;
+import android.os.*;
+import android.util.*;
+import java.io.*;
 import java.math.BigInteger;
-import java.net.ConnectException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.net.*;
+import java.security.*;
+import java.security.cert.*;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.NoSuchElementException;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
+import java.util.*;
+import javax.net.ssl.*;
 import org.apache.http.client.ClientProtocolException;
-import org.json.JSONException;
-import org.json.JSONObject;
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-import se.leap.bitmaskclient.R;
+import org.json.*;
 
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+import se.leap.bitmaskclient.eip.*;
 
 /**
  * Implements HTTP api methods used to manage communications with the provider server.
@@ -84,6 +46,7 @@ import se.leap.bitmaskclient.R;
 public class ProviderAPI extends IntentService {
 	
     final public static String
+    TAG = ProviderAPI.class.getSimpleName(),
     SET_UP_PROVIDER = "setUpProvider",
     DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
     SRP_REGISTER = "srpRegister",
@@ -96,23 +59,22 @@ public class ProviderAPI extends IntentService {
     ERRORS = "errors",
     UPDATE_PROGRESSBAR = "update_progressbar",
     CURRENT_PROGRESS = "current_progress",
-	TAG = ProviderAPI.class.getSimpleName();
+    DOWNLOAD_EIP_SERVICE = TAG + ".DOWNLOAD_EIP_SERVICE"
     ;
 
     final public static int
-    CUSTOM_PROVIDER_ADDED = 0,
-    SRP_AUTHENTICATION_SUCCESSFUL = 3,
-    SRP_AUTHENTICATION_FAILED = 4,
-    SRP_REGISTRATION_SUCCESSFUL = 5,
-    SRP_REGISTRATION_FAILED = 6,
-    LOGOUT_SUCCESSFUL = 7,
+            SUCCESSFUL_LOGIN = 3,
+    FAILED_LOGIN = 4,
+    SUCCESSFUL_SIGNUP = 5,
+    FAILED_SIGNUP = 6,
+    SUCCESSFUL_LOGOUT = 7,
     LOGOUT_FAILED = 8,
     CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
     INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
     PROVIDER_OK = 11,
     PROVIDER_NOK = 12,
-    CORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 13,
-    INCORRECTLY_DOWNLOADED_ANON_CERTIFICATE = 14
+    CORRECTLY_DOWNLOADED_EIP_SERVICE = 13,
+    INCORRECTLY_DOWNLOADED_EIP_SERVICE= 14
     ;
 
     private static boolean 
@@ -123,12 +85,12 @@ public class ProviderAPI extends IntentService {
     
     private static String last_provider_main_url;
     private static boolean last_danger_on = false;
-    private static boolean setting_up_provider = true;
+    private static boolean go_ahead = true;
     private static SharedPreferences preferences;
     private static String provider_api_url;
     
     public static void stop() {
-    	setting_up_provider = false;
+    	go_ahead = false;
     }
 
 	public ProviderAPI() {
@@ -165,15 +127,15 @@ public class ProviderAPI extends IntentService {
             try {
                 JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, "no provider"));
                 provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
+                go_ahead = true;
             } catch (JSONException e) {
+                go_ahead = false;
             }
         }
-
-        setting_up_provider = true;
 		
 		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
 			Bundle result = setUpProvider(parameters);
-			if(setting_up_provider) {
+			if(go_ahead) {
 				if(result.getBoolean(RESULT_KEY)) {
 					receiver.send(PROVIDER_OK, result);
 				} else { 
@@ -183,20 +145,20 @@ public class ProviderAPI extends IntentService {
 		} else if (action.equalsIgnoreCase(SRP_REGISTER)) {
 		    Bundle session_id_bundle = tryToRegister(parameters);
 		    if(session_id_bundle.getBoolean(RESULT_KEY)) {
-			receiver.send(SRP_REGISTRATION_SUCCESSFUL, session_id_bundle);
+			receiver.send(SUCCESSFUL_SIGNUP, session_id_bundle);
 		    } else {
-			receiver.send(SRP_REGISTRATION_FAILED, session_id_bundle);
+			receiver.send(FAILED_SIGNUP, session_id_bundle);
 		    }
 		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
 			Bundle session_id_bundle = tryToAuthenticate(parameters);
 				if(session_id_bundle.getBoolean(RESULT_KEY)) {
-					receiver.send(SRP_AUTHENTICATION_SUCCESSFUL, session_id_bundle);
+					receiver.send(SUCCESSFUL_LOGIN, session_id_bundle);
 				} else {
-					receiver.send(SRP_AUTHENTICATION_FAILED, session_id_bundle);
+					receiver.send(FAILED_LOGIN, session_id_bundle);
 				}
 		} else if (action.equalsIgnoreCase(LOG_OUT)) {
 				if(logOut()) {
-					receiver.send(LOGOUT_SUCCESSFUL, Bundle.EMPTY);
+					receiver.send(SUCCESSFUL_LOGOUT, Bundle.EMPTY);
 				} else {
 					receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
 				}
@@ -206,15 +168,22 @@ public class ProviderAPI extends IntentService {
 				} else {
 					receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
 				}
-		}
+		} else if(action.equalsIgnoreCase(DOWNLOAD_EIP_SERVICE)) {
+            Bundle result = getAndSetEipServiceJson();
+            if(result.getBoolean(RESULT_KEY)) {
+                receiver.send(CORRECTLY_DOWNLOADED_EIP_SERVICE, result);
+            } else {
+                receiver.send(INCORRECTLY_DOWNLOADED_EIP_SERVICE, result);
+            }
+        }
 	}
 
     private Bundle tryToRegister(Bundle task) {
 	Bundle session_id_bundle = new Bundle();
 	int progress = 0;
 		
-	String username = (String) task.get(SessionDialogInterface.USERNAME);
-	String password = (String) task.get(SessionDialogInterface.PASSWORD);
+	String username = (String) task.get(SessionDialog.USERNAME);
+	String password = (String) task.get(SessionDialog.PASSWORD);
 	
 	if(validUserLoginData(username, password)) {
 	    session_id_bundle = register(username, password);
@@ -222,12 +191,12 @@ public class ProviderAPI extends IntentService {
 	} else {
 	    if(!wellFormedPassword(password)) {
 		session_id_bundle.putBoolean(RESULT_KEY, false);
-		session_id_bundle.putString(SessionDialogInterface.USERNAME, username);
-		session_id_bundle.putBoolean(SessionDialogInterface.PASSWORD_INVALID_LENGTH, true);
+		session_id_bundle.putString(SessionDialog.USERNAME, username);
+		session_id_bundle.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
 	    }
 	    if(username.isEmpty()) {
 		session_id_bundle.putBoolean(RESULT_KEY, false);
-		session_id_bundle.putBoolean(SessionDialogInterface.USERNAME_MISSING, true);
+		session_id_bundle.putBoolean(SessionDialog.USERNAME_MISSING, true);
 	    }
 	}
 		
@@ -246,8 +215,8 @@ public class ProviderAPI extends IntentService {
 	if(api_result.has(ERRORS))
 	    result = authFailedNotification(api_result, username);
 	else {
-	    result.putString(SessionDialogInterface.USERNAME, username);
-	    result.putString(SessionDialogInterface.PASSWORD, password);
+	    result.putString(SessionDialog.USERNAME, username);
+	    result.putString(SessionDialog.PASSWORD, password);
 	    result.putBoolean(RESULT_KEY, true);
 	}
 
@@ -263,20 +232,20 @@ public class ProviderAPI extends IntentService {
 	    Bundle result = new Bundle();
 	    int progress = 0;
 		
-	    String username = (String) task.get(SessionDialogInterface.USERNAME);
-	    String password = (String) task.get(SessionDialogInterface.PASSWORD);
+	    String username = (String) task.get(SessionDialog.USERNAME);
+	    String password = (String) task.get(SessionDialog.PASSWORD);
 	    if(validUserLoginData(username, password)) {		
 		result = authenticate(username, password);
 		broadcast_progress(progress++);
 	    } else {
 		if(!wellFormedPassword(password)) {
 		    result.putBoolean(RESULT_KEY, false);
-		    result.putString(SessionDialogInterface.USERNAME, username);
-		    result.putBoolean(SessionDialogInterface.PASSWORD_INVALID_LENGTH, true);
+		    result.putString(SessionDialog.USERNAME, username);
+		    result.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
 		}
 		if(username.isEmpty()) {
 		    result.putBoolean(RESULT_KEY, false);
-		    result.putBoolean(SessionDialogInterface.USERNAME_MISSING, true);
+		    result.putBoolean(SessionDialog.USERNAME_MISSING, true);
 		}
 	    }
 		
@@ -306,7 +275,7 @@ public class ProviderAPI extends IntentService {
 		}
 	    } else {
 		result.putBoolean(RESULT_KEY, false);
-		result.putString(SessionDialogInterface.USERNAME, username);
+		result.putString(SessionDialog.USERNAME, username);
 		result.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_srp_math_error_user_message));
 	    }
 	} catch (JSONException e) {
@@ -337,7 +306,7 @@ public class ProviderAPI extends IntentService {
 	} catch(JSONException e) {}
 	
 	if(!username.isEmpty())
-	    user_notification_bundle.putString(SessionDialogInterface.USERNAME, username);
+	    user_notification_bundle.putString(SessionDialog.USERNAME, username);
 	user_notification_bundle.putBoolean(RESULT_KEY, false);
 
 	return user_notification_bundle;
@@ -407,7 +376,7 @@ public class ProviderAPI extends IntentService {
 	 * Sends an HTTP POST request to the api server to register a new user.
 	 * @param server_url
 	 * @param username
-	 * @param salted_password
+	 * @param salt
 	 * @param password_verifier   
 	 * @return response from authentication server
 	 */
@@ -528,6 +497,7 @@ public class ProviderAPI extends IntentService {
 			last_danger_on = task.getBoolean(ProviderItem.DANGER_ON);
 			last_provider_main_url = task.getString(Provider.MAIN_URL);
 			CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
+            go_ahead = true;
 		}
 
 			if(!PROVIDER_JSON_DOWNLOADED)
@@ -558,7 +528,7 @@ public class ProviderAPI extends IntentService {
 		    String ca_cert_url = provider_json.getString(Provider.CA_CERT_URI);
 		    String cert_string = downloadWithCommercialCA(ca_cert_url, danger_on);
 
-		    if(validCertificate(cert_string) && setting_up_provider) {
+		    if(validCertificate(cert_string) && go_ahead) {
 			preferences.edit().putString(Provider.CA_CERT, cert_string).commit();
 			result.putBoolean(RESULT_KEY, true);
 		    } else {
@@ -619,7 +589,7 @@ public class ProviderAPI extends IntentService {
 	private Bundle getAndSetProviderJson(String provider_main_url, boolean danger_on) {
 		Bundle result = new Bundle();
 
-		if(setting_up_provider) {
+		if(go_ahead) {
 			String provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json", danger_on);
 
 			try {
@@ -629,8 +599,8 @@ public class ProviderAPI extends IntentService {
 				//TODO setProviderName(name);
 
 				preferences.edit().putString(Provider.KEY, provider_json.toString()).commit();
-				preferences.edit().putBoolean(EIP.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_ANON)).commit();
-				preferences.edit().putBoolean(EIP.ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIP.ALLOWED_REGISTERED)).commit();
+				preferences.edit().putBoolean(Constants.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(Constants.ALLOWED_ANON)).commit();
+				preferences.edit().putBoolean(Constants.ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(Constants.ALLOWED_REGISTERED)).commit();
 
 				result.putBoolean(RESULT_KEY, true);
 			} catch (JSONException e) {
@@ -646,7 +616,7 @@ public class ProviderAPI extends IntentService {
 	private Bundle getAndSetEipServiceJson() {
 		Bundle result = new Bundle();
 		String eip_service_json_string = "";
-		if(setting_up_provider) {
+		if(go_ahead) {
 			try {
 				JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 				String eip_service_url = provider_json.getString(Provider.API_URL) +  "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
@@ -654,7 +624,7 @@ public class ProviderAPI extends IntentService {
 				JSONObject eip_service_json = new JSONObject(eip_service_json_string);
 				eip_service_json.getInt(Provider.API_RETURN_SERIAL);
 
-				preferences.edit().putString(EIP.KEY, eip_service_json.toString()).commit();
+				preferences.edit().putString(Constants.KEY, eip_service_json.toString()).commit();
 
 				result.putBoolean(RESULT_KEY, true);
 			} catch (JSONException e) {
@@ -731,7 +701,7 @@ public class ProviderAPI extends IntentService {
 
 	/**
 	 * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider. 
-	 * @param url as a string
+	 * @param url_string as a string
 	 * @param danger_on true to download CA certificate in case it has not been downloaded.
 	 * @return an empty string if it fails, the url content if not. 
 	 */
@@ -855,7 +825,6 @@ public class ProviderAPI extends IntentService {
 	
 	/**
 	 * Logs out from the api url retrieved from the task.
-	 * @param task containing api url from which the user will log out
 	 * @return true if there were no exceptions
 	 */
     private boolean logOut() {
@@ -898,28 +867,18 @@ public class ProviderAPI extends IntentService {
 	}
 	return true;
     }
-
-    private boolean updateVpnCertificate() {
-	getNewCert();
-
-	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
-	updateEIP.setAction(EIP.ACTION_UPDATE_EIP_SERVICE);
-	startService(updateEIP);
-
-	return true;
-    }
     
     /**
      * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.
      * 
      * @return true if certificate was downloaded correctly, false if provider.json or danger_on flag are not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error. 
      */
-    private boolean getNewCert() {
+    private boolean updateVpnCertificate() {
 	try {
 	    JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 			
 	    String provider_main_url = provider_json.getString(Provider.API_URL);
-	    URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.CERTIFICATE);
+	    URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + Constants.CERTIFICATE);
 
 	    boolean danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, false);
 
@@ -956,12 +915,13 @@ public class ProviderAPI extends IntentService {
 	    }
 	    RSAPrivateKey keyCert = ConfigHelper.parseRsaKeyFromString(keyString);
 	    keyString = Base64.encodeToString( keyCert.getEncoded(), Base64.DEFAULT );
-	    preferences.edit().putString(EIP.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
+	    preferences.edit().putString(Constants.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n"+keyString+"-----END RSA PRIVATE KEY-----").commit();
 
 	    X509Certificate certCert = ConfigHelper.parseX509CertificateFromString(certificateString);
 	    certificateString = Base64.encodeToString( certCert.getEncoded(), Base64.DEFAULT);
-	    preferences.edit().putString(EIP.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
-	    preferences.edit().putString(EIP.DATE_FROM_CERTIFICATE, EIP.certificate_date_format.format(Calendar.getInstance().getTime())).commit();
+
+	    preferences.edit().putString(Constants.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n"+certificateString+"-----END CERTIFICATE-----").commit();
+						
 	    return true;
 	} catch (CertificateException e) {
 	    // TODO Auto-generated catch block

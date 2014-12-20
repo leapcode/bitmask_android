@@ -5,6 +5,12 @@
     android:layout_height="match_parent"
     tools:context=".ConfigurationWizard" >
 
+    <ListView
+        android:id="@+id/provider_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:drawSelectorOnTop="false" />
+
     <ProgressBar
         android:id="@+id/progressbar_configuration_wizard"
         style="?android:attr/progressBarStyleHorizontal"
@@ -22,5 +28,4 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/holo_blue_bright" />
-
 </RelativeLayout>

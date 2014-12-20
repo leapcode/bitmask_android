@@ -17,8 +17,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="se.leap.bitmaskclient"
-    android:versionCode="102"
-    android:versionName="0.8.0" >
+    android:versionCode="106"
+    android:versionName="0.8.1" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -27,16 +27,17 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="21"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:logo="@drawable/icon"
-        android:label="@string/app" >
+        android:label="@string/app"
+        android:theme="@style/appstyle">
 
         <service
-            android:name="se.leap.bitmaskclient.VoidVpnService"
+            android:name="se.leap.bitmaskclient.eip.VoidVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
@@ -62,9 +63,10 @@
         </receiver>
 
 	<activity
-	    android:name="se.leap.bitmaskclient.VoidVpnLauncher" />
+	    android:name="se.leap.bitmaskclient.eip.VoidVpnLauncher"
+	    android:theme="@android:style/Theme.NoDisplay" />
+	
         <activity
-                android:theme="@android:style/Theme.DeviceDefault.Light.Dialog"
                 android:name="de.blinkt.openvpn.activities.DisconnectVPN" />
 	
         <activity
@@ -99,11 +101,11 @@
             android:label="@string/title_about_activity" >
         </activity>
         
-        <service android:name="se.leap.bitmaskclient.EIP" android:exported="false">
+        <service android:name="se.leap.bitmaskclient.eip.EIP" android:exported="false">
             <intent-filter>
-                <action android:name="se.leap.bitmaskclient.UPDATE_EIP_SERVICE"/>
-                <action android:name="se.leap.bitmaskclient.START_EIP"/>
-                <action android:name="se.leap.bitmaskclient.STOP_EIP"/>
+                <action android:name="se.leap.bitmaskclient.eip.UPDATE_EIP_SERVICE"/>
+                <action android:name="se.leap.bitmaskclient.eip.START_EIP"/>
+                <action android:name="se.leap.bitmaskclient.eip.STOP_EIP"/>
             </intent-filter>
         </service>
     </application>

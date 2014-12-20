@@ -5,6 +5,7 @@
 
 package de.blinkt.openvpn.core;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -30,6 +31,7 @@ import de.blinkt.openvpn.core.VpnStatus.LogItem;
 
 public class OpenVPNThread implements Runnable {
     private static final String DUMP_PATH_STRING = "Dump path: ";
+    @SuppressLint("SdCardPath")
     private static final String BROKEN_PIE_SUPPORT = "/data/data/de.blinkt.openvpn/cache/pievpn[1]: syntax error:";
 	private static final String TAG = "OpenVPN";
     public static final int M_FATAL = (1 << 4);
@@ -78,7 +80,8 @@ public class OpenVPNThread implements Runnable {
 			if( exitvalue != 0) {
                 VpnStatus.logError("Process exited with exit value " + exitvalue);
                 if (mBrokenPie) {
-                    String[] noPieArgv = VpnProfile.replacePieWithNoPie(mArgv);
+                    /* This will probably fail since the NoPIE binary is probably not written */
+                    String[] noPieArgv = VPNLaunchHelper.replacePieWithNoPie(mArgv);
 
                     // We are already noPIE, nothing to gain
                     if (!noPieArgv.equals(mArgv)) {
@@ -190,7 +193,7 @@ public class OpenVPNThread implements Runnable {
 
 	private String genLibraryPath(String[] argv, ProcessBuilder pb) {
 		// Hack until I find a good way to get the real library path
-		String applibpath = argv[0].replace("/cache/" + VpnProfile.getMiniVPNExecutableName() , "/lib");
+		String applibpath = argv[0].replaceFirst("/cache/.*$"  , "/lib");
 		
 		String lbpath = pb.environment().get("LD_LIBRARY_PATH");
 		if(lbpath==null) 

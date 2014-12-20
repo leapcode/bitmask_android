@@ -45,6 +45,10 @@ public class FragmentManagerEnhanced {
 	transaction.replace(containerViewId, fragment, tag).commit();
     }
 
+    public FragmentTransaction beginTransaction() {
+        return generic_fragment_manager.beginTransaction();
+    }
+
     public Fragment findFragmentByTag(String tag) {
 	return generic_fragment_manager.findFragmentByTag(tag);
     }

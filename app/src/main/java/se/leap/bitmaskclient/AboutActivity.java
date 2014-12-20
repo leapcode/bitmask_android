@@ -1,15 +1,10 @@
 package se.leap.bitmaskclient;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
-import se.leap.bitmaskclient.R;
 
 public class AboutActivity extends Activity  {
 	
