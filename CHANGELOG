@@ -1,3 +1,15 @@
+0.8.1 December 20 2014 - the "refactored" release
+Features:
+- RiseUp.net and Calyx.net are new preseeded providers!
+- Material design for Android 5
+- Cleaner codebase
+- Update vpn info automatically
+Bugs:
+- Custom providers are saved and restored
+- Smoother orientation changes
+- Disconnect correctly: stop blocking and normal VPN connections
+- Many small bugs fixed during the refactor
+
 0.8.0 November 25 2014 - the "problematic" release
 Features:
 - Block connection until VPN is established
