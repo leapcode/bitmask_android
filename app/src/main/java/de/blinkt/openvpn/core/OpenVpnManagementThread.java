@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2014 Arne Schwabe
- * Distributed under the GNU GPL v2. For full terms see the file doc/LICENSE.txt
+ * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
 package de.blinkt.openvpn.core;
@@ -157,7 +157,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
             }
         } catch (IOException e) {
-            if (!e.getMessage().equals("socket closed"))
+            if (!e.getMessage().equals("socket closed") && !e.getMessage().equals("Connection reset by peer"))
                 VpnStatus.logException(e);
         }
         synchronized (active) {

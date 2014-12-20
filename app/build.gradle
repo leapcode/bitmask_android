@@ -66,6 +66,8 @@ task copyIcsOpenVPNClasses( type: Copy ) << {
   from ('../ics-openvpn-stripped/main/') {
     include '**/*.java'
     include '**/*.aidl'
+    includeEmptyDirs = false
+    
     filter {
       line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
     }
@@ -92,7 +94,9 @@ task copyIcsOpenVPNXml( type: Copy ) << {
     include '**/refs.xml'
     include '**/colours.xml'    
     include '**/logmenu.xml'
-
+    include '**/white_rect.xml'
+    includeEmptyDirs = false
+    
     rename 'strings.xml', 'strings-icsopenvpn.xml'
     filter {
       line -> line.replaceAll('.*name="app".*', '')
@@ -108,6 +112,8 @@ task copyIcsOpenVPNImages( type: Copy ) << {
     include '**/ic_share*.png'
     include '**/ic_close*.png'
     include '**/ic_edit*.png'
+
+    includeEmptyDirs = false
   } into '.'
 }
 
@@ -172,16 +178,16 @@ task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') << {
 }
 
 task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') << {
-  println "updateIcsOpenVpn"
   from('../ics-openvpn-stripped/main/src/') {
-    include 'openvpn/**'
-    include 'openssl/**'    
-    include 'lzo/**'
-    include 'jni/**'
-    include 'misc/**'
-    include 'ovpn3/**'
-    include 'snappy/**'
-  } into '.'
+    include 'openvpn/**/*'
+    include 'openssl/**/*'    
+    include 'lzo/**/**'
+    include 'jni/**/*'
+    include 'misc/**/*'
+    include 'ovpn3/**/*'
+    include 'snappy/**/*'
+
+  } into './'
 }
 
 task buildNative ( type: Exec ) {

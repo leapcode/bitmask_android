@@ -42,6 +42,8 @@
 #include "mtcp.h"
 #include "perf.h"
 
+#define MULTI_PREFIX_MAX_LENGTH 256
+
 /*
  * Walk (don't run) through the routing table,
  * deleting old entries, and possibly multi_instance
@@ -80,7 +82,7 @@ struct multi_instance {
   struct mroute_addr real;      /**< External network address of the
                                  *   remote peer. */
   ifconfig_pool_handle vaddr_handle;
-  const char *msg_prefix;
+  char msg_prefix[MULTI_PREFIX_MAX_LENGTH];
 
   /* queued outgoing data in Server/TCP mode */
   unsigned int tcp_rwflags;
@@ -125,7 +127,8 @@ struct multi_context {
 # define MC_WORK_THREAD                (MC_MULTI_THREADED_WORKER|MC_MULTI_THREADED_SCHEDULER)
   int thread_mode;
 
-  struct multi_instance** instances;
+  struct multi_instance** instances;    /**< Array of multi_instances. An instance can be
+                                         * accessed using peer-id as an index. */
 
   struct hash *hash;            /**< VPN tunnel instances indexed by real
                                  *   address of the remote peer. */
@@ -219,6 +222,16 @@ struct multi_instance *multi_create_instance (struct multi_context *m, const str
 void multi_close_instance (struct multi_context *m, struct multi_instance *mi, bool shutdown);
 
 bool multi_process_timeout (struct multi_context *m, const unsigned int mpp_flags);
+
+/**
+ * Handles peer floating.
+ *
+ * If peer is floated to a taken address, either drops packet
+ * (if peer that owns address has different CN) or disconnects
+ * existing peer. Updates multi_instance with new address,
+ * updates hashtables in multi_context.
+ */
+void multi_process_float (struct multi_context* m, struct multi_instance* mi);
 
 #define MPP_PRE_SELECT             (1<<0)
 #define MPP_CONDITIONAL_PRE_SELECT (1<<1)
@@ -421,6 +434,12 @@ multi_route_defined (const struct multi_context *m,
 }
 
 /*
+ * Takes prefix away from multi_instance.
+ */
+void
+ungenerate_prefix (struct multi_instance *mi);
+
+/*
  * Set a msg() function prefix with our current client instance ID.
  */
 
@@ -428,10 +447,10 @@ static inline void
 set_prefix (struct multi_instance *mi)
 {
 #ifdef MULTI_DEBUG_EVENT_LOOP
-  if (mi->msg_prefix)
+  if (mi->msg_prefix[0])
     printf ("[%s]\n", mi->msg_prefix);
 #endif
-  msg_set_prefix (mi->msg_prefix);
+  msg_set_prefix (mi->msg_prefix[0] ? mi->msg_prefix : NULL);
 }
 
 static inline void

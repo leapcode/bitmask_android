@@ -35,7 +35,7 @@
         android:icon="@drawable/icon"
         android:logo="@drawable/icon"
         android:label="@string/app"
-        android:theme="@style/appstyle">
+        android:theme="@style/blinkt">
 
         <service
             android:name="se.leap.bitmaskclient.eip.VoidVpnService"
