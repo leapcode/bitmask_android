@@ -133,8 +133,8 @@ public class SessionDialog extends DialogFragment{
      * @return a new instance of this DialogFragment.
      */
     public static DialogFragment newInstance() {
-	if(dialog == null || dialog.getArguments() != null)
-	    dialog = new SessionDialog();
+        if(dialog == null)
+            dialog = new SessionDialog();
 
         return dialog;
     }
