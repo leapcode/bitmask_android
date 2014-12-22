@@ -82,14 +82,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     private String progressbar_text = "";
     private String provider_name = "";
     private int progress = -1;
-
-    private void initProviderList() {
-        List<Renderer<Provider>> prototypes = new ArrayList<Renderer<Provider>>();
-        prototypes.add(new ProviderRenderer(this));
-        ProviderRendererBuilder providerRendererBuilder = new ProviderRendererBuilder(prototypes);
-        adapter = new ProviderListAdapter(getLayoutInflater(), providerRendererBuilder, provider_manager);
-        provider_list_view.setAdapter(adapter);
-    }
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -109,12 +101,12 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 	fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
         provider_manager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
+
+	setUpProviderList();
 	
 	setUpInitialUI();
 
 	setUpProviderAPIResultReceiver();
-
-	setUpProviderList();
 
 	if ( savedInstanceState != null ) {
 	    restoreState(savedInstanceState);
@@ -147,6 +139,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     private void setUpInitialUI() {
 	setContentView(R.layout.configuration_wizard_activity);
         ButterKnife.inject(this);
+        provider_list_view.setAdapter(adapter);
 	
 	hideProgressBar();
     }
@@ -175,6 +168,13 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_PROGRESSBAR);
 	update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
 	registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
+    }
+
+    private void initProviderList() {
+        List<Renderer<Provider>> prototypes = new ArrayList<Renderer<Provider>>();
+        prototypes.add(new ProviderRenderer(this));
+        ProviderRendererBuilder providerRendererBuilder = new ProviderRendererBuilder(prototypes);
+        adapter = new ProviderListAdapter(getLayoutInflater(), providerRendererBuilder, provider_manager);
     }
     
     @Override

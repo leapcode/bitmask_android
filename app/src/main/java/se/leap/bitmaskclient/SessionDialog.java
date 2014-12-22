@@ -129,15 +129,15 @@ public class SessionDialog extends DialogFragment{
 
 	SessionDialogInterface interface_with_Dashboard;
 
-	/**
-	 * @return a new instance of this DialogFragment.
-	 */
-	public static DialogFragment newInstance() {
+    /**
+     * @return a new instance of this DialogFragment.
+     */
+    public static DialogFragment newInstance() {
         if(dialog == null)
             dialog = new SessionDialog();
 
         return dialog;
-	}
+    }
 	
     @Override
     public void onAttach(Activity activity) {

@@ -329,7 +329,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
 
 	DialogFragment newFragment = SessionDialog.newInstance();
-	if(resultData != null && !resultData.isEmpty())
+	if(resultData != null && !resultData.isEmpty() && fragment_manager.findFragmentByTag(SessionDialog.TAG) == null)
 	    newFragment.setArguments(resultData);
 	newFragment.show(transaction, SessionDialog.TAG);
     }
@@ -378,7 +378,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
 
 	DialogFragment newFragment = SessionDialog.newInstance();
-	if(resultData != null && !resultData.isEmpty()) {
+	if(resultData != null && !resultData.isEmpty() && fragment_manager.findFragmentByTag(SessionDialog.TAG) == null) {
 	    newFragment.setArguments(resultData);
 	}
 	newFragment.show(transaction, SessionDialog.TAG);
