@@ -1,3 +1,9 @@
+0.8.2 December 22 2014 - the "refactored+" release
+Bugs:
+- Better error handling while setting up a provider
+- Don't crash after selecting a provider in the Configuration Wizard
+- Substitute a dialog if a second one tries to be showed
+
 0.8.1 December 20 2014 - the "refactored" release
 Features:
 - RiseUp.net and Calyx.net are new preseeded providers!
