@@ -547,15 +547,19 @@ public class ProviderAPI extends IntentService {
 	if(!ConfigHelper.checkErroneousDownload(cert_string)) {
 	    X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
 	    try {
-		JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
-		String fingerprint = provider_json.getString(Provider.CA_CERT_FINGERPRINT);
-		String encoding = fingerprint.split(":")[0];
-		String expected_fingerprint = fingerprint.split(":")[1];
-		String real_fingerprint = base64toHex(Base64.encodeToString(
-									    MessageDigest.getInstance(encoding).digest(certificate.getEncoded()),
-									    Base64.DEFAULT));
+		if(certificate != null) {
+		    JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
+		    String fingerprint = provider_json.getString(Provider.CA_CERT_FINGERPRINT);
+		    String encoding = fingerprint.split(":")[0];
+		    String expected_fingerprint = fingerprint.split(":")[1];
+		    String real_fingerprint = base64toHex(Base64.encodeToString(
+										MessageDigest.getInstance(encoding).digest(certificate.getEncoded()),
+										Base64.DEFAULT));
 
-		result = real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim());
+		    result = real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim());
+		}
+		else
+		    result = false;
 	    } catch (JSONException e) {
 		result = false;
 	    } catch (NoSuchAlgorithmException e) {
