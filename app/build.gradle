@@ -52,7 +52,8 @@ def processFileInplace(file, Closure processText) {
 }
 
 
-task checkoutStrippedIcsOpenVPN ( type: Copy ) {
+task checkoutStrippedIcsOpenVPN ( type: Copy ) << {
+  println "checkoutStrippedIcsOpenVPN"
   //FIXME Checkout ics-openvpn-stripped from branch "ics-openvpn-upstream"
   //grgit = Grgit.open(project.file('../'))
   
@@ -60,7 +61,8 @@ task checkoutStrippedIcsOpenVPN ( type: Copy ) {
   into '../ics-openvpn-stripped'
 }
 
-task copyIcsOpenVPNClasses( type: Copy ) {
+task copyIcsOpenVPNClasses( type: Copy ) << {
+  println "copyIcsOpenVPNClasses"
   from ('../ics-openvpn-stripped/main/') {
     include '**/*.java'
     include '**/*.aidl'
@@ -79,7 +81,8 @@ task copyIcsOpenVPNClasses( type: Copy ) {
   } into '.'
 }
 
-task copyIcsOpenVPNXml( type: Copy ) {
+task copyIcsOpenVPNXml( type: Copy ) << {
+  println "copyIcsOpenVPNXml"
   from ('../ics-openvpn-stripped/main/') {
     include '**/strings.xml'
     include '**/log_*.xml'
@@ -97,7 +100,8 @@ task copyIcsOpenVPNXml( type: Copy ) {
   } into '.'
 }
 
-task copyIcsOpenVPNImages( type: Copy ) {
+task copyIcsOpenVPNImages( type: Copy ) << {
+  println "copyIcsOpenVPNImages"
   from ('../ics-openvpn-stripped/main/') {
     include '**/ic_filter*.png'
     include '**/ic_delete*.png'
@@ -107,7 +111,8 @@ task copyIcsOpenVPNImages( type: Copy ) {
   } into '.'
 }
 
-task copyIcsOpenVPNFiles( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' ) {
+task copyIcsOpenVPNFiles( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' ) << {
+  println "copyIcsOpenVPNFiles"
   copyIcsOpenVPNClasses.execute()
   copyIcsOpenVPNXml.execute()
   copyIcsOpenVPNImages.execute()
@@ -115,6 +120,7 @@ task copyIcsOpenVPNFiles( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' ) 
 
 // thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
 task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNFiles' ) << {
+  println "removeDuplicatedStrings"
   new File('app').eachFileRecurse {
     if(it.name.equals('strings.xml')) {
       def ics_openvpn_file = file(it.absolutePath.replace('strings.xml', 'strings-icsopenvpn.xml'))
@@ -132,7 +138,8 @@ task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNFiles' ) << {
   }
 }
 
-task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
+task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') << {
+  println "mergeUntranslatable"
   from ('../ics-openvpn-stripped/main/') {
     include '**/untranslatable.xml'
     rename 'untranslatable.xml', 'untranslatable-icsopenvpn.xml'
@@ -165,6 +172,7 @@ task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
 }
 
 task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') << {
+  println "updateIcsOpenVpn"
   from('../ics-openvpn-stripped/main/src/') {
     include 'openvpn/**'
     include 'openssl/**'    
@@ -177,6 +185,7 @@ task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') << {
 }
 
 task buildNative ( type: Exec ) {
+  println "buildNative"
   commandLine 'sh', 'misc/build-native.sh', 'USE_BREAKPAD=0', '-j 8'
 }
 
