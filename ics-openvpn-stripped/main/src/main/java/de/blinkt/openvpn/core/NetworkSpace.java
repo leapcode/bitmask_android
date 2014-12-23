@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2014 Arne Schwabe
- * Distributed under the GNU GPL v2. For full terms see the file doc/LICENSE.txt
+ * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
 package de.blinkt.openvpn.core;
@@ -19,6 +19,8 @@ import java.util.*;
 import se.leap.bitmaskclient.BuildConfig;
 
 public class NetworkSpace {
+
+
 
 
     static class ipAddress implements Comparable<ipAddress> {
@@ -196,6 +198,13 @@ public class NetworkSpace {
     void addIP(CIDRIP cidrIp, boolean include) {
 
         mIpAddresses.add(new ipAddress(cidrIp, include));
+    }
+
+    public void addIPSplit(CIDRIP cidrIp, boolean include) {
+        ipAddress newIP = new ipAddress(cidrIp, include);
+        ipAddress[] splitIps = newIP.split();
+        for (ipAddress split: splitIps)
+            mIpAddresses.add(split);
     }
 
     void addIPv6(Inet6Address address, int mask, boolean included) {

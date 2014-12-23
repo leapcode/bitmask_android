@@ -277,7 +277,7 @@ init_route (struct route_ipv4 *r,
   /* get_special_addr replaces specialaddr with a special ip addr
      like gw. getaddrinfo is called to convert a a addrinfo struct */
 
-  if(get_special_addr (rl, ro->network, &special.s_addr, &status))
+  if(get_special_addr (rl, ro->network, (in_addr_t *) &special.s_addr, &status))
     {
       special.s_addr = htonl(special.s_addr);
       ret = openvpn_getaddrinfo(0, inet_ntoa(special), NULL, 0, NULL,
@@ -520,51 +520,6 @@ add_block_local_item (struct route_list *rl,
 }
 
 static void
-add_unblock_local (struct route_list *rl)
-{
-  const int rgi_needed = (RGI_ADDR_DEFINED|RGI_NETMASK_DEFINED);
-
-  if (rl->flags & RG_UNBLOCK_LOCAL
-      && (rl->rgi.flags & rgi_needed) == rgi_needed)
-    {
-      /* unblock access to local subnet */
-      struct route_ipv4 *r;
-
-      ALLOC_OBJ_GC (r, struct route_ipv4, &rl->gc);
-      int i;
-
-      CLEAR(*r);
-      r->flags = RT_DEFINED;
-      r->network = rl->rgi.gateway.addr & rl->rgi.gateway.netmask;
-      r->netmask = rl->rgi.gateway.netmask;
-      r->gateway = rl->rgi.gateway.addr;
-      r->next = rl->routes;
-      rl->routes = r;
-
-      /* Additional local networks */
-      for (i = 0; i < rl->rgi.n_addrs; ++i)
-	{
-	  const struct route_gateway_address *gwa = &rl->rgi.addrs[i];
-
-	  /* omit the add/subnet in &rl->rgi which we processed above */
-	  if (!((rl->rgi.gateway.addr & rl->rgi.gateway.netmask) == (gwa->addr & gwa->netmask)
-		 && rl->rgi.gateway.netmask == gwa->netmask))
-	    {
-	      ALLOC_OBJ_GC (r, struct route_ipv4, &rl->gc);
-	      CLEAR(*r);
-	      r->flags = RT_DEFINED;
-	      r->network = gwa->addr & gwa->netmask;
-	      r->netmask = gwa->netmask;
-	      r->gateway = gwa->addr;
-	      r->next = rl->routes;
-	      rl->routes=r;
-	    }
-	}
-    }
-}
-
-
-static void
 add_block_local (struct route_list *rl)
 {
   const int rgi_needed = (RGI_ADDR_DEFINED|RGI_NETMASK_DEFINED);
@@ -594,8 +549,6 @@ add_block_local (struct route_list *rl)
 	}
     }
 }
-
-
 
 bool
 init_route_list (struct route_list *rl,
@@ -665,8 +618,6 @@ init_route_list (struct route_list *rl,
 	}
     }
 
-
-  add_unblock_local (rl);
   if (rl->flags & RG_ENABLE)
     {
       add_block_local (rl);
@@ -863,12 +814,10 @@ redirect_default_route_to_vpn (struct route_list *rl, const struct tuntap *tt, u
 	{
 	  msg (M_WARN, "%s VPN gateway parameter (--route-gateway or --ifconfig) is missing", err);
 	}
-#ifndef TARGET_ANDROID
       else if (!(rl->rgi.flags & RGI_ADDR_DEFINED))
 	{
 	  msg (M_WARN, "%s Cannot read current default gateway from system", err);
 	}
-#endif
       else if (!(rl->spec.flags & RTSA_REMOTE_HOST))
 	{
 	  msg (M_WARN, "%s Cannot obtain current remote host address", err);
@@ -2538,6 +2487,7 @@ get_default_gateway (struct route_gateway_info *rgi)
 
   CLEAR(*rgi);
 
+#ifndef TARGET_ANDROID
   /* get default gateway IP addr */
   {
     FILE *fp = fopen ("/proc/net/route", "r");
@@ -2594,6 +2544,12 @@ get_default_gateway (struct route_gateway_info *rgi)
 	  }
       }
   }
+#else
+  /* Android, set some pseudo GW, addr is in host byte order */
+  rgi->gateway.addr = 127 << 24 | 'd' << 16 | 'g' << 8 | 'w';
+  rgi->flags |= RGI_ADDR_DEFINED;
+  strcpy(best_name, "android-gw");
+#endif
 
   /* scan adapter list */
   if (rgi->flags & RGI_ADDR_DEFINED)

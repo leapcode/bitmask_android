@@ -570,6 +570,7 @@ static const char usage_message[] =
   "--tls-version-min <version> ['or-highest'] : sets the minimum TLS version we\n"
   "    will accept from the peer.  If version is unrecognized and 'or-highest'\n"
   "    is specified, require max TLS version supported by SSL implementation.\n"
+  "--tls-version-max <version> : sets the maximum TLS version we will use.\n"
 #ifndef ENABLE_CRYPTO_POLARSSL
   "--pkcs12 file   : PKCS#12 file containing local private key, local certificate\n"
   "                  and optionally the root CA certificate.\n"
@@ -1976,9 +1977,6 @@ options_postprocess_verify_ce (const struct options *options, const struct conne
   if (ce->proto == PROTO_TCP_SERVER && (options->connection_list->len > 1))
     msg (M_USAGE, "TCP server mode allows at most one --remote address");
 
-  if (options->routes && ((options->routes->flags & RG_BLOCK_LOCAL) && (options->routes->flags & RG_UNBLOCK_LOCAL)))
-    msg (M_USAGE, "unblock-local and block-local options of redirect-gateway/redirect-private are mutatlly exclusive");
-
 #if P2MP_SERVER
 
   /*
@@ -2038,7 +2036,6 @@ options_postprocess_verify_ce (const struct options *options, const struct conne
 #endif
       if (options->routes && (options->routes->flags & RG_ENABLE))
 	msg (M_USAGE, "--redirect-gateway cannot be used with --mode server (however --push \"redirect-gateway\" is fine)");
-
       if (options->route_delay_defined)
 	msg (M_USAGE, "--route-delay cannot be used with --mode server");
       if (options->up_delay)
@@ -2106,7 +2103,9 @@ options_postprocess_verify_ce (const struct options *options, const struct conne
       if (options->ssl_flags & SSLF_OPT_VERIFY)
 	msg (M_USAGE, "--opt-verify requires --mode server");
       if (options->server_flags & SF_TCP_NODELAY_HELPER)
-	msg (M_USAGE, "--tcp-nodelay requires --mode server");
+	msg (M_WARN, "WARNING: setting tcp-nodelay on the client side will not "
+             "affect the server. To have TCP_NODELAY in both direction use "
+             "tcp-nodelay in the server configuration instead.");
       if (options->auth_user_pass_verify_script)
 	msg (M_USAGE, "--auth-user-pass-verify requires --mode server");
 #if PORT_SHARE
@@ -3898,8 +3897,7 @@ apply_push_options (struct options *options,
 		    struct buffer *buf,
 		    unsigned int permission_mask,
 		    unsigned int *option_types_found,
-		    struct env_set *es,
-		    struct tls_multi *tls_multi)
+		    struct env_set *es)
 {
   char line[OPTION_PARM_SIZE];
   int line_num = 0;
@@ -5325,8 +5323,6 @@ add_option (struct options *options,
 	    options->routes->flags |= RG_BYPASS_DNS;
 	  else if (streq (p[j], "block-local"))
 	    options->routes->flags |= RG_BLOCK_LOCAL;
-	  else if (streq (p[j], "unblock-local"))
-	    options->routes->flags |= RG_UNBLOCK_LOCAL;
 	  else
 	    {
 	      msg (msglevel, "unknown --%s flag: %s", p[0], p[j]);
@@ -6568,14 +6564,29 @@ add_option (struct options *options,
     {
       int ver;
       VERIFY_PERMISSION (OPT_P_GENERAL);
-      ver = tls_version_min_parse(p[1], p[2]);
+      ver = tls_version_parse(p[1], p[2]);
       if (ver == TLS_VER_BAD)
 	{
 	  msg (msglevel, "unknown tls-version-min parameter: %s", p[1]);
           goto err;
 	}
-      options->ssl_flags &= ~(SSLF_TLS_VERSION_MASK << SSLF_TLS_VERSION_SHIFT);
-      options->ssl_flags |= (ver << SSLF_TLS_VERSION_SHIFT);
+      options->ssl_flags &=
+	  ~(SSLF_TLS_VERSION_MIN_MASK << SSLF_TLS_VERSION_MIN_SHIFT);
+      options->ssl_flags |= (ver << SSLF_TLS_VERSION_MIN_SHIFT);
+    }
+  else if (streq (p[0], "tls-version-max") && p[1])
+    {
+      int ver;
+      VERIFY_PERMISSION (OPT_P_GENERAL);
+      ver = tls_version_parse(p[1], NULL);
+      if (ver == TLS_VER_BAD)
+	{
+	  msg (msglevel, "unknown tls-version-max parameter: %s", p[1]);
+          goto err;
+	}
+      options->ssl_flags &=
+	  ~(SSLF_TLS_VERSION_MAX_MASK << SSLF_TLS_VERSION_MAX_SHIFT);
+      options->ssl_flags |= (ver << SSLF_TLS_VERSION_MAX_SHIFT);
     }
 #ifndef ENABLE_CRYPTO_POLARSSL
   else if (streq (p[0], "pkcs12") && p[1])
