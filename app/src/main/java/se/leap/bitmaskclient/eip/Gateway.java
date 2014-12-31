@@ -141,7 +141,10 @@ public class Gateway {
     @Override
     public boolean equals(Object o) {
         if(o instanceof Gateway) {
-            return ((Gateway) o).getProfile().mConnections.equals(mVpnProfile.mConnections);
+            VpnProfile compared_profile = ((Gateway) o).getProfile();
+            return compared_profile.mConnections.equals(mVpnProfile.mConnections)
+                    && compared_profile.mClientCertFilename != mVpnProfile.mClientCertFilename
+                    && compared_profile.mClientKeyFilename != mVpnProfile.mClientKeyFilename;
         }
         else
             return super.equals(o);
