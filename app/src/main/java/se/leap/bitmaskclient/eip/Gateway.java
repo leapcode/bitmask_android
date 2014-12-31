@@ -68,24 +68,8 @@ public class Gateway {
 	timezone = getTimezone(eip_definition);
 	mName = locationAsName(eip_definition);
 
-	// Currently deletes VpnProfile for host, if there already is one, and builds new
-	ProfileManager vpl = ProfileManager.getInstance(context);
-	Collection<VpnProfile> profiles = vpl.getProfiles();
-	for (Iterator<VpnProfile> it = profiles.iterator(); it.hasNext(); ){
-	    VpnProfile p = it.next();
-				
-	    if ( p.mName.equalsIgnoreCase( mName ) ) {
-		it.remove();
-		vpl.removeProfile(context, p);
-	    }
-	}
-
 	mVpnProfile = createVPNProfile();
 	mVpnProfile.mName = mName;
-
-	vpl.addProfile(mVpnProfile);
-	vpl.saveProfile(context, mVpnProfile);
-	vpl.saveProfileList(context);
     }
 
     private JSONObject getGeneralConfiguration(JSONObject eip_definition) {
@@ -152,5 +136,14 @@ public class Gateway {
 
     public int getTimezone() {
 	return timezone;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof Gateway) {
+            return ((Gateway) o).getProfile().mConnections.equals(mVpnProfile.mConnections);
+        }
+        else
+            return super.equals(o);
     }
 }

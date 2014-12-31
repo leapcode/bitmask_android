@@ -58,16 +58,16 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     @Inject ProviderListAdapter adapter;
 
     private ProviderManager provider_manager;
-	private Intent mConfigState = new Intent();
+    private Intent mConfigState = new Intent();
     private Provider selected_provider;
 	
     final public static String TAG = ConfigurationWizard.class.getSimpleName();
-	final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
-	final public static String ANON_CERTIFICATE = "anon_certificate";
-	final public static String AUTHED_CERTIFICATE = "authed_certificate";
+    final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
+    final public static String ANON_CERTIFICATE = "anon_certificate";
+    final public static String AUTHED_CERTIFICATE = "authed_certificate";
 
-	final protected static String PROVIDER_SET = "PROVIDER SET";
-	final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
+    final protected static String PROVIDER_SET = "PROVIDER SET";
+    final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
     final protected static String ASSETS_URL_FOLDER = "urls";
 
     final private static String PROGRESSBAR_TEXT = TAG + "PROGRESSBAR_TEXT";

@@ -101,7 +101,7 @@ public final class EIP extends IntentService {
 	    stopEIP();
 	else if (action.equals(ACTION_IS_EIP_RUNNING))
 	    isRunning();
-	else if (action.equals(ACTION_UPDATE_EIP_SERVICE))
+        else if (action.equals(ACTION_UPDATE_EIP_SERVICE))
 	    updateEIPService();
 	else if (action.equals(ACTION_CHECK_CERT_VALIDITY))
 	    checkCertValidity();
@@ -174,8 +174,8 @@ public final class EIP extends IntentService {
      */
     private void updateEIPService() {
 	refreshEipDefinition();
-	deleteAllVpnProfiles();
-	updateGateways();
+        if(eip_definition != null)
+            updateGateways();
 	tellToReceiver(ACTION_UPDATE_EIP_SERVICE, Activity.RESULT_OK);
     }
 
@@ -204,15 +204,16 @@ public final class EIP extends IntentService {
      */
     private void updateGateways(){
 	try {
-        if(eip_definition != null) {
             JSONArray gatewaysDefined = eip_definition.getJSONArray("gateways");
             for (int i = 0; i < gatewaysDefined.length(); i++) {
                 JSONObject gw = gatewaysDefined.getJSONObject(i);
                 if (isOpenVpnGateway(gw)) {
-                    addGateway(new Gateway(eip_definition, context, gw));
+                    Gateway gateway = new Gateway(eip_definition, context, gw);
+                    if(!gateways.contains(gateway)) {
+                        addGateway(gateway);
+                    }
                 }
             }
-        }
 	} catch (JSONException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
@@ -229,8 +230,13 @@ public final class EIP extends IntentService {
     }
 
     private void addGateway(Gateway gateway) {
-	profile_manager.addProfile(gateway.getProfile());
+        VpnProfile profile = gateway.getProfile();
+	profile_manager.addProfile(profile);
+        profile_manager.saveProfile(context, profile);
+        profile_manager.saveProfileList(context);
+
 	gateways.add(gateway);
+        Log.d(TAG, "Gateway added: " + gateway.getProfile().getUUIDString());
     }
 
     private void checkCertValidity() {
