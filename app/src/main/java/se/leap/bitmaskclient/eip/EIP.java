@@ -31,10 +31,13 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.ProfileManager;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.EipFragment;
@@ -71,7 +74,7 @@ public final class EIP extends IntentService {
     private static SharedPreferences preferences;
 	
     private static JSONObject eip_definition;
-    private static List<Gateway> gateways = new ArrayList<Gateway>();
+    private static List<Gateway> gateways = new ArrayList<>();
     private static ProfileManager profile_manager;
     private static Gateway gateway;
     
@@ -190,12 +193,6 @@ public final class EIP extends IntentService {
 	    e.printStackTrace();
 	}
     }
-    
-    private void deleteAllVpnProfiles() {
-	Collection<VpnProfile> profiles = profile_manager.getProfiles();
-	profiles.removeAll(profiles);
-	gateways.clear();
-    }
 	
     /**
      * Walk the list of gateways defined in eip-service.json and parse them into
@@ -231,12 +228,72 @@ public final class EIP extends IntentService {
 
     private void addGateway(Gateway gateway) {
         VpnProfile profile = gateway.getProfile();
+        removeGateway(gateway);
+
 	profile_manager.addProfile(profile);
         profile_manager.saveProfile(context, profile);
         profile_manager.saveProfileList(context);
 
 	gateways.add(gateway);
         Log.d(TAG, "Gateway added: " + gateway.getProfile().getUUIDString());
+    }
+
+    private void removeGateway(Gateway gateway) {
+        VpnProfile profile = gateway.getProfile();
+        removeDuplicatedProfile(profile);
+        removeDuplicatedGateway(profile);
+    }
+
+    private void removeDuplicatedProfile(VpnProfile remove) {
+        if(containsProfile(remove))
+            profile_manager.removeProfile(context, duplicatedProfile(remove));
+        if(containsProfile(remove)) removeDuplicatedProfile(remove);
+    }
+
+    private boolean containsProfile(VpnProfile profile) {
+        Collection<VpnProfile> profiles = profile_manager.getProfiles();
+        for(VpnProfile aux : profiles) {
+            if (sameConnections(profile.mConnections, aux.mConnections)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private VpnProfile duplicatedProfile(VpnProfile profile) {
+        VpnProfile duplicated = null;
+        Collection<VpnProfile> profiles = profile_manager.getProfiles();
+        for(VpnProfile aux : profiles) {
+            if (sameConnections(profile.mConnections, aux.mConnections)) {
+                duplicated = aux;
+            }
+        }
+        if(duplicated != null) return duplicated;
+        else throw new NoSuchElementException(profile.getName());
+    }
+
+    private boolean sameConnections(Connection[] c1, Connection[] c2) {
+        int same_connections = 0;
+        for(Connection c1_aux : c1) {
+            for(Connection c2_aux : c2)
+                if(c2_aux.mServerName.equals(c1_aux.mServerName)) {
+                    same_connections++;
+                    break;
+                }
+        }
+        return c1.length == c2.length && c1.length == same_connections;
+
+    }
+
+    private void removeDuplicatedGateway(VpnProfile profile) {
+        Iterator<Gateway> it = gateways.iterator();
+        List<Gateway> gateways_to_remove = new ArrayList<>();
+        while(it.hasNext()) {
+            Gateway aux = it.next();
+            if(aux.getProfile().mConnections == profile.mConnections)
+                gateways_to_remove.add(aux);
+        }
+        gateways.removeAll(gateways_to_remove);
     }
 
     private void checkCertValidity() {
