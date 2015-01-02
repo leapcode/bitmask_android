@@ -31,15 +31,15 @@ public class VpnConfigGenerator {
 
     private JSONObject general_configuration;
     private JSONObject gateway;
-    
-    private static SharedPreferences preferences;
+    private JSONObject secrets;
+
     public final static String TAG = VpnConfigGenerator.class.getSimpleName();
     private final String new_line = System.getProperty("line.separator"); // Platform new line
 
-    public VpnConfigGenerator(SharedPreferences preferences, JSONObject general_configuration, JSONObject gateway) {
+    public VpnConfigGenerator(JSONObject general_configuration, JSONObject secrets, JSONObject gateway) {
 	this.general_configuration = general_configuration;
 	this.gateway = gateway;
-	VpnConfigGenerator.preferences = preferences;
+        this.secrets = secrets;
     }
     
     public String generate() {
@@ -113,29 +113,33 @@ public class VpnConfigGenerator {
     }
 
     private String secretsConfiguration() {
-						    
-	String ca = 
-	    "<ca>"
-	    + new_line
-	    + preferences.getString(Provider.CA_CERT, "")
-	    + new_line
-	    + "</ca>";
-		
-	String key =
-	    "<key>"
-	    + new_line
-	    + preferences.getString(Constants.PRIVATE_KEY, "")
-	    + new_line
-	    + "</key>";
-		
-	String openvpn_cert =
-	    "<cert>"
-	    + new_line
-	    + preferences.getString(Constants.CERTIFICATE, "")
-	    + new_line
-	    + "</cert>";
+        try {
+            String ca =
+                    "<ca>"
+                            + new_line
+                            + secrets.getString(Provider.CA_CERT)
+                            + new_line
+                            + "</ca>";
 
-	return ca + new_line + key + new_line + openvpn_cert;
+            String key =
+                    "<key>"
+                            + new_line
+                            + secrets.getString(Constants.PRIVATE_KEY)
+                            + new_line
+                            + "</key>";
+
+            String openvpn_cert =
+                    "<cert>"
+                            + new_line
+                            + secrets.getString(Constants.CERTIFICATE)
+                            + new_line
+                            + "</cert>";
+
+            return ca + new_line + key + new_line + openvpn_cert;
+        } catch(JSONException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
     private String androidCustomizations() {

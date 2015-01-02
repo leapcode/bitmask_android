@@ -109,15 +109,10 @@ public class EipFragment extends Fragment implements Observer {
 	super.onSaveInstanceState(outState);
     }
 
-    protected void saveEipStatus() {
-	boolean eip_is_on = false;
-	Log.d(TAG, "saveEipStatus");
-	if(eip_switch.isChecked()) {
-	    eip_is_on = true;
-	}
-
-	if(parent_activity != null)
-	    Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
+    protected void saveStatus() {
+	boolean is_on = eip_switch.isChecked();
+	Log.d(TAG, "saveStatus: is_on = " + is_on);
+	Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, is_on).commit();
     }
 
     @OnCheckedChanged(R.id.eipSwitch)
@@ -127,7 +122,7 @@ public class EipFragment extends Fragment implements Observer {
 	else
 	    handleSwitchOff();
 	
-	saveEipStatus();
+	saveStatus();
     }
 
     private void handleSwitchOn() {
@@ -192,8 +187,8 @@ public class EipFragment extends Fragment implements Observer {
 	
 	if(!eip_switch.isChecked()) {
 	    eip_switch.setChecked(true);
-	    saveEipStatus();
 	}
+        saveStatus();
 	eipCommand(Constants.ACTION_START_EIP);
     }
 

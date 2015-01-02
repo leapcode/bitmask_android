@@ -108,7 +108,9 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         try {
             provider = new Provider(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
-        } catch (MalformedURLException | JSONException e) {
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 

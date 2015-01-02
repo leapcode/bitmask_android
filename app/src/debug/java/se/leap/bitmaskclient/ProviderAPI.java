@@ -232,8 +232,8 @@ public class ProviderAPI extends IntentService {
 	    Bundle result = new Bundle();
 	    int progress = 0;
 		
-	    String username = (String) task.get(SessionDialog.USERNAME);
-	    String password = (String) task.get(SessionDialog.PASSWORD);
+	    String username = task.getString(SessionDialog.USERNAME);
+	    String password = task.getString(SessionDialog.PASSWORD);
 	    if(validUserLoginData(username, password)) {		
 		result = authenticate(username, password);
 		broadcast_progress(progress++);
@@ -243,7 +243,7 @@ public class ProviderAPI extends IntentService {
 		    result.putString(SessionDialog.USERNAME, username);
 		    result.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
 		}
-		if(username.isEmpty()) {
+		if(!validUsername(username)) {
 		    result.putBoolean(RESULT_KEY, false);
 		    result.putBoolean(SessionDialog.USERNAME_MISSING, true);
 		}
@@ -327,21 +327,25 @@ public class ProviderAPI extends IntentService {
 
 	/**
 	 * Validates parameters entered by the user to log in
-	 * @param entered_username
-	 * @param entered_password
+	 * @param username
+	 * @param password
 	 * @return true if both parameters are present and the entered password length is greater or equal to eight (8).
 	 */
-	private boolean validUserLoginData(String entered_username, String entered_password) {
-		return !(entered_username.isEmpty()) && wellFormedPassword(entered_password);
+	private boolean validUserLoginData(String username, String password) {
+		return validUsername(username) && wellFormedPassword(password);
 	}
+
+    private boolean validUsername(String username) {
+        return username != null && !username.isEmpty();
+    }
 
 	/**
 	 * Validates a password
-	 * @param entered_password
+	 * @param password
 	 * @return true if the entered password length is greater or equal to eight (8).
 	 */
-	private boolean wellFormedPassword(String entered_password) {
-		return entered_password.length() >= 8;
+	private boolean wellFormedPassword(String password) {
+		return password != null && password.length() >= 8;
 	}
 
 	/**
@@ -826,20 +830,23 @@ public class ProviderAPI extends IntentService {
 		return string;
 	}
 	
-	/**
-	 * Logs out from the api url retrieved from the task.
-	 * @return true if there were no exceptions
-	 */
+    /**
+     * Logs out from the api url retrieved from the task.
+     * @return true if there were no exceptions
+     */
     private boolean logOut() {
-	try {
-	    String delete_url = provider_api_url + "/logout";
-	    int progress = 0;
+        String delete_url = provider_api_url + "/logout";
 
-	    HttpsURLConnection urlConnection = (HttpsURLConnection)new URL(delete_url).openConnection();
+        HttpsURLConnection urlConnection = null;
+        int responseCode = 0;
+        int progress = 0;
+	try {
+
+	    urlConnection = (HttpsURLConnection)new URL(delete_url).openConnection();
 	    urlConnection.setRequestMethod("DELETE");
 	    urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
 
-	    int responseCode = urlConnection.getResponseCode();
+	    responseCode = urlConnection.getResponseCode();
 	    broadcast_progress(progress++);
 	    LeapSRPSession.setToken("");
 	    Log.d(TAG, Integer.toString(responseCode));
@@ -853,6 +860,20 @@ public class ProviderAPI extends IntentService {
 	    return false;
 	} catch (IOException e) {
 	    // TODO Auto-generated catch block
+	    try {
+		if(urlConnection != null) {
+		    responseCode = urlConnection.getResponseCode();
+		    if(responseCode == 401) {
+			broadcast_progress(progress++);
+			LeapSRPSession.setToken("");
+			Log.d(TAG, Integer.toString(responseCode));
+			return true;
+		    }
+		}
+	    } catch (IOException e1) {
+		e1.printStackTrace();
+	    }
+
 	    e.printStackTrace();
 	    return false;
 	} catch (KeyManagementException e) {
