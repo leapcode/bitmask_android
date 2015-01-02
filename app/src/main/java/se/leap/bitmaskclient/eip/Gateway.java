@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.Iterator;
@@ -42,7 +43,7 @@ import se.leap.bitmaskclient.Dashboard;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author Parménides GV <parmegv@sdf.org>
  */
-public class Gateway {
+public class Gateway implements Serializable {
 		
     private String TAG = Gateway.class.getSimpleName();
 		
@@ -136,17 +137,5 @@ public class Gateway {
 
     public int getTimezone() {
 	return timezone;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if(o instanceof Gateway) {
-            VpnProfile compared_profile = ((Gateway) o).getProfile();
-            return compared_profile.mConnections.equals(mVpnProfile.mConnections)
-                    && compared_profile.mClientCertFilename != mVpnProfile.mClientCertFilename
-                    && compared_profile.mClientKeyFilename != mVpnProfile.mClientKeyFilename;
-        }
-        else
-            return super.equals(o);
     }
 }

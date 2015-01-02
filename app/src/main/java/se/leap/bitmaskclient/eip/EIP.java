@@ -125,8 +125,9 @@ public final class EIP extends IntentService {
 	if(gateway != null && gateway.getProfile() != null) {
 	    mReceiver = EipFragment.getReceiver();
 	    launchActiveGateway();
-	}
-	tellToReceiver(ACTION_START_EIP, Activity.RESULT_OK);
+        tellToReceiver(ACTION_START_EIP, Activity.RESULT_OK);
+	} else
+        tellToReceiver(ACTION_START_EIP, Activity.RESULT_CANCELED);
     }
 
     /**
@@ -144,6 +145,8 @@ public final class EIP extends IntentService {
 	intent.setAction(Intent.ACTION_MAIN);
 	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	intent.putExtra(LaunchVPN.EXTRA_NAME, gateway.getProfile().getName());
+        Log.d(TAG, gateway.getProfile().mClientCertFilename);
+        Log.d(TAG, gateway.getProfile().mClientKeyFilename);
 	intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
 	startActivity(intent);
     }
@@ -206,7 +209,7 @@ public final class EIP extends IntentService {
                 JSONObject gw = gatewaysDefined.getJSONObject(i);
                 if (isOpenVpnGateway(gw)) {
                     Gateway gateway = new Gateway(eip_definition, context, gw);
-                    if(!gateways.contains(gateway)) {
+                    if(!containsProfileWithSecrets(gateway.getProfile())) {
                         addGateway(gateway);
                     }
                 }
@@ -260,6 +263,17 @@ public final class EIP extends IntentService {
         return false;
     }
 
+    private boolean containsProfileWithSecrets(VpnProfile profile) {
+        if(!containsProfile(profile)) return false;
+
+        Collection<VpnProfile> profiles = profile_manager.getProfiles();
+        for(VpnProfile aux : profiles) {
+            return profile.mClientCertFilename.equalsIgnoreCase(aux.mClientCertFilename)
+                    && profile.mClientKeyFilename.equalsIgnoreCase(aux.mClientKeyFilename);
+        }
+
+        return false;
+    }
     private VpnProfile duplicatedProfile(VpnProfile profile) {
         VpnProfile duplicated = null;
         Collection<VpnProfile> profiles = profile_manager.getProfiles();
@@ -290,7 +304,7 @@ public final class EIP extends IntentService {
         List<Gateway> gateways_to_remove = new ArrayList<>();
         while(it.hasNext()) {
             Gateway aux = it.next();
-            if(aux.getProfile().mConnections == profile.mConnections)
+            if(sameConnections(aux.getProfile().mConnections, profile.mConnections))
                 gateways_to_remove.add(aux);
         }
         gateways.removeAll(gateways_to_remove);
