@@ -187,8 +187,8 @@ public class EipFragment extends Fragment implements Observer {
 	
 	if(!eip_switch.isChecked()) {
 	    eip_switch.setChecked(true);
-	    saveStatus();
 	}
+        saveStatus();
 	eipCommand(Constants.ACTION_START_EIP);
     }
 

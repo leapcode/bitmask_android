@@ -17,7 +17,6 @@
 package se.leap.bitmaskclient.eip;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -25,14 +24,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.Iterator;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
-import de.blinkt.openvpn.core.ProfileManager;
 import se.leap.bitmaskclient.Dashboard;
 
 /**
@@ -43,28 +38,26 @@ import se.leap.bitmaskclient.Dashboard;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author Parménides GV <parmegv@sdf.org>
  */
-public class Gateway implements Serializable {
+public class Gateway {
 		
-    private String TAG = Gateway.class.getSimpleName();
-		
+    public static String TAG = Gateway.class.getSimpleName();
+
+    private JSONObject general_configuration;
+    private JSONObject secrets;
+    private JSONObject gateway;
+
     private String mName;
     private int timezone;
-    private JSONObject general_configuration;
-    private Context context;
     private VpnProfile mVpnProfile;
-    private JSONObject mGateway;
-		
     /**
      * Build a gateway object from a JSON OpenVPN gateway definition in eip-service.json
      * and create a VpnProfile belonging to it.
-     * 
-     * @param gateway The JSON OpenVPN gateway definition to parse
      */
-    protected Gateway(JSONObject eip_definition, Context context, JSONObject gateway){
+    protected Gateway(JSONObject eip_definition, JSONObject secrets, JSONObject gateway){
 
-	mGateway = gateway;
-	
-	this.context = context;
+	this.gateway = gateway;
+        this.secrets = secrets;
+
 	general_configuration = getGeneralConfiguration(eip_definition);
 	timezone = getTimezone(eip_definition);
 	mName = locationAsName(eip_definition);
@@ -95,7 +88,7 @@ public class Gateway implements Serializable {
 	try {
 	    JSONObject locations = eip_definition.getJSONObject("locations");
 
-	    return locations.getJSONObject(mGateway.getString("location"));
+	    return locations.getJSONObject(gateway.getString("location"));
 	} catch (JSONException e) {
 	    return new JSONObject();
 	}
@@ -108,8 +101,7 @@ public class Gateway implements Serializable {
 	try {
 	    ConfigParser cp = new ConfigParser();
 
-	    SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
-	    VpnConfigGenerator vpn_configuration_generator = new VpnConfigGenerator(preferences, general_configuration, mGateway);
+	    VpnConfigGenerator vpn_configuration_generator = new VpnConfigGenerator(general_configuration, secrets, gateway);
 	    String configuration = vpn_configuration_generator.generate();
 				
 	    cp.parseConfig(new StringReader(configuration));
