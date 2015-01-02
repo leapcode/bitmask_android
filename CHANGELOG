@@ -1,3 +1,11 @@
+0.9.0
+Features:
+- Fail back to other ports/servers in case of error
+Bugs:
+- Switching providers logs out before showing Configuration Wizard
+- Update profiles correctly
+- Don't get killed if restarting the device
+
 0.8.2 December 22 2014 - the "refactored+" release
 Bugs:
 - Better error handling while setting up a provider
