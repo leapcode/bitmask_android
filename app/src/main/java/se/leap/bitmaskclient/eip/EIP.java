@@ -129,7 +129,6 @@ public final class EIP extends IntentService {
 
         GatewaySelector gateway_selector = new GatewaySelector(gateways);
 	gateway = gateway_selector.select();
-	Log.d(TAG, "Connecting to " + gateway.getProfile().getUUIDString());
 	if(gateway != null && gateway.getProfile() != null) {
 	    mReceiver = EipFragment.getReceiver();
 	    launchActiveGateway();
@@ -153,15 +152,12 @@ public final class EIP extends IntentService {
 	intent.setAction(Intent.ACTION_MAIN);
 	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	intent.putExtra(LaunchVPN.EXTRA_NAME, gateway.getProfile().getName());
-        Log.d(TAG, gateway.getProfile().mClientCertFilename);
-        Log.d(TAG, gateway.getProfile().mClientKeyFilename);
 	intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
 	startActivity(intent);
     }
 
     private void stopEIP() {
 	EipStatus eip_status = EipStatus.getInstance();
-	Log.d(TAG, "stopEip(): eip is connected? " + eip_status.isConnected());
 	int result_code = Activity.RESULT_CANCELED;
 	if(eip_status.isConnected() || eip_status.isConnecting())
 	    result_code = Activity.RESULT_OK;
@@ -210,12 +206,10 @@ public final class EIP extends IntentService {
         List<Gateway> result;
 
         String gateways_string = preferences.getString(Gateway.TAG, "");
-        Log.d(TAG, "Recovering gateways: " + gateways_string);
         Type type_list_gateways = new TypeToken<ArrayList<Gateway>>() {}.getType();
         result = gateways_string.isEmpty() ?
                 new ArrayList<Gateway>()
                 : (List<Gateway>) new Gson().fromJson(gateways_string, type_list_gateways);
-	Log.d(TAG, "Gateways from preferences = " + result.size());
         preferences.edit().remove(Gateway.TAG);
         return result;
     }
@@ -232,7 +226,6 @@ public final class EIP extends IntentService {
                 if (isOpenVpnGateway(gw)) {
                     JSONObject secrets = secretsConfiguration();
                     Gateway aux = new Gateway(eip_definition, secrets, gw);
-		    Log.d(TAG, "Possible new gateway: " + aux.getProfile().getUUIDString());
                     if(!containsProfileWithSecrets(aux.getProfile())) {
                         addGateway(aux);
                     }
@@ -276,7 +269,6 @@ public final class EIP extends IntentService {
         profile_manager.saveProfileList(context);
 
 	gateways.add(gateway);
-        Log.d(TAG, "Gateway added: " + gateway.getProfile().getUUIDString());
     }
 
     private void removeGateway(Gateway gateway) {
@@ -289,7 +281,6 @@ public final class EIP extends IntentService {
         if(containsProfile(original)) {
             VpnProfile remove = duplicatedProfile(original);
             profile_manager.removeProfile(context, remove);
-	    Log.d(TAG, "Removing profile " + remove.getUUIDString());
 	}if(containsProfile(original)) removeDuplicatedProfile(original);
     }
 
@@ -351,7 +342,6 @@ public final class EIP extends IntentService {
             Gateway aux = it.next();
             if(sameConnections(aux.getProfile().mConnections, profile.mConnections)) {
                 gateways_to_remove.add(aux);
-		Log.d(TAG, "Removing gateway " + aux.getProfile().getUUIDString());
 	    }
         }
         gateways.removeAll(gateways_to_remove);
@@ -360,7 +350,6 @@ public final class EIP extends IntentService {
     private void gatewaysToPreferences() {
         Type type_list_gateways = new TypeToken<List<Gateway>>() {}.getType();
         String gateways_string = new Gson().toJson(gateways, type_list_gateways);
-        Log.d(TAG, "Saving gateways: " + gateways_string);
         preferences.edit().putString(Gateway.TAG, gateways_string).apply();
     }
 
