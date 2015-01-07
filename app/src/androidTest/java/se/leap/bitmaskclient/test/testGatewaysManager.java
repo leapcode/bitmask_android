@@ -23,11 +23,9 @@ import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import junit.framework.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
+import org.json.JSONObject;
 
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.eip.Gateway;
@@ -42,11 +40,15 @@ public class testGatewaysManager extends InstrumentationTestCase {
     Gateway gateway;
     JSONObject eip_definition;
 
+    FromAssets assets;
+
     Context context;
     SharedPreferences preferences;
 
     @Override
     protected void setUp() throws Exception {
+        context = getInstrumentation().getContext();
+        assets = new FromAssets(context);
         mockGatewaysManager();
         mockRealGateway();
         super.setUp();
@@ -101,9 +103,9 @@ public class testGatewaysManager extends InstrumentationTestCase {
 
     private void mockRealGateway() {
         try {
-            eip_definition = new JSONObject(fromAssets("eip-service-test.json"));
-            JSONObject secrets = new JSONObject(fromAssets("secrets.json"));
-            JSONObject gateway = new JSONObject(fromAssets("gateway.json"));
+            eip_definition = new JSONObject(assets.toString(TestConstants.EIP_DEFINITION_FILE));
+            JSONObject secrets = new JSONObject(assets.toString(TestConstants.SECRETS_FILE));
+            JSONObject gateway = new JSONObject(assets.toString(TestConstants.GATEWAY_FILE));
             this.gateway = new Gateway(eip_definition, secrets, gateway);
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,22 +114,12 @@ public class testGatewaysManager extends InstrumentationTestCase {
 
     private void mockArtificialGateway() {
         try {
-            eip_definition = new JSONObject(fromAssets("eip-service-test.json"));
-            JSONObject secrets = new JSONObject(fromAssets("secrets.json").replace("6u6", "7u7"));
-            JSONObject gateway = new JSONObject(fromAssets("gateway.json"));
+            eip_definition = new JSONObject(assets.toString(TestConstants.EIP_DEFINITION_FILE));
+            JSONObject secrets = new JSONObject(assets.toString(TestConstants.SECRETS_FILE).replace("6u6", "7u7"));
+            JSONObject gateway = new JSONObject(assets.toString(TestConstants.GATEWAY_FILE));
             this.gateway = new Gateway(eip_definition, secrets, gateway);
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private String fromAssets(String filename) throws IOException, JSONException {
-        String result = "";
-        InputStream is = context.getAssets().open(filename);
-        byte[] bytes = new byte[is.available()];
-        if(is.read(bytes) > 0) {
-            result = new String(bytes);
-        }
-        return result;
     }
 }
