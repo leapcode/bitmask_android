@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2014 Arne Schwabe
- * Distributed under the GNU GPL v2. For full terms see the file doc/LICENSE.txt
+ * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
 package de.blinkt.openvpn.core;
@@ -480,7 +480,11 @@ public class VpnStatus {
 		newLogItem(new LogItem(LogLevel.INFO, message));
 	}
 
-	public static void logInfo(int resourceId, Object... args) {
+    public static void logDebug(String message) {
+        newLogItem(new LogItem(LogLevel.DEBUG, message));
+    }
+
+    public static void logInfo(int resourceId, Object... args) {
 		newLogItem(new LogItem(LogLevel.INFO, resourceId, args));
 	}
 

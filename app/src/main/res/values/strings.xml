@@ -15,7 +15,6 @@
     <string name="title_activity_dashboard">Bitmask</string>
     <string name="provider_label">Provider:</string>
     <string name="provider_label_none">No provider configured</string>
-    <string name="eip_settings_button_description">Access EIP connection settings</string>
     <string name="status_unknown">Status unknown.</string>
     <string name="anonymous_secured_status">Connection secure using an anonymous certificate.</string>
     <string name="authed_secured_status">Connection secure using your own certificate.</string>
@@ -55,7 +54,8 @@
     <string name="service_is_down_error">Service is down.</string>
     <string name="configuring_provider">Configuring provider</string>
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
-    <string name="updating_certificate_message">Updating EIP certificate</string>
+    <string name="downloading_certificate_message">Downloading VPN certificate</string>
+    <string name="updating_certificate_message">Updating VPN certificate</string>
     <string name="authenticating_message">Logging in</string>
     <string name="signingup_message">Signing up</string>
     <string name="logout_message">Logging out from this session.</string>
@@ -63,7 +63,7 @@
     <string name="log_out_failed_message">Didn\'t log out.</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
-    <string name="registration_failed_message">Registration failed..</string>
+    <string name="registration_failed_message">Registration failed.</string>
     <string name="successful_authed_cert_downloaded_message">Your own cert has been correctly downloaded.</string>
     <string name="authed_cert_download_failed_message">Your own cert has incorrectly been downloaded.</string>
     <string name="eip_status_start_pending">Initiating connection</string>

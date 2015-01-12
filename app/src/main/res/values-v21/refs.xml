@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2012-2014 Arne Schwabe
-  ~ Distributed under the GNU GPL v2. For full terms see the file doc/LICENSE.txt
+  ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   -->
 
 <resources>
@@ -9,5 +9,7 @@
     <drawable name="ic_menu_share">@drawable/ic_share_white_24dp </drawable>
     <drawable name="ic_menu_view">@drawable/ic_filter_list_white_24dp</drawable>
     <drawable name="ic_menu_delete">@drawable/ic_delete_white_24dp</drawable>
+    <drawable name="ic_menu_delete_grey">@drawable/ic_delete_grey600_24dp</drawable>
+
     <drawable name="ic_menu_edit">@drawable/ic_edit_white_24dp</drawable>
 </resources>

@@ -9,6 +9,10 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import com.robotium.solo.Solo;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Scanner;
+
 import de.blinkt.openvpn.activities.DisconnectVPN;
 import se.leap.bitmaskclient.ConfigurationWizard;
 import se.leap.bitmaskclient.Dashboard;
@@ -149,5 +153,14 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
                 "bz+jL0VkHdnoZdzGzelrAhZtgMtsJ/kgWYRgtFmhpYF1Xtj2MYrpBDxgQck=" +
                 "-----END CERTIFICATE-----";
 
+    }
+
+    public void testReboot() {
+        try {
+            String command = "adb shell am broadcast -a android.intent.action.BOOT_COMPLETED";
+            Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

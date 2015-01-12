@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2014 Arne Schwabe
- * Distributed under the GNU GPL v2. For full terms see the file doc/LICENSE.txt
+ * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
 package de.blinkt.openvpn;
@@ -40,6 +40,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.Vector;
@@ -49,13 +50,14 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.NativeUtils;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.X509Utils;
 
-public class VpnProfile implements Serializable {
+public class VpnProfile implements Serializable, Cloneable {
     // Note that this class cannot be moved to core where it belongs since
     // the profile loading depends on it being here
     // The Serializable documentation mentions that class name change are possible
@@ -69,7 +71,7 @@ public class VpnProfile implements Serializable {
 
     private static final long serialVersionUID = 7085688938959334563L;
     public static final int MAXLOGLEVEL = 4;
-    public static final int CURRENT_PROFILE_VERSION = 2;
+    public static final int CURRENT_PROFILE_VERSION = 5;
     public static final int DEFAULT_MSSFIX_SIZE = 1450;
     public static String DEFAULT_DNS1 = "8.8.8.8";
     public static String DEFAULT_DNS2 = "8.8.4.4";
@@ -104,12 +106,10 @@ public class VpnProfile implements Serializable {
     public String mClientKeyFilename;
     public String mCaFilename;
     public boolean mUseLzo = true;
-    public String mServerPort = "1194";
-    public boolean mUseUdp = true;
     public String mPKCS12Filename;
     public String mPKCS12Password;
     public boolean mUseTLSAuth = false;
-    public String mServerName = "openvpn.blinkt.de";
+
     public String mDNS1 = DEFAULT_DNS1;
     public String mDNS2 = DEFAULT_DNS2;
     public String mIPv4Address;
@@ -150,6 +150,16 @@ public class VpnProfile implements Serializable {
     public String mExcludedRoutes;
     public String mExcludedRoutesv6;
     public int mMssFix =0; // -1 is default,
+    public Connection[] mConnections = new Connection[0];
+    public boolean mRemoteRandom=false;
+    public HashSet<String> mAllowedAppsVpn = new HashSet<String>();
+    public boolean mAllowedAppsVpnAreDisallowed = true;
+
+
+    /* Options no long used in new profiles */
+    public String mServerName = "openvpn.blinkt.de";
+    public String mServerPort = "1194";
+    public boolean mUseUdp = true;
 
 
 
@@ -157,6 +167,9 @@ public class VpnProfile implements Serializable {
         mUuid = UUID.randomUUID();
         mName = name;
         mProfileVersion = CURRENT_PROFILE_VERSION;
+
+        mConnections = new Connection[1];
+        mConnections[0]  = new Connection();
     }
 
     public static String openVpnEscape(String unescaped) {
@@ -204,7 +217,30 @@ public class VpnProfile implements Serializable {
             mAllowLocalLAN = Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT;
         }
 
+        if (mProfileVersion < 4) {
+            moveOptionsToConnection();
+            mAllowedAppsVpnAreDisallowed=true;
+        }
+        if (mAllowedAppsVpn==null)
+            mAllowedAppsVpn = new HashSet<String>();
+        if (mConnections ==null)
+            mConnections = new Connection[0];
+
         mProfileVersion= CURRENT_PROFILE_VERSION;
+
+    }
+
+    private void moveOptionsToConnection() {
+        mConnections = new Connection[1];
+        Connection conn = new Connection();
+
+        conn.mServerName = mServerName;
+        conn.mServerPort = mServerPort;
+        conn.mUseUdp = mUseUdp;
+        conn.mCustomConfiguration = "";
+
+        mConnections[0] = conn;
+
     }
 
     public String getConfigFile(Context context, boolean configForOvpn3) {
@@ -265,15 +301,27 @@ public class VpnProfile implements Serializable {
         // We cannot use anything else than tun
         cfg += "dev tun\n";
 
-        // Server Address
-        cfg += "remote ";
-        cfg += mServerName;
-        cfg += " ";
-        cfg += mServerPort;
-        if (mUseUdp)
-            cfg += " udp\n";
-        else
-            cfg += " tcp-client\n";
+
+        boolean canUsePlainRemotes = true;
+
+        if (mConnections.length==1) {
+            cfg += mConnections[0].getConnectionBlock();
+        } else {
+            for (Connection conn : mConnections) {
+                canUsePlainRemotes = canUsePlainRemotes && conn.isOnlyRemote();
+            }
+
+            if (mRemoteRandom)
+                cfg+="remote-random\n";
+
+            if (canUsePlainRemotes) {
+                for (Connection conn : mConnections) {
+                    if (conn.mEnabled) {
+                        cfg += conn.getConnectionBlock();
+                    }
+                }
+            }
+        }
 
 
         switch (mAuthenticationType) {
@@ -363,11 +411,6 @@ public class VpnProfile implements Serializable {
             }
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT && !mAllowLocalLAN)
-            cfg+="redirect-private block-local\n";
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && mAllowLocalLAN)
-            cfg+="redirect-private unblock-local\n";
-
 
         if (mUseDefaultRoutev6)
             cfg += "route-ipv6 ::/0\n";
@@ -403,7 +446,7 @@ public class VpnProfile implements Serializable {
         if (mAuthenticationType != TYPE_STATICKEYS) {
             if (mCheckRemoteCN) {
                 if (mRemoteCN == null || mRemoteCN.equals(""))
-                    cfg += "verify-x509-name " + mServerName + " name\n";
+                    cfg += "verify-x509-name " + mConnections[0].mServerName + " name\n";
                 else
                     switch (mX509AuthType) {
 
@@ -467,6 +510,19 @@ public class VpnProfile implements Serializable {
             cfg += "\n";
 
         }
+
+        if (!canUsePlainRemotes) {
+            cfg += "# Connection Options are at the end to allow global options (and global custom options) to influence connection blocks\n";
+            for (Connection conn : mConnections) {
+                if (conn.mEnabled) {
+                    cfg += "<connection>\n";
+                    cfg += conn.getConnectionBlock();
+                    cfg += "</connection>\n";
+                }
+            }
+        }
+
+
 
 
         return cfg;
@@ -637,6 +693,27 @@ public class VpnProfile implements Serializable {
         }
     }
 
+    @Override
+    protected VpnProfile clone() throws CloneNotSupportedException {
+        VpnProfile copy = (VpnProfile) super.clone();
+        copy.mUuid = UUID.randomUUID();
+        copy.mConnections = mConnections.clone();
+        copy.mAllowedAppsVpn = (HashSet<String>) mAllowedAppsVpn.clone();
+        return copy;
+    }
+
+    public VpnProfile copy(String name) {
+        try {
+            VpnProfile copy = (VpnProfile) clone();
+            copy.mName = name;
+            return copy;
+
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     class NoCertReturnedException extends Exception {
         public NoCertReturnedException (String msg) {
@@ -766,6 +843,14 @@ public class VpnProfile implements Serializable {
         }
         if (!mUseDefaultRoute && (getCustomRoutes(mCustomRoutes) == null || getCustomRoutes(mExcludedRoutes) ==null))
             return R.string.custom_route_format_error;
+
+        boolean noRemoteEnabled = true;
+        for (Connection c : mConnections)
+            if (c.mEnabled)
+                noRemoteEnabled = false;
+
+        if(noRemoteEnabled)
+            return R.string.remote_no_server_selected;
 
         // Everything okay
         return R.string.no_error_found;

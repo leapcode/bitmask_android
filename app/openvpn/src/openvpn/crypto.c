@@ -223,30 +223,6 @@ err:
   return;
 }
 
-int verify_hmac(struct buffer *buf, struct key_ctx *ctx, int offset)
-{
-  uint8_t local_hmac[MAX_HMAC_KEY_LENGTH]; /* HMAC of ciphertext computed locally */
-  int hmac_len = 0;
-
-  hmac_ctx_reset(ctx->hmac);
-  /* Assume the length of the input HMAC */
-  hmac_len = hmac_ctx_size (ctx->hmac);
-
-  /* Authentication fails if insufficient data in packet for HMAC */
-  if (buf->len - offset < hmac_len)
-    return 0;
-
-  hmac_ctx_update (ctx->hmac, BPTR (buf) + hmac_len + offset,
-	BLEN (buf) - hmac_len - offset);
-  hmac_ctx_final (ctx->hmac, local_hmac);
-
-  /* Compare locally computed HMAC with packet HMAC */
-  if (memcmp_constant_time (local_hmac, BPTR (buf) + offset, hmac_len) == 0)
-    return hmac_len;
-
-  return 0;
-}
-
 /*
  * If (opt->flags & CO_USE_IV) is not NULL, we will read an IV from the packet.
  *
@@ -273,9 +249,25 @@ openvpn_decrypt (struct buffer *buf, struct buffer work,
       /* Verify the HMAC */
       if (ctx->hmac)
 	{
-	  int hmac_len = verify_hmac(buf, ctx, 0);
-	  if (hmac_len == 0)
+	  int hmac_len;
+	  uint8_t local_hmac[MAX_HMAC_KEY_LENGTH]; /* HMAC of ciphertext computed locally */
+
+	  hmac_ctx_reset(ctx->hmac);
+
+	  /* Assume the length of the input HMAC */
+	  hmac_len = hmac_ctx_size (ctx->hmac);
+
+	  /* Authentication fails if insufficient data in packet for HMAC */
+	  if (buf->len < hmac_len)
+	    CRYPT_ERROR ("missing authentication info");
+
+	  hmac_ctx_update (ctx->hmac, BPTR (buf) + hmac_len, BLEN (buf) - hmac_len);
+	  hmac_ctx_final (ctx->hmac, local_hmac);
+
+	  /* Compare locally computed HMAC with packet HMAC */
+	  if (memcmp_constant_time (local_hmac, BPTR (buf), hmac_len))
 	    CRYPT_ERROR ("packet HMAC authentication failed");
+
 	  ASSERT (buf_advance (buf, hmac_len));
 	}
 
@@ -396,28 +388,6 @@ openvpn_decrypt (struct buffer *buf, struct buffer work,
   crypto_clear_error();
   buf->len = 0;
   gc_free (&gc);
-  return false;
-}
-
-/*
- * This verifies if a packet and its HMAC fit to a crypto context.
- *
- * On success true is returned.
- */
-bool
-crypto_test_hmac (struct buffer *buf, const struct crypto_options *opt)
-{
-  if (buf->len > 0 && opt->key_ctx_bi)
-    {
-      struct key_ctx *ctx = &opt->key_ctx_bi->decrypt;
-
-      /* Verify the HMAC */
-      if (ctx->hmac)
-	{
-	  /* sizeof(uint32_t) comes from peer_id (3 bytes) and opcode (1 byte) */
-	  return verify_hmac(buf, ctx, sizeof(uint32_t)) != 0;
-	}
-    }
   return false;
 }
 
@@ -800,22 +770,13 @@ get_tls_handshake_key (const struct key_type *key_type,
 	  }
 	else
 	  {
-	    int hash_size;
-
 	    CLEAR (key2);
 
-	    /* failed, now try to get hash from a freeform file */
-	    hash_size = read_passphrase_hash (passphrase_file,
-					      kt.digest,
-					      key2.keys[0].hmac,
-					      MAX_HMAC_KEY_LENGTH);
-	    ASSERT (hash_size == kt.hmac_length);
+	    /* failed, now bail out */
 
-	    /* suceeded */
-	    key2.n = 1;
-
-	    msg (M_INFO,
-		 "Control Channel Authentication: using '%s' as a free-form passphrase file",
+	    msg (M_ERR,
+		 "Control Channel Authentication: File '%s' does not have OpenVPN Static Key format. "
+		 "Using free-form passphrase file is not supported anymore",
 		 passphrase_file);
 	  }
       }
@@ -1040,54 +1001,6 @@ read_key_file (struct key2 *key2, const char *file, const unsigned int flags)
 
   /* pop our garbage collection level */
   gc_free (&gc);
-}
-
-int
-read_passphrase_hash (const char *passphrase_file,
-		      const md_kt_t *digest,
-		      uint8_t *output,
-		      int len)
-{
-  md_ctx_t md;
-
-  ASSERT (len >= md_kt_size(digest));
-  memset (output, 0, len);
-
-  md_ctx_init(&md, digest);
-
-  /* read passphrase file */
-  {
-    const int min_passphrase_size = 8;
-    uint8_t buf[64];
-    int total_size = 0;
-    int fd = platform_open (passphrase_file, O_RDONLY, 0);
-
-    if (fd == -1)
-      msg (M_ERR, "Cannot open passphrase file: '%s'", passphrase_file);
-
-    for (;;)
-      {
-	int size = read (fd, buf, sizeof (buf));
-	if (size == 0)
-	  break;
-	if (size == -1)
-	  msg (M_ERR, "Read error on passphrase file: '%s'",
-	       passphrase_file);
-	md_ctx_update(&md, buf, size);
-	total_size += size;
-      }
-    close (fd);
-
-    warn_if_group_others_accessible (passphrase_file);
-
-    if (total_size < min_passphrase_size)
-      msg (M_FATAL,
-	   "Passphrase file '%s' is too small (must have at least %d characters)",
-	   passphrase_file, min_passphrase_size);
-  }
-  md_ctx_final(&md, output);
-  md_ctx_cleanup(&md);
-  return md_kt_size(digest);
 }
 
 /*

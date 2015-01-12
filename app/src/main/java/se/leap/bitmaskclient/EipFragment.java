@@ -56,8 +56,7 @@ public class EipFragment extends Fragment implements Observer {
 	parent_activity = activity;
 
         Dashboard dashboard = (Dashboard) parent_activity;
-        Intent provider_API_command = dashboard.prepareProviderAPICommand();
-        provider_API_command.setAction(ProviderAPI.DOWNLOAD_EIP_SERVICE);
+        Intent provider_API_command = dashboard.prepareProviderAPICommand(Bundle.EMPTY, ProviderAPI.DOWNLOAD_EIP_SERVICE);
         parent_activity.startService(provider_API_command);
     }
     
@@ -110,15 +109,10 @@ public class EipFragment extends Fragment implements Observer {
 	super.onSaveInstanceState(outState);
     }
 
-    protected void saveEipStatus() {
-	boolean eip_is_on = false;
-	Log.d(TAG, "saveEipStatus");
-	if(eip_switch.isChecked()) {
-	    eip_is_on = true;
-	}
-
-	if(parent_activity != null)
-	    Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
+    protected void saveStatus() {
+	boolean is_on = eip_switch.isChecked();
+	Log.d(TAG, "saveStatus: is_on = " + is_on);
+	Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, is_on).commit();
     }
 
     @OnCheckedChanged(R.id.eipSwitch)
@@ -128,7 +122,7 @@ public class EipFragment extends Fragment implements Observer {
 	else
 	    handleSwitchOff();
 	
-	saveEipStatus();
+	saveStatus();
     }
 
     private void handleSwitchOn() {
@@ -139,7 +133,7 @@ public class EipFragment extends Fragment implements Observer {
 	    Dashboard dashboard = (Dashboard) parent_activity;
         Bundle bundle = new Bundle();
         bundle.putBoolean(IS_PENDING, true);
-	    dashboard.logInDialog(bundle);
+	    dashboard.sessionDialog(bundle);
 	}	    
     }
     
@@ -193,8 +187,8 @@ public class EipFragment extends Fragment implements Observer {
 	
 	if(!eip_switch.isChecked()) {
 	    eip_switch.setChecked(true);
-	    saveEipStatus();
 	}
+        saveStatus();
 	eipCommand(Constants.ACTION_START_EIP);
     }
 
@@ -211,6 +205,7 @@ public class EipFragment extends Fragment implements Observer {
 
 	String status = parent_activity.getString(R.string.eip_state_not_connected);
 	status_message.setText(status);
+
 	eipCommand(Constants.ACTION_STOP_EIP);
     }
 	
@@ -343,10 +338,9 @@ public class EipFragment extends Fragment implements Observer {
 		    progress_bar.setVisibility(View.VISIBLE);
 		    status_message.setText(getString(R.string.updating_certificate_message));
 		    if(LeapSRPSession.getToken().isEmpty() && !Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false)) {
-			dashboard.logInDialog(Bundle.EMPTY);
+			dashboard.sessionDialog(Bundle.EMPTY);
 		    } else {
-			Intent provider_API_command = dashboard.prepareProviderAPICommand();
-			provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
+			Intent provider_API_command = dashboard.prepareProviderAPICommand(Bundle.EMPTY, ProviderAPI.DOWNLOAD_CERTIFICATE);
 			parent_activity.startService(provider_API_command);
 		    }
 		    break;
