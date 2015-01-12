@@ -24,7 +24,7 @@
     android:mode="twoLine"
 >
 
-    <TextView android:id="@android:id/text1"
+    <TextView android:id="@+id/provider_domain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="?android:attr/listPreferredItemPaddingLeft"
@@ -33,11 +33,11 @@
         android:textAppearance="?android:attr/textAppearanceListItem"
     />
 
-    <TextView android:id="@android:id/text2"
+    <TextView android:id="@+id/provider_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@android:id/text1"
-        android:layout_alignLeft="@android:id/text1"
+        android:layout_below="@id/provider_domain"
+        android:layout_alignLeft="@id/provider_domain"
         android:textSize = "24sp"
     />
 
