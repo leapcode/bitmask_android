@@ -5,6 +5,7 @@ Bugs:
 - Switching providers logs out before showing Configuration Wizard
 - Update profiles correctly
 - Don't get killed if restarting the device
+- Don't crash in xlarge devices (such as tablets)	
 
 0.8.2 December 22 2014 - the "refactored+" release
 Bugs:
