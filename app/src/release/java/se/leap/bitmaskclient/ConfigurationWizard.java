@@ -92,7 +92,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     }
     
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         if(mProgressBar != null)
             outState.putInt(PROGRESSBAR_NUMBER, mProgressBar.getProgress());
         if(progressbar_description != null)
@@ -109,16 +109,15 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 	fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
         provider_manager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
-	
+
 	setUpInitialUI();
 
-	setUpProviderAPIResultReceiver();
-
-	setUpProviderList();
-
-	if ( savedInstanceState != null ) {
+	initProviderList();
+	
+	if (savedInstanceState != null)
 	    restoreState(savedInstanceState);
-	}
+	else
+	    setUpProviderAPIResultReceiver();	    
     }
 
     private void restoreState(Bundle savedInstanceState) {
@@ -154,10 +153,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 	
 	progressbar_description.setVisibility(TextView.INVISIBLE);
-    }
-
-    private void setUpProviderList() {
-        initProviderList();
     }
 
     @Override

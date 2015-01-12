@@ -111,13 +111,12 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 
         setUpInitialUI();
 
-        setUpProviderAPIResultReceiver();
+	initProviderList();
 
-        setUpProviderList();
-
-        if(savedInstanceState != null) {
+        if(savedInstanceState != null)
             restoreState(savedInstanceState);
-        }
+	else
+	    setUpProviderAPIResultReceiver();
     }
 
     private void restoreState(Bundle savedInstanceState) {
@@ -152,10 +151,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     private void hideProgressBar() {	
 	mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 	progressbar_description.setVisibility(TextView.INVISIBLE);
-    }
-
-    private void setUpProviderList() {
-        initProviderList();
     }
 
     @Override
