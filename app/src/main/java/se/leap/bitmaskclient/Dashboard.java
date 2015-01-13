@@ -296,11 +296,14 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	providerApiCommand(Bundle.EMPTY, R.string.logout_message, ProviderAPI.LOG_OUT);
     }
 
-    private void downloadAuthedUserCertificate() {
-	Bundle parameters = new Bundle();
-	parameters.putString(ConfigurationWizard.TYPE_OF_CERTIFICATE, ConfigurationWizard.AUTHED_CERTIFICATE);
-	
-	providerApiCommand(parameters, R.string.downloading_certificate_message, ProviderAPI.DOWNLOAD_CERTIFICATE);
+    protected void downloadVpnCertificate() {
+        boolean is_authenticated = !LeapSRPSession.getToken().isEmpty();
+        boolean allowed_anon = preferences.getBoolean(Constants.ALLOWED_ANON, false);
+        if(allowed_anon || is_authenticated)
+            providerApiCommand(Bundle.EMPTY, R.string.downloading_certificate_message, ProviderAPI.DOWNLOAD_CERTIFICATE);
+        else
+            sessionDialog(Bundle.EMPTY);
+
     }
 
     private Bundle bundleParameters(String username, String password) {
@@ -312,8 +315,8 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	return parameters;
     }
 
-    private void providerApiCommand(Bundle parameters, int progressbar_message_resId, String providerApi_action) {
-        if(eip_fragment != null) {
+    protected void providerApiCommand(Bundle parameters, int progressbar_message_resId, String providerApi_action) {
+        if(eip_fragment != null && progressbar_message_resId != 0) {
             eip_fragment.progress_bar.setVisibility(ProgressBar.VISIBLE);
             setStatusMessage(progressbar_message_resId);
         }
@@ -322,7 +325,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	startService(command);
     }
 
-    protected Intent prepareProviderAPICommand(Bundle parameters, String action) {
+    private Intent prepareProviderAPICommand(Bundle parameters, String action) {
 	providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 	providerAPI_result_receiver.setReceiver(this);
 	
@@ -371,7 +374,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	    preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
 
 	    updateViewHidingProgressBar(resultCode);
-	    downloadAuthedUserCertificate();
+	    downloadVpnCertificate();
 	} else if(resultCode == ProviderAPI.FAILED_LOGIN) {
 	    updateViewHidingProgressBar(resultCode);
 	    sessionDialog(resultData);

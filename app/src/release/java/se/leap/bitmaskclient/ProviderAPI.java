@@ -182,7 +182,7 @@ public class ProviderAPI extends IntentService {
 	
 	if(validUserLoginData(username, password)) {
 	    session_id_bundle = register(username, password);
-	    broadcast_progress(progress++);
+	    broadcastProgress(progress++);
 	} else {
 	    if(!wellFormedPassword(password)) {
 		session_id_bundle.putBoolean(RESULT_KEY, false);
@@ -232,7 +232,7 @@ public class ProviderAPI extends IntentService {
 	    String password = (String) task.get(SessionDialog.PASSWORD);
 	    if(validUserLoginData(username, password)) {
 		result = authenticate(username, password);
-		broadcast_progress(progress++);
+		broadcastProgress(progress++);
 	    } else {
 		if(!wellFormedPassword(password)) {
 		    result.putBoolean(RESULT_KEY, false);
@@ -312,7 +312,7 @@ public class ProviderAPI extends IntentService {
 	 * and sends it as a broadcast.
 	 * @param progress
 	 */
-	private void broadcast_progress(int progress) {
+	private void broadcastProgress(int progress) {
 		Intent intentUpdate = new Intent();
 		intentUpdate.setAction(UPDATE_PROGRESSBAR);
 		intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
@@ -497,17 +497,17 @@ public class ProviderAPI extends IntentService {
 	if(!PROVIDER_JSON_DOWNLOADED)
 	    current_download = getAndSetProviderJson(last_provider_main_url);
 	if(PROVIDER_JSON_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
-	    broadcast_progress(progress++);
+	    broadcastProgress(progress++);
 	    PROVIDER_JSON_DOWNLOADED = true;
 				
 	    if(!CA_CERT_DOWNLOADED)
 		current_download = downloadCACert();
 	    if(CA_CERT_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
-		broadcast_progress(progress++);
+		broadcastProgress(progress++);
 		CA_CERT_DOWNLOADED = true;
 		current_download = getAndSetEipServiceJson(); 
 		if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
-		    broadcast_progress(progress++);
+		    broadcastProgress(progress++);
 		    EIP_SERVICE_JSON_DOWNLOADED = true;
 		}
 	    }
@@ -833,7 +833,7 @@ public class ProviderAPI extends IntentService {
 	    urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
 
 	    responseCode = urlConnection.getResponseCode();
-	    broadcast_progress(progress++);
+	    broadcastProgress(progress++);
 	    LeapSRPSession.setToken("");
 	    Log.d(TAG, Integer.toString(responseCode));
 	} catch (ClientProtocolException e) {
@@ -850,7 +850,7 @@ public class ProviderAPI extends IntentService {
 		if(urlConnection != null) {
 		    responseCode = urlConnection.getResponseCode();
 		    if(responseCode == 401) {
-			broadcast_progress(progress++);
+			broadcastProgress(progress++);
 			LeapSRPSession.setToken("");
 			Log.d(TAG, Integer.toString(responseCode));
 			return true;

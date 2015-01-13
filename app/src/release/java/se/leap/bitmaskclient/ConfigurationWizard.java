@@ -62,9 +62,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     private Provider selected_provider;
 	
     final public static String TAG = ConfigurationWizard.class.getSimpleName();
-    final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
-    final public static String ANON_CERTIFICATE = "anon_certificate";
-    final public static String AUTHED_CERTIFICATE = "authed_certificate";
 
     final protected static String PROVIDER_SET = "PROVIDER SET";
     final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
@@ -187,7 +184,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	    if (preferences.getBoolean(Constants.ALLOWED_ANON, false)){
 		mConfigState.putExtra(SERVICES_RETRIEVED, true);
 		
-		downloadAnonCert();
+		downloadVpnCertificate();
 	    } else {
 		mProgressBar.incrementProgressBy(1);
 		hideProgressBar();
@@ -303,15 +300,10 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     /**
      * Asks ProviderAPI to download an anonymous (anon) VPN certificate.
      */
-    private void downloadAnonCert() {
+    private void downloadVpnCertificate() {
 	Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
-	Bundle parameters = new Bundle();
-
-	parameters.putString(TYPE_OF_CERTIFICATE, ANON_CERTIFICATE);
-
 	provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
-	provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 	provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 
 	startService(provider_API_command);
