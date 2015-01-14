@@ -64,10 +64,8 @@ public final class EIP extends IntentService {
 	context = getApplicationContext();
         preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
 	eip_definition = eipDefinitionFromPreferences();
-        if(gateways_manager.isEmpty()) {
-            gateways_manager = new GatewaysManager(context, preferences);
+        if(gateways_manager.isEmpty())
             gatewaysFromPreferences();
-        }
     }
 
     @Override
@@ -179,6 +177,7 @@ public final class EIP extends IntentService {
 
     private void gatewaysFromPreferences() {
         String gateways_string = preferences.getString(Gateway.TAG, "");
+        gateways_manager = new GatewaysManager(context, preferences);
         gateways_manager.addFromString(gateways_string);
         preferences.edit().remove(Gateway.TAG).apply();
     }

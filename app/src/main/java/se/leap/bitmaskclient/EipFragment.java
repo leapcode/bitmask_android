@@ -49,6 +49,7 @@ public class EipFragment extends Fragment implements Observer {
     private static EIPReceiver mEIPReceiver;
     private static EipStatus eip_status;
     private boolean is_starting_to_connect;
+    private boolean wants_to_connect;
 
     @Override
     public void onAttach(Activity activity) {
@@ -127,7 +128,7 @@ public class EipFragment extends Fragment implements Observer {
 	if(canStartEIP())
 	    startEipFromScratch();
 	else if(canLogInToStartEIP()) {
-	    Log.d(TAG, "Can Log In to start EIP");
+        wants_to_connect = true;
         Bundle bundle = new Bundle();
         bundle.putBoolean(IS_PENDING, true);
 	    dashboard.sessionDialog(bundle);
@@ -176,6 +177,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     public void startEipFromScratch() {
+        wants_to_connect = false;
         is_starting_to_connect = true;
         progress_bar.setVisibility(View.VISIBLE);
 	eip_switch.setVisibility(View.VISIBLE);
@@ -204,6 +206,10 @@ public class EipFragment extends Fragment implements Observer {
 	status_message.setText(status);
 
 	eipCommand(Constants.ACTION_STOP_EIP);
+    }
+
+    protected void updateEipService() {
+        eipCommand(Constants.ACTION_UPDATE_EIP_SERVICE);
     }
 	
     /**
@@ -339,7 +345,17 @@ public class EipFragment extends Fragment implements Observer {
             dashboard.downloadVpnCertificate();
 		    break;
 		}
-	    }
+	    } else if (request.equals(Constants.ACTION_UPDATE_EIP_SERVICE)) {
+            switch (resultCode) {
+                case Activity.RESULT_OK:
+                    if(wants_to_connect)
+                        startEipFromScratch();
+                    break;
+                case Activity.RESULT_CANCELED:
+                    handleNewState(eip_status);
+                    break;
+            }
+        }
 	}
     }
 

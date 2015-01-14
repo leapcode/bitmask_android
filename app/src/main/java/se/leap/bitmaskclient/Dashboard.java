@@ -127,33 +127,28 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	    case 91: // 0.6.0 without Bug #5999
 	    case 101: // 0.8.0
 		if(!preferences.getString(Constants.KEY, "").isEmpty())
-		    updateEipService();
+		    eip_fragment.updateEipService();
 		break;
 	    }
 	} catch (NameNotFoundException e) {
 	    Log.d(TAG, "Handle version didn't find any " + getPackageName() + " package");
 	}
     }
-    
-    @SuppressLint("CommitPrefEdits")
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
 	if ( requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
-	    if ( resultCode == RESULT_OK ) {
-		preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
-		updateEipService();
+	    if ( resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
+                provider = data.getParcelableExtra(Provider.KEY);
+                providerToPreferences(provider);
 
-		if (data.hasExtra(Provider.KEY)) {
-		    provider = data.getParcelableExtra(Provider.KEY);
-		    preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).commit();
-		    preferences.edit().putString(Provider.MAIN_URL, provider.mainUrl().toString()).apply();
-		    preferences.edit().putString(Provider.KEY, provider.definition().toString()).apply();
-		}
-		buildDashboard(false);
-		invalidateOptionsMenu();
-		if (data.hasExtra(SessionDialog.TAG)) {
-		    sessionDialog(Bundle.EMPTY);
-		}
+                buildDashboard(false);
+                invalidateOptionsMenu();
+                if (data.hasExtra(SessionDialog.TAG)) {
+                    sessionDialog(Bundle.EMPTY);
+                }
+
+                preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
 	    } else if (resultCode == RESULT_CANCELED && data.hasExtra(ACTION_QUIT)) {
                 finish();
 	    } else
@@ -161,6 +156,13 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	} else if(requestCode == EIP.DISCONNECT) {
 	    EipStatus.getInstance().setConnectedOrDisconnected();
 	}
+    }
+
+    @SuppressLint("CommitPrefEdits")
+    private void providerToPreferences(Provider provider) {
+        preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).commit();
+        preferences.edit().putString(Provider.MAIN_URL, provider.mainUrl().toString()).apply();
+        preferences.edit().putString(Provider.KEY, provider.definition().toString()).apply();
     }
 
     private void configErrorDialog() {
@@ -389,16 +391,15 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	    setResult(RESULT_CANCELED);
 	} else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
 	    updateViewHidingProgressBar(resultCode);
-	    updateEipService();
+	    eip_fragment.updateEipService();
 	    setResult(RESULT_OK);
 	} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 	    updateViewHidingProgressBar(resultCode);
 	    setResult(RESULT_CANCELED);
 	}
 	else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE) {
+        eip_fragment.updateEipService();
 	    setResult(RESULT_OK);
-
-	    updateEipService();
 	} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE) {
 	    setResult(RESULT_CANCELED);
 	}
@@ -408,12 +409,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	changeStatusMessage(resultCode);
 	hideProgressBar();
 	invalidateOptionsMenu();
-    }
-
-    private void updateEipService() {
-	Intent updateEIP = new Intent(getApplicationContext(), EIP.class);
-	updateEIP.setAction(Constants.ACTION_UPDATE_EIP_SERVICE);
-	startService(updateEIP);
     }
 
     private void changeStatusMessage(final int previous_result_code) {
