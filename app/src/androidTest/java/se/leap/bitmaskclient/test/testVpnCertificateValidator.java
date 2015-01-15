@@ -16,17 +16,17 @@
  */
 package se.leap.bitmaskclient.test;
 
-import android.content.Context;
-import android.os.SystemClock;
-import android.test.InstrumentationTestCase;
+import android.content.*;
+import android.os.*;
+import android.test.*;
 
-import org.json.JSONObject;
+import org.json.*;
 
-import java.io.IOException;
-import java.util.Calendar;
+import java.io.*;
+import java.util.*;
 
-import se.leap.bitmaskclient.Provider;
-import se.leap.bitmaskclient.eip.VpnCertificateValidator;
+import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.eip.*;
 
 /**
  * @author parmegv
@@ -64,11 +64,9 @@ public class testVpnCertificateValidator extends InstrumentationTestCase {
     }
 
     private int shellCommand(String command) {
-        int result = -1;
+        int result = 0;
         try {
-            result = Runtime.getRuntime().exec(command).waitFor();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            Runtime.getRuntime().exec(command);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,28 +1,19 @@
 package se.leap.bitmaskclient.test;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.provider.Settings;
-import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
-import com.robotium.solo.Solo;
+import android.test.*;
+import com.robotium.solo.*;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Scanner;
 
-import de.blinkt.openvpn.activities.DisconnectVPN;
-import se.leap.bitmaskclient.ConfigurationWizard;
-import se.leap.bitmaskclient.Dashboard;
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.test.ConnectionManager;
+import de.blinkt.openvpn.activities.*;
+import se.leap.bitmaskclient.*;
 
 public class testDashboardIntegration extends ActivityInstrumentationTestCase2<Dashboard> {
 
 	private Solo solo;
-	
+    private Context context;
+
 	public testDashboardIntegration() {
 		super(Dashboard.class);
 	}
@@ -30,8 +21,12 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+        context = getInstrumentation().getContext();
 		solo = new Solo(getInstrumentation(), getActivity());
-		ConnectionManager.setMobileDataEnabled(true, solo.getCurrentActivity().getApplicationContext());
+		ConnectionManager.setMobileDataEnabled(true, context);
+        solo.unlockScreen();
+        if(solo.searchText(solo.getString(R.string.configuration_wizard_title)))
+            new testConfigurationWizard(solo).toDashboard("demo.bitmask.net");
 	}
 
 	@Override
@@ -45,121 +40,128 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 	 */
 	public void testOnOffOpenVpn() {
 	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    testEipTurningOn();
+	    turningEipOn();
 	    
 	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    testEipTurningOff();
+	    turningEipOff();
 	    
 	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    testEipTurningOn();
+	    turningEipOn();
 	    
 	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    testEipTurningOff();
-	    
-	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    testEipTurningOn();
-	    
-	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    testEipTurningOff();
+	    turningEipOff();
 
-	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    testEipTurningOn();
+        /*solo.clickOnView(solo.getView(R.id.eipSwitch));
+        turningEipOn();
 	    
-	    testEipIsOnNoNetwork();
+	    turnNetworkOff();
+        restartAdbServer(); // This doesn't work
+        */
 	    
 	}
 
-    private void testEipTurningOn() {
-	if(!solo.waitForText(getActivity().getString(R.string.state_auth)))
-	    fail();
-	if(!solo.waitForText(getActivity().getString(R.string.eip_state_connected), 1, 30*1000))
-	    fail();
-	solo.sleep(2*1000);
+    private void turningEipOn() {
+        assertAuthenticating();
+        int max_seconds_until_connected = 30;
+        assertConnected(max_seconds_until_connected);
+        solo.sleep(2*1000);
     }
 
-    private void testEipTurningOff() {
+    private void assertAuthenticating() {
+        String message = solo.getString(R.string.state_auth);
+        assertTrue(solo.waitForText(message));
+    }
+
+    private void assertConnected(int max_seconds_until_connected) {
+        String message = solo.getString(R.string.eip_state_connected);
+        assertTrue(solo.waitForText(message, 1, max_seconds_until_connected * 1000));
+    }
+
+    private void turningEipOff() {
 	sayOkToDisconnect();
-	if(!solo.waitForText(getActivity().getString(R.string.eip_state_not_connected)))
-	    fail();
+        assertDisconnected();
 	solo.sleep(2*1000);
     }
 
     private void sayOkToDisconnect() {
-	if(!solo.waitForActivity(DisconnectVPN.class))
-	    fail();
-	solo.clickOnText(getActivity().getString(android.R.string.yes));
+	assertTrue(solo.waitForActivity(DisconnectVPN.class));
+        String yes = solo.getString(android.R.string.yes);
+	solo.clickOnText(yes);
+    }
+
+    private void assertDisconnected() {
+        String message = solo.getString(R.string.eip_state_not_connected);
+        assertTrue(solo.waitForText(message));
     }
     
-    private void testEipIsOnNoNetwork() {
-	ConnectionManager.setMobileDataEnabled(false, solo.getCurrentActivity().getApplicationContext());
+    private void turnNetworkOff() {
+	ConnectionManager.setMobileDataEnabled(false, context);
 	if(!solo.waitForText(getActivity().getString(R.string.eip_state_not_connected), 1, 15*1000))
 	    fail();
     }
+
+    private void restartAdbServer() {
+        runAdbCommand("kill-server");
+        runAdbCommand("start-server");
+    }
     
     public void testLogInAndOut() {
-		long miliseconds_to_log_in = 40 * 1000;
-		solo.clickOnActionBarItem(R.id.login_button);
-		solo.enterText(0, "parmegvtest1");
-		solo.enterText(1, " S_Zw3'-");
-		solo.clickOnText("Log In");
-		solo.waitForDialogToClose();
-		solo.waitForDialogToClose(miliseconds_to_log_in);
-		if(!solo.waitForText(getActivity().getString(R.string.succesful_authentication_message)))
-			fail();
+		long milliseconds_to_log_in = 40 * 1000;
+        logIn("parmegvtest1", " S_Zw3'-");
+		solo.waitForDialogToClose(milliseconds_to_log_in);
+        assertSuccessfulLogin();
 
-		solo.clickOnActionBarItem(R.string.logout_button);
-		if(!solo.waitForDialogToClose())
-			fail();
+        logOut();
 	}
-	
-	public void testShowAbout() {
-  	        solo.clickOnMenuItem(getActivity().getString(R.string.about));
-		solo.waitForText(getActivity().getString(R.string.repository_url_text));
+
+    private void logIn(String username, String password) {
+        solo.clickOnActionBarItem(R.id.login_button);
+        solo.enterText(0, username);
+        solo.enterText(1, password);
+        solo.clickOnText("Log In");
+        solo.waitForDialogToClose();
+    }
+
+    private void assertSuccessfulLogin() {
+        String message = solo.getString(R.string.succesful_authentication_message);
+        assertTrue(solo.waitForText(message));
+    }
+
+    private void logOut() {
+        solo.clickOnActionBarItem(R.string.logout_button);
+        assertTrue(solo.waitForDialogToClose());
+    }
+
+    public void testShowAbout() {
+        showAbout();
 		solo.goBack();
-		
-		solo.clickOnMenuItem(getActivity().getString(R.string.about));
-		solo.waitForText(getActivity().getString(R.string.repository_url_text));
+		showAbout();
 		solo.goBack();
 	}
-	
-	public void testSwitchProvider() {
-  	        solo.clickOnMenuItem(getActivity().getString(R.string.switch_provider_menu_option));
+
+    private void showAbout() {
+        String menu_item = solo.getString(R.string.about);
+        solo.clickOnMenuItem(menu_item);
+
+        String text_unique_to_about = solo.getString(R.string.repository_url_text);
+        solo.waitForText(text_unique_to_about);
+    }
+
+    public void testSwitchProvider() {
+  	        solo.clickOnMenuItem(solo.getString(R.string.switch_provider_menu_option));
 		solo.waitForActivity(ConfigurationWizard.class);
 		solo.goBack();
 	}
 
-    public void testUpdateExpiredCertificate() {
-        String certificate = "-----BEGIN CERTIFICATE-----" +
-                "MIIEnDCCAoSgAwIBAgIRAOBkcbMKR0Jlw+xNalHn7aIwDQYJKoZIhvcNAQELBQAwdTEYMBYGA1UE" +
-                "CgwPUmlzZXVwIE5ldHdvcmtzMRswGQYDVQQLDBJodHRwczovL3Jpc2V1cC5uZXQxPDA6BgNVBAMM" +
-                "M1Jpc2V1cCBOZXR3b3JrcyBSb290IENBIChjbGllbnQgY2VydGlmaWNhdGVzIG9ubHkhKTAeFw0x" +
-                "NDA5MTkwMDAwMDBaFw0xNDExMTkwMDAwMDBaMC0xKzApBgNVBAMMIlVOTElNSVRFRDcwZWhxZG9l" +
-                "ZXQ2Z243bmc3eWx3ZWNxeGwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDdaKQHSwg2" +
-                "Q2Uz9t5mae9BfV9Jkk+WSU6jXixsTbtLAr8gvuNcVuI0lKm2zXVqoS8aRCSsCt12vhjU/WBTSv0t" +
-                "vwTaT2HQYFQ1GlVUBKssJEUpaVyQKL6LN9BA5ZODBpbhefRIX8z+02afxmNWdnOQfDtLU6nHSQLL" +
-                "IUBSmgu+Y2Q3SdIBojIl9Kj0Zt6uZkhtOXZqkwLBiMr+/ukSidpcmNgbAN0eXSfVouaduzsDPQ6M" +
-                "eCJTz2lhUvC0/57h5mlkNLzEjyb/pAVTtnK4zdiH6XAuCxU/AkF0yzhaiQWMG0RQb4vEx/UHjkDU" +
-                "+K0GDy/qx1BmBB7C4vHLauqSXOs1AgMBAAGjbzBtMB0GA1UdDgQWBBQioBn7DdhjmtBKgQKpx/aW" +
-                "XHYkGjALBgNVHQ8EBAMCB4AwEwYDVR0lBAwwCgYIKwYBBQUHAwIwCQYDVR0TBAIwADAfBgNVHSME" +
-                "GDAWgBQX9BvV5SoBAU1rol02CikJlmWARjANBgkqhkiG9w0BAQsFAAOCAgEAV7q102FQ62IOX84o" +
-                "pPvUL3hJkGtZ5chgQwZhfl2fGtEdeqpU27Hx1jLP9o3n1z9XYaZg/d8xYhpY6Mm4rFl6hA4gk81Z" +
-                "yg/A3QeUgIjOsA0Xp+RNB5ACaLjCPUtWNk5brfuelDdFHjl1noC2P3vQ9ErhUna6TKVsxxrueimO" +
-                "nc3sV7YMGiVfPC7wEmhERuyhQxftIUHUy2kDCY5QgXtru6IZmc3SP4FcM8LUSC49kqmU9if2GTLo" +
-                "wQZmz6T7+N5PIJWIOiDh9PyoojRo7ep9szeIZpzgxcsoE/9ed84tg36JLOWi0GOyrdzVExv0rQQt" +
-                "q/NpqAe1mX5XQVbY8nwgaJ8eWIWIXIn+5RB7b+fm5ZFeM4eFyWeDk99bvS8jdH6uQP5WusL55+ft" +
-                "ADtESsmBvzUEGqxk5GL4lmmeqE+vsR5TesqGjZ+yH67rR+1+Uy2mhbqJBP0E0LHwWCCPYEVfngHj" +
-                "aZkDF1UVQdfc9Amc5u5J5YliWrEG80BNeJF7740Gwx69DHEIhElN+BBeeqLLYIZTKmt28/9iWbKL" +
-                "vhCrz/29wLYksL1bXmyHzvzyAcDHPpO9sQrKYiP1mGRDmXJmZU3i3cgeqQFZ8+lr55wcYdMGJOcx" +
-                "bz+jL0VkHdnoZdzGzelrAhZtgMtsJ/kgWYRgtFmhpYF1Xtj2MYrpBDxgQck=" +
-                "-----END CERTIFICATE-----";
+    /*public void testReboot() {
+        runAdbCommand("shell am broadcast -a android.intent.action.BOOT_COMPLETED");
+    }*/
 
-    }
-
-    public void testReboot() {
+    private void runAdbCommand(String adb_command) {
         try {
-            String command = "adb shell am broadcast -a android.intent.action.BOOT_COMPLETED";
-            Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
+            String command = "adb " + adb_command;
+            Runtime.getRuntime().exec(command).waitFor();
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

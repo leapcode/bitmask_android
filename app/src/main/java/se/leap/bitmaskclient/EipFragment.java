@@ -37,7 +37,6 @@ public class EipFragment extends Fragment implements Observer {
     protected static final String STATUS_MESSAGE = TAG + ".status_message";
     public static final String START_ON_BOOT = "start on boot";
 
-    private View view;
     @InjectView(R.id.eipSwitch)
     Switch eip_switch;
     @InjectView(R.id.status_message)
@@ -69,7 +68,7 @@ public class EipFragment extends Fragment implements Observer {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-	view = inflater.inflate(R.layout.eip_service_fragment, container, false);
+	View view = inflater.inflate(R.layout.eip_service_fragment, container, false);
         ButterKnife.inject(this, view);
 
 	if (eip_status.isConnecting())
