@@ -28,7 +28,13 @@ import se.leap.bitmaskclient.ConfigHelper;
 public class VpnCertificateValidator {
     public final static String TAG = VpnCertificateValidator.class.getSimpleName();
 
-    public boolean isValid(String certificate) {
+    private String certificate;
+
+    public VpnCertificateValidator(String certificate) {
+        this.certificate = certificate;
+    }
+
+    public boolean isValid() {
 	if(!certificate.isEmpty()) {
 	    X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate);
 	    return isValid(certificate_x509);

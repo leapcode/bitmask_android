@@ -37,7 +37,6 @@ public class EipFragment extends Fragment implements Observer {
     protected static final String STATUS_MESSAGE = TAG + ".status_message";
     public static final String START_ON_BOOT = "start on boot";
 
-    private View view;
     @InjectView(R.id.eipSwitch)
     Switch eip_switch;
     @InjectView(R.id.status_message)
@@ -45,20 +44,18 @@ public class EipFragment extends Fragment implements Observer {
     @InjectView(R.id.eipProgress)
     ProgressBar progress_bar;
 
-    private static Activity parent_activity;
+    private static Dashboard dashboard;
     private static EIPReceiver mEIPReceiver;
     private static EipStatus eip_status;
     private boolean is_starting_to_connect;
+    private boolean wants_to_connect;
 
     @Override
     public void onAttach(Activity activity) {
 	super.onAttach(activity);
-	parent_activity = activity;
 
-        Dashboard dashboard = (Dashboard) parent_activity;
-        Intent provider_API_command = dashboard.prepareProviderAPICommand();
-        provider_API_command.setAction(ProviderAPI.DOWNLOAD_EIP_SERVICE);
-        parent_activity.startService(provider_API_command);
+        dashboard = (Dashboard) activity;
+        dashboard.providerApiCommand(Bundle.EMPTY, 0, ProviderAPI.DOWNLOAD_EIP_SERVICE);
     }
     
     @Override
@@ -71,7 +68,7 @@ public class EipFragment extends Fragment implements Observer {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-	view = inflater.inflate(R.layout.eip_service_fragment, container, false);
+	View view = inflater.inflate(R.layout.eip_service_fragment, container, false);
         ButterKnife.inject(this, view);
 
 	if (eip_status.isConnecting())
@@ -110,15 +107,10 @@ public class EipFragment extends Fragment implements Observer {
 	super.onSaveInstanceState(outState);
     }
 
-    protected void saveEipStatus() {
-	boolean eip_is_on = false;
-	Log.d(TAG, "saveEipStatus");
-	if(eip_switch.isChecked()) {
-	    eip_is_on = true;
-	}
-
-	if(parent_activity != null)
-	    Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, eip_is_on).commit();
+    protected void saveStatus() {
+	boolean is_on = eip_switch.isChecked();
+	Log.d(TAG, "saveStatus: is_on = " + is_on);
+	Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, is_on).commit();
     }
 
     @OnCheckedChanged(R.id.eipSwitch)
@@ -128,18 +120,17 @@ public class EipFragment extends Fragment implements Observer {
 	else
 	    handleSwitchOff();
 	
-	saveEipStatus();
+	saveStatus();
     }
 
     private void handleSwitchOn() {
 	if(canStartEIP())
 	    startEipFromScratch();
 	else if(canLogInToStartEIP()) {
-	    Log.d(TAG, "Can Log In to start EIP");
-	    Dashboard dashboard = (Dashboard) parent_activity;
+        wants_to_connect = true;
         Bundle bundle = new Bundle();
         bundle.putBoolean(IS_PENDING, true);
-	    dashboard.logInDialog(bundle);
+	    dashboard.sessionDialog(bundle);
 	}	    
     }
     
@@ -166,16 +157,16 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void askPendingStartCancellation() {	
-	AlertDialog.Builder alertBuilder = new AlertDialog.Builder(parent_activity);
-	alertBuilder.setTitle(parent_activity.getString(R.string.eip_cancel_connect_title))
-	    .setMessage(parent_activity.getString(R.string.eip_cancel_connect_text))
+	AlertDialog.Builder alertBuilder = new AlertDialog.Builder(dashboard);
+	alertBuilder.setTitle(dashboard.getString(R.string.eip_cancel_connect_title))
+	    .setMessage(dashboard.getString(R.string.eip_cancel_connect_text))
 	    .setPositiveButton((R.string.yes), new DialogInterface.OnClickListener() {
 		    @Override
 		    public void onClick(DialogInterface dialog, int which) {
 			askToStopEIP();
 		    }
 		})
-	    .setNegativeButton(parent_activity.getString(R.string.no), new DialogInterface.OnClickListener() {
+	    .setNegativeButton(dashboard.getString(R.string.no), new DialogInterface.OnClickListener() {
 		    @Override
 		    public void onClick(DialogInterface dialog, int which) {
 			eip_switch.setChecked(true);
@@ -185,33 +176,39 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     public void startEipFromScratch() {
+        wants_to_connect = false;
         is_starting_to_connect = true;
         progress_bar.setVisibility(View.VISIBLE);
 	eip_switch.setVisibility(View.VISIBLE);
-	String status = parent_activity.getString(R.string.eip_status_start_pending);
+	String status = dashboard.getString(R.string.eip_status_start_pending);
 	status_message.setText(status);
 	
 	if(!eip_switch.isChecked()) {
 	    eip_switch.setChecked(true);
-	    saveEipStatus();
 	}
+        saveStatus();
 	eipCommand(Constants.ACTION_START_EIP);
     }
 
     private void stopEIP() {
 	if(eip_status.isConnecting())
 	    VoidVpnService.stop();
-	Intent disconnect_vpn = new Intent(parent_activity, DisconnectVPN.class);
-	parent_activity.startActivityForResult(disconnect_vpn, EIP.DISCONNECT);
+	Intent disconnect_vpn = new Intent(dashboard, DisconnectVPN.class);
+	dashboard.startActivityForResult(disconnect_vpn, EIP.DISCONNECT);
 	eip_status.setDisconnecting();
     }
 
     protected void askToStopEIP() {
         hideProgressBar();
 
-	String status = parent_activity.getString(R.string.eip_state_not_connected);
+	String status = dashboard.getString(R.string.eip_state_not_connected);
 	status_message.setText(status);
+
 	eipCommand(Constants.ACTION_STOP_EIP);
+    }
+
+    protected void updateEipService() {
+        eipCommand(Constants.ACTION_UPDATE_EIP_SERVICE);
     }
 	
     /**
@@ -222,10 +219,10 @@ public class EipFragment extends Fragment implements Observer {
      */
     private void eipCommand(String action){
 	// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
-	Intent vpn_intent = new Intent(parent_activity.getApplicationContext(), EIP.class);
+	Intent vpn_intent = new Intent(dashboard.getApplicationContext(), EIP.class);
 	vpn_intent.setAction(action);
 	vpn_intent.putExtra(Constants.RECEIVER_TAG, mEIPReceiver);
-	parent_activity.startService(vpn_intent);
+	dashboard.startService(vpn_intent);
     }
 	
     @Override
@@ -233,7 +230,7 @@ public class EipFragment extends Fragment implements Observer {
 	if(observable instanceof EipStatus) {
 	    eip_status = (EipStatus) observable;
 	    final EipStatus eip_status = (EipStatus) observable;
-	    parent_activity.runOnUiThread(new Runnable() {
+	    dashboard.runOnUiThread(new Runnable() {
 	    	    @Override
 	    	    public void run() {
 			handleNewState(eip_status);
@@ -259,13 +256,13 @@ public class EipFragment extends Fragment implements Observer {
 	Log.d(TAG, "setConnectedUi? " + eip_status.isConnected());
 	adjustSwitch();
     is_starting_to_connect = false;
-	status_message.setText(parent_activity.getString(R.string.eip_state_connected));
+	status_message.setText(dashboard.getString(R.string.eip_state_connected));
     }
 
     private void setDisconnectedUI(){
 	hideProgressBar();
 	adjustSwitch();
-	status_message.setText(parent_activity.getString(R.string.eip_state_not_connected));
+	status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
     }
 
     private void adjustSwitch() {
@@ -286,11 +283,16 @@ public class EipFragment extends Fragment implements Observer {
     private void setInProgressUI(EipStatus eip_status) {
 	int localizedResId = eip_status.getLocalizedResId();
 	String logmessage = eip_status.getLogMessage();
-	String prefix = parent_activity.getString(localizedResId);
+	String prefix = dashboard.getString(localizedResId);
 
 	status_message.setText(prefix + " " + logmessage);
         is_starting_to_connect = false;
 	adjustSwitch();
+    }
+
+    private void updatingCertificateUI() {
+        progress_bar.setVisibility(View.VISIBLE);
+        status_message.setText(getString(R.string.updating_certificate_message));
     }
 
     private void hideProgressBar() {
@@ -338,20 +340,21 @@ public class EipFragment extends Fragment implements Observer {
 		case Activity.RESULT_OK:
 		    break;
 		case Activity.RESULT_CANCELED:
-		    Dashboard dashboard = (Dashboard) parent_activity;
-
-		    progress_bar.setVisibility(View.VISIBLE);
-		    status_message.setText(getString(R.string.updating_certificate_message));
-		    if(LeapSRPSession.getToken().isEmpty() && !Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false)) {
-			dashboard.logInDialog(Bundle.EMPTY);
-		    } else {
-			Intent provider_API_command = dashboard.prepareProviderAPICommand();
-			provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
-			parent_activity.startService(provider_API_command);
-		    }
+            updatingCertificateUI();
+            dashboard.downloadVpnCertificate();
 		    break;
 		}
-	    }
+	    } else if (request.equals(Constants.ACTION_UPDATE_EIP_SERVICE)) {
+            switch (resultCode) {
+                case Activity.RESULT_OK:
+                    if(wants_to_connect)
+                        startEipFromScratch();
+                    break;
+                case Activity.RESULT_CANCELED:
+                    handleNewState(eip_status);
+                    break;
+            }
+        }
 	}
     }
 

@@ -1,13 +1,17 @@
 /*
  * Copyright (c) 2012-2014 Arne Schwabe
- * Distributed under the GNU GPL v2. For full terms see the file doc/LICENSE.txt
+ * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
 package de.blinkt.openvpn.core;
 
+import android.text.TextUtils;
+import android.util.Pair;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
@@ -28,48 +32,49 @@ public class ConfigParser {
 	private HashMap<String, Vector<Vector<String>>> options = new HashMap<String, Vector<Vector<String>>>();
 	private HashMap<String, Vector<String>> meta = new HashMap<String, Vector<String>>();
 
-
-	private boolean extraRemotesAsCustom=false;
-
 	public void parseConfig(Reader reader) throws IOException, ConfigParseError {
 
 
-		BufferedReader br =new BufferedReader(reader);
+        BufferedReader br = new BufferedReader(reader);
 
-        int lineno=0;
-		while (true){
-			String line = br.readLine();
-            lineno++;
-			if(line==null)
-				break;
+        int lineno = 0;
+        try {
+            while (true) {
+                String line = br.readLine();
+                lineno++;
+                if (line == null)
+                    break;
 
-            if (lineno==1 && (line.startsWith("PK\003\004")
-                        ||   (line.startsWith("PK\007\008"))))
+                if (lineno == 1 && (line.startsWith("PK\003\004")
+                        || (line.startsWith("PK\007\008"))))
                     throw new ConfigParseError("Input looks like a ZIP Archive. Import is only possible for OpenVPN config files (.ovpn/.conf)");
 
-			// Check for OpenVPN Access Server Meta information
-			if (line.startsWith("# OVPN_ACCESS_SERVER_")) {
-				Vector<String> metaarg = parsemeta(line);
-				meta.put(metaarg.get(0),metaarg);
-				continue;
-			}
-			Vector<String> args = parseline(line);	
+                // Check for OpenVPN Access Server Meta information
+                if (line.startsWith("# OVPN_ACCESS_SERVER_")) {
+                    Vector<String> metaarg = parsemeta(line);
+                    meta.put(metaarg.get(0), metaarg);
+                    continue;
+                }
+                Vector<String> args = parseline(line);
 
-			if(args.size() ==0)
-				continue;
+                if (args.size() == 0)
+                    continue;
 
 
-			if(args.get(0).startsWith("--"))
-				args.set(0, args.get(0).substring(2));
+                if (args.get(0).startsWith("--"))
+                    args.set(0, args.get(0).substring(2));
 
-			checkinlinefile(args,br);
+                checkinlinefile(args, br);
 
-			String optionname = args.get(0);
-			if(!options.containsKey(optionname)) {
-				options.put(optionname, new Vector<Vector<String>>());
-			}
-			options.get(optionname).add(args);
-		}
+                String optionname = args.get(0);
+                if (!options.containsKey(optionname)) {
+                    options.put(optionname, new Vector<Vector<String>>());
+                }
+                options.get(optionname).add(args);
+            }
+        } catch (java.lang.OutOfMemoryError memoryError) {
+            throw new ConfigParseError("File too large to parse: " + memoryError.getLocalizedMessage());
+        }
 	}
 
 	private Vector<String> parsemeta(String line) {
@@ -98,7 +103,7 @@ public class ConfigParser {
 					break;
 				else {
 					inlinefile+=line;
-					inlinefile+= "\n";					
+					inlinefile+= "\n";
 				}
 			} while(true);
 
@@ -132,7 +137,7 @@ public class ConfigParser {
 
 	// adapted openvpn's parse function to java
 	private Vector<String> parseline(String line) throws ConfigParseError {
-		Vector<String> parameters = new Vector<String>(); 
+		Vector<String> parameters = new Vector<String>();
 
 		if (line.length()==0)
 			return parameters;
@@ -145,12 +150,12 @@ public class ConfigParser {
 		int pos=0;
 		String currentarg="";
 
-		do { 
+		do {
 			// Emulate the c parsing ...
 			char in;
 			if(pos < line.length())
 				in = line.charAt(pos);
-			else 
+			else
 				in = '\0';
 
 			if (!backslash && in == '\\' && state != linestate.readin_single_quote)
@@ -228,10 +233,7 @@ public class ConfigParser {
 	}
 
 
-	final String[] unsupportedOptions = { "config", 
-			"connection", 
-			"proto-force", 
-			"remote-random",
+	final String[] unsupportedOptions = { "config",
 			"tls-server"
 
 	};
@@ -299,7 +301,7 @@ public class ConfigParser {
             "remote",
             "float",
             "port",
-//            "connect-retry",
+            "connect-retry",
             "connect-timeout",
             "connect-retry-max",
             "link-mtu",
@@ -325,7 +327,7 @@ public class ConfigParser {
 
     // This method is far too long
 	@SuppressWarnings("ConstantConditions")
-    public VpnProfile convertProfile() throws ConfigParseError{
+    public VpnProfile convertProfile() throws ConfigParseError, IOException {
 		boolean noauthtypeset=true;
 		VpnProfile np = new VpnProfile(CONVERTED_PROFILE);
 		// Pull, client, tls-client
@@ -338,7 +340,7 @@ public class ConfigParser {
 		}
 
 		Vector<String> secret = getOption("secret", 1, 2);
-		if(secret!=null) 
+		if(secret!=null)
 		{
 			np.mAuthenticationType=VpnProfile.TYPE_STATICKEYS;
 			noauthtypeset=false;
@@ -362,7 +364,7 @@ public class ConfigParser {
                 if (route.size() >= 4)
                     gateway = route.get(3);
 
-				String net = route.get(1);	
+				String net = route.get(1);
 				try {
 					CIDRIP cidr = new CIDRIP(net, netmask);
                     if (gateway.equals("net_gateway"))
@@ -398,7 +400,7 @@ public class ConfigParser {
 		Vector<Vector<String>> tlsauthoptions = getAllOption("tls-auth", 1, 2);
 		if(tlsauthoptions!=null) {
 			for(Vector<String> tlsauth:tlsauthoptions) {
-				if(tlsauth!=null) 
+				if(tlsauth!=null)
 				{
 					if(!tlsauth.get(1).equals("[inline]")) {
 						np.mTLSAuthFilename=tlsauth.get(1);
@@ -456,36 +458,6 @@ public class ConfigParser {
 		if (mode != null){
 			if(!mode.get(1).equals("p2p"))
 				throw new ConfigParseError("Invalid mode for --mode specified, need p2p");
-		}
-
-		Vector<String> port = getOption("port", 1,1);
-		if(port!=null){
-			np.mServerPort = port.get(1);
-		}
-
-        Vector<String> rport = getOption("rport", 1,1);
-        if(rport!=null){
-            np.mServerPort = rport.get(1);
-        }
-
-        Vector<String> proto = getOption("proto", 1,1);
-		if(proto!=null){
-			np.mUseUdp=isUdpProto(proto.get(1));
-		}
-
-		// Parse remote config
-		Vector<Vector<String>> remotes = getAllOption("remote",1,3);
-
-		if(remotes!=null && remotes.size()>=1 ) {
-			Vector<String> remote = remotes.get(0);
-			switch (remote.size()) {
-			case 4:
-				np.mUseUdp=isUdpProto(remote.get(3));
-			case 3:
-				np.mServerPort = remote.get(2);
-			case 2:
-				np.mServerName = remote.get(1);
-			}
 		}
 
 
@@ -581,18 +553,18 @@ public class ConfigParser {
 		if(verifyx509name!=null){
 			np.mRemoteCN = verifyx509name.get(1);
 			np.mCheckRemoteCN=true;
-			if(verifyx509name.size()>2) {  
+			if(verifyx509name.size()>2) {
 				if (verifyx509name.get(2).equals("name"))
 					np.mX509AuthType=VpnProfile.X509_VERIFY_TLSREMOTE_RDN;
 				else if (verifyx509name.get(2).equals("name-prefix"))
 					np.mX509AuthType=VpnProfile.X509_VERIFY_TLSREMOTE_RDN_PREFIX;
-				else 
+				else
 					throw new ConfigParseError("Unknown parameter to x509-verify-name: " + verifyx509name.get(2) );
 			} else {
 				np.mX509AuthType = VpnProfile.X509_VERIFY_TLSREMOTE_DN;
 			}
 
-		} 
+		}
 
 
 		Vector<String> verb = getOption("verb",1,1);
@@ -615,7 +587,7 @@ public class ConfigParser {
 		if(connectretrymax!=null)
 			np.mConnectRetryMax =connectretrymax.get(1);
 
-		Vector<Vector<String>> remotetls = getAllOption("remote-cert-tls", 1, 1);
+        Vector<Vector<String>> remotetls = getAllOption("remote-cert-tls", 1, 1);
 		if(remotetls!=null)
 			if(remotetls.get(0).get(1).equals("server"))
 				np.mExpectTLSCert=true;
@@ -632,14 +604,55 @@ public class ConfigParser {
 				np.mAuthenticationType=VpnProfile.TYPE_USERPASS_KEYSTORE;
 			}
 			if(authuser.size()>1) {
-				// Set option value to password get to get cance to embed later.
+				// Set option value to password get to embed later.
 				np.mUsername=null;
-				np.mPassword=authuser.get(1);
-				useEmbbedUserAuth(np,authuser.get(1));
+				useEmbbedUserAuth(np, authuser.get(1));
 			}
 		}
 
-		// Parse OpenVPN Access Server extra
+        Pair<Connection, Connection[]> conns = parseConnectionOptions(null);
+        np.mConnections =conns.second;
+
+        Vector<Vector<String>> connectionBlocks = getAllOption("connection", 1, 1);
+
+        if (np.mConnections.length > 0 && connectionBlocks !=null ) {
+            throw  new ConfigParseError("Using a <connection> block and --remote is not allowed.");
+        }
+
+        if (connectionBlocks!=null) {
+            np.mConnections = new Connection[connectionBlocks.size()];
+
+            int connIndex = 0;
+            for (Vector<String> conn : connectionBlocks) {
+                Pair<Connection, Connection[]> connectionBlockConnection =
+                        parseConnection(conn.get(1), conns.first);
+
+                if (connectionBlockConnection.second.length != 1)
+                    throw new ConfigParseError("A <connection> block must have exactly one remote");
+                np.mConnections[connIndex] = connectionBlockConnection.second[0];
+                connIndex++;
+            }
+        }
+        if(getOption("remote-random", 0, 0) != null)
+            np.mRemoteRandom=true;
+
+        Vector<String> protoforce = getOption("proto-force", 1, 1);
+        if(protoforce!=null) {
+            boolean disableUDP;
+            String protoToDisable = protoforce.get(1);
+            if (protoToDisable.equals("udp"))
+                disableUDP=true;
+            else if (protoToDisable.equals("tcp"))
+                disableUDP=false;
+            else
+                throw new ConfigParseError(String.format("Unknown protocol %s in proto-force", protoToDisable));
+
+            for (Connection conn:np.mConnections)
+                if(conn.mUseUdp==disableUDP)
+                    conn.mEnabled=false;
+        }
+
+        // Parse OpenVPN Access Server extra
 		Vector<String> friendlyname = meta.get("FRIENDLY_NAME");
 		if(friendlyname !=null && friendlyname.size() > 1)
 			np.mName=friendlyname.get(1);
@@ -649,19 +662,94 @@ public class ConfigParser {
 		if(ocusername !=null && ocusername.size() > 1)
 			np.mUsername=ocusername.get(1);
 
-		// Check the other options
-		if(remotes !=null && remotes.size()>1 && extraRemotesAsCustom) {
-			// first is already added
-			remotes.remove(0);
-			np.mCustomConfigOptions += getOptionStrings(remotes);
-			np.mUseCustomConfig=true;
-
-		}
-		checkIgnoreAndInvalidOptions(np);
+        checkIgnoreAndInvalidOptions(np);
 		fixup(np);
 
 		return np;
 	}
+
+    private Pair<Connection, Connection[]> parseConnection(String connection, Connection defaultValues) throws IOException, ConfigParseError {
+       // Parse a connection Block as a new configuration file
+
+
+        ConfigParser connectionParser = new ConfigParser();
+        StringReader reader = new StringReader(connection.substring(VpnProfile.INLINE_TAG.length()));
+        connectionParser.parseConfig(reader);
+
+        Pair<Connection, Connection[]> conn = connectionParser.parseConnectionOptions(defaultValues);
+
+        return conn;
+    }
+
+    private Pair<Connection, Connection[]> parseConnectionOptions(Connection connDefault) throws ConfigParseError {
+        Connection conn;
+        if (connDefault!=null)
+            try {
+                conn = connDefault.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+                return null;
+            }
+        else
+            conn = new Connection();
+
+        Vector<String> port = getOption("port", 1,1);
+        if(port!=null){
+            conn.mServerPort = port.get(1);
+        }
+
+        Vector<String> rport = getOption("rport", 1,1);
+        if(rport!=null){
+            conn.mServerPort = rport.get(1);
+        }
+
+        Vector<String> proto = getOption("proto", 1,1);
+        if(proto!=null){
+            conn.mUseUdp=isUdpProto(proto.get(1));
+        }
+
+
+        // Parse remote config
+        Vector<Vector<String>> remotes = getAllOption("remote",1,3);
+
+
+        // Assume that we need custom options if connectionDefault are set
+        if(connDefault!=null) {
+            for (Vector<Vector<String>> option : options.values()) {
+
+                conn.mCustomConfiguration += getOptionStrings(option);
+
+            }
+            if (!TextUtils.isEmpty(conn.mCustomConfiguration))
+                conn.mUseCustomConfig = true;
+        }
+        // Make remotes empty to simplify code
+        if (remotes==null)
+            remotes = new Vector<Vector<String>>();
+
+        Connection[] connections = new Connection[remotes.size()];
+
+
+        int i=0;
+        for (Vector<String> remote: remotes) {
+            try {
+                connections[i] = conn.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            switch (remote.size()) {
+                case 4:
+                    connections[i].mUseUdp=isUdpProto(remote.get(3));
+                case 3:
+                    connections[i].mServerPort = remote.get(2);
+                case 2:
+                    connections[i].mServerName = remote.get(1);
+            }
+            i++;
+        }
+        return Pair.create(conn, connections);
+
+    }
 
     private void checkRedirectParameters(VpnProfile np, Vector<Vector<String>> defgw) {
         for (Vector<String> redirect: defgw)
@@ -673,25 +761,21 @@ public class ConfigParser {
             }
     }
 
-    public void useExtraRemotesAsCustom(boolean b) {
-		this.extraRemotesAsCustom = b;
-	}
-
 	private boolean isUdpProto(String proto) throws ConfigParseError {
 		boolean isudp;
 		if(proto.equals("udp") || proto.equals("udp6"))
 			isudp=true;
 		else if (proto.equals("tcp-client") ||
-				proto.equals("tcp")  || 
+				proto.equals("tcp")  ||
 				proto.equals("tcp6") ||
 				proto.endsWith("tcp6-client"))
 			isudp =false;
-		else 
+		else
 			throw new ConfigParseError("Unsupported option to --proto " + proto);
 		return isudp;
 	}
 
-	static public void useEmbbedUserAuth(VpnProfile np,String inlinedata)
+	static public void useEmbbedUserAuth(VpnProfile np, String inlinedata)
 	{
 		String data = VpnProfile.getEmbeddedContent(inlinedata);
 		String[] parts = data.split("\n");

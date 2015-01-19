@@ -1,3 +1,20 @@
+0.9.0
+Features:
+- Fail back to other ports/servers in case of error
+- Start vpn automatically after foced to log in
+- More unit tests added, better code structured
+Bugs:
+- Switching providers logs out before showing Configuration Wizard
+- Update profiles correctly
+- Don't get killed if restarting the device
+- Don't crash in xlarge devices (such as tablets)
+
+0.8.2 December 22 2014 - the "refactored+" release
+Bugs:
+- Better error handling while setting up a provider
+- Don't crash after selecting a provider in the Configuration Wizard
+- Substitute a dialog if a second one tries to be showed
+
 0.8.1 December 20 2014 - the "refactored" release
 Features:
 - RiseUp.net and Calyx.net are new preseeded providers!

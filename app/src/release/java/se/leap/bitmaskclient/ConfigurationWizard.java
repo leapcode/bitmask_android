@@ -28,7 +28,7 @@ import java.net.*;
 import java.util.*;
 
 import butterknife.*;
-
+import org.jetbrains.annotations.NotNull;
 import org.json.*;
 
 import javax.inject.Inject;
@@ -58,16 +58,13 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     @Inject ProviderListAdapter adapter;
 
     private ProviderManager provider_manager;
-	private Intent mConfigState = new Intent();
+    private Intent mConfigState = new Intent();
     private Provider selected_provider;
 	
     final public static String TAG = ConfigurationWizard.class.getSimpleName();
-	final public static String TYPE_OF_CERTIFICATE = "type_of_certificate";
-	final public static String ANON_CERTIFICATE = "anon_certificate";
-	final public static String AUTHED_CERTIFICATE = "authed_certificate";
 
-	final protected static String PROVIDER_SET = "PROVIDER SET";
-	final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
+    final protected static String PROVIDER_SET = "PROVIDER SET";
+    final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
     final protected static String ASSETS_URL_FOLDER = "urls";
 
     final private static String PROGRESSBAR_TEXT = TAG + "PROGRESSBAR_TEXT";
@@ -82,9 +79,17 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     private String progressbar_text = "";
     private String provider_name = "";
     private int progress = -1;
+
+    private void initProviderList() {
+        List<Renderer<Provider>> prototypes = new ArrayList<Renderer<Provider>>();
+        prototypes.add(new ProviderRenderer(this));
+        ProviderRendererBuilder providerRendererBuilder = new ProviderRendererBuilder(prototypes);
+        adapter = new ProviderListAdapter(getLayoutInflater(), providerRendererBuilder, provider_manager);
+        provider_list_view.setAdapter(adapter);
+    }
     
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         if(mProgressBar != null)
             outState.putInt(PROGRESSBAR_NUMBER, mProgressBar.getProgress());
         if(progressbar_description != null)
@@ -102,15 +107,14 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
         provider_manager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
 
-	setUpProviderList();
-	
 	setUpInitialUI();
 
-	setUpProviderAPIResultReceiver();
-
-	if ( savedInstanceState != null ) {
+	initProviderList();
+	
+	if (savedInstanceState != null)
 	    restoreState(savedInstanceState);
-	}
+	else
+	    setUpProviderAPIResultReceiver();	    
     }
 
     private void restoreState(Bundle savedInstanceState) {
@@ -127,7 +131,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
         super.onPostResume();
         if(!progressbar_text.isEmpty() && !provider_name.isEmpty() && progress != -1) {
             progressbar_description.setText(progressbar_text);
-            //onItemSelectedUi(getProvider(provider_name));
             mProgressBar.setProgress(progress);
 
             progressbar_text = "";
@@ -139,7 +142,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
     private void setUpInitialUI() {
 	setContentView(R.layout.configuration_wizard_activity);
         ButterKnife.inject(this);
-        provider_list_view.setAdapter(adapter);
 	
 	hideProgressBar();
     }
@@ -150,14 +152,11 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	progressbar_description.setVisibility(TextView.INVISIBLE);
     }
 
-    private void setUpProviderList() {
-        initProviderList();
-    }
-
     @Override
     protected void onDestroy() {
 	super.onDestroy();
-	unregisterReceiver(providerAPI_broadcast_receiver_update);
+	if(providerAPI_broadcast_receiver_update != null)
+	    unregisterReceiver(providerAPI_broadcast_receiver_update);
     }
 
     private void setUpProviderAPIResultReceiver() {
@@ -168,13 +167,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_PROGRESSBAR);
 	update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
 	registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
-    }
-
-    private void initProviderList() {
-        List<Renderer<Provider>> prototypes = new ArrayList<Renderer<Provider>>();
-        prototypes.add(new ProviderRenderer(this));
-        ProviderRendererBuilder providerRendererBuilder = new ProviderRendererBuilder(prototypes);
-        adapter = new ProviderListAdapter(getLayoutInflater(), providerRendererBuilder, provider_manager);
     }
     
     @Override
@@ -192,7 +184,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	    if (preferences.getBoolean(Constants.ALLOWED_ANON, false)){
 		mConfigState.putExtra(SERVICES_RETRIEVED, true);
 		
-		downloadAnonCert();
+		downloadVpnCertificate();
 	    } else {
 		mProgressBar.incrementProgressBy(1);
 		hideProgressBar();
@@ -260,24 +252,20 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	mProgressBar.setVisibility(ProgressBar.GONE);
 	mProgressBar.setProgress(0);
 	progressbar_description.setVisibility(TextView.GONE);
-	
-	preferences.edit().remove(Provider.KEY).apply();
-    	setting_up_provider = false;
-	showAllProviders();
+
+	cancelSettingUpProvider();
     }
     
-    private void usualBackButton() {
-	if(preferences.getString(Provider.KEY, "").isEmpty()) {
-	    askDashboardToQuitApp();
-	} else {
-	    setResult(RESULT_OK);
-	}
-	super.onBackPressed();
+    public void cancelSettingUpProvider() {
+	adapter.showAllProviders();
+	setting_up_provider = false;
+	preferences.edit().remove(Provider.KEY).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).apply();
     }
+    
     private void askDashboardToQuitApp() {
-		Intent ask_quit = new Intent();
-		ask_quit.putExtra(Dashboard.ACTION_QUIT, Dashboard.ACTION_QUIT);
-		setResult(RESULT_CANCELED, ask_quit);
+	Intent ask_quit = new Intent();
+	ask_quit.putExtra(Dashboard.ACTION_QUIT, Dashboard.ACTION_QUIT);
+	setResult(RESULT_CANCELED, ask_quit);
     }
 	
     private void startProgressBar() {
@@ -309,71 +297,66 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
         return listItem.getMeasuredHeight();
     }
     
-	/**
-	 * Asks ProviderAPI to download an anonymous (anon) VPN certificate.
-	 */
-	private void downloadAnonCert() {
-		Intent provider_API_command = new Intent(this, ProviderAPI.class);
+    /**
+     * Asks ProviderAPI to download an anonymous (anon) VPN certificate.
+     */
+    private void downloadVpnCertificate() {
+	Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
-		Bundle parameters = new Bundle();
+	provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
+	provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 
-		parameters.putString(TYPE_OF_CERTIFICATE, ANON_CERTIFICATE);
-
-		provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
-		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-
-		startService(provider_API_command);
-	}
+	startService(provider_API_command);
+    }
 	
-	/**
-	 * Open the new provider dialog
-	 */
-	public void addAndSelectNewProvider() {
-	    FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(NewProviderDialog.TAG);
+    /**
+     * Open the new provider dialog
+     */
+    public void addAndSelectNewProvider() {
+	FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(NewProviderDialog.TAG);
         new NewProviderDialog().show(fragment_transaction, NewProviderDialog.TAG);
-	}
+    }
 	
-	/**
-	 * Open the new provider dialog with data
-	 */
-	public void addAndSelectNewProvider(String main_url) {
-	    FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(NewProviderDialog.TAG);
+    /**
+     * Open the new provider dialog with data
+     */
+    public void addAndSelectNewProvider(String main_url) {
+	FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(NewProviderDialog.TAG);
 		
-	    DialogFragment newFragment = new NewProviderDialog();
-	    Bundle data = new Bundle();
-	    data.putString(Provider.MAIN_URL, main_url);
-	    newFragment.setArguments(data);
-	    newFragment.show(fragment_transaction, NewProviderDialog.TAG);
-	}
+	DialogFragment newFragment = new NewProviderDialog();
+	Bundle data = new Bundle();
+	data.putString(Provider.MAIN_URL, main_url);
+	newFragment.setArguments(data);
+	newFragment.show(fragment_transaction, NewProviderDialog.TAG);
+    }
 	
-	/**
-	 * Once selected a provider, this fragment offers the user to log in, 
-	 * use it anonymously (if possible) 
-	 * or cancel his/her election pressing the back button.
-	 * @param reason_to_fail 
-	 */
-	public void showDownloadFailedDialog(String reason_to_fail) {
-	    FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(DownloadFailedDialog.TAG);
+    /**
+     * Once selected a provider, this fragment offers the user to log in, 
+     * use it anonymously (if possible) 
+     * or cancel his/her election pressing the back button.
+     * @param reason_to_fail 
+     */
+    public void showDownloadFailedDialog(String reason_to_fail) {
+	FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(DownloadFailedDialog.TAG);
 		
-	    DialogFragment newFragment = DownloadFailedDialog.newInstance(reason_to_fail);
-	    newFragment.show(fragment_transaction, DownloadFailedDialog.TAG);
-	}
+	DialogFragment newFragment = DownloadFailedDialog.newInstance(reason_to_fail);
+	newFragment.show(fragment_transaction, DownloadFailedDialog.TAG);
+    }
 	
-	/**
-	 * Once selected a provider, this fragment offers the user to log in, 
-	 * use it anonymously (if possible) 
-	 * or cancel his/her election pressing the back button.
-	 * @param view
-	 */
-	private void showProviderDetails() {
-		if(setting_up_provider) {
-		    FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(ProviderDetailFragment.TAG);
+    /**
+     * Once selected a provider, this fragment offers the user to log in, 
+     * use it anonymously (if possible) 
+     * or cancel his/her election pressing the back button.
+     * @param view
+     */
+    private void showProviderDetails() {
+	if(setting_up_provider) {
+	    FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(ProviderDetailFragment.TAG);
 
-		    DialogFragment newFragment = ProviderDetailFragment.newInstance();
-		    newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
-		}
+	    DialogFragment newFragment = ProviderDetailFragment.newInstance();
+	    newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
 	}
+    }
 
     public void showAndSelectProvider(String provider_main_url) {
 	try {
@@ -392,76 +375,70 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	onItemSelectedLogic(selected_provider);
     }
 	
-	/**
-	 * Asks ProviderAPI to download a new provider.json file
-	 * @param provider_name
-	 * @param provider_main_url
-	 */
-	public void setUpProvider(URL provider_main_url) {
-		Intent provider_API_command = new Intent(this, ProviderAPI.class);
-		Bundle parameters = new Bundle();
-		parameters.putString(Provider.MAIN_URL, provider_main_url.toString());
+    /**
+     * Asks ProviderAPI to download a new provider.json file
+     * @param provider_name
+     * @param provider_main_url
+     */
+    public void setUpProvider(URL provider_main_url) {
+	Intent provider_API_command = new Intent(this, ProviderAPI.class);
+	Bundle parameters = new Bundle();
+	parameters.putString(Provider.MAIN_URL, provider_main_url.toString());
 
-		provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-		provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-		provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+	provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
+	provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
+	provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 
-		startService(provider_API_command);
-		setting_up_provider = true;
+	startService(provider_API_command);
+	setting_up_provider = true;
+    }
+
+    public void retrySetUpProvider() {
+	cancelSettingUpProvider();
+	if(!ProviderAPI.caCertDownloaded()) {
+	    addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl());
+	} else {
+	    Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+	    provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
+	    provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+
+	    startService(provider_API_command);
 	}
-
-	public void retrySetUpProvider() {
-		cancelSettingUpProvider();
-		if(!ProviderAPI.caCertDownloaded()) {
-			addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl());
-		} else {
-			Intent provider_API_command = new Intent(this, ProviderAPI.class);
-
-			provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-			provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-
-			startService(provider_API_command);
-		}
-	}
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
-		return true;
-	}
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+	getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
+	return true;
+    }
 	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item){
-		switch (item.getItemId()){
-		case R.id.about_leap:
-		    startActivityForResult(new Intent(this, AboutActivity.class), 0);
-			return true;
-		case R.id.new_provider:
-			addAndSelectNewProvider();
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+	switch (item.getItemId()){
+	case R.id.about_leap:
+	    startActivityForResult(new Intent(this, AboutActivity.class), 0);
+	    return true;
+	case R.id.new_provider:
+	    addAndSelectNewProvider();
+	    return true;
+	default:
+	    return super.onOptionsItemSelected(item);
 	}
+    }
 		
     public void showAllProviders() {
 	adapter.showAllProviders();
     }
-	
-    public void cancelSettingUpProvider() {
-	adapter.showAllProviders();
-	setting_up_provider = false;
-	preferences.edit().remove(Provider.KEY).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).apply();
-    }
 
-	@Override
-	public void login() {
-		Intent ask_login = new Intent();
-		ask_login.putExtra(Provider.KEY, selected_provider);
-		ask_login.putExtra(SessionDialog.TAG, SessionDialog.TAG);
-		setResult(RESULT_OK, ask_login);
-		setting_up_provider = false;
-		finish();
-	}
+    @Override
+    public void login() {
+	Intent ask_login = new Intent();
+	ask_login.putExtra(Provider.KEY, selected_provider);
+	ask_login.putExtra(SessionDialog.TAG, SessionDialog.TAG);
+	setResult(RESULT_OK, ask_login);
+	setting_up_provider = false;
+	finish();
+    }
 
     @Override
     public void use_anonymously() {
@@ -472,12 +449,11 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	finish();
     }
 
-	public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			int update = intent.getIntExtra(ProviderAPI.CURRENT_PROGRESS, 0);
-			mProgressBar.setProgress(update);
-		}
+    public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
+	@Override
+	public void onReceive(Context context, Intent intent) {
+	    int update = intent.getIntExtra(ProviderAPI.CURRENT_PROGRESS, 0);
+	    mProgressBar.setProgress(update);
 	}
+    }
 }

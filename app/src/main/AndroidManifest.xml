@@ -17,8 +17,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="se.leap.bitmaskclient"
-    android:versionCode="107"
-    android:versionName="0.8.1" >
+    android:versionCode="111"
+    android:versionName="0.9.0" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -35,7 +35,7 @@
         android:icon="@drawable/icon"
         android:logo="@drawable/icon"
         android:label="@string/app"
-        android:theme="@style/appstyle">
+        android:theme="@style/blinkt">
 
         <service
             android:name="se.leap.bitmaskclient.eip.VoidVpnService"
@@ -94,7 +94,7 @@
         </activity>
         <activity
             android:name="se.leap.bitmaskclient.ConfigurationWizard"
-            android:label="@string/title_activity_configuration_wizard"
+            android:label="@string/configuration_wizard_title"
             android:uiOptions="splitActionBarWhenNarrow" >
         </activity>
         <activity

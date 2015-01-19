@@ -182,7 +182,7 @@ public class ProviderAPI extends IntentService {
 	
 	if(validUserLoginData(username, password)) {
 	    session_id_bundle = register(username, password);
-	    broadcast_progress(progress++);
+	    broadcastProgress(progress++);
 	} else {
 	    if(!wellFormedPassword(password)) {
 		session_id_bundle.putBoolean(RESULT_KEY, false);
@@ -232,14 +232,14 @@ public class ProviderAPI extends IntentService {
 	    String password = (String) task.get(SessionDialog.PASSWORD);
 	    if(validUserLoginData(username, password)) {
 		result = authenticate(username, password);
-		broadcast_progress(progress++);
+		broadcastProgress(progress++);
 	    } else {
 		if(!wellFormedPassword(password)) {
 		    result.putBoolean(RESULT_KEY, false);
 		    result.putString(SessionDialog.USERNAME, username);
 		    result.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
 		}
-		if(username.isEmpty()) {
+		if(!validUsername(username)) {
 		    result.putBoolean(RESULT_KEY, false);
 		    result.putBoolean(SessionDialog.USERNAME_MISSING, true);
 		}
@@ -312,7 +312,7 @@ public class ProviderAPI extends IntentService {
 	 * and sends it as a broadcast.
 	 * @param progress
 	 */
-	private void broadcast_progress(int progress) {
+	private void broadcastProgress(int progress) {
 		Intent intentUpdate = new Intent();
 		intentUpdate.setAction(UPDATE_PROGRESSBAR);
 		intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
@@ -320,23 +320,27 @@ public class ProviderAPI extends IntentService {
 		sendBroadcast(intentUpdate);
 	}
 
-	/**
-	 * Validates parameters entered by the user to log in
-	 * @param entered_username
-	 * @param entered_password
-	 * @return true if both parameters are present and the entered password length is greater or equal to eight (8).
-	 */
-	private boolean validUserLoginData(String entered_username, String entered_password) {
-		return !(entered_username.isEmpty()) && wellFormedPassword(entered_password);
-	}
+    /**
+     * Validates parameters entered by the user to log in
+     * @param username
+     * @param password
+     * @return true if both parameters are present and the entered password length is greater or equal to eight (8).
+     */
+    private boolean validUserLoginData(String username, String password) {
+        return validUsername(username) && wellFormedPassword(password);
+    }
+
+    private boolean validUsername(String username) {
+        return username != null && !username.isEmpty();
+    }
 
 	/**
 	 * Validates a password
-	 * @param entered_password
+	 * @param password
 	 * @return true if the entered password length is greater or equal to eight (8).
 	 */
-	private boolean wellFormedPassword(String entered_password) {
-		return entered_password.length() >= 8;
+	private boolean wellFormedPassword(String password) {
+		return password != null && password.length() >= 8;
 	}
 
 	/**
@@ -493,17 +497,17 @@ public class ProviderAPI extends IntentService {
 	if(!PROVIDER_JSON_DOWNLOADED)
 	    current_download = getAndSetProviderJson(last_provider_main_url);
 	if(PROVIDER_JSON_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
-	    broadcast_progress(progress++);
+	    broadcastProgress(progress++);
 	    PROVIDER_JSON_DOWNLOADED = true;
 				
 	    if(!CA_CERT_DOWNLOADED)
 		current_download = downloadCACert();
 	    if(CA_CERT_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
-		broadcast_progress(progress++);
+		broadcastProgress(progress++);
 		CA_CERT_DOWNLOADED = true;
 		current_download = getAndSetEipServiceJson(); 
 		if(current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
-		    broadcast_progress(progress++);
+		    broadcastProgress(progress++);
 		    EIP_SERVICE_JSON_DOWNLOADED = true;
 		}
 	    }
@@ -815,51 +819,64 @@ public class ProviderAPI extends IntentService {
 		}
 		return string;
 	}
-	
-	/**
-	 * Logs out from the api url retrieved from the task.
-	 * @return true if there were no exceptions
-	 */
-	private boolean logOut() {
-		try {
-			String delete_url = provider_api_url + "/logout";
-			int progress = 0;
 
-			HttpsURLConnection urlConnection = (HttpsURLConnection)new URL(delete_url).openConnection();
-			urlConnection.setRequestMethod("DELETE");
-			urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
+    private boolean logOut() {
+        String delete_url = provider_api_url + "/logout";
 
-			int responseCode = urlConnection.getResponseCode();
-			broadcast_progress(progress++);
+        HttpsURLConnection urlConnection = null;
+        int responseCode = 0;
+        int progress = 0;
+	try {
+
+	    urlConnection = (HttpsURLConnection)new URL(delete_url).openConnection();
+	    urlConnection.setRequestMethod("DELETE");
+	    urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
+
+	    responseCode = urlConnection.getResponseCode();
+	    broadcastProgress(progress++);
+	    LeapSRPSession.setToken("");
+	    Log.d(TAG, Integer.toString(responseCode));
+	} catch (ClientProtocolException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	    return false;
+	} catch (IndexOutOfBoundsException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	    return false;
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    try {
+		if(urlConnection != null) {
+		    responseCode = urlConnection.getResponseCode();
+		    if(responseCode == 401) {
+			broadcastProgress(progress++);
 			LeapSRPSession.setToken("");
 			Log.d(TAG, Integer.toString(responseCode));
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (IndexOutOfBoundsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (KeyManagementException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (KeyStoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (CertificateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return true;
+		    }
 		}
-		return true;
+	    } catch (IOException e1) {
+		e1.printStackTrace();
+	    }
+
+	    e.printStackTrace();
+	    return false;
+	} catch (KeyManagementException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (KeyStoreException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (NoSuchAlgorithmException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (CertificateException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
+	return true;
+    }
     
 	/**
 	 * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.

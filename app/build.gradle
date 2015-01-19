@@ -44,6 +44,7 @@ dependencies {
   provided 'com.squareup.dagger:dagger-compiler:1.2.2+'
   compile 'com.github.pedrovgs:renderers:1.3+'
   compile 'com.intellij:annotations:12.0'
+  compile 'com.google.code.gson:gson:2+'
 }
 
 def processFileInplace(file, Closure processText) {
@@ -52,7 +53,8 @@ def processFileInplace(file, Closure processText) {
 }
 
 
-task checkoutStrippedIcsOpenVPN ( type: Copy ) {
+task checkoutStrippedIcsOpenVPN ( type: Copy ) << {
+  println "checkoutStrippedIcsOpenVPN"
   //FIXME Checkout ics-openvpn-stripped from branch "ics-openvpn-upstream"
   //grgit = Grgit.open(project.file('../'))
   
@@ -60,10 +62,13 @@ task checkoutStrippedIcsOpenVPN ( type: Copy ) {
   into '../ics-openvpn-stripped'
 }
 
-task copyIcsOpenVPNClasses( type: Copy ) {
+task copyIcsOpenVPNClasses( type: Copy ) << {
+  println "copyIcsOpenVPNClasses"
   from ('../ics-openvpn-stripped/main/') {
     include '**/*.java'
     include '**/*.aidl'
+    includeEmptyDirs = false
+    
     filter {
       line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
     }
@@ -79,7 +84,8 @@ task copyIcsOpenVPNClasses( type: Copy ) {
   } into '.'
 }
 
-task copyIcsOpenVPNXml( type: Copy ) {
+task copyIcsOpenVPNXml( type: Copy ) << {
+  println "copyIcsOpenVPNXml"
   from ('../ics-openvpn-stripped/main/') {
     include '**/strings.xml'
     include '**/log_*.xml'
@@ -89,7 +95,9 @@ task copyIcsOpenVPNXml( type: Copy ) {
     include '**/refs.xml'
     include '**/colours.xml'    
     include '**/logmenu.xml'
-
+    include '**/white_rect.xml'
+    includeEmptyDirs = false
+    
     rename 'strings.xml', 'strings-icsopenvpn.xml'
     filter {
       line -> line.replaceAll('.*name="app".*', '')
@@ -97,17 +105,21 @@ task copyIcsOpenVPNXml( type: Copy ) {
   } into '.'
 }
 
-task copyIcsOpenVPNImages( type: Copy ) {
+task copyIcsOpenVPNImages( type: Copy ) << {
+  println "copyIcsOpenVPNImages"
   from ('../ics-openvpn-stripped/main/') {
     include '**/ic_filter*.png'
     include '**/ic_delete*.png'
     include '**/ic_share*.png'
     include '**/ic_close*.png'
     include '**/ic_edit*.png'
+
+    includeEmptyDirs = false
   } into '.'
 }
 
-task copyIcsOpenVPNFiles( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' ) {
+task copyIcsOpenVPNFiles( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' ) << {
+  println "copyIcsOpenVPNFiles"
   copyIcsOpenVPNClasses.execute()
   copyIcsOpenVPNXml.execute()
   copyIcsOpenVPNImages.execute()
@@ -115,6 +127,7 @@ task copyIcsOpenVPNFiles( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' ) 
 
 // thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
 task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNFiles' ) << {
+  println "removeDuplicatedStrings"
   new File('app').eachFileRecurse {
     if(it.name.equals('strings.xml')) {
       def ics_openvpn_file = file(it.absolutePath.replace('strings.xml', 'strings-icsopenvpn.xml'))
@@ -132,7 +145,8 @@ task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNFiles' ) << {
   }
 }
 
-task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
+task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') << {
+  println "mergeUntranslatable"
   from ('../ics-openvpn-stripped/main/') {
     include '**/untranslatable.xml'
     rename 'untranslatable.xml', 'untranslatable-icsopenvpn.xml'
@@ -166,17 +180,19 @@ task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
 
 task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') << {
   from('../ics-openvpn-stripped/main/src/') {
-    include 'openvpn/**'
-    include 'openssl/**'    
-    include 'lzo/**'
-    include 'jni/**'
-    include 'misc/**'
-    include 'ovpn3/**'
-    include 'snappy/**'
-  } into '.'
+    include 'openvpn/**/*'
+    include 'openssl/**/*'    
+    include 'lzo/**/**'
+    include 'jni/**/*'
+    include 'misc/**/*'
+    include 'ovpn3/**/*'
+    include 'snappy/**/*'
+
+  } into './'
 }
 
 task buildNative ( type: Exec ) {
+  println "buildNative"
   commandLine 'sh', 'misc/build-native.sh', 'USE_BREAKPAD=0', '-j 8'
 }
 

@@ -17,21 +17,19 @@
 package se.leap.bitmaskclient.eip;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.Iterator;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
-import de.blinkt.openvpn.core.ProfileManager;
 import se.leap.bitmaskclient.Dashboard;
 
 /**
@@ -44,48 +42,30 @@ import se.leap.bitmaskclient.Dashboard;
  */
 public class Gateway {
 		
-    private String TAG = Gateway.class.getSimpleName();
-		
+    public final static String TAG = Gateway.class.getSimpleName();
+
+    private JSONObject general_configuration;
+    private JSONObject secrets;
+    private JSONObject gateway;
+
     private String mName;
     private int timezone;
-    private JSONObject general_configuration;
-    private Context context;
     private VpnProfile mVpnProfile;
-    private JSONObject mGateway;
-		
     /**
      * Build a gateway object from a JSON OpenVPN gateway definition in eip-service.json
      * and create a VpnProfile belonging to it.
-     * 
-     * @param gateway The JSON OpenVPN gateway definition to parse
      */
-    protected Gateway(JSONObject eip_definition, Context context, JSONObject gateway){
+    public Gateway(JSONObject eip_definition, JSONObject secrets, JSONObject gateway){
 
-	mGateway = gateway;
-	
-	this.context = context;
+	this.gateway = gateway;
+        this.secrets = secrets;
+
 	general_configuration = getGeneralConfiguration(eip_definition);
 	timezone = getTimezone(eip_definition);
 	mName = locationAsName(eip_definition);
 
-	// Currently deletes VpnProfile for host, if there already is one, and builds new
-	ProfileManager vpl = ProfileManager.getInstance(context);
-	Collection<VpnProfile> profiles = vpl.getProfiles();
-	for (Iterator<VpnProfile> it = profiles.iterator(); it.hasNext(); ){
-	    VpnProfile p = it.next();
-				
-	    if ( p.mName.equalsIgnoreCase( mName ) ) {
-		it.remove();
-		vpl.removeProfile(context, p);
-	    }
-	}
-
 	mVpnProfile = createVPNProfile();
 	mVpnProfile.mName = mName;
-
-	vpl.addProfile(mVpnProfile);
-	vpl.saveProfile(context, mVpnProfile);
-	vpl.saveProfileList(context);
     }
 
     private JSONObject getGeneralConfiguration(JSONObject eip_definition) {
@@ -110,7 +90,7 @@ public class Gateway {
 	try {
 	    JSONObject locations = eip_definition.getJSONObject("locations");
 
-	    return locations.getJSONObject(mGateway.getString("location"));
+	    return locations.getJSONObject(gateway.getString("location"));
 	} catch (JSONException e) {
 	    return new JSONObject();
 	}
@@ -123,8 +103,7 @@ public class Gateway {
 	try {
 	    ConfigParser cp = new ConfigParser();
 
-	    SharedPreferences preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
-	    VpnConfigGenerator vpn_configuration_generator = new VpnConfigGenerator(preferences, general_configuration, mGateway);
+	    VpnConfigGenerator vpn_configuration_generator = new VpnConfigGenerator(general_configuration, secrets, gateway);
 	    String configuration = vpn_configuration_generator.generate();
 				
 	    cp.parseConfig(new StringReader(configuration));
@@ -152,5 +131,10 @@ public class Gateway {
 
     public int getTimezone() {
 	return timezone;
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this, Gateway.class);
     }
 }
