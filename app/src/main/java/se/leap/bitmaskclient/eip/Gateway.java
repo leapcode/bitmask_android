@@ -20,6 +20,8 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,7 +42,7 @@ import se.leap.bitmaskclient.Dashboard;
  */
 public class Gateway {
 		
-    public static String TAG = Gateway.class.getSimpleName();
+    public final static String TAG = Gateway.class.getSimpleName();
 
     private JSONObject general_configuration;
     private JSONObject secrets;
@@ -53,7 +55,7 @@ public class Gateway {
      * Build a gateway object from a JSON OpenVPN gateway definition in eip-service.json
      * and create a VpnProfile belonging to it.
      */
-    protected Gateway(JSONObject eip_definition, JSONObject secrets, JSONObject gateway){
+    public Gateway(JSONObject eip_definition, JSONObject secrets, JSONObject gateway){
 
 	this.gateway = gateway;
         this.secrets = secrets;
@@ -129,5 +131,10 @@ public class Gateway {
 
     public int getTimezone() {
 	return timezone;
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this, Gateway.class);
     }
 }

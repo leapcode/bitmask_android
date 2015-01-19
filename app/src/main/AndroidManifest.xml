@@ -94,7 +94,7 @@
         </activity>
         <activity
             android:name="se.leap.bitmaskclient.ConfigurationWizard"
-            android:label="@string/title_activity_configuration_wizard"
+            android:label="@string/configuration_wizard_title"
             android:uiOptions="splitActionBarWhenNarrow" >
         </activity>
         <activity

@@ -16,46 +16,17 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.app.Activity;
-import android.app.IntentService;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.ResultReceiver;
+import android.app.*;
+import android.content.*;
+import android.os.*;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import org.json.*;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import de.blinkt.openvpn.*;
+import se.leap.bitmaskclient.*;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import de.blinkt.openvpn.LaunchVPN;
-import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.core.Connection;
-import de.blinkt.openvpn.core.ProfileManager;
-import se.leap.bitmaskclient.Dashboard;
-import se.leap.bitmaskclient.EipFragment;
-import se.leap.bitmaskclient.Provider;
-
-import static se.leap.bitmaskclient.eip.Constants.ACTION_CHECK_CERT_VALIDITY;
-import static se.leap.bitmaskclient.eip.Constants.ACTION_IS_EIP_RUNNING;
-import static se.leap.bitmaskclient.eip.Constants.ACTION_START_EIP;
-import static se.leap.bitmaskclient.eip.Constants.ACTION_STOP_EIP;
-import static se.leap.bitmaskclient.eip.Constants.ACTION_UPDATE_EIP_SERVICE;
-import static se.leap.bitmaskclient.eip.Constants.CERTIFICATE;
-import static se.leap.bitmaskclient.eip.Constants.KEY;
-import static se.leap.bitmaskclient.eip.Constants.RECEIVER_TAG;
-import static se.leap.bitmaskclient.eip.Constants.REQUEST_TAG;
+import static se.leap.bitmaskclient.eip.Constants.*;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -79,26 +50,23 @@ public final class EIP extends IntentService {
     private static SharedPreferences preferences;
 	
     private static JSONObject eip_definition;
-    private static List<Gateway> gateways = new ArrayList<>();
-    private static ProfileManager profile_manager;
+    private static GatewaysManager gateways_manager = new GatewaysManager();
     private static Gateway gateway;
     
-	public EIP(){
-		super(TAG);
-	}
+    public EIP(){
+	super(TAG);
+    }
 	
-	@Override
-	public void onCreate() {
-		super.onCreate();
+    @Override
+    public void onCreate() {
+	super.onCreate();
 		
-		context = getApplicationContext();
+	context = getApplicationContext();
         preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
-
-		profile_manager = ProfileManager.getInstance(context);
-		eip_definition = eipDefinitionFromPreferences();
-        if(gateways.isEmpty())
-            gateways = gatewaysFromPreferences();
-	}
+	eip_definition = eipDefinitionFromPreferences();
+        if(gateways_manager.isEmpty())
+            gatewaysFromPreferences();
+    }
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -123,18 +91,17 @@ public final class EIP extends IntentService {
      * It also sets up early routes.
      */
     private void startEIP() {
-	if(gateways.isEmpty())
+	if(gateways_manager.isEmpty())
 	    updateEIPService();
         earlyRoutes();
 
-        GatewaySelector gateway_selector = new GatewaySelector(gateways);
-	gateway = gateway_selector.select();
+	gateway = gateways_manager.select();
 	if(gateway != null && gateway.getProfile() != null) {
 	    mReceiver = EipFragment.getReceiver();
 	    launchActiveGateway();
-        tellToReceiver(ACTION_START_EIP, Activity.RESULT_OK);
+	    tellToReceiver(ACTION_START_EIP, Activity.RESULT_OK);
 	} else
-        tellToReceiver(ACTION_START_EIP, Activity.RESULT_CANCELED);
+	    tellToReceiver(ACTION_START_EIP, Activity.RESULT_CANCELED);
     }
 
     /**
@@ -184,178 +151,45 @@ public final class EIP extends IntentService {
      */
     private void updateEIPService() {
 	eip_definition = eipDefinitionFromPreferences();
-        if(eip_definition != null)
+        if(eip_definition.length() > 0)
             updateGateways();
 	tellToReceiver(ACTION_UPDATE_EIP_SERVICE, Activity.RESULT_OK);
     }
 
     private JSONObject eipDefinitionFromPreferences() {
+        JSONObject result = new JSONObject();
 	try {
 	    String eip_definition_string = preferences.getString(KEY, "");
 	    if(!eip_definition_string.isEmpty()) {
-		return new JSONObject(eip_definition_string);
+		result = new JSONObject(eip_definition_string);
 	    }
 	} catch (JSONException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
-        return null;
-    }
-
-    private List<Gateway> gatewaysFromPreferences() {
-        List<Gateway> result;
-
-        String gateways_string = preferences.getString(Gateway.TAG, "");
-        Type type_list_gateways = new TypeToken<ArrayList<Gateway>>() {}.getType();
-        result = gateways_string.isEmpty() ?
-                new ArrayList<Gateway>()
-                : (List<Gateway>) new Gson().fromJson(gateways_string, type_list_gateways);
-        preferences.edit().remove(Gateway.TAG);
         return result;
     }
-	
-    /**
-     * Walk the list of gateways defined in eip-service.json and parse them into
-     * Gateway objects.
-     */
+
     private void updateGateways(){
-	try {
-            JSONArray gatewaysDefined = eip_definition.getJSONArray("gateways");
-            for (int i = 0; i < gatewaysDefined.length(); i++) {
-                JSONObject gw = gatewaysDefined.getJSONObject(i);
-                if (isOpenVpnGateway(gw)) {
-                    JSONObject secrets = secretsConfiguration();
-                    Gateway aux = new Gateway(eip_definition, secrets, gw);
-                    if(!containsProfileWithSecrets(aux.getProfile())) {
-                        addGateway(aux);
-                    }
-                }
-            }
-	    gatewaysToPreferences();
-	} catch (JSONException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
+        gateways_manager.fromEipServiceJson(eip_definition);
+        gatewaysToPreferences();
     }
 
-    private boolean isOpenVpnGateway(JSONObject gateway) {
-	try {
-	    String transport = gateway.getJSONObject("capabilities").getJSONArray("transport").toString();
-	    return transport.contains("openvpn");
-	} catch (JSONException e) {
-	    return false;
-	}
-    }
-
-
-    private JSONObject secretsConfiguration() {
-        JSONObject result = new JSONObject();
-        try {
-            result.put(Provider.CA_CERT, preferences.getString(Provider.CA_CERT, ""));
-            result.put(Constants.PRIVATE_KEY, preferences.getString(Constants.PRIVATE_KEY, ""));
-            result.put(Constants.CERTIFICATE, preferences.getString(Constants.CERTIFICATE, ""));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    private void addGateway(Gateway gateway) {
-        VpnProfile profile = gateway.getProfile();
-        removeGateway(gateway);
-
-	profile_manager.addProfile(profile);
-        profile_manager.saveProfile(context, profile);
-        profile_manager.saveProfileList(context);
-
-	gateways.add(gateway);
-    }
-
-    private void removeGateway(Gateway gateway) {
-        VpnProfile profile = gateway.getProfile();
-        removeDuplicatedProfile(profile);
-        removeDuplicatedGateway(profile);
-    }
-
-    private void removeDuplicatedProfile(VpnProfile original) {
-        if(containsProfile(original)) {
-            VpnProfile remove = duplicatedProfile(original);
-            profile_manager.removeProfile(context, remove);
-	}if(containsProfile(original)) removeDuplicatedProfile(original);
-    }
-
-    private boolean containsProfile(VpnProfile profile) {
-        Collection<VpnProfile> profiles = profile_manager.getProfiles();
-        for(VpnProfile aux : profiles) {
-            if (sameConnections(profile.mConnections, aux.mConnections)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean containsProfileWithSecrets(VpnProfile profile) {
-	boolean result = false;
-	
-        if(containsProfile(profile)) {
-	    Collection<VpnProfile> profiles = profile_manager.getProfiles();
-	    for(VpnProfile aux : profiles) {
-		result = result == false ?
-		    sameConnections(profile.mConnections, aux.mConnections)
-                    && profile.mClientCertFilename.equalsIgnoreCase(aux.mClientCertFilename)
-                    && profile.mClientKeyFilename.equalsIgnoreCase(aux.mClientKeyFilename)
-		    : true;
-	    }
-	}
-        return result;
-    }
-    
-    private VpnProfile duplicatedProfile(VpnProfile profile) {
-        VpnProfile duplicated = null;
-        Collection<VpnProfile> profiles = profile_manager.getProfiles();
-        for(VpnProfile aux : profiles) {
-            if (sameConnections(profile.mConnections, aux.mConnections)) {
-                duplicated = aux;
-            }
-        }
-        if(duplicated != null) return duplicated;
-        else throw new NoSuchElementException(profile.getName());
-    }
-
-    private boolean sameConnections(Connection[] c1, Connection[] c2) {
-        int same_connections = 0;
-        for(Connection c1_aux : c1) {
-            for(Connection c2_aux : c2)
-                if(c2_aux.mServerName.equals(c1_aux.mServerName)) {
-                    same_connections++;
-                    break;
-                }
-        }
-        return c1.length == c2.length && c1.length == same_connections;
-
-    }
-
-    private void removeDuplicatedGateway(VpnProfile profile) {
-        Iterator<Gateway> it = gateways.iterator();
-        List<Gateway> gateways_to_remove = new ArrayList<>();
-        while(it.hasNext()) {
-            Gateway aux = it.next();
-            if(sameConnections(aux.getProfile().mConnections, profile.mConnections)) {
-                gateways_to_remove.add(aux);
-	    }
-        }
-        gateways.removeAll(gateways_to_remove);
+    private void gatewaysFromPreferences() {
+        String gateways_string = preferences.getString(Gateway.TAG, "");
+        gateways_manager = new GatewaysManager(context, preferences);
+        gateways_manager.addFromString(gateways_string);
+        preferences.edit().remove(Gateway.TAG).apply();
     }
 
     private void gatewaysToPreferences() {
-        Type type_list_gateways = new TypeToken<List<Gateway>>() {}.getType();
-        String gateways_string = new Gson().toJson(gateways, type_list_gateways);
-        preferences.edit().putString(Gateway.TAG, gateways_string).apply();
+        String gateways_string = gateways_manager.toString();
+        preferences.edit().putString(Gateway.TAG, gateways_string).commit();
     }
 
     private void checkCertValidity() {
-	VpnCertificateValidator validator = new VpnCertificateValidator();
-	int resultCode = validator.isValid(preferences.getString(CERTIFICATE, "")) ?
+	VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(CERTIFICATE, ""));
+	int resultCode = validator.isValid() ?
 	    Activity.RESULT_OK :
 	    Activity.RESULT_CANCELED;
 	tellToReceiver(ACTION_CHECK_CERT_VALIDITY, resultCode);

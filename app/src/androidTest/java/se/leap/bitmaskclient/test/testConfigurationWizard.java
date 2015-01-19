@@ -1,14 +1,10 @@
 package se.leap.bitmaskclient.test;
 
-import android.test.ActivityInstrumentationTestCase2;
-import android.widget.ListView;
-import com.robotium.solo.Solo;
-import java.io.IOException;
-import se.leap.bitmaskclient.AboutActivity;
-import se.leap.bitmaskclient.ConfigurationWizard;
-import se.leap.bitmaskclient.ProviderDetailFragment;
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.test.ConnectionManager;
+import android.test.*;
+import android.widget.*;
+import com.robotium.solo.*;
+import java.io.*;
+import se.leap.bitmaskclient.*;
 
 public class testConfigurationWizard extends ActivityInstrumentationTestCase2<ConfigurationWizard> {
 
@@ -19,10 +15,15 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 		super(ConfigurationWizard.class);
 	}
 
+    public testConfigurationWizard(Solo solo) {
+        super(ConfigurationWizard.class);
+        this.solo = solo;
+    }
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		solo = new Solo(getInstrumentation(), getActivity());
+        solo = new Solo(getInstrumentation(), getActivity());
 		ConnectionManager.setMobileDataEnabled(true, solo.getCurrentActivity().getApplicationContext());
 	}
 
@@ -31,35 +32,76 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 		solo.finishOpenedActivities();
 	}
 	
-	public void testListProviders() throws IOException {
+	public void testListProviders() {
 		assertEquals(solo.getCurrentViews(ListView.class).size(), 1);
-		
-		int number_of_available_providers = solo.getCurrentViews(ListView.class).get(0).getCount();
-		
-		assertEquals("Number of available providers differ", solo.getCurrentActivity().getAssets().list("urls").length + added_providers, number_of_available_providers);
+
+		assertEquals("Number of available providers differ", predefinedProviders() + added_providers, shownProviders());
 	}
+
+    private int shownProviders() {
+        return solo.getCurrentViews(ListView.class).get(0).getCount();
+    }
+
+    private int predefinedProviders() {
+        int predefined_providers = 0;
+        try {
+            predefined_providers = solo.getCurrentActivity().getAssets().list("urls").length;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return predefined_providers;
+        }
+
+        return predefined_providers;
+    }
 	
 	public void testSelectProvider() {
-		solo.clickOnText("bitmask");
-		assertTrue("Provider details dialog did not appear", solo.waitForFragmentByTag(ProviderDetailFragment.TAG, 60*1000));
+        selectProvider("demo.bitmask.net");
 	}
-	
-	public void testAddNewProvider() {
-		solo.clickOnActionBarItem(R.id.new_provider);
-		solo.enterText(0, "calyx.net");
-		solo.clickOnCheckBox(0);
-		solo.clickOnText(solo.getString(R.string.save));
-		//added_providers = added_providers+1;
-		assertTrue("Provider details dialog did not appear", solo.waitForFragmentByTag(ProviderDetailFragment.TAG, 60*1000));
-		solo.goBack();
+
+    private void selectProvider(String provider) {
+        solo.clickOnText(provider);
+        waitForProviderDetails();
+    }
+
+    private void waitForProviderDetails() {
+        String text = solo.getString(R.string.provider_details_fragment_title);
+        assertTrue("Provider details dialog did not appear", solo.waitForText(text));
+    }
+
+    public void testAddNewProvider() {
+        addProvider("calyx.net");
 	}
+
+    private void addProvider(String url) {
+        boolean is_new_provider = !solo.searchText(url);
+        if(is_new_provider)
+            added_providers = added_providers+1;
+        solo.clickOnActionBarItem(R.id.new_provider);
+        solo.enterText(0, url);
+        solo.clickOnCheckBox(0);
+        solo.clickOnText(solo.getString(R.string.save));
+        waitForProviderDetails();
+        solo.goBack();
+    }
 	
 	public void testShowAbout() {
-		solo.clickOnMenuItem(solo.getString(R.string.about));
-		assertTrue("Provider details dialog did not appear", solo.waitForActivity(AboutActivity.class));
+		showAbout();
 	}
-	
-	public void testShowSettings() {
-		//TODO We still don't have the settings button 
-	}
+
+    private void showAbout() {
+        String text = solo.getString(R.string.about);
+        solo.clickOnMenuItem(text);
+        assertTrue("Provider details dialog did not appear", solo.waitForActivity(AboutActivity.class));
+    }
+
+    protected void toDashboard(String provider) {
+        selectProvider(provider);
+        useAnonymously();
+    }
+
+    private void useAnonymously() {
+        String text = solo.getString(R.string.use_anonymously_button);
+        solo.clickOnText(text);
+        solo.waitForText(solo.getString(R.string.title_activity_dashboard));
+    }
 }
