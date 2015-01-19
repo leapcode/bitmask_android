@@ -17,12 +17,10 @@ public class ConnectionManager {
 		method.setAccessible(true);
 		try {
 		    method.invoke(conman, enabled);
-		} catch (InvocationTargetException e) {
-		    e.printStackTrace();
-		} catch (IllegalAccessException e) {
+		} catch (InvocationTargetException | IllegalAccessException e) {
 		    e.printStackTrace();
 		}
-	    }
+        }
 	}
     }
 

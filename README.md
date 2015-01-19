@@ -65,7 +65,7 @@ The resulting apk(s) will be in `app/build/apk`.
 ## Running tests
 
 To run the automated tests:
-   1. Run an emulator
+   1. Run an emulator (device doesn't necesarily has root, so testVpnCertificateValidator.testIsValid may fail).
    2. Unlock Android
    3. Issue the command ./gradlew connectedCheck
    4. Pay attention and check the "Trust this app" checkbox, if you don't do so tests won't run.
