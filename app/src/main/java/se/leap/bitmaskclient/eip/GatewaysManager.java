@@ -72,7 +72,7 @@ public class GatewaysManager {
 
         if(gateways_list != null) {
             for (Gateway gateway : gateways_list)
-                removeDuplicatedGateway(gateway);
+		addGateway(gateway);
             this.gateways.addAll(gateways_list);
         } else
             Log.d("GatewaysManager", "No gateways added");
