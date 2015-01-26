@@ -26,6 +26,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.NotNull;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -56,43 +58,29 @@ public class SessionDialog extends DialogFragment{
     @InjectView(R.id.password_entered)
     EditText password_field;
 
-    private static SessionDialog dialog;
-
     private static boolean is_eip_pending = false;
+
+    public SessionDialog() {
+        setArguments(Bundle.EMPTY);
+    }
     
 	public AlertDialog onCreateDialog(Bundle savedInstanceState) {
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		View view = inflater.inflate(R.layout.session_dialog, null);
 		ButterKnife.inject(this, view);
-
-		if(!username_field.getText().toString().isEmpty() && password_field.isFocusable()) {
-			password_field.requestFocus();
-		}
 		
 		Bundle arguments = getArguments();
-		if (arguments != null) {
-		    is_eip_pending = arguments.getBoolean(EipFragment.IS_PENDING, false);
-		    if (arguments.containsKey(PASSWORD_INVALID_LENGTH))
-			password_field.setError(getString(R.string.error_not_valid_password_user_message));
-		    if (arguments.containsKey(USERNAME)) {
-			String username = arguments.getString(USERNAME);
-			username_field.setText(username);
-		    }
-		    if (arguments.containsKey(USERNAME_MISSING)) {
-			username_field.setError(getString(R.string.username_ask));
-		    }
-		    if(arguments.containsKey(getString(R.string.user_message)))
-			user_message.setText(arguments.getString(getString(R.string.user_message)));
-		    else
-			user_message.setVisibility(View.GONE);
+		if (arguments != Bundle.EMPTY) {
+            setUp(arguments);
 		}
 		
 		builder.setView(view)
 			.setPositiveButton(R.string.login_button, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
-					String username = username_field.getText().toString();
-					String password = password_field.getText().toString();
+					String username = getEnteredUsername();
+					String password = getEnteredPassword();
 					dialog.dismiss();
 					interface_with_Dashboard.logIn(username, password);
 				}
@@ -105,14 +93,44 @@ public class SessionDialog extends DialogFragment{
 			})
 		    .setNeutralButton(R.string.signup_button, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
-					String username = username_field.getText().toString();
-					String password = password_field.getText().toString();
+					String username = getEnteredUsername();
+					String password = getEnteredPassword();
+                    dialog.dismiss();
 					interface_with_Dashboard.signUp(username, password);
 				}
 			});
 		
 		return builder.create();
 	}
+
+    private void setUp(Bundle arguments) {
+        is_eip_pending = arguments.getBoolean(EipFragment.IS_PENDING, false);
+        if (arguments.containsKey(PASSWORD_INVALID_LENGTH))
+            password_field.setError(getString(R.string.error_not_valid_password_user_message));
+        if (arguments.containsKey(USERNAME)) {
+            String username = arguments.getString(USERNAME);
+            username_field.setText(username);
+        }
+        if (arguments.containsKey(USERNAME_MISSING)) {
+            username_field.setError(getString(R.string.username_ask));
+        }
+        if(arguments.containsKey(getString(R.string.user_message)))
+            user_message.setText(arguments.getString(getString(R.string.user_message)));
+        else
+            user_message.setVisibility(View.GONE);
+
+        if(!username_field.getText().toString().isEmpty() && password_field.isFocusable())
+            password_field.requestFocus();
+
+    }
+
+    private String getEnteredUsername() {
+        return username_field.getText().toString();
+    }
+
+    private String getEnteredPassword() {
+        return password_field.getText().toString();
+    }
 
 	
 	/**
@@ -128,16 +146,6 @@ public class SessionDialog extends DialogFragment{
     }
 
 	SessionDialogInterface interface_with_Dashboard;
-
-    /**
-     * @return a new instance of this DialogFragment.
-     */
-    public static DialogFragment newInstance() {
-        if(dialog == null)
-            dialog = new SessionDialog();
-
-        return dialog;
-    }
 	
     @Override
     public void onAttach(Activity activity) {
