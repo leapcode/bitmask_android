@@ -7,7 +7,9 @@
 #include "jniglue.h"
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+#ifndef NDEBUG
     __android_log_write(ANDROID_LOG_DEBUG,"openvpn", "Loading openvpn native library $id$ compiled on "   __DATE__ " " __TIME__ );
+#endif
     return JNI_VERSION_1_2;
 }
 
