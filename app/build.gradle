@@ -176,7 +176,7 @@ task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
 }
 
 task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') {
-  from('../ics-openvpn-stripped/main/src/') {
+  from('../ics-openvpn-stripped/') {
     include 'openvpn/**/*'
     include 'openssl/**/*'    
     include 'lzo/**/**'
