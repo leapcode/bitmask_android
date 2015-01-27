@@ -125,7 +125,7 @@ task copyIcsOpenVPNFiles( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' ) 
 // thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
 task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNFiles' ) {
   println "removeDuplicatedStrings"
-  new File('app').eachFileRecurse {
+  new File('.').eachFileRecurse {
     if(it.name.equals('strings.xml')) {
       def ics_openvpn_file = file(it.absolutePath.replace('strings.xml', 'strings-icsopenvpn.xml'))
       if(ics_openvpn_file.exists()) {
