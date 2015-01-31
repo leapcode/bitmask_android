@@ -110,6 +110,7 @@ task copyIcsOpenVPNImages( type: Copy ) {
     include '**/ic_share*.png'
     include '**/ic_close*.png'
     include '**/ic_edit*.png'
+    include '**/ic_check*.png'
 
     includeEmptyDirs = false
   } into '.'
