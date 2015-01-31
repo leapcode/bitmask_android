@@ -51,6 +51,8 @@ import static de.blinkt.openvpn.core.NetworkSpace.ipAddress;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
+import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
+import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_NONETWORK;
 
 import se.leap.bitmaskclient.Dashboard;
 
@@ -174,7 +176,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
 
         mNotificationManager.notify(OPENVPN_STATUS, notification);
-        startForeground(OPENVPN_STATUS, notification);
+        //startForeground(OPENVPN_STATUS, notification);
     }
 
     private int getIconByConnectionStatus(ConnectionStatus level) {
@@ -552,9 +554,15 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         Collection<ipAddress> positiveIPv4Routes = mRoutes.getPositiveIPList();
         Collection<ipAddress> positiveIPv6Routes = mRoutesv6.getPositiveIPList();
 
+        ipAddress multicastRange = new ipAddress(new CIDRIP("224.0.0.0", 3), true);
+
         for (NetworkSpace.ipAddress route : positiveIPv4Routes) {
             try {
-                builder.addRoute(route.getIPv4Address(), route.networkMask);
+
+                if (multicastRange.containsNet(route))
+                    VpnStatus.logDebug(R.string.ignore_multicast_route, route.toString());
+                else
+                    builder.addRoute(route.getIPv4Address(), route.networkMask);
             } catch (IllegalArgumentException ia) {
                 VpnStatus.logError(getString(R.string.route_rejected) + route + " " + ia.getLocalizedMessage());
             }
@@ -607,7 +615,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         try {
             //Debug.stopMethodTracing();
-            return builder.establish();
+            ParcelFileDescriptor tun = builder.establish();
+            if (tun==null)
+                throw new NullPointerException("Android establish() method returned null (Really broken network configuration?)");
+            return tun;
         } catch (Exception e) {
             VpnStatus.logError(R.string.tun_open_error);
             VpnStatus.logError(getString(R.string.error) + e.getLocalizedMessage());
@@ -843,6 +854,21 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 mDisplayBytecount = true;
                 mConnecttime = System.currentTimeMillis();
                 lowpriority = true;
+		if(mProfile.mPersistTun) {
+		    NotificationManager ns = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		    ns.cancel(OPENVPN_STATUS);
+		    return;
+		}
+	    } else if (level == LEVEL_NONETWORK || level == LEVEL_NOTCONNECTED) {
+		NotificationManager ns = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		ns.cancel(OPENVPN_STATUS);
+		return;
+	    } else if (level != LEVEL_NOTCONNECTED && mConnecttime > 0) {
+                mDisplayBytecount = false;
+		String msg = "Traffic is blocked until the VPN becomes active.";
+		String ticker = msg;
+		showNotification(msg, ticker, lowpriority , 0, level);
+		return;
             } else {
                 mDisplayBytecount = false;
             }
@@ -876,7 +902,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     humanReadableByteCount(diffOut / OpenVPNManagement.mBytecountInterval, true));
 
             boolean lowpriority = !mNotificationAlwaysVisible;
-            showNotification(netstat, null, lowpriority, mConnecttime, LEVEL_CONNECTED);
+            //showNotification(netstat, null, lowpriority, mConnecttime, LEVEL_CONNECTED);
         }
 
     }
