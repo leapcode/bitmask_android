@@ -172,8 +172,16 @@ public class NetworkSpace {
         }
 
         public boolean containsNet(ipAddress network) {
-            return getFirstAddress().compareTo(network.getFirstAddress()) != 1 &&
-                    getLastAddress().compareTo(network.getLastAddress()) != -1;
+            // this.first >= net.first &&  this.last <= net.last
+            BigInteger ourFirst = getFirstAddress();
+            BigInteger ourLast = getLastAddress();
+            BigInteger netFirst = network.getFirstAddress();
+            BigInteger netLast = network.getLastAddress();
+
+            boolean a = ourFirst.compareTo(netFirst) != 1;
+            boolean b = ourLast.compareTo(netLast) !=  -1;
+            return  a && b;
+
         }
     }
 
@@ -320,6 +328,7 @@ public class NetworkSpace {
 
                 boolean skipIp=false;
                 // If there is any smaller net that is excluded we may not add the positive route back
+
                 for (ipAddress calculatedIp: ipsSorted) {
                     if(!calculatedIp.included && origIp.containsNet(calculatedIp)) {
                         skipIp=true;

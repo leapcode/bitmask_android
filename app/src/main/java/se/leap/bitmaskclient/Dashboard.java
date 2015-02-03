@@ -310,10 +310,10 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 
     private Bundle bundleParameters(String username, String password) {
         Bundle parameters = new Bundle();
-	if(!username.isEmpty() && !password.isEmpty()) {
+	if(!username.isEmpty())
 	    parameters.putString(SessionDialog.USERNAME, username);
+        if(!password.isEmpty())
 	    parameters.putString(SessionDialog.PASSWORD, password);
-	}
 	return parameters;
     }
 
@@ -344,12 +344,13 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     }
     
     public void sessionDialog(Bundle resultData) {
+	
 	FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
 
-	DialogFragment newFragment = SessionDialog.newInstance();
-	if(resultData != null && !resultData.isEmpty() && fragment_manager.findFragmentByTag(SessionDialog.TAG) == null) {
+	DialogFragment newFragment = new SessionDialog();
+	if(resultData != null && !resultData.isEmpty()) {
 	    newFragment.setArguments(resultData);
-	}
+ 	}
 	newFragment.show(transaction, SessionDialog.TAG);
     }
 

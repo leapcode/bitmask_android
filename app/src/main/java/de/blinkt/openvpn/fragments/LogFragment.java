@@ -7,8 +7,6 @@ package de.blinkt.openvpn.fragments;
 
 import se.leap.bitmaskclient.R;
 
-import se.leap.bitmaskclient.R;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
