@@ -103,7 +103,7 @@ const char title_string[] =
   " [MH]"
 #endif
   " [IPv6]"
-  " built on " __DATE__
+  // " built on " __DATE__
 ;
 
 #ifndef ENABLE_SMALL
