@@ -1,3 +1,9 @@
+0.9.2
+Bugs:
+- Sign Up dialog works correctly
+Features:
+- Updated ics-openvpn code (thanks Arne!)
+
 0.9.1 January 21 2015 - the "insistent reloaded" release
 Bugs:
 - Autostart on boot works

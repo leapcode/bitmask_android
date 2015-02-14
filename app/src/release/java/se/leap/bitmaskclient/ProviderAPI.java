@@ -174,28 +174,28 @@ public class ProviderAPI extends IntentService {
 	}
 
     private Bundle tryToRegister(Bundle task) {
-	Bundle session_id_bundle = new Bundle();
+	Bundle result = new Bundle();
 	int progress = 0;
 		
-	String username = (String) task.get(SessionDialog.USERNAME);
-	String password = (String) task.get(SessionDialog.PASSWORD);
+	String username = task.getString(SessionDialog.USERNAME);
+	String password = task.getString(SessionDialog.PASSWORD);
 	
 	if(validUserLoginData(username, password)) {
-	    session_id_bundle = register(username, password);
+	    result = register(username, password);
 	    broadcastProgress(progress++);
 	} else {
 	    if(!wellFormedPassword(password)) {
-		session_id_bundle.putBoolean(RESULT_KEY, false);
-		session_id_bundle.putString(SessionDialog.USERNAME, username);
-		session_id_bundle.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
+		result.putBoolean(RESULT_KEY, false);
+		result.putString(SessionDialog.USERNAME, username);
+		result.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
 	    }
-	    if(username.isEmpty()) {
-		session_id_bundle.putBoolean(RESULT_KEY, false);
-		session_id_bundle.putBoolean(SessionDialog.USERNAME_MISSING, true);
+	    if(!validUsername(username)) {
+		result.putBoolean(RESULT_KEY, false);
+		result.putBoolean(SessionDialog.USERNAME_MISSING, true);
 	    }
 	}
 		
-	return session_id_bundle;
+	return result;
     }
 
     private Bundle register(String username, String password) {	

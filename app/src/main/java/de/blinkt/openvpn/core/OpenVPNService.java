@@ -49,14 +49,14 @@ import de.blinkt.openvpn.core.VpnStatus.StateListener;
 
 import static de.blinkt.openvpn.core.NetworkSpace.ipAddress;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_CONNECTED;
-import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_NONETWORK;
-import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
+import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
+import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_NONETWORK;
+
 import se.leap.bitmaskclient.Dashboard;
 
 public class OpenVPNService extends VpnService implements StateListener, Callback, ByteCountListener {
-
     public static final String START_SERVICE = "de.blinkt.openvpn.START_SERVICE";
     public static final String START_SERVICE_STICKY = "de.blinkt.openvpn.START_SERVICE_STICKY";
     public static final String ALWAYS_SHOW_NOTIFICATION = "de.blinkt.openvpn.NOTIFICATION_ALWAYS_VISIBLE";
@@ -126,7 +126,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         synchronized (mProcessLock) {
             mProcessThread = null;
         }
-	mConnecttime = 0;
         VpnStatus.removeByteCountListener(this);
         unregisterDeviceStateReceiver();
         ProfileManager.setConntectedVpnProfileDisconnected(this);
@@ -555,9 +554,15 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         Collection<ipAddress> positiveIPv4Routes = mRoutes.getPositiveIPList();
         Collection<ipAddress> positiveIPv6Routes = mRoutesv6.getPositiveIPList();
 
+        ipAddress multicastRange = new ipAddress(new CIDRIP("224.0.0.0", 3), true);
+
         for (NetworkSpace.ipAddress route : positiveIPv4Routes) {
             try {
-                builder.addRoute(route.getIPv4Address(), route.networkMask);
+
+                if (multicastRange.containsNet(route))
+                    VpnStatus.logDebug(R.string.ignore_multicast_route, route.toString());
+                else
+                    builder.addRoute(route.getIPv4Address(), route.networkMask);
             } catch (IllegalArgumentException ia) {
                 VpnStatus.logError(getString(R.string.route_rejected) + route + " " + ia.getLocalizedMessage());
             }
@@ -610,7 +615,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         try {
             //Debug.stopMethodTracing();
-            return builder.establish();
+            ParcelFileDescriptor tun = builder.establish();
+            if (tun==null)
+                throw new NullPointerException("Android establish() method returned null (Really broken network configuration?)");
+            return tun;
         } catch (Exception e) {
             VpnStatus.logError(R.string.tun_open_error);
             VpnStatus.logError(getString(R.string.error) + e.getLocalizedMessage());
@@ -810,8 +818,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
 
         /* Workaround for Lollipop, it  does not route traffic to the VPNs own network mask */
-        if (mLocalIP.len <= 31 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            addRoute(mLocalIP);
+        if (mLocalIP.len <= 31 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            CIDRIP interfaceRoute = new CIDRIP(mLocalIP.mIp, mLocalIP.len);
+            interfaceRoute.normalise();
+            addRoute(interfaceRoute);
+        }
 
 
         // Configurations are sometimes really broken...
@@ -868,7 +879,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             // Does not work :(
             String msg = getString(resid);
             String ticker = msg;
-            showNotification(msg + " " + logmessage, ticker, lowpriority , 0, level);
+            showNotification(msg + " " + logmessage, ticker, lowpriority, 0, level);
+
         }
     }
 

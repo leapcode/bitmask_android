@@ -428,6 +428,10 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	    return super.onOptionsItemSelected(item);
 	}
     }
+
+    public void showAllProviders() {
+        adapter.showAllProviders();
+    }
 		
     @Override
     public void login() {
