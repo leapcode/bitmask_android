@@ -422,7 +422,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 			    switch(previous_result_code){
 			    case ProviderAPI.SUCCESSFUL_LOGIN: setStatusMessage(R.string.succesful_authentication_message); break;
 			    case ProviderAPI.FAILED_LOGIN: setStatusMessage(R.string.authentication_failed_message); break;
-			    case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: setStatusMessage(R.string.authed_secured_status); break;
 			    case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: setStatusMessage(R.string.incorrectly_downloaded_certificate_message); break;
 			    case ProviderAPI.SUCCESSFUL_LOGOUT: setStatusMessage(R.string.logged_out_message); break;
 			    case ProviderAPI.LOGOUT_FAILED: setStatusMessage(R.string.log_out_failed_message); break;
