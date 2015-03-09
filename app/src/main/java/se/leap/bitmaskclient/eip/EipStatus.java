@@ -50,9 +50,11 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 	current_status.setLocalizedResId(localizedResId);
 	current_status.setLevel(level);
 	current_status.setChanged();
-	if(isConnected() || isDisconnected())
+	if(isConnected() || isDisconnected()) {
 	    setConnectedOrDisconnected();
-	else if(isConnecting())
+	    if(isDisconnected())
+		VoidVpnService.stop();
+	} else if(isConnecting())
 	    setConnecting();
 	Log.d(TAG, "update state with level " + level);
 	current_status.notifyObservers();
