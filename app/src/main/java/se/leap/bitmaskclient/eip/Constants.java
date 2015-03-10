@@ -27,7 +27,6 @@ public interface Constants {
 
     public final static String TAG = Constants.class.getSimpleName();
     
-    public final static String AUTHED_EIP = TAG + ".AUTHED_EIP";
     public final static String ACTION_CHECK_CERT_VALIDITY = TAG + ".CHECK_CERT_VALIDITY";
     public final static String ACTION_START_EIP = TAG + ".START_EIP";
     public final static String ACTION_STOP_EIP = TAG + ".STOP_EIP";

@@ -16,8 +16,6 @@
     <string name="provider_label">Provider:</string>
     <string name="provider_label_none">No provider configured</string>
     <string name="status_unknown">Status unknown.</string>
-    <string name="anonymous_secured_status">Connection secure using an anonymous certificate.</string>
-    <string name="authed_secured_status">Connection secure using your own certificate.</string>
     <string name="eip_service_label">Encrypted Internet</string>
     <string name="configuration_wizard_title">Select a service provider</string>
     <string name="new_provider_button">Add new Provider</string>
