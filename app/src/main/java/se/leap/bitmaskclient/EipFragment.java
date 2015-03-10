@@ -262,7 +262,11 @@ public class EipFragment extends Fragment implements Observer {
     private void setDisconnectedUI(){
 	hideProgressBar();
 	adjustSwitch();
-	status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
+	String last_log_message = eip_status.getLastLogMessage(dashboard.getApplicationContext());
+	if(last_log_message.contains("error") || last_log_message.contains("ERROR"))
+	   status_message.setText("An error occurred." + "\n" + "Please take a look at the log, from the menu");
+	else
+	    status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
     }
 
     private void adjustSwitch() {
