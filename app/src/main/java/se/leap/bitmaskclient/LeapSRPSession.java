@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- package se.leap.bitmaskclient;
+package se.leap.bitmaskclient;
 
 
 import org.jboss.security.srp.SRPParameters;
@@ -330,6 +330,10 @@ public class LeapSRPSession {
 	protected static String getToken() {
 		return token;
 	}
+
+    protected static boolean loggedIn() {
+	return !token.isEmpty();
+    }
 
 	/**
 	 * @return a new SHA-256 digest.

@@ -63,7 +63,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 
     EipFragment eip_fragment;
     private Provider provider;
-    private static boolean authed_eip;
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private boolean switching_provider;
 
@@ -148,7 +147,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
                     sessionDialog(Bundle.EMPTY);
                 }
 
-                preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
 	    } else if (resultCode == RESULT_CANCELED && data.hasExtra(ACTION_QUIT)) {
                 finish();
 	    } else
@@ -222,12 +220,11 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	    if(!provider_json_string.isEmpty()) {
 		provider_json = new JSONObject(provider_json_string);
 		JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
-		boolean authed_eip = !LeapSRPSession.getToken().isEmpty();
 		boolean allow_registered_eip = service_description.getBoolean(Provider.ALLOW_REGISTRATION);
 		preferences.edit().putBoolean(Constants.ALLOWED_REGISTERED, allow_registered_eip).apply();
 		
 		if(allow_registered_eip) {
-		    if(authed_eip) {
+		    if(LeapSRPSession.loggedIn()) {
 			menu.findItem(R.id.login_button).setVisible(false);
 			menu.findItem(R.id.logout_button).setVisible(true);
 		    } else {
@@ -265,7 +262,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	    return true;
 	case R.id.switch_provider:
 	    switching_provider = true;
-	    if (preferences.getBoolean(Constants.AUTHED_EIP, false)) logOut();
+	    if (LeapSRPSession.loggedIn()) logOut();
 	    else switchProvider();
 	    return true;
 	case R.id.login_button:
@@ -299,7 +296,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     }
 
     protected void downloadVpnCertificate() {
-        boolean is_authenticated = !LeapSRPSession.getToken().isEmpty();
+        boolean is_authenticated = LeapSRPSession.loggedIn();
         boolean allowed_anon = preferences.getBoolean(Constants.ALLOWED_ANON, false);
         if(allowed_anon || is_authenticated)
             providerApiCommand(Bundle.EMPTY, R.string.downloading_certificate_message, ProviderAPI.DOWNLOAD_CERTIFICATE);
@@ -373,18 +370,12 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	    updateViewHidingProgressBar(resultCode);
 	    sessionDialog(resultData);
 	} else if(resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
-	    authed_eip = true;
-	    preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
-
 	    updateViewHidingProgressBar(resultCode);
 	    downloadVpnCertificate();
 	} else if(resultCode == ProviderAPI.FAILED_LOGIN) {
 	    updateViewHidingProgressBar(resultCode);
 	    sessionDialog(resultData);
 	} else if(resultCode == ProviderAPI.SUCCESSFUL_LOGOUT) {
-	    authed_eip = false;
-	    preferences.edit().putBoolean(Constants.AUTHED_EIP, authed_eip).apply();
-
 	    updateViewHidingProgressBar(resultCode);
 	    if(switching_provider) switchProvider();
 	} else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
