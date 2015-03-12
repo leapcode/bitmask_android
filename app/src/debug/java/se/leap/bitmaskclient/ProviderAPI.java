@@ -675,7 +675,7 @@ public class ProviderAPI extends IntentService {
 		String json_file_content = "";
 		
 		URL provider_url = null;
-		int seconds_of_timeout = 1;
+		int seconds_of_timeout = 2;
 		try {
 			provider_url = new URL(string_url);
 			URLConnection url_connection = provider_url.openConnection();
