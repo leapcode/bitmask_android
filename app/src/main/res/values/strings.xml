@@ -58,7 +58,7 @@
     <string name="signingup_message">Signing up</string>
     <string name="logout_message">Logging out from this session.</string>
     <string name="logged_out_message">Logged out.</string>
-    <string name="log_out_failed_message">Didn\'t log out. Try later, it may be a problem in the network or in the provider.</string>
+    <string name="log_out_failed_message">Didn\'t log out. Try later, it may be a problem in the network or in the provider. If the problem persists, then wipe Bitmask data from the Android settings</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
     <string name="registration_failed_message">Registration failed.</string>
