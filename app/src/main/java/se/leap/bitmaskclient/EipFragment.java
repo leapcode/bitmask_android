@@ -1,32 +1,33 @@
+/**
+ * Copyright (c) 2013 LEAP Encryption Access Project and contributers
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.leap.bitmaskclient;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Fragment;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.Switch;
-import android.widget.TextView;
+import android.app.*;
+import android.content.*;
+import android.os.*;
+import android.util.*;
+import android.view.*;
+import android.widget.*;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnCheckedChanged;
-import de.blinkt.openvpn.activities.DisconnectVPN;
-import se.leap.bitmaskclient.eip.Constants;
-import se.leap.bitmaskclient.eip.EIP;
-import se.leap.bitmaskclient.eip.EipStatus;
-import se.leap.bitmaskclient.eip.VoidVpnService;
+import butterknife.*;
+import de.blinkt.openvpn.activities.*;
+import se.leap.bitmaskclient.eip.*;
 
 public class EipFragment extends Fragment implements Observer {
 	
@@ -193,6 +194,10 @@ public class EipFragment extends Fragment implements Observer {
     private void stopEIP() {
 	if(eip_status.isConnecting())
 	    VoidVpnService.stop();
+	disconnect();
+    }
+
+    private void disconnect() {
 	Intent disconnect_vpn = new Intent(dashboard, DisconnectVPN.class);
 	dashboard.startActivityForResult(disconnect_vpn, EIP.DISCONNECT);
 	eip_status.setDisconnecting();
@@ -201,8 +206,8 @@ public class EipFragment extends Fragment implements Observer {
     protected void askToStopEIP() {
         hideProgressBar();
 
-	String status = dashboard.getString(R.string.eip_state_not_connected);
-	status_message.setText(status);
+	String message = dashboard.getString(R.string.eip_state_not_connected);
+	status_message.setText(message);
 
 	eipCommand(Constants.ACTION_STOP_EIP);
     }
@@ -240,11 +245,10 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleNewState(EipStatus eip_status) {
-	Log.d(TAG, "handleNewState: " + eip_status.toString());
 	if(eip_status.wantsToDisconnect())
 	    setDisconnectedUI();
-    else if(eip_status.isConnecting() || is_starting_to_connect)
-        setInProgressUI(eip_status);
+	else if(eip_status.isConnecting() || is_starting_to_connect)
+	    setInProgressUI(eip_status);
 	else if (eip_status.isConnected())
 	    setConnectedUI();
 	else if (eip_status.isDisconnected() && !eip_status.isConnecting())
@@ -262,7 +266,12 @@ public class EipFragment extends Fragment implements Observer {
     private void setDisconnectedUI(){
 	hideProgressBar();
 	adjustSwitch();
-	status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
+	String last_log_message = eip_status.getLastLogMessage(dashboard.getApplicationContext());
+	if((last_log_message.contains("error") || last_log_message.contains("ERROR"))
+	   && !status_message.getText().toString().equalsIgnoreCase(dashboard.getString(R.string.eip_state_not_connected))){
+	    dashboard.showLog();
+	}
+        status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
     }
 
     private void adjustSwitch() {
