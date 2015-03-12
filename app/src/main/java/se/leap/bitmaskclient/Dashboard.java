@@ -249,16 +249,12 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-	Intent intent;
 	switch (item.getItemId()){
 	case R.id.about_leap:
-	    intent = new Intent(this, AboutActivity.class);
-	    startActivity(intent);
+	    showAbout();
 	    return true;
 	case R.id.log_window:
-	    Intent startLW = new Intent(getAppContext(), LogWindow.class);
-	    startLW.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-	    startActivity(startLW);
+	    showLog();
 	    return true;
 	case R.id.switch_provider:
 	    switching_provider = true;
@@ -277,6 +273,17 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	default:
 	    return super.onOptionsItemSelected(item);
 	}
+    }
+
+    public void showAbout() {
+	Intent intent = new Intent(this, AboutActivity.class);
+	startActivity(intent);	
+    }
+
+    public void showLog() {
+	Intent startLW = new Intent(getAppContext(), LogWindow.class);
+	//startLW.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+	startActivity(startLW);
     }
 
     @Override
