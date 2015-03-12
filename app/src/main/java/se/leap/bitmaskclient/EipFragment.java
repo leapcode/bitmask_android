@@ -294,14 +294,20 @@ public class EipFragment extends Fragment implements Observer {
 	String logmessage = eip_status.getLogMessage();
 	String prefix = dashboard.getString(localizedResId);
 
+	showProgressBar();
 	status_message.setText(prefix + " " + logmessage);
         is_starting_to_connect = false;
 	adjustSwitch();
     }
 
     private void updatingCertificateUI() {
-        progress_bar.setVisibility(View.VISIBLE);
+	showProgressBar();
         status_message.setText(getString(R.string.updating_certificate_message));
+    }
+
+    private void showProgressBar() {
+	if(progress_bar != null)
+	    progress_bar.setVisibility(View.VISIBLE);
     }
 
     private void hideProgressBar() {
