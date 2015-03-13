@@ -63,6 +63,8 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     TextView provider_name;
     @InjectView(R.id.user_session_status)
     TextView user_session_status_text_view;
+    @InjectView(R.id.user_session_status_progress)
+    ProgressBar user_session_status_progress_bar;
 
     EipFragment eip_fragment;
     private Provider provider;
@@ -313,16 +315,38 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 
     private void handleNewUserSessionStatus(UserSessionStatus status) {
         user_session_status = status;
-        if(provider.allowsRegistration())
+        if(provider.allowsRegistration()) {
+            if(user_session_status.inProgress())
+                showUserSessionProgressBar();
+            else
+                hideUserSessionProgressBar();
             changeSessionStatusMessage(user_session_status.toString());
+        }
     }
 
     private void changeSessionStatusMessage(final String message) {
-        Log.d(TAG, message);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 user_session_status_text_view.setText(message);
+            }
+        });
+    }
+
+    private void showUserSessionProgressBar() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                user_session_status_progress_bar.setVisibility(ProgressBar.VISIBLE);
+            }
+        });
+    }
+
+    private void hideUserSessionProgressBar() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                user_session_status_progress_bar.setVisibility(ProgressBar.GONE);
             }
         });
     }
@@ -428,12 +452,11 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     }
 
     private void updateViewHidingProgressBar(int resultCode) {
-	changeStatusMessage(resultCode);
-	hideProgressBar();
+	changeEipStatusMessage(resultCode);
 	invalidateOptionsMenu();
     }
 
-    private void changeStatusMessage(final int previous_result_code) {
+    private void changeEipStatusMessage(final int previous_result_code) {
 	ResultReceiver status_receiver = new ResultReceiver(new Handler()){
 		protected void onReceiveResult(int resultCode, Bundle resultData){
 		    super.onReceiveResult(resultCode, resultData);
@@ -480,7 +503,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	startService(intent);
     }
 
-    private void hideProgressBar() {
+    private void hideEipProgressBar() {
         if(eip_fragment != null) {
             eip_fragment.progress_bar.setProgress(0);
             eip_fragment.progress_bar.setVisibility(ProgressBar.GONE);

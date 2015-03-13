@@ -49,6 +49,11 @@ public class UserSessionStatus extends Observable {
     }
 
     public SessionStatus sessionStatus() { return session_status; }
+
+    public boolean inProgress() {
+        return session_status == SessionStatus.LOGGING_IN
+                || session_status == SessionStatus.LOGGING_OUT;
+    }
     
     public static void updateStatus(SessionStatus session_status) {
 	current_status = getInstance();
