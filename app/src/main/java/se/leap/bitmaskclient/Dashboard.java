@@ -182,7 +182,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     }
 
     private void configErrorDialog() {
-	AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getAppContext());
+	AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getContext());
 	alertBuilder.setTitle(getResources().getString(R.string.setup_error_title));
 	alertBuilder
 	    .setMessage(getResources().getString(R.string.setup_error_text))
@@ -190,7 +190,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	    .setPositiveButton(getResources().getString(R.string.setup_error_configure_button), new DialogInterface.OnClickListener() {
 		    @Override
 		    public void onClick(DialogInterface dialog, int which) {
-			startActivityForResult(new Intent(getAppContext(),ConfigurationWizard.class),CONFIGURE_LEAP);
+			startActivityForResult(new Intent(getContext(),ConfigurationWizard.class),CONFIGURE_LEAP);
 		    }
 		})
 	    .setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
@@ -283,7 +283,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     }
 
     public void showLog() {
-	Intent startLW = new Intent(getAppContext(), LogWindow.class);
+	Intent startLW = new Intent(getContext(), LogWindow.class);
 	startActivity(startLW);
     }
 
@@ -321,6 +321,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
             else
                 hideUserSessionProgressBar();
             changeSessionStatusMessage(user_session_status.toString());
+            invalidateOptionsMenu();
         }
     }
 
@@ -421,26 +422,20 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	    String password = resultData.getString(SessionDialog.PASSWORD);
 	    logIn(username, password);
 	} else if(resultCode == ProviderAPI.FAILED_SIGNUP) {
-	    updateViewHidingProgressBar(resultCode);
 	    sessionDialog(resultData);
 	} else if(resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
-	    updateViewHidingProgressBar(resultCode);
 	    downloadVpnCertificate();
 	} else if(resultCode == ProviderAPI.FAILED_LOGIN) {
-	    updateViewHidingProgressBar(resultCode);
 	    sessionDialog(resultData);
 	} else if(resultCode == ProviderAPI.SUCCESSFUL_LOGOUT) {
-	    updateViewHidingProgressBar(resultCode);
 	    if(switching_provider) switchProvider();
 	} else if(resultCode == ProviderAPI.LOGOUT_FAILED) {
-	    updateViewHidingProgressBar(resultCode);
 	    setResult(RESULT_CANCELED);
 	} else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
-	    updateViewHidingProgressBar(resultCode);
 	    eip_fragment.updateEipService();
+        eip_fragment.handleNewVpnCertificate();
 	    setResult(RESULT_OK);
 	} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
-	    updateViewHidingProgressBar(resultCode);
 	    setResult(RESULT_CANCELED);
 	}
 	else if(resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE) {
@@ -451,66 +446,12 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	}
     }
 
-    private void updateViewHidingProgressBar(int resultCode) {
-	changeEipStatusMessage(resultCode);
-	invalidateOptionsMenu();
-    }
-
-    private void changeEipStatusMessage(final int previous_result_code) {
-	ResultReceiver status_receiver = new ResultReceiver(new Handler()){
-		protected void onReceiveResult(int resultCode, Bundle resultData){
-		    super.onReceiveResult(resultCode, resultData);
-		    String request = resultData.getString(Constants.REQUEST_TAG);
-		    if (request.equalsIgnoreCase(Constants.ACTION_IS_EIP_RUNNING)){
-			if (resultCode == Activity.RESULT_OK){
-			    switch(previous_result_code){
-			    case ProviderAPI.SUCCESSFUL_LOGIN: setStatusMessage(R.string.succesful_authentication_message); break;
-			    case ProviderAPI.FAILED_LOGIN: setStatusMessage(R.string.authentication_failed_message); break;
-			    case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: setStatusMessage(R.string.incorrectly_downloaded_certificate_message); break;
-			    case ProviderAPI.SUCCESSFUL_LOGOUT: setStatusMessage(R.string.logged_out_message); break;
-			    case ProviderAPI.LOGOUT_FAILED: setStatusMessage(R.string.log_out_failed_message); break;
-						
-			    }	
-			}
-			else if(resultCode == Activity.RESULT_CANCELED){
-			    switch(previous_result_code){
-			    case ProviderAPI.SUCCESSFUL_LOGIN: setStatusMessage(R.string.succesful_authentication_message); break;
-			    case ProviderAPI.FAILED_LOGIN: setStatusMessage(R.string.authentication_failed_message); break;
-			    case ProviderAPI.FAILED_SIGNUP: setStatusMessage(R.string.registration_failed_message); break;
-			    case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE: break;
-			    case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE: setStatusMessage(R.string.incorrectly_downloaded_certificate_message); break;
-			    case ProviderAPI.SUCCESSFUL_LOGOUT: setStatusMessage(R.string.logged_out_message); break;
-			    case ProviderAPI.LOGOUT_FAILED: setStatusMessage(R.string.log_out_failed_message); break;			
-			    }
-			}
-		    }
-					
-		}
-	    };
-	eipIsRunning(status_receiver);		
-    }
-
     private void setStatusMessage(int string_resId) {
 	if(eip_fragment != null && eip_fragment.status_message != null)
 	    eip_fragment.status_message.setText(string_resId);
     }
 
-    private void eipIsRunning(ResultReceiver eip_receiver){
-	// TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
-	Intent intent = new Intent(this, EIP.class);
-	intent.setAction(Constants.ACTION_IS_EIP_RUNNING);
-	intent.putExtra(Constants.RECEIVER_TAG, eip_receiver);
-	startService(intent);
-    }
-
-    private void hideEipProgressBar() {
-        if(eip_fragment != null) {
-            eip_fragment.progress_bar.setProgress(0);
-            eip_fragment.progress_bar.setVisibility(ProgressBar.GONE);
-        }
-    }
-
-    public static Context getAppContext() {
+    public static Context getContext() {
 	return app;
     }
     

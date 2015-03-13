@@ -17,7 +17,7 @@
 package se.leap.bitmaskclient;
 
 public class User {
-    private static String user_name = "The user";
+    private static String user_name = "You";
     private static User user;
     
     public static User getInstance() {

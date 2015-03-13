@@ -116,6 +116,10 @@ public class EipFragment extends Fragment implements Observer {
 	Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, is_on).commit();
     }
 
+    void handleNewVpnCertificate() {
+        handleSwitch(!eip_switch.isEnabled());
+    }
+
     @OnCheckedChanged(R.id.eipSwitch)
     void handleSwitch(boolean isChecked) {
 	if(isChecked)
@@ -156,7 +160,8 @@ public class EipFragment extends Fragment implements Observer {
 	    askPendingStartCancellation();
 	} else if(eip_status.isConnected()) {
 	    askToStopEIP();
-	}
+	} else
+        setDisconnectedUI();
     }
 
     private void askPendingStartCancellation() {	
