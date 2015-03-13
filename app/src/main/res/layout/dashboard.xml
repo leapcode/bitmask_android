@@ -16,7 +16,6 @@
           android:layout_height="wrap_content"
 	  android:layout_marginLeft="5dp"
           android:ellipsize="marquee"
-          android:fadingEdge="horizontal"
           android:singleLine="true"
           android:text="@string/provider_label"
           android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -28,18 +27,22 @@
           android:textSize="28sp"
 	  android:layout_marginLeft="10dp"
           android:ellipsize="marquee"
-          android:fadingEdge="horizontal"
           android:singleLine="true"
           android:text="@string/provider_label_none"
           android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </LinearLayout>
 
-    <View
+    <TextView
+        android:id="@+id/user_session_status"
         android:layout_width="wrap_content"
-        android:layout_height="2dp"
-        android:layout_marginBottom="15dp"
-        android:background="@android:drawable/divider_horizontal_bright" />
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_marginLeft="10dp"
+        android:ellipsize="marquee"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
 
     <LinearLayout
         android:id="@+id/servicesCollection"

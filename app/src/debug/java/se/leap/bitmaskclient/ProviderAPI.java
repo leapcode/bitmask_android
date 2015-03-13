@@ -49,8 +49,8 @@ public class ProviderAPI extends IntentService {
     TAG = ProviderAPI.class.getSimpleName(),
     SET_UP_PROVIDER = "setUpProvider",
     DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
-    SRP_REGISTER = "srpRegister",
-    SRP_AUTH = "srpAuth",
+    SIGN_UP = "srpRegister",
+    LOG_IN = "srpAuth",
     LOG_OUT = "logOut",
     DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
     PARAMETERS = "parameters",
@@ -118,11 +118,11 @@ public class ProviderAPI extends IntentService {
 		return "{ \"" + ERRORS + "\" : \""+getResources().getString(toast_string_id)+"\" }";
 	}
 
-	@Override
-	protected void onHandleIntent(Intent command) {
-		final ResultReceiver receiver = command.getParcelableExtra(RECEIVER_KEY);
-		String action = command.getAction();
-		Bundle parameters = command.getBundleExtra(PARAMETERS);
+    @Override
+    protected void onHandleIntent(Intent command) {
+	final ResultReceiver receiver = command.getParcelableExtra(RECEIVER_KEY);
+	String action = command.getAction();
+	Bundle parameters = command.getBundleExtra(PARAMETERS);
         if(provider_api_url == null) {
             try {
                 JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, "no provider"));
@@ -133,42 +133,48 @@ public class ProviderAPI extends IntentService {
             }
         }
 		
-		if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
-			Bundle result = setUpProvider(parameters);
-			if(go_ahead) {
-				if(result.getBoolean(RESULT_KEY)) {
-					receiver.send(PROVIDER_OK, result);
-				} else { 
-					receiver.send(PROVIDER_NOK, result);
-				}
-			}
-		} else if (action.equalsIgnoreCase(SRP_REGISTER)) {
-		    Bundle session_id_bundle = tryToRegister(parameters);
-		    if(session_id_bundle.getBoolean(RESULT_KEY)) {
-			receiver.send(SUCCESSFUL_SIGNUP, session_id_bundle);
-		    } else {
-			receiver.send(FAILED_SIGNUP, session_id_bundle);
-		    }
-		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
-			Bundle session_id_bundle = tryToAuthenticate(parameters);
-				if(session_id_bundle.getBoolean(RESULT_KEY)) {
-					receiver.send(SUCCESSFUL_LOGIN, session_id_bundle);
-				} else {
-					receiver.send(FAILED_LOGIN, session_id_bundle);
-				}
-		} else if (action.equalsIgnoreCase(LOG_OUT)) {
-				if(logOut()) {
-					receiver.send(SUCCESSFUL_LOGOUT, Bundle.EMPTY);
-				} else {
-					receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
-				}
-		} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
-				if(updateVpnCertificate()) {
-					receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
-				} else {
-					receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
-				}
-		} else if(action.equalsIgnoreCase(DOWNLOAD_EIP_SERVICE)) {
+	if(action.equalsIgnoreCase(SET_UP_PROVIDER)) {
+	    Bundle result = setUpProvider(parameters);
+	    if(go_ahead) {
+		if(result.getBoolean(RESULT_KEY)) {
+		    receiver.send(PROVIDER_OK, result);
+		} else { 
+		    receiver.send(PROVIDER_NOK, result);
+		}
+	    }
+	} else if (action.equalsIgnoreCase(SIGN_UP)) {
+	    Bundle result = tryToRegister(parameters);
+	    if(result.getBoolean(RESULT_KEY)) {
+		receiver.send(SUCCESSFUL_SIGNUP, result);
+	    } else {
+		receiver.send(FAILED_SIGNUP, result);
+	    }
+	} else if (action.equalsIgnoreCase(LOG_IN)) {
+        UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGING_IN);
+	    Bundle result = tryToAuthenticate(parameters);
+	    if(result.getBoolean(RESULT_KEY)) {
+		receiver.send(SUCCESSFUL_LOGIN, result);
+		UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGED_IN);
+	    } else {
+		receiver.send(FAILED_LOGIN, result);
+		UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.NOT_LOGGED_IN);
+	    }
+	} else if (action.equalsIgnoreCase(LOG_OUT)) {
+	    UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGING_OUT);
+	    if(logOut()) {
+		receiver.send(SUCCESSFUL_LOGOUT, Bundle.EMPTY);
+		UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGED_OUT);
+	    } else {
+		receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
+		UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.DIDNT_LOG_OUT);
+	    }
+	} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
+	    if(updateVpnCertificate()) {
+		receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+	    } else {
+		receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+	    }
+	} else if(action.equalsIgnoreCase(DOWNLOAD_EIP_SERVICE)) {
             Bundle result = getAndSetEipServiceJson();
             if(result.getBoolean(RESULT_KEY)) {
                 receiver.send(CORRECTLY_DOWNLOADED_EIP_SERVICE, result);
@@ -176,13 +182,13 @@ public class ProviderAPI extends IntentService {
                 receiver.send(INCORRECTLY_DOWNLOADED_EIP_SERVICE, result);
             }
         }
-	}
+    }
 
     private Bundle tryToRegister(Bundle task) {
 	Bundle result = new Bundle();
 	int progress = 0;
 		
-	String username = task.getString(SessionDialog.USERNAME);
+	String username = User.userName();
 	String password = task.getString(SessionDialog.PASSWORD);
 	
 	if(validUserLoginData(username, password)) {
@@ -231,8 +237,8 @@ public class ProviderAPI extends IntentService {
 	private Bundle tryToAuthenticate(Bundle task) {
 	    Bundle result = new Bundle();
 	    int progress = 0;
-		
-	    String username = task.getString(SessionDialog.USERNAME);
+
+        String username = User.userName();
 	    String password = task.getString(SessionDialog.PASSWORD);
 	    if(validUserLoginData(username, password)) {		
 		result = authenticate(username, password);

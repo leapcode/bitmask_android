@@ -172,6 +172,14 @@ public final class Provider implements Parcelable {
 		return false;
 	}
 
+    public boolean allowsRegistration() {
+        try {
+            return definition.getJSONObject(Provider.SERVICE).getBoolean(Provider.ALLOW_REGISTRATION);
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+
     @Override
     public int describeContents() {
         return 0;

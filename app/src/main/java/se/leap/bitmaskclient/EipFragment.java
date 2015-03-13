@@ -23,6 +23,8 @@ import android.util.*;
 import android.view.*;
 import android.widget.*;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 import butterknife.*;
@@ -80,16 +82,18 @@ public class EipFragment extends Fragment implements Observer {
         Bundle arguments = getArguments();
 	if(arguments != null && arguments.containsKey(START_ON_BOOT) && arguments.getBoolean(START_ON_BOOT))
 	    startEipFromScratch();
+    if(savedInstanceState != null) restoreState(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            status_message.setText(savedInstanceState.getString(STATUS_MESSAGE));
-            if(savedInstanceState.getBoolean(IS_PENDING))
-                eip_status.setConnecting();
-            else if(savedInstanceState.getBoolean(IS_CONNECTED)) {
-                eip_status.setConnectedOrDisconnected();
-            }
-        }
 	return view;
+    }
+
+    private void restoreState(@NotNull Bundle savedInstanceState) {
+        if(savedInstanceState.getBoolean(IS_PENDING))
+            eip_status.setConnecting();
+        else if(savedInstanceState.getBoolean(IS_CONNECTED))
+            eip_status.setConnectedOrDisconnected();
+        else
+            status_message.setText(savedInstanceState.getString(STATUS_MESSAGE));
     }
 
     @Override
@@ -103,14 +107,12 @@ public class EipFragment extends Fragment implements Observer {
     public void onSaveInstanceState(Bundle outState) {
 	outState.putBoolean(IS_PENDING, eip_status.isConnecting());
 	outState.putBoolean(IS_CONNECTED, eip_status.isConnected());
-	Log.d(TAG, "status message onSaveInstanceState = " + status_message.getText().toString());
 	outState.putString(STATUS_MESSAGE, status_message.getText().toString());
 	super.onSaveInstanceState(outState);
     }
 
     protected void saveStatus() {
 	boolean is_on = eip_switch.isChecked();
-	Log.d(TAG, "saveStatus: is_on = " + is_on);
 	Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, is_on).commit();
     }
 
