@@ -99,9 +99,9 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         if (savedInstanceState != null) {
             if(savedInstanceState.containsKey(Provider.KEY))
                 provider = savedInstanceState.getParcelable(Provider.KEY);
-            if(provider == null && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
-                provider = getSavedProviderFromSharedPreferences();
         }
+        if(provider == null && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
+            provider = getSavedProviderFromSharedPreferences();
     }
 
     private void restoreSessionStatus(Bundle savedInstanceState) {
