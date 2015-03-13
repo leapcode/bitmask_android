@@ -215,7 +215,8 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	    setResult(RESULT_OK);
 	} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 	    hideProgressBar();
-	    
+	    cancelSettingUpProvider();
+        Toast.makeText(getApplicationContext(), R.string.provider_problem, Toast.LENGTH_LONG).show();
 	    setResult(RESULT_CANCELED, mConfigState);
 	} else if(resultCode == AboutActivity.VIEWED) {
 	    // Do nothing, right now
