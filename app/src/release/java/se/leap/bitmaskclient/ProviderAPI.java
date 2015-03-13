@@ -31,8 +31,8 @@ import javax.net.ssl.*;
 import org.apache.http.client.ClientProtocolException;
 import org.json.*;
 
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import se.leap.bitmaskclient.eip.*;
-
 /**
  * Implements HTTP api methods used to manage communications with the provider server.
  * 
@@ -48,8 +48,8 @@ public class ProviderAPI extends IntentService {
             TAG = ProviderAPI.class.getSimpleName(),
     SET_UP_PROVIDER = "setUpProvider",
     DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
-    SRP_REGISTER = "srpRegister",
-    SRP_AUTH = "srpAuth",
+    SIGN_UP = "srpRegister",
+    LOG_IN = "srpAuth",
     LOG_OUT = "logOut",
     DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
     PARAMETERS = "parameters",
@@ -137,25 +137,31 @@ public class ProviderAPI extends IntentService {
 					receiver.send(PROVIDER_NOK, result);
 				}
 			}
-		} else if (action.equalsIgnoreCase(SRP_REGISTER)) {
+		} else if (action.equalsIgnoreCase(SIGN_UP)) {
 		    Bundle result = tryToRegister(parameters);
 		    if(result.getBoolean(RESULT_KEY)) {
 			receiver.send(SUCCESSFUL_SIGNUP, result);
 		    } else {
 			receiver.send(FAILED_SIGNUP, result);
 		    }
-		} else if (action.equalsIgnoreCase(SRP_AUTH)) {
+		} else if (action.equalsIgnoreCase(LOG_IN)) {
+            UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGING_IN);
 		    Bundle result = tryToAuthenticate(parameters);
 		    if(result.getBoolean(RESULT_KEY)) {
-			receiver.send(SUCCESSFUL_LOGIN, result);
+                receiver.send(SUCCESSFUL_LOGIN, result);
+                UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGED_IN);
 		    } else {
-			receiver.send(FAILED_LOGIN, result);
+                receiver.send(FAILED_LOGIN, result);
+                UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.NOT_LOGGED_IN);
 		    }
 		} else if (action.equalsIgnoreCase(LOG_OUT)) {
+            UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGING_OUT);
 				if(logOut()) {
 					receiver.send(SUCCESSFUL_LOGOUT, Bundle.EMPTY);
+                    UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGED_OUT);
 				} else {
 					receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
+                    UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.DIDNT_LOG_OUT);
 				}
 		} else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
 				if(updateVpnCertificate()) {
@@ -177,7 +183,7 @@ public class ProviderAPI extends IntentService {
 	Bundle result = new Bundle();
 	int progress = 0;
 		
-	String username = task.getString(SessionDialog.USERNAME);
+	String username = User.userName();
 	String password = task.getString(SessionDialog.PASSWORD);
 	
 	if(validUserLoginData(username, password)) {
@@ -228,8 +234,8 @@ public class ProviderAPI extends IntentService {
 	    Bundle result = new Bundle();
 	    int progress = 0;
 		
-	    String username = (String) task.get(SessionDialog.USERNAME);
-	    String password = (String) task.get(SessionDialog.PASSWORD);
+	    String username = User.userName();
+	    String password = task.getString(SessionDialog.PASSWORD);
 	    if(validUserLoginData(username, password)) {
 		result = authenticate(username, password);
 		broadcastProgress(progress++);

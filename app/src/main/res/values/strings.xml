@@ -71,4 +71,6 @@
     <string name="no">No</string>
     <string name="eip_state_not_connected">"Not running! Connection not secure!"</string>
     <string name="eip_state_connected">Connection Secure.</string>
+    <string name="provider_problem">It seems there is a problem with the provider.</string>
+    <string name="try_another_provider">Please try another provider, or contact yours.</string>
 </resources>

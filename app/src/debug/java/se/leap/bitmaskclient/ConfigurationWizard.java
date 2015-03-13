@@ -95,7 +95,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
             outState.putString(PROGRESSBAR_TEXT, progressbar_description.getText().toString());
         if(selected_provider != null)
             outState.putParcelable(Provider.KEY, selected_provider);
-        outState.putParcelable(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
         super.onSaveInstanceState(outState);
     }
 
@@ -112,7 +111,6 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 
         if(savedInstanceState != null)
             restoreState(savedInstanceState);
-	else
 	    setUpProviderAPIResultReceiver();
     }
 
@@ -121,8 +119,14 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
         provider_name = savedInstanceState.getString(Provider.NAME, "");
         selected_provider = savedInstanceState.getParcelable(Provider.KEY);
         progress = savedInstanceState.getInt(PROGRESSBAR_NUMBER, -1);
-        providerAPI_result_receiver = savedInstanceState.getParcelable(ProviderAPI.RECEIVER_KEY);
-        providerAPI_result_receiver.setReceiver(this);
+
+        if(fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null && setting_up_provider) {
+            if (selected_provider != null)
+                onItemSelectedUi(selected_provider);
+            if (progress > 0)
+                mProgressBar.setProgress(progress);
+        }
+
     }
 
     @Override
@@ -211,7 +215,8 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 	    setResult(RESULT_OK);
 	} else if(resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
 	    hideProgressBar();
-	    
+	    cancelSettingUpProvider();
+        Toast.makeText(getApplicationContext(), R.string.provider_problem, Toast.LENGTH_LONG).show();
 	    setResult(RESULT_CANCELED, mConfigState);
 	} else if(resultCode == AboutActivity.VIEWED) {
 	    // Do nothing, right now
@@ -356,6 +361,7 @@ implements NewProviderDialogInterface, ProviderDetailFragmentInterface, Download
 
 	    DialogFragment newFragment = ProviderDetailFragment.newInstance();
 	    newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
+        setting_up_provider = false;
 	}
     }
 

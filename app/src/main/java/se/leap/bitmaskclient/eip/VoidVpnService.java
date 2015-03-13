@@ -42,7 +42,8 @@ public class VoidVpnService extends VpnService  {
 
     public static boolean stop() {
         try {
-            fd.close();
+            if(fd != null)
+                fd.close();
             return true;
         } catch (IOException | NullPointerException e) {
             android.util.Log.d(TAG, "VoidVpnService didn't stop");
