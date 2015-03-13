@@ -1,3 +1,13 @@
+0.9.3
+Bugs:
+- If VPN connection fails, blocking VPN is turned off
+- Don't try to log out if nothing is logged in.
+- Give better user feedback to some problems
+- Switching orientation doesn't hide any useful message
+
+Features:
+- Show the user status progress and info in its own place
+
 0.9.2
 Bugs:
 - Sign Up dialog works correctly
