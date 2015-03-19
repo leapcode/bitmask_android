@@ -48,8 +48,11 @@ public class SessionDialog extends DialogFragment{
 
     final public static String USERNAME = "username";
     final public static String PASSWORD = "password";
-    final public static String USERNAME_MISSING = "username missing";
-    final public static String PASSWORD_INVALID_LENGTH = "password_invalid_length";
+    public static enum ERRORS {
+        USERNAME_MISSING,
+        PASSWORD_INVALID_LENGTH,
+        CONFUSING_CREDENTIALS
+    }
 
     @InjectView(R.id.user_message)
     TextView user_message;
@@ -105,13 +108,15 @@ public class SessionDialog extends DialogFragment{
 
     private void setUp(Bundle arguments) {
         is_eip_pending = arguments.getBoolean(EipFragment.IS_PENDING, false);
-        if (arguments.containsKey(PASSWORD_INVALID_LENGTH))
+        if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
             password_field.setError(getString(R.string.error_not_valid_password_user_message));
+        else if(arguments.containsKey(ERRORS.CONFUSING_CREDENTIALS.toString()))
+            username_field.setError("Perhaps you used your non LEAP credentials");
         if (arguments.containsKey(USERNAME)) {
             String username = arguments.getString(USERNAME);
             username_field.setText(username);
         }
-        if (arguments.containsKey(USERNAME_MISSING)) {
+        if (arguments.containsKey(ERRORS.USERNAME_MISSING.toString())) {
             username_field.setError(getString(R.string.username_ask));
         }
         if(arguments.containsKey(getString(R.string.user_message)))

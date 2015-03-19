@@ -426,6 +426,8 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	} else if(resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
 	    downloadVpnCertificate();
 	} else if(resultCode == ProviderAPI.FAILED_LOGIN) {
+        if(provider.getName().equalsIgnoreCase("riseup"))
+            resultData.putBoolean(SessionDialog.ERRORS.CONFUSING_CREDENTIALS.toString(), true);
 	    sessionDialog(resultData);
 	} else if(resultCode == ProviderAPI.SUCCESSFUL_LOGOUT) {
 	    if(switching_provider) switchProvider();
