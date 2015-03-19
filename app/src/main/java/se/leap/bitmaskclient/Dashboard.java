@@ -291,18 +291,18 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     public void signUp(String username, String password) {
         User.setUserName(username);
 	Bundle parameters = bundlePassword(password);
-	providerApiCommand(parameters, R.string.signingup_message, ProviderAPI.SIGN_UP);
+	providerApiCommand(parameters, 0, ProviderAPI.SIGN_UP);
     }
 
     @Override
     public void logIn(String username, String password) {
         User.setUserName(username);
 	Bundle parameters = bundlePassword(password);
-	providerApiCommand(parameters, R.string.authenticating_message, ProviderAPI.LOG_IN);
+	providerApiCommand(parameters, 0, ProviderAPI.LOG_IN);
     }
 	
     public void logOut() {
-	providerApiCommand(Bundle.EMPTY, R.string.logout_message, ProviderAPI.LOG_OUT);
+	providerApiCommand(Bundle.EMPTY, 0, ProviderAPI.LOG_OUT);
     }
     
     @Override

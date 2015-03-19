@@ -138,6 +138,7 @@ public class ProviderAPI extends IntentService {
 				}
 			}
 		} else if (action.equalsIgnoreCase(SIGN_UP)) {
+            UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.SIGNING_UP);
 		    Bundle result = tryToRegister(parameters);
 		    if(result.getBoolean(RESULT_KEY)) {
 			receiver.send(SUCCESSFUL_SIGNUP, result);
