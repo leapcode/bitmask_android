@@ -30,7 +30,8 @@ public class UserSessionStatus extends Observable {
 	NOT_LOGGED_IN,
 	DIDNT_LOG_OUT,
 	LOGGING_IN,
-	LOGGING_OUT
+	LOGGING_OUT,
+        SIGNING_UP
     }
 
     private static SessionStatus session_status = SessionStatus.NOT_LOGGED_IN;

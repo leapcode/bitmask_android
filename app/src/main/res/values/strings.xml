@@ -59,11 +59,10 @@
     <string name="logout_message">Logging out from this session.</string>
     <string name="logged_out_message">Logged out.</string>
     <string name="log_out_failed_message">Didn\'t log out. Try later, it may be a problem in the network or in the provider. If the problem persists, then wipe Bitmask data from the Android settings</string>
+    <string name="login.riseup.warning">"Riseup users: You need to create a separate account to use the VPN service"</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
     <string name="registration_failed_message">Registration failed.</string>
-    <string name="successful_authed_cert_downloaded_message">Your own cert has been correctly downloaded.</string>
-    <string name="authed_cert_download_failed_message">Your own cert has incorrectly been downloaded.</string>
     <string name="eip_status_start_pending">Initiating connection</string>
     <string name="eip_cancel_connect_title">Cancel connection?</string>
     <string name="eip_cancel_connect_text">There is a connection attempt in progress.  Do you wish to cancel it?</string>

@@ -138,6 +138,7 @@ public class ProviderAPI extends IntentService {
 				}
 			}
 		} else if (action.equalsIgnoreCase(SIGN_UP)) {
+            UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.SIGNING_UP);
 		    Bundle result = tryToRegister(parameters);
 		    if(result.getBoolean(RESULT_KEY)) {
 			receiver.send(SUCCESSFUL_SIGNUP, result);
@@ -193,11 +194,11 @@ public class ProviderAPI extends IntentService {
 	    if(!wellFormedPassword(password)) {
 		result.putBoolean(RESULT_KEY, false);
 		result.putString(SessionDialog.USERNAME, username);
-		result.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
+		result.putBoolean(SessionDialog.ERRORS.PASSWORD_INVALID_LENGTH.toString(), true);
 	    }
 	    if(!validUsername(username)) {
 		result.putBoolean(RESULT_KEY, false);
-		result.putBoolean(SessionDialog.USERNAME_MISSING, true);
+		result.putBoolean(SessionDialog.ERRORS.USERNAME_MISSING.toString(), true);
 	    }
 	}
 		
@@ -243,11 +244,11 @@ public class ProviderAPI extends IntentService {
 		if(!wellFormedPassword(password)) {
 		    result.putBoolean(RESULT_KEY, false);
 		    result.putString(SessionDialog.USERNAME, username);
-		    result.putBoolean(SessionDialog.PASSWORD_INVALID_LENGTH, true);
+		    result.putBoolean(SessionDialog.ERRORS.PASSWORD_INVALID_LENGTH.toString(), true);
 		}
 		if(!validUsername(username)) {
 		    result.putBoolean(RESULT_KEY, false);
-		    result.putBoolean(SessionDialog.USERNAME_MISSING, true);
+		    result.putBoolean(SessionDialog.ERRORS.USERNAME_MISSING.toString(), true);
 		}
 	    }
 		
