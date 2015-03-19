@@ -26,8 +26,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.jetbrains.annotations.NotNull;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -51,7 +49,7 @@ public class SessionDialog extends DialogFragment{
     public static enum ERRORS {
         USERNAME_MISSING,
         PASSWORD_INVALID_LENGTH,
-        CONFUSING_CREDENTIALS
+        RISEUP_WARNING
     }
 
     @InjectView(R.id.user_message)
@@ -110,9 +108,10 @@ public class SessionDialog extends DialogFragment{
         is_eip_pending = arguments.getBoolean(EipFragment.IS_PENDING, false);
         if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
             password_field.setError(getString(R.string.error_not_valid_password_user_message));
-        else if(arguments.containsKey(ERRORS.CONFUSING_CREDENTIALS.toString()))
-            username_field.setError("Perhaps you used your non LEAP credentials");
-        if (arguments.containsKey(USERNAME)) {
+        else if(arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
+            user_message.setVisibility(TextView.VISIBLE);
+            user_message.setText(R.string.login_riseup_warning);
+        } if (arguments.containsKey(USERNAME)) {
             String username = arguments.getString(USERNAME);
             username_field.setText(username);
         }
@@ -121,7 +120,7 @@ public class SessionDialog extends DialogFragment{
         }
         if(arguments.containsKey(getString(R.string.user_message)))
             user_message.setText(arguments.getString(getString(R.string.user_message)));
-        else
+        else if(user_message.getVisibility() != TextView.VISIBLE)
             user_message.setVisibility(View.GONE);
 
         if(!username_field.getText().toString().isEmpty() && password_field.isFocusable())

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2013 LEAP Encryption Access Project and contributers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -37,7 +37,7 @@ import se.leap.bitmaskclient.eip.*;
 /**
  * The main user facing Activity of Bitmask Android, consisting of status, controls,
  * and access to preferences.
- * 
+ *
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author parmegv
  */
@@ -202,7 +202,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 		})
 	    .show();
     }
-	
+
     /**
      * Inflates permanent UI elements of the View and contains logic for what
      * service dependent UI elements to include.
@@ -248,7 +248,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	getMenuInflater().inflate(R.menu.client_dashboard, menu);
 	return true;
     }
-	
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
 	switch (item.getItemId()){
@@ -279,7 +279,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 
     public void showAbout() {
 	Intent intent = new Intent(this, AboutActivity.class);
-	startActivity(intent);	
+	startActivity(intent);
     }
 
     public void showLog() {
@@ -300,11 +300,11 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	Bundle parameters = bundlePassword(password);
 	providerApiCommand(parameters, 0, ProviderAPI.LOG_IN);
     }
-	
+
     public void logOut() {
 	providerApiCommand(Bundle.EMPTY, 0, ProviderAPI.LOG_OUT);
     }
-    
+
     @Override
     public void update (Observable observable, Object data) {
         if(observable instanceof UserSessionStatus) {
@@ -374,7 +374,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
             eip_fragment.progress_bar.setVisibility(ProgressBar.VISIBLE);
             setStatusMessage(progressbar_message_resId);
         }
-	
+
 	Intent command = prepareProviderAPICommand(parameters, providerApi_action);
 	startService(command);
     }
@@ -382,9 +382,9 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     private Intent prepareProviderAPICommand(Bundle parameters, String action) {
 	providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
 	providerAPI_result_receiver.setReceiver(this);
-	
+
 	Intent command = new Intent(this, ProviderAPI.class);
-	
+
 	command.putExtra(ProviderAPI.PARAMETERS, parameters);
 	command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 	command.setAction(action);
@@ -394,12 +394,16 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     public void cancelLoginOrSignup() {
       EipStatus.getInstance().setConnectedOrDisconnected();
     }
-    
+
     public void sessionDialog(Bundle resultData) {
-	
+
 	FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
 
 	DialogFragment newFragment = new SessionDialog();
+        if(provider.getName().equalsIgnoreCase("riseup")) {
+            resultData = resultData == Bundle.EMPTY ? new Bundle() : resultData;
+            resultData.putBoolean(SessionDialog.ERRORS.RISEUP_WARNING.toString(), true);
+        }
 	if(resultData != null && !resultData.isEmpty()) {
 	    newFragment.setArguments(resultData);
  	}
@@ -408,7 +412,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 
     private void switchProvider() {
         if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
-	
+
         preferences.edit().clear().apply();
         switching_provider = false;
         startActivityForResult(new Intent(this, ConfigurationWizard.class), SWITCH_PROVIDER);
@@ -426,8 +430,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 	} else if(resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
 	    downloadVpnCertificate();
 	} else if(resultCode == ProviderAPI.FAILED_LOGIN) {
-        if(provider.getName().equalsIgnoreCase("riseup"))
-            resultData.putBoolean(SessionDialog.ERRORS.CONFUSING_CREDENTIALS.toString(), true);
 	    sessionDialog(resultData);
 	} else if(resultCode == ProviderAPI.SUCCESSFUL_LOGOUT) {
 	    if(switching_provider) switchProvider();
@@ -456,7 +458,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     public static Context getContext() {
 	return app;
     }
-    
+
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
         intent.putExtra(Dashboard.REQUEST_CODE, requestCode);
