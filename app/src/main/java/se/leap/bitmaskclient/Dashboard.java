@@ -407,7 +407,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     }
 
     private void switchProvider() {
-        if (provider.hasEIP()) eip_fragment.askToStopEIP();
+        if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
 	
         preferences.edit().clear().apply();
         switching_provider = false;
