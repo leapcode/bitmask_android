@@ -67,6 +67,7 @@
     <string name="eip_status_start_pending">Initiating connection</string>
     <string name="eip_cancel_connect_title">Cancel connection?</string>
     <string name="eip_cancel_connect_text">There is a connection attempt in progress.  Do you wish to cancel it?</string>
+    <string name="eip.warning.browser_inconsistency">In order to avoid leaking your personal information, please close your browser and start a private window after disconnecting the Encrypted VPN Internet Access. Thanks.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="eip_state_not_connected">"Not running! Connection not secure!"</string>
