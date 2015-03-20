@@ -53,7 +53,6 @@ public class EipFragment extends Fragment implements Observer {
     private boolean is_starting_to_connect;
     private boolean wants_to_connect;
 
-    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
@@ -293,12 +292,10 @@ public class EipFragment extends Fragment implements Observer {
     private void setDisconnectedUI(){
         hideProgressBar();
         adjustSwitch();
-        String last_log_message = eip_status.getLastLogMessage(dashboard.getApplicationContext());
-        if((last_log_message.contains("error") || last_log_message.contains("ERROR"))
+        if(eip_status.errorInLast(5, dashboard.getApplicationContext())
                 && !status_message.getText().toString().equalsIgnoreCase(dashboard.getString(R.string.eip_state_not_connected))){
             dashboard.showLog();
         }
-        status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
     }
 
     private void adjustSwitch() {
