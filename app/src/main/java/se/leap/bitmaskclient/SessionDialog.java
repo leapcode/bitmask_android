@@ -26,8 +26,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.jetbrains.annotations.NotNull;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -48,8 +46,11 @@ public class SessionDialog extends DialogFragment{
 
     final public static String USERNAME = "username";
     final public static String PASSWORD = "password";
-    final public static String USERNAME_MISSING = "username missing";
-    final public static String PASSWORD_INVALID_LENGTH = "password_invalid_length";
+    public static enum ERRORS {
+        USERNAME_MISSING,
+        PASSWORD_INVALID_LENGTH,
+        RISEUP_WARNING
+    }
 
     @InjectView(R.id.user_message)
     TextView user_message;
@@ -105,18 +106,21 @@ public class SessionDialog extends DialogFragment{
 
     private void setUp(Bundle arguments) {
         is_eip_pending = arguments.getBoolean(EipFragment.IS_PENDING, false);
-        if (arguments.containsKey(PASSWORD_INVALID_LENGTH))
+        if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
             password_field.setError(getString(R.string.error_not_valid_password_user_message));
-        if (arguments.containsKey(USERNAME)) {
+        else if(arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
+            user_message.setVisibility(TextView.VISIBLE);
+            user_message.setText(R.string.login_riseup_warning);
+        } if (arguments.containsKey(USERNAME)) {
             String username = arguments.getString(USERNAME);
             username_field.setText(username);
         }
-        if (arguments.containsKey(USERNAME_MISSING)) {
+        if (arguments.containsKey(ERRORS.USERNAME_MISSING.toString())) {
             username_field.setError(getString(R.string.username_ask));
         }
         if(arguments.containsKey(getString(R.string.user_message)))
             user_message.setText(arguments.getString(getString(R.string.user_message)));
-        else
+        else if(user_message.getVisibility() != TextView.VISIBLE)
             user_message.setVisibility(View.GONE);
 
         if(!username_field.getText().toString().isEmpty() && password_field.isFocusable())
