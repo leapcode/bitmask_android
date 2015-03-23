@@ -22,6 +22,7 @@ import android.content.*;
 import java.util.*;
 
 import de.blinkt.openvpn.core.*;
+import se.leap.bitmaskclient.EipFragment;
 
 public class EipStatus extends Observable implements VpnStatus.StateListener {
     public static String TAG = EipStatus.class.getSimpleName();
@@ -48,8 +49,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 	updateStatus(state, logmessage, localizedResId, level);
 	if(isConnected() || isDisconnected()) {
 	    setConnectedOrDisconnected();
-	    if(isDisconnected())
-		VoidVpnService.stop();
 	} else if(isConnecting())
 	    setConnecting();
 	Log.d(TAG, "update state with level " + level);
@@ -142,10 +141,10 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
         VpnStatus.LogItem[] log = VpnStatus.getlogbuffer();
         String message = "";
-        for (int i = 0; i < lines; i++) {
-            message = log[log.length-1].getString(context);
+        for (int i = 1; i <= lines && i < log.length; i++) {
+            message = log[log.length-i].getString(context);
             for(int j = 0; j < error_keywords.length; j++)
-                if(message.contains(error_keywords[i]))
+                if(message.contains(error_keywords[j]))
                     result = true;
         }
         return result;

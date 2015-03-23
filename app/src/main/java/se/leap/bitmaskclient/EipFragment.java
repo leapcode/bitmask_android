@@ -197,9 +197,9 @@ public class EipFragment extends Fragment implements Observer {
         eipCommand(Constants.ACTION_START_EIP);
     }
 
-    private void stop() {
-        if(eip_status.isConnecting())
-            VoidVpnService.stop();
+    public void stop() {
+        Intent intent = new Intent(dashboard.getApplicationContext(), VoidVpnService.class);
+        dashboard.stopService(intent);
         disconnect();
     }
 
@@ -296,6 +296,7 @@ public class EipFragment extends Fragment implements Observer {
                 && !status_message.getText().toString().equalsIgnoreCase(dashboard.getString(R.string.eip_state_not_connected))){
             dashboard.showLog();
         }
+        status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
     }
 
     private void adjustSwitch() {
