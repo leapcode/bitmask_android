@@ -16,7 +16,6 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.util.*;
 import android.content.*;
 
 import java.util.*;
@@ -51,7 +50,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
             setConnectedOrDisconnected();
         } else if (isConnecting())
             setConnecting();
-        Log.d(TAG, "update state with level " + level);
     }
 
     private void updateStatus(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
@@ -93,7 +91,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public void setConnectedOrDisconnected() {
-        Log.d(TAG, "setConnectedOrDisconnected()");
         wants_to_disconnect = false;
         current_status.setChanged();
         current_status.notifyObservers();

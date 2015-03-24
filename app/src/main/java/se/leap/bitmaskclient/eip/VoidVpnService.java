@@ -31,7 +31,6 @@ public class VoidVpnService extends VpnService {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    android.util.Log.d(TAG, "VoidVpnService set up: fd = " + fd.toString());
                 }
             });
             thread.run();
@@ -53,10 +52,8 @@ public class VoidVpnService extends VpnService {
 
     private static void closeFd() {
         try {
-            if (fd != null) {
-                android.util.Log.d(TAG, "VoidVpnService closing fd = " + fd.toString());
+            if (fd != null)
                 fd.close();
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }

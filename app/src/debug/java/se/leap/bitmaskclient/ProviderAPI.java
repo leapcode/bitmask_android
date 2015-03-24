@@ -93,8 +93,7 @@ public class ProviderAPI extends IntentService {
     }
 
     public ProviderAPI() {
-        super("ProviderAPI");
-        Log.v("ClassName", "Provider API");
+        super(TAG);
     }
 
     @Override
@@ -403,8 +402,6 @@ public class ProviderAPI extends IntentService {
         parameters.put("user[login]", username);
         parameters.put("user[password_salt]", salt);
         parameters.put("user[password_verifier]", password_verifier);
-        Log.d(TAG, server_url);
-        Log.d(TAG, parameters.toString());
         return sendToServer(server_url + "/users.json", "POST", parameters);
     }
 
@@ -465,11 +462,9 @@ public class ProviderAPI extends IntentService {
             InputStream error_stream = urlConnection.getErrorStream();
             if (error_stream != null) {
                 String error_response = new Scanner(error_stream).useDelimiter("\\A").next();
-                Log.d("Error", error_response);
                 try {
                     error_message = new JSONObject(error_response);
                 } catch (JSONException e) {
-                    Log.d(TAG, e.getMessage());
                     e.printStackTrace();
                 }
                 urlConnection.disconnect();
@@ -870,7 +865,6 @@ public class ProviderAPI extends IntentService {
             responseCode = urlConnection.getResponseCode();
             broadcastProgress(progress++);
             LeapSRPSession.setToken("");
-            Log.d(TAG, Integer.toString(responseCode));
         } catch (ClientProtocolException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -887,7 +881,6 @@ public class ProviderAPI extends IntentService {
                     if (responseCode == 401) {
                         broadcastProgress(progress++);
                         LeapSRPSession.setToken("");
-                        Log.d(TAG, Integer.toString(responseCode));
                         return true;
                     }
                 }

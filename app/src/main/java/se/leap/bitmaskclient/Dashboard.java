@@ -421,7 +421,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
-        Log.d(TAG, "onReceiveResult");
         if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
             String username = resultData.getString(SessionDialog.USERNAME);
             String password = resultData.getString(SessionDialog.PASSWORD);

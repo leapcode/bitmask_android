@@ -16,8 +16,6 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.util.*;
-
 import java.security.cert.*;
 import java.util.*;
 
@@ -42,7 +40,6 @@ public class VpnCertificateValidator {
     private boolean isValid(X509Certificate certificate) {
         Calendar offset_date = calculateOffsetCertificateValidity(certificate);
         try {
-            Log.d(TAG, "offset_date = " + offset_date.getTime().toString());
             certificate.checkValidity(offset_date.getTime());
             return true;
         } catch (CertificateExpiredException e) {
@@ -53,7 +50,6 @@ public class VpnCertificateValidator {
     }
 
     private Calendar calculateOffsetCertificateValidity(X509Certificate certificate) {
-        Log.d(TAG, "certificate not after = " + certificate.getNotAfter());
         long preventive_time = Math.abs(certificate.getNotBefore().getTime() - certificate.getNotAfter().getTime()) / 2;
         long current_date_millis = Calendar.getInstance().getTimeInMillis();
 

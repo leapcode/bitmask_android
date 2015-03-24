@@ -17,7 +17,6 @@
 package se.leap.bitmaskclient.eip;
 
 import android.content.*;
-import android.util.*;
 
 import com.google.gson.*;
 import com.google.gson.reflect.*;
@@ -77,8 +76,7 @@ public class GatewaysManager {
             for (Gateway gateway : gateways_list)
                 addGateway(gateway);
             this.gateways.addAll(gateways_list);
-        } else
-            Log.d("GatewaysManager", "No gateways added");
+        }
     }
 
     @Override

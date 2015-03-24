@@ -16,8 +16,6 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.util.*;
-
 import com.google.gson.*;
 
 import org.json.*;
@@ -106,12 +104,10 @@ public class Gateway {
             return cp.convertProfile();
         } catch (ConfigParser.ConfigParseError e) {
             // FIXME We didn't get a VpnProfile!  Error handling! and log level
-            Log.v(TAG, "Error creating VPNProfile");
             e.printStackTrace();
             return null;
         } catch (IOException e) {
             // FIXME We didn't get a VpnProfile!  Error handling! and log level
-            Log.v(TAG, "Error creating VPNProfile");
             e.printStackTrace();
             return null;
         }

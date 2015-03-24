@@ -76,8 +76,6 @@ public class EipFragment extends Fragment implements Observer {
         if (eip_status.isConnecting())
             eip_switch.setVisibility(View.VISIBLE);
 
-        Log.d(TAG, "onCreateView, eip_switch is checked? " + eip_switch.isChecked());
-
         Bundle arguments = getArguments();
         if (arguments != null && arguments.containsKey(START_ON_BOOT) && arguments.getBoolean(START_ON_BOOT))
             startEipFromScratch();
@@ -149,8 +147,6 @@ public class EipFragment extends Fragment implements Observer {
     private boolean canLogInToStartEIP() {
         boolean isAllowedRegistered = Dashboard.preferences.getBoolean(Constants.ALLOWED_REGISTERED, false);
         boolean isLoggedIn = !LeapSRPSession.getToken().isEmpty();
-        Log.d(TAG, "Allow registered? " + isAllowedRegistered);
-        Log.d(TAG, "Is logged in? " + isLoggedIn);
         return isAllowedRegistered && !isLoggedIn && !eip_status.isConnecting() && !eip_status.isConnected();
     }
 
@@ -283,7 +279,6 @@ public class EipFragment extends Fragment implements Observer {
 
     private void setConnectedUI() {
         hideProgressBar();
-        Log.d(TAG, "setConnectedUi? " + eip_status.isConnected());
         adjustSwitch();
         is_starting_to_connect = false;
         status_message.setText(dashboard.getString(R.string.eip_state_connected));
@@ -302,12 +297,10 @@ public class EipFragment extends Fragment implements Observer {
 
     private void adjustSwitch() {
         if (eip_status.isConnected() || eip_status.isConnecting() || is_starting_to_connect) {
-            Log.d(TAG, "adjustSwitch, isConnected || isConnecting, is checked");
             if (!eip_switch.isChecked()) {
                 eip_switch.setChecked(true);
             }
         } else {
-            Log.d(TAG, "adjustSwitch, !isConnected && !isConnecting? " + eip_status.toString());
 
             if (eip_switch.isChecked()) {
                 eip_switch.setChecked(false);
