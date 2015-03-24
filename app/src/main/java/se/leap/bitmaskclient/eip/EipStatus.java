@@ -142,7 +142,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
         VpnStatus.LogItem[] log = VpnStatus.getlogbuffer();
         String message = "";
-        for (int i = 0; i < lines; i++) {
+        for (int i = 1; i <= lines && log.length > i; i++) {
             message = log[log.length-i].getString(context);
             for(int j = 0; j < error_keywords.length; j++)
                 if(message.contains(error_keywords[j]))

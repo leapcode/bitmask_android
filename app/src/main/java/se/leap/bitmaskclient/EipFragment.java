@@ -296,6 +296,7 @@ public class EipFragment extends Fragment implements Observer {
                 && !status_message.getText().toString().equalsIgnoreCase(dashboard.getString(R.string.eip_state_not_connected))){
             dashboard.showLog();
         }
+        status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
     }
 
     private void adjustSwitch() {
