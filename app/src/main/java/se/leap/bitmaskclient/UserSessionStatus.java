@@ -68,7 +68,20 @@ public class UserSessionStatus extends Observable {
 
     @Override
     public String toString() {
-        return User.userName() + " is "
+        String username = User.userName();
+
+        return username + " " + conjugateToBe(username) + " "
                 + session_status.toString().toLowerCase().replaceAll("_", " ");
+    }
+
+    private String conjugateToBe(String subject) {
+        String conjugation = "";
+        if(subject.equalsIgnoreCase("I"))
+            conjugation = "am";
+        else if(subject.equalsIgnoreCase("you") || subject.equalsIgnoreCase("we")|| subject.equalsIgnoreCase("they"))
+            conjugation = "are";
+        else conjugation = "is";
+
+        return conjugation;
     }
 }
