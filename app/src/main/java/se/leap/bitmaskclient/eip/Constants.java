@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2013 LEAP Encryption Access Project and contributers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,16 +17,14 @@
 package se.leap.bitmaskclient.eip;
 
 /**
- *
  * Constants for intent passing, shared preferences
  *
  * @author Parménides GV <parmegv@sdf.org>
- *
  */
 public interface Constants {
 
     public final static String TAG = Constants.class.getSimpleName();
-    
+
     public final static String ACTION_CHECK_CERT_VALIDITY = TAG + ".CHECK_CERT_VALIDITY";
     public final static String ACTION_START_EIP = TAG + ".START_EIP";
     public final static String ACTION_STOP_EIP = TAG + ".STOP_EIP";

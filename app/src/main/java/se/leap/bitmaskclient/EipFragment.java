@@ -79,17 +79,17 @@ public class EipFragment extends Fragment implements Observer {
         Log.d(TAG, "onCreateView, eip_switch is checked? " + eip_switch.isChecked());
 
         Bundle arguments = getArguments();
-        if(arguments != null && arguments.containsKey(START_ON_BOOT) && arguments.getBoolean(START_ON_BOOT))
+        if (arguments != null && arguments.containsKey(START_ON_BOOT) && arguments.getBoolean(START_ON_BOOT))
             startEipFromScratch();
-        if(savedInstanceState != null) restoreState(savedInstanceState);
+        if (savedInstanceState != null) restoreState(savedInstanceState);
 
         return view;
     }
 
     private void restoreState(@NotNull Bundle savedInstanceState) {
-        if(savedInstanceState.getBoolean(IS_PENDING))
+        if (savedInstanceState.getBoolean(IS_PENDING))
             eip_status.setConnecting();
-        else if(savedInstanceState.getBoolean(IS_CONNECTED))
+        else if (savedInstanceState.getBoolean(IS_CONNECTED))
             eip_status.setConnectedOrDisconnected();
         else
             status_message.setText(savedInstanceState.getString(STATUS_MESSAGE));
@@ -121,7 +121,7 @@ public class EipFragment extends Fragment implements Observer {
 
     @OnCheckedChanged(R.id.eipSwitch)
     void handleSwitch(boolean isChecked) {
-        if(isChecked)
+        if (isChecked)
             handleSwitchOn();
         else
             handleSwitchOff();
@@ -130,9 +130,9 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleSwitchOn() {
-        if(canStartEIP())
+        if (canStartEIP())
             startEipFromScratch();
-        else if(canLogInToStartEIP()) {
+        else if (canLogInToStartEIP()) {
             wants_to_connect = true;
             Bundle bundle = new Bundle();
             bundle.putBoolean(IS_PENDING, true);
@@ -155,9 +155,9 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleSwitchOff() {
-        if(eip_status.isConnecting()) {
+        if (eip_status.isConnecting()) {
             askPendingStartCancellation();
-        } else if(eip_status.isConnected()) {
+        } else if (eip_status.isConnected()) {
             askToStopEIP();
         } else
             setDisconnectedUI();
@@ -190,7 +190,7 @@ public class EipFragment extends Fragment implements Observer {
         String status = dashboard.getString(R.string.eip_status_start_pending);
         status_message.setText(status);
 
-        if(!eip_switch.isChecked()) {
+        if (!eip_switch.isChecked()) {
             eip_switch.setChecked(true);
         }
         saveStatus();
@@ -198,7 +198,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void stop() {
-        if(eip_status.isConnecting())
+        if (eip_status.isConnecting())
             VoidVpnService.stop();
         disconnect();
     }
@@ -245,10 +245,10 @@ public class EipFragment extends Fragment implements Observer {
     /**
      * Send a command to EIP
      *
-     * @param action	A valid String constant from EIP class representing an Intent
-     * 					filter for the EIP class 
+     * @param action A valid String constant from EIP class representing an Intent
+     *               filter for the EIP class
      */
-    private void eipCommand(String action){
+    private void eipCommand(String action) {
         // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
         Intent vpn_intent = new Intent(dashboard.getApplicationContext(), EIP.class);
         vpn_intent.setAction(action);
@@ -257,8 +257,8 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     @Override
-    public void update (Observable observable, Object data) {
-        if(observable instanceof EipStatus) {
+    public void update(Observable observable, Object data) {
+        if (observable instanceof EipStatus) {
             eip_status = (EipStatus) observable;
             final EipStatus eip_status = (EipStatus) observable;
             dashboard.runOnUiThread(new Runnable() {
@@ -271,9 +271,9 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleNewState(EipStatus eip_status) {
-        if(eip_status.wantsToDisconnect())
+        if (eip_status.wantsToDisconnect())
             setDisconnectedUI();
-        else if(eip_status.isConnecting() || is_starting_to_connect)
+        else if (eip_status.isConnecting() || is_starting_to_connect)
             setInProgressUI(eip_status);
         else if (eip_status.isConnected())
             setConnectedUI();
@@ -289,11 +289,11 @@ public class EipFragment extends Fragment implements Observer {
         status_message.setText(dashboard.getString(R.string.eip_state_connected));
     }
 
-    private void setDisconnectedUI(){
+    private void setDisconnectedUI() {
         hideProgressBar();
         adjustSwitch();
-        if(eip_status.errorInLast(5, dashboard.getApplicationContext())
-                && !status_message.getText().toString().equalsIgnoreCase(dashboard.getString(R.string.eip_state_not_connected))){
+        if (eip_status.errorInLast(5, dashboard.getApplicationContext())
+                && !status_message.getText().toString().equalsIgnoreCase(dashboard.getString(R.string.eip_state_not_connected))) {
             dashboard.showLog();
             VoidVpnService.stop();
         }
@@ -301,15 +301,15 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void adjustSwitch() {
-        if(eip_status.isConnected() || eip_status.isConnecting() || is_starting_to_connect) {
+        if (eip_status.isConnected() || eip_status.isConnecting() || is_starting_to_connect) {
             Log.d(TAG, "adjustSwitch, isConnected || isConnecting, is checked");
-            if(!eip_switch.isChecked()) {
+            if (!eip_switch.isChecked()) {
                 eip_switch.setChecked(true);
             }
         } else {
             Log.d(TAG, "adjustSwitch, !isConnected && !isConnecting? " + eip_status.toString());
 
-            if(eip_switch.isChecked()) {
+            if (eip_switch.isChecked()) {
                 eip_switch.setChecked(false);
             }
         }
@@ -332,72 +332,72 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void showProgressBar() {
-        if(progress_bar != null)
+        if (progress_bar != null)
             progress_bar.setVisibility(View.VISIBLE);
     }
 
     private void hideProgressBar() {
-        if(progress_bar != null)
+        if (progress_bar != null)
             progress_bar.setVisibility(View.GONE);
     }
 
-protected class EIPReceiver extends ResultReceiver {
+    protected class EIPReceiver extends ResultReceiver {
 
-    protected EIPReceiver(Handler handler){
-        super(handler);
-    }
+        protected EIPReceiver(Handler handler) {
+            super(handler);
+        }
 
-    @Override
-    protected void onReceiveResult(int resultCode, Bundle resultData) {
-        super.onReceiveResult(resultCode, resultData);
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            super.onReceiveResult(resultCode, resultData);
 
-        String request = resultData.getString(Constants.REQUEST_TAG);
+            String request = resultData.getString(Constants.REQUEST_TAG);
 
-        if (request.equals(Constants.ACTION_START_EIP)) {
-            switch (resultCode){
-                case Activity.RESULT_OK:
-                    break;
-                case Activity.RESULT_CANCELED:
+            if (request.equals(Constants.ACTION_START_EIP)) {
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        break;
+                    case Activity.RESULT_CANCELED:
 
-                    break;
-            }
-        } else if (request.equals(Constants.ACTION_STOP_EIP)) {
-            switch (resultCode){
-                case Activity.RESULT_OK:
-                    stop();
-                    break;
-                case Activity.RESULT_CANCELED:
-                    break;
-            }
-        } else if (request.equals(Constants.EIP_NOTIFICATION)) {
-            switch  (resultCode){
-                case Activity.RESULT_OK:
-                    break;
-                case Activity.RESULT_CANCELED:
-                    break;
-            }
-        } else if (request.equals(Constants.ACTION_CHECK_CERT_VALIDITY)) {
-            switch (resultCode) {
-                case Activity.RESULT_OK:
-                    break;
-                case Activity.RESULT_CANCELED:
-                    updatingCertificateUI();
-                    dashboard.downloadVpnCertificate();
-                    break;
-            }
-        } else if (request.equals(Constants.ACTION_UPDATE_EIP_SERVICE)) {
-            switch (resultCode) {
-                case Activity.RESULT_OK:
-                    if(wants_to_connect)
-                        startEipFromScratch();
-                    break;
-                case Activity.RESULT_CANCELED:
-                    handleNewState(eip_status);
-                    break;
+                        break;
+                }
+            } else if (request.equals(Constants.ACTION_STOP_EIP)) {
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        stop();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        break;
+                }
+            } else if (request.equals(Constants.EIP_NOTIFICATION)) {
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        break;
+                }
+            } else if (request.equals(Constants.ACTION_CHECK_CERT_VALIDITY)) {
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        updatingCertificateUI();
+                        dashboard.downloadVpnCertificate();
+                        break;
+                }
+            } else if (request.equals(Constants.ACTION_UPDATE_EIP_SERVICE)) {
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        if (wants_to_connect)
+                            startEipFromScratch();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        handleNewState(eip_status);
+                        break;
+                }
             }
         }
     }
-}
 
 
     public static EIPReceiver getReceiver() {

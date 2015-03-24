@@ -6,7 +6,7 @@ import android.os.*;
 
 import java.io.*;
 
-public class VoidVpnService extends VpnService  {
+public class VoidVpnService extends VpnService {
 
     static final String TAG = VoidVpnService.class.getSimpleName();
     static ParcelFileDescriptor fd;
@@ -15,28 +15,28 @@ public class VoidVpnService extends VpnService  {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-	String action = intent != null ? intent.getAction() : "";
-	if (action == Constants.START_BLOCKING_VPN_PROFILE) {
-	    thread = new Thread(new Runnable() {
-		    public void run() {
-			Builder builder = new Builder();
-			builder.setSession("Blocking until running");
-			builder.addAddress("10.42.0.8",16);
-			builder.addRoute("0.0.0.0", 1);
-			builder.addRoute("192.168.1.0", 24);
-			builder.addDnsServer("10.42.0.1");
-			try {
-			    fd = builder.establish();
+        String action = intent != null ? intent.getAction() : "";
+        if (action == Constants.START_BLOCKING_VPN_PROFILE) {
+            thread = new Thread(new Runnable() {
+                public void run() {
+                    Builder builder = new Builder();
+                    builder.setSession("Blocking until running");
+                    builder.addAddress("10.42.0.8", 16);
+                    builder.addRoute("0.0.0.0", 1);
+                    builder.addRoute("192.168.1.0", 24);
+                    builder.addDnsServer("10.42.0.1");
+                    try {
+                        fd = builder.establish();
 
-			} catch (Exception e) {
-			    e.printStackTrace();
-			}
-            android.util.Log.d(TAG, "VoidVpnService set up: fd = " + fd.toString());
-		    }
-        });
-        thread.run();
-    }
-	return 0;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    android.util.Log.d(TAG, "VoidVpnService set up: fd = " + fd.toString());
+                }
+            });
+            thread.run();
+        }
+        return 0;
     }
 
     @Override
@@ -46,14 +46,14 @@ public class VoidVpnService extends VpnService  {
     }
 
     public static void stop() {
-        if(thread != null)
+        if (thread != null)
             thread.interrupt();
         closeFd();
     }
 
     private static void closeFd() {
         try {
-            if(fd != null) {
+            if (fd != null) {
                 android.util.Log.d(TAG, "VoidVpnService closing fd = " + fd.toString());
                 fd.close();
             }

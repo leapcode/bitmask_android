@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2013 LEAP Encryption Access Project and contributers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -19,27 +19,27 @@ package se.leap.bitmaskclient;
 import android.os.*;
 
 /**
- * Implements the ResultReceiver needed by Activities using ProviderAPI to receive the results of its operations. 
- * @author parmegv
+ * Implements the ResultReceiver needed by Activities using ProviderAPI to receive the results of its operations.
  *
+ * @author parmegv
  */
 public class ProviderAPIResultReceiver extends ResultReceiver {
-	private Receiver mReceiver;
-	
-	public ProviderAPIResultReceiver(Handler handler) {
-		super(handler);
-		// TODO Auto-generated constructor stub
-	}
-	
-	public void setReceiver(Receiver receiver) {
+    private Receiver mReceiver;
+
+    public ProviderAPIResultReceiver(Handler handler) {
+        super(handler);
+        // TODO Auto-generated constructor stub
+    }
+
+    public void setReceiver(Receiver receiver) {
         mReceiver = receiver;
     }
 
-	/**
-	 * Interface to enable ProviderAPIResultReceiver to receive results from the ProviderAPI IntentService. 
-	 * @author parmegv
-	 *
-	 */
+    /**
+     * Interface to enable ProviderAPIResultReceiver to receive results from the ProviderAPI IntentService.
+     *
+     * @author parmegv
+     */
     public interface Receiver {
         public void onReceiveResult(int resultCode, Bundle resultData);
     }
@@ -50,5 +50,5 @@ public class ProviderAPIResultReceiver extends ResultReceiver {
             mReceiver.onReceiveResult(resultCode, resultData);
         }
     }
-    
+
 }

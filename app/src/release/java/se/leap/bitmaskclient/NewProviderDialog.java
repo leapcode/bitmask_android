@@ -18,6 +18,7 @@ package se.leap.bitmaskclient;
 
 import butterknife.*;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+
 import android.app.*;
 import android.content.*;
 import android.os.*;
@@ -28,7 +29,6 @@ import android.widget.*;
  * Implements the new custom provider dialog.
  *
  * @author parmegv
- *
  */
 public class NewProviderDialog extends DialogFragment {
 
@@ -61,7 +61,7 @@ public class NewProviderDialog extends DialogFragment {
         View view = inflater.inflate(R.layout.new_provider_dialog, null);
         ButterKnife.inject(this, view);
         Bundle arguments = getArguments();
-        if(arguments != null) {
+        if (arguments != null) {
             url_input_field.setText(arguments.getString(Provider.MAIN_URL, ""));
         }
 
@@ -83,24 +83,26 @@ public class NewProviderDialog extends DialogFragment {
 
     private void saveProvider() {
         String entered_url = url_input_field.getText().toString().trim();
-        if(!entered_url.startsWith("https://")) {
-            if (entered_url.startsWith("http://")){
+        if (!entered_url.startsWith("https://")) {
+            if (entered_url.startsWith("http://")) {
                 entered_url = entered_url.substring("http://".length());
             }
             entered_url = "https://".concat(entered_url);
         }
 
-        if(validURL(entered_url)) {
+        if (validURL(entered_url)) {
             interface_with_ConfigurationWizard.showAndSelectProvider(entered_url);
             Toast.makeText(getActivity().getApplicationContext(), R.string.valid_url_entered, Toast.LENGTH_LONG).show();
         } else {
             url_input_field.setText("");
-            Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();;
+            Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();
+            ;
         }
     }
 
     /**
      * Checks if the entered url is valid or not.
+     *
      * @param entered_url
      * @return true if it's not empty nor contains only the protocol.
      */

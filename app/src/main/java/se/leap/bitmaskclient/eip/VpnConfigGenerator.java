@@ -17,7 +17,9 @@
 package se.leap.bitmaskclient.eip;
 
 import org.json.*;
+
 import java.util.*;
+
 import se.leap.bitmaskclient.*;
 
 public class VpnConfigGenerator {
@@ -50,7 +52,7 @@ public class VpnConfigGenerator {
         String common_options = "";
         try {
             Iterator keys = general_configuration.keys();
-            while ( keys.hasNext() ){
+            while (keys.hasNext()) {
                 String key = keys.next().toString();
 
                 common_options += key + " ";
@@ -83,11 +85,11 @@ public class VpnConfigGenerator {
             String ip_address = gateway.getString(ip_address_keyword);
             JSONObject capabilities = gateway.getJSONObject(capabilities_keyword);
             JSONArray ports = capabilities.getJSONArray(ports_keyword);
-            for (int i=0; i<ports.length(); i++) {
+            for (int i = 0; i < ports.length(); i++) {
                 String port_specific_remotes = "";
                 int port = ports.getInt(i);
                 JSONArray protocols = capabilities.getJSONArray(protocol_keyword);
-                for ( int j=0; j<protocols.length(); j++ ) {
+                for (int j = 0; j < protocols.length(); j++) {
                     String protocol = protocols.optString(j);
                     String new_remote = remote_keyword + " " + ip_address + " " + port + " " + protocol + new_line;
 
@@ -129,7 +131,7 @@ public class VpnConfigGenerator {
                             + "</cert>";
 
             return ca + new_line + key + new_line + openvpn_cert;
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             return "";
         }

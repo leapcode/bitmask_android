@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2013 LEAP Encryption Access Project and contributers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -34,104 +34,105 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     private int localized_res_id;
 
     public static EipStatus getInstance() {
-	if(current_status == null) {
-	    current_status = new EipStatus();
-	    VpnStatus.addStateListener(current_status);
-	}
-	return current_status;
+        if (current_status == null) {
+            current_status = new EipStatus();
+            VpnStatus.addStateListener(current_status);
+        }
+        return current_status;
     }
 
-    private EipStatus() { }
+    private EipStatus() {
+    }
 
     @Override
     public void updateState(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
-	updateStatus(state, logmessage, localizedResId, level);
-	if(isConnected() || isDisconnected()) {
-	    setConnectedOrDisconnected();
-	} else if(isConnecting())
-	    setConnecting();
-	Log.d(TAG, "update state with level " + level);
+        updateStatus(state, logmessage, localizedResId, level);
+        if (isConnected() || isDisconnected()) {
+            setConnectedOrDisconnected();
+        } else if (isConnecting())
+            setConnecting();
+        Log.d(TAG, "update state with level " + level);
     }
 
     private void updateStatus(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
-	current_status = getInstance();
-	current_status.setState(state);
-	current_status.setLogMessage(logmessage);
-	current_status.setLocalizedResId(localizedResId);
-	current_status.setLevel(level);
-	current_status.setChanged();
+        current_status = getInstance();
+        current_status.setState(state);
+        current_status.setLogMessage(logmessage);
+        current_status.setLocalizedResId(localizedResId);
+        current_status.setLevel(level);
+        current_status.setChanged();
     }
 
     public boolean wantsToDisconnect() {
-	return wants_to_disconnect;
+        return wants_to_disconnect;
     }
 
     public boolean isConnecting() {
-	return
-	    !isConnected() &&
-	    !isDisconnected() &&
-	    !isPaused();
+        return
+                !isConnected() &&
+                        !isDisconnected() &&
+                        !isPaused();
     }
 
     public boolean isConnected() {
-	return level == VpnStatus.ConnectionStatus.LEVEL_CONNECTED;
+        return level == VpnStatus.ConnectionStatus.LEVEL_CONNECTED;
     }
 
     public boolean isDisconnected() {
-	return level == VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
+        return level == VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
     }
 
     public boolean isPaused() {
-	return level == VpnStatus.ConnectionStatus.LEVEL_VPNPAUSED;
+        return level == VpnStatus.ConnectionStatus.LEVEL_VPNPAUSED;
     }
 
     public void setConnecting() {
-	wants_to_disconnect = false;
-	current_status.setChanged();
-	current_status.notifyObservers();
+        wants_to_disconnect = false;
+        current_status.setChanged();
+        current_status.notifyObservers();
     }
 
     public void setConnectedOrDisconnected() {
-	Log.d(TAG, "setConnectedOrDisconnected()");
-	wants_to_disconnect = false;
-	current_status.setChanged();
-	current_status.notifyObservers();
+        Log.d(TAG, "setConnectedOrDisconnected()");
+        wants_to_disconnect = false;
+        current_status.setChanged();
+        current_status.notifyObservers();
     }
 
     public void setDisconnecting() {
-	wants_to_disconnect = false;
+        wants_to_disconnect = false;
     }
 
     public String getState() {
-	return state;
+        return state;
     }
 
     public String getLogMessage() {
-	return log_message;
+        return log_message;
     }
 
     public int getLocalizedResId() {
-	return localized_res_id;
+        return localized_res_id;
     }
 
     public VpnStatus.ConnectionStatus getLevel() {
-	return level;
+        return level;
     }
 
     private void setState(String state) {
-	this.state = state;
+        this.state = state;
     }
 
     private void setLogMessage(String log_message) {
-	this.log_message = log_message;
+        this.log_message = log_message;
     }
 
     private void setLocalizedResId(int localized_res_id) {
-	this.localized_res_id = localized_res_id;
+        this.localized_res_id = localized_res_id;
     }
 
     private void setLevel(VpnStatus.ConnectionStatus level) {
-	EipStatus.level = level;
+        EipStatus.level = level;
     }
 
     public boolean errorInLast(int lines, Context context) {
@@ -141,9 +142,9 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         VpnStatus.LogItem[] log = VpnStatus.getlogbuffer();
         String message = "";
         for (int i = 1; i <= lines && log.length > i; i++) {
-            message = log[log.length-i].getString(context);
-            for(int j = 0; j < error_keywords.length; j++)
-                if(message.contains(error_keywords[j]))
+            message = log[log.length - i].getString(context);
+            for (int j = 0; j < error_keywords.length; j++)
+                if (message.contains(error_keywords[j]))
                     result = true;
         }
         return result;
@@ -151,7 +152,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
     @Override
     public String toString() {
-	return "State: " + state + " Level: " + level.toString();
+        return "State: " + state + " Level: " + level.toString();
     }
 
 }

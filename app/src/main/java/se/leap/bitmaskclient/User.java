@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2013 LEAP Encryption Access Project and contributers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -19,21 +19,24 @@ package se.leap.bitmaskclient;
 public class User {
     private static String user_name = "You";
     private static User user;
-    
+
     public static User getInstance() {
-	if(user == null) {
-	    user = new User();
-	}
-	return user;
+        if (user == null) {
+            user = new User();
+        }
+        return user;
     }
 
     public static void setUserName(String user_name) {
-	User.user_name = user_name;
+        User.user_name = user_name;
     }
 
-    private User() { }
-    
-    public static String userName() { return user_name; }
+    private User() {
+    }
+
+    public static String userName() {
+        return user_name;
+    }
 
     public static boolean loggedIn() {
         return LeapSRPSession.loggedIn();

@@ -78,7 +78,7 @@ public class testGatewaysManager extends InstrumentationTestCase {
         assertEquals("[]", gateways_manager.toString());
 
         gateways_manager.addFromString(gateway.toString());
-        assertEquals("["+gateway.toString()+"]", gateways_manager.toString());
+        assertEquals("[" + gateway.toString() + "]", gateways_manager.toString());
     }
 
     @SmallTest
@@ -89,7 +89,7 @@ public class testGatewaysManager extends InstrumentationTestCase {
         gateways_manager.addFromString(gateway.toString());
         assertFalse(gateways_manager.isEmpty());
     }
-    
+
     private void mockGatewaysManager() {
         context = getInstrumentation().getContext();
         preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
