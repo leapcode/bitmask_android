@@ -11,12 +11,14 @@ public class VoidVpnService extends VpnService  {
     static final String TAG = VoidVpnService.class.getSimpleName();
     static ParcelFileDescriptor fd;
 
+    static Thread thread;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 	String action = intent != null ? intent.getAction() : "";
 	if (action == Constants.START_BLOCKING_VPN_PROFILE) {
-	    new Thread(new Runnable() {
-		    public void run() {			
+	    thread = new Thread(new Runnable() {
+		    public void run() {
 			Builder builder = new Builder();
 			builder.setSession("Blocking until running");
 			builder.addAddress("10.42.0.8",16);
@@ -25,30 +27,38 @@ public class VoidVpnService extends VpnService  {
 			builder.addDnsServer("10.42.0.1");
 			try {
 			    fd = builder.establish();
+
 			} catch (Exception e) {
 			    e.printStackTrace();
 			}
-			android.util.Log.d(TAG, "VoidVpnService set up");
+            android.util.Log.d(TAG, "VoidVpnService set up: fd = " + fd.toString());
 		    }
-		}).run();
-	}
+        });
+        thread.run();
+    }
 	return 0;
     }
 
     @Override
     public void onRevoke() {
         super.onRevoke();
+        closeFd();
     }
 
-    public static boolean stop() {
+    public static void stop() {
+        if(thread != null)
+            thread.interrupt();
+        closeFd();
+    }
+
+    private static void closeFd() {
         try {
-            if(fd != null)
+            if(fd != null) {
+                android.util.Log.d(TAG, "VoidVpnService closing fd = " + fd.toString());
                 fd.close();
-            return true;
-        } catch (IOException | NullPointerException e) {
-            android.util.Log.d(TAG, "VoidVpnService didn't stop");
+            }
+        } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
     }
 }
