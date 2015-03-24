@@ -2,7 +2,7 @@ package se.leap.bitmaskclient;
 
 import org.json.*;
 
-import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.eip.*;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
 import android.app.*;
