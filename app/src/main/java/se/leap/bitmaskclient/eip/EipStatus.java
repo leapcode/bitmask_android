@@ -16,12 +16,12 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.util.*;
-import android.content.*;
+import android.content.Context;
+import android.util.Log;
 
-import java.util.*;
+import java.util.Observable;
 
-import de.blinkt.openvpn.core.*;
+import de.blinkt.openvpn.core.VpnStatus;
 
 public class EipStatus extends Observable implements VpnStatus.StateListener {
     public static String TAG = EipStatus.class.getSimpleName();

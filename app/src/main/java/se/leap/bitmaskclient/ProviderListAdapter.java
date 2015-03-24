@@ -1,18 +1,13 @@
 package se.leap.bitmaskclient;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.TwoLineListItem;
 
 import com.pedrogomez.renderers.AdapteeCollection;
 import com.pedrogomez.renderers.RendererAdapter;
 import com.pedrogomez.renderers.RendererBuilder;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 public class ProviderListAdapter extends RendererAdapter<Provider> {

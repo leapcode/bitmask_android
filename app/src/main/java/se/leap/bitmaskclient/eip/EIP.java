@@ -16,17 +16,30 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
-import android.util.Log;
+import android.app.Activity;
+import android.app.IntentService;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import de.blinkt.openvpn.*;
-import se.leap.bitmaskclient.*;
+import de.blinkt.openvpn.LaunchVPN;
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.EipFragment;
 
-import static se.leap.bitmaskclient.eip.Constants.*;
+import static se.leap.bitmaskclient.eip.Constants.ACTION_CHECK_CERT_VALIDITY;
+import static se.leap.bitmaskclient.eip.Constants.ACTION_IS_EIP_RUNNING;
+import static se.leap.bitmaskclient.eip.Constants.ACTION_START_EIP;
+import static se.leap.bitmaskclient.eip.Constants.ACTION_STOP_EIP;
+import static se.leap.bitmaskclient.eip.Constants.ACTION_UPDATE_EIP_SERVICE;
+import static se.leap.bitmaskclient.eip.Constants.CERTIFICATE;
+import static se.leap.bitmaskclient.eip.Constants.KEY;
+import static se.leap.bitmaskclient.eip.Constants.RECEIVER_TAG;
+import static se.leap.bitmaskclient.eip.Constants.REQUEST_TAG;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted

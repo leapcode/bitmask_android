@@ -16,9 +16,7 @@
  */
 package se.leap.bitmaskclient;
 
-import android.os.*;
-
-import java.util.*;
+import java.util.Observable;
 
 public class UserSessionStatus extends Observable {
     public static String TAG = UserSessionStatus.class.getSimpleName();

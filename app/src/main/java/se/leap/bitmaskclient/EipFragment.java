@@ -16,20 +16,35 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
-import android.util.*;
-import android.view.*;
-import android.widget.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Fragment;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Observable;
+import java.util.Observer;
 
-import butterknife.*;
-import de.blinkt.openvpn.activities.*;
-import se.leap.bitmaskclient.eip.*;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnCheckedChanged;
+import de.blinkt.openvpn.activities.DisconnectVPN;
+import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.eip.EIP;
+import se.leap.bitmaskclient.eip.EipStatus;
+import se.leap.bitmaskclient.eip.VoidVpnService;
 
 public class EipFragment extends Fragment implements Observer {
 
