@@ -148,7 +148,6 @@ public class VpnConfigGenerator {
                         + new_line
                         + "persist-tun"
                         + new_line
-                        + "auth-retry nointeract"
-                + "fragment 1400";
+                        + "auth-retry nointeract";
     }
 }

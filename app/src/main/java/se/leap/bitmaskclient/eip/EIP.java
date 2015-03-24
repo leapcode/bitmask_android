@@ -126,12 +126,8 @@ public final class EIP extends IntentService {
     private void stopEIP() {
 	EipStatus eip_status = EipStatus.getInstance();
 	int result_code = Activity.RESULT_CANCELED;
-	if(eip_status.isConnected() || eip_status.isConnecting()) {
-        Intent intent = new Intent();
-        intent.setComponent(VoidVpnLauncher.getService());
-        stopService(intent);
-        result_code = Activity.RESULT_OK;
-    }
+	if(eip_status.isConnected() || eip_status.isConnecting())
+	    result_code = Activity.RESULT_OK;
 
 	tellToReceiver(ACTION_STOP_EIP, result_code);
     }
