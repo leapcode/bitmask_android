@@ -136,9 +136,19 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 	EipStatus.level = level;
     }
 
-    public String getLastLogMessage(Context context) {
-	VpnStatus.LogItem[] log = VpnStatus.getlogbuffer();
-	return log[log.length-1].getString(context);
+    public boolean errorInLast(int lines, Context context) {
+        boolean result = false;
+        String[] error_keywords = {"error", "ERROR", "fatal", "FATAL"};
+
+        VpnStatus.LogItem[] log = VpnStatus.getlogbuffer();
+        String message = "";
+        for (int i = 1; i <= lines && log.length > i; i++) {
+            message = log[log.length-i].getString(context);
+            for(int j = 0; j < error_keywords.length; j++)
+                if(message.contains(error_keywords[j]))
+                    result = true;
+        }
+        return result;
     }
 
     @Override
