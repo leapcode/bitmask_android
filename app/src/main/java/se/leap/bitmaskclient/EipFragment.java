@@ -295,6 +295,7 @@ public class EipFragment extends Fragment implements Observer {
         if(eip_status.errorInLast(5, dashboard.getApplicationContext())
                 && !status_message.getText().toString().equalsIgnoreCase(dashboard.getString(R.string.eip_state_not_connected))){
             dashboard.showLog();
+            VoidVpnService.stop();
         }
         status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
     }
