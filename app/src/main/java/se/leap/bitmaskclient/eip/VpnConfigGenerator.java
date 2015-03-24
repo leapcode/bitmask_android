@@ -16,16 +16,9 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.content.SharedPreferences;
-import android.util.Log;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Iterator;
-
-import se.leap.bitmaskclient.Provider;
+import org.json.*;
+import java.util.*;
+import se.leap.bitmaskclient.*;
 
 public class VpnConfigGenerator {
 

@@ -16,20 +16,15 @@
  */
 package se.leap.bitmaskclient.test;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.test.InstrumentationTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.app.*;
+import android.content.*;
+import android.test.*;
+import android.test.suitebuilder.annotation.*;
 
-import junit.framework.Test;
+import org.json.*;
 
-import org.json.JSONObject;
-
-import se.leap.bitmaskclient.Dashboard;
-import se.leap.bitmaskclient.eip.Gateway;
-import se.leap.bitmaskclient.eip.GatewaysManager;
+import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.eip.*;
 
 /**
  * @author parmegv

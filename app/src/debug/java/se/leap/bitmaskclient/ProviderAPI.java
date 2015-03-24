@@ -16,19 +16,19 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.IntentService;
+import android.app.*;
 import android.content.*;
 import android.os.*;
 import android.util.*;
 import java.io.*;
-import java.math.BigInteger;
+import java.math.*;
 import java.net.*;
 import java.security.*;
 import java.security.cert.*;
-import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.*;
 import java.util.*;
 import javax.net.ssl.*;
-import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.*;
 import org.json.*;
 
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;

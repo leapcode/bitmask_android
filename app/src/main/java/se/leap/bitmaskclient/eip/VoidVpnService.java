@@ -1,10 +1,10 @@
 package se.leap.bitmaskclient.eip;
 
-import android.content.Intent;
-import android.net.VpnService;
-import android.os.ParcelFileDescriptor;
+import android.content.*;
+import android.net.*;
+import android.os.*;
 
-import java.io.IOException;
+import java.io.*;
 
 public class VoidVpnService extends VpnService  {
 

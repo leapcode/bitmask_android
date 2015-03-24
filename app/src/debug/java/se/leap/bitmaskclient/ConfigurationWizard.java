@@ -28,17 +28,17 @@ import java.net.*;
 import java.util.*;
 
 import butterknife.*;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.*;
 import org.json.*;
 
-import javax.inject.Inject;
+import javax.inject.*;
 
 import se.leap.bitmaskclient.DownloadFailedDialog.DownloadFailedDialogInterface;
 import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.eip.*;
 
 /**
  * Activity that builds and shows the list of known available providers.

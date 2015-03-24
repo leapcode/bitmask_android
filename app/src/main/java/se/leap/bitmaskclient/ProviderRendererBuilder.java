@@ -1,15 +1,7 @@
 package se.leap.bitmaskclient;
 
-import android.content.Context;
-
-import com.pedrogomez.renderers.Renderer;
-import com.pedrogomez.renderers.RendererBuilder;
-
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.inject.Inject;
+import com.pedrogomez.renderers.*;
+import java.util.*;
 
 /**
  * Created by parmegv on 4/12/14.

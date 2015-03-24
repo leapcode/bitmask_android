@@ -1,9 +1,9 @@
 package se.leap.bitmaskclient.eip;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.VpnService;
-import android.os.Bundle;
+import android.app.*;
+import android.content.*;
+import android.net.*;
+import android.os.*;
 
 public class VoidVpnLauncher extends Activity {
 

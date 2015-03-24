@@ -1,11 +1,8 @@
 package se.leap.bitmaskclient.test;
 
-import android.content.Context;
-
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.io.InputStream;
+import android.content.*;
+import org.json.*;
+import java.io.*;
 
 public class FromAssets {
 

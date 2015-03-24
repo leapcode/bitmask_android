@@ -1,12 +1,9 @@
 package se.leap.bitmaskclient;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.util.Log;
+import android.content.*;
+import android.util.*;
 
-import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.eip.*;
 
 public class OnBootReceiver extends BroadcastReceiver {
 

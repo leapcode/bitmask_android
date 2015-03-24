@@ -1,10 +1,6 @@
 package se.leap.bitmaskclient.eip;
 
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 public class GatewaySelector {
     List<Gateway> gateways;

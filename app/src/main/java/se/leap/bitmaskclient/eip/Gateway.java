@@ -16,21 +16,15 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
-import android.util.Log;
+import android.util.*;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.*;
+import java.io.*;
 
-import java.io.IOException;
-import java.io.StringReader;
-
-import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.core.ConfigParser;
-import se.leap.bitmaskclient.Dashboard;
+import de.blinkt.openvpn.*;
+import de.blinkt.openvpn.core.*;
 
 /**
  * Gateway provides objects defining gateways and their metadata.

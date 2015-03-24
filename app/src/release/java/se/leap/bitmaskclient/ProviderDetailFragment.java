@@ -2,15 +2,14 @@ package se.leap.bitmaskclient;
 
 import org.json.*;
 
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.eip.*;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
 import android.app.*;
 import android.content.*;
-import android.os.Bundle;
+import android.os.*;
 import android.view.*;
-import android.widget.TextView;
+import android.widget.*;
 
 public class ProviderDetailFragment extends DialogFragment {
 

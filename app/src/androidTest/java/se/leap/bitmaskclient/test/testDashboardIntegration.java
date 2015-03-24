@@ -1,10 +1,10 @@
 package se.leap.bitmaskclient.test;
 
-import android.content.Context;
+import android.content.*;
 import android.test.*;
 import com.robotium.solo.*;
 
-import java.io.IOException;
+import java.io.*;
 
 import de.blinkt.openvpn.activities.*;
 import se.leap.bitmaskclient.*;

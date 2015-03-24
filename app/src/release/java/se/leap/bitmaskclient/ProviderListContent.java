@@ -16,17 +16,9 @@
  */
  package se.leap.bitmaskclient;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.net.URL;
-import java.net.MalformedURLException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.io.*;
+import java.util.*;
+import java.net.*;
 
 /**
  * Models the provider list shown in the ConfigurationWizard.

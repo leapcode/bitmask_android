@@ -16,12 +16,9 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
-import android.os.Bundle;
+import android.app.*;
+import android.content.*;
+import android.os.*;
 
 /**
  * Implements a dialog to show why a download failed.

@@ -1,20 +1,15 @@
 package se.leap.bitmaskclient.test;
 
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.util.*;
 
-import org.jboss.security.srp.SRPParameters;
+import android.test.suitebuilder.annotation.*;
 
-import android.test.suitebuilder.annotation.SmallTest;
+import se.leap.bitmaskclient.*;
 
-import se.leap.bitmaskclient.ConfigHelper;
-import se.leap.bitmaskclient.LeapSRPSession;
-
-import junit.framework.TestCase;
+import junit.framework.*;
 
 public class testLeapSRPSession extends TestCase {
 

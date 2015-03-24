@@ -16,22 +16,13 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.*;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.*;
 
-import java.io.File;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Locale;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 /**
  * @author Sean Leonard <meanderingcode@aetherislands.net>

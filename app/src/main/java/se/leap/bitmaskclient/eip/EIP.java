@@ -19,7 +19,6 @@ package se.leap.bitmaskclient.eip;
 import android.app.*;
 import android.content.*;
 import android.os.*;
-import android.util.Log;
 
 import org.json.*;
 

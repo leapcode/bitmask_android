@@ -1,12 +1,9 @@
 package se.leap.bitmaskclient.test;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.wifi.WifiManager;
-import android.util.Log;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import android.content.*;
+import android.net.*;
+import android.net.wifi.*;
+import java.lang.reflect.*;
 
 public class ConnectionManager {
     static void setMobileDataEnabled(boolean enabled, Context context) {

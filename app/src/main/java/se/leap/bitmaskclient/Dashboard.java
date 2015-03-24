@@ -16,16 +16,16 @@
  */
 package se.leap.bitmaskclient;
 
-import android.annotation.SuppressLint;
+import android.annotation.*;
 import android.app.*;
 import android.content.*;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.PackageManager.*;
 import android.os.*;
-import android.util.Log;
+import android.util.*;
 import android.view.*;
 import android.widget.*;
 
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.*;
 import org.json.*;
 import java.net.*;
 import java.util.*;

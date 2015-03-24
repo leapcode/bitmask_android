@@ -16,9 +16,7 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.app.*;
 
 public class FragmentManagerEnhanced {
 

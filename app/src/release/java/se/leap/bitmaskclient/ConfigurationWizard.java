@@ -28,10 +28,10 @@ import java.net.*;
 import java.util.*;
 
 import butterknife.*;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.*;
 import org.json.*;
 
-import javax.inject.Inject;
+import javax.inject.*;
 
 import se.leap.bitmaskclient.DownloadFailedDialog.DownloadFailedDialogInterface;
 import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;

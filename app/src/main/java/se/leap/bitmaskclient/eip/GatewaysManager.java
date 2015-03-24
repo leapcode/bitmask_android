@@ -17,7 +17,7 @@
 package se.leap.bitmaskclient.eip;
 
 import android.content.*;
-import android.util.Log;
+import android.util.*;
 
 import com.google.gson.*;
 import com.google.gson.reflect.*;

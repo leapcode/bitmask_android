@@ -12,24 +12,13 @@ package se.leap.bitmaskclient;
  * Source: http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html
  */
 
-import android.os.Build;
+import android.os.*;
 import android.os.Process;
-import android.util.Log;
+import android.util.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
+import java.io.*;
+import java.security.*;
 import java.security.Provider;
-import java.security.SecureRandom;
-import java.security.SecureRandomSpi;
-import java.security.Security;
 
 /**
  * Fixes for the output of the default PRNG having low entropy.

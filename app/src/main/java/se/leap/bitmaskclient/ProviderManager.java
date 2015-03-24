@@ -1,25 +1,12 @@
 package se.leap.bitmaskclient;
 
-import android.content.res.AssetManager;
+import android.content.res.*;
+import com.pedrogomez.renderers.*;
+import org.json.*;
 
-import com.pedrogomez.renderers.AdapteeCollection;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 /**
  * Created by parmegv on 4/12/14.

@@ -16,18 +16,13 @@
  */
  package se.leap.bitmaskclient;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.app.*;
+import android.content.*;
+import android.os.*;
+import android.view.*;
+import android.widget.*;
 
-import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.*;
 
 /**
  * Implements the log in dialog, currently without progress dialog.

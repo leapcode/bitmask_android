@@ -16,26 +16,16 @@
  */
 package se.leap.bitmaskclient;
 
-import android.util.Base64;
+import android.util.*;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.security.cert.*;
+import java.security.interfaces.*;
+import java.security.spec.*;
 
 /**
  * Stores constants, and implements auxiliary methods used across all LEAP Android classes.
