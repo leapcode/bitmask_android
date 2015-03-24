@@ -16,28 +16,20 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.*;
+import com.google.gson.reflect.*;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.*;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.lang.reflect.*;
+import java.util.*;
 
-import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.core.Connection;
-import de.blinkt.openvpn.core.ProfileManager;
-import se.leap.bitmaskclient.Provider;
+import de.blinkt.openvpn.*;
+import de.blinkt.openvpn.core.*;
+import se.leap.bitmaskclient.*;
 
 /**
  * @author parmegv

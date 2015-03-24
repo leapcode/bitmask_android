@@ -17,38 +17,22 @@
 package se.leap.bitmaskclient;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.DialogFragment;
-import android.app.FragmentTransaction;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.app.*;
+import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Bundle;
-import android.os.Handler;
+import android.os.*;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.*;
+import java.net.*;
+import java.util.*;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Observable;
-import java.util.Observer;
-
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import de.blinkt.openvpn.activities.LogWindow;
-import se.leap.bitmaskclient.eip.Constants;
-import se.leap.bitmaskclient.eip.EIP;
-import se.leap.bitmaskclient.eip.EipStatus;
+import butterknife.*;
+import de.blinkt.openvpn.activities.*;
+import se.leap.bitmaskclient.eip.*;
 
 /**
  * The main user facing Activity of Bitmask Android, consisting of status, controls,

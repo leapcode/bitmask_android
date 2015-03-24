@@ -16,6 +16,9 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import android.content.SharedPreferences;
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
