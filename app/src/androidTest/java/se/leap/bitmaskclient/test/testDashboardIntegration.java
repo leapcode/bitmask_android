@@ -27,7 +27,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         ConnectionManager.setMobileDataEnabled(true, context);
         solo.unlockScreen();
         if (solo.searchText(solo.getString(R.string.configuration_wizard_title)))
-            new testConfigurationWizard(solo).toDashboard("demo.bitmask.net");
+            new testConfigurationWizard(solo).toDashboardAnonymously("demo.bitmask.net");
     }
 
     @Override

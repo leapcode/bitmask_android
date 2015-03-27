@@ -1,6 +1,14 @@
 package se.leap.bitmaskclient.test;
 
+import android.app.Instrumentation;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.test.*;
+import android.view.ActionProvider;
+import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.view.SubMenu;
+import android.view.View;
 import android.widget.*;
 
 import com.robotium.solo.*;
@@ -97,14 +105,74 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
         assertTrue("Provider details dialog did not appear", solo.waitForActivity(AboutActivity.class));
     }
 
-    protected void toDashboard(String provider) {
+    protected void toDashboardAnonymously(String provider) {
         selectProvider(provider);
         useAnonymously();
     }
 
     private void useAnonymously() {
         String text = solo.getString(R.string.use_anonymously_button);
-        solo.clickOnText(text);
+        clickAndWaitForDashboard(text);
+    }
+
+    protected void toDashboardRegistered(String provider) {
+        selectProvider(provider);
+        useRegistered();
+    }
+
+    private void useRegistered() {
+        String text = solo.getString(R.string.signup_or_login_button);
+        clickAndWaitForDashboard(text);
+        login();
+    }
+
+    private void login() {
+        long milliseconds_to_log_in = 40 * 1000;
+        logIn("parmegvtest10", "holahola2");
+        solo.waitForDialogToClose(milliseconds_to_log_in);
+        assertSuccessfulLogin();
+    }
+
+    private void logIn(String username, String password) {
+        solo.clickOnActionBarItem(R.id.login_button);
+        solo.enterText(0, username);
+        solo.enterText(1, password);
+        solo.clickOnText("Log In");
+        solo.waitForDialogToClose();
+    }
+
+    private void assertSuccessfulLogin() {
+        String message = solo.getString(R.string.succesful_authentication_message);
+        assertTrue(solo.waitForText(message));
+    }
+
+    private void clickAndWaitForDashboard(String click_text) {
+        solo.clickOnText(click_text);
         solo.waitForText(solo.getString(R.string.title_activity_dashboard));
+    }
+
+    public void testEveryProvider() {
+        toDashboardAnonymously("demo.bitmask.net");
+        connectAndComeBack();
+
+        toDashboardRegistered("calyx.net");
+        connectAndComeBack();
+
+        toDashboardRegistered("riseup.net");
+        connectAndComeBack();
+
+    }
+
+    private void connectAndComeBack() {
+        solo.clickOnView(solo.getView(R.id.eipSwitch));
+        if(!solo.waitForText(solo.getString(R.string.eip_state_connected)))
+            fail();
+
+        solo.clickOnView(solo.getView(R.id.eipSwitch));
+        if(!solo.waitForText(solo.getString(R.string.eip_state_not_connected)))
+            fail();
+
+        solo.clickOnMenuItem(solo.getString(R.string.switch_provider_menu_option));
+
     }
 }
