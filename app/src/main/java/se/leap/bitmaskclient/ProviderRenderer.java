@@ -1,18 +1,12 @@
 package se.leap.bitmaskclient;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.content.*;
+import android.view.*;
+import android.widget.*;
 
-import com.pedrogomez.renderers.Renderer;
+import com.pedrogomez.renderers.*;
 
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnItemClick;
-import butterknife.OnItemSelected;
+import butterknife.*;
 
 /**
  * Created by parmegv on 4/12/14.

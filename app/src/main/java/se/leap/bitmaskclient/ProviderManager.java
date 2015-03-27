@@ -1,25 +1,14 @@
 package se.leap.bitmaskclient;
 
-import android.content.res.AssetManager;
+import android.content.res.*;
 
-import com.pedrogomez.renderers.AdapteeCollection;
+import com.pedrogomez.renderers.*;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 /**
  * Created by parmegv on 4/12/14.
@@ -36,7 +25,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     final protected static String URLS = "urls";
 
     public static ProviderManager getInstance(AssetManager assets_manager, File external_files_dir) {
-        if(instance == null)
+        if (instance == null)
             instance = new ProviderManager(assets_manager);
 
         instance.addCustomProviders(external_files_dir);
@@ -59,10 +48,10 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     private Set<Provider> providersFromAssets(String directory, String[] relative_file_paths) {
         Set<Provider> providers = new HashSet<Provider>();
         try {
-        for(String file : relative_file_paths) {
-            String main_url = extractMainUrlFromInputStream(assets_manager.open(directory + "/" + file));
+            for (String file : relative_file_paths) {
+                String main_url = extractMainUrlFromInputStream(assets_manager.open(directory + "/" + file));
                 providers.add(new Provider(new URL(main_url)));
-        }
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -82,7 +71,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     private Set<Provider> providersFromFiles(String[] files) {
         Set<Provider> providers = new HashSet<Provider>();
         try {
-            for(String file : files) {
+            for (String file : files) {
                 String main_url = extractMainUrlFromInputStream(new FileInputStream(external_files_dir.getAbsolutePath() + "/" + file));
                 providers.add(new Provider(new URL(main_url)));
             }
@@ -100,7 +89,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         byte[] bytes = new byte[0];
         try {
             bytes = new byte[input_stream_file_contents.available()];
-            if(input_stream_file_contents.read(bytes) > 0) {
+            if (input_stream_file_contents.read(bytes) > 0) {
                 JSONObject file_contents = new JSONObject(new String(bytes));
                 main_url = file_contents.getString(Provider.MAIN_URL);
             }
@@ -127,7 +116,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     @Override
     public Provider get(int index) {
         Iterator<Provider> iterator = providers().iterator();
-        while(iterator.hasNext() && index > 0) {
+        while (iterator.hasNext() && index > 0) {
             iterator.next();
             index--;
         }
@@ -136,7 +125,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     @Override
     public void add(Provider element) {
-        if(!default_providers.contains(element))
+        if (!default_providers.contains(element))
             custom_providers.add(element);
     }
 
@@ -163,17 +152,17 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     }
 
     protected void saveCustomProvidersToFile() {
-	try {
-	    for (Provider provider : custom_providers) {
+        try {
+            for (Provider provider : custom_providers) {
                 File provider_file = new File(external_files_dir, provider.getName() + ".json");
-            if(!provider_file.exists()) {
-                FileWriter writer = new FileWriter(provider_file);
-                writer.write(provider.toJson().toString());
-                writer.close();
+                if (!provider_file.exists()) {
+                    FileWriter writer = new FileWriter(provider_file);
+                    writer.write(provider.toJson().toString());
+                    writer.close();
+                }
             }
-	    }
-	} catch (IOException e) {
-	    e.printStackTrace();
-	}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

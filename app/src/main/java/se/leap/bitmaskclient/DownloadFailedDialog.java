@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2013 LEAP Encryption Access Project and contributers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,76 +16,74 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
-import android.os.Bundle;
+import android.app.*;
+import android.content.*;
+import android.os.*;
 
 /**
  * Implements a dialog to show why a download failed.
- * 
- * @author parmegv
  *
+ * @author parmegv
  */
 public class DownloadFailedDialog extends DialogFragment {
 
-	public static String TAG = "downloaded_failed_dialog";
-	private String reason_to_fail;
-	/**
-	 * @return a new instance of this DialogFragment.
-	 */
-	public static DialogFragment newInstance(String reason_to_fail) {
-		DownloadFailedDialog dialog_fragment = new DownloadFailedDialog();
-		dialog_fragment.reason_to_fail = reason_to_fail;
-		return dialog_fragment;
-	}
+    public static String TAG = "downloaded_failed_dialog";
+    private String reason_to_fail;
 
-	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    /**
+     * @return a new instance of this DialogFragment.
+     */
+    public static DialogFragment newInstance(String reason_to_fail) {
+        DownloadFailedDialog dialog_fragment = new DownloadFailedDialog();
+        dialog_fragment.reason_to_fail = reason_to_fail;
+        return dialog_fragment;
+    }
 
-		builder.setMessage(reason_to_fail)
-		.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				dismiss();
-				interface_with_ConfigurationWizard.retrySetUpProvider();
-			}
-		})
-		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				interface_with_ConfigurationWizard.cancelSettingUpProvider();
-				dialog.dismiss();
-			}
-		});
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-		// Create the AlertDialog object and return it
-		return builder.create();
-	}
+        builder.setMessage(reason_to_fail)
+                .setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dismiss();
+                        interface_with_ConfigurationWizard.retrySetUpProvider();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        interface_with_ConfigurationWizard.cancelSettingUpProvider();
+                        dialog.dismiss();
+                    }
+                });
 
-	public interface DownloadFailedDialogInterface {
-		public void retrySetUpProvider();
-		public void cancelSettingUpProvider();
-	}
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
 
-	DownloadFailedDialogInterface interface_with_ConfigurationWizard;
+    public interface DownloadFailedDialogInterface {
+        public void retrySetUpProvider();
 
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		try {
-			interface_with_ConfigurationWizard = (DownloadFailedDialogInterface) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement NoticeDialogListener");
-		}
-	}
+        public void cancelSettingUpProvider();
+    }
 
-	@Override
-	public void onCancel(DialogInterface dialog) {
-		interface_with_ConfigurationWizard.cancelSettingUpProvider();
-		dialog.dismiss();
-	}
+    DownloadFailedDialogInterface interface_with_ConfigurationWizard;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            interface_with_ConfigurationWizard = (DownloadFailedDialogInterface) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement NoticeDialogListener");
+        }
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        interface_with_ConfigurationWizard.cancelSettingUpProvider();
+        dialog.dismiss();
+    }
 
 }

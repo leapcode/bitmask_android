@@ -16,15 +16,13 @@
  */
 package se.leap.bitmaskclient.test;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.test.ServiceTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
 
-import se.leap.bitmaskclient.Dashboard;
-import se.leap.bitmaskclient.eip.Constants;
-import se.leap.bitmaskclient.eip.EIP;
+import android.content.*;
+import android.test.*;
+import android.test.suitebuilder.annotation.*;
+
+import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.eip.*;
 
 /**
  * @author parmegv

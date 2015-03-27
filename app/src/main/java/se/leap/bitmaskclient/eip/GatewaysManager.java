@@ -17,7 +17,6 @@
 package se.leap.bitmaskclient.eip;
 
 import android.content.*;
-import android.util.Log;
 
 import com.google.gson.*;
 import com.google.gson.reflect.*;
@@ -40,15 +39,18 @@ public class GatewaysManager {
     private SharedPreferences preferences;
     private List<Gateway> gateways = new ArrayList<>();
     private ProfileManager profile_manager;
-    private Type list_type = new TypeToken<ArrayList<Gateway>>() {}.getType();
+    private Type list_type = new TypeToken<ArrayList<Gateway>>() {
+    }.getType();
 
-    public GatewaysManager() {}
+    public GatewaysManager() {
+    }
 
     public GatewaysManager(Context context, SharedPreferences preferences) {
         this.context = context;
         this.preferences = preferences;
         profile_manager = ProfileManager.getInstance(context);
     }
+
     public Gateway select() {
         GatewaySelector gateway_selector = new GatewaySelector(gateways);
         return gateway_selector.select();
@@ -66,16 +68,15 @@ public class GatewaysManager {
         List<Gateway> gateways_list = new ArrayList<Gateway>();
         try {
             gateways_list = new Gson().fromJson(gateways, list_type);
-        } catch(JsonSyntaxException e) {
+        } catch (JsonSyntaxException e) {
             gateways_list.add(new Gson().fromJson(gateways, Gateway.class));
         }
 
-        if(gateways_list != null) {
+        if (gateways_list != null) {
             for (Gateway gateway : gateways_list)
-		addGateway(gateway);
+                addGateway(gateway);
             this.gateways.addAll(gateways_list);
-        } else
-            Log.d("GatewaysManager", "No gateways added");
+        }
     }
 
     @Override
@@ -85,21 +86,21 @@ public class GatewaysManager {
 
     public void fromEipServiceJson(JSONObject eip_definition) {
         try {
-	    JSONArray gatewaysDefined = eip_definition.getJSONArray("gateways");
-	    for (int i = 0; i < gatewaysDefined.length(); i++) {
-		JSONObject gw = gatewaysDefined.getJSONObject(i);
-		if (isOpenVpnGateway(gw)) {
-		    JSONObject secrets = secretsConfiguration();
-		    Gateway aux = new Gateway(eip_definition, secrets, gw);
-		    if(!containsProfileWithSecrets(aux.getProfile())) {
-			addGateway(aux);
-		    }
-		}
-	    }
-	} catch (JSONException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
+            JSONArray gatewaysDefined = eip_definition.getJSONArray("gateways");
+            for (int i = 0; i < gatewaysDefined.length(); i++) {
+                JSONObject gw = gatewaysDefined.getJSONObject(i);
+                if (isOpenVpnGateway(gw)) {
+                    JSONObject secrets = secretsConfiguration();
+                    Gateway aux = new Gateway(eip_definition, secrets, gw);
+                    if (!containsProfileWithSecrets(aux.getProfile())) {
+                        addGateway(aux);
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private boolean isOpenVpnGateway(JSONObject gateway) {
@@ -127,10 +128,10 @@ public class GatewaysManager {
         boolean result = false;
 
         Collection<VpnProfile> profiles = profile_manager.getProfiles();
-        for(VpnProfile aux : profiles) {
+        for (VpnProfile aux : profiles) {
             result = result || sameConnections(profile.mConnections, aux.mConnections)
-		&& profile.mClientCertFilename.equalsIgnoreCase(aux.mClientCertFilename)
-		&& profile.mClientKeyFilename.equalsIgnoreCase(aux.mClientKeyFilename);
+                    && profile.mClientCertFilename.equalsIgnoreCase(aux.mClientCertFilename)
+                    && profile.mClientKeyFilename.equalsIgnoreCase(aux.mClientKeyFilename);
         }
         return result;
     }
@@ -149,9 +150,9 @@ public class GatewaysManager {
     private void removeDuplicatedGateway(Gateway gateway) {
         Iterator<Gateway> it = gateways.iterator();
         List<Gateway> gateways_to_remove = new ArrayList<>();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             Gateway aux = it.next();
-            if(sameConnections(aux.getProfile().mConnections, gateway.getProfile().mConnections)) {
+            if (sameConnections(aux.getProfile().mConnections, gateway.getProfile().mConnections)) {
                 gateways_to_remove.add(aux);
             }
         }
@@ -160,21 +161,21 @@ public class GatewaysManager {
     }
 
     private void removeDuplicatedProfiles(VpnProfile original) {
-	Collection<VpnProfile> profiles = profile_manager.getProfiles();
+        Collection<VpnProfile> profiles = profile_manager.getProfiles();
         List<VpnProfile> remove_list = new ArrayList<>();
-	for(VpnProfile aux : profiles) {
-	    if (sameConnections(original.mConnections, aux.mConnections))
-		remove_list.add(aux);
-	}
+        for (VpnProfile aux : profiles) {
+            if (sameConnections(original.mConnections, aux.mConnections))
+                remove_list.add(aux);
+        }
         for (VpnProfile profile : remove_list)
             profile_manager.removeProfile(context, profile);
     }
 
     private boolean sameConnections(Connection[] c1, Connection[] c2) {
         int same_connections = 0;
-        for(Connection c1_aux : c1) {
-            for(Connection c2_aux : c2)
-                if(c2_aux.mServerName.equals(c1_aux.mServerName)) {
+        for (Connection c1_aux : c1) {
+            for (Connection c2_aux : c2)
+                if (c2_aux.mServerName.equals(c1_aux.mServerName)) {
                     same_connections++;
                     break;
                 }

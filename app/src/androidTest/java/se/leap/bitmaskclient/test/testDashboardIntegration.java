@@ -1,55 +1,56 @@
 package se.leap.bitmaskclient.test;
 
-import android.content.Context;
+import android.content.*;
 import android.test.*;
+
 import com.robotium.solo.*;
 
-import java.io.IOException;
+import java.io.*;
 
 import de.blinkt.openvpn.activities.*;
 import se.leap.bitmaskclient.*;
 
 public class testDashboardIntegration extends ActivityInstrumentationTestCase2<Dashboard> {
 
-	private Solo solo;
+    private Solo solo;
     private Context context;
 
-	public testDashboardIntegration() {
-		super(Dashboard.class);
-	}
+    public testDashboardIntegration() {
+        super(Dashboard.class);
+    }
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
         context = getInstrumentation().getContext();
-		solo = new Solo(getInstrumentation(), getActivity());
-		ConnectionManager.setMobileDataEnabled(true, context);
+        solo = new Solo(getInstrumentation(), getActivity());
+        ConnectionManager.setMobileDataEnabled(true, context);
         solo.unlockScreen();
-        if(solo.searchText(solo.getString(R.string.configuration_wizard_title)))
+        if (solo.searchText(solo.getString(R.string.configuration_wizard_title)))
             new testConfigurationWizard(solo).toDashboard("demo.bitmask.net");
-	}
+    }
 
-	@Override
-	protected void tearDown() throws Exception { 
-		solo.finishOpenedActivities();
-	}
-	
-	/**
-	 * This test will fail if Android does not trust VPN connection.
-	 * I cannot automate that dialog.
-	 */
-	public void testOnOffOpenVpn() {
-	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    turningEipOn();
-	    
-	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    turningEipOff();
-	    
-	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    turningEipOn();
-	    
-	    solo.clickOnView(solo.getView(R.id.eipSwitch));
-	    turningEipOff();
+    @Override
+    protected void tearDown() throws Exception {
+        solo.finishOpenedActivities();
+    }
+
+    /**
+     * This test will fail if Android does not trust VPN connection.
+     * I cannot automate that dialog.
+     */
+    public void testOnOffOpenVpn() {
+        solo.clickOnView(solo.getView(R.id.eipSwitch));
+        turningEipOn();
+
+        solo.clickOnView(solo.getView(R.id.eipSwitch));
+        turningEipOff();
+
+        solo.clickOnView(solo.getView(R.id.eipSwitch));
+        turningEipOn();
+
+        solo.clickOnView(solo.getView(R.id.eipSwitch));
+        turningEipOff();
 
         /*solo.clickOnView(solo.getView(R.id.eipSwitch));
         turningEipOn();
@@ -57,14 +58,14 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 	    turnNetworkOff();
         restartAdbServer(); // This doesn't work
         */
-	    
-	}
+
+    }
 
     private void turningEipOn() {
         assertAuthenticating();
         int max_seconds_until_connected = 30;
         assertConnected(max_seconds_until_connected);
-        solo.sleep(2*1000);
+        solo.sleep(2 * 1000);
     }
 
     private void assertAuthenticating() {
@@ -78,41 +79,41 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     private void turningEipOff() {
-	sayOkToDisconnect();
+        sayOkToDisconnect();
         assertDisconnected();
-	solo.sleep(2*1000);
+        solo.sleep(2 * 1000);
     }
 
     private void sayOkToDisconnect() {
-	assertTrue(solo.waitForActivity(DisconnectVPN.class));
+        assertTrue(solo.waitForActivity(DisconnectVPN.class));
         String yes = solo.getString(android.R.string.yes);
-	solo.clickOnText(yes);
+        solo.clickOnText(yes);
     }
 
     private void assertDisconnected() {
         String message = solo.getString(R.string.eip_state_not_connected);
         assertTrue(solo.waitForText(message));
     }
-    
+
     private void turnNetworkOff() {
-	ConnectionManager.setMobileDataEnabled(false, context);
-	if(!solo.waitForText(getActivity().getString(R.string.eip_state_not_connected), 1, 15*1000))
-	    fail();
+        ConnectionManager.setMobileDataEnabled(false, context);
+        if (!solo.waitForText(getActivity().getString(R.string.eip_state_not_connected), 1, 15 * 1000))
+            fail();
     }
 
     private void restartAdbServer() {
         runAdbCommand("kill-server");
         runAdbCommand("start-server");
     }
-    
+
     public void testLogInAndOut() {
-		long milliseconds_to_log_in = 40 * 1000;
+        long milliseconds_to_log_in = 40 * 1000;
         logIn("parmegvtest1", " S_Zw3'-");
-		solo.waitForDialogToClose(milliseconds_to_log_in);
+        solo.waitForDialogToClose(milliseconds_to_log_in);
         assertSuccessfulLogin();
 
         logOut();
-	}
+    }
 
     private void logIn(String username, String password) {
         solo.clickOnActionBarItem(R.id.login_button);
@@ -134,10 +135,10 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 
     public void testShowAbout() {
         showAbout();
-		solo.goBack();
-		showAbout();
-		solo.goBack();
-	}
+        solo.goBack();
+        showAbout();
+        solo.goBack();
+    }
 
     private void showAbout() {
         String menu_item = solo.getString(R.string.about);
@@ -148,10 +149,10 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     public void testSwitchProvider() {
-  	        solo.clickOnMenuItem(solo.getString(R.string.switch_provider_menu_option));
-		solo.waitForActivity(ConfigurationWizard.class);
-		solo.goBack();
-	}
+        solo.clickOnMenuItem(solo.getString(R.string.switch_provider_menu_option));
+        solo.waitForActivity(ConfigurationWizard.class);
+        solo.goBack();
+    }
 
     /*public void testReboot() {
         runAdbCommand("shell am broadcast -a android.intent.action.BOOT_COMPLETED");
