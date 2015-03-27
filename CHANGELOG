@@ -4,6 +4,9 @@ Bugs:
 - Don't try to log out if nothing is logged in.
 - Give better user feedback to some problems
 - Switching orientation doesn't hide any useful message
+- Blocking VPN is more consistently removed if an error happens
+- Typo: you is not logged in -> you *are* not logged in
+- Cleaner log messages to logcat
 
 Features:
 - Show the user status progress and info in its own place
