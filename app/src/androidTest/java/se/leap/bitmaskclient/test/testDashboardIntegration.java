@@ -162,12 +162,12 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 	changeProvider("demo.bitmask.net");
 	connectVpn();
 	disconnectVpn();
-
-	changeProvider("calyx.net");
-	connectVpn();
-	disconnectVpn();
 	
 	changeProvider("riseup.net");
+	connectVpn();
+	disconnectVpn();
+
+	changeProvider("calyx.net");
 	connectVpn();
 	disconnectVpn();
     }
@@ -176,12 +176,14 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 	tapSwitchProvider();
         solo.clickOnText(provider);
 	useRegistered();
+	solo.waitForText("Downloading VPN certificate");
+	assertDisconnected();
     }
 
     private void connectVpn() {
 	Switch vpn_switch = (Switch)solo.getView(R.id.eipSwitch);
 	assertFalse(vpn_switch.isChecked());
-	
+
 	solo.clickOnView(vpn_switch);
         turningEipOn();
     }
