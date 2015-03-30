@@ -40,7 +40,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 
     @Override
     protected void tearDown() throws Exception {
-        solo.finishOpenedActivities();
+
     }
 
     public void testListProviders() {
@@ -115,6 +115,11 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
         clickAndWaitForDashboard(text);
     }
 
+    private void clickAndWaitForDashboard(String click_text) {
+        solo.clickOnText(click_text);
+        assertTrue(solo.waitForActivity(Dashboard.class, 5000));
+    }
+
     protected void toDashboardRegistered(String provider) {
         selectProvider(provider);
         useRegistered();
@@ -146,23 +151,6 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
         assertTrue(solo.waitForText(message));
     }
 
-    private void clickAndWaitForDashboard(String click_text) {
-        solo.clickOnText(click_text);
-        solo.waitForText(solo.getString(R.string.title_activity_dashboard));
-    }
-
-    public void testEveryProvider() {
-        toDashboardAnonymously("demo.bitmask.net");
-        connectAndComeBack();
-
-        toDashboardRegistered("calyx.net");
-        connectAndComeBack();
-
-        toDashboardRegistered("riseup.net");
-        connectAndComeBack();
-
-    }
-
     private void connectAndComeBack() {
         solo.clickOnView(solo.getView(R.id.eipSwitch));
         if(!solo.waitForText(solo.getString(R.string.eip_state_connected)))
@@ -173,6 +161,5 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
             fail();
 
         solo.clickOnMenuItem(solo.getString(R.string.switch_provider_menu_option));
-
     }
 }
