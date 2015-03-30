@@ -32,7 +32,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 
     @Override
     protected void tearDown() throws Exception {
-        solo.finishOpenedActivities();
+
     }
 
     public void testListProviders() {
@@ -97,14 +97,18 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
         assertTrue("Provider details dialog did not appear", solo.waitForActivity(AboutActivity.class));
     }
 
-    protected void toDashboard(String provider) {
+    protected void toDashboardAnonymously(String provider) {
         selectProvider(provider);
         useAnonymously();
     }
 
     private void useAnonymously() {
         String text = solo.getString(R.string.use_anonymously_button);
-        solo.clickOnText(text);
-        solo.waitForText(solo.getString(R.string.title_activity_dashboard));
+        clickAndWaitForDashboard(text);
+    }
+
+    private void clickAndWaitForDashboard(String click_text) {
+        solo.clickOnText(click_text);
+        assertTrue(solo.waitForActivity(Dashboard.class, 5000));
     }
 }
