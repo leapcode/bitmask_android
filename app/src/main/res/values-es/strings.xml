@@ -17,7 +17,7 @@
     <string name="provider_label">Proveedor:</string>
     <string name="provider_label_none">Ningún proveedor configurado</string>
     <string name="status_unknown">Estado no definido.</string>
-    <string name="eip_service_label">Acceso a Internet Encriptado</string>
+    <string name="eip_service_label">Acceso a Internet Encriptado con VPN</string>
     <string name="configuration_wizard_title">Elige un proveedor</string>
     <string name="new_provider_button">Nuevo proveedor</string>
     <string name="introduce_new_provider">Añadir un nuevo proveedor</string>
