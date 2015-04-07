@@ -16,13 +16,14 @@
  */
 package se.leap.bitmaskclient;
 
-import android.os.*;
+import android.content.res.*;
 
 import java.util.*;
 
 public class UserSessionStatus extends Observable {
     public static String TAG = UserSessionStatus.class.getSimpleName();
     private static UserSessionStatus current_status;
+    private static Resources resources;
 
     public enum SessionStatus {
         LOGGED_IN,
@@ -36,14 +37,15 @@ public class UserSessionStatus extends Observable {
 
     private static SessionStatus session_status = SessionStatus.NOT_LOGGED_IN;
 
-    public static UserSessionStatus getInstance() {
+    public static UserSessionStatus getInstance(Resources resources) {
         if (current_status == null) {
-            current_status = new UserSessionStatus();
+            current_status = new UserSessionStatus(resources);
         }
         return current_status;
     }
 
-    private UserSessionStatus() {
+    private UserSessionStatus(Resources resources) {
+        UserSessionStatus.resources = resources;
     }
 
     private void sessionStatus(SessionStatus session_status) {
@@ -59,8 +61,8 @@ public class UserSessionStatus extends Observable {
                 || session_status == SessionStatus.LOGGING_OUT;
     }
 
-    public static void updateStatus(SessionStatus session_status) {
-        current_status = getInstance();
+    public static void updateStatus(SessionStatus session_status, Resources resources) {
+        current_status = getInstance(resources);
         current_status.sessionStatus(session_status);
         current_status.setChanged();
         current_status.notifyObservers();
@@ -76,11 +78,14 @@ public class UserSessionStatus extends Observable {
 
     private String conjugateToBe(String subject) {
         String conjugation = "";
-        if(subject.equalsIgnoreCase("I"))
-            conjugation = "am";
-        else if(subject.equalsIgnoreCase("you") || subject.equalsIgnoreCase("we")|| subject.equalsIgnoreCase("they"))
-            conjugation = "are";
-        else conjugation = "is";
+        String[] personal_pronouns = resources.getStringArray(R.array.personal_pronouns);
+        String[] verb_to_be = resources.getStringArray(R.array.verb_to_be);
+        for (int i = 0; i < personal_pronouns.length ; i++)
+            if(subject.equalsIgnoreCase(personal_pronouns[i])) {
+                conjugation = verb_to_be[i];
+                break;
+            }
+        if(conjugation.isEmpty()) conjugation = verb_to_be[User.DEFAULT_CONJUGATION_PERSON];
 
         return conjugation;
     }

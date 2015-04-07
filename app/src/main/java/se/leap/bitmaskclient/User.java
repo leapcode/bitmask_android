@@ -17,12 +17,15 @@
 package se.leap.bitmaskclient;
 
 public class User {
-    private static String user_name = "You";
+    private static String user_name;
     private static User user;
+    public static int DEFAULT_CONJUGATION_PERSON = 1;
 
-    public static User getInstance() {
+    public static User init() {
         if (user == null) {
-            user = new User();
+            String[] personal_pronouns = Dashboard.getContext().getResources().getStringArray(R.array.personal_pronouns);
+            String default_username = personal_pronouns[DEFAULT_CONJUGATION_PERSON];
+            user = new User(default_username);
         }
         return user;
     }
@@ -31,7 +34,8 @@ public class User {
         User.user_name = user_name;
     }
 
-    private User() {
+    private User(String user_name) {
+        User.user_name = user_name;
     }
 
     public static String userName() {

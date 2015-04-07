@@ -1,3 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--  Keep the order the same as the TYPE_ constants in VPNProfile -->
+    <string-array name="verb_to_be">
+        <item>soy</item>
+        <item>estás</item>
+        <item>está</item>
+        <item>estamos</item>
+        <item>estáis</item>
+        <item>están</item>
+    </string-array>
+
+    <string-array name="personal_pronouns">
+        <item>Yo</item>
+        <item>Tú</item>
+        <item>Él</item>
+        <item>Nosotros</item>
+        <item>Vosotros</item>
+        <item>Ellos</item>
+    </string-array>
 </resources>
