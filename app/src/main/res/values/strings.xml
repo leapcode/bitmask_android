@@ -16,8 +16,6 @@
     <string name="provider_label">Provider:</string>
     <string name="provider_label_none">No provider configured</string>
     <string name="status_unknown">Status unknown.</string>
-    <string name="anonymous_secured_status">Connection secure using an anonymous certificate.</string>
-    <string name="authed_secured_status">Connection secure using your own certificate.</string>
     <string name="eip_service_label">Encrypted Internet</string>
     <string name="configuration_wizard_title">Select a service provider</string>
     <string name="new_provider_button">Add new Provider</string>
@@ -60,17 +58,19 @@
     <string name="signingup_message">Signing up</string>
     <string name="logout_message">Logging out from this session.</string>
     <string name="logged_out_message">Logged out.</string>
-    <string name="log_out_failed_message">Didn\'t log out.</string>
+    <string name="log_out_failed_message">Didn\'t log out. Try later, it may be a problem in the network or in the provider. If the problem persists, then wipe Bitmask data from the Android settings</string>
+    <string name="login.riseup.warning">"Riseup users: You need to create a separate account to use the VPN service"</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
     <string name="registration_failed_message">Registration failed.</string>
-    <string name="successful_authed_cert_downloaded_message">Your own cert has been correctly downloaded.</string>
-    <string name="authed_cert_download_failed_message">Your own cert has incorrectly been downloaded.</string>
     <string name="eip_status_start_pending">Initiating connection</string>
     <string name="eip_cancel_connect_title">Cancel connection?</string>
     <string name="eip_cancel_connect_text">There is a connection attempt in progress.  Do you wish to cancel it?</string>
+    <string name="eip.warning.browser_inconsistency">In order to avoid leaking your personal information, please close your browser and start a private window after disconnecting the Encrypted VPN Internet Access. Thanks.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="eip_state_not_connected">"Not running! Connection not secure!"</string>
     <string name="eip_state_connected">Connection Secure.</string>
+    <string name="provider_problem">It seems there is a problem with the provider.</string>
+    <string name="try_another_provider">Please try another provider, or contact yours.</string>
 </resources>

@@ -56,11 +56,11 @@ public class testVpnCertificateValidator extends InstrumentationTestCase {
     }
 
     private void setTime(int year, int month, int day) {
-            shellCommand("adb shell chmod 666 /dev/alarm");
-            Calendar c = Calendar.getInstance();
-            c.set(year, month, day, 12, 00, 00);
-            SystemClock.setCurrentTimeMillis(c.getTimeInMillis());
-            shellCommand("adb shell chmod 664 /dev/alarm");
+        shellCommand("adb shell chmod 666 /dev/alarm");
+        Calendar c = Calendar.getInstance();
+        c.set(year, month, day, 12, 00, 00);
+        SystemClock.setCurrentTimeMillis(c.getTimeInMillis());
+        shellCommand("adb shell chmod 664 /dev/alarm");
     }
 
     private int shellCommand(String command) {

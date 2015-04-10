@@ -39,7 +39,7 @@ android {
 }
 
 dependencies {
-  androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.2.1'
+  androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.3.1'
   compile 'com.jakewharton:butterknife:6.0.0+'
   provided 'com.squareup.dagger:dagger-compiler:1.2.2+'
   compile 'com.github.pedrovgs:renderers:1.3+'

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2013 LEAP Encryption Access Project and contributers
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,14 +16,10 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.util.Log;
+import java.security.cert.*;
+import java.util.*;
 
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
-import java.util.Calendar;
-
-import se.leap.bitmaskclient.ConfigHelper;
+import se.leap.bitmaskclient.*;
 
 public class VpnCertificateValidator {
     public final static String TAG = VpnCertificateValidator.class.getSimpleName();
@@ -35,32 +31,30 @@ public class VpnCertificateValidator {
     }
 
     public boolean isValid() {
-	if(!certificate.isEmpty()) {
-	    X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate);
-	    return isValid(certificate_x509);
-	} else return true;
+        if (!certificate.isEmpty()) {
+            X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate);
+            return isValid(certificate_x509);
+        } else return true;
     }
-    
+
     private boolean isValid(X509Certificate certificate) {
-	Calendar offset_date = calculateOffsetCertificateValidity(certificate);
-	try {
-	    Log.d(TAG, "offset_date = " + offset_date.getTime().toString());
-	    certificate.checkValidity(offset_date.getTime());
-	    return true;
-	} catch(CertificateExpiredException e) {
-	    return false;
-	} catch(CertificateNotYetValidException e) {
-	    return false;
-	}
+        Calendar offset_date = calculateOffsetCertificateValidity(certificate);
+        try {
+            certificate.checkValidity(offset_date.getTime());
+            return true;
+        } catch (CertificateExpiredException e) {
+            return false;
+        } catch (CertificateNotYetValidException e) {
+            return false;
+        }
     }
 
     private Calendar calculateOffsetCertificateValidity(X509Certificate certificate) {
-	Log.d(TAG, "certificate not after = " + certificate.getNotAfter());
-	long preventive_time = Math.abs(certificate.getNotBefore().getTime() - certificate.getNotAfter().getTime())/2;
-	long current_date_millis = Calendar.getInstance().getTimeInMillis();
-	    
-	Calendar limit_date = Calendar.getInstance();
-	limit_date.setTimeInMillis(current_date_millis + preventive_time);
-	return limit_date;
+        long preventive_time = Math.abs(certificate.getNotBefore().getTime() - certificate.getNotAfter().getTime()) / 2;
+        long current_date_millis = Calendar.getInstance().getTimeInMillis();
+
+        Calendar limit_date = Calendar.getInstance();
+        limit_date.setTimeInMillis(current_date_millis + preventive_time);
+        return limit_date;
     }
 }
