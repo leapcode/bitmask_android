@@ -58,7 +58,6 @@
     <string name="signingup_message">Signing up</string>
     <string name="logout_message">Logging out from this session.</string>
     <string name="logged_out_message">Logged out.</string>
-    <string name="log_out_failed_message">Didn\'t log out. Try later, it may be a problem in the network or in the provider. If the problem persists, then wipe Bitmask data from the Android settings</string>
     <string name="login.riseup.warning">"Riseup users: You need to create a separate account to use the VPN service"</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
@@ -73,4 +72,11 @@
     <string name="eip_state_connected">Connection Secure.</string>
     <string name="provider_problem">It seems there is a problem with the provider.</string>
     <string name="try_another_provider">Please try another provider, or contact yours.</string>
+    <string name="default_user">You</string>
+    <string name="logged_in_user_status">is logged in.</string>
+    <string name="logged_out_user_status">logged out.</string>
+    <string name="didnt_log_out_user_status">didn\'t log out. Try later, it may be a problem in the network or in the provider. If the problem persists, then wipe Bitmask data from the Android settings</string>
+    <string name="not_logged_in_user_status">have not logged in.</string>
+    <string name="logging_in_user_status">is logging in.</string>
+    <string name="logging_out_user_status">is logging out.</string>
 </resources>
