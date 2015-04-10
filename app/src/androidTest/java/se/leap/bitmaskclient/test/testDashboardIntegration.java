@@ -2,6 +2,7 @@ package se.leap.bitmaskclient.test;
 
 import android.content.*;
 import android.test.*;
+import android.widget.*;
 
 import com.robotium.solo.*;
 
@@ -27,7 +28,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         ConnectionManager.setMobileDataEnabled(true, context);
         solo.unlockScreen();
         if (solo.searchText(solo.getString(R.string.configuration_wizard_title)))
-            new testConfigurationWizard(solo).toDashboard("demo.bitmask.net");
+            new testConfigurationWizard(solo).toDashboardAnonymously("demo.bitmask.net");
     }
 
     @Override
@@ -108,6 +109,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 
     public void testLogInAndOut() {
         long milliseconds_to_log_in = 40 * 1000;
+        solo.clickOnActionBarItem(R.id.login_button);
         logIn("parmegvtest1", " S_Zw3'-");
         solo.waitForDialogToClose(milliseconds_to_log_in);
         assertSuccessfulLogin();
@@ -116,7 +118,6 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     private void logIn(String username, String password) {
-        solo.clickOnActionBarItem(R.id.login_button);
         solo.enterText(0, username);
         solo.enterText(1, password);
         solo.clickOnText("Log In");
@@ -124,8 +125,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     private void assertSuccessfulLogin() {
-        String message = solo.getString(R.string.succesful_authentication_message);
-        assertTrue(solo.waitForText(message));
+        assertTrue(solo.waitForText("is logged in"));
     }
 
     private void logOut() {
@@ -149,11 +149,73 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     public void testSwitchProvider() {
-        solo.clickOnMenuItem(solo.getString(R.string.switch_provider_menu_option));
-        solo.waitForActivity(ConfigurationWizard.class);
+	tapSwitchProvider();
         solo.goBack();
     }
 
+    private void tapSwitchProvider() {
+        solo.clickOnMenuItem(solo.getString(R.string.switch_provider_menu_option));
+        solo.waitForActivity(ConfigurationWizard.class);
+    }
+
+    public void testEveryProvider() {
+	changeProvider("demo.bitmask.net");
+	connectVpn();
+	disconnectVpn();
+	
+	changeProvider("riseup.net");
+	connectVpn();
+	disconnectVpn();
+
+	changeProvider("calyx.net");
+	connectVpn();
+	disconnectVpn();
+    }
+
+    private void changeProvider(String provider) {
+	tapSwitchProvider();
+        solo.clickOnText(provider);
+	useRegistered();
+	solo.waitForText("Downloading VPN certificate");
+	assertDisconnected();
+    }
+
+    private void connectVpn() {
+	Switch vpn_switch = (Switch)solo.getView(R.id.eipSwitch);
+	assertFalse(vpn_switch.isChecked());
+
+	solo.clickOnView(vpn_switch);
+        turningEipOn();
+    }
+
+    private void disconnectVpn() {
+	Switch vpn_switch = (Switch)solo.getView(R.id.eipSwitch);
+	assertTrue(vpn_switch.isChecked());
+
+	solo.clickOnView(vpn_switch);
+	solo.clickOnText("Yes");
+        turningEipOff();
+	
+    }
+
+    private void useRegistered() {
+        String text = solo.getString(R.string.signup_or_login_button);
+        clickAndWaitForDashboard(text);
+        login();
+    }
+
+    private void clickAndWaitForDashboard(String click_text) {
+        solo.clickOnText(click_text);
+        assertTrue(solo.waitForActivity(Dashboard.class, 5000));
+    }
+
+    private void login() {
+        long milliseconds_to_log_in = 40 * 1000;
+        logIn("parmegvtest10", "holahola2");
+        solo.waitForDialogToClose(milliseconds_to_log_in);
+        assertSuccessfulLogin();
+    }
+    
     /*public void testReboot() {
         runAdbCommand("shell am broadcast -a android.intent.action.BOOT_COMPLETED");
     }*/
