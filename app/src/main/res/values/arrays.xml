@@ -1,21 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!--  Keep the order the same as the TYPE_ constants in VPNProfile -->
-    <string-array name="verb_to_be">
-        <item>am</item>
-        <item>are</item>
-        <item>is</item>
-        <item>are</item>
-        <item>are</item>
-        <item>are</item>
-    </string-array>
-
-    <string-array name="personal_pronouns">
-        <item>I</item>
-        <item>You</item>
-        <item>He</item>
-        <item>We</item>
-        <item>You</item>
-        <item>They</item>
-    </string-array>
 </resources>

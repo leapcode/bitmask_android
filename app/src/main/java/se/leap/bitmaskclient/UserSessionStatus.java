@@ -49,6 +49,8 @@ public class UserSessionStatus extends Observable {
                 id = R.string.logging_in_user_status;
             else if(this == SessionStatus.LOGGING_OUT)
                 id = R.string.logging_out_user_status;
+            else if(this == SessionStatus.SIGNING_UP)
+                id = R.string.signingup_message;
 
             return resources.getString(id);
         }

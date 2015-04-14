@@ -55,10 +55,6 @@
     <string name="incorrectly_downloaded_certificate_message">Tu certificado VPN no pudo ser descargado. Intenta iniciar sesión si es posible.</string>
     <string name="downloading_certificate_message">Descargando certificado VPN</string>
     <string name="updating_certificate_message">Actualizando certificado VPN</string>
-    <string name="authenticating_message">Iniciando sesión</string>
-    <string name="signingup_message">Registrando un nuevo usuario</string>
-    <string name="logout_message">Cerrando sesión.</string>
-    <string name="logged_out_message">Sesión terminada.</string>
     <string name="log_out_failed_message">No pudo cerrarse la sesión. Inténtalo más tarde, quizás sea un problema de la red o del proveedor. Si el problema persiste, borra los datos locales de Bitmask desde la configuración de Android.</string>
     <string name="login.riseup.warning">"Usuarios de Riseup: es necesario crear una cuenta aparte para utilizar el servicio de VPN."</string>
     <string name="succesful_authentication_message">Sesión iniciada.</string>
@@ -81,5 +77,6 @@
     <string name="not_logged_in_user_status">no has iniciado sesión.</string>
     <string name="logging_in_user_status">está iniciando sesión.</string>
     <string name="logging_out_user_status">está cerrando sesión.</string>
+    <string name="signingup_message">está siendo registrado.</string>
 
 </resources>

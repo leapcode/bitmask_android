@@ -54,10 +54,6 @@
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
     <string name="downloading_certificate_message">Downloading VPN certificate</string>
     <string name="updating_certificate_message">Updating VPN certificate</string>
-    <string name="authenticating_message">Logging in</string>
-    <string name="signingup_message">Signing up</string>
-    <string name="logout_message">Logging out from this session.</string>
-    <string name="logged_out_message">Logged out.</string>
     <string name="login.riseup.warning">"Riseup users: You need to create a separate account to use the VPN service"</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
@@ -79,4 +75,5 @@
     <string name="not_logged_in_user_status">have not logged in.</string>
     <string name="logging_in_user_status">is logging in.</string>
     <string name="logging_out_user_status">is logging out.</string>
+    <string name="signingup_message">is being registered.</string>
 </resources>
