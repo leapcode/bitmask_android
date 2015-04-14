@@ -114,9 +114,10 @@ public class SessionDialog extends DialogFragment {
         if (arguments.containsKey(ERRORS.USERNAME_MISSING.toString())) {
             username_field.setError(getString(R.string.username_ask));
         }
-        if (arguments.containsKey(getString(R.string.user_message)))
+        if (arguments.containsKey(getString(R.string.user_message))) {
             user_message.setText(arguments.getString(getString(R.string.user_message)));
-        else if (user_message.getVisibility() != TextView.VISIBLE)
+            user_message.setVisibility(View.VISIBLE);
+        } else if (user_message.getVisibility() != TextView.VISIBLE)
             user_message.setVisibility(View.GONE);
 
         if (!username_field.getText().toString().isEmpty() && password_field.isFocusable())
