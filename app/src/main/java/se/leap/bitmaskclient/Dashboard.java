@@ -78,7 +78,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         super.onCreate(savedInstanceState);
 
         app = this;
-        user_session_status = UserSessionStatus.getInstance();
+        user_session_status = UserSessionStatus.getInstance(getResources());
         user_session_status.addObserver(this);
 
         PRNGFixes.apply();
@@ -86,6 +86,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
         handleVersion();
+        User.init();
 
         restoreProvider(savedInstanceState);
         if (provider == null || provider.getName().isEmpty())
@@ -109,7 +110,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         if (savedInstanceState != null)
             if (savedInstanceState.containsKey(UserSessionStatus.TAG)) {
                 UserSessionStatus.SessionStatus status = (UserSessionStatus.SessionStatus) savedInstanceState.getSerializable(UserSessionStatus.TAG);
-                user_session_status.updateStatus(status);
+                user_session_status.updateStatus(status, getResources());
             }
     }
 

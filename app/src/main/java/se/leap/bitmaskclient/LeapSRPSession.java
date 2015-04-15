@@ -42,7 +42,6 @@ public class LeapSRPSession {
     final public static String AUTHORIZATION_HEADER = "Authorization";
     final public static String TAG = "Leap SRP session class tag";
 
-    private User user;
     private SRPParameters params;
     private String username;
     private String password;

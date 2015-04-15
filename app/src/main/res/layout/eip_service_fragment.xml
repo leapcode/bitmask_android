@@ -13,15 +13,7 @@
         android:layout_marginLeft="10dp"
         android:clickable="true"
         android:text="@string/eip_service_label"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <Switch
-        android:id="@+id/eipSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="10dp" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ProgressBar
         android:id="@+id/eipProgress"
@@ -47,5 +39,13 @@
         android:paddingRight="10dp"
         android:clickable="true"
         android:text="@string/eip_state_not_connected" />
+
+    <Switch
+        android:id="@+id/eipSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/status_message"
+        android:layout_toRightOf="@+id/status_message"
+        android:layout_toEndOf="@+id/status_message" />
 
 </RelativeLayout>

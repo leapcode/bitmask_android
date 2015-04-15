@@ -17,10 +17,11 @@
 package se.leap.bitmaskclient;
 
 public class User {
-    private static String user_name = "You";
+    private static String user_name = "";
     private static User user;
+    public static int DEFAULT_CONJUGATION_PERSON = 1;
 
-    public static User getInstance() {
+    public static User init() {
         if (user == null) {
             user = new User();
         }
@@ -31,8 +32,7 @@ public class User {
         User.user_name = user_name;
     }
 
-    private User() {
-    }
+    private User() {  }
 
     public static String userName() {
         return user_name;
