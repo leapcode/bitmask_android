@@ -50,7 +50,6 @@ public class EipFragment extends Fragment implements Observer {
     private static Dashboard dashboard;
     private static EIPReceiver mEIPReceiver;
     private static EipStatus eip_status;
-    private boolean is_starting_to_connect;
     private boolean wants_to_connect;
 
     public void onAttach(Activity activity) {
@@ -180,7 +179,7 @@ public class EipFragment extends Fragment implements Observer {
 
     public void startEipFromScratch() {
         wants_to_connect = false;
-        is_starting_to_connect = true;
+        eip_status.setConnecting();
         progress_bar.setVisibility(View.VISIBLE);
         eip_switch.setVisibility(View.VISIBLE);
         String status = dashboard.getString(R.string.eip_status_start_pending);
@@ -269,7 +268,7 @@ public class EipFragment extends Fragment implements Observer {
     private void handleNewState(EipStatus eip_status) {
         if (eip_status.wantsToDisconnect())
             setDisconnectedUI();
-        else if (eip_status.isConnecting() || is_starting_to_connect)
+        else if (eip_status.isConnecting())
             setInProgressUI(eip_status);
         else if (eip_status.isConnected())
             setConnectedUI();
@@ -280,7 +279,6 @@ public class EipFragment extends Fragment implements Observer {
     private void setConnectedUI() {
         hideProgressBar();
         adjustSwitch();
-        is_starting_to_connect = false;
         status_message.setText(dashboard.getString(R.string.eip_state_connected));
     }
 
@@ -296,7 +294,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void adjustSwitch() {
-        if (eip_status.isConnected() || eip_status.isConnecting() || is_starting_to_connect) {
+        if (eip_status.isConnected() || eip_status.isConnecting()) {
             if (!eip_switch.isChecked()) {
                 eip_switch.setChecked(true);
             }
@@ -315,7 +313,6 @@ public class EipFragment extends Fragment implements Observer {
 
         showProgressBar();
         status_message.setText(prefix + " " + logmessage);
-        is_starting_to_connect = false;
         adjustSwitch();
     }
 

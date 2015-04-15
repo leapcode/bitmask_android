@@ -27,7 +27,10 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     private static EipStatus current_status;
 
     private static VpnStatus.ConnectionStatus level = VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
-    private static boolean wants_to_disconnect = false;
+    private static boolean
+            wants_to_disconnect = false,
+            is_connecting = false;
+
 
     private String state, log_message;
     private int localized_res_id;
@@ -46,9 +49,9 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     @Override
     public void updateState(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
         updateStatus(state, logmessage, localizedResId, level);
-        if (isConnected() || isDisconnected()) {
+        if (isConnected() || isDisconnected() || wantsToDisconnect()) {
             setConnectedOrDisconnected();
-        } else if (isConnecting())
+        } else
             setConnecting();
     }
 
@@ -66,10 +69,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public boolean isConnecting() {
-        return
-                !isConnected() &&
-                        !isDisconnected() &&
-                        !isPaused();
+        return is_connecting;
     }
 
     public boolean isConnected() {
@@ -85,19 +85,23 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public void setConnecting() {
+        is_connecting = true;
+
         wants_to_disconnect = false;
         current_status.setChanged();
         current_status.notifyObservers();
     }
 
     public void setConnectedOrDisconnected() {
+        is_connecting = false;
         wants_to_disconnect = false;
         current_status.setChanged();
         current_status.notifyObservers();
     }
 
     public void setDisconnecting() {
-        wants_to_disconnect = false;
+        wants_to_disconnect = true;
+        is_connecting = false;
     }
 
     public String getState() {
