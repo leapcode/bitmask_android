@@ -106,18 +106,4 @@ public class UserSessionStatus extends Observable {
     private String capitalize(String to_be_capitalized) {
         return to_be_capitalized.substring(0,1).toUpperCase() + to_be_capitalized.substring(1);
     }
-
-    private String conjugateToBe(String subject) {
-        String conjugation = "";
-        String[] personal_pronouns = resources.getStringArray(R.array.personal_pronouns);
-        String[] verb_to_be = resources.getStringArray(R.array.verb_to_be);
-        for (int i = 0; i < personal_pronouns.length ; i++)
-            if(subject.equalsIgnoreCase(personal_pronouns[i])) {
-                conjugation = verb_to_be[i];
-                break;
-            }
-        if(conjugation.isEmpty()) conjugation = verb_to_be[User.DEFAULT_CONJUGATION_PERSON];
-
-        return conjugation;
-    }
 }

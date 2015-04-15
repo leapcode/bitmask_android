@@ -416,6 +416,8 @@ public class ProviderAPI extends IntentService {
             InputStream is = null;
             urlConnection = (HttpsURLConnection) new URL(url).openConnection();
             urlConnection.setRequestMethod(request_method);
+            String locale = Locale.getDefault().getLanguage() + Locale.getDefault().getCountry();
+            urlConnection.setRequestProperty("Accept-Language", locale);
             urlConnection.setChunkedStreamingMode(0);
             urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
 
