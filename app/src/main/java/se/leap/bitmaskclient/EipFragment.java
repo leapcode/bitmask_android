@@ -42,8 +42,6 @@ public class EipFragment extends Fragment implements Observer {
 
     @InjectView(R.id.status_message)
     TextView status_message;
-    @InjectView(R.id.eipProgress)
-    ProgressBar progress_bar;
     @InjectView(R.id.vpn_Status_Image)
     FabButton vpn_status_image;
 
@@ -176,7 +174,6 @@ public class EipFragment extends Fragment implements Observer {
     public void startEipFromScratch() {
         wants_to_connect = false;
         eip_status.setConnecting();
-        progress_bar.setVisibility(View.VISIBLE);
         String status = dashboard.getString(R.string.eip_status_start_pending);
         status_message.setText(status);
 
@@ -197,9 +194,6 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     protected void stopEipIfPossible() {
-
-        hideProgressBar();
-
         String message = dashboard.getString(R.string.eip_state_not_connected);
         status_message.setText(message);
 
@@ -268,13 +262,11 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void setConnectedUI() {
-        hideProgressBar();
         adjustSwitch();
         status_message.setText(dashboard.getString(R.string.eip_state_connected));
     }
 
     private void setDisconnectedUI() {
-        hideProgressBar();
         adjustSwitch();
         if (eip_status.errorInLast(5, dashboard.getApplicationContext())
                 && !status_message.getText().toString().equalsIgnoreCase(dashboard.getString(R.string.eip_state_not_connected))) {
@@ -304,24 +296,12 @@ public class EipFragment extends Fragment implements Observer {
         String logmessage = eip_status.getLogMessage();
         String prefix = dashboard.getString(localizedResId);
 
-        showProgressBar();
         status_message.setText(prefix + " " + logmessage);
         adjustSwitch();
     }
 
     private void updatingCertificateUI() {
-        showProgressBar();
         status_message.setText(getString(R.string.updating_certificate_message));
-    }
-
-    private void showProgressBar() {
-        if (progress_bar != null)
-            progress_bar.setVisibility(View.VISIBLE);
-    }
-
-    private void hideProgressBar() {
-        if (progress_bar != null)
-            progress_bar.setVisibility(View.GONE);
     }
 
     protected class EIPReceiver extends ResultReceiver {

@@ -373,7 +373,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 
     protected void providerApiCommand(Bundle parameters, int progressbar_message_resId, String providerApi_action) {
         if (eip_fragment != null && progressbar_message_resId != 0) {
-            eip_fragment.progress_bar.setVisibility(ProgressBar.VISIBLE);
             setStatusMessage(progressbar_message_resId);
         }
 
