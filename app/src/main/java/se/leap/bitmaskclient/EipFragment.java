@@ -19,7 +19,6 @@ package se.leap.bitmaskclient;
 import android.app.*;
 import android.content.*;
 import android.os.*;
-import android.util.*;
 import android.view.*;
 import android.widget.*;
 
@@ -29,6 +28,7 @@ import java.util.*;
 
 import butterknife.*;
 import de.blinkt.openvpn.activities.*;
+import mbanje.kurt.fabbutton.*;
 import se.leap.bitmaskclient.eip.*;
 
 public class EipFragment extends Fragment implements Observer {
@@ -46,6 +46,8 @@ public class EipFragment extends Fragment implements Observer {
     TextView status_message;
     @InjectView(R.id.eipProgress)
     ProgressBar progress_bar;
+    @InjectView(R.id.vpn_Status_Image)
+    FabButton vpn_status_image;
 
     private static Dashboard dashboard;
     private static EIPReceiver mEIPReceiver;
@@ -110,6 +112,16 @@ public class EipFragment extends Fragment implements Observer {
     protected void saveStatus() {
         boolean is_on = eip_switch.isChecked();
         Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, is_on).commit();
+    }
+
+    @OnClick(R.id.vpn_Status_Image)
+    void handleIcon() {
+        if (eip_status.isConnected() || eip_status.isConnecting())
+            handleSwitchOff();
+        else
+            handleSwitchOn();
+
+        saveStatus();
     }
 
     void handleNewVpnCertificate() {
@@ -298,11 +310,19 @@ public class EipFragment extends Fragment implements Observer {
             if (!eip_switch.isChecked()) {
                 eip_switch.setChecked(true);
             }
+            if(eip_status.isConnecting()) {
+                vpn_status_image.showProgress(true);
+                vpn_status_image.setIcon(R.drawable.ic_stat_vpn_empty_halo, R.drawable.ic_stat_vpn_empty_halo);
+            } else {
+                vpn_status_image.showProgress(false);
+                vpn_status_image.setIcon(R.drawable.ic_stat_vpn, R.drawable.ic_stat_vpn);
+            }
         } else {
-
             if (eip_switch.isChecked()) {
                 eip_switch.setChecked(false);
             }
+            vpn_status_image.setIcon(R.drawable.ic_stat_vpn_offline, R.drawable.ic_stat_vpn_offline);
+            vpn_status_image.showProgress(false);
         }
     }
 
