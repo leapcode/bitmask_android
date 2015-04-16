@@ -40,8 +40,6 @@ public class EipFragment extends Fragment implements Observer {
     protected static final String STATUS_MESSAGE = TAG + ".status_message";
     public static final String START_ON_BOOT = "start on boot";
 
-    @InjectView(R.id.eipSwitch)
-    Switch eip_switch;
     @InjectView(R.id.status_message)
     TextView status_message;
     @InjectView(R.id.eipProgress)
@@ -73,9 +71,6 @@ public class EipFragment extends Fragment implements Observer {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.eip_service_fragment, container, false);
         ButterKnife.inject(this, view);
-
-        if (eip_status.isConnecting())
-            eip_switch.setVisibility(View.VISIBLE);
 
         Bundle arguments = getArguments();
         if (arguments != null && arguments.containsKey(START_ON_BOOT) && arguments.getBoolean(START_ON_BOOT))
@@ -110,7 +105,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     protected void saveStatus() {
-        boolean is_on = eip_switch.isChecked();
+        boolean is_on = eip_status.isConnected() || eip_status.isConnecting();
         Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, is_on).commit();
     }
 
@@ -125,17 +120,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     void handleNewVpnCertificate() {
-        handleSwitch(!eip_switch.isEnabled());
-    }
-
-    @OnCheckedChanged(R.id.eipSwitch)
-    void handleSwitch(boolean isChecked) {
-        if (isChecked)
-            handleSwitchOn();
-        else
-            handleSwitchOff();
-
-        saveStatus();
+        handleIcon();
     }
 
     private void handleSwitchOn() {
@@ -183,7 +168,6 @@ public class EipFragment extends Fragment implements Observer {
                 .setNegativeButton(dashboard.getString(R.string.no), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        eip_switch.setChecked(true);
                     }
                 })
                 .show();
@@ -193,13 +177,9 @@ public class EipFragment extends Fragment implements Observer {
         wants_to_connect = false;
         eip_status.setConnecting();
         progress_bar.setVisibility(View.VISIBLE);
-        eip_switch.setVisibility(View.VISIBLE);
         String status = dashboard.getString(R.string.eip_status_start_pending);
         status_message.setText(status);
 
-        if (!eip_switch.isChecked()) {
-            eip_switch.setChecked(true);
-        }
         saveStatus();
         eipCommand(Constants.ACTION_START_EIP);
     }
@@ -239,7 +219,6 @@ public class EipFragment extends Fragment implements Observer {
                 .setNegativeButton(dashboard.getString(R.string.no), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        eip_switch.setChecked(true);
                     }
                 })
                 .show();
@@ -307,9 +286,6 @@ public class EipFragment extends Fragment implements Observer {
 
     private void adjustSwitch() {
         if (eip_status.isConnected() || eip_status.isConnecting()) {
-            if (!eip_switch.isChecked()) {
-                eip_switch.setChecked(true);
-            }
             if(eip_status.isConnecting()) {
                 vpn_status_image.showProgress(true);
                 vpn_status_image.setIcon(R.drawable.ic_stat_vpn_empty_halo, R.drawable.ic_stat_vpn_empty_halo);
@@ -318,9 +294,6 @@ public class EipFragment extends Fragment implements Observer {
                 vpn_status_image.setIcon(R.drawable.ic_stat_vpn, R.drawable.ic_stat_vpn);
             }
         } else {
-            if (eip_switch.isChecked()) {
-                eip_switch.setChecked(false);
-            }
             vpn_status_image.setIcon(R.drawable.ic_stat_vpn_offline, R.drawable.ic_stat_vpn_offline);
             vpn_status_image.showProgress(false);
         }

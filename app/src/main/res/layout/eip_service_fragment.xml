@@ -40,14 +40,6 @@
         android:clickable="true"
         android:text="@string/eip_state_not_connected" />
 
-    <Switch
-        android:id="@+id/eipSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/status_message"
-        android:layout_toRightOf="@+id/status_message"
-        android:layout_toEndOf="@+id/status_message" />
-
     <view
         android:id="@+id/vpn.Status.Image"
         android:layout_width="@dimen/progress_button"
@@ -62,10 +54,11 @@
         fbb_autoStart="true"
         fbb_progressColor="#ff170aff"
         fbb_progressWidthRatio="0.1"
-        fbb_showEndBitmap="true"
-        android:layout_toRightOf="@id/eipSwitch"
-        android:layout_toEndOf="@id/eipSwitch"
-        android:layout_alignTop="@id/eipSwitch"
+        android:layout_toRightOf="@id/eipLabel"
+        android:layout_toEndOf="@id/eipLabel"
+        android:layout_alignTop="@id/eipLabel"
+        android:layout_marginStart="@dimen/add_button_margin"
+        android:layout_marginLeft="@dimen/add_button_margin"
         />
 
 </RelativeLayout>
