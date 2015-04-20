@@ -20,7 +20,6 @@ import android.app.*;
 import android.content.*;
 import android.os.*;
 import android.view.*;
-import android.widget.*;
 
 import org.jetbrains.annotations.*;
 
@@ -37,11 +36,9 @@ public class EipFragment extends Fragment implements Observer {
 
     protected static final String IS_PENDING = TAG + ".is_pending";
     protected static final String IS_CONNECTED = TAG + ".is_connected";
-    protected static final String STATUS_MESSAGE = TAG + ".status_message";
     public static final String START_ON_BOOT = "start on boot";
+    private static final String SHOWED_LOG = TAG + ".showed_log";
 
-    @InjectView(R.id.status_message)
-    TextView status_message;
     @InjectView(R.id.vpn_Status_Image)
     FabButton vpn_status_image;
 
@@ -83,8 +80,6 @@ public class EipFragment extends Fragment implements Observer {
             eip_status.setConnecting();
         else if (savedInstanceState.getBoolean(IS_CONNECTED))
             eip_status.setConnectedOrDisconnected();
-        else
-            status_message.setText(savedInstanceState.getString(STATUS_MESSAGE));
     }
 
     @Override
@@ -98,7 +93,6 @@ public class EipFragment extends Fragment implements Observer {
     public void onSaveInstanceState(Bundle outState) {
         outState.putBoolean(IS_PENDING, eip_status.isConnecting());
         outState.putBoolean(IS_CONNECTED, eip_status.isConnected());
-        outState.putString(STATUS_MESSAGE, status_message.getText().toString());
         super.onSaveInstanceState(outState);
     }
 
@@ -109,6 +103,7 @@ public class EipFragment extends Fragment implements Observer {
 
     @OnClick(R.id.vpn_Status_Image)
     void handleIcon() {
+        LogWindowWrapper.getInstance(dashboard.getApplicationContext()).clearReason();
         if (eip_status.isConnected() || eip_status.isConnecting())
             handleSwitchOff();
         else
@@ -174,8 +169,6 @@ public class EipFragment extends Fragment implements Observer {
     public void startEipFromScratch() {
         wants_to_connect = false;
         eip_status.setConnecting();
-        String status = dashboard.getString(R.string.eip_status_start_pending);
-        status_message.setText(status);
 
         saveStatus();
         eipCommand(Constants.ACTION_START_EIP);
@@ -194,9 +187,6 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     protected void stopEipIfPossible() {
-        String message = dashboard.getString(R.string.eip_state_not_connected);
-        status_message.setText(message);
-
         eipCommand(Constants.ACTION_STOP_EIP);
     }
 
@@ -251,29 +241,24 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleNewState(EipStatus eip_status) {
-        if (eip_status.wantsToDisconnect())
-            setDisconnectedUI();
-        else if (eip_status.isConnecting())
-            setInProgressUI(eip_status);
-        else if (eip_status.isConnected())
-            setConnectedUI();
-        else if (eip_status.isDisconnected() && !eip_status.isConnecting())
-            setDisconnectedUI();
+        Context context = dashboard.getApplicationContext();
+        String error = eip_status.lastError(5, context);
+        LogWindowWrapper log_window = LogWindowWrapper.getInstance(context);
+
+        if (!error.isEmpty() && log_window != null && !log_window.reason().equalsIgnoreCase(error)) {
+            log_window.showLog();
+            log_window.showedBecauseOf(error);
+            VoidVpnService.stop();
+        }
+        adjustSwitch();
     }
 
     private void setConnectedUI() {
         adjustSwitch();
-        status_message.setText(dashboard.getString(R.string.eip_state_connected));
     }
 
     private void setDisconnectedUI() {
         adjustSwitch();
-        if (eip_status.errorInLast(5, dashboard.getApplicationContext())
-                && !status_message.getText().toString().equalsIgnoreCase(dashboard.getString(R.string.eip_state_not_connected))) {
-            dashboard.showLog();
-            VoidVpnService.stop();
-        }
-        status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
     }
 
     private void adjustSwitch() {
@@ -292,16 +277,10 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void setInProgressUI(EipStatus eip_status) {
-        int localizedResId = eip_status.getLocalizedResId();
-        String logmessage = eip_status.getLogMessage();
-        String prefix = dashboard.getString(localizedResId);
-
-        status_message.setText(prefix + " " + logmessage);
         adjustSwitch();
     }
 
     private void updatingCertificateUI() {
-        status_message.setText(getString(R.string.updating_certificate_message));
     }
 
     protected class EIPReceiver extends ResultReceiver {

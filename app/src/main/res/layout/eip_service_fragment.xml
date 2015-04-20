@@ -15,20 +15,6 @@
         android:text="@string/eip_service_label"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TextView
-        android:id="@+id/status_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/eipLabel"
-        android:layout_centerVertical="true"
-        android:paddingTop="5dp"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:clickable="true"
-        android:text="@string/eip_state_not_connected" />
-
     <view
         android:id="@+id/vpn.Status.Image"
         android:layout_width="@dimen/progress_button"

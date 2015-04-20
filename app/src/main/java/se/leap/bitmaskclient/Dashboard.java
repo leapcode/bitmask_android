@@ -285,8 +285,8 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     }
 
     public void showLog() {
-        Intent startLW = new Intent(getContext(), LogWindow.class);
-        startActivity(startLW);
+        LogWindowWrapper log_window_wrapper = LogWindowWrapper.getInstance(getContext());
+        log_window_wrapper.showLog();
     }
 
     @Override
@@ -372,10 +372,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     }
 
     protected void providerApiCommand(Bundle parameters, int progressbar_message_resId, String providerApi_action) {
-        if (eip_fragment != null && progressbar_message_resId != 0) {
-            setStatusMessage(progressbar_message_resId);
-        }
-
         Intent command = prepareProviderAPICommand(parameters, providerApi_action);
         startService(command);
     }
@@ -447,11 +443,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE) {
             setResult(RESULT_CANCELED);
         }
-    }
-
-    private void setStatusMessage(int string_resId) {
-        if (eip_fragment != null && eip_fragment.status_message != null)
-            eip_fragment.status_message.setText(string_resId);
     }
 
     public static Context getContext() {
