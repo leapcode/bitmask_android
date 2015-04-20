@@ -31,7 +31,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
             wants_to_disconnect = false,
             is_connecting = false;
 
-
+    int last_error_line = 0;
     private String state, log_message;
     private int localized_res_id;
 
@@ -146,13 +146,18 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         String[] error_keywords = {"error", "ERROR", "fatal", "FATAL"};
 
         VpnStatus.LogItem[] log = VpnStatus.getlogbuffer();
+        if(log.length < last_error_line)
+            last_error_line = 0;
         String message = "";
         for (int i = 1; i <= lines && log.length > i; i++) {
-            VpnStatus.LogItem log_item = log[log.length - i];
+            int line = log.length - i;
+            VpnStatus.LogItem log_item = log[line];
             message = log_item.getString(context);
             for (int j = 0; j < error_keywords.length; j++)
-                if (message.contains(error_keywords[j]))
+                if (message.contains(error_keywords[j]) && line > last_error_line) {
                     error = message;
+                    last_error_line = line;
+                }
         }
 
         return error;

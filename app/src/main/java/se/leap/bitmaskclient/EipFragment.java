@@ -103,7 +103,6 @@ public class EipFragment extends Fragment implements Observer {
 
     @OnClick(R.id.vpn_Status_Image)
     void handleIcon() {
-        LogWindowWrapper.getInstance(dashboard.getApplicationContext()).clearReason();
         if (eip_status.isConnected() || eip_status.isConnecting())
             handleSwitchOff();
         else
@@ -243,11 +242,9 @@ public class EipFragment extends Fragment implements Observer {
     private void handleNewState(EipStatus eip_status) {
         Context context = dashboard.getApplicationContext();
         String error = eip_status.lastError(5, context);
-        LogWindowWrapper log_window = LogWindowWrapper.getInstance(context);
 
-        if (!error.isEmpty() && log_window != null && !log_window.reason().equalsIgnoreCase(error)) {
-            log_window.showLog();
-            log_window.showedBecauseOf(error);
+        if (!error.isEmpty()) {
+            dashboard.showLog();
             VoidVpnService.stop();
         }
         adjustSwitch();
