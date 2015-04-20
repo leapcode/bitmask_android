@@ -9,7 +9,6 @@ public class LogWindowWrapper {
 
     private static String TAG = LogWindowWrapper.class.getName();
     private Context context;
-    private String reason = "";
 
     public LogWindowWrapper(Context context) {
         this.context = context;
@@ -25,17 +24,5 @@ public class LogWindowWrapper {
         if(instance == null)
             instance = new LogWindowWrapper(context);
         return instance;
-    }
-
-    public void clearReason() {
-        reason = "";
-    }
-
-    public void showedBecauseOf(String reason) {
-        this.reason = reason;
-    }
-
-    public String reason() {
-        return reason;
     }
 }
