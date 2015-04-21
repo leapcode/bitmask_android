@@ -126,7 +126,7 @@ public class ConfigurationWizard extends Activity
 
         if (fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null && setting_up_provider) {
             if (selected_provider != null)
-                onItemSelectedUi(selected_provider);
+                onItemSelectedUi();
             if (progress > 0)
                 mProgressBar.setProgress(progress);
         }
@@ -231,20 +231,18 @@ public class ConfigurationWizard extends Activity
     void onItemSelected(int position) {
         //TODO Code 2 pane view
         selected_provider = adapter.getItem(position);
-        onItemSelectedLogic(selected_provider);
-        onItemSelectedUi(selected_provider);
+        onItemSelectedLogic();
+        onItemSelectedUi();
     }
 
-    private void onItemSelectedLogic(Provider selected_provider) {
-        boolean danger_on = true;
-        if (preferences.contains(ProviderItem.DANGER_ON))
-            danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, false);
-        setUpProvider(selected_provider.mainUrl(), danger_on);
+    private void onItemSelectedLogic() {
+        boolean danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, false);
+        setUpProvider(danger_on);
     }
 
-    private void onItemSelectedUi(Provider provider) {
+    private void onItemSelectedUi() {
         startProgressBar();
-        adapter.hideAllBut(adapter.indexOf(provider));
+        adapter.hideAllBut(adapter.indexOf(selected_provider));
     }
 
     @Override
@@ -383,21 +381,21 @@ public class ConfigurationWizard extends Activity
     private void autoSelectProvider(Provider provider, boolean danger_on) {
         preferences.edit().putBoolean(ProviderItem.DANGER_ON, danger_on).apply();
         selected_provider = provider;
-        onItemSelectedLogic(selected_provider);
-        onItemSelectedUi(selected_provider);
+        onItemSelectedLogic();
+        onItemSelectedUi();
     }
 
     /**
      * Asks ProviderAPI to download a new provider.json file
      *
-     * @param provider_main_url
      * @param danger_on         tells if HTTPS client should bypass certificate errors
      */
-    public void setUpProvider(URL provider_main_url, boolean danger_on) {
+    public void setUpProvider(boolean danger_on) {
         Intent provider_API_command = new Intent(this, ProviderAPI.class);
         Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, provider_main_url.toString());
+        parameters.putString(Provider.MAIN_URL, selected_provider.mainUrl().toString());
         parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
+        parameters.putString(Provider.CA_CERT_FINGERPRINT, selected_provider.certificatePin());
 
         provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
         provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);

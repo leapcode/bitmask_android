@@ -1,3 +1,5 @@
 {
-	"main_url" : "https://calyx.net/"
+	"main_url" : "https://calyx.net/",
+	"ca_cert_fingerprint" : "98086aee17b5800acd0bdefe852e7c1ae72bd248"
+
 }

@@ -1,3 +1,4 @@
 {
-	"main_url" : "https://riseup.net/"
+	"main_url" : "https://riseup.net/",
+	"ca_cert_fingerprint" : "c429750763322fcc20b6402d7b508ba9e754b176"
 }
