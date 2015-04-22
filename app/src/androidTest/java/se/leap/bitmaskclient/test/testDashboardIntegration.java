@@ -1,7 +1,9 @@
 package se.leap.bitmaskclient.test;
 
 import android.content.*;
+import android.graphics.Rect;
 import android.test.*;
+import android.view.View;
 import android.widget.*;
 
 import com.robotium.solo.*;
@@ -214,6 +216,17 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         logIn("parmegvtest10", "holahola2");
         solo.waitForDialogToClose(milliseconds_to_log_in);
         assertSuccessfulLogin();
+    }
+
+    public void testVpnIconIsDisplayed() {
+        View vpn_status_image = solo.getView(R.id.vpn_Status_Image);
+        assertTrue(isShownWithinConfinesOfVisibleScreen(vpn_status_image));
+    }
+
+    private boolean isShownWithinConfinesOfVisibleScreen(View view) {
+        Rect scrollBounds = new Rect();
+        view.getHitRect(scrollBounds);
+        return view.getLocalVisibleRect(scrollBounds);
     }
     
     /*public void testReboot() {
