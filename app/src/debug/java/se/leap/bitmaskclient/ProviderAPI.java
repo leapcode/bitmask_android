@@ -695,7 +695,7 @@ public class ProviderAPI extends IntentService {
         String[] pins = new String[] {ca_cert_fingerprint};
         try {
             URL url = new URL(url_string);
-            HttpsURLConnection connection = PinningHelper.getPinnedHttpsURLConnection(Dashboard.getContext(), pins, url);
+            HttpsURLConnection connection = PinningHelper.getPinnedHttpsURLConnection(getApplicationContext(), pins, url);
             connection.setConnectTimeout(seconds_of_timeout * 1000);
             if (!LeapSRPSession.getToken().isEmpty())
                 connection.addRequestProperty(LeapSRPSession.AUTHORIZATION_HEADER, "Token token = " + LeapSRPSession.getToken());

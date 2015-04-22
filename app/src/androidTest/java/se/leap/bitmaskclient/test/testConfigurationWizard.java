@@ -1,5 +1,6 @@
 package se.leap.bitmaskclient.test;
 
+import android.app.Instrumentation;
 import android.test.*;
 import android.widget.*;
 
@@ -27,12 +28,13 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
     protected void setUp() throws Exception {
         super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
-        ConnectionManager.setMobileDataEnabled(true, solo.getCurrentActivity().getApplicationContext());
+        //ConnectionManager.setMobileDataEnabled(true, solo.getCurrentActivity().getApplicationContext());
     }
 
     @Override
     protected void tearDown() throws Exception {
-
+        solo.finishOpenedActivities();
+        super.tearDown();
     }
 
     public void testListProviders() {
