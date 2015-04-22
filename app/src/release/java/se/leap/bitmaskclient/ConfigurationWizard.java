@@ -98,8 +98,7 @@ public class ConfigurationWizard extends Activity
             outState.putInt(PROGRESSBAR_NUMBER, mProgressBar.getProgress());
         if (progressbar_description != null)
             outState.putString(PROGRESSBAR_TEXT, progressbar_description.getText().toString());
-        if (selected_provider != null)
-            outState.putParcelable(Provider.KEY, selected_provider);
+        outState.putParcelable(Provider.KEY, selected_provider);
         super.onSaveInstanceState(outState);
     }
 
@@ -125,8 +124,7 @@ public class ConfigurationWizard extends Activity
         selected_provider = savedInstanceState.getParcelable(Provider.KEY);
 
         if (fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null && setting_up_provider) {
-            if (selected_provider != null)
-                onItemSelectedUi();
+            onItemSelectedUi();
             if (progress > 0)
                 mProgressBar.setProgress(progress);
         }

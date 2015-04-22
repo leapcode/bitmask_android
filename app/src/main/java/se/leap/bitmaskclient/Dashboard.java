@@ -68,7 +68,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     ProgressBar user_session_status_progress_bar;
 
     EipFragment eip_fragment;
-    private Provider provider;
+    private Provider provider = new Provider();
     private UserSessionStatus user_session_status;
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private boolean switching_provider;
@@ -89,7 +89,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         User.init();
 
         restoreProvider(savedInstanceState);
-        if (provider == null || provider.getName().isEmpty())
+        if (!provider.isConfigured())
             startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
         else {
             buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
@@ -102,7 +102,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
             if (savedInstanceState.containsKey(Provider.KEY))
                 provider = savedInstanceState.getParcelable(Provider.KEY);
         }
-        if (provider == null && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
+        if (!provider.isConfigured() && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
             provider = getSavedProviderFromSharedPreferences();
     }
 
@@ -116,8 +116,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 
     @Override
     protected void onSaveInstanceState(@NotNull Bundle outState) {
-        if (provider != null)
-            outState.putParcelable(Provider.KEY, provider);
+        outState.putParcelable(Provider.KEY, provider);
         if (user_session_status_text_view != null && user_session_status_text_view.getVisibility() == TextView.VISIBLE)
             outState.putSerializable(UserSessionStatus.TAG, user_session_status.sessionStatus());
 
@@ -125,9 +124,9 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     }
 
     private Provider getSavedProviderFromSharedPreferences() {
-        Provider provider = null;
+        Provider provider = new Provider();
         try {
-            provider = new Provider(new URL(preferences.getString(Provider.MAIN_URL, "")));
+            provider.setUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();

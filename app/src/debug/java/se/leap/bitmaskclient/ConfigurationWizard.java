@@ -97,8 +97,7 @@ public class ConfigurationWizard extends Activity
             outState.putInt(PROGRESSBAR_NUMBER, mProgressBar.getProgress());
         if (progressbar_description != null)
             outState.putString(PROGRESSBAR_TEXT, progressbar_description.getText().toString());
-        if (selected_provider != null)
-            outState.putParcelable(Provider.KEY, selected_provider);
+        outState.putParcelable(Provider.KEY, selected_provider);
         super.onSaveInstanceState(outState);
     }
 
@@ -125,8 +124,7 @@ public class ConfigurationWizard extends Activity
         progress = savedInstanceState.getInt(PROGRESSBAR_NUMBER, -1);
 
         if (fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null && setting_up_provider) {
-            if (selected_provider != null)
-                onItemSelectedUi();
+            onItemSelectedUi();
             if (progress > 0)
                 mProgressBar.setProgress(progress);
         }
@@ -393,7 +391,7 @@ public class ConfigurationWizard extends Activity
     public void setUpProvider(boolean danger_on) {
         Intent provider_API_command = new Intent(this, ProviderAPI.class);
         Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, selected_provider.mainUrl().toString());
+        parameters.putString(Provider.MAIN_URL, selected_provider.mainUrl().getUrl().toString());
         parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
         parameters.putString(Provider.CA_CERT_FINGERPRINT, selected_provider.certificatePin());
 
