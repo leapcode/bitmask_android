@@ -236,7 +236,7 @@ public class ConfigurationWizard extends Activity
     }
 
     private void onItemSelectedLogic() {
-        boolean danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, false);
+        boolean danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, true);
         setUpProvider(danger_on);
     }
 

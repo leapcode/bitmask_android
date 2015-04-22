@@ -32,7 +32,7 @@ public final class Provider implements Parcelable {
 
     private JSONObject definition; // Represents our Provider's provider.json
     private URL main_url;
-    private String certificate_pin;
+    private String certificate_pin = "";
 
     final public static String
             API_URL = "api_uri",
