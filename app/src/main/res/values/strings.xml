@@ -47,6 +47,7 @@
     <string name="setup_error_close_button">Exit</string>
     <string name="setup_error_text">There was an error configuring Bitmask with your chosen provider.\n\nYou may choose to reconfigure, or exit and configure a provider upon next launch.</string>
     <string name="server_unreachable_message">Server is unreachable, please try again.</string>
+    <string name="error.security.pinnedcertificate">Security error, update the app or choose another provider.</string>
     <string name="malformed_url">It doesn\'t seem to be a Bitmask provider.</string>
     <string name="certificate_error">This is not a trusted Bitmask provider.</string>
     <string name="service_is_down_error">Service is down.</string>

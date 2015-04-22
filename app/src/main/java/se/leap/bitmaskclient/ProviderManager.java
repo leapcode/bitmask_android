@@ -49,11 +49,14 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         Set<Provider> providers = new HashSet<Provider>();
         try {
             for (String file : relative_file_paths) {
-                String main_url = extractMainUrlFromInputStream(assets_manager.open(directory + "/" + file));
-                providers.add(new Provider(new URL(main_url)));
+                InputStream provider_file = assets_manager.open(directory + "/" + file);
+                String main_url = extractMainUrlFromInputStream(provider_file);
+                String certificate_pin = extractCertificatePinFromInputStream(provider_file);
+                if(certificate_pin.isEmpty())
+                    providers.add(new Provider(new URL(main_url)));
+                else
+                    providers.add(new Provider(new URL(main_url), certificate_pin));
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,30 +78,43 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                 String main_url = extractMainUrlFromInputStream(new FileInputStream(external_files_dir.getAbsolutePath() + "/" + file));
                 providers.add(new Provider(new URL(main_url)));
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
+        } catch (MalformedURLException | FileNotFoundException e) {
             e.printStackTrace();
         }
 
         return providers;
     }
 
-    private String extractMainUrlFromInputStream(InputStream input_stream_file_contents) {
+    private String extractMainUrlFromInputStream(InputStream input_stream) {
         String main_url = "";
-        byte[] bytes = new byte[0];
+
+        JSONObject file_contents = inputStreamToJson(input_stream);
+        if(file_contents != null)
+            main_url = file_contents.optString(Provider.MAIN_URL);
+        return main_url;
+    }
+
+    private String extractCertificatePinFromInputStream(InputStream input_stream) {
+        String certificate_pin = "";
+
+        JSONObject file_contents = inputStreamToJson(input_stream);
+        if(file_contents != null)
+            certificate_pin = file_contents.optString(Provider.CA_CERT_FINGERPRINT);
+
+        return certificate_pin;
+    }
+
+    private JSONObject inputStreamToJson(InputStream input_stream) {
+        JSONObject json = null;
         try {
-            bytes = new byte[input_stream_file_contents.available()];
-            if (input_stream_file_contents.read(bytes) > 0) {
-                JSONObject file_contents = new JSONObject(new String(bytes));
-                main_url = file_contents.getString(Provider.MAIN_URL);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+            byte[] bytes = new byte[input_stream.available()];
+            if (input_stream.read(bytes) > 0)
+                json = new JSONObject(new String(bytes));
+            input_stream.reset();
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
-        return main_url;
+        return json;
     }
 
     public Set<Provider> providers() {

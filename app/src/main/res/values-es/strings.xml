@@ -48,6 +48,7 @@
     <string name="setup_error_close_button">Salir</string>
     <string name="setup_error_text">Sucedió un error configurando Bitmask con tu proveedor elegido.\n\nPuedes volver a intentarlo, o elegir otro proveedor.</string>
     <string name="server_unreachable_message">No se ha detectado red para hablar con el servidor, inténtalo de nuevo.</string>
+    <string name="error.security.pinnedcertificate">Error de seguridad, actualiza la aplicación o elige otro proveedor.</string>
     <string name="malformed_url">No parece que sea un proveedor de Bitmask.</string>
     <string name="certificate_error">No es un proveedor de Bitmak de confianza.</string>
     <string name="service_is_down_error">El servicio está caído.</string>

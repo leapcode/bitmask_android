@@ -32,6 +32,7 @@ public final class Provider implements Parcelable {
 
     private JSONObject definition; // Represents our Provider's provider.json
     private URL main_url;
+    private String certificate_pin = "";
 
     final public static String
             API_URL = "api_uri",
@@ -62,8 +63,9 @@ public final class Provider implements Parcelable {
         this.main_url = main_url;
     }
 
-    public Provider(File provider_file) {
-
+    public Provider(URL main_url, String certificate_pin) {
+        this.main_url = main_url;
+        this.certificate_pin = certificate_pin;
     }
 
     public static final Parcelable.Creator<Provider> CREATOR
@@ -81,11 +83,9 @@ public final class Provider implements Parcelable {
         try {
             main_url = new URL(in.readString());
             String definition_string = in.readString();
-            if (definition_string != null)
+            if (!definition_string.isEmpty())
                 definition = new JSONObject((definition_string));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
     }
@@ -105,6 +105,8 @@ public final class Provider implements Parcelable {
     protected URL mainUrl() {
         return main_url;
     }
+
+    protected String certificatePin() { return certificate_pin; }
 
     protected String getName() {
         // Should we pass the locale in, or query the system here?

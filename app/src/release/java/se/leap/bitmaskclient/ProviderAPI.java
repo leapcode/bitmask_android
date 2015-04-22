@@ -34,6 +34,7 @@ import javax.net.ssl.*;
 
 import org.apache.http.client.*;
 import org.json.*;
+import org.thoughtcrime.ssl.pinning.util.*;
 
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import se.leap.bitmaskclient.eip.*;
@@ -87,6 +88,7 @@ public class ProviderAPI extends IntentService {
     private static boolean go_ahead = true;
     private static SharedPreferences preferences;
     private static String provider_api_url;
+    private static String provider_ca_cert_fingerprint;
     private Resources resources;
 
     public static void stop() {
@@ -504,13 +506,19 @@ public class ProviderAPI extends IntentService {
         Bundle current_download = new Bundle();
 
         if (task != null && task.containsKey(Provider.MAIN_URL)) {
-            last_provider_main_url = task.getString(Provider.MAIN_URL);
+            last_provider_main_url = task.containsKey(Provider.MAIN_URL) ?
+                    task.getString(Provider.MAIN_URL) :
+                    "";
+            provider_ca_cert_fingerprint = task.containsKey(Provider.CA_CERT_FINGERPRINT) ?
+                    task.getString(Provider.CA_CERT_FINGERPRINT) :
+                    "";
+
             CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
             go_ahead = true;
         }
 
         if (!PROVIDER_JSON_DOWNLOADED)
-            current_download = getAndSetProviderJson(last_provider_main_url);
+            current_download = getAndSetProviderJson(last_provider_main_url, provider_ca_cert_fingerprint);
         if (PROVIDER_JSON_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
             broadcastProgress(progress++);
             PROVIDER_JSON_DOWNLOADED = true;
@@ -602,11 +610,16 @@ public class ProviderAPI extends IntentService {
         return hexData.toString();
     }
 
-    private Bundle getAndSetProviderJson(String provider_main_url) {
+    private Bundle getAndSetProviderJson(String provider_main_url, String provider_ca_cert_fingerprint) {
         Bundle result = new Bundle();
 
         if (go_ahead) {
-            String provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json");
+            String provider_dot_json_string;
+
+            if(provider_ca_cert_fingerprint.isEmpty())
+                provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json");
+            else
+                provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json", provider_ca_cert_fingerprint);
 
             try {
                 JSONObject provider_json = new JSONObject(provider_dot_json_string);
@@ -670,6 +683,28 @@ public class ProviderAPI extends IntentService {
         }
 
         return error_message;
+    }
+
+    private String downloadWithCommercialCA(String url_string, String ca_cert_fingerprint) {
+        String result = "";
+
+        int seconds_of_timeout = 2;
+        String[] pins = new String[] {ca_cert_fingerprint};
+        try {
+            URL url = new URL(url_string);
+            HttpsURLConnection connection = PinningHelper.getPinnedHttpsURLConnection(Dashboard.getContext(), pins, url);
+            connection.setConnectTimeout(seconds_of_timeout * 1000);
+            if (!LeapSRPSession.getToken().isEmpty())
+                connection.addRequestProperty(LeapSRPSession.AUTHORIZATION_HEADER, "Token token = " + LeapSRPSession.getToken());
+            result = new Scanner(connection.getInputStream()).useDelimiter("\\A").next();
+        } catch (IOException e) {
+            if(e instanceof SSLHandshakeException)
+                result = formatErrorMessage(R.string.error_security_pinnedcertificate);
+            else
+                result = formatErrorMessage(R.string.error_io_exception_user_message);
+        }
+
+        return result;
     }
 
     /**
