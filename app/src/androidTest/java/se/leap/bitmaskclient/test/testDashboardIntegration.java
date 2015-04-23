@@ -4,14 +4,15 @@ import android.content.*;
 import android.graphics.*;
 import android.test.*;
 import android.view.*;
-import android.widget.*;
 
 import com.robotium.solo.*;
 
 import java.io.*;
 
 import de.blinkt.openvpn.activities.*;
+import mbanje.kurt.fabbutton.CircleImageView;
 import mbanje.kurt.fabbutton.FabButton;
+import mbanje.kurt.fabbutton.ProgressRingView;
 import se.leap.bitmaskclient.*;
 
 public class testDashboardIntegration extends ActivityInstrumentationTestCase2<Dashboard> {
@@ -66,30 +67,59 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     private void clickVpnImage() {
-        solo.clickOnView(solo.getView(R.id.vpn_Status_Image));
+        View vpn_status_image = getVpnButton();
+        solo.clickOnView(vpn_status_image);
+    }
+
+    private FabButton getVpnButton() {
+        return (FabButton) solo.getView(R.id.vpn_Status_Image);
     }
 
     private void turningEipOn() {
-        assertAuthenticating();
+        assertInProgress();
         int max_seconds_until_connected = 30;
-        assertConnected(max_seconds_until_connected);
+
+        Condition condition = new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return iconConnected();
+            }
+        };
+        solo.waitForCondition(condition, max_seconds_until_connected * 1000);
         solo.sleep(2 * 1000);
     }
 
-    private void assertAuthenticating() {
-        String message = solo.getString(R.string.state_auth);
-        assertTrue(solo.waitForText(message));
+    private void assertInProgress() {
+        ProgressRingView a = (ProgressRingView) getVpnButton().findViewById(R.id.fabbutton_ring);
+        assertTrue(isShownWithinConfinesOfVisibleScreen(a));
     }
 
-    private void assertConnected(int max_seconds_until_connected) {
-        String message = solo.getString(R.string.eip_state_connected);
-        assertTrue(solo.waitForText(message, 1, max_seconds_until_connected * 1000));
+    private boolean iconConnected() {
+        CircleImageView a = (CircleImageView) getVpnButton().findViewById(R.id.fabbutton_circle);
+        a.setDrawingCacheEnabled(true);
+        return a.getDrawingCache().equals(getActivity().getResources().getDrawable(R.drawable.ic_stat_vpn));
     }
 
     private void turningEipOff() {
+        okToBrowserWarning();
         sayOkToDisconnect();
-        assertDisconnected();
+
+        int max_seconds_until_connected = 1;
+
+        Condition condition = new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return iconDisconnected();
+            }
+        };
+        solo.waitForCondition(condition, max_seconds_until_connected * 1000);
         solo.sleep(2 * 1000);
+    }
+
+    private void okToBrowserWarning() {
+        solo.waitForDialogToOpen();
+        String yes = solo.getString(R.string.yes);
+        solo.clickOnText(yes);
     }
 
     private void sayOkToDisconnect() {
@@ -99,8 +129,13 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     private void assertDisconnected() {
-        String message = solo.getString(R.string.eip_state_not_connected);
-        assertTrue(solo.waitForText(message));
+        assertTrue(iconDisconnected());
+    }
+
+    private boolean iconDisconnected() {
+        CircleImageView a = (CircleImageView) getVpnButton().findViewById(R.id.fabbutton_circle);
+        a.setDrawingCacheEnabled(true);
+        return a.getDrawingCache().equals(getActivity().getResources().getDrawable(R.drawable.ic_stat_vpn_offline));
     }
 
     private void turnNetworkOff() {
@@ -212,8 +247,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     public void testVpnIconIsDisplayed() {
-        View vpn_status_image = solo.getView(R.id.vpn_Status_Image);
-        assertTrue(isShownWithinConfinesOfVisibleScreen(vpn_status_image));
+        assertTrue(isShownWithinConfinesOfVisibleScreen(getVpnButton()));
     }
 
     private boolean isShownWithinConfinesOfVisibleScreen(View view) {
