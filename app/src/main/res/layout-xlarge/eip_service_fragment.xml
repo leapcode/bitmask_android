@@ -3,54 +3,42 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    android:layout_marginLeft="20dp" >
+    android:layout_marginLeft="20dp"
+    android:layout_marginStart="20dp">
 
     <TextView
         android:id="@+id/eipLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:clickable="true"
         android:text="@string/eip_service_label"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="26sp" />
 
-    <Switch
-        android:id="@+id/eipSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="10dp"
-        android:height="26dp"/>
-    
-    <ProgressBar 
-        android:id="@+id/eipProgress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@android:style/Widget.Holo.ProgressBar.Horizontal"
+    <view
+        android:id="@+id/vpn.Status.Image"
+        android:layout_width="@dimen/progress_button"
+        android:color="@android:color/holo_blue_dark"
+        android:layout_height="@dimen/progress_button"
+        class="mbanje.kurt.fabbutton.FabButton"
+        android:layout_gravity="center"
+        android:visibility="visible"
+        android:layout_centerInParent="true"
         android:indeterminate="true"
-        android:visibility="gone"
-        android:layout_below="@id/eipLabel"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp" />
-
-    <TextView
-        android:id="@+id/status_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/eipLabel"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="10dp"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:clickable="true"
-        android:text="@string/eip_state_not_connected"
-        android:textSize="16sp" />
-
+        android:max="100"
+        fbb_autoStart="true"
+        fbb_progressColor="#ff170aff"
+        fbb_progressWidthRatio="0.1"
+        android:layout_toRightOf="@id/eipLabel"
+        android:layout_toEndOf="@id/eipLabel"
+        android:layout_alignTop="@id/eipLabel"
+        android:layout_marginStart="@dimen/add_button_margin"
+        android:layout_marginLeft="@dimen/add_button_margin"
+        />
 
 </RelativeLayout>

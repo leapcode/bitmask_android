@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<com.wefika.flowlayout.FlowLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp" >
+    android:layout_marginTop="10dp"
+    android:orientation="horizontal">
 
     <TextView
         android:id="@+id/eipLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
         android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:clickable="true"
         android:text="@string/eip_service_label"
         android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -29,11 +29,8 @@
         fbb_autoStart="true"
         fbb_progressColor="#ff170aff"
         fbb_progressWidthRatio="0.1"
-        android:layout_toRightOf="@id/eipLabel"
-        android:layout_toEndOf="@id/eipLabel"
-        android:layout_alignTop="@id/eipLabel"
         android:layout_marginStart="@dimen/add_button_margin"
         android:layout_marginLeft="@dimen/add_button_margin"
         />
 
-</RelativeLayout>
+</com.wefika.flowlayout.FlowLayout>
