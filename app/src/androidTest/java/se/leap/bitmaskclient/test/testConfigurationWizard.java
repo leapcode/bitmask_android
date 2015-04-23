@@ -1,6 +1,5 @@
 package se.leap.bitmaskclient.test;
 
-import android.app.Instrumentation;
 import android.test.*;
 import android.widget.*;
 

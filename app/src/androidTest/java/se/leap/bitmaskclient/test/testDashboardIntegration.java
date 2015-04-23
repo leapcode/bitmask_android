@@ -1,9 +1,9 @@
 package se.leap.bitmaskclient.test;
 
 import android.content.*;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.test.*;
-import android.view.View;
+import android.view.*;
 import android.widget.*;
 
 import com.robotium.solo.*;
@@ -11,6 +11,7 @@ import com.robotium.solo.*;
 import java.io.*;
 
 import de.blinkt.openvpn.activities.*;
+import mbanje.kurt.fabbutton.FabButton;
 import se.leap.bitmaskclient.*;
 
 public class testDashboardIntegration extends ActivityInstrumentationTestCase2<Dashboard> {
@@ -43,25 +44,29 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
      * I cannot automate that dialog.
      */
     public void testOnOffOpenVpn() {
-        solo.clickOnView(solo.getView(R.id.eipSwitch));
+        clickVpnImage();
         turningEipOn();
 
-        solo.clickOnView(solo.getView(R.id.eipSwitch));
+        clickVpnImage();
         turningEipOff();
 
-        solo.clickOnView(solo.getView(R.id.eipSwitch));
+        clickVpnImage();
         turningEipOn();
 
-        solo.clickOnView(solo.getView(R.id.eipSwitch));
+        clickVpnImage();
         turningEipOff();
 
-        /*solo.clickOnView(solo.getView(R.id.eipSwitch));
+        /*clickVpnImage();;
         turningEipOn();
 	    
 	    turnNetworkOff();
         restartAdbServer(); // This doesn't work
         */
 
+    }
+
+    private void clickVpnImage() {
+        solo.clickOnView(solo.getView(R.id.vpn_Status_Image));
     }
 
     private void turningEipOn() {
@@ -122,12 +127,12 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     private void logIn(String username, String password) {
         solo.enterText(0, username);
         solo.enterText(1, password);
-        solo.clickOnText("Log In");
+        solo.clickOnText(solo.getString(R.string.login_button));
         solo.waitForDialogToClose();
     }
 
     private void assertSuccessfulLogin() {
-        assertTrue(solo.waitForText("is logged in"));
+        assertTrue(solo.waitForText(solo.getString(R.string.logged_in_user_status)));
     }
 
     private void logOut() {
@@ -161,43 +166,31 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     public void testEveryProvider() {
-	changeProvider("demo.bitmask.net");
-	connectVpn();
-	disconnectVpn();
-	
-	changeProvider("riseup.net");
-	connectVpn();
-	disconnectVpn();
+        changeProvider("demo.bitmask.net");
+        clickVpnImage();
+        turningEipOn();
+        clickVpnImage();
+        turningEipOff();
 
-	changeProvider("calyx.net");
-	connectVpn();
-	disconnectVpn();
+        changeProvider("riseup.net");
+        clickVpnImage();
+        turningEipOn();
+        clickVpnImage();
+        turningEipOff();
+
+        changeProvider("calyx.net");
+        clickVpnImage();
+        turningEipOn();
+        clickVpnImage();
+        turningEipOff();
     }
 
     private void changeProvider(String provider) {
 	tapSwitchProvider();
         solo.clickOnText(provider);
 	useRegistered();
-	solo.waitForText("Downloading VPN certificate");
+	solo.waitForText(solo.getString(R.string.downloading_certificate_message));
 	assertDisconnected();
-    }
-
-    private void connectVpn() {
-	Switch vpn_switch = (Switch)solo.getView(R.id.eipSwitch);
-	assertFalse(vpn_switch.isChecked());
-
-	solo.clickOnView(vpn_switch);
-        turningEipOn();
-    }
-
-    private void disconnectVpn() {
-	Switch vpn_switch = (Switch)solo.getView(R.id.eipSwitch);
-	assertTrue(vpn_switch.isChecked());
-
-	solo.clickOnView(vpn_switch);
-	solo.clickOnText("Yes");
-        turningEipOff();
-	
     }
 
     private void useRegistered() {
