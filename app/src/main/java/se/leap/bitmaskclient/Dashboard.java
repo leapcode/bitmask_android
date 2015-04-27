@@ -161,7 +161,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
                 providerToPreferences(provider);
 
                 buildDashboard(false);
-                invalidateOptionsMenu();
+                invalidateOptionsMenuOnUiThread();
                 if (data.hasExtra(SessionDialog.TAG)) {
                     sessionDialog(Bundle.EMPTY);
                 }
@@ -322,7 +322,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
             else
                 hideUserSessionProgressBar();
             changeSessionStatusMessage(user_session_status.toString());
-            invalidateOptionsMenu();
+            invalidateOptionsMenuOnUiThread();
         }
     }
 
@@ -432,7 +432,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
             setResult(RESULT_CANCELED);
         } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
             eip_fragment.updateEipService();
-            eip_fragment.handleNewVpnCertificate();
             setResult(RESULT_OK);
         } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
             setResult(RESULT_CANCELED);
@@ -452,5 +451,14 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     public void startActivityForResult(Intent intent, int requestCode) {
         intent.putExtra(Dashboard.REQUEST_CODE, requestCode);
         super.startActivityForResult(intent, requestCode);
+    }
+
+    public void invalidateOptionsMenuOnUiThread() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                invalidateOptionsMenu();
+            }
+        });
     }
 }

@@ -65,8 +65,6 @@
     <string name="eip_cancel_connect_title">¿Abortar conexión?</string>
     <string name="eip_cancel_connect_text">Hay una conexión iniciándose. ¿Quieres cancelarla?</string>
     <string name="eip.warning.browser_inconsistency">Para salvaguardar la privacidad de tu información personal, te recomendamos que después de apagar la VPN cierres la sesión del navegador y abras una sesión privada en él. Gracias.</string>
-    <string name="yes">Sí</string>
-    <string name="no">No</string>
     <string name="eip_state_not_connected">"¡Conexión no protegida!"</string>
     <string name="eip_state_connected">Conexión protegida.</string>
     <string name="provider_problem">Parece que hay un problema con el proveedor.</string>

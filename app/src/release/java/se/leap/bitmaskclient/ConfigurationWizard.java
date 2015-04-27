@@ -193,8 +193,6 @@ public class ConfigurationWizard extends Activity
                 mProgressBar.incrementProgressBy(1);
                 hideProgressBar();
 
-                setResult(RESULT_OK);
-
                 showProviderDetails();
             }
         } else if (resultCode == ProviderAPI.PROVIDER_NOK) {
@@ -211,8 +209,6 @@ public class ConfigurationWizard extends Activity
             hideProgressBar();
 
             showProviderDetails();
-
-            setResult(RESULT_OK);
         } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
             hideProgressBar();
 

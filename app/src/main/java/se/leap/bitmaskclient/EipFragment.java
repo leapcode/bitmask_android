@@ -111,10 +111,6 @@ public class EipFragment extends Fragment implements Observer {
         saveStatus();
     }
 
-    void handleNewVpnCertificate() {
-        handleIcon();
-    }
-
     private void handleSwitchOn() {
         if (canStartEIP())
             startEipFromScratch();
@@ -144,20 +140,20 @@ public class EipFragment extends Fragment implements Observer {
         } else if (eip_status.isConnected()) {
             askToStopEIP();
         } else
-            setDisconnectedUI();
+            updateIcon();
     }
 
     private void askPendingStartCancellation() {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(dashboard);
         alertBuilder.setTitle(dashboard.getString(R.string.eip_cancel_connect_title))
                 .setMessage(dashboard.getString(R.string.eip_cancel_connect_text))
-                .setPositiveButton((R.string.yes), new DialogInterface.OnClickListener() {
+                .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         askToStopEIP();
                     }
                 })
-                .setNegativeButton(dashboard.getString(R.string.no), new DialogInterface.OnClickListener() {
+                .setNegativeButton(dashboard.getString(android.R.string.no), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
@@ -193,13 +189,13 @@ public class EipFragment extends Fragment implements Observer {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(dashboard);
         alertBuilder.setTitle(dashboard.getString(R.string.eip_cancel_connect_title))
                 .setMessage(dashboard.getString(R.string.eip_warning_browser_inconsistency))
-                .setPositiveButton((R.string.yes), new DialogInterface.OnClickListener() {
+                .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         stopEipIfPossible();
                     }
                 })
-                .setNegativeButton(dashboard.getString(R.string.no), new DialogInterface.OnClickListener() {
+                .setNegativeButton(dashboard.getString(android.R.string.no), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
@@ -247,18 +243,10 @@ public class EipFragment extends Fragment implements Observer {
             dashboard.showLog();
             VoidVpnService.stop();
         }
-        adjustSwitch();
+        updateIcon();
     }
 
-    private void setConnectedUI() {
-        adjustSwitch();
-    }
-
-    private void setDisconnectedUI() {
-        adjustSwitch();
-    }
-
-    private void adjustSwitch() {
+    private void updateIcon() {
         if (eip_status.isConnected() || eip_status.isConnecting()) {
             if(eip_status.isConnecting()) {
                 vpn_status_image.showProgress(true);
@@ -271,13 +259,6 @@ public class EipFragment extends Fragment implements Observer {
             vpn_status_image.setIcon(R.drawable.ic_stat_vpn_offline, R.drawable.ic_stat_vpn_offline);
             vpn_status_image.showProgress(false);
         }
-    }
-
-    private void setInProgressUI(EipStatus eip_status) {
-        adjustSwitch();
-    }
-
-    private void updatingCertificateUI() {
     }
 
     protected class EIPReceiver extends ResultReceiver {
@@ -320,7 +301,6 @@ public class EipFragment extends Fragment implements Observer {
                     case Activity.RESULT_OK:
                         break;
                     case Activity.RESULT_CANCELED:
-                        updatingCertificateUI();
                         dashboard.downloadVpnCertificate();
                         break;
                 }

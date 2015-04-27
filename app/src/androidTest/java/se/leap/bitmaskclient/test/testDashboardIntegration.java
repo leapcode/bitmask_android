@@ -4,6 +4,7 @@ import android.content.*;
 import android.graphics.*;
 import android.test.*;
 import android.view.*;
+import android.widget.Toast;
 
 import com.robotium.solo.*;
 
@@ -118,18 +119,17 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 
     private void okToBrowserWarning() {
         solo.waitForDialogToOpen();
-        String yes = solo.getString(R.string.yes);
+        clickYes();
+    }
+
+    private void clickYes() {
+        String yes = solo.getString(android.R.string.yes);
         solo.clickOnText(yes);
     }
 
     private void sayOkToDisconnect() {
         assertTrue(solo.waitForActivity(DisconnectVPN.class));
-        String yes = solo.getString(android.R.string.yes);
-        solo.clickOnText(yes);
-    }
-
-    private void assertDisconnected() {
-        assertTrue(iconDisconnected());
+        clickYes();
     }
 
     private boolean iconDisconnected() {
@@ -201,31 +201,31 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     public void testEveryProvider() {
-        changeProvider("demo.bitmask.net");
-        clickVpnImage();
-        turningEipOn();
-        clickVpnImage();
-        turningEipOff();
+        changeAndTestProvider("demo.bitmask.net");
+        changeAndTestProvider("riseup.net");
+        changeAndTestProvider("calyx.net");
+    }
 
-        changeProvider("riseup.net");
-        clickVpnImage();
-        turningEipOn();
-        clickVpnImage();
-        turningEipOff();
-
-        changeProvider("calyx.net");
+    private void changeAndTestProvider(String provider) {
+        changeProvider(provider);
+        sleep(1);
         clickVpnImage();
         turningEipOn();
         clickVpnImage();
         turningEipOff();
     }
 
+    private void sleep(int seconds) {
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
     private void changeProvider(String provider) {
-	tapSwitchProvider();
+        tapSwitchProvider();
         solo.clickOnText(provider);
-	useRegistered();
-	solo.waitForText(solo.getString(R.string.downloading_certificate_message));
-	assertDisconnected();
+        useRegistered();
     }
 
     private void useRegistered() {
@@ -245,7 +245,6 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         solo.waitForDialogToClose(milliseconds_to_log_in);
         assertSuccessfulLogin();
     }
-
     public void testVpnIconIsDisplayed() {
         assertTrue(isShownWithinConfinesOfVisibleScreen(getVpnButton()));
     }
