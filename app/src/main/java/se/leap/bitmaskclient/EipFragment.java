@@ -20,6 +20,7 @@ import android.app.*;
 import android.content.*;
 import android.os.*;
 import android.view.*;
+import android.widget.*;
 
 import org.jetbrains.annotations.*;
 
@@ -37,10 +38,11 @@ public class EipFragment extends Fragment implements Observer {
     protected static final String IS_PENDING = TAG + ".is_pending";
     protected static final String IS_CONNECTED = TAG + ".is_connected";
     public static final String START_ON_BOOT = "start on boot";
-    private static final String SHOWED_LOG = TAG + ".showed_log";
 
     @InjectView(R.id.vpn_Status_Image)
     FabButton vpn_status_image;
+    @InjectView(R.id.vpn_main_button)
+    Button main_button;
 
     private static Dashboard dashboard;
     private static EIPReceiver mEIPReceiver;
@@ -101,7 +103,7 @@ public class EipFragment extends Fragment implements Observer {
         Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, is_on).commit();
     }
 
-    @OnClick(R.id.vpn_Status_Image)
+    @OnClick(R.id.vpn_main_button)
     void handleIcon() {
         if (eip_status.isConnected() || eip_status.isConnecting())
             handleSwitchOff();
@@ -244,6 +246,7 @@ public class EipFragment extends Fragment implements Observer {
             VoidVpnService.stop();
         }
         updateIcon();
+        updateButton();
     }
 
     private void updateIcon() {
@@ -258,6 +261,18 @@ public class EipFragment extends Fragment implements Observer {
         } else {
             vpn_status_image.setIcon(R.drawable.ic_stat_vpn_offline, R.drawable.ic_stat_vpn_offline);
             vpn_status_image.showProgress(false);
+        }
+    }
+
+    private void updateButton() {
+        if (eip_status.isConnected() || eip_status.isConnecting()) {
+            if(eip_status.isConnecting()) {
+                main_button.setText(dashboard.getString(android.R.string.cancel));
+            } else {
+                main_button.setText(dashboard.getString(R.string.vpn_button_turn_off));
+            }
+        } else {
+            main_button.setText(dashboard.getString(R.string.vpn_button_turn_on));
         }
     }
 

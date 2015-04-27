@@ -15,6 +15,12 @@
         android:text="@string/eip_service_label"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <Button
+        android:id="@+id/vpn.main.button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
     <view
         android:id="@+id/vpn.Status.Image"
         android:layout_width="@dimen/progress_button"

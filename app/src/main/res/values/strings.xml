@@ -75,4 +75,6 @@
     <string name="logging_in_user_status">is logging in.</string>
     <string name="logging_out_user_status">is logging out.</string>
     <string name="signingup_message">is being registered.</string>
+    <string name="vpn.button.turn.on">Turn on VPN</string>
+    <string name="vpn.button.turn.off">Turn off VPN</string>
 </resources>

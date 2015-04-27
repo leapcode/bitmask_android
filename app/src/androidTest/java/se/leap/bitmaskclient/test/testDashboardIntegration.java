@@ -4,7 +4,7 @@ import android.content.*;
 import android.graphics.*;
 import android.test.*;
 import android.view.*;
-import android.widget.Toast;
+import android.widget.Button;
 
 import com.robotium.solo.*;
 
@@ -46,19 +46,19 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
      * I cannot automate that dialog.
      */
     public void testOnOffOpenVpn() {
-        clickVpnImage();
+        clickVpnButton();
         turningEipOn();
 
-        clickVpnImage();
+        clickVpnButton();
         turningEipOff();
 
-        clickVpnImage();
+        clickVpnButton();
         turningEipOn();
 
-        clickVpnImage();
+        clickVpnButton();
         turningEipOff();
 
-        /*clickVpnImage();;
+        /*clickVpnButton();;
         turningEipOn();
 	    
 	    turnNetworkOff();
@@ -67,12 +67,15 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 
     }
 
-    private void clickVpnImage() {
-        View vpn_status_image = getVpnButton();
-        solo.clickOnView(vpn_status_image);
+    private void clickVpnButton() {
+        solo.clickOnView(getVpnButton());
     }
 
-    private FabButton getVpnButton() {
+    private Button getVpnButton() {
+        return (Button) solo.getView(R.id.vpn_main_button);
+    }
+
+    private FabButton getVpnImage() {
         return (FabButton) solo.getView(R.id.vpn_Status_Image);
     }
 
@@ -91,12 +94,12 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     private void assertInProgress() {
-        ProgressRingView a = (ProgressRingView) getVpnButton().findViewById(R.id.fabbutton_ring);
+        ProgressRingView a = (ProgressRingView) getVpnImage().findViewById(R.id.fabbutton_ring);
         assertTrue(isShownWithinConfinesOfVisibleScreen(a));
     }
 
     private boolean iconConnected() {
-        CircleImageView a = (CircleImageView) getVpnButton().findViewById(R.id.fabbutton_circle);
+        CircleImageView a = (CircleImageView) getVpnImage().findViewById(R.id.fabbutton_circle);
         a.setDrawingCacheEnabled(true);
         return a.getDrawingCache().equals(getActivity().getResources().getDrawable(R.drawable.ic_stat_vpn));
     }
@@ -133,7 +136,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     private boolean iconDisconnected() {
-        CircleImageView a = (CircleImageView) getVpnButton().findViewById(R.id.fabbutton_circle);
+        CircleImageView a = (CircleImageView) getVpnImage().findViewById(R.id.fabbutton_circle);
         a.setDrawingCacheEnabled(true);
         return a.getDrawingCache().equals(getActivity().getResources().getDrawable(R.drawable.ic_stat_vpn_offline));
     }
@@ -209,9 +212,9 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     private void changeAndTestProvider(String provider) {
         changeProvider(provider);
         sleep(1);
-        clickVpnImage();
+        clickVpnButton();
         turningEipOn();
-        clickVpnImage();
+        clickVpnButton();
         turningEipOff();
     }
 
@@ -246,6 +249,9 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         assertSuccessfulLogin();
     }
     public void testVpnIconIsDisplayed() {
+        assertTrue(isShownWithinConfinesOfVisibleScreen(getVpnImage()));
+    }
+    public void testVpnButtonIsDisplayed() {
         assertTrue(isShownWithinConfinesOfVisibleScreen(getVpnButton()));
     }
 

@@ -77,5 +77,6 @@
     <string name="logging_in_user_status">está iniciando sesión.</string>
     <string name="logging_out_user_status">está cerrando sesión.</string>
     <string name="signingup_message">está siendo registrado.</string>
-
+    <string name="vpn.button.turn.on">Iniciar VPN</string>
+    <string name="vpn.button.turn.off">Apagar VPN</string>
 </resources>
