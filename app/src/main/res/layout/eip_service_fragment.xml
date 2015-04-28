@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.wefika.flowlayout.FlowLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
     android:orientation="horizontal">
@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
-        android:clickable="true"
+        android:layout_marginTop="12dp"
         android:text="@string/eip_service_label"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -19,13 +19,16 @@
         android:id="@+id/vpn.main.button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="12sp"
         />
 
     <view
         android:id="@+id/vpn.Status.Image"
-        android:layout_width="@dimen/progress_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginStart="3dp"
         android:color="@android:color/holo_blue_dark"
-        android:layout_height="@dimen/progress_button"
         class="mbanje.kurt.fabbutton.FabButton"
         android:layout_gravity="center"
         android:visibility="visible"
@@ -35,8 +38,6 @@
         fbb_autoStart="true"
         fbb_progressColor="#ff170aff"
         fbb_progressWidthRatio="0.1"
-        android:layout_marginStart="@dimen/add_button_margin"
-        android:layout_marginLeft="@dimen/add_button_margin"
         />
 
 </com.wefika.flowlayout.FlowLayout>
