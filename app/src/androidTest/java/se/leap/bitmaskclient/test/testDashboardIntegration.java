@@ -30,6 +30,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         super.setUp();
         context = getInstrumentation().getContext();
         solo = new Solo(getInstrumentation(), getActivity());
+        Screenshot.initialize(solo);
         ConnectionManager.setMobileDataEnabled(true, context);
         solo.unlockScreen();
         if (solo.searchText(solo.getString(R.string.configuration_wizard_title)))
@@ -46,11 +47,17 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
      * I cannot automate that dialog.
      */
     public void testOnOffOpenVpn() {
+        Screenshot.take("Initial UI");
         clickVpnButton();
+        Screenshot.setTimeToSleep(5);
+        Screenshot.takeWithSleep("Turning VPN on");
         turningEipOn();
+        Screenshot.setTimeToSleep(0.5);
+        Screenshot.takeWithSleep("VPN turned on");
 
         clickVpnButton();
         turningEipOff();
+        Screenshot.take("VPN turned off");
 
         clickVpnButton();
         turningEipOn();
