@@ -1,43 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.wefika.flowlayout.FlowLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
-    android:orientation="horizontal">
+    android:layout_marginTop="10dp">
 
     <TextView
         android:id="@+id/eipLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
         android:text="@string/eip_service_label"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <Button
-        android:id="@+id/vpn.main.button"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        />
+        android:orientation="horizontal"
+        android:layout_below="@+id/eipLabel"
+        android:layout_centerInParent="true">
 
-    <view
-        android:id="@+id/vpn.Status.Image"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginLeft="3dp"
-        android:layout_marginStart="3dp"
-        android:color="@android:color/holo_blue_dark"
-        class="mbanje.kurt.fabbutton.FabButton"
-        android:layout_gravity="center"
-        android:visibility="visible"
-        android:layout_centerInParent="true"
-        android:indeterminate="true"
-        android:max="100"
-        fbb_autoStart="true"
-        fbb_progressColor="#ff170aff"
-        fbb_progressWidthRatio="0.1"
-        />
+        <Button
+            android:id="@+id/vpn.main.button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            />
 
-</com.wefika.flowlayout.FlowLayout>
+        <view
+            android:id="@+id/vpn.Status.Image"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginStart="3dp"
+            android:color="@android:color/holo_blue_dark"
+            class="mbanje.kurt.fabbutton.FabButton"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            android:max="100"
+            fbb_autoStart="true"
+            fbb_progressColor="#ff170aff"
+            fbb_progressWidthRatio="0.1"
+            />
+    </LinearLayout>
+</RelativeLayout>
