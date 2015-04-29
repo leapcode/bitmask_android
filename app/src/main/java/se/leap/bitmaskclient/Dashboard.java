@@ -82,8 +82,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         User.init();
 
         ProviderAPICommand.initialize(this);
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-        providerAPI_result_receiver.setReceiver(this);
+        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
 
         restoreProvider(savedInstanceState);
         if (!provider.isConfigured())
@@ -199,7 +198,11 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         ButterKnife.inject(this);
 
         provider_name.setText(provider.getDomain());
+
         user_session_fragment = new UserSessionFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(Provider.ALLOW_REGISTRATION, provider.allowsRegistration());
+        user_session_fragment.setArguments(bundle);
         fragment_manager.replace(R.id.user_session_fragment, user_session_fragment, UserSessionFragment.TAG);
 
         if (provider.hasEIP()) {

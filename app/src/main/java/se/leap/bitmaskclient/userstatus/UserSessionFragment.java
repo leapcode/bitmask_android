@@ -15,8 +15,6 @@ import se.leap.bitmaskclient.eip.EipStatus;
 
 public class UserSessionFragment extends Fragment implements Observer, SessionDialog.SessionDialogInterface {
 
-    private static View view;
-
     public static String TAG = UserSessionFragment.class.getSimpleName();
     private static Dashboard dashboard;
     private ProviderAPIResultReceiver providerAPI_result_receiver;
@@ -37,8 +35,6 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
 
         user_session_status = UserSessionStatus.getInstance(getResources());
         user_session_status.addObserver(this);
-
-        handleNewUserSessionStatus(user_session_status);
     }
 
     @Override
@@ -52,7 +48,15 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_user_session, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_user_session, container, false);
+        ButterKnife.inject(this, view);
+
+        Bundle arguments = getArguments();
+        allows_registration = arguments.getBoolean(Provider.ALLOW_REGISTRATION);
+        handleNewUserSessionStatus(user_session_status);
+
+        return view;
     }
 
     @Override
@@ -69,8 +73,7 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
         super.onAttach(activity);
         dashboard = (Dashboard) activity;
 
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-        providerAPI_result_receiver.setReceiver(dashboard);
+        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), dashboard);
     }
 
     public void restoreSessionStatus(Bundle savedInstanceState) {
@@ -106,7 +109,7 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
                 showUserSessionProgressBar();
             else
                 hideUserSessionProgressBar();
-            changeSessionStatusMessage();
+            changeMessage();
             updateButton();
         }
     }
@@ -129,7 +132,7 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
         });
     }
 
-    private void changeSessionStatusMessage() {
+    private void changeMessage() {
         final String message = user_session_status.toString();
         dashboard.runOnUiThread(new Runnable() {
             @Override
@@ -141,9 +144,19 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
 
     private void updateButton() {
         if(User.loggedIn())
-            main_button.setText(getString(R.string.logout_button));
+            dashboard.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    main_button.setText(dashboard.getString(R.string.logout_button));
+                }
+            });
         else if(allows_registration)
-            main_button.setText(getString(R.string.login_button));
+            dashboard.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    main_button.setText(dashboard.getString(R.string.login_button));
+                }
+            });
     }
 
 

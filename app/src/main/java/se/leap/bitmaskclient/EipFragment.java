@@ -45,7 +45,7 @@ public class EipFragment extends Fragment implements Observer {
     Button main_button;
 
     private static Dashboard dashboard;
-    private static EIPReceiver provider_api_receiver;
+    private static EIPReceiver eip_receiver;
     private static EipStatus eip_status;
     private boolean wants_to_connect;
 
@@ -53,7 +53,9 @@ public class EipFragment extends Fragment implements Observer {
         super.onAttach(activity);
 
         dashboard = (Dashboard) activity;
-        if(provider_api_receiver != null)
+        ProviderAPIResultReceiver provider_api_receiver = new ProviderAPIResultReceiver(new Handler(), dashboard);
+
+        if(eip_receiver != null)
             ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_EIP_SERVICE, provider_api_receiver);
     }
 
@@ -62,7 +64,7 @@ public class EipFragment extends Fragment implements Observer {
         super.onCreate(savedInstanceState);
         eip_status = EipStatus.getInstance();
         eip_status.addObserver(this);
-        provider_api_receiver = new EIPReceiver(new Handler());
+        eip_receiver = new EIPReceiver(new Handler());
     }
 
     @Override
@@ -220,7 +222,7 @@ public class EipFragment extends Fragment implements Observer {
         // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
         Intent vpn_intent = new Intent(dashboard.getApplicationContext(), EIP.class);
         vpn_intent.setAction(action);
-        vpn_intent.putExtra(Constants.RECEIVER_TAG, provider_api_receiver);
+        vpn_intent.putExtra(Constants.RECEIVER_TAG, eip_receiver);
         dashboard.startService(vpn_intent);
     }
 
@@ -336,6 +338,6 @@ public class EipFragment extends Fragment implements Observer {
 
 
     public static EIPReceiver getReceiver() {
-        return provider_api_receiver;
+        return eip_receiver;
     }
 }

@@ -165,8 +165,7 @@ public class ConfigurationWizard extends Activity
     }
 
     private void setUpProviderAPIResultReceiver() {
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-        providerAPI_result_receiver.setReceiver(this);
+        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
         providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
 
         IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_PROGRESSBAR);
