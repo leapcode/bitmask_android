@@ -18,19 +18,17 @@
         android:singleLine="true"
         android:text="@string/provider_label_none"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-    
-    <fragment android:name="se.leap.bitmaskclient.userstatus.UserSessionFragment"
+
+    <LinearLayout
         android:id="@+id/user_session_fragment"
-        android:tag="user_session_fragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"/>
 
     <LinearLayout
         android:id="@+id/servicesCollection"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.11"
-        android:orientation="vertical" >
-    </LinearLayout>
-
+        android:orientation="vertical" />
 </LinearLayout>

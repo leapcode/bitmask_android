@@ -200,6 +200,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
         provider_name.setText(provider.getDomain());
         user_session_fragment = new UserSessionFragment();
+        fragment_manager.replace(R.id.user_session_fragment, user_session_fragment, UserSessionFragment.TAG);
 
         if (provider.hasEIP()) {
             fragment_manager.removePreviousFragment(EipFragment.TAG);

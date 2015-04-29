@@ -81,7 +81,7 @@ public class SessionDialog extends DialogFragment {
         ButterKnife.inject(this, view);
 
         Bundle arguments = getArguments();
-        if (arguments != Bundle.EMPTY) {
+        if (arguments != Bundle.EMPTY && arguments != null) {
             setUp(arguments);
         }
 
@@ -165,8 +165,9 @@ public class SessionDialog extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
         try {
-            interface_with_Dashboard = (SessionDialogInterface) activity;
+            interface_with_Dashboard = (SessionDialogInterface) activity.getFragmentManager().findFragmentById(R.id.user_session_fragment);;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement LogInDialogListener");

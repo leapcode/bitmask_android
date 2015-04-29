@@ -169,7 +169,11 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     private void clickLogIn() {
-        solo.clickOnActionBarItem(R.id.user_session_button);
+        solo.clickOnView(getLogInButton());
+    }
+
+    private View getLogInButton() {
+        return solo.getView(R.id.user_session_button);
     }
     private void logIn(String username, String password) {
         solo.enterText(0, username);
