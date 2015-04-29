@@ -97,7 +97,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
             }
         };
         solo.waitForCondition(condition, max_seconds_until_connected * 1000);
-        solo.sleep(2 * 1000);
+        sleepSeconds(2);
     }
 
     private void assertInProgress() {
@@ -124,7 +124,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
             }
         };
         solo.waitForCondition(condition, max_seconds_until_connected * 1000);
-        solo.sleep(2 * 1000);
+        sleepSeconds(2);
     }
 
     private void okToBrowserWarning() {
@@ -160,15 +160,17 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     public void testLogInAndOut() {
-        long milliseconds_to_log_in = 40 * 1000;
-        solo.clickOnActionBarItem(R.id.login_button);
+        changeProvider("demo.bitmask.net");
+        clickLogIn();
         logIn("parmegvtest1", " S_Zw3'-");
-        solo.waitForDialogToClose(milliseconds_to_log_in);
         assertSuccessfulLogin();
 
         logOut();
     }
 
+    private void clickLogIn() {
+        solo.clickOnActionBarItem(R.id.user_session_button);
+    }
     private void logIn(String username, String password) {
         solo.enterText(0, username);
         solo.enterText(1, password);
@@ -218,20 +220,17 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 
     private void changeAndTestProvider(String provider) {
         changeProvider(provider);
-        sleep(1);
+        sleepSeconds(1);
         clickVpnButton();
         turningEipOn();
         clickVpnButton();
         turningEipOff();
     }
 
-    private void sleep(int seconds) {
-        try {
-            Thread.sleep(seconds * 1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    private void sleepSeconds(int seconds) {
+        solo.sleep(seconds * 1000);
     }
+
     private void changeProvider(String provider) {
         tapSwitchProvider();
         solo.clickOnText(provider);
@@ -241,7 +240,8 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     private void useRegistered() {
         String text = solo.getString(R.string.signup_or_login_button);
         clickAndWaitForDashboard(text);
-        login();
+        logIn("parmegvtest10", "holahola2");
+        assertSuccessfulLogin();
     }
 
     private void clickAndWaitForDashboard(String click_text) {
@@ -249,12 +249,6 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         assertTrue(solo.waitForActivity(Dashboard.class, 5000));
     }
 
-    private void login() {
-        long milliseconds_to_log_in = 40 * 1000;
-        logIn("parmegvtest10", "holahola2");
-        solo.waitForDialogToClose(milliseconds_to_log_in);
-        assertSuccessfulLogin();
-    }
     public void testVpnIconIsDisplayed() {
         assertTrue(isShownWithinConfinesOfVisibleScreen(getVpnImage()));
     }

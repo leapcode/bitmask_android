@@ -18,29 +18,13 @@
         android:singleLine="true"
         android:text="@string/provider_label_none"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <ProgressBar
-            android:id="@+id/user_session_status_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:indeterminate="true"
-            android:visibility="gone"/>
-        <TextView
-            android:id="@+id/user_session_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="10dp"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            />
-    </LinearLayout>
     
+    <fragment android:name="se.leap.bitmaskclient.userstatus.UserSessionFragment"
+        android:id="@+id/user_session_fragment"
+        android:tag="user_session_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
     <LinearLayout
         android:id="@+id/servicesCollection"
         android:layout_width="match_parent"

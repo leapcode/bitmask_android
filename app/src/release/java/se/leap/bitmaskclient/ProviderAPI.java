@@ -36,8 +36,10 @@ import org.apache.http.client.*;
 import org.json.*;
 import org.thoughtcrime.ssl.pinning.util.*;
 
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import se.leap.bitmaskclient.eip.*;
+import se.leap.bitmaskclient.userstatus.SessionDialog;
+import se.leap.bitmaskclient.userstatus.User;
+import se.leap.bitmaskclient.userstatus.UserSessionStatus;
 
 /**
  * Implements HTTP api methods used to manage communications with the provider server.

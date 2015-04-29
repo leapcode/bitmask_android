@@ -69,7 +69,7 @@
     <string name="eip_state_connected">Conexión protegida.</string>
     <string name="provider_problem">Parece que hay un problema con el proveedor.</string>
     <string name="try_another_provider">Prueba con otro proveedor, o contacta con este.</string>
-    <string name="default_user"></string>
+    <string name="default_user">Anónimo</string>
     <string name="logged_in_user_status">inició sesión.</string>
     <string name="logged_out_user_status">cerró la sesión.</string>
     <string name="didnt_log_out_user_status">no cerró la sesión.</string>

@@ -35,7 +35,7 @@ public class EipFragment extends Fragment implements Observer {
 
     public static String TAG = EipFragment.class.getSimpleName();
 
-    protected static final String IS_PENDING = TAG + ".is_pending";
+    public static final String IS_PENDING = TAG + ".is_pending";
     protected static final String IS_CONNECTED = TAG + ".is_connected";
     public static final String START_ON_BOOT = "start on boot";
 
@@ -45,7 +45,7 @@ public class EipFragment extends Fragment implements Observer {
     Button main_button;
 
     private static Dashboard dashboard;
-    private static EIPReceiver mEIPReceiver;
+    private static EIPReceiver provider_api_receiver;
     private static EipStatus eip_status;
     private boolean wants_to_connect;
 
@@ -53,7 +53,8 @@ public class EipFragment extends Fragment implements Observer {
         super.onAttach(activity);
 
         dashboard = (Dashboard) activity;
-        dashboard.providerApiCommand(Bundle.EMPTY, 0, ProviderAPI.DOWNLOAD_EIP_SERVICE);
+        if(provider_api_receiver != null)
+            ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_EIP_SERVICE, provider_api_receiver);
     }
 
     @Override
@@ -61,7 +62,7 @@ public class EipFragment extends Fragment implements Observer {
         super.onCreate(savedInstanceState);
         eip_status = EipStatus.getInstance();
         eip_status.addObserver(this);
-        mEIPReceiver = new EIPReceiver(new Handler());
+        provider_api_receiver = new EIPReceiver(new Handler());
     }
 
     @Override
@@ -219,7 +220,7 @@ public class EipFragment extends Fragment implements Observer {
         // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
         Intent vpn_intent = new Intent(dashboard.getApplicationContext(), EIP.class);
         vpn_intent.setAction(action);
-        vpn_intent.putExtra(Constants.RECEIVER_TAG, mEIPReceiver);
+        vpn_intent.putExtra(Constants.RECEIVER_TAG, provider_api_receiver);
         dashboard.startService(vpn_intent);
     }
 
@@ -335,6 +336,6 @@ public class EipFragment extends Fragment implements Observer {
 
 
     public static EIPReceiver getReceiver() {
-        return mEIPReceiver;
+        return provider_api_receiver;
     }
 }

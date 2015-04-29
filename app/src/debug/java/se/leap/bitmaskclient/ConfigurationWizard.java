@@ -40,6 +40,7 @@ import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import se.leap.bitmaskclient.eip.*;
+import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -201,8 +202,6 @@ public class ConfigurationWizard extends Activity
             preferences.edit().remove(Provider.KEY).apply();
             setting_up_provider = false;
 
-            setResult(RESULT_CANCELED, mConfigState);
-
             String reason_to_fail = resultData.getString(ProviderAPI.ERRORS);
             showDownloadFailedDialog(reason_to_fail);
         } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
@@ -214,7 +213,6 @@ public class ConfigurationWizard extends Activity
             hideProgressBar();
             cancelSettingUpProvider();
             Toast.makeText(getApplicationContext(), R.string.provider_problem, Toast.LENGTH_LONG).show();
-            setResult(RESULT_CANCELED, mConfigState);
         } else if (resultCode == AboutActivity.VIEWED) {
             // Do nothing, right now
             // I need this for CW to wait for the About activity to end before going back to Dashboard.

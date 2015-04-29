@@ -14,11 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.leap.bitmaskclient;
+package se.leap.bitmaskclient.userstatus;
 
 import android.content.res.*;
 
 import java.util.*;
+
+import se.leap.bitmaskclient.R;
 
 public class UserSessionStatus extends Observable {
     public static String TAG = UserSessionStatus.class.getSimpleName();
@@ -80,6 +82,14 @@ public class UserSessionStatus extends Observable {
     public boolean inProgress() {
         return session_status == SessionStatus.LOGGING_IN
                 || session_status == SessionStatus.LOGGING_OUT;
+    }
+
+    public boolean isLoggedIn() {
+        return session_status == SessionStatus.LOGGING_IN;
+    }
+
+    public boolean isLoggedOut() {
+        return session_status == SessionStatus.LOGGED_OUT;
     }
 
     public static void updateStatus(SessionStatus session_status, Resources resources) {

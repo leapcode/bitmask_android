@@ -38,6 +38,9 @@ import javax.net.ssl.*;
 
 import se.leap.bitmaskclient.ProviderListContent.*;
 import se.leap.bitmaskclient.eip.*;
+import se.leap.bitmaskclient.userstatus.SessionDialog;
+import se.leap.bitmaskclient.userstatus.User;
+import se.leap.bitmaskclient.userstatus.UserSessionStatus;
 
 /**
  * Implements HTTP api methods used to manage communications with the provider server.

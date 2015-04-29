@@ -337,7 +337,7 @@ public class LeapSRPSession {
         return token;
     }
 
-    protected static boolean loggedIn() {
+    public static boolean loggedIn() {
         return !token.isEmpty();
     }
 

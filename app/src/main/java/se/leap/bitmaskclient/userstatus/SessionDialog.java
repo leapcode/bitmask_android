@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.leap.bitmaskclient;
+package se.leap.bitmaskclient.userstatus;
 
 import android.app.*;
 import android.content.*;
@@ -23,6 +23,9 @@ import android.view.*;
 import android.widget.*;
 
 import butterknife.*;
+import se.leap.bitmaskclient.EipFragment;
+import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.R;
 
 /**
  * Implements the log in dialog, currently without progress dialog.
@@ -56,8 +59,18 @@ public class SessionDialog extends DialogFragment {
 
     private static boolean is_eip_pending = false;
 
-    public SessionDialog() {
-        setArguments(Bundle.EMPTY);
+    public static SessionDialog getInstance(Provider provider, Bundle arguments) {
+        SessionDialog dialog = new SessionDialog();
+        if (provider.getName().equalsIgnoreCase("riseup")) {
+            arguments =
+                    arguments == Bundle.EMPTY ?
+                            new Bundle() : arguments;
+            arguments.putBoolean(SessionDialog.ERRORS.RISEUP_WARNING.toString(), true);
+        }
+        if (arguments != null && !arguments.isEmpty()) {
+            dialog.setArguments(arguments);
+        }
+        return dialog;
     }
 
     public AlertDialog onCreateDialog(Bundle savedInstanceState) {

@@ -39,6 +39,7 @@ import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
 import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 /**
  * Activity that builds and shows the list of known available providers.
