@@ -10,37 +10,38 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 import butterknife.*;
+import mbanje.kurt.fabbutton.FabButton;
 import se.leap.bitmaskclient.*;
 import se.leap.bitmaskclient.eip.EipStatus;
 
-public class UserSessionFragment extends Fragment implements Observer, SessionDialog.SessionDialogInterface {
+public class UserStatusFragment extends Fragment implements Observer, SessionDialog.SessionDialogInterface {
 
-    public static String TAG = UserSessionFragment.class.getSimpleName();
+    public static String TAG = UserStatusFragment.class.getSimpleName();
     private static Dashboard dashboard;
     private ProviderAPIResultReceiver providerAPI_result_receiver;
 
-    @InjectView(R.id.user_session_status)
-    TextView user_session_status_text_view;
-    @InjectView(R.id.user_session_status_progress)
-    ProgressBar user_session_status_progress_bar;
-    @InjectView(R.id.user_session_button)
-    Button main_button;
+    @InjectView(R.id.user_status_username)
+    TextView username;
+    @InjectView(R.id.user_status_icon)
+    FabButton icon;
+    @InjectView(R.id.user_status_button)
+    Button button;
 
-    private UserSessionStatus user_session_status;
+    private UserStatus status;
     private boolean allows_registration = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        user_session_status = UserSessionStatus.getInstance(getResources());
-        user_session_status.addObserver(this);
+        status = UserStatus.getInstance(getResources());
+        status.addObserver(this);
     }
 
     @Override
     public void onSaveInstanceState(@NotNull Bundle outState) {
-        if (user_session_status_text_view != null && user_session_status_text_view.getVisibility() == TextView.VISIBLE)
-            outState.putSerializable(UserSessionStatus.TAG, user_session_status.sessionStatus());
+        if (username != null && username.getVisibility() == TextView.VISIBLE)
+            outState.putSerializable(UserStatus.TAG, status.sessionStatus());
 
         super.onSaveInstanceState(outState);
     }
@@ -54,7 +55,7 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
 
         Bundle arguments = getArguments();
         allows_registration = arguments.getBoolean(Provider.ALLOW_REGISTRATION);
-        handleNewUserSessionStatus(user_session_status);
+        handleNewStatus(status);
 
         return view;
     }
@@ -62,7 +63,7 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Fragment fragment = (getFragmentManager().findFragmentById(R.id.user_session_fragment));
+        Fragment fragment = (getFragmentManager().findFragmentById(R.id.user_status_fragment));
         FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
         ft.remove(fragment);
         ft.commit();
@@ -78,34 +79,40 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
 
     public void restoreSessionStatus(Bundle savedInstanceState) {
         if (savedInstanceState != null)
-            if (savedInstanceState.containsKey(UserSessionStatus.TAG)) {
-                UserSessionStatus.SessionStatus status = (UserSessionStatus.SessionStatus) savedInstanceState.getSerializable(UserSessionStatus.TAG);
-                user_session_status.updateStatus(status, getResources());
+            if (savedInstanceState.containsKey(UserStatus.TAG)) {
+                UserStatus.SessionStatus status = (UserStatus.SessionStatus) savedInstanceState.getSerializable(UserStatus.TAG);
+                this.status.updateStatus(status, getResources());
             }
     }
 
-    @OnClick(R.id.user_session_button)
-    public void handleMainButton() {
-        if(user_session_status.isLoggedIn())
+    @OnClick(R.id.user_status_button)
+    public void handleButton() {
+        android.util.Log.d(TAG, status.toString());
+        if(status.isLoggedIn())
             logOut();
-        else if(user_session_status.isLoggedOut())
+        else if(status.isLoggedOut())
             dashboard.sessionDialog(Bundle.EMPTY);
-        else if(user_session_status.inProgress())
+        else if(status.inProgress())
             cancelLoginOrSignup();
     }
 
     @Override
     public void update(Observable observable, Object data) {
-        if (observable instanceof UserSessionStatus) {
-            UserSessionStatus status = (UserSessionStatus) observable;
-            handleNewUserSessionStatus(status);
+        if (observable instanceof UserStatus) {
+            final UserStatus status = (UserStatus) observable;
+            dashboard.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    handleNewStatus(status);
+                }
+            });
         }
     }
 
-    private void handleNewUserSessionStatus(UserSessionStatus status) {
-        user_session_status = status;
+    private void handleNewStatus(UserStatus status) {
+        this.status = status;
         if (allows_registration) {
-            if (user_session_status.inProgress())
+            if (this.status.inProgress())
                 showUserSessionProgressBar();
             else
                 hideUserSessionProgressBar();
@@ -115,48 +122,27 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
     }
 
     private void showUserSessionProgressBar() {
-        dashboard.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                user_session_status_progress_bar.setVisibility(ProgressBar.VISIBLE);
-            }
-        });
+        icon.showProgress(true);
     }
 
     private void hideUserSessionProgressBar() {
-        dashboard.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                user_session_status_progress_bar.setVisibility(ProgressBar.GONE);
-            }
-        });
+        icon.showProgress(false);
     }
 
     private void changeMessage() {
-        final String message = user_session_status.toString();
-        dashboard.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                user_session_status_text_view.setText(message);
-            }
-        });
+        final String message = User.userName();
+        username.setText(message);
     }
 
     private void updateButton() {
-        if(User.loggedIn())
-            dashboard.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    main_button.setText(dashboard.getString(R.string.logout_button));
-                }
-            });
-        else if(allows_registration)
-            dashboard.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    main_button.setText(dashboard.getString(R.string.login_button));
-                }
-            });
+        if(status.isLoggedIn())
+            button.setText(dashboard.getString(R.string.logout_button));
+        else if(allows_registration) {
+            if (status.isLoggedOut())
+                button.setText(dashboard.getString(R.string.login_button));
+            else if (status.inProgress())
+                button.setText(dashboard.getString(android.R.string.cancel));
+        }
     }
 
 
@@ -175,6 +161,7 @@ public class UserSessionFragment extends Fragment implements Observer, SessionDi
     }
 
     public void logOut() {
+        android.util.Log.d(TAG, "Log out");
         ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.LOG_OUT, providerAPI_result_receiver);
     }
 

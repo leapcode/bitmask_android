@@ -1,36 +1,51 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    tools:context="se.leap.bitmaskclient.userstatus.UserSessionFragment">
+    android:layout_marginTop="10dp"
+    tools:context="se.leap.bitmaskclient.userstatus.UserStatusFragment">
+
+    <TextView
+        android:id="@+id/user.status.username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:layout_centerHorizontal="true"
+        android:text="@string/default_username"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user.status.username"
+        android:layout_centerInParent="true">
 
-        <ProgressBar
-            android:id="@+id/user_session_status_progress"
+        <Button
+            android:id="@+id/user.status.button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminate="true"/>
+            />
 
-        <TextView
-            android:id="@+id/user_session_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="10dp"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+        <view
+            android:id="@+id/user.status.icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginStart="3dp"
+            android:color="@android:color/holo_blue_dark"
+            class="mbanje.kurt.fabbutton.FabButton"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            android:indeterminate="true"
+            android:max="100"
+            fbb_autoStart="true"
+            fbb_progressColor="#ff170aff"
+            fbb_progressWidthRatio="0.1"
+            />
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/user_session_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-</LinearLayout>
+</RelativeLayout>

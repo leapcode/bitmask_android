@@ -63,7 +63,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     TextView provider_name;
 
     EipFragment eip_fragment;
-    UserSessionFragment user_session_fragment;
+    UserStatusFragment user_status_fragment;
     private static Provider provider = new Provider();
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private boolean switching_provider;
@@ -79,7 +79,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
         handleVersion();
-        User.init();
+        User.init(getString(R.string.default_username));
 
         ProviderAPICommand.initialize(this);
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
@@ -89,7 +89,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
             startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
         else {
             buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
-            user_session_fragment.restoreSessionStatus(savedInstanceState);
+            user_status_fragment.restoreSessionStatus(savedInstanceState);
         }
     }
 
@@ -199,11 +199,11 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
         provider_name.setText(provider.getDomain());
 
-        user_session_fragment = new UserSessionFragment();
+        user_status_fragment = new UserStatusFragment();
         Bundle bundle = new Bundle();
         bundle.putBoolean(Provider.ALLOW_REGISTRATION, provider.allowsRegistration());
-        user_session_fragment.setArguments(bundle);
-        fragment_manager.replace(R.id.user_session_fragment, user_session_fragment, UserSessionFragment.TAG);
+        user_status_fragment.setArguments(bundle);
+        fragment_manager.replace(R.id.user_status_fragment, user_status_fragment, UserStatusFragment.TAG);
 
         if (provider.hasEIP()) {
             fragment_manager.removePreviousFragment(EipFragment.TAG);
@@ -227,10 +227,6 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (provider.allowsRegistration()) {
             menu.findItem(R.id.signup_button).setVisible(true);
-
-            boolean logged_in = User.loggedIn();
-            menu.findItem(R.id.login_button).setVisible(!logged_in);
-            menu.findItem(R.id.logout_button).setVisible(logged_in);
         }
         return true;
     }
@@ -252,14 +248,8 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
                 return true;
             case R.id.switch_provider:
                 switching_provider = true;
-                if (User.loggedIn()) user_session_fragment.logOut();
+                if (User.loggedIn()) user_status_fragment.logOut();
                 else switchProvider();
-                return true;
-            case R.id.login_button:
-                sessionDialog(Bundle.EMPTY);
-                return true;
-            case R.id.logout_button:
-                user_session_fragment.logOut();
                 return true;
             case R.id.signup_button:
                 sessionDialog(Bundle.EMPTY);
@@ -306,7 +296,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
             String username = resultData.getString(SessionDialog.USERNAME);
             String password = resultData.getString(SessionDialog.PASSWORD);
-            user_session_fragment.logIn(username, password);
+            user_status_fragment.logIn(username, password);
         } else if (resultCode == ProviderAPI.FAILED_SIGNUP) {
             sessionDialog(resultData);
         } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {

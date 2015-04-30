@@ -161,20 +161,25 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
 
     public void testLogInAndOut() {
         changeProvider("demo.bitmask.net");
-        clickLogIn();
+        clickUserSessionButton();
+        assertLoggedOut();
+        clickUserSessionButton();
         logIn("parmegvtest1", " S_Zw3'-");
-        assertSuccessfulLogin();
+        assertLoggedIn();
 
         logOut();
     }
 
-    private void clickLogIn() {
-        solo.clickOnView(getLogInButton());
+    private void clickUserSessionButton() {
+        solo.clickOnView(getUserSessionButton());
     }
 
-    private View getLogInButton() {
-        return solo.getView(R.id.user_session_button);
+    private View getUserSessionButton() {
+        View view = solo.getView(R.id.user_status_button);
+        assertTrue(view != null);
+        return view;
     }
+
     private void logIn(String username, String password) {
         solo.enterText(0, username);
         solo.enterText(1, password);
@@ -182,11 +187,20 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         solo.waitForDialogToClose();
     }
 
-    private void assertSuccessfulLogin() {
-        assertTrue(solo.waitForText(solo.getString(R.string.logged_in_user_status)));
+    private void assertLoggedIn() {
+        String log_out = solo.getString(R.string.logout_button);
+        solo.waitForText(log_out);
+    }
+
+    private void assertLoggedOut() {
+        String log_in = solo.getString(R.string.login_button);
+        solo.waitForText(log_in);
     }
 
     private void logOut() {
+        assertLoggedIn();
+        clickUserSessionButton();
+
         solo.clickOnActionBarItem(R.string.logout_button);
         assertTrue(solo.waitForDialogToClose());
     }
@@ -245,7 +259,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         String text = solo.getString(R.string.signup_or_login_button);
         clickAndWaitForDashboard(text);
         logIn("parmegvtest10", "holahola2");
-        assertSuccessfulLogin();
+        assertLoggedIn();
     }
 
     private void clickAndWaitForDashboard(String click_text) {

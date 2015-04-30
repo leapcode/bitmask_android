@@ -167,7 +167,7 @@ public class SessionDialog extends DialogFragment {
         super.onAttach(activity);
 
         try {
-            interface_with_Dashboard = (SessionDialogInterface) activity.getFragmentManager().findFragmentById(R.id.user_session_fragment);;
+            interface_with_Dashboard = (SessionDialogInterface) activity.getFragmentManager().findFragmentById(R.id.user_status_fragment);;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement LogInDialogListener");

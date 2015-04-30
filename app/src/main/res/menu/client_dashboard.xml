@@ -15,15 +15,5 @@
         android:id="@+id/signup_button"
         android:title="@string/signup_button"
         android:visible="false"/>
-    <item
-        android:id="@+id/login_button"
-        android:showAsAction="ifRoom"
-        android:title="@string/login_button"
-        android:visible="false"/>
-    <item
-        android:id="@+id/logout_button"
-        android:showAsAction="ifRoom"
-        android:title="@string/logout_button"
-        android:visible="false"/>
 
 </menu>

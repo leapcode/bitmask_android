@@ -39,7 +39,7 @@ import org.thoughtcrime.ssl.pinning.util.*;
 import se.leap.bitmaskclient.eip.*;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
-import se.leap.bitmaskclient.userstatus.UserSessionStatus;
+import se.leap.bitmaskclient.userstatus.UserStatus;
 
 /**
  * Implements HTTP api methods used to manage communications with the provider server.
@@ -143,7 +143,7 @@ public class ProviderAPI extends IntentService {
                 }
             }
         } else if (action.equalsIgnoreCase(SIGN_UP)) {
-            UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.SIGNING_UP, resources);
+            UserStatus.updateStatus(UserStatus.SessionStatus.SIGNING_UP, resources);
             Bundle result = tryToRegister(parameters);
             if (result.getBoolean(RESULT_KEY)) {
                 receiver.send(SUCCESSFUL_SIGNUP, result);
@@ -151,23 +151,23 @@ public class ProviderAPI extends IntentService {
                 receiver.send(FAILED_SIGNUP, result);
             }
         } else if (action.equalsIgnoreCase(LOG_IN)) {
-            UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGING_IN, resources);
+            UserStatus.updateStatus(UserStatus.SessionStatus.LOGGING_IN, resources);
             Bundle result = tryToAuthenticate(parameters);
             if (result.getBoolean(RESULT_KEY)) {
                 receiver.send(SUCCESSFUL_LOGIN, result);
-                UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGED_IN, resources);
+                UserStatus.updateStatus(UserStatus.SessionStatus.LOGGED_IN, resources);
             } else {
                 receiver.send(FAILED_LOGIN, result);
-                UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.NOT_LOGGED_IN, resources);
+                UserStatus.updateStatus(UserStatus.SessionStatus.NOT_LOGGED_IN, resources);
             }
         } else if (action.equalsIgnoreCase(LOG_OUT)) {
-            UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGING_OUT, resources);
+            UserStatus.updateStatus(UserStatus.SessionStatus.LOGGING_OUT, resources);
             if (logOut()) {
                 receiver.send(SUCCESSFUL_LOGOUT, Bundle.EMPTY);
-                UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.LOGGED_OUT, resources);
+                UserStatus.updateStatus(UserStatus.SessionStatus.LOGGED_OUT, resources);
             } else {
                 receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
-                UserSessionStatus.updateStatus(UserSessionStatus.SessionStatus.DIDNT_LOG_OUT, resources);
+                UserStatus.updateStatus(UserStatus.SessionStatus.DIDNT_LOG_OUT, resources);
             }
         } else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
             if (updateVpnCertificate()) {

@@ -19,12 +19,13 @@ package se.leap.bitmaskclient.userstatus;
 import se.leap.bitmaskclient.LeapSRPSession;
 
 public class User {
-    private static String user_name = "";
+    private static String user_name;
     private static User user;
 
-    public static User init() {
+    public static User init(String default_username) {
         if (user == null) {
             user = new User();
+            user.setUserName(default_username);
         }
         return user;
     }
