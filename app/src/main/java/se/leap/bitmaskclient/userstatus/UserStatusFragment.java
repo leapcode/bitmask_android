@@ -61,15 +61,6 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Fragment fragment = (getFragmentManager().findFragmentById(R.id.user_status_fragment));
-        FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
-        ft.remove(fragment);
-        ft.commit();
-    }
-
-    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         dashboard = (Dashboard) activity;
