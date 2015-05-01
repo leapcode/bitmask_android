@@ -118,7 +118,7 @@ public final class Provider implements Parcelable {
 
     protected String certificatePin() { return certificate_pin; }
 
-    protected String getName() {
+    public String getName() {
         // Should we pass the locale in, or query the system here?
         String lang = Locale.getDefault().getLanguage();
         String name = "";

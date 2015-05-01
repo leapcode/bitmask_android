@@ -1,0 +1,55 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="30dp"
+    android:layout_marginLeft="60dp"
+    android:layout_marginStart="60dp"
+    android:orientation="vertical"
+    tools:context="se.leap.bitmaskclient.userstatus.UserStatusFragment">
+
+    <TextView
+        android:id="@+id/user.status.username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:layout_marginRight="60dp"
+        android:layout_marginEnd="60dp"
+        android:layout_gravity="center"
+        android:textSize="46sp"
+        android:text="@string/default_username"
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+    <LinearLayout
+        android:id="@+id/user.status.buttonAndIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <Button
+            android:id="@+id/user.status.button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            />
+
+        <view
+            android:id="@+id/user.status.icon"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginLeft="26dp"
+            android:layout_marginStart="26dp"
+            android:background="@android:color/transparent"
+            android:color="@android:color/holo_blue_dark"
+            class="mbanje.kurt.fabbutton.FabButton"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            android:indeterminate="true"
+            android:max="100"
+            fbb_autoStart="true"
+            fbb_progressColor="#ff170aff"
+            fbb_progressWidthRatio="0.3"
+            />
+
+    </LinearLayout>
+</LinearLayout>

@@ -14,16 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.leap.bitmaskclient;
+package se.leap.bitmaskclient.userstatus;
+
+import se.leap.bitmaskclient.LeapSRPSession;
 
 public class User {
-    private static String user_name = "";
+    private static String user_name;
     private static User user;
-    public static int DEFAULT_CONJUGATION_PERSON = 1;
 
-    public static User init() {
+    public static User init(String default_username) {
         if (user == null) {
             user = new User();
+            user.setUserName(default_username);
         }
         return user;
     }

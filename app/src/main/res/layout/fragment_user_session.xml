@@ -1,0 +1,52 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:layout_marginLeft="20dp"
+    android:layout_marginStart="20dp"
+    tools:context="se.leap.bitmaskclient.userstatus.UserStatusFragment">
+
+    <TextView
+        android:id="@+id/user.status.username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
+        android:textSize="20sp"
+        android:text="@string/default_username"
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+    <LinearLayout
+        android:id="@+id/user.status.buttonAndIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/user.status.button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            />
+
+        <view
+            android:id="@+id/user.status.icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginLeft="9dp"
+            android:layout_marginStart="9dp"
+            android:background="@android:color/transparent"
+            android:color="@android:color/holo_blue_dark"
+            class="mbanje.kurt.fabbutton.FabButton"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            android:indeterminate="true"
+            android:max="100"
+            fbb_autoStart="true"
+            fbb_progressColor="#ff170aff"
+            fbb_progressWidthRatio="0.1"
+            />
+
+    </LinearLayout>
+</LinearLayout>
