@@ -31,7 +31,7 @@ public abstract class BaseTestDashboard extends ActivityInstrumentationTestCase2
             new testConfigurationWizard(solo).toDashboardAnonymously("demo.bitmask.net");
     }
 
-    void changeProvider(String provider) {
+    void changeProviderAndLogIn(String provider) {
         tapSwitchProvider();
         solo.clickOnText(provider);
         useRegistered();

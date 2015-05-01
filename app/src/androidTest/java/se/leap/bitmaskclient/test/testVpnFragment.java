@@ -43,7 +43,7 @@ public class testVpnFragment extends BaseTestDashboard {
     public void testVpnEveryProvider() {
         String[] providers = {"demo.bitmask.net", "riseup.net", "calyx.net"};
         for(String provider : providers) {
-            changeProvider(provider);
+            changeProviderAndLogIn(provider);
             vpn_controller.sleepSeconds(1);
             vpn_controller.turnVpnOndAndOff(provider);
             vpn_controller.sleepSeconds(1);

@@ -51,4 +51,20 @@ public class UserStatusTestController {
         solo.waitForDialogToClose();
         assertLoggedOut();
     }
+
+    boolean assertErrorLogInDialogAppears() {
+        solo.waitForDialogToOpen();
+
+        String username_hint = solo.getEditText(0).getHint().toString();
+        String correct_username_hint = solo.getString(R.string.username_hint);
+        String password_hint = solo.getEditText(1).getHint().toString();
+        String correct_password_hint = solo.getString(R.string.password_hint);
+        String user_message = solo.getText(0).toString();
+        String riseup_user_message = solo.getString(R.string.login_riseup_warning);
+
+        return username_hint.equalsIgnoreCase(correct_username_hint)
+                && password_hint.equalsIgnoreCase(correct_password_hint)
+                && !user_message.equalsIgnoreCase(riseup_user_message)
+                && !user_message.isEmpty();
+    }
 }
