@@ -1,9 +1,7 @@
 package se.leap.bitmaskclient.test;
 
-import android.content.*;
 import android.graphics.*;
-import android.test.*;
-import android.view.*;
+import android.graphics.drawable.Drawable;
 import android.widget.Button;
 
 import com.robotium.solo.*;
@@ -16,25 +14,12 @@ import mbanje.kurt.fabbutton.FabButton;
 import mbanje.kurt.fabbutton.ProgressRingView;
 import se.leap.bitmaskclient.*;
 
-public class testDashboardIntegration extends ActivityInstrumentationTestCase2<Dashboard> {
-
-    private Solo solo;
-    private Context context;
-
-    public testDashboardIntegration() {
-        super(Dashboard.class);
-    }
+public class testDashboardIntegration extends BaseTestDashboard {
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        context = getInstrumentation().getContext();
-        solo = new Solo(getInstrumentation(), getActivity());
         Screenshot.initialize(solo);
-        ConnectionManager.setMobileDataEnabled(true, context);
-        solo.unlockScreen();
-        if (solo.searchText(solo.getString(R.string.configuration_wizard_title)))
-            new testConfigurationWizard(solo).toDashboardAnonymously("demo.bitmask.net");
     }
 
     @Override
@@ -82,7 +67,7 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         return (Button) solo.getView(R.id.vpn_main_button);
     }
 
-    private FabButton getVpnImage() {
+    private FabButton getVpnWholeIcon() {
         return (FabButton) solo.getView(R.id.vpn_Status_Image);
     }
 
@@ -101,14 +86,26 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     private void assertInProgress() {
-        ProgressRingView a = (ProgressRingView) getVpnImage().findViewById(R.id.fabbutton_ring);
+        ProgressRingView a = (ProgressRingView) getVpnWholeIcon().findViewById(R.id.fabbutton_ring);
         assertTrue(isShownWithinConfinesOfVisibleScreen(a));
     }
 
     private boolean iconConnected() {
-        CircleImageView a = (CircleImageView) getVpnImage().findViewById(R.id.fabbutton_circle);
+        return getVpnInsideIcon().equals(getDrawable(R.drawable.ic_stat_vpn));
+    }
+
+    private boolean iconDisconnected() {
+        return getVpnInsideIcon().equals(getDrawable(R.drawable.ic_stat_vpn_offline));
+    }
+
+    private Drawable getDrawable(int resId) {
+        return getActivity().getResources().getDrawable(resId);
+    }
+
+    private Bitmap getVpnInsideIcon() {
+        CircleImageView a = (CircleImageView) getVpnWholeIcon().findViewById(R.id.fabbutton_circle);
         a.setDrawingCacheEnabled(true);
-        return a.getDrawingCache().equals(getActivity().getResources().getDrawable(R.drawable.ic_stat_vpn));
+        return a.getDrawingCache();
     }
 
     private void turningEipOff() {
@@ -142,12 +139,6 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         clickYes();
     }
 
-    private boolean iconDisconnected() {
-        CircleImageView a = (CircleImageView) getVpnImage().findViewById(R.id.fabbutton_circle);
-        a.setDrawingCacheEnabled(true);
-        return a.getDrawingCache().equals(getActivity().getResources().getDrawable(R.drawable.ic_stat_vpn_offline));
-    }
-
     private void turnNetworkOff() {
         ConnectionManager.setMobileDataEnabled(false, context);
         if (!solo.waitForText(getActivity().getString(R.string.eip_state_not_connected), 1, 15 * 1000))
@@ -159,52 +150,6 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         runAdbCommand("start-server");
     }
 
-    public void testLogInAndOut() {
-        changeProvider("demo.bitmask.net");
-        clickUserSessionButton();
-        assertLoggedOut();
-        clickUserSessionButton();
-        logIn("parmegvtest1", " S_Zw3'-");
-        assertLoggedIn();
-
-        logOut();
-    }
-
-    private void clickUserSessionButton() {
-        solo.clickOnView(getUserSessionButton());
-    }
-
-    private View getUserSessionButton() {
-        View view = solo.getView(R.id.user_status_button);
-        assertTrue(view != null);
-        return view;
-    }
-
-    private void logIn(String username, String password) {
-        solo.enterText(0, username);
-        solo.enterText(1, password);
-        solo.clickOnText(solo.getString(R.string.login_button));
-        solo.waitForDialogToClose();
-    }
-
-    private void assertLoggedIn() {
-        String log_out = solo.getString(R.string.logout_button);
-        solo.waitForText(log_out);
-    }
-
-    private void assertLoggedOut() {
-        String log_in = solo.getString(R.string.login_button);
-        solo.waitForText(log_in);
-    }
-
-    private void logOut() {
-        assertLoggedIn();
-        clickUserSessionButton();
-
-        solo.clickOnActionBarItem(R.string.logout_button);
-        assertTrue(solo.waitForDialogToClose());
-    }
-
     public void testShowAbout() {
         showAbout();
         solo.goBack();
@@ -213,24 +158,22 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
     }
 
     private void showAbout() {
-        String menu_item = solo.getString(R.string.about);
-        solo.clickOnMenuItem(menu_item);
-
+        clickAbout();
         String text_unique_to_about = solo.getString(R.string.repository_url_text);
         solo.waitForText(text_unique_to_about);
     }
 
+    private void clickAbout() {
+        String menu_item = solo.getString(R.string.about);
+        solo.clickOnMenuItem(menu_item);
+    }
+
     public void testSwitchProvider() {
-	tapSwitchProvider();
+        tapSwitchProvider();
         solo.goBack();
     }
 
-    private void tapSwitchProvider() {
-        solo.clickOnMenuItem(solo.getString(R.string.switch_provider_menu_option));
-        solo.waitForActivity(ConfigurationWizard.class);
-    }
-
-    public void testEveryProvider() {
+    public void testVpnEveryProvider() {
         changeAndTestProvider("demo.bitmask.net");
         changeAndTestProvider("riseup.net");
         changeAndTestProvider("calyx.net");
@@ -249,35 +192,11 @@ public class testDashboardIntegration extends ActivityInstrumentationTestCase2<D
         solo.sleep(seconds * 1000);
     }
 
-    private void changeProvider(String provider) {
-        tapSwitchProvider();
-        solo.clickOnText(provider);
-        useRegistered();
-    }
-
-    private void useRegistered() {
-        String text = solo.getString(R.string.signup_or_login_button);
-        clickAndWaitForDashboard(text);
-        logIn("parmegvtest10", "holahola2");
-        assertLoggedIn();
-    }
-
-    private void clickAndWaitForDashboard(String click_text) {
-        solo.clickOnText(click_text);
-        assertTrue(solo.waitForActivity(Dashboard.class, 5000));
-    }
-
     public void testVpnIconIsDisplayed() {
-        assertTrue(isShownWithinConfinesOfVisibleScreen(getVpnImage()));
+        assertTrue(isShownWithinConfinesOfVisibleScreen(getVpnWholeIcon()));
     }
     public void testVpnButtonIsDisplayed() {
         assertTrue(isShownWithinConfinesOfVisibleScreen(getVpnButton()));
-    }
-
-    private boolean isShownWithinConfinesOfVisibleScreen(View view) {
-        Rect scrollBounds = new Rect();
-        view.getHitRect(scrollBounds);
-        return view.getLocalVisibleRect(scrollBounds);
     }
     
     /*public void testReboot() {
