@@ -1,5 +1,9 @@
 package se.leap.bitmaskclient.test;
 
+import java.util.Locale;
+
+import de.blinkt.openvpn.activities.LogWindow;
+
 public class testVpnFragment extends BaseTestDashboard {
 
     @Override
@@ -38,6 +42,17 @@ public class testVpnFragment extends BaseTestDashboard {
         restartAdbServer(); // This doesn't work
         */
 
+    }
+
+    /**
+     * Run only if the trust this app dialog has not been checked.
+     * You must pay attention to the screen, because you need to cancel de dialog twice (block vpn and normal vpn)
+     */
+    public void testOnFailed() {
+        vpn_controller.clickVpnButton();
+        assertTrue(solo.waitForActivity(LogWindow.class));
+        solo.goBack();
+        vpn_controller.iconShowsDisconnected();
     }
 
     public void testVpnEveryProvider() {

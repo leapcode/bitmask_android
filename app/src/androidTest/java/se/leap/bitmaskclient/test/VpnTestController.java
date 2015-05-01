@@ -7,6 +7,8 @@ import android.widget.*;
 
 import com.robotium.solo.*;
 
+import junit.framework.AssertionFailedError;
+
 import de.blinkt.openvpn.activities.*;
 import mbanje.kurt.fabbutton.*;
 import se.leap.bitmaskclient.R;
@@ -26,16 +28,39 @@ public class VpnTestController {
         turningEipOff();
     }
 
-    protected void clickVpnButton() {
-        solo.clickOnView(getVpnButton());
+    protected void clickVpnButton() throws IllegalStateException {
+        Button button = getVpnButton();
+        if(!isVpnButton(button))
+            throw new IllegalStateException();
+        solo.clickOnView(button);
     }
 
     protected Button getVpnButton() {
-        return (Button) solo.getView(R.id.vpn_main_button);
+        try {
+            View button_view = solo.getView(R.id.vpn_main_button);
+            if (button_view != null)
+                return (Button) button_view;
+            else
+                return new Button(solo.getCurrentActivity());
+        } catch (AssertionFailedError e) {
+            return new Button(solo.getCurrentActivity());
+        }
+    }
+
+    private boolean isVpnButton(Button button) {
+        return !button.getText().toString().isEmpty();
     }
 
     protected FabButton getVpnWholeIcon() {
-        return (FabButton) solo.getView(R.id.vpn_Status_Image);
+        try {
+            View view = solo.getView(R.id.vpn_Status_Image);
+            if (view != null)
+                return (FabButton) view;
+            else
+                return null;
+        } catch (AssertionFailedError e) {
+            return null;
+        }
     }
 
     protected void turningEipOn() {
@@ -45,7 +70,7 @@ public class VpnTestController {
         Condition condition = new Condition() {
             @Override
             public boolean isSatisfied() {
-                return iconConnected();
+                return iconShowsConnected();
             }
         };
         solo.waitForCondition(condition, max_seconds_until_connected * 1000);
@@ -53,16 +78,37 @@ public class VpnTestController {
     }
 
     private void assertInProgress() {
-        ProgressRingView a = (ProgressRingView) getVpnWholeIcon().findViewById(R.id.fabbutton_ring);
+        FabButton whole_icon = getVpnWholeIcon();
+        ProgressRingView a;
+        a = whole_icon != null ?
+                (ProgressRingView) getVpnWholeIcon().findViewById(R.id.fabbutton_ring) :
+                new ProgressRingView(solo.getCurrentActivity());
         BaseTestDashboard.isShownWithinConfinesOfVisibleScreen(a);
     }
 
-    private boolean iconConnected() {
-        return getVpnInsideIcon().equals(getDrawable(R.drawable.ic_stat_vpn));
+    private boolean iconShowsConnected() {
+        return iconEquals(iconConnectedDrawable());
     }
 
-    private boolean iconDisconnected() {
-        return getVpnInsideIcon().equals(getDrawable(R.drawable.ic_stat_vpn_offline));
+    protected boolean iconShowsDisconnected() {
+        return iconEquals(iconDisconnectedDrawable());
+    }
+
+    private boolean iconEquals(Drawable drawable) {
+        Bitmap inside_icon = getVpnInsideIcon();
+        if(inside_icon != null)
+            return inside_icon.equals(drawable);
+        else
+            return false;
+
+    }
+
+    private Drawable iconConnectedDrawable() {
+        return getDrawable(R.drawable.ic_stat_vpn);
+    }
+
+    private Drawable iconDisconnectedDrawable() {
+        return getDrawable(R.drawable.ic_stat_vpn_offline);
     }
 
     private Drawable getDrawable(int resId) {
@@ -70,7 +116,12 @@ public class VpnTestController {
     }
 
     private Bitmap getVpnInsideIcon() {
-        CircleImageView a = (CircleImageView) getVpnWholeIcon().findViewById(R.id.fabbutton_circle);
+        FabButton whole_icon = getVpnWholeIcon();
+
+        CircleImageView a;
+        a = whole_icon != null ?
+                (CircleImageView) getVpnWholeIcon().findViewById(R.id.fabbutton_circle)
+                : new CircleImageView(solo.getCurrentActivity());
         a.setDrawingCacheEnabled(true);
         return a.getDrawingCache();
     }
@@ -84,7 +135,7 @@ public class VpnTestController {
         Condition condition = new Condition() {
             @Override
             public boolean isSatisfied() {
-                return iconDisconnected();
+                return iconShowsDisconnected();
             }
         };
         solo.waitForCondition(condition, max_seconds_until_connected * 1000);
