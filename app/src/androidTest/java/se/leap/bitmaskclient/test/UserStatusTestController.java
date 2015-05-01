@@ -1,10 +1,10 @@
 package se.leap.bitmaskclient.test;
 
-import android.view.View;
+import android.view.*;
 
-import com.robotium.solo.Solo;
+import com.robotium.solo.*;
 
-import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.*;
 
 public class UserStatusTestController {
     private final Solo solo;

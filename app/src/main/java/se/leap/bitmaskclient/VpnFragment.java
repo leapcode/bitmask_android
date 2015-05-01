@@ -31,9 +31,9 @@ import de.blinkt.openvpn.activities.*;
 import mbanje.kurt.fabbutton.*;
 import se.leap.bitmaskclient.eip.*;
 
-public class EipFragment extends Fragment implements Observer {
+public class VpnFragment extends Fragment implements Observer {
 
-    public static String TAG = EipFragment.class.getSimpleName();
+    public static String TAG = VpnFragment.class.getSimpleName();
 
     public static final String IS_PENDING = TAG + ".is_pending";
     protected static final String IS_CONNECTED = TAG + ".is_connected";

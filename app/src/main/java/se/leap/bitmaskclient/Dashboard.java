@@ -62,7 +62,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     @InjectView(R.id.providerName)
     TextView provider_name;
 
-    EipFragment eip_fragment;
+    VpnFragment eip_fragment;
     UserStatusFragment user_status_fragment;
     private static Provider provider = new Provider();
     public ProviderAPIResultReceiver providerAPI_result_receiver;
@@ -206,17 +206,17 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         fragment_manager.replace(R.id.user_status_fragment, user_status_fragment, UserStatusFragment.TAG);
 
         if (provider.hasEIP()) {
-            fragment_manager.removePreviousFragment(EipFragment.TAG);
-            eip_fragment = new EipFragment();
+            fragment_manager.removePreviousFragment(VpnFragment.TAG);
+            eip_fragment = new VpnFragment();
 
             if (hide_and_turn_on_eip) {
                 preferences.edit().remove(Dashboard.START_ON_BOOT).apply();
                 Bundle arguments = new Bundle();
-                arguments.putBoolean(EipFragment.START_ON_BOOT, true);
+                arguments.putBoolean(VpnFragment.START_ON_BOOT, true);
                 if (eip_fragment != null) eip_fragment.setArguments(arguments);
             }
 
-            fragment_manager.replace(R.id.servicesCollection, eip_fragment, EipFragment.TAG);
+            fragment_manager.replace(R.id.servicesCollection, eip_fragment, VpnFragment.TAG);
             if (hide_and_turn_on_eip) {
                 onBackPressed();
             }

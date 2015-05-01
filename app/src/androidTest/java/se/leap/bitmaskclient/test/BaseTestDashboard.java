@@ -14,6 +14,7 @@ public abstract class BaseTestDashboard extends ActivityInstrumentationTestCase2
     Solo solo;
     Context context;
     UserStatusTestController user_status_controller;
+    VpnTestController vpn_controller;
 
     public BaseTestDashboard() { super(Dashboard.class); }
 
@@ -23,6 +24,7 @@ public abstract class BaseTestDashboard extends ActivityInstrumentationTestCase2
         context = getInstrumentation().getContext();
         solo = new Solo(getInstrumentation(), getActivity());
         user_status_controller = new UserStatusTestController(solo);
+        vpn_controller = new VpnTestController(solo);
         ConnectionManager.setMobileDataEnabled(true, context);
         solo.unlockScreen();
         if (solo.searchText(solo.getString(R.string.configuration_wizard_title)))
@@ -51,7 +53,7 @@ public abstract class BaseTestDashboard extends ActivityInstrumentationTestCase2
         assertTrue(solo.waitForActivity(Dashboard.class, 5000));
     }
 
-    boolean isShownWithinConfinesOfVisibleScreen(View view) {
+    static boolean isShownWithinConfinesOfVisibleScreen(View view) {
         Rect scrollBounds = new Rect();
         view.getHitRect(scrollBounds);
         return view.getLocalVisibleRect(scrollBounds);

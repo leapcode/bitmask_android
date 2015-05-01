@@ -23,7 +23,7 @@ import android.view.*;
 import android.widget.*;
 
 import butterknife.*;
-import se.leap.bitmaskclient.EipFragment;
+import se.leap.bitmaskclient.VpnFragment;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
 
@@ -113,7 +113,7 @@ public class SessionDialog extends DialogFragment {
     }
 
     private void setUp(Bundle arguments) {
-        is_eip_pending = arguments.getBoolean(EipFragment.IS_PENDING, false);
+        is_eip_pending = arguments.getBoolean(VpnFragment.IS_PENDING, false);
         if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
             password_field.setError(getString(R.string.error_not_valid_password_user_message));
         else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
