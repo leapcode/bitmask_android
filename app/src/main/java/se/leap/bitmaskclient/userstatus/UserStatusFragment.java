@@ -50,8 +50,10 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_user_session, container, false);
+        View view = inflater.inflate(R.layout.user_session_fragment, container, false);
         ButterKnife.inject(this, view);
+
+        icon.setIcon(R.drawable.ic_account_circle, R.drawable.ic_account_circle);
 
         Bundle arguments = getArguments();
         allows_registration = arguments.getBoolean(Provider.ALLOW_REGISTRATION);

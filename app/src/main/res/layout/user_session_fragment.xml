@@ -33,11 +33,10 @@
         <view
             android:id="@+id/user.status.icon"
             android:layout_width="32dp"
-            android:layout_height="32dp"
             android:layout_marginLeft="9dp"
             android:layout_marginStart="9dp"
-            android:background="@android:color/transparent"
-            android:color="@android:color/holo_blue_dark"
+            android:src="@drawable/ic_account_circle"
+            android:color="@android:color/transparent"
             class="mbanje.kurt.fabbutton.FabButton"
             android:layout_gravity="center"
             android:visibility="visible"
