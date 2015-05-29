@@ -1,7 +1,5 @@
 package se.leap.bitmaskclient.test;
 
-import java.util.Locale;
-
 import de.blinkt.openvpn.activities.LogWindow;
 
 public class testVpnFragment extends BaseTestDashboard {
@@ -50,7 +48,7 @@ public class testVpnFragment extends BaseTestDashboard {
      */
     public void testOnFailed() {
         vpn_controller.clickVpnButton();
-        assertTrue(solo.waitForActivity(LogWindow.class));
+        assertTrue("Have you checked the trust vpn dialog?", solo.waitForActivity(LogWindow.class));
         solo.goBack();
         vpn_controller.iconShowsDisconnected();
     }

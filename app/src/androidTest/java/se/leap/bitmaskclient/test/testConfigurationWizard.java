@@ -72,7 +72,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 
     private void waitForProviderDetails() {
         String text = solo.getString(R.string.provider_details_fragment_title);
-        assertTrue("Provider details dialog did not appear", solo.waitForText(text, 1, 40*1000));
+        assertTrue("Provider details dialog did not appear", solo.waitForText(text, 1, 60*1000));
     }
 
     public void testAddNewProvider() {
