@@ -12,40 +12,32 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginRight="15dp"
         android:layout_marginEnd="20dp"
         android:textSize="20sp"
         android:text="@string/default_username"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-    <LinearLayout
-        android:id="@+id/user.status.buttonAndIcon"
+    <Button
+        android:id="@+id/user.status.button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        />
 
-        <Button
-            android:id="@+id/user.status.button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            />
+    <view
+        android:id="@+id/user.status.icon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="9dp"
+        android:layout_marginStart="9dp"
+        android:shadowRadius="0"
+        android:src="@drawable/ic_account_circle"
+        android:color="@android:color/transparent"
+        class="se.leap.bitmaskclient.userstatus.FabButton"
+        android:indeterminate="true"
+        fbb_progressColor="@android:color/holo_blue_dark"
+        fbb_progressWidthRatio="0.1"
+        />
 
-        <view
-            android:id="@+id/user.status.icon"
-            android:layout_width="32dp"
-            android:layout_marginLeft="9dp"
-            android:layout_marginStart="9dp"
-            android:src="@drawable/ic_account_circle"
-            android:color="@android:color/transparent"
-            class="mbanje.kurt.fabbutton.FabButton"
-            android:layout_gravity="center"
-            android:visibility="visible"
-            android:indeterminate="true"
-            android:max="100"
-            fbb_autoStart="true"
-            fbb_progressColor="#ff170aff"
-            fbb_progressWidthRatio="0.1"
-            />
-
-    </LinearLayout>
 </LinearLayout>

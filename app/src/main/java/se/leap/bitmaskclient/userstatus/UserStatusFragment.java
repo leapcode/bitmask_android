@@ -1,17 +1,29 @@
 package se.leap.bitmaskclient.userstatus;
 
-import android.app.*;
-import android.os.*;
-import android.view.*;
-import android.widget.*;
+import android.app.Activity;
+import android.app.Fragment;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Observable;
+import java.util.Observer;
 
-import butterknife.*;
-import mbanje.kurt.fabbutton.FabButton;
-import se.leap.bitmaskclient.*;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.ProviderAPI;
+import se.leap.bitmaskclient.ProviderAPICommand;
+import se.leap.bitmaskclient.ProviderAPIResultReceiver;
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipStatus;
 
 public class UserStatusFragment extends Fragment implements Observer, SessionDialog.SessionDialogInterface {
@@ -52,8 +64,6 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
 
         View view = inflater.inflate(R.layout.user_session_fragment, container, false);
         ButterKnife.inject(this, view);
-
-        icon.setIcon(R.drawable.ic_account_circle, R.drawable.ic_account_circle);
 
         Bundle arguments = getArguments();
         allows_registration = arguments.getBoolean(Provider.ALLOW_REGISTRATION);
