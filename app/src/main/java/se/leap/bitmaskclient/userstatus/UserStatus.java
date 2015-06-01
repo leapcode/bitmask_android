@@ -92,6 +92,14 @@ public class UserStatus extends Observable {
         return session_status == SessionStatus.LOGGED_OUT;
     }
 
+    public boolean notLoggedIn() {
+        return session_status == SessionStatus.NOT_LOGGED_IN;
+    }
+
+    public boolean didntLogOut() {
+        return session_status == SessionStatus.DIDNT_LOG_OUT;
+    }
+
     public static void updateStatus(SessionStatus session_status, Resources resources) {
         current_status = getInstance(resources);
         current_status.sessionStatus(session_status);

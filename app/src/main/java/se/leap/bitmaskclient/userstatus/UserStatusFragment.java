@@ -138,10 +138,10 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     }
 
     private void updateButton() {
-        if(status.isLoggedIn())
+        if(status.isLoggedIn() || status.didntLogOut())
             button.setText(dashboard.getString(R.string.logout_button));
         else if(allows_registration) {
-            if (status.isLoggedOut())
+            if (status.isLoggedOut() || status.notLoggedIn())
                 button.setText(dashboard.getString(R.string.login_button));
             else if (status.inProgress())
                 button.setText(dashboard.getString(android.R.string.cancel));
