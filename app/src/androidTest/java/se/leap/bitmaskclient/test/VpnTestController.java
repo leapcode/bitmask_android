@@ -52,20 +52,16 @@ public class VpnTestController {
     }
 
     protected FabButton getVpnWholeIcon() {
-        try {
-            View view = solo.getView(R.id.vpn_Status_Image);
-            if (view != null)
-                return (FabButton) view;
-            else
-                return null;
-        } catch (AssertionFailedError e) {
+        View view = solo.getView(R.id.vpn_Status_Image);
+        if (view != null)
+            return (FabButton) view;
+        else
             return null;
-        }
     }
 
     protected void turningEipOn() {
         assertInProgress();
-        int max_seconds_until_connected = 30;
+        int max_seconds_until_connected = 120;
 
         Condition condition = new Condition() {
             @Override

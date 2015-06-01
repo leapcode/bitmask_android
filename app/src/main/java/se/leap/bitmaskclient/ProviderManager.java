@@ -28,7 +28,8 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         if (instance == null)
             instance = new ProviderManager(assets_manager);
 
-        instance.addCustomProviders(external_files_dir);
+        if(external_files_dir != null)
+            instance.addCustomProviders(external_files_dir);
         return instance;
     }
 
@@ -120,7 +121,8 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     public Set<Provider> providers() {
         Set<Provider> all_providers = new HashSet<Provider>();
         all_providers.addAll(default_providers);
-        all_providers.addAll(custom_providers);
+        if(custom_providers != null)
+            all_providers.addAll(custom_providers);
         return all_providers;
     }
 
@@ -140,25 +142,27 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     }
 
     @Override
-    public void add(Provider element) {
+    public boolean add(Provider element) {
         if (!default_providers.contains(element))
-            custom_providers.add(element);
+            return custom_providers.add(element);
+        else return true;
     }
 
     @Override
-    public void remove(Provider element) {
-        custom_providers.remove(element);
+    public boolean remove(Object element) {
+        return custom_providers.remove(element);
     }
 
     @Override
-    public void addAll(Collection<Provider> elements) {
-        custom_providers.addAll(elements);
+    public boolean addAll(Collection<? extends Provider> elements) {
+        return custom_providers.addAll(elements);
     }
 
     @Override
-    public void removeAll(Collection<Provider> elements) {
-        custom_providers.removeAll(elements);
-        default_providers.removeAll(elements);
+    public boolean removeAll(Collection<?> elements) {
+        if(!elements.getClass().equals(Provider.class))
+            return false;
+        return default_providers.removeAll(elements) || custom_providers.removeAll(elements);
     }
 
     @Override
