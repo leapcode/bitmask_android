@@ -50,7 +50,7 @@ public abstract class BaseTestDashboard extends ActivityInstrumentationTestCase2
 
     private void clickAndWaitForDashboard(String click_text) {
         solo.clickOnText(click_text);
-        assertTrue(solo.waitForActivity(Dashboard.class, 5000));
+        assertTrue(solo.waitForActivity(Dashboard.class, 80 * 1000));
     }
 
     static boolean isShownWithinConfinesOfVisibleScreen(View view) {
