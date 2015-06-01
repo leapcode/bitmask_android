@@ -14,15 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.leap.bitmaskclient;
+package se.leap.bitmaskclient.userstatus;
 
 import android.content.res.*;
 
 import java.util.*;
 
-public class UserSessionStatus extends Observable {
-    public static String TAG = UserSessionStatus.class.getSimpleName();
-    private static UserSessionStatus current_status;
+import se.leap.bitmaskclient.R;
+
+public class UserStatus extends Observable {
+    public static String TAG = UserStatus.class.getSimpleName();
+    private static UserStatus current_status;
     private static Resources resources;
 
     public enum SessionStatus {
@@ -56,17 +58,17 @@ public class UserSessionStatus extends Observable {
         }
     }
 
-    private static SessionStatus session_status = SessionStatus.NOT_LOGGED_IN;
+    private static SessionStatus session_status = SessionStatus.LOGGED_OUT;
 
-    public static UserSessionStatus getInstance(Resources resources) {
+    public static UserStatus getInstance(Resources resources) {
         if (current_status == null) {
-            current_status = new UserSessionStatus(resources);
+            current_status = new UserStatus(resources);
         }
         return current_status;
     }
 
-    private UserSessionStatus(Resources resources) {
-        UserSessionStatus.resources = resources;
+    private UserStatus(Resources resources) {
+        UserStatus.resources = resources;
     }
 
     private void sessionStatus(SessionStatus session_status) {
@@ -82,6 +84,14 @@ public class UserSessionStatus extends Observable {
                 || session_status == SessionStatus.LOGGING_OUT;
     }
 
+    public boolean isLoggedIn() {
+        return session_status == SessionStatus.LOGGED_IN;
+    }
+
+    public boolean isLoggedOut() {
+        return session_status == SessionStatus.LOGGED_OUT;
+    }
+
     public static void updateStatus(SessionStatus session_status, Resources resources) {
         current_status = getInstance(resources);
         current_status.sessionStatus(session_status);
@@ -93,7 +103,7 @@ public class UserSessionStatus extends Observable {
     public String toString() {
         String user_session_status = User.userName();
 
-        String default_username = resources.getString(R.string.default_user, "");
+        String default_username = resources.getString(R.string.default_username, "");
         if(user_session_status.isEmpty() && !default_username.equalsIgnoreCase("null")) user_session_status = default_username;
         user_session_status += " " + session_status.toString();
 

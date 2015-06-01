@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.leap.bitmaskclient;
+package se.leap.bitmaskclient.userstatus;
 
 import android.app.*;
 import android.content.*;
@@ -23,6 +23,9 @@ import android.view.*;
 import android.widget.*;
 
 import butterknife.*;
+import se.leap.bitmaskclient.VpnFragment;
+import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.R;
 
 /**
  * Implements the log in dialog, currently without progress dialog.
@@ -56,8 +59,18 @@ public class SessionDialog extends DialogFragment {
 
     private static boolean is_eip_pending = false;
 
-    public SessionDialog() {
-        setArguments(Bundle.EMPTY);
+    public static SessionDialog getInstance(Provider provider, Bundle arguments) {
+        SessionDialog dialog = new SessionDialog();
+        if (provider.getName().equalsIgnoreCase("riseup")) {
+            arguments =
+                    arguments == Bundle.EMPTY ?
+                            new Bundle() : arguments;
+            arguments.putBoolean(SessionDialog.ERRORS.RISEUP_WARNING.toString(), true);
+        }
+        if (arguments != null && !arguments.isEmpty()) {
+            dialog.setArguments(arguments);
+        }
+        return dialog;
     }
 
     public AlertDialog onCreateDialog(Bundle savedInstanceState) {
@@ -68,7 +81,7 @@ public class SessionDialog extends DialogFragment {
         ButterKnife.inject(this, view);
 
         Bundle arguments = getArguments();
-        if (arguments != Bundle.EMPTY) {
+        if (arguments != Bundle.EMPTY && arguments != null) {
             setUp(arguments);
         }
 
@@ -100,7 +113,7 @@ public class SessionDialog extends DialogFragment {
     }
 
     private void setUp(Bundle arguments) {
-        is_eip_pending = arguments.getBoolean(EipFragment.IS_PENDING, false);
+        is_eip_pending = arguments.getBoolean(VpnFragment.IS_PENDING, false);
         if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
             password_field.setError(getString(R.string.error_not_valid_password_user_message));
         else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
@@ -152,8 +165,9 @@ public class SessionDialog extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
         try {
-            interface_with_Dashboard = (SessionDialogInterface) activity;
+            interface_with_Dashboard = (SessionDialogInterface) activity.getFragmentManager().findFragmentById(R.id.user_status_fragment);;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement LogInDialogListener");

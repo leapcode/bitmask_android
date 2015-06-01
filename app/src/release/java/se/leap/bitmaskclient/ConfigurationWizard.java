@@ -39,6 +39,7 @@ import se.leap.bitmaskclient.NewProviderDialog.NewProviderDialogInterface;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
 import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -98,8 +99,7 @@ public class ConfigurationWizard extends Activity
             outState.putInt(PROGRESSBAR_NUMBER, mProgressBar.getProgress());
         if (progressbar_description != null)
             outState.putString(PROGRESSBAR_TEXT, progressbar_description.getText().toString());
-        if (selected_provider != null)
-            outState.putParcelable(Provider.KEY, selected_provider);
+        outState.putParcelable(Provider.KEY, selected_provider);
         super.onSaveInstanceState(outState);
     }
 
@@ -125,8 +125,7 @@ public class ConfigurationWizard extends Activity
         selected_provider = savedInstanceState.getParcelable(Provider.KEY);
 
         if (fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null && setting_up_provider) {
-            if (selected_provider != null)
-                onItemSelectedUi();
+            onItemSelectedUi();
             if (progress > 0)
                 mProgressBar.setProgress(progress);
         }
@@ -166,8 +165,7 @@ public class ConfigurationWizard extends Activity
     }
 
     private void setUpProviderAPIResultReceiver() {
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-        providerAPI_result_receiver.setReceiver(this);
+        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
         providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
 
         IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_PROGRESSBAR);
@@ -195,8 +193,6 @@ public class ConfigurationWizard extends Activity
                 mProgressBar.incrementProgressBy(1);
                 hideProgressBar();
 
-                setResult(RESULT_OK);
-
                 showProviderDetails();
             }
         } else if (resultCode == ProviderAPI.PROVIDER_NOK) {
@@ -213,8 +209,6 @@ public class ConfigurationWizard extends Activity
             hideProgressBar();
 
             showProviderDetails();
-
-            setResult(RESULT_OK);
         } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
             hideProgressBar();
 

@@ -40,6 +40,7 @@ import se.leap.bitmaskclient.ProviderAPIResultReceiver.Receiver;
 import se.leap.bitmaskclient.ProviderDetailFragment.ProviderDetailFragmentInterface;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import se.leap.bitmaskclient.eip.*;
+import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -97,8 +98,7 @@ public class ConfigurationWizard extends Activity
             outState.putInt(PROGRESSBAR_NUMBER, mProgressBar.getProgress());
         if (progressbar_description != null)
             outState.putString(PROGRESSBAR_TEXT, progressbar_description.getText().toString());
-        if (selected_provider != null)
-            outState.putParcelable(Provider.KEY, selected_provider);
+        outState.putParcelable(Provider.KEY, selected_provider);
         super.onSaveInstanceState(outState);
     }
 
@@ -125,8 +125,7 @@ public class ConfigurationWizard extends Activity
         progress = savedInstanceState.getInt(PROGRESSBAR_NUMBER, -1);
 
         if (fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null && setting_up_provider) {
-            if (selected_provider != null)
-                onItemSelectedUi();
+            onItemSelectedUi();
             if (progress > 0)
                 mProgressBar.setProgress(progress);
         }
@@ -166,8 +165,7 @@ public class ConfigurationWizard extends Activity
     }
 
     private void setUpProviderAPIResultReceiver() {
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-        providerAPI_result_receiver.setReceiver(this);
+        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
         providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
 
         IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_PROGRESSBAR);
@@ -196,16 +194,12 @@ public class ConfigurationWizard extends Activity
                 mProgressBar.incrementProgressBy(1);
                 hideProgressBar();
 
-                setResult(RESULT_OK);
-
                 showProviderDetails();
             }
         } else if (resultCode == ProviderAPI.PROVIDER_NOK) {
             hideProgressBar();
             preferences.edit().remove(Provider.KEY).apply();
             setting_up_provider = false;
-
-            setResult(RESULT_CANCELED, mConfigState);
 
             String reason_to_fail = resultData.getString(ProviderAPI.ERRORS);
             showDownloadFailedDialog(reason_to_fail);
@@ -214,13 +208,10 @@ public class ConfigurationWizard extends Activity
             hideProgressBar();
 
             showProviderDetails();
-
-            setResult(RESULT_OK);
         } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
             hideProgressBar();
             cancelSettingUpProvider();
             Toast.makeText(getApplicationContext(), R.string.provider_problem, Toast.LENGTH_LONG).show();
-            setResult(RESULT_CANCELED, mConfigState);
         } else if (resultCode == AboutActivity.VIEWED) {
             // Do nothing, right now
             // I need this for CW to wait for the About activity to end before going back to Dashboard.
@@ -393,7 +384,7 @@ public class ConfigurationWizard extends Activity
     public void setUpProvider(boolean danger_on) {
         Intent provider_API_command = new Intent(this, ProviderAPI.class);
         Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, selected_provider.mainUrl().toString());
+        parameters.putString(Provider.MAIN_URL, selected_provider.mainUrl().getUrl().toString());
         parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
         parameters.putString(Provider.CA_CERT_FINGERPRINT, selected_provider.certificatePin());
 

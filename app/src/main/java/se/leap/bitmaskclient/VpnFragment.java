@@ -19,7 +19,6 @@ package se.leap.bitmaskclient;
 import android.app.*;
 import android.content.*;
 import android.os.*;
-import android.util.*;
 import android.view.*;
 import android.widget.*;
 
@@ -29,26 +28,24 @@ import java.util.*;
 
 import butterknife.*;
 import de.blinkt.openvpn.activities.*;
+import mbanje.kurt.fabbutton.*;
 import se.leap.bitmaskclient.eip.*;
 
-public class EipFragment extends Fragment implements Observer {
+public class VpnFragment extends Fragment implements Observer {
 
-    public static String TAG = EipFragment.class.getSimpleName();
+    public static String TAG = VpnFragment.class.getSimpleName();
 
-    protected static final String IS_PENDING = TAG + ".is_pending";
+    public static final String IS_PENDING = TAG + ".is_pending";
     protected static final String IS_CONNECTED = TAG + ".is_connected";
-    protected static final String STATUS_MESSAGE = TAG + ".status_message";
     public static final String START_ON_BOOT = "start on boot";
 
-    @InjectView(R.id.eipSwitch)
-    Switch eip_switch;
-    @InjectView(R.id.status_message)
-    TextView status_message;
-    @InjectView(R.id.eipProgress)
-    ProgressBar progress_bar;
+    @InjectView(R.id.vpn_Status_Image)
+    FabButton vpn_status_image;
+    @InjectView(R.id.vpn_main_button)
+    Button main_button;
 
     private static Dashboard dashboard;
-    private static EIPReceiver mEIPReceiver;
+    private static EIPReceiver eip_receiver;
     private static EipStatus eip_status;
     private boolean wants_to_connect;
 
@@ -56,7 +53,10 @@ public class EipFragment extends Fragment implements Observer {
         super.onAttach(activity);
 
         dashboard = (Dashboard) activity;
-        dashboard.providerApiCommand(Bundle.EMPTY, 0, ProviderAPI.DOWNLOAD_EIP_SERVICE);
+        ProviderAPIResultReceiver provider_api_receiver = new ProviderAPIResultReceiver(new Handler(), dashboard);
+
+        if(eip_receiver != null)
+            ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_EIP_SERVICE, provider_api_receiver);
     }
 
     @Override
@@ -64,16 +64,13 @@ public class EipFragment extends Fragment implements Observer {
         super.onCreate(savedInstanceState);
         eip_status = EipStatus.getInstance();
         eip_status.addObserver(this);
-        mEIPReceiver = new EIPReceiver(new Handler());
+        eip_receiver = new EIPReceiver(new Handler());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.eip_service_fragment, container, false);
         ButterKnife.inject(this, view);
-
-        if (eip_status.isConnecting())
-            eip_switch.setVisibility(View.VISIBLE);
 
         Bundle arguments = getArguments();
         if (arguments != null && arguments.containsKey(START_ON_BOOT) && arguments.getBoolean(START_ON_BOOT))
@@ -88,8 +85,6 @@ public class EipFragment extends Fragment implements Observer {
             eip_status.setConnecting();
         else if (savedInstanceState.getBoolean(IS_CONNECTED))
             eip_status.setConnectedOrDisconnected();
-        else
-            status_message.setText(savedInstanceState.getString(STATUS_MESSAGE));
     }
 
     @Override
@@ -103,25 +98,20 @@ public class EipFragment extends Fragment implements Observer {
     public void onSaveInstanceState(Bundle outState) {
         outState.putBoolean(IS_PENDING, eip_status.isConnecting());
         outState.putBoolean(IS_CONNECTED, eip_status.isConnected());
-        outState.putString(STATUS_MESSAGE, status_message.getText().toString());
         super.onSaveInstanceState(outState);
     }
 
     protected void saveStatus() {
-        boolean is_on = eip_switch.isChecked();
+        boolean is_on = eip_status.isConnected() || eip_status.isConnecting();
         Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, is_on).commit();
     }
 
-    void handleNewVpnCertificate() {
-        handleSwitch(!eip_switch.isEnabled());
-    }
-
-    @OnCheckedChanged(R.id.eipSwitch)
-    void handleSwitch(boolean isChecked) {
-        if (isChecked)
-            handleSwitchOn();
-        else
+    @OnClick(R.id.vpn_main_button)
+    void handleIcon() {
+        if (eip_status.isConnected() || eip_status.isConnecting())
             handleSwitchOff();
+        else
+            handleSwitchOn();
 
         saveStatus();
     }
@@ -155,23 +145,22 @@ public class EipFragment extends Fragment implements Observer {
         } else if (eip_status.isConnected()) {
             askToStopEIP();
         } else
-            setDisconnectedUI();
+            updateIcon();
     }
 
     private void askPendingStartCancellation() {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(dashboard);
         alertBuilder.setTitle(dashboard.getString(R.string.eip_cancel_connect_title))
                 .setMessage(dashboard.getString(R.string.eip_cancel_connect_text))
-                .setPositiveButton((R.string.yes), new DialogInterface.OnClickListener() {
+                .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         askToStopEIP();
                     }
                 })
-                .setNegativeButton(dashboard.getString(R.string.no), new DialogInterface.OnClickListener() {
+                .setNegativeButton(dashboard.getString(android.R.string.no), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        eip_switch.setChecked(true);
                     }
                 })
                 .show();
@@ -180,14 +169,7 @@ public class EipFragment extends Fragment implements Observer {
     public void startEipFromScratch() {
         wants_to_connect = false;
         eip_status.setConnecting();
-        progress_bar.setVisibility(View.VISIBLE);
-        eip_switch.setVisibility(View.VISIBLE);
-        String status = dashboard.getString(R.string.eip_status_start_pending);
-        status_message.setText(status);
 
-        if (!eip_switch.isChecked()) {
-            eip_switch.setChecked(true);
-        }
         saveStatus();
         eipCommand(Constants.ACTION_START_EIP);
     }
@@ -205,12 +187,6 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     protected void stopEipIfPossible() {
-
-        hideProgressBar();
-
-        String message = dashboard.getString(R.string.eip_state_not_connected);
-        status_message.setText(message);
-
         eipCommand(Constants.ACTION_STOP_EIP);
     }
 
@@ -218,16 +194,15 @@ public class EipFragment extends Fragment implements Observer {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(dashboard);
         alertBuilder.setTitle(dashboard.getString(R.string.eip_cancel_connect_title))
                 .setMessage(dashboard.getString(R.string.eip_warning_browser_inconsistency))
-                .setPositiveButton((R.string.yes), new DialogInterface.OnClickListener() {
+                .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         stopEipIfPossible();
                     }
                 })
-                .setNegativeButton(dashboard.getString(R.string.no), new DialogInterface.OnClickListener() {
+                .setNegativeButton(dashboard.getString(android.R.string.no), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        eip_switch.setChecked(true);
                     }
                 })
                 .show();
@@ -247,7 +222,7 @@ public class EipFragment extends Fragment implements Observer {
         // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
         Intent vpn_intent = new Intent(dashboard.getApplicationContext(), EIP.class);
         vpn_intent.setAction(action);
-        vpn_intent.putExtra(Constants.RECEIVER_TAG, mEIPReceiver);
+        vpn_intent.putExtra(Constants.RECEIVER_TAG, eip_receiver);
         dashboard.startService(vpn_intent);
     }
 
@@ -266,69 +241,42 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleNewState(EipStatus eip_status) {
-        if (eip_status.wantsToDisconnect())
-            setDisconnectedUI();
-        else if (eip_status.isConnecting())
-            setInProgressUI(eip_status);
-        else if (eip_status.isConnected())
-            setConnectedUI();
-        else if (eip_status.isDisconnected() && !eip_status.isConnecting())
-            setDisconnectedUI();
-    }
+        Context context = dashboard.getApplicationContext();
+        String error = eip_status.lastError(5, context);
 
-    private void setConnectedUI() {
-        hideProgressBar();
-        adjustSwitch();
-        status_message.setText(dashboard.getString(R.string.eip_state_connected));
-    }
-
-    private void setDisconnectedUI() {
-        hideProgressBar();
-        adjustSwitch();
-        if (eip_status.errorInLast(5, dashboard.getApplicationContext())
-                && !status_message.getText().toString().equalsIgnoreCase(dashboard.getString(R.string.eip_state_not_connected))) {
+        if (!error.isEmpty()) {
             dashboard.showLog();
             VoidVpnService.stop();
         }
-        status_message.setText(dashboard.getString(R.string.eip_state_not_connected));
+        updateIcon();
+        updateButton();
     }
 
-    private void adjustSwitch() {
+    private void updateIcon() {
         if (eip_status.isConnected() || eip_status.isConnecting()) {
-            if (!eip_switch.isChecked()) {
-                eip_switch.setChecked(true);
+            if(eip_status.isConnecting()) {
+                vpn_status_image.showProgress(true);
+                vpn_status_image.setIcon(R.drawable.ic_stat_vpn_empty_halo, R.drawable.ic_stat_vpn_empty_halo);
+            } else {
+                vpn_status_image.showProgress(false);
+                vpn_status_image.setIcon(R.drawable.ic_stat_vpn, R.drawable.ic_stat_vpn);
             }
         } else {
-
-            if (eip_switch.isChecked()) {
-                eip_switch.setChecked(false);
-            }
+            vpn_status_image.setIcon(R.drawable.ic_stat_vpn_offline, R.drawable.ic_stat_vpn_offline);
+            vpn_status_image.showProgress(false);
         }
     }
 
-    private void setInProgressUI(EipStatus eip_status) {
-        int localizedResId = eip_status.getLocalizedResId();
-        String logmessage = eip_status.getLogMessage();
-        String prefix = dashboard.getString(localizedResId);
-
-        showProgressBar();
-        status_message.setText(prefix + " " + logmessage);
-        adjustSwitch();
-    }
-
-    private void updatingCertificateUI() {
-        showProgressBar();
-        status_message.setText(getString(R.string.updating_certificate_message));
-    }
-
-    private void showProgressBar() {
-        if (progress_bar != null)
-            progress_bar.setVisibility(View.VISIBLE);
-    }
-
-    private void hideProgressBar() {
-        if (progress_bar != null)
-            progress_bar.setVisibility(View.GONE);
+    private void updateButton() {
+        if (eip_status.isConnected() || eip_status.isConnecting()) {
+            if(eip_status.isConnecting()) {
+                main_button.setText(dashboard.getString(android.R.string.cancel));
+            } else {
+                main_button.setText(dashboard.getString(R.string.vpn_button_turn_off));
+            }
+        } else {
+            main_button.setText(dashboard.getString(R.string.vpn_button_turn_on));
+        }
     }
 
     protected class EIPReceiver extends ResultReceiver {
@@ -371,7 +319,6 @@ public class EipFragment extends Fragment implements Observer {
                     case Activity.RESULT_OK:
                         break;
                     case Activity.RESULT_CANCELED:
-                        updatingCertificateUI();
                         dashboard.downloadVpnCertificate();
                         break;
                 }
@@ -391,6 +338,6 @@ public class EipFragment extends Fragment implements Observer {
 
 
     public static EIPReceiver getReceiver() {
-        return mEIPReceiver;
+        return eip_receiver;
     }
 }

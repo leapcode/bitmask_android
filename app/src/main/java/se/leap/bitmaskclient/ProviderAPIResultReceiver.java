@@ -26,8 +26,9 @@ import android.os.*;
 public class ProviderAPIResultReceiver extends ResultReceiver {
     private Receiver mReceiver;
 
-    public ProviderAPIResultReceiver(Handler handler) {
+    public ProviderAPIResultReceiver(Handler handler, Receiver receiver) {
         super(handler);
+        setReceiver(receiver);
         // TODO Auto-generated constructor stub
     }
 

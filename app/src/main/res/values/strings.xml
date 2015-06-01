@@ -63,13 +63,11 @@
     <string name="eip_cancel_connect_title">Cancel connection?</string>
     <string name="eip_cancel_connect_text">There is a connection attempt in progress.  Do you wish to cancel it?</string>
     <string name="eip.warning.browser_inconsistency">In order to avoid leaking your personal information, please close your browser and start a private window after disconnecting the Encrypted VPN Internet Access. Thanks.</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
     <string name="eip_state_not_connected">"Not running! Connection not secure!"</string>
     <string name="eip_state_connected">Connection Secure.</string>
     <string name="provider_problem">It seems there is a problem with the provider.</string>
     <string name="try_another_provider">Please try another provider, or contact yours.</string>
-    <string name="default_user">You</string>
+    <string name="default_username">Anonymous</string>
     <string name="logged_in_user_status">is logged in.</string>
     <string name="logged_out_user_status">logged out.</string>
     <string name="didnt_log_out_user_status">didn\'t log out. Try later, it may be a problem in the network or in the provider. If the problem persists, then wipe Bitmask data from the Android settings</string>
@@ -77,4 +75,6 @@
     <string name="logging_in_user_status">is logging in.</string>
     <string name="logging_out_user_status">is logging out.</string>
     <string name="signingup_message">is being registered.</string>
+    <string name="vpn.button.turn.on">Turn on</string>
+    <string name="vpn.button.turn.off">Turn off</string>
 </resources>

@@ -30,8 +30,8 @@ import java.util.*;
  */
 public final class Provider implements Parcelable {
 
-    private JSONObject definition; // Represents our Provider's provider.json
-    private URL main_url;
+    private JSONObject definition = new JSONObject(); // Represents our Provider's provider.json
+    private DefaultedURL main_url = new DefaultedURL();
     private String certificate_pin = "";
 
     final public static String
@@ -59,12 +59,14 @@ public final class Provider implements Parcelable {
     private static final String API_TERM_DEFAULT_LANGUAGE = "default_language";
     protected static final String[] API_EIP_TYPES = {"openvpn"};
 
+    public Provider() { }
+
     public Provider(URL main_url) {
-        this.main_url = main_url;
+        this.main_url.setUrl(main_url);
     }
 
     public Provider(URL main_url, String certificate_pin) {
-        this.main_url = main_url;
+        this.main_url.setUrl(main_url);
         this.certificate_pin = certificate_pin;
     }
 
@@ -81,13 +83,21 @@ public final class Provider implements Parcelable {
 
     private Provider(Parcel in) {
         try {
-            main_url = new URL(in.readString());
+            main_url.setUrl(new URL(in.readString()));
             String definition_string = in.readString();
             if (!definition_string.isEmpty())
                 definition = new JSONObject((definition_string));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isConfigured() {
+        return !main_url.isDefault() && definition.length() > 0;
+    }
+
+    protected void setUrl(URL url) {
+        main_url.setUrl(url);
     }
 
     protected void define(JSONObject provider_json) {
@@ -99,16 +109,16 @@ public final class Provider implements Parcelable {
     }
 
     protected String getDomain() {
-        return main_url.getHost();
+        return main_url.getDomain();
     }
 
-    protected URL mainUrl() {
+    protected DefaultedURL mainUrl() {
         return main_url;
     }
 
     protected String certificatePin() { return certificate_pin; }
 
-    protected String getName() {
+    public String getName() {
         // Should we pass the locale in, or query the system here?
         String lang = Locale.getDefault().getLanguage();
         String name = "";
@@ -118,7 +128,7 @@ public final class Provider implements Parcelable {
             else throw new JSONException("Provider not defined");
         } catch (JSONException e) {
             if (main_url != null) {
-                String host = main_url.getHost();
+                String host = main_url.getDomain();
                 name = host.substring(0, host.indexOf("."));
             }
         }
@@ -181,7 +191,8 @@ public final class Provider implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(main_url.toString());
+        if(main_url != null)
+            parcel.writeString(main_url.toString());
         if (definition != null)
             parcel.writeString(definition.toString());
     }
@@ -190,7 +201,7 @@ public final class Provider implements Parcelable {
     public boolean equals(Object o) {
         if (o instanceof Provider) {
             Provider p = (Provider) o;
-            return p.mainUrl().getHost().equals(mainUrl().getHost());
+            return p.mainUrl().getDomain().equals(mainUrl().getDomain());
         } else return false;
     }
 
@@ -206,6 +217,6 @@ public final class Provider implements Parcelable {
 
     @Override
     public int hashCode() {
-        return mainUrl().getHost().hashCode();
+        return mainUrl().getDomain().hashCode();
     }
 }

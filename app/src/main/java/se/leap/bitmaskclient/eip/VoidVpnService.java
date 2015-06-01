@@ -50,6 +50,10 @@ public class VoidVpnService extends VpnService {
         closeFd();
     }
 
+    public static boolean isRunning() throws NullPointerException {
+        return thread.isAlive() && fd != null;
+    }
+
     private static void closeFd() {
         try {
             if (fd != null)

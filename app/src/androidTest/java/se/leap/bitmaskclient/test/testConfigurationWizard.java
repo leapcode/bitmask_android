@@ -13,6 +13,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 
     private Solo solo;
     private static int added_providers;
+    private boolean executing_from_dashboard = false;
 
     public testConfigurationWizard() {
         super(ConfigurationWizard.class);
@@ -21,18 +22,21 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
     public testConfigurationWizard(Solo solo) {
         super(ConfigurationWizard.class);
         this.solo = solo;
+        executing_from_dashboard = true;
     }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
-        ConnectionManager.setMobileDataEnabled(true, solo.getCurrentActivity().getApplicationContext());
+        //ConnectionManager.setMobileDataEnabled(true, solo.getCurrentActivity().getApplicationContext());
     }
 
     @Override
     protected void tearDown() throws Exception {
-
+        if(!executing_from_dashboard)
+            solo.finishOpenedActivities();
+        super.tearDown();
     }
 
     public void testListProviders() {
@@ -68,7 +72,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 
     private void waitForProviderDetails() {
         String text = solo.getString(R.string.provider_details_fragment_title);
-        assertTrue("Provider details dialog did not appear", solo.waitForText(text));
+        assertTrue("Provider details dialog did not appear", solo.waitForText(text, 1, 60*1000));
     }
 
     public void testAddNewProvider() {
@@ -77,6 +81,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 
     private void addProvider(String url) {
         boolean is_new_provider = !solo.searchText(url);
+
         if (is_new_provider)
             added_providers = added_providers + 1;
         solo.clickOnActionBarItem(R.id.new_provider);
