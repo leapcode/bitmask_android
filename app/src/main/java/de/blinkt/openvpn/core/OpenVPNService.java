@@ -172,7 +172,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
 
         mNotificationManager.notify(OPENVPN_STATUS, notification);
-        startForeground(OPENVPN_STATUS, notification);
+        //startForeground(OPENVPN_STATUS, notification);
     }
 
     private int getIconByConnectionStatus(ConnectionStatus level) {
@@ -840,6 +840,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 mDisplayBytecount = true;
                 mConnecttime = System.currentTimeMillis();
                 lowpriority = true;
+		String ns = Context.NOTIFICATION_SERVICE;
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
+		mNotificationManager.cancel(OPENVPN_STATUS);
             } else {
                 mDisplayBytecount = false;
             }
@@ -849,7 +852,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             // CONNECTED
             // Does not work :(
             String msg = getString(resid);
-            showNotification(msg + " " + logmessage, msg, lowpriority, 0, level);
+            // showNotification(msg + " " + logmessage, msg, lowpriority, 0, level);
 
         }
     }
@@ -872,7 +875,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     humanReadableByteCount(diffOut / OpenVPNManagement.mBytecountInterval, true));
 
             boolean lowpriority = !mNotificationAlwaysVisible;
-            showNotification(netstat, null, lowpriority, mConnecttime, LEVEL_CONNECTED);
+            //showNotification(netstat, null, lowpriority, mConnecttime, LEVEL_CONNECTED);
         }
 
     }

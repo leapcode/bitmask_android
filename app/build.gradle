@@ -58,6 +58,7 @@ task copyIcsOpenVPNClasses( type: Copy ) {
   println "copyIcsOpenVPNClasses"
   from ('../ics-openvpn/main/') {
     include '**/LaunchVPN.java'
+    include '**/OpenVPNSservice.java'
     include '**/VpnProfile.java'
     include '**/DisconnectVPN.java'
     include '**/VpnProfile.java'
