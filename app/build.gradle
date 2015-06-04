@@ -185,19 +185,8 @@ task copyIcsOpenVPNFiles( type: Copy ) {
   removeDuplicatedStrings.execute()
 }
 
-task updateIcsOpenVpn( type: Copy ) {
-  // Check out ics-openvpn bitmask branch
-  def ics_openvpn_path = project.relativePath('./ics-openvpn/')
-  def app_path = project.relativePath('./app/')
-  def grgit = Grgit.open(currentDir: ics_openvpn_path)
-  grgit.checkout(branch: 'bitmask')
-  // TODO Right now we can't do a git submodule init,
-  // DON'T FORGET TO DO IT FOR THE FIRST TIME
-
-  // from ics_openvpn_path
-  // into app_path
-  // include('**/openvpn/**', '**/openssl/**', '**/lzo/**', '**/jni/**', '**/misc/**', '**/ovpn3/**',  '**/snappy/**')
-  
+task updateIcsOpenVpn( type: Exec ) {
+  commandLine 'git', 'submodule', 'update', '--init', '--recursive'
   copyIcsOpenVPNFiles.execute()
 }
 
