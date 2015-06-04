@@ -7,8 +7,6 @@ package de.blinkt.openvpn;
 
 import se.leap.bitmaskclient.R;
 
-import se.leap.bitmaskclient.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -117,26 +115,27 @@ public class LaunchVPN extends Activity {
 
 		}
 	}
-
+    
 	@Override
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if(requestCode==START_VPN_PROFILE) {
-		    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		    boolean showlogwindow = prefs.getBoolean("showlogwindow", true);
-		    
-		    if(!mhideLog && showlogwindow)
+		    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);        
+		    boolean showLogWindow = prefs.getBoolean("showlogwindow", true);
+
+		    if(!mhideLog && showLogWindow)
 			showLogWindow();
 		    new startOpenVpnThread().start();
 		} else if (resultCode == Activity.RESULT_CANCELED) {
 		    // User does not want us to start, so we just vanish
-		    VpnStatus.updateStateString("USER_VPN_PERMISSION_CANCELLED", "", R.string.state_user_vpn_permission_cancelled, ConnectionStatus.LEVEL_NOTCONNECTED);
+		    VpnStatus.updateStateString("USER_VPN_PERMISSION_CANCELLED", "", R.string.state_user_vpn_permission_cancelled,
+						ConnectionStatus.LEVEL_NOTCONNECTED);
 
 		    finish();
 		}
 	}
-    
+
 	void showLogWindow() {
 
 		Intent startLW = new Intent(getBaseContext(),LogWindow.class);
