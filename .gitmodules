@@ -1,3 +1,4 @@
 [submodule "ics-openvpn"]
 	path = ics-openvpn
+	branch = bitmask
 	url = git@github.com:parmegv/ics-openvpn.git
