@@ -25,6 +25,7 @@ Features:
   feedback so that localization can be polished.
 - Improved wording, both in Spanish and in English.
 - Updated gradle libraries
+- Updated ics-openvpn (thanks Arne), from GitHub!
 
 0.9.3
 Bugs:
