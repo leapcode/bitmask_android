@@ -58,7 +58,6 @@ openvpn/libtool
 openvpn/stamp-h1
 openvpn/version.sh
 t_client.sh
-ics-openvpn.zip
 zh-CN.zip
 zh-TW.zip
 google-breakpad/
@@ -76,8 +75,6 @@ build
 .gradle
 jniLibs
 *.dot
-/ics-openvpn/
 /TAGS
-/ics-openvpn
 /ics-openvpn-stripped
 app/ovpnlibs

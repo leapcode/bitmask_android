@@ -1,5 +1,5 @@
 apply plugin: 'android'
-//import org.ajoberstar.grgit.*
+import org.ajoberstar.grgit.Grgit
 
 android {
   compileSdkVersion 21
@@ -54,20 +54,25 @@ def processFileInplace(file, Closure processText) {
   file.write(processText(text))
 }
 
-
-task checkoutStrippedIcsOpenVPN ( type: Copy )  {
-  println "checkoutStrippedIcsOpenVPN"
-  //FIXME Checkout ics-openvpn-stripped from branch "ics-openvpn-upstream"
-  //grgit = Grgit.open(project.file('../'))
-  
-  from '../../bitmask_android_tmp/ics-openvpn-stripped'
-  into '../ics-openvpn-stripped'
-}
-
 task copyIcsOpenVPNClasses( type: Copy ) {
   println "copyIcsOpenVPNClasses"
-  from ('../ics-openvpn-stripped/main/') {
-    include '**/*.java'
+  from ('../ics-openvpn/main/') {
+    include '**/LaunchVPN.java'
+    include '**/OpenVPNSservice.java'
+    include '**/VpnProfile.java'
+    include '**/DisconnectVPN.java'
+    include '**/VpnProfile.java'
+    include '**/LogWindow.java'
+    include '**/LogFragment.java'
+    include '**/SeekBarTicks.java'
+    include '**/log_window.xml'
+    include '**/log_fragment.xml'
+    include '**/log_silders.xml'
+    include '**/vpnstatus.xml'
+    include '**/styles.xml'
+    include '**/dimens.xml'
+    include '**/logmenu.xml'
+    include '**/core/**.java'
 
     includeEmptyDirs = false
     
@@ -85,7 +90,7 @@ task copyIcsOpenVPNClasses( type: Copy ) {
 
 task copyIcsOpenVPNXml( type: Copy )  {
   println "copyIcsOpenVPNXml"
-  from ('../ics-openvpn-stripped/main/') {
+  from ('../ics-openvpn/main/') {
     include '**/strings.xml'
     include '**/log_*.xml'
     include '**/vpnstatus.xml'
@@ -106,7 +111,7 @@ task copyIcsOpenVPNXml( type: Copy )  {
 
 task copyIcsOpenVPNImages( type: Copy ) {
   println "copyIcsOpenVPNImages"
-  from ('../ics-openvpn-stripped/main/') {
+  from ('../ics-openvpn/main/') {
     include '**/ic_filter*.png'
     include '**/ic_delete*.png'
     include '**/ic_share*.png'
@@ -118,15 +123,8 @@ task copyIcsOpenVPNImages( type: Copy ) {
   } into '.'
 }
 
-task copyIcsOpenVPNFiles( type: Copy, dependsOn: 'checkoutStrippedIcsOpenVPN' ) {
-  println "copyIcsOpenVPNFiles"
-  copyIcsOpenVPNClasses.execute()
-  copyIcsOpenVPNXml.execute()
-  copyIcsOpenVPNImages.execute()
-}
-
 // thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
-task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNFiles' ) {
+task removeDuplicatedStrings() {
   println "removeDuplicatedStrings"
   new File('.').eachFileRecurse {
     if(it.name.equals('strings.xml')) {
@@ -145,9 +143,9 @@ task removeDuplicatedStrings( dependsOn: 'copyIcsOpenVPNFiles' ) {
   }
 }
 
-task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
+task mergeUntranslatable( type: Copy ) {
   println "mergeUntranslatable"
-  from ('../ics-openvpn-stripped/main/') {
+  from ('../ics-openvpn/main/') {
     include '**/untranslatable.xml'
     rename 'untranslatable.xml', 'untranslatable-icsopenvpn.xml'
   } into '.'
@@ -178,17 +176,18 @@ task mergeUntranslatable( type: Copy, dependsOn: 'removeDuplicatedStrings') {
   delete ics_openvpn_untranslatable
 }
 
-task updateIcsOpenVpn( type: Copy, dependsOn: 'mergeUntranslatable') {
-  from('../ics-openvpn-stripped/') {
-    include 'openvpn/**/*'
-    include 'openssl/**/*'    
-    include 'lzo/**/**'
-    include 'jni/**/*'
-    include 'misc/**/*'
-    include 'ovpn3/**/*'
-    include 'snappy/**/*'
+task copyIcsOpenVPNFiles( type: Copy ) {
+  println "copyIcsOpenVPNFiles"
+  copyIcsOpenVPNClasses.execute()
+  copyIcsOpenVPNXml.execute()
+  copyIcsOpenVPNImages.execute()
+  //mergeUntranslatable.execute()
+  removeDuplicatedStrings.execute()
+}
 
-  } into './'
+task updateIcsOpenVpn( type: Exec ) {
+  commandLine 'git', 'submodule', 'update', '--init', '--recursive'
+  copyIcsOpenVPNFiles.execute()
 }
 
 task buildNative ( type: Exec ) {
