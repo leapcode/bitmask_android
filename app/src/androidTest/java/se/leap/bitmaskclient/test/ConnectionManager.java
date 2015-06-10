@@ -16,7 +16,7 @@ public class ConnectionManager {
                 try {
                     method.invoke(conman, enabled);
                 } catch (InvocationTargetException | IllegalAccessException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
         }

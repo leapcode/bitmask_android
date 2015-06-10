@@ -54,13 +54,28 @@ public class testVpnFragment extends BaseTestDashboard {
     }
 
     public void testVpnEveryProvider() {
-        String[] providers = {"demo.bitmask.net", "riseup.net", "calyx.net"};
-        for(String provider : providers) {
-            changeProviderAndLogIn(provider);
-            vpn_controller.sleepSeconds(1);
-            vpn_controller.turnVpnOndAndOff(provider);
-            vpn_controller.sleepSeconds(1);
-        }
+        testDemoBitmaskNet();
+        testRiseupNet();
+        testCalyxNet();
+    }
+
+    private void testDemoBitmaskNet() {
+        testProvider("demo.bitmask.net");
+    }
+
+    private void testRiseupNet() {
+        testProvider("riseup.net");
+    }
+
+    private void testCalyxNet() {
+        testProvider("calyx.net");
+    }
+
+    private void testProvider(String provider) {
+        changeProviderAndLogIn(provider);
+        vpn_controller.sleepSeconds(1);
+        vpn_controller.turnVpnOndAndOff(provider);
+        vpn_controller.sleepSeconds(1);
     }
 
     public void testVpnIconIsDisplayed() {
