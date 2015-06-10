@@ -121,18 +121,20 @@ public class LaunchVPN extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if(requestCode==START_VPN_PROFILE) {
-		    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);        
-		    boolean showLogWindow = prefs.getBoolean("showlogwindow", true);
+		    if(resultCode == Activity.RESULT_OK) {
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);        
+			boolean showLogWindow = prefs.getBoolean("showlogwindow", true);
 
-		    if(!mhideLog && showLogWindow)
-			showLogWindow();
-		    new startOpenVpnThread().start();
-		} else if (resultCode == Activity.RESULT_CANCELED) {
-		    // User does not want us to start, so we just vanish
-		    VpnStatus.updateStateString("USER_VPN_PERMISSION_CANCELLED", "", R.string.state_user_vpn_permission_cancelled,
-						ConnectionStatus.LEVEL_NOTCONNECTED);
+			if(!mhideLog && showLogWindow)
+			    showLogWindow();
+			new startOpenVpnThread().start();
+		    } else if (resultCode == Activity.RESULT_CANCELED) {
+			// User does not want us to start, so we just vanish
+			VpnStatus.updateStateString("USER_VPN_PERMISSION_CANCELLED", "", R.string.state_user_vpn_permission_cancelled,
+						    ConnectionStatus.LEVEL_NOTCONNECTED);
 
-		    finish();
+			finish();
+		    }
 		}
 	}
 
