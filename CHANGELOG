@@ -8,6 +8,8 @@ Bugs:
   the start and Bitmask didn't do it, although the UI stated the
   opposite. That has been improved, detecting the real status of the
   VPN connection much better.
+- If the user doesn't "trust this application", bitmask doesn't try to
+  connect to the VPN anymore.
 
 Features:
 - Removed the progress bars that caused confusion in some states (such
