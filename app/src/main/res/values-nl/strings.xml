@@ -2,8 +2,6 @@
 <resources>
   <string name="info">info</string>
   <string name="show_connection_details">Details van de verbinding weergeven</string>
-  <string name="last_openvpn_tun_config">Laatste interfaceconfiguratie van OpenVPN:</string>
-  <string name="dns_domain_info">DNS Domein: %s</string>
   <string name="routes_info">Routes: %s</string>
   <string name="routes_info6">Routes IPv6: %s</string>
   <string name="error_empty_username">De gebruikersnaam moet niet leeg zijn.</string>
