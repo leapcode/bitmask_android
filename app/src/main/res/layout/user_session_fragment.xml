@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
@@ -36,8 +37,9 @@
         android:color="@android:color/transparent"
         class="se.leap.bitmaskclient.userstatus.FabButton"
         android:indeterminate="true"
-        fbb_progressColor="@android:color/holo_blue_dark"
-        fbb_progressWidthRatio="0.1"
+        app:fbb_progressColor="@android:color/holo_blue_dark"
+        app:fbb_progressWidthRatio="0.1"
+        app:fbb_showShadow="false"
         />
 
 </LinearLayout>

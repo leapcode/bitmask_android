@@ -22,12 +22,6 @@ public class FabButton extends mbanje.kurt.fabbutton.FabButton {
         super(context, attrs, defStyle);
     }
 
-    @Override
-    protected void init(Context context, AttributeSet attrs, int defStyle) {
-        super.init(context, attrs, defStyle);
-        super.init(context, attrs, defStyle);
-    }
-
     private CircleImageView getImage() {
         return (CircleImageView) findViewById(R.id.fabbutton_circle);
     }
