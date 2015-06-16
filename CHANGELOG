@@ -1,4 +1,4 @@
-0.9.4
+0.9.4 June 16th, 2015 - the "fabbutton" release
 Bugs:
 - Show the log window only when a real error happened, since some
   users weren't able to know why Bitmask had failed and they didn't
