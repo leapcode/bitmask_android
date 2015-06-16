@@ -1,18 +1,20 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 buildscript {
   repositories {
     mavenCentral()
     jcenter()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:1.0.0'
-    classpath 'org.ajoberstar:gradle-git:0.10+'
+    classpath 'com.android.tools.build:gradle:1.2.3'
   }
+}
+
+plugins {
+  id "org.ajoberstar.grgit" version "1.2.0-milestone.5"
 }
 
 allprojects {
   repositories {
     mavenCentral()
+    jcenter()
   }
 }

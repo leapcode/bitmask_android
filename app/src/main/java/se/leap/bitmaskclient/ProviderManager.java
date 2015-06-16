@@ -28,7 +28,8 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         if (instance == null)
             instance = new ProviderManager(assets_manager);
 
-        instance.addCustomProviders(external_files_dir);
+        if(external_files_dir != null)
+            instance.addCustomProviders(external_files_dir);
         return instance;
     }
 
@@ -49,11 +50,14 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         Set<Provider> providers = new HashSet<Provider>();
         try {
             for (String file : relative_file_paths) {
-                String main_url = extractMainUrlFromInputStream(assets_manager.open(directory + "/" + file));
-                providers.add(new Provider(new URL(main_url)));
+                InputStream provider_file = assets_manager.open(directory + "/" + file);
+                String main_url = extractMainUrlFromInputStream(provider_file);
+                String certificate_pin = extractCertificatePinFromInputStream(provider_file);
+                if(certificate_pin.isEmpty())
+                    providers.add(new Provider(new URL(main_url)));
+                else
+                    providers.add(new Provider(new URL(main_url), certificate_pin));
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,36 +79,50 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                 String main_url = extractMainUrlFromInputStream(new FileInputStream(external_files_dir.getAbsolutePath() + "/" + file));
                 providers.add(new Provider(new URL(main_url)));
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
+        } catch (MalformedURLException | FileNotFoundException e) {
             e.printStackTrace();
         }
 
         return providers;
     }
 
-    private String extractMainUrlFromInputStream(InputStream input_stream_file_contents) {
+    private String extractMainUrlFromInputStream(InputStream input_stream) {
         String main_url = "";
-        byte[] bytes = new byte[0];
+
+        JSONObject file_contents = inputStreamToJson(input_stream);
+        if(file_contents != null)
+            main_url = file_contents.optString(Provider.MAIN_URL);
+        return main_url;
+    }
+
+    private String extractCertificatePinFromInputStream(InputStream input_stream) {
+        String certificate_pin = "";
+
+        JSONObject file_contents = inputStreamToJson(input_stream);
+        if(file_contents != null)
+            certificate_pin = file_contents.optString(Provider.CA_CERT_FINGERPRINT);
+
+        return certificate_pin;
+    }
+
+    private JSONObject inputStreamToJson(InputStream input_stream) {
+        JSONObject json = null;
         try {
-            bytes = new byte[input_stream_file_contents.available()];
-            if (input_stream_file_contents.read(bytes) > 0) {
-                JSONObject file_contents = new JSONObject(new String(bytes));
-                main_url = file_contents.getString(Provider.MAIN_URL);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+            byte[] bytes = new byte[input_stream.available()];
+            if (input_stream.read(bytes) > 0)
+                json = new JSONObject(new String(bytes));
+            input_stream.reset();
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
-        return main_url;
+        return json;
     }
 
     public Set<Provider> providers() {
         Set<Provider> all_providers = new HashSet<Provider>();
         all_providers.addAll(default_providers);
-        all_providers.addAll(custom_providers);
+        if(custom_providers != null)
+            all_providers.addAll(custom_providers);
         return all_providers;
     }
 
@@ -124,25 +142,27 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     }
 
     @Override
-    public void add(Provider element) {
+    public boolean add(Provider element) {
         if (!default_providers.contains(element))
-            custom_providers.add(element);
+            return custom_providers.add(element);
+        else return true;
     }
 
     @Override
-    public void remove(Provider element) {
-        custom_providers.remove(element);
+    public boolean remove(Object element) {
+        return custom_providers.remove(element);
     }
 
     @Override
-    public void addAll(Collection<Provider> elements) {
-        custom_providers.addAll(elements);
+    public boolean addAll(Collection<? extends Provider> elements) {
+        return custom_providers.addAll(elements);
     }
 
     @Override
-    public void removeAll(Collection<Provider> elements) {
-        custom_providers.removeAll(elements);
-        default_providers.removeAll(elements);
+    public boolean removeAll(Collection<?> elements) {
+        if(!elements.getClass().equals(Provider.class))
+            return false;
+        return default_providers.removeAll(elements) || custom_providers.removeAll(elements);
     }
 
     @Override

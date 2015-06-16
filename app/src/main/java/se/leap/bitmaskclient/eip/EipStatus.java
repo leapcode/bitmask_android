@@ -27,8 +27,11 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     private static EipStatus current_status;
 
     private static VpnStatus.ConnectionStatus level = VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
-    private static boolean wants_to_disconnect = false;
+    private static boolean
+            wants_to_disconnect = false,
+            is_connecting = false;
 
+    int last_error_line = 0;
     private String state, log_message;
     private int localized_res_id;
 
@@ -46,9 +49,9 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     @Override
     public void updateState(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
         updateStatus(state, logmessage, localizedResId, level);
-        if (isConnected() || isDisconnected()) {
+        if (isConnected() || isDisconnected() || wantsToDisconnect()) {
             setConnectedOrDisconnected();
-        } else if (isConnecting())
+        } else
             setConnecting();
     }
 
@@ -66,10 +69,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public boolean isConnecting() {
-        return
-                !isConnected() &&
-                        !isDisconnected() &&
-                        !isPaused();
+        return is_connecting;
     }
 
     public boolean isConnected() {
@@ -85,19 +85,23 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public void setConnecting() {
+        is_connecting = true;
+
         wants_to_disconnect = false;
         current_status.setChanged();
         current_status.notifyObservers();
     }
 
     public void setConnectedOrDisconnected() {
+        is_connecting = false;
         wants_to_disconnect = false;
         current_status.setChanged();
         current_status.notifyObservers();
     }
 
     public void setDisconnecting() {
-        wants_to_disconnect = false;
+        wants_to_disconnect = true;
+        is_connecting = false;
     }
 
     public String getState() {
@@ -133,18 +137,30 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public boolean errorInLast(int lines, Context context) {
-        boolean result = false;
+        return !lastError(lines, context).isEmpty();
+    }
+
+    public String lastError(int lines, Context context) {
+        String error = "";
+
         String[] error_keywords = {"error", "ERROR", "fatal", "FATAL"};
 
         VpnStatus.LogItem[] log = VpnStatus.getlogbuffer();
+        if(log.length < last_error_line)
+            last_error_line = 0;
         String message = "";
         for (int i = 1; i <= lines && log.length > i; i++) {
-            message = log[log.length - i].getString(context);
+            int line = log.length - i;
+            VpnStatus.LogItem log_item = log[line];
+            message = log_item.getString(context);
             for (int j = 0; j < error_keywords.length; j++)
-                if (message.contains(error_keywords[j]))
-                    result = true;
+                if (message.contains(error_keywords[j]) && line > last_error_line) {
+                    error = message;
+                    last_error_line = line;
+                }
         }
-        return result;
+
+        return error;
     }
 
     @Override

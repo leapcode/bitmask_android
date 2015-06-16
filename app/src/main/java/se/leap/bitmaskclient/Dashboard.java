@@ -29,11 +29,10 @@ import org.jetbrains.annotations.*;
 import org.json.*;
 
 import java.net.*;
-import java.util.*;
 
 import butterknife.*;
-import de.blinkt.openvpn.activities.*;
 import se.leap.bitmaskclient.eip.*;
+import se.leap.bitmaskclient.userstatus.*;
 
 /**
  * The main user facing Activity of Bitmask Android, consisting of status, controls,
@@ -42,7 +41,7 @@ import se.leap.bitmaskclient.eip.*;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author parmegv
  */
-public class Dashboard extends Activity implements SessionDialog.SessionDialogInterface, ProviderAPIResultReceiver.Receiver, Observer {
+public class Dashboard extends Activity implements ProviderAPIResultReceiver.Receiver {
 
     protected static final int CONFIGURE_LEAP = 0;
     protected static final int SWITCH_PROVIDER = 1;
@@ -62,14 +61,10 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
 
     @InjectView(R.id.providerName)
     TextView provider_name;
-    @InjectView(R.id.user_session_status)
-    TextView user_session_status_text_view;
-    @InjectView(R.id.user_session_status_progress)
-    ProgressBar user_session_status_progress_bar;
 
-    EipFragment eip_fragment;
-    private Provider provider;
-    private UserSessionStatus user_session_status;
+    VpnFragment eip_fragment;
+    UserStatusFragment user_status_fragment;
+    private static Provider provider = new Provider();
     public ProviderAPIResultReceiver providerAPI_result_receiver;
     private boolean switching_provider;
 
@@ -78,21 +73,23 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         super.onCreate(savedInstanceState);
 
         app = this;
-        user_session_status = UserSessionStatus.getInstance();
-        user_session_status.addObserver(this);
 
         PRNGFixes.apply();
 
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
         handleVersion();
+        User.init(getString(R.string.default_username));
+
+        ProviderAPICommand.initialize(this);
+        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
 
         restoreProvider(savedInstanceState);
-        if (provider == null || provider.getName().isEmpty())
+        if (!provider.isConfigured())
             startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
         else {
             buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
-            restoreSessionStatus(savedInstanceState);
+            user_status_fragment.restoreSessionStatus(savedInstanceState);
         }
     }
 
@@ -101,32 +98,20 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
             if (savedInstanceState.containsKey(Provider.KEY))
                 provider = savedInstanceState.getParcelable(Provider.KEY);
         }
-        if (provider == null && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
+        if (!provider.isConfigured() && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
             provider = getSavedProviderFromSharedPreferences();
-    }
-
-    private void restoreSessionStatus(Bundle savedInstanceState) {
-        if (savedInstanceState != null)
-            if (savedInstanceState.containsKey(UserSessionStatus.TAG)) {
-                UserSessionStatus.SessionStatus status = (UserSessionStatus.SessionStatus) savedInstanceState.getSerializable(UserSessionStatus.TAG);
-                user_session_status.updateStatus(status);
-            }
     }
 
     @Override
     protected void onSaveInstanceState(@NotNull Bundle outState) {
-        if (provider != null)
-            outState.putParcelable(Provider.KEY, provider);
-        if (user_session_status_text_view != null && user_session_status_text_view.getVisibility() == TextView.VISIBLE)
-            outState.putSerializable(UserSessionStatus.TAG, user_session_status.sessionStatus());
-
+        outState.putParcelable(Provider.KEY, provider);
         super.onSaveInstanceState(outState);
     }
 
     private Provider getSavedProviderFromSharedPreferences() {
-        Provider provider = null;
+        Provider provider = new Provider();
         try {
-            provider = new Provider(new URL(preferences.getString(Provider.MAIN_URL, "")));
+            provider.setUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
@@ -161,12 +146,12 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
                 providerToPreferences(provider);
 
                 buildDashboard(false);
-                invalidateOptionsMenu();
+                invalidateOptionsMenuOnUiThread();
                 if (data.hasExtra(SessionDialog.TAG)) {
                     sessionDialog(Bundle.EMPTY);
                 }
 
-            } else if (resultCode == RESULT_CANCELED && data.hasExtra(ACTION_QUIT)) {
+            } else if (resultCode == RESULT_CANCELED && data != null && data.hasExtra(ACTION_QUIT)) {
                 finish();
             } else
                 configErrorDialog();
@@ -213,33 +198,35 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         ButterKnife.inject(this);
 
         provider_name.setText(provider.getDomain());
+
+        user_status_fragment = new UserStatusFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(Provider.ALLOW_REGISTRATION, provider.allowsRegistration());
+        user_status_fragment.setArguments(bundle);
+        fragment_manager.replace(R.id.user_status_fragment, user_status_fragment, UserStatusFragment.TAG);
+
         if (provider.hasEIP()) {
-            fragment_manager.removePreviousFragment(EipFragment.TAG);
-            eip_fragment = new EipFragment();
+            fragment_manager.removePreviousFragment(VpnFragment.TAG);
+            eip_fragment = new VpnFragment();
 
             if (hide_and_turn_on_eip) {
                 preferences.edit().remove(Dashboard.START_ON_BOOT).apply();
                 Bundle arguments = new Bundle();
-                arguments.putBoolean(EipFragment.START_ON_BOOT, true);
+                arguments.putBoolean(VpnFragment.START_ON_BOOT, true);
                 if (eip_fragment != null) eip_fragment.setArguments(arguments);
             }
 
-            fragment_manager.replace(R.id.servicesCollection, eip_fragment, EipFragment.TAG);
+            fragment_manager.replace(R.id.servicesCollection, eip_fragment, VpnFragment.TAG);
             if (hide_and_turn_on_eip) {
                 onBackPressed();
             }
         }
-        handleNewUserSessionStatus(user_session_status);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (provider.allowsRegistration()) {
             menu.findItem(R.id.signup_button).setVisible(true);
-
-            boolean logged_in = User.loggedIn();
-            menu.findItem(R.id.login_button).setVisible(!logged_in);
-            menu.findItem(R.id.logout_button).setVisible(logged_in);
         }
         return true;
     }
@@ -261,14 +248,8 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
                 return true;
             case R.id.switch_provider:
                 switching_provider = true;
-                if (LeapSRPSession.loggedIn()) logOut();
+                if (User.loggedIn()) user_status_fragment.logOut();
                 else switchProvider();
-                return true;
-            case R.id.login_button:
-                sessionDialog(Bundle.EMPTY);
-                return true;
-            case R.id.logout_button:
-                logOut();
                 return true;
             case R.id.signup_button:
                 sessionDialog(Bundle.EMPTY);
@@ -284,131 +265,22 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
     }
 
     public void showLog() {
-        Intent startLW = new Intent(getContext(), LogWindow.class);
-        startActivity(startLW);
+        LogWindowWrapper log_window_wrapper = LogWindowWrapper.getInstance(getContext());
+        log_window_wrapper.showLog();
     }
 
-    @Override
-    public void signUp(String username, String password) {
-        User.setUserName(username);
-        Bundle parameters = bundlePassword(password);
-        providerApiCommand(parameters, 0, ProviderAPI.SIGN_UP);
-    }
-
-    @Override
-    public void logIn(String username, String password) {
-        User.setUserName(username);
-        Bundle parameters = bundlePassword(password);
-        providerApiCommand(parameters, 0, ProviderAPI.LOG_IN);
-    }
-
-    public void logOut() {
-        providerApiCommand(Bundle.EMPTY, 0, ProviderAPI.LOG_OUT);
-    }
-
-    @Override
-    public void update(Observable observable, Object data) {
-        if (observable instanceof UserSessionStatus) {
-            UserSessionStatus status = (UserSessionStatus) observable;
-            handleNewUserSessionStatus(status);
-        }
-    }
-
-    private void handleNewUserSessionStatus(UserSessionStatus status) {
-        user_session_status = status;
-        if (provider.allowsRegistration()) {
-            if (user_session_status.inProgress())
-                showUserSessionProgressBar();
-            else
-                hideUserSessionProgressBar();
-            changeSessionStatusMessage(user_session_status.toString());
-            invalidateOptionsMenu();
-        }
-    }
-
-    private void changeSessionStatusMessage(final String message) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                user_session_status_text_view.setText(message);
-            }
-        });
-    }
-
-    private void showUserSessionProgressBar() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                user_session_status_progress_bar.setVisibility(ProgressBar.VISIBLE);
-            }
-        });
-    }
-
-    private void hideUserSessionProgressBar() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                user_session_status_progress_bar.setVisibility(ProgressBar.GONE);
-            }
-        });
-    }
-
-    protected void downloadVpnCertificate() {
-        boolean is_authenticated = LeapSRPSession.loggedIn();
+    public void downloadVpnCertificate() {
+        boolean is_authenticated = User.loggedIn();
         boolean allowed_anon = preferences.getBoolean(Constants.ALLOWED_ANON, false);
         if (allowed_anon || is_authenticated)
-            providerApiCommand(Bundle.EMPTY, R.string.downloading_certificate_message, ProviderAPI.DOWNLOAD_CERTIFICATE);
+            ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_CERTIFICATE, providerAPI_result_receiver);
         else
             sessionDialog(Bundle.EMPTY);
-
-    }
-
-    private Bundle bundlePassword(String password) {
-        Bundle parameters = new Bundle();
-        if (!password.isEmpty())
-            parameters.putString(SessionDialog.PASSWORD, password);
-        return parameters;
-    }
-
-    protected void providerApiCommand(Bundle parameters, int progressbar_message_resId, String providerApi_action) {
-        if (eip_fragment != null && progressbar_message_resId != 0) {
-            eip_fragment.progress_bar.setVisibility(ProgressBar.VISIBLE);
-            setStatusMessage(progressbar_message_resId);
-        }
-
-        Intent command = prepareProviderAPICommand(parameters, providerApi_action);
-        startService(command);
-    }
-
-    private Intent prepareProviderAPICommand(Bundle parameters, String action) {
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler());
-        providerAPI_result_receiver.setReceiver(this);
-
-        Intent command = new Intent(this, ProviderAPI.class);
-
-        command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-        command.setAction(action);
-        return command;
-    }
-
-    public void cancelLoginOrSignup() {
-        EipStatus.getInstance().setConnectedOrDisconnected();
     }
 
     public void sessionDialog(Bundle resultData) {
-
         FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
-
-        DialogFragment newFragment = new SessionDialog();
-        if (provider.getName().equalsIgnoreCase("riseup")) {
-            resultData = resultData == Bundle.EMPTY ? new Bundle() : resultData;
-            resultData.putBoolean(SessionDialog.ERRORS.RISEUP_WARNING.toString(), true);
-        }
-        if (resultData != null && !resultData.isEmpty()) {
-            newFragment.setArguments(resultData);
-        }
-        newFragment.show(transaction, SessionDialog.TAG);
+        SessionDialog.getInstance(provider, resultData).show(transaction, SessionDialog.TAG);
     }
 
     private void switchProvider() {
@@ -424,7 +296,7 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
             String username = resultData.getString(SessionDialog.USERNAME);
             String password = resultData.getString(SessionDialog.PASSWORD);
-            logIn(username, password);
+            user_status_fragment.logIn(username, password);
         } else if (resultCode == ProviderAPI.FAILED_SIGNUP) {
             sessionDialog(resultData);
         } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
@@ -437,7 +309,6 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
             setResult(RESULT_CANCELED);
         } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
             eip_fragment.updateEipService();
-            eip_fragment.handleNewVpnCertificate();
             setResult(RESULT_OK);
         } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
             setResult(RESULT_CANCELED);
@@ -449,18 +320,24 @@ public class Dashboard extends Activity implements SessionDialog.SessionDialogIn
         }
     }
 
-    private void setStatusMessage(int string_resId) {
-        if (eip_fragment != null && eip_fragment.status_message != null)
-            eip_fragment.status_message.setText(string_resId);
-    }
-
     public static Context getContext() {
         return app;
     }
+
+    public static Provider getProvider() { return provider; }
 
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
         intent.putExtra(Dashboard.REQUEST_CODE, requestCode);
         super.startActivityForResult(intent, requestCode);
+    }
+
+    public void invalidateOptionsMenuOnUiThread() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                invalidateOptionsMenu();
+            }
+        });
     }
 }

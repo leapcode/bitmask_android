@@ -42,7 +42,6 @@ public class LeapSRPSession {
     final public static String AUTHORIZATION_HEADER = "Authorization";
     final public static String TAG = "Leap SRP session class tag";
 
-    private User user;
     private SRPParameters params;
     private String username;
     private String password;
@@ -338,7 +337,7 @@ public class LeapSRPSession {
         return token;
     }
 
-    protected static boolean loggedIn() {
+    public static boolean loggedIn() {
         return !token.isEmpty();
     }
 

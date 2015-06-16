@@ -1,3 +1,34 @@
+0.9.4 June 16th, 2015 - the "fabbutton" release
+Bugs:
+- Show the log window only when a real error happened, since some
+  users weren't able to know why Bitmask had failed and they didn't
+  think of opening the log by themselves.
+- Aborting the establishment of a new VPN connection didn't work
+  properly, and some users were confused because they wanted to cancel
+  the start and Bitmask didn't do it, although the UI stated the
+  opposite. That has been improved, detecting the real status of the
+  VPN connection much better.
+- If the user doesn't "trust this application", bitmask doesn't try to
+  connect to the VPN anymore.
+
+Features:
+- Removed the progress bars that caused confusion in some states (such
+  as "Waiting for connectivity")
+- Removed the switch button that was not clear enough (some users
+  experimented problems with it during connections, staying "on" while
+  the VPN was "off", and put an icon with a progress indicator around
+  it.
+- Code tests to avoid this bugs are revived, since some problems the
+  users were experiencing had already been fixed in the early days of
+  the project.
+- Optimized the layout to various devices, so that UI remains
+  consistent across sizes, screen resolutions...
+- Localized the app to Spanish, and simplified the login/logout
+  feedback so that localization can be polished.
+- Improved wording, both in Spanish and in English.
+- Updated gradle libraries
+- Updated ics-openvpn (thanks Arne), from GitHub!
+
 0.9.3
 Bugs:
 - If VPN connection fails, blocking VPN is turned off

@@ -16,7 +16,7 @@
     <string name="provider_label">Provider:</string>
     <string name="provider_label_none">No provider configured</string>
     <string name="status_unknown">Status unknown.</string>
-    <string name="eip_service_label">Encrypted Internet</string>
+    <string name="eip_service_label">VPN Encrypted Internet Access</string>
     <string name="configuration_wizard_title">Select a service provider</string>
     <string name="new_provider_button">Add new Provider</string>
     <string name="introduce_new_provider">Add a new service provider</string>
@@ -47,6 +47,7 @@
     <string name="setup_error_close_button">Exit</string>
     <string name="setup_error_text">There was an error configuring Bitmask with your chosen provider.\n\nYou may choose to reconfigure, or exit and configure a provider upon next launch.</string>
     <string name="server_unreachable_message">Server is unreachable, please try again.</string>
+    <string name="error.security.pinnedcertificate">Security error, update the app or choose another provider.</string>
     <string name="malformed_url">It doesn\'t seem to be a Bitmask provider.</string>
     <string name="certificate_error">This is not a trusted Bitmask provider.</string>
     <string name="service_is_down_error">Service is down.</string>
@@ -54,11 +55,6 @@
     <string name="incorrectly_downloaded_certificate_message">Your anon cert was not downloaded</string>
     <string name="downloading_certificate_message">Downloading VPN certificate</string>
     <string name="updating_certificate_message">Updating VPN certificate</string>
-    <string name="authenticating_message">Logging in</string>
-    <string name="signingup_message">Signing up</string>
-    <string name="logout_message">Logging out from this session.</string>
-    <string name="logged_out_message">Logged out.</string>
-    <string name="log_out_failed_message">Didn\'t log out. Try later, it may be a problem in the network or in the provider. If the problem persists, then wipe Bitmask data from the Android settings</string>
     <string name="login.riseup.warning">"Riseup users: You need to create a separate account to use the VPN service"</string>
     <string name="succesful_authentication_message">Authentication succeeded.</string>
     <string name="authentication_failed_message">Authentication failed.</string>
@@ -67,10 +63,18 @@
     <string name="eip_cancel_connect_title">Cancel connection?</string>
     <string name="eip_cancel_connect_text">There is a connection attempt in progress.  Do you wish to cancel it?</string>
     <string name="eip.warning.browser_inconsistency">In order to avoid leaking your personal information, please close your browser and start a private window after disconnecting the Encrypted VPN Internet Access. Thanks.</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
     <string name="eip_state_not_connected">"Not running! Connection not secure!"</string>
     <string name="eip_state_connected">Connection Secure.</string>
     <string name="provider_problem">It seems there is a problem with the provider.</string>
     <string name="try_another_provider">Please try another provider, or contact yours.</string>
+    <string name="default_username">Anonymous</string>
+    <string name="logged_in_user_status">is logged in.</string>
+    <string name="logged_out_user_status">logged out.</string>
+    <string name="didnt_log_out_user_status">didn\'t log out. Try later, it may be a problem in the network or in the provider. If the problem persists, then wipe Bitmask data from the Android settings</string>
+    <string name="not_logged_in_user_status">have not logged in.</string>
+    <string name="logging_in_user_status">is logging in.</string>
+    <string name="logging_out_user_status">is logging out.</string>
+    <string name="signingup_message">is being registered.</string>
+    <string name="vpn.button.turn.on">Turn on</string>
+    <string name="vpn.button.turn.off">Turn off</string>
 </resources>

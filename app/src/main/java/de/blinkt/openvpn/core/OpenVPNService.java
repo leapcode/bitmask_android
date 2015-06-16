@@ -16,7 +16,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
-import android.net.NetworkRequest;
 import android.net.VpnService;
 import android.os.Binder;
 import android.os.Build;
@@ -51,8 +50,6 @@ import static de.blinkt.openvpn.core.NetworkSpace.ipAddress;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET;
 import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
-import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
-import static de.blinkt.openvpn.core.VpnStatus.ConnectionStatus.LEVEL_NONETWORK;
 
 import se.leap.bitmaskclient.Dashboard;
 
@@ -65,7 +62,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private static final String RESUME_VPN = "se.leap.bitmaskclient.RESUME_VPN";
     private static final int OPENVPN_STATUS = 1;
     private static boolean mNotificationAlwaysVisible = false;
-    private final Vector<String> mDnslist = new Vector<String>();
+    private final Vector<String> mDnslist = new Vector<>();
     private final NetworkSpace mRoutes = new NetworkSpace();
     private final NetworkSpace mRoutesv6 = new NetworkSpace();
     private final IBinder mBinder = new LocalBinder();
@@ -84,7 +81,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private String mLastTunCfg;
     private String mRemoteGW;
     private final Object mProcessLock = new Object();
-    private LollipopDeviceStateListener mLollipopDeviceStateListener;
 
     // From: http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
     public static String humanReadableByteCount(long bytes, boolean mbit) {
@@ -238,13 +234,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
 
             //ignore exception
-        } catch (NoSuchMethodException nsm) {
-            VpnStatus.logException(nsm);
-        } catch (IllegalArgumentException e) {
-            VpnStatus.logException(e);
-        } catch (IllegalAccessException e) {
-            VpnStatus.logException(e);
-        } catch (InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalArgumentException |
+                InvocationTargetException | IllegalAccessException e) {
             VpnStatus.logException(e);
         }
 
@@ -328,6 +319,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         /* The intent is null when the service has been restarted */
         if (intent == null) {
             mProfile = ProfileManager.getLastConnectedProfile(this, false);
+            VpnStatus.logInfo(R.string.service_restarted);
 
             /* Got no profile, just stop */
             if (mProfile == null) {
@@ -415,7 +407,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
 
         } else {
-            HashMap<String, String> env = new HashMap<String, String>();
+            HashMap<String, String> env = new HashMap<>();
             processThread = new OpenVPNThread(this, argv, env, nativeLibraryDirectory);
         }
 
@@ -431,7 +423,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         ProfileManager.setConnectedVpnProfile(this, mProfile);
         /* TODO: At the moment we have no way to handle asynchronous PW input
-         * Fixing will also allow to handle challenge/responsee authentication */
+         * Fixing will also allow to handle challenge/response authentication */
         if (mProfile.needUserPWInput(true) != 0)
             return START_NOT_STICKY;
 
@@ -442,17 +434,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         try {
             Class cl = Class.forName("de.blinkt.openvpn.core.OpenVPNThreadv3");
             return (OpenVPNManagement) cl.getConstructor(OpenVPNService.class, VpnProfile.class).newInstance(this, mProfile);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IllegalArgumentException | InstantiationException | InvocationTargetException |
+                NoSuchMethodException | ClassNotFoundException | IllegalAccessException e ) {
             e.printStackTrace();
         }
         return null;
@@ -501,8 +484,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         VpnStatus.logInfo(R.string.last_openvpn_tun_config);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && mProfile.mAllowLocalLAN)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && mProfile.mAllowLocalLAN) {
             allowAllAFFamilies(builder);
         }
 
@@ -576,6 +558,26 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             }
         }
 
+        if ("samsung".equals(Build.BRAND) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && mDnslist.size() >= 1) {
+            // Check if the first DNS Server is in the VPN range
+            try {
+                ipAddress dnsServer = new ipAddress(new CIDRIP(mDnslist.get(0), 32), true);
+                boolean dnsIncluded=false;
+                for (ipAddress net : positiveIPv4Routes) {
+                    if (net.containsNet(dnsServer)) {
+                        dnsIncluded = true;
+                    }
+                }
+                if (!dnsIncluded) {
+                    String samsungwarning = String.format("Warning Samsung Android 5.0+ devices ignore DNS servers outside the VPN range. To enable DNS add a custom route to your DNS Server (%s) or change to a DNS inside your VPN range", mDnslist.get(0));
+                    VpnStatus.logWarning(samsungwarning);
+                }
+            } catch (Exception e) {
+                VpnStatus.logError("Error parsing DNS Server IP: " + mDnslist.get(0));
+            }
+        }
+
+
         if (mDomain != null)
             builder.addSearchDomain(mDomain);
 
@@ -616,7 +618,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         try {
             //Debug.stopMethodTracing();
             ParcelFileDescriptor tun = builder.establish();
-            if (tun==null)
+            if (tun == null)
                 throw new NullPointerException("Android establish() method returned null (Really broken network configuration?)");
             return tun;
         } catch (Exception e) {
@@ -636,22 +638,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         builder.allowFamily(OsConstants.AF_INET6);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    void removeLollipopCMListener() {
-        ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(CONNECTIVITY_SERVICE);
-        cm.unregisterNetworkCallback(mLollipopDeviceStateListener);
-        mLollipopDeviceStateListener = null;
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    void addLollipopCMListener() {
-        ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(CONNECTIVITY_SERVICE);
-        NetworkRequest.Builder nrb = new NetworkRequest.Builder();
-
-        mLollipopDeviceStateListener = new LollipopDeviceStateListener();
-        cm.registerNetworkCallback(nrb.build(), mLollipopDeviceStateListener);
-    }
-
     private void addLocalNetworksToRoutes() {
 
         // Add local network interfaces
@@ -667,11 +653,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     intf.startsWith("tun") || intf.startsWith("rmnet"))
                 continue;
 
-            if (ipAddr==null || netMask == null) {
+            if (ipAddr == null || netMask == null) {
                 VpnStatus.logError("Local routes are broken?! (Report to author) " + TextUtils.join("|", localRoutes));
                 continue;
             }
-            
+
             if (ipAddr.equals(mLocalIP.mIp))
                 continue;
 
@@ -854,21 +840,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 mDisplayBytecount = true;
                 mConnecttime = System.currentTimeMillis();
                 lowpriority = true;
-		if(mProfile.mPersistTun) {
-		    NotificationManager ns = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		    ns.cancel(OPENVPN_STATUS);
-		    return;
-		}
-	    } else if (level == LEVEL_NONETWORK || level == LEVEL_NOTCONNECTED) {
-		NotificationManager ns = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		ns.cancel(OPENVPN_STATUS);
-		return;
-	    } else if (level != LEVEL_NOTCONNECTED && mConnecttime > 0) {
-                mDisplayBytecount = false;
-		String msg = "Traffic is blocked until the VPN becomes active.";
-		String ticker = msg;
-		showNotification(msg, ticker, lowpriority , 0, level);
-		return;
+		String ns = Context.NOTIFICATION_SERVICE;
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
+		mNotificationManager.cancel(OPENVPN_STATUS);
             } else {
                 mDisplayBytecount = false;
             }
@@ -878,8 +852,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             // CONNECTED
             // Does not work :(
             String msg = getString(resid);
-            String ticker = msg;
-            showNotification(msg + " " + logmessage, ticker, lowpriority, 0, level);
+            // showNotification(msg + " " + logmessage, msg, lowpriority, 0, level);
 
         }
     }
