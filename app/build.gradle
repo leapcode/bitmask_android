@@ -54,7 +54,7 @@ dependencies {
   compile 'com.intellij:annotations:12.0'
   compile 'com.google.code.gson:gson:2.3.1'
   compile 'org.thoughtcrime.ssl.pinning:AndroidPinning:1.0.0'
-  compile 'mbanje.kurt:fabbutton:1.1.1'
+  compile 'mbanje.kurt:fabbutton:1.1.4'
 }
 
 def processFileInplace(file, Closure processText) {
