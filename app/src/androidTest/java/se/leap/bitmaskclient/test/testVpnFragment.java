@@ -1,21 +1,14 @@
 package se.leap.bitmaskclient.test;
 
-public class testVpnFragment extends BaseTestDashboard {
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        Screenshot.initialize(solo);
-    }
+public class testVpnFragment extends BaseTestDashboardFragment {
 
     /**
      * This test will fail if Android does not trust VPN connection.
      * I cannot automate that dialog.
      */
     public void testOnOffOpenVpn() {
-        Screenshot.take("Initial UI");
         vpn_controller.clickVpnButton();
-        Screenshot.setTimeToSleep(5);
+        Screenshot.setTimeToSleep(8);
         Screenshot.takeWithSleep("Turning VPN on");
         vpn_controller.turningEipOn();
         Screenshot.setTimeToSleep(0.5);
