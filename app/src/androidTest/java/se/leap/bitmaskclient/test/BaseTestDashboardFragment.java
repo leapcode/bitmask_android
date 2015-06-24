@@ -9,20 +9,21 @@ import com.robotium.solo.*;
 
 import se.leap.bitmaskclient.*;
 
-public abstract class BaseTestDashboard extends ActivityInstrumentationTestCase2<Dashboard> {
+public abstract class BaseTestDashboardFragment extends ActivityInstrumentationTestCase2<Dashboard> {
 
     Solo solo;
     Context context;
     UserStatusTestController user_status_controller;
     VpnTestController vpn_controller;
 
-    public BaseTestDashboard() { super(Dashboard.class); }
+    public BaseTestDashboardFragment() { super(Dashboard.class); }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         context = getInstrumentation().getContext();
         solo = new Solo(getInstrumentation(), getActivity());
+        Screenshot.initialize(solo);
         user_status_controller = new UserStatusTestController(solo);
         vpn_controller = new VpnTestController(solo);
         ConnectionManager.setMobileDataEnabled(true, context);
@@ -43,6 +44,7 @@ public abstract class BaseTestDashboard extends ActivityInstrumentationTestCase2
     }
 
     private void useRegistered() {
+        solo.waitForFragmentById(R.id.provider_detail_fragment);
         String text = solo.getString(R.string.signup_or_login_button);
         clickAndWaitForDashboard(text);
         user_status_controller.logIn("parmegvtest10", "holahola2");

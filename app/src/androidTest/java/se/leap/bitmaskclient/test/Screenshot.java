@@ -26,8 +26,7 @@ public class Screenshot {
     }
 
     public static void take() {
-        sleepBefore();
-        solo.takeScreenshot(default_name + "_" + getTimeStamp());
+        take(default_name + "_" + getTimeStamp());
     }
 
     public static void takeWithSleep() {
