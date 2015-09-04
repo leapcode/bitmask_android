@@ -5,7 +5,7 @@
   -->
 
 <resources>
-    <style name="blinkt.baseTheme" parent="android:Theme.DeviceDefault.Light" />
+    <style name="blinkt.baseTheme" parent="android:Theme.DeviceDefault" />
     <style name="blinkt.common" parent="blinkt.baseTheme" >
         <!-- Shared between Holo and Material -->
         <item name="android:preferenceStyle">@style/BlinktPreferencePanel</item>
