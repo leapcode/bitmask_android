@@ -32,6 +32,9 @@ Finally, install a java compiler. For example:
 
    sudo apt-get install default-jdk
 
+If you are using a 64-bit machine, you will need to install some libraries too:
+    sudo apt-get install lib32stdc++6 lib32z1
+
 ## Update git submodules
 
 We build upon ics-openvpn, which meets a submodule in our project structure.
