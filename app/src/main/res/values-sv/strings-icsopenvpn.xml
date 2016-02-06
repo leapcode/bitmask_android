@@ -87,7 +87,9 @@
   <string name="default_route_summary">Omdirigerar all trafik över VPN-anslutningen</string>
   <string name="use_default_title">Använd standardrutt</string>
   <string name="custom_route_message">Ange anpassade rutter. Skriv destination i CIDR-format. \"10.0.0.0/8 2002:: / 16\" dirigerar nätverk 10.0.0.0/8 och 2002:: / 16 över VPN.</string>
+  <string name="custom_route_message_excluded">Rutter som INTE bör dirigeras över VPN. Använd samma syntax som för ingående rutter.</string>
   <string name="custom_routes_title">Anpassade rutter</string>
+  <string name="custom_routes_title_excluded">Exkluderade nätverk</string>
   <string name="log_verbosity_level">Utförlighetsnivå för log</string>
   <string name="float_summary">Tillåter autentiserade paket från alla IP-adresser</string>
   <string name="float_title">Tillåt flytande server</string>
@@ -174,7 +176,6 @@
   <string name="keychain_nocacert">Inget CA certifikat returnerades från Android Keystore. Autenticering kommer troligen att misslyckas.</string>
   <string name="show_log_summary">Visar loggfönstret vid anslutning. Loggfönstret kan alltid nås från statusgardinen.</string>
   <string name="show_log_window">Visa loggfönstret</string>
-  <string name="mobile_info">Kör på %1$s (%2$s) %3$s, Android API %4$d</string>
   <string name="error_rsa_sign">Fel vid signering med Android keystore nyckeln %1$s: %2$s</string>
   <string name="faq_system_dialogs">Varningen vid VPN-anslutning som berättar att denna app kan avlyssna all trafik utfärdas av systemet för att förhindra missbruk av VPNService API.\nNotifieringen om VPN-anslutning (nyckelsymbolen) tillhandahålles också av Android-systemet för att signalera en pågående VPN-anslutning. På vissa ROM spelar denna notifiering ett ljud.\nAndroid har infört dessa dialogrutor och notifieringar för din egen säkerhet och kan inte undvikas. (På vissa ROM innehåller dessa tyvärr ljud)</string>
   <string name="faq_system_dialogs_title">Anslutnings varning och ljud</string>
@@ -251,7 +252,6 @@
   <string name="encryption_cipher">Krypteringschiffer</string>
   <string name="packet_auth">Paketautentisering</string>
   <string name="auth_dialog_title">Ange autentiseringsmetod för paket</string>
-  <string name="mobile_info_extended">Kör på %1$s (%2$s) %3$s, Android API %4$d, version %5$s, %6$s</string>
   <string name="built_by">byggd av %s</string>
   <string name="debug_build">felsöknings bygge</string>
   <string name="official_build">officiellt bygge</string>

@@ -89,6 +89,18 @@ Due to the nature of some tests, adb will lose its connectivity and you won't re
 
 We'll polish this process soon, but right now that's what we're doing (well, in fact, we run "adb logcat" in Emacs and then search "failed: test" in the corresponding buffer ;) ).
 
+## Updating ics-openvpn
+
+    cd ics-openvpn
+    git remote add upstream https://github.com/schwabe/ics-openvpn.git
+    git pull --rebase upstream master
+    
+A bunch of conflicts may arise. The guidelines are: 
+    1. Methods in HEAD (upstream) completely removed from Bitmask should be removed again (e.g. askPW)
+    2. Sometimes, Dashboard.class is in Bitmask while in ics-openvpn it is replaced by MainActivity.class and other classes. Keep removing them to keep Dashboard.class in there.
+    3. Some resources files are stripped from several entries. Remove them if possible (check the code we compile is not using anything else new).
+
+    ./gradlew updateIcsOpenVpn
 ## Acknowledgements
 
 This project bases its work in [ics-openvpn project](https://code.google.com/p/ics-openvpn/).

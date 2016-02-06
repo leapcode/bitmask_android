@@ -87,9 +87,9 @@
   <string name="default_route_summary">VPN을 통해 모든 트래픽을 보냅니다.</string>
   <string name="use_default_title">기본 라우트 사용하기</string>
   <string name="custom_route_message">사용자 지정 라우트를 입력하십시오. 목적지는 CIDR 형식으로만 입력하십시오. \"10.0.0.0/8 2002::/16\"은 10.0.0.0/8 과 2002::/16 네트워크를 VPN으로 보냅니다.</string>
-  <string name="custom_route_message_excluded">VPN을 통해 라우팅하지 말아 경로. 포함 경로와 동일한 구문을 사용합니다.</string>
+  <string name="custom_route_message_excluded">VPN을 통해 라우팅되면 안되는 경로(라우트). 포함된 경로와 동일한 구문을 사용합니다.</string>
   <string name="custom_routes_title">사용자 지정 라우트</string>
-  <string name="custom_routes_title_excluded">123456</string>
+  <string name="custom_routes_title_excluded">제외된 네트워크</string>
   <string name="log_verbosity_level">로그의 자세한 정도</string>
   <string name="float_summary">인증된 패킷은 IP와 상관없이 허용</string>
   <string name="float_title">플로팅 서버 허용</string>
@@ -103,6 +103,8 @@
   <string name="last_openvpn_tun_config">TUN 인터페이스 열기:</string>
   <string name="local_ip_info">로컬 IPv4: %1$s/%2$d IPv6: %3$s MTU: %4$d</string>
   <string name="dns_server_info">DNS 서버: %1$s, 도메인: %2$s</string>
+  <string name="routes_info_incl">경로: %1$s %2$s</string>
+  <string name="routes_info_excl">제외된 경로: %1$s %2$s</string>
   <string name="ip_not_cidr">인터페이스 정보 %1$s와 %2$s에 있어, 두 번째 주소를 원격 피어 주소로 가정 하겠습니다. 로컬 IP의 넷마스크로는 /32를 사용하겠습니다. OpenVPN에 의해 주어진 모드는 \"%3$s\" 입니다.</string>
   <string name="route_not_cidr">CIDR 넷마스크가 있는 IP 라우트 %1$s 와 %2$s 에 있어서 처리가 불가능합니다. /32를 넷마스크로 사용하겠습니다.</string>
   <string name="route_not_netip">%1$s/%2$s 에서 %3$s/%2$s로 라우트 수정</string>
@@ -177,7 +179,6 @@
   <string name="keychain_nocacert">안드로이드 keystore에서 CA 인증서를 찾지 못했습니다. Auhtentication은 실패할 것 입니다.</string>
   <string name="show_log_summary">연결시 로그 윈도우를 보여드립니다. 로그 윈도우는 항상 notification status에서 접근이 가능합니다.</string>
   <string name="show_log_window">로그 윈도우 보기</string>
-  <string name="mobile_info">%1$s (%2$s) %3$s, 안드로이드 API %4$d 에서 실행</string>
   <string name="error_rsa_sign">안드로이드 keystore 키 %1$s: %2$s과 싸이닝 오류</string>
   <string name="faq_system_dialogs">시스템에서는 VPN연결 경고를 통해 당신에게 본앱이 모든 트래픽을 가로챌수있다는 점을 알리게 되어 있는데 이는 VPNService API가 남용하는것을 막기 위함입니다.\nVPN 연결 알림 (키 아이콘) 또한 안드로이드 시스템에서 부과하는 부분이며 이는 VPN연결을 알리는 신호입니다. 어떤 버전에서는 소리를 알림으로 사용하는 경우도 있습니다.\n안드로이드는 이같은 방법을 당신의 안전을 위해 도입하였으며 사용은 필수적입니다. (어떤 버전에서는 유감스럽게도 소리 알림 또한 포함됩니다.)</string>
   <string name="faq_system_dialogs_title">연결 경고 및 알림 소리</string>
@@ -256,7 +257,6 @@
   <string name="encryption_cipher">암호화 암호</string>
   <string name="packet_auth">패킷 인증</string>
   <string name="auth_dialog_title">패킷 인증 방법을 입력한다</string>
-  <string name="mobile_info_extended">%1$s (%2$s) %3$s, 안드로이드 API %4$d, 버전 %5$s, %6$s에서 실행</string>
   <string name="built_by">개발자 %s</string>
   <string name="debug_build">디버그 빌드</string>
   <string name="official_build">공식 빌드</string>
@@ -282,6 +282,7 @@
   <string name="screen_nopersistenttun">경고: 이 VPN은 persistent tun이 비활성화 되어있습니다. 화면이 꺼졌을 때 트래픽은 터널을 사용하지 않고 인터넷을 바로 사용합니다.</string>
   <string name="save_password">암호 저장</string>
   <string name="pauseVPN">VPN 일시중지</string>
+  <string name="resumevpn">VPN 재개하기</string>
   <string name="state_userpause">VPN 일시 정지 사용자의 요청</string>
   <string name="state_screenoff">VPN 일시정지됨 - 화면 끄기</string>
   <string name="device_specific">장치 관련 Hacks</string>
@@ -309,4 +310,12 @@
   <string name="unhandled_exception">처리 되지 않은 예외: %1$s\n\n%2$s</string>
   <string name="unhandled_exception_context">%3$s: %1$s\n\n%2$s</string>
   <string name="full_licenses">전체 라이센스</string>
+  <string name="userpw_file">사용자 이름/암호 파일</string>
+  <string name="mssfix_invalid_value">MSS override의 값은 0과 9000 사이의 정수이어야합니다</string>
+  <string name="loading">로드 중...</string>
+  <string name="keep">유지</string>
+  <string name="delete">삭제</string>
+  <string name="payload_options">페이로드 옵션</string>
+  <string name="tls_settings">TLS 설정</string>
+  <string name="faq_androids_clients_title">안드로이드 OpenVPN 클라이언트 간의 차이</string>
 </resources>
