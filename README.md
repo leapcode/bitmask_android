@@ -28,14 +28,23 @@ Installable via `android` command (SDK Manager):
 * Android SDK Build-tools, 19.0.3
 * Android Support Repository, 4+
 
-We need Mercurial:
-* Mercurial: http://mercurial.selenic.com/downloads
-
 Finally, install a java compiler. For example:
 
    sudo apt-get install default-jdk
 
-### Build native sources
+## Update git submodules
+
+We build upon ics-openvpn, which meets a submodule in our project structure.
+
+For that reason, it is necessary to initialize and update them before being able to build Bitmask Android.
+
+    git submodule init
+    git submodule update
+    cd ics-openvpn
+    git submodule init
+    git submodule update
+
+## Build native sources
 
 To build NDK sources, you need to issue these commands:
 
