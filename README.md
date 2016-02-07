@@ -21,7 +21,7 @@ the SDK and NDK to `~/dev` on a linux machine, you would add this to your path:
 
     ~/dev/android-sdk-linux/tools
     ~/dev/android-sdk-linux/platform-tools
-    ~/dev/android-ndk-r9d
+    ~/dev/android-ndk-r10e/
 
 Installable via `android` command (SDK Manager):
 
