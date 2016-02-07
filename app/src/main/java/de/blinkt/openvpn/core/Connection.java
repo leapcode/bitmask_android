@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Arne Schwabe
+ * Copyright (c) 2012-2016 Arne Schwabe
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
@@ -16,6 +16,7 @@ public class Connection implements Serializable, Cloneable {
     public String mCustomConfiguration="";
     public boolean mUseCustomConfig=false;
     public boolean mEnabled=true;
+    public int mConnectTimeout = 0;
 
     private static final long serialVersionUID = 92031902903829089L;
 
@@ -32,6 +33,10 @@ public class Connection implements Serializable, Cloneable {
             cfg += " udp\n";
         else
             cfg += " tcp-client\n";
+
+        if (mConnectTimeout!=0)
+            cfg += String.format(" connect-timeout  %d\n" , mConnectTimeout);
+
 
         if (!TextUtils.isEmpty(mCustomConfiguration) && mUseCustomConfig) {
             cfg += mCustomConfiguration;

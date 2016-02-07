@@ -181,7 +181,6 @@
   <string name="keychain_nocacert">在 Android 密钥库中未找到任何 CA 证书。可能验证失败。</string>
   <string name="show_log_summary">连接时显示日志窗口。日志窗口可始终从通知栏访问。</string>
   <string name="show_log_window">显示日志窗口</string>
-  <string name="mobile_info">运行 %1$s （ %2$s ） %3$s ，Android API %4$d</string>
   <string name="error_rsa_sign">与 Android 密钥库 %1$s 签名时出错： %2$s</string>
   <string name="faq_system_dialogs">VPN 连接警告会告诉你有程序正要拦截所有的网络流量，这是为了确保 VPN 服务的 API 不被恶意应用滥用。\nVPN 连接通知（通知栏上的钥匙图标）是 Android 系统内建的，如果当前有 VPN 连接，Android 系统就会自动显示这个通知图标。一些系统上还会在 VPN 连接建立的时候发出提示音。Android 这么做的原因是为了保护你不受恶意应用的欺骗。</string>
   <string name="faq_system_dialogs_title">连接警告和通知声音</string>
@@ -262,7 +261,6 @@
   <string name="encryption_cipher">加密算法(cipher)</string>
   <string name="packet_auth">数据包验证</string>
   <string name="auth_dialog_title">数据包验证方式</string>
-  <string name="mobile_info_extended">当前运行环境 %1$s (%2$s) %3$s，Android API %4$d，版本 %5$s，%6$s</string>
   <string name="built_by">由 %s 构建</string>
   <string name="debug_build">调试版本</string>
   <string name="official_build">正式版本</string>
@@ -359,8 +357,18 @@
   <string name="ab_only_cidr">安卓只支持CIDR路由。由于非CIDR路由几乎不用，OpenVPN for Android将使用/32路由并对非CIDR路由发出警告。</string>
   <string name="ab_tethering_44">在连接VPN时手机热点依然工作，但连接不会通过VPN。</string>
   <string name="ab_kitkat_mss">早期的KitKat版本在TCP连接上设置了错误的MSS值 (#61948)。OpenVPN将自动启动mssfix选项来解决这个Bug。</string>
+  <string name="ab_proxy">在DNS服务没有设置的情况下，安卓会继续使用手机wifi的代理设置。 安卓OpenVPN会在日志文件中留下警告信息。在VPN设置DNS服务时，安卓不是代理；安卓系统里没有为vpn连接设置代理的程序接口。</string>
+  <string name="ab_lollipop_reinstall">在被卸载或重新安装时，VPN程序会停止工作；详细信息请参看 #80074</string>
   <string name="ab_only_cidr_title">非CIDR路由</string>
   <string name="ab_lollipop_reinstall_title">正在重新安装VPN应用</string>
   <string name="custom_connection_options">自定义选项</string>
   <string name="remove_connection_entry">删除连接条目</string>
+  <string name="ab_persist_tun_title">保持 tun 通道模式</string>
+  <string name="crl_file">证书吊销列表</string>
+  <string name="Search">搜索</string>
+  <string name="clear_log_on_connect">建立新连接时清空日志</string>
+  <string name="connect_timeout">连接超时</string>
+  <string name="query_permissions_sdcard">OpenVPN for Android 可以尝试自动在 SD 卡上寻找缺失的文件。点击此消息开始请求权限许可。</string>
+  <string name="protocol">协议</string>
+  <string name="enabled_connection_entry">启用</string>
 </resources>

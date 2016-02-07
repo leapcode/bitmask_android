@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Arne Schwabe
+ * Copyright (c) 2012-2016 Arne Schwabe
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
@@ -20,6 +20,7 @@ import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -63,6 +64,8 @@ public class LaunchVPN extends Activity {
 	public static final String EXTRA_KEY = "de.blinkt.openvpn.shortcutProfileUUID";
 	public static final String EXTRA_NAME = "de.blinkt.openvpn.shortcutProfileName";
 	public static final String EXTRA_HIDELOG =  "de.blinkt.openvpn.showNoLogWindow";
+	public static final String CLEARLOG = "clearlogconnect";
+
 
 	private static final int START_VPN_PROFILE= 70;
 
@@ -93,6 +96,10 @@ public class LaunchVPN extends Activity {
 
 
 		if(Intent.ACTION_MAIN.equals(action)) {
+			// Check if we need to clear the log
+			if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(CLEARLOG, true))
+				VpnStatus.clearLog();
+
 			// we got called to be the starting point, most likely a shortcut
 			String shortcutUUID = intent.getStringExtra( EXTRA_KEY);
 			String shortcutName = intent.getStringExtra( EXTRA_NAME);
@@ -115,7 +122,7 @@ public class LaunchVPN extends Activity {
 
 		}
 	}
-    
+
 	@Override
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);

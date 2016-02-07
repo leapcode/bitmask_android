@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Arne Schwabe
+ * Copyright (c) 2012-2016 Arne Schwabe
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
@@ -37,6 +37,8 @@ public class ConfigParser {
 
     public void parseConfig(Reader reader) throws IOException, ConfigParseError {
 
+        HashMap<String, String> optionAliases = new HashMap<>();
+        optionAliases.put("server-poll-timeout", "timeout-connect");
 
         BufferedReader br = new BufferedReader(reader);
 
@@ -48,9 +50,15 @@ public class ConfigParser {
                 if (line == null)
                     break;
 
-                if (lineno == 1 && (line.startsWith("PK\003\004")
-                        || (line.startsWith("PK\007\008"))))
-                    throw new ConfigParseError("Input looks like a ZIP Archive. Import is only possible for OpenVPN config files (.ovpn/.conf)");
+                if (lineno == 1) {
+                    if ((line.startsWith("PK\003\004")
+                            || (line.startsWith("PK\007\008")))) {
+                        throw new ConfigParseError("Input looks like a ZIP Archive. Import is only possible for OpenVPN config files (.ovpn/.conf)");
+                    }
+                    if (line.startsWith("\uFEFF")) {
+                        line = line.substring(1);
+                    }
+                }
 
                 // Check for OpenVPN Access Server Meta information
                 if (line.startsWith("# OVPN_ACCESS_SERVER_")) {
@@ -70,6 +78,9 @@ public class ConfigParser {
                 checkinlinefile(args, br);
 
                 String optionname = args.get(0);
+                if (optionAliases.get(optionname)!=null)
+                    optionname = optionAliases.get(optionname);
+
                 if (!options.containsKey(optionname)) {
                     options.put(optionname, new Vector<Vector<String>>());
                 }
@@ -137,7 +148,7 @@ public class ConfigParser {
 
     }
 
-    public class ConfigParseError extends Exception {
+    public static class ConfigParseError extends Exception {
         private static final long serialVersionUID = -60L;
 
         public ConfigParseError(String msg) {
@@ -388,6 +399,10 @@ public class ConfigParser {
             np.mCustomRoutesv6 = customIPv6Routes;
         }
 
+        Vector<String> routeNoPull = getOption("route-nopull", 1, 1);
+        if (routeNoPull!=null)
+            np.mRoutenopull=true;
+
         // Also recognize tls-auth [inline] direction ...
         Vector<Vector<String>> tlsauthoptions = getAllOption("tls-auth", 1, 2);
         if (tlsauthoptions != null) {
@@ -567,6 +582,9 @@ public class ConfigParser {
         if (getOption("persist-tun", 0, 0) != null)
             np.mPersistTun = true;
 
+        if (getOption("push-peer-info", 0, 0) != null)
+            np.mPushPeerInfo = true;
+
         Vector<String> connectretry = getOption("connect-retry", 1, 1);
         if (connectretry != null)
             np.mConnectRetry = connectretry.get(1);
@@ -709,8 +727,18 @@ public class ConfigParser {
             conn.mUseUdp = isUdpProto(proto.get(1));
         }
 
+        Vector<String> connectTimeout = getOption("connect-timeout", 1, 1);
+        if (connectTimeout != null) {
+            try {
+                conn.mConnectTimeout = Integer.parseInt(connectTimeout.get(1));
+            } catch (NumberFormatException nfe) {
+                throw new ConfigParseError(String.format("Argument to connect-timeout (%s) must to be an integer: %s",
+                        connectTimeout.get(1), nfe.getLocalizedMessage()));
 
-        // Parse remote config
+            }
+        }
+
+                    // Parse remote config
         Vector<Vector<String>> remotes = getAllOption("remote", 1, 3);
 
 
@@ -838,13 +866,21 @@ public class ConfigParser {
         return false;
     }
 
+    //! Generate options for custom options
     private String getOptionStrings(Vector<Vector<String>> option) {
         String custom = "";
         for (Vector<String> optionsline : option) {
             if (!ignoreThisOption(optionsline)) {
-                for (String arg : optionsline)
-                    custom += VpnProfile.openVpnEscape(arg) + " ";
-                custom += "\n";
+                // Check if option had been inlined and inline again
+                if (optionsline.size() == 2 && "extra-certs".equals(optionsline.get(0)) ) {
+                    custom += VpnProfile.insertFileData(optionsline.get(0), optionsline.get(1));
+
+
+                } else {
+                    for (String arg : optionsline)
+                        custom += VpnProfile.openVpnEscape(arg) + " ";
+                    custom += "\n";
+                }
             }
         }
         return custom;

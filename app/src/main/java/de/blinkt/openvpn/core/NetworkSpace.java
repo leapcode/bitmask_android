@@ -1,27 +1,27 @@
 /*
- * Copyright (c) 2012-2014 Arne Schwabe
+ * Copyright (c) 2012-2016 Arne Schwabe
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
 package de.blinkt.openvpn.core;
 
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import junit.framework.Assert;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.math.BigInteger;
 import java.net.Inet6Address;
-import java.util.*;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.PriorityQueue;
+import java.util.TreeSet;
+import java.util.Vector;
 
 import se.leap.bitmaskclient.BuildConfig;
 
 public class NetworkSpace {
-
-
-
 
     static class ipAddress implements Comparable<ipAddress> {
         private BigInteger netAddress;
@@ -38,7 +38,7 @@ public class NetworkSpace {
          *    2. smaller networks are returned as smaller
          */
         @Override
-        public int compareTo(@NotNull ipAddress another) {
+        public int compareTo(@NonNull ipAddress another) {
             int comp = getFirstAddress().compareTo(another.getFirstAddress());
             if (comp != 0)
                 return comp;
@@ -159,16 +159,20 @@ public class NetworkSpace {
         String getIPv6Address() {
             if (BuildConfig.DEBUG) Assert.assertTrue (!isV4);
             BigInteger r = netAddress;
-            if (r.compareTo(BigInteger.ZERO)==0 && networkMask==0)
-                return "::";
 
             Vector<String> parts = new Vector<String>();
-            while (r.compareTo(BigInteger.ZERO) == 1) {
-                parts.add(0, String.format(Locale.US, "%x", r.mod(BigInteger.valueOf(0x10000)).longValue()));
+            while (r.compareTo(BigInteger.ZERO) == 1 || parts.size() <3) {
+                long part = r.mod(BigInteger.valueOf(0x10000)).longValue();
+                if (part!=0)
+                    parts.add(0, String.format(Locale.US, "%x", part));
+                else
+                    parts.add(0, "");
                 r = r.shiftRight(16);
             }
-
-            return TextUtils.join(":", parts);
+            String ipv6str = TextUtils.join(":", parts);
+            while (ipv6str.contains(":::"))
+                ipv6str = ipv6str.replace(":::", "::");
+            return ipv6str;
         }
 
         public boolean containsNet(ipAddress network) {
