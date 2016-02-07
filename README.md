@@ -13,8 +13,8 @@ report any bugs or feature requests and to see the list of known issues.
 
 Install from developer.android.com:
 
-* Android SDK, API 17: http://developer.android.com/sdk/index.html
-* Android NDK, r9d: http://developer.android.com/tools/sdk/ndk/index.html
+* Android SDK, API 23: http://developer.android.com/sdk/index.html
+* Android NDK, r10e: http://developer.android.com/tools/sdk/ndk/index.html
 
 Make sure add the necessary android tools to your bin path. For example, assuming you installed
 the SDK and NDK to `~/dev` on a linux machine, you would add this to your path:
@@ -25,7 +25,7 @@ the SDK and NDK to `~/dev` on a linux machine, you would add this to your path:
 
 Installable via `android` command (SDK Manager):
 
-* Android SDK Build-tools, 19.0.3
+* Android SDK Build-tools, 23.0.2
 * Android Support Repository, 4+
 
 Finally, install a java compiler. For example:
