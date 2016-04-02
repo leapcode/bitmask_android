@@ -88,36 +88,55 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        app = this;
-
-        PRNGFixes.apply();
-        VpnStatus.initLogCache(getApplicationContext().getCacheDir());
-
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
-        handleVersion();
-        User.init(getString(R.string.default_username));
 
         ProviderAPICommand.initialize(this);
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
 
-        restoreProvider(savedInstanceState);
-        if (!provider.isConfigured())
+        if (app == null) {
+            app = this;
+
+            PRNGFixes.apply();
+            VpnStatus.initLogCache(getApplicationContext().getCacheDir());
+            handleVersion();
+            User.init(getString(R.string.default_username));
+        }
+        boolean provider_exists = previousProviderExists(savedInstanceState);
+        if (provider_exists) {
+            provider = getProvider(savedInstanceState);
+            if(!provider.isConfigured())
+                startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
+            else {
+                buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
+                user_status_fragment.restoreSessionStatus(savedInstanceState);
+            }
+        } else {
             startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
-        else {
-            buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
-            user_status_fragment.restoreSessionStatus(savedInstanceState);
         }
     }
 
-    private void restoreProvider(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(Provider.KEY))
-                provider = savedInstanceState.getParcelable(Provider.KEY);
-        }
-        if (!provider.isConfigured() && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
+    private boolean previousProviderExists(Bundle savedInstanceState) {
+        return providerInSavedInstance(savedInstanceState) || providerInSharedPreferences();
+    }
+
+    private Provider getProvider(Bundle savedInstanceState) {
+        if(providerInSavedInstance(savedInstanceState))
+            provider = savedInstanceState.getParcelable(Provider.KEY);
+        else if (providerInSharedPreferences())
             provider = getSavedProviderFromSharedPreferences();
+        return provider;
+    }
+
+    private boolean providerInSavedInstance(Bundle savedInstanceState) {
+        return savedInstanceState != null &&
+                savedInstanceState.containsKey(Provider.KEY);
+    }
+
+    private boolean providerInSharedPreferences() {
+        return preferences != null &&
+                preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false);
+
     }
 
     @Override
