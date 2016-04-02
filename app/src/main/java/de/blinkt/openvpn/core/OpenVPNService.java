@@ -32,6 +32,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Inet6Address;
@@ -87,6 +88,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private final Object mProcessLock = new Object();
     private Handler guiHandler;
     private Toast mlastToast;
+    private Runnable mOpenVPNThread;
 
     // From: http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
     public static String humanReadableByteCount(long bytes, boolean mbit) {
@@ -116,7 +118,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     @Override
     public void onRevoke() {
         VpnStatus.logInfo(R.string.permission_revoked);
-        mManagement.stopVPN();
+        mManagement.stopVPN(false);
         endVpnService();
     }
 
@@ -132,6 +134,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.removeByteCountListener(this);
         unregisterDeviceStateReceiver();
         ProfileManager.setConntectedVpnProfileDisconnected(this);
+        mOpenVPNThread = null;
         if (!mStarting) {
             stopForeground(!mNotificationAlwaysVisible);
 
@@ -182,16 +185,16 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
 
         mNotificationManager.notify(OPENVPN_STATUS, notification);
-        //startForeground(OPENVPN_STATUS, notification);
+        // startForeground(OPENVPN_STATUS, notification);
 
         // Check if running on a TV
-        if(runningOnAndroidTV() && !lowpriority)
+        if (runningOnAndroidTV() && !lowpriority)
             guiHandler.post(new Runnable() {
 
                 @Override
                 public void run() {
 
-                    if (mlastToast!=null)
+                    if (mlastToast != null)
                         mlastToast.cancel();
                     String toastText = String.format(Locale.getDefault(), "%s - %s", mProfile.mName, msg);
                     mlastToast = Toast.makeText(getBaseContext(), toastText, Toast.LENGTH_SHORT);
@@ -378,87 +381,13 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             mProfile = ProfileManager.get(this, profileUUID);
         }
 
-
-        // Extract information from the intent.
-        String prefix = getPackageName();
-        String[] argv = intent.getStringArrayExtra(prefix + ".ARGV");
-        String nativeLibraryDirectory = intent.getStringExtra(prefix + ".nativelib");
-
-        String startTitle = getString(R.string.start_vpn_title, mProfile.mName);
-        String startTicker = getString(R.string.start_vpn_ticker, mProfile.mName);
-        showNotification(startTitle, startTicker,
-                false, 0, LEVEL_CONNECTING_NO_SERVER_REPLY_YET);
-
-        // Set a flag that we are starting a new VPN
-        mStarting = true;
-        // Stop the previous session by interrupting the thread.
-        if (mManagement != null && mManagement.stopVPN())
-            // an old was asked to exit, wait 1s
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                //ignore
+        /* start the OpenVPN process itself in a background thread */
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                startOpenVPN();
             }
-
-        synchronized (mProcessLock) {
-            if (mProcessThread != null) {
-                mProcessThread.interrupt();
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    //ignore
-                }
-            }
-        }
-        // An old running VPN should now be exited
-        mStarting = false;
-
-        // Start a new session by creating a new thread.
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        mOvpn3 = prefs.getBoolean("ovpn3", false);
-        if (!"ovpn3".equals(BuildConfig.FLAVOR))
-            mOvpn3 = false;
-
-
-        // Open the Management Interface
-        if (!mOvpn3) {
-
-            // start a Thread that handles incoming messages of the managment socket
-            OpenVpnManagementThread ovpnManagementThread = new OpenVpnManagementThread(mProfile, this);
-            if (ovpnManagementThread.openManagementInterface(this)) {
-
-                Thread mSocketManagerThread = new Thread(ovpnManagementThread, "OpenVPNManagementThread");
-                mSocketManagerThread.start();
-                mManagement = ovpnManagementThread;
-                VpnStatus.logInfo("started Socket Thread");
-            } else {
-                return START_NOT_STICKY;
-            }
-        }
-
-
-        Runnable processThread;
-        if (mOvpn3) {
-
-            OpenVPNManagement mOpenVPN3 = instantiateOpenVPN3Core();
-            processThread = (Runnable) mOpenVPN3;
-            mManagement = mOpenVPN3;
-
-
-        } else {
-            HashMap<String, String> env = new HashMap<>();
-            processThread = new OpenVPNThread(this, argv, env, nativeLibraryDirectory);
-        }
-
-        synchronized (mProcessLock) {
-            mProcessThread = new Thread(processThread, "OpenVPNProcessThread");
-            mProcessThread.start();
-        }
-        if (mDeviceStateReceiver != null)
-            unregisterDeviceStateReceiver();
-
-        registerDeviceStateReceiver(mManagement);
+        }).start();
 
 
         ProfileManager.setConnectedVpnProfile(this, mProfile);
@@ -470,12 +399,126 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         return START_STICKY;
     }
 
+    private void startOpenVPN() {
+        VpnStatus.logInfo(R.string.building_configration);
+        VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, VpnStatus.ConnectionStatus.LEVEL_START);
+
+
+        try {
+            mProfile.writeConfigFile(this);
+        } catch (IOException e) {
+            VpnStatus.logException("Error writing config file", e);
+            endVpnService();
+            return;
+        }
+
+        // Extract information from the intent.
+        String prefix = getPackageName();
+        String nativeLibraryDirectory = getApplicationInfo().nativeLibraryDir;
+
+        // Also writes OpenVPN binary
+        String[] argv = VPNLaunchHelper.buildOpenvpnArgv(this);
+
+
+        // Set a flag that we are starting a new VPN
+        mStarting = true;
+        // Stop the previous session by interrupting the thread.
+
+        stopOldOpenVPNProcess();
+        // An old running VPN should now be exited
+        mStarting = false;
+
+        // Start a new session by creating a new thread.
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mOvpn3 = prefs.getBoolean("ovpn3", false);
+        if (!"ovpn3".equals(BuildConfig.FLAVOR))
+            mOvpn3 = false;
+
+        // Open the Management Interface
+        if (!mOvpn3) {
+            // start a Thread that handles incoming messages of the managment socket
+            OpenVpnManagementThread ovpnManagementThread = new OpenVpnManagementThread(mProfile, this);
+            if (ovpnManagementThread.openManagementInterface(this)) {
+
+                Thread mSocketManagerThread = new Thread(ovpnManagementThread, "OpenVPNManagementThread");
+                mSocketManagerThread.start();
+                mManagement = ovpnManagementThread;
+                VpnStatus.logInfo("started Socket Thread");
+            } else {
+                endVpnService();
+                return;
+            }
+        }
+
+        Runnable processThread;
+        if (mOvpn3)
+
+        {
+
+            OpenVPNManagement mOpenVPN3 = instantiateOpenVPN3Core();
+            processThread = (Runnable) mOpenVPN3;
+            mManagement = mOpenVPN3;
+
+
+        } else {
+            HashMap<String, String> env = new HashMap<>();
+            processThread = new OpenVPNThread(this, argv, env, nativeLibraryDirectory);
+            mOpenVPNThread = processThread;
+        }
+
+        synchronized (mProcessLock)
+
+        {
+            mProcessThread = new Thread(processThread, "OpenVPNProcessThread");
+            mProcessThread.start();
+        }
+
+        new Handler(getMainLooper()).post(new Runnable() {
+                         @Override
+                         public void run() {
+                             if (mDeviceStateReceiver != null)
+                                 unregisterDeviceStateReceiver();
+
+                             registerDeviceStateReceiver(mManagement);
+                         }
+                     }
+
+                );
+    }
+
+    private void stopOldOpenVPNProcess() {
+        if (mManagement != null) {
+            if (mOpenVPNThread!=null)
+                ((OpenVPNThread) mOpenVPNThread).setReplaceConnection();
+            if (mManagement.stopVPN(true)) {
+                // an old was asked to exit, wait 1s
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    //ignore
+                }
+            }
+        }
+
+        synchronized (mProcessLock) {
+            if (mProcessThread != null) {
+                mProcessThread.interrupt();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    //ignore
+                }
+            }
+        }
+    }
+
     private OpenVPNManagement instantiateOpenVPN3Core() {
         try {
             Class cl = Class.forName("de.blinkt.openvpn.core.OpenVPNThreadv3");
             return (OpenVPNManagement) cl.getConstructor(OpenVPNService.class, VpnProfile.class).newInstance(this, mProfile);
         } catch (IllegalArgumentException | InstantiationException | InvocationTargetException |
-                NoSuchMethodException | ClassNotFoundException | IllegalAccessException e ) {
+                NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return null;
@@ -485,7 +528,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     public void onDestroy() {
         synchronized (mProcessLock) {
             if (mProcessThread != null) {
-                mManagement.stopVPN();
+                mManagement.stopVPN(true);
             }
         }
 
@@ -581,7 +624,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             // Check if the first DNS Server is in the VPN range
             try {
                 ipAddress dnsServer = new ipAddress(new CIDRIP(mDnslist.get(0), 32), true);
-                boolean dnsIncluded=false;
+                boolean dnsIncluded = false;
                 for (ipAddress net : positiveIPv4Routes) {
                     if (net.containsNet(dnsServer)) {
                         dnsIncluded = true;
@@ -618,8 +661,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 VpnStatus.logError(getString(R.string.route_rejected) + route6 + " " + ia.getLocalizedMessage());
             }
         }
-
-
 
 
         if (mDomain != null)
@@ -716,7 +757,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setAllowedVpnPackages(Builder builder) {
-        boolean atLeastOneAllowedApp=false;
+        boolean atLeastOneAllowedApp = false;
         for (String pkg : mProfile.mAllowedAppsVpn) {
             try {
                 if (mProfile.mAllowedAppsVpnAreDisallowed) {
@@ -910,7 +951,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             // Does not work :(
             String msg = getString(resid);
             // showNotification(VpnStatus.getLastCleanLogMessage(this),
-                    // msg, lowpriority, 0, level);
+            //      msg, lowpriority, 0, level);
 
         }
     }

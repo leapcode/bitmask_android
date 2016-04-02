@@ -17,9 +17,12 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.MessageDigest;
@@ -34,6 +37,7 @@ import java.util.Locale;
 import java.util.UnknownFormatConversionException;
 import java.util.Vector;
 
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 
 public class VpnStatus {
@@ -73,7 +77,7 @@ public class VpnStatus {
         logException(LogLevel.ERROR, context, e);
     }
 
-    private static final int MAXLOGENTRIES = 1000;
+    static final int MAXLOGENTRIES = 1000;
 
 
     public static String getLastCleanLogMessage(Context c) {
@@ -291,7 +295,6 @@ public class VpnStatus {
                         if (mArgs != null)
                             str += TextUtils.join("|", mArgs);
 
-
                         return str;
                     }
                 }
@@ -368,6 +371,16 @@ public class VpnStatus {
                 return mLevel.getInt();
             }
             return mVerbosityLevel;
+        }
+
+        public boolean verify() {
+            if (mLevel == null)
+                return false;
+
+            if (mMessage == null && mRessourceId == 0)
+                return false;
+
+            return true;
         }
     }
 
@@ -575,6 +588,9 @@ public class VpnStatus {
             mLogFileHandler.sendMessage(mLogFileHandler.obtainMessage(LogFileHandler.TRIM_LOG_FILE));
         }
 
+        if (BuildConfig.DEBUG && !cachedLine)
+            Log.d("OpenVPN", logItem.getString(null));
+
 
         for (LogListener ll : logListener) {
             ll.newLog(logItem);
@@ -613,8 +629,8 @@ public class VpnStatus {
     public static synchronized void updateByteCount(long in, long out) {
         long lastIn = mlastByteCount[0];
         long lastOut = mlastByteCount[1];
-        long diffIn = mlastByteCount[2] = in - lastIn;
-        long diffOut = mlastByteCount[3] = out - lastOut;
+        long diffIn = mlastByteCount[2] = Math.max(0, in - lastIn);
+        long diffOut = mlastByteCount[3] = Math.max(0, out - lastOut);
 
 
         mlastByteCount = new long[]{in, out, diffIn, diffOut};
