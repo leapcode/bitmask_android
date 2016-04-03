@@ -244,10 +244,7 @@ public class VpnFragment extends Fragment implements Observer {
         Context context = dashboard.getApplicationContext();
         String error = eip_status.lastError(5, context);
 
-        if (!error.isEmpty()) {
-            dashboard.showLog();
-            VoidVpnService.stop();
-        }
+        if (!error.isEmpty()) VoidVpnService.stop();
         updateIcon();
         updateButton();
     }
