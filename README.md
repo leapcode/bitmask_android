@@ -25,7 +25,7 @@ the SDK and NDK to `~/dev` on a linux machine, you would add this to your path:
 
 Installable via `android` command (SDK Manager):
 
-* Android SDK Build-tools, 23.0.2
+* Android SDK Build-tools, 23.0.3
 * Android Support Repository, 4+
 
 Finally, install a java compiler. For example:
