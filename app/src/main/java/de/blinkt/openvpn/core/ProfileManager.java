@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Arne Schwabe
+ * Copyright (c) 2012-2016 Arne Schwabe
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
@@ -126,6 +126,11 @@ public class ProfileManager {
 
     public static void setTemporaryProfile(VpnProfile tmp) {
         ProfileManager.tmpprofile = tmp;
+    }
+
+    public static boolean isTempProfile()
+    {
+        return mLastConnectedVpn == tmpprofile;
     }
 
 

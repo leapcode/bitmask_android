@@ -13,29 +13,41 @@ report any bugs or feature requests and to see the list of known issues.
 
 Install from developer.android.com:
 
-* Android SDK, API 17: http://developer.android.com/sdk/index.html
-* Android NDK, r9d: http://developer.android.com/tools/sdk/ndk/index.html
+* Android SDK, API 23: http://developer.android.com/sdk/index.html
+* Android NDK, r10e: http://developer.android.com/tools/sdk/ndk/index.html
 
 Make sure add the necessary android tools to your bin path. For example, assuming you installed
 the SDK and NDK to `~/dev` on a linux machine, you would add this to your path:
 
     ~/dev/android-sdk-linux/tools
     ~/dev/android-sdk-linux/platform-tools
-    ~/dev/android-ndk-r9d
+    ~/dev/android-ndk-r10e/
 
 Installable via `android` command (SDK Manager):
 
-* Android SDK Build-tools, 19.0.3
+* Android SDK Build-tools, 23.0.2
 * Android Support Repository, 4+
-
-We need Mercurial:
-* Mercurial: http://mercurial.selenic.com/downloads
 
 Finally, install a java compiler. For example:
 
    sudo apt-get install default-jdk
 
-### Build native sources
+If you are using a 64-bit machine, you will need to install some libraries too:
+    sudo apt-get install lib32stdc++6 lib32z1
+
+## Update git submodules
+
+We build upon ics-openvpn, which meets a submodule in our project structure.
+
+For that reason, it is necessary to initialize and update them before being able to build Bitmask Android.
+
+    git submodule init
+    git submodule update
+    cd ics-openvpn
+    git submodule init
+    git submodule update
+
+## Build native sources
 
 To build NDK sources, you need to issue these commands:
 
@@ -77,6 +89,18 @@ Due to the nature of some tests, adb will lose its connectivity and you won't re
 
 We'll polish this process soon, but right now that's what we're doing (well, in fact, we run "adb logcat" in Emacs and then search "failed: test" in the corresponding buffer ;) ).
 
+## Updating ics-openvpn
+
+    cd ics-openvpn
+    git remote add upstream https://github.com/schwabe/ics-openvpn.git
+    git pull --rebase upstream master
+    
+A bunch of conflicts may arise. The guidelines are: 
+    1. Methods in HEAD (upstream) completely removed from Bitmask should be removed again (e.g. askPW)
+    2. Sometimes, Dashboard.class is in Bitmask while in ics-openvpn it is replaced by MainActivity.class and other classes. Keep removing them to keep Dashboard.class in there.
+    3. Some resources files are stripped from several entries. Remove them if possible (check the code we compile is not using anything else new).
+
+    ./gradlew updateIcsOpenVpn
 ## Acknowledgements
 
 This project bases its work in [ics-openvpn project](https://code.google.com/p/ics-openvpn/).
