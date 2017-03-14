@@ -1,11 +1,12 @@
 image: "0xacab.org:4567/leap/gitlab-buildpackage:android"
 #image: "gfx2015/android"
 
-variables:
-  GIT_SUBMODULE_STRATEGY: "recursive"
-
 stages:
   - build
+
+before_script:
+  - git submodule sync --recursive
+  - git submodule update --init --recursive
 
 build:
   stage: build
