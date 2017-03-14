@@ -1,5 +1,5 @@
 #image: "0xacab.org:4567/leap/gitlab-buildpackage:android"
-image: "jacekmarchwicki/android"
+image: "gfx2015/android"
 
 stages:
   - build
