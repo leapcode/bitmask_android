@@ -1,4 +1,5 @@
-image: "0xacab.org:4567/leap/gitlab-buildpackage:android"
+#image: "0xacab.org:4567/leap/gitlab-buildpackage:android"
+image: "jacekmarchwicki/android"
 
 stages:
   - build
