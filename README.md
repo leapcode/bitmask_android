@@ -78,8 +78,6 @@ These are necessary to make sure the program cross-compiles to 32-bit architectu
 sudo apt install  lib32stdc++ lib32z1
 ```
 
-lib64stdc++
-
 ### Android SDK <a name="android-sdk"></a>
 
 #### With Android Studio <a name="with-android-studio"></a>
@@ -142,9 +140,7 @@ sdkmanager ndk-bundle
 
 #### Updating Your Path <a name="updating-your-path"></a>
 
-Once you've installed Android SDK & NDK packages, you need to modify your PATH so you can invoke all the programs you just installed. (On GNU/Linux, machines, this is generally `~/Android/Sdk`.)
-
-You can do that with something like the following in your `~/.shellrc` or `~/.bash_profile`:
+Once you've installed Android SDK & NDK packages, you need to modify your PATH so you can invoke all the programs you just installed. You can do that with something like the following in your `~/.shellrc` or `~/.bash_profile`:
 
 ```shell
 export ANDROID_HOME=<path/where/you/installed/android/sdk>
@@ -153,6 +149,8 @@ export PATH=$ANDROID_NDK_HOME:$PATH
 export PATH=$ANDROID_HOME/platform-tools:$PATH
 export PATH=$ANDROID_HOME/tools/bin:$PATH
 ```
+
+NOTE: On GNU/Linux machines, Android Studio installs the Android SDK in `~/Android/Sdk/`. Our dockerfile installs it in `/opt/android-sdk-linux`. You can install it wherever you want! Just be sure to remember where so you can add it to your PATH! :)
 
 #### With Docker <a name="with-docker"></a>
 
@@ -388,8 +386,6 @@ You have a couple options. The second is more robust:
  ```shell
 function emulator { pushd `pwd`; cd "$(dirname "$(which emulator)")" && ./emulator "$@"; popd;}
 ```
-
-*** PROBLEM 2: OUTDATED VERSIONS OF GL LIBRARIES
 
 #### 3. Outdated GL Libraries <a name="outdated-gl-libraries"></a>
 
