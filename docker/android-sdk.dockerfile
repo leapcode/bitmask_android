@@ -4,22 +4,6 @@ MAINTAINER LEAP Encryption Access Project <info@leap.se>
 LABEL Description="Android SDK baseimage based on debian:stretch" Vendor="LEAP" Version="0.0.1"
 
 # ------------------------------------------------------
-# --- Env Vars
-
-
-ENV ANDROID_SDK_VERSION "25.2.5"
-ENV ANDROID_NDK_VERSION "r12b"
-
-# NOTE(@aguestuser|4.23.17)
-# We woud like to use te current version of Android NDK ()
-
-ENV ANDROID_HOME /opt/android-sdk-linux
-ENV ANDROID_NDK_HOME ${ANDROID_HOME}/android-ndk-${ANDROID_NDK_VERSION}
-
-ENV ANDROID_SDK_URL https://dl.google.com/android/repository/tools_r${ANDROID_SDK_VERSION}-linux.zip
-ENV ANDROID_NDK_URL http://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip
-
-# ------------------------------------------------------
 # --- Install System Dependencies
 
 # Update Debian
@@ -31,8 +15,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
   curl unzip git locales \
   # java stuff
   openjdk-8-jdk maven \ 
-  # c libraries
-  make gcc lib32stdc++6 lib32z1 # (incl. 32-bit compatible versions)
+  # ndk dependencies
+  make gcc file lib32stdc++6 lib32z1 # (incl. 32-bit compatible versions)
 
 # Set Locale
 RUN locale-gen en_US.UTF-8  
@@ -41,6 +25,9 @@ RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 # ------------------------------------------------------
 # --- Install Android SDK Tools
 
+ENV ANDROID_SDK_VERSION "25.2.5"
+ENV ANDROID_HOME /opt/android-sdk-linux
+ENV ANDROID_SDK_URL https://dl.google.com/android/repository/tools_r${ANDROID_SDK_VERSION}-linux.zip
 
 # Install SDK Tools
 RUN curl -L $ANDROID_SDK_URL -o sdk-tools.zip  \
@@ -53,35 +40,21 @@ ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}
 # ------------------------------------------------------
 # --- Install Android NDK (for running C code)
 
+# NOTE(@aguestuser|4.23.17)
+# We woud like to use te current version of Android NDK (r14b) but cannot 
+#   due to pinned dependency on year-old version of `ics-openvpn`
+#   which has transitive dependency on `openssl` which will not compile with `clang`
+#   (starting in 13b, android ndk uses `clang` isntead of `gcc`)
+# Upon rebasing onto to current HEAD of `ics-openvpn` and resolving conflicts, we
+#   should update to current version of `ndk` (if possible).
+
+ENV ANDROID_NDK_VERSION "r12b"
+ENV ANDROID_NDK_HOME ${ANDROID_HOME}/android-ndk-${ANDROID_NDK_VERSION}
+ENV ANDROID_NDK_URL http://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip
+
 RUN curl -L $ANDROID_NDK_URL -o ndk.zip  \
     && unzip ndk.zip -d $ANDROID_HOME  \
     && rm -rf ndk.zip
-
-# HACK (@aguestuser|4.23.17):
-
-# BUG:
-#   when installed on a 64-bit machine, ndk r12b
-#   fails to cross-compile for *some* (not all) target architectures
-#   because it looks for prebuilt packages in <path/to/arch>/prebuilt/linux-x86
-#   instead of <path/to/arch>/prebuilt/linux-x86_64 (which is where it installed them)
-
-# PENDING:
-#   (1) a cleaner solution
-#   (2) upgrading to ndk r14b (pending openssl/clang bugfix: https://github.com/openssl/openssl/pull/2229)
-
-# WORKAROUND:
-#   we simply rename all such directories so the cross-compiler can find them
-
-ENV TARGETS "aarch64-linux-android-4.9 \
-             arm-linux-androideabi-4.9 \
-             mipsel-linux-android-4.9 \
-             x86-4.9 \
-             x86_64-4.9"
-
-RUN for target in $TARGETS; do \
-      cd ${ANDROID_NDK_HOME}/toolchains/${target}/prebuilt \
-      && mv linux-x86_64/ linux-x86/; \
-    done
 
 ENV PATH ${PATH}:${ANDROID_NDK_HOME}
 
