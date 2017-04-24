@@ -1,12 +1,4 @@
-# NOTE(@aguestuser|4.23.17):
-# - we would prefer 0xacab.org:4567/leap/bitmask_android:android-sdk
-#   as the build image, but cant do that presently b/c:
-# (1) i do not have permissions to create docker repositories in this repo
-# (2) we need to add whatever image we use to gitlab ci's whitelist
-#     or else we get a message like:
-#     `ERROR: The 0xacab.org:4567/aguestuser/bitmask_android:android-sdk-25 is not present on list of allowed images`
-
-image: "0xacab.org:4567/leap/gitlab-buildpackage:android"
+image: "0xacab.org:4567/leap/bitmask_android/android-sdk:latest"
 
 stages:
   - build
