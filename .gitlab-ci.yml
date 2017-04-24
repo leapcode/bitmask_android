@@ -1,4 +1,4 @@
-image: "0xacab.org:4567/leap/bitmask_android/android-sdk:latest"
+image: "0xacab.org:4567/leap/bitmask_android:android-sdk"
 
 stages:
   - build
