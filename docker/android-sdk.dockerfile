@@ -46,18 +46,18 @@ ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}
 RUN echo y | sdkmanager "platform-tools" # echo y to accept google licenses
 
 # Install Android Support Repositories
-RUN echo y | sdkmanager "extras;android;m2repository"
-
-# Install Target SDK Packages (Please keep in descending order)
-RUN echo y | sdkmanager "platforms;android-25"
-RUN echo y | sdkmanager "platforms;android-24"
-RUN echo y | sdkmanager "platforms;android-23"
+RUN sdkmanager "extras;android;m2repository"
 
 # Install Build Tools (Please keep in descending order)
-RUN echo y | sdkmanager "build-tools;25.0.2"
-RUN echo y | sdkmanager "build-tools;25.0.0"
-RUN echo y | sdkmanager "build-tools;24.0.3"
-RUN echo y | sdkmanager "build-tools;23.0.3"
+RUN sdkmanager "build-tools;25.0.2"
+RUN sdkmanager "build-tools;25.0.0"
+RUN sdkmanager "build-tools;24.0.3"
+RUN sdkmanager "build-tools;23.0.3"
+
+# Install Target SDK Packages (Please keep in descending order)
+RUN sdkmanager "platforms;android-25"
+RUN sdkmanager "platforms;android-24"
+RUN sdkmanager "platforms;android-23"
 
 # ------------------------------------------------------
 # --- Cleanup
