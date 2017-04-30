@@ -48,16 +48,16 @@ The Bitmask Android Client has the following system-level dependencies:
 
 * JDK v. 1.8
 * Assorted 32-bit C libraries
-* Android SDK Tools, v. 25.0.2, with these packages:
+* Android SDK Tools, v. 25.2.5, with these packages:
   * Platform-Tools, v. 25.0.2
   * Build-Tools, API v. 23-25
   * Platforms 23-25
   * Android Support Repository
   * Google Support Repository
-  * NDK v. r14b (enables C code in Android)
+  * NDK v. r12b (enables C code in Android)
 * For running the app in an emulator, you will also need these packages:
   * Android Emulator
-  * ARMEABI System Images for Adnroid APIs 23-25
+  * System Images for Android APIs 23-25
 * The ICS-OpenVpn submodule
 
 You can install them as follows:
@@ -75,7 +75,7 @@ sudo apt install default-jdk
 These are necessary to make sure the program cross-compiles to 32-bit architectures successfully from 64-bit GNU/Linux machines:
 
 ```
-sudo apt install  lib32stdc++ lib32z1
+sudo apt make gcc file install lib32stdc++ lib32z1
 ```
 
 ### Android SDK <a name="android-sdk"></a>
@@ -92,13 +92,20 @@ Once you've got it installed, use the `SDK Manager` tool (Android figure Icon wi
 
 #### With Bash <a name="with-bash"></a>
 
-Alternatley (eg: for build machines), you may download the `android-sdk` tarball from Google as follows:
+Alternatley (eg: for build machines), you may download and unzip the `android-sdk` bundle from Google as follows (assuming an install location of `/opt/android-sdk-linux`:
 
 ```
-cd </path/where/you/want/to/install/android-sdk>
-wget -q https://dl.google.com/android/android-sdk_r23.0.3-linux.tgz -O android-sdk.tgz
-tar -xvzf android-sdk.tgz
-rm -f android-sdk.tgz
+curl -L https://dl.google.com/android/android-sdk_r25.2.5-linux.zip -o sdk-tools.zip  \
+    && unzip -q sdk-tools.zip -d /opt/android-sdk-linux \
+    && rm -f sdk-tools.zip
+```
+
+To download the NDK (for cross-compiling and running the C code used in `ics-openvpn`), use:
+
+```
+curl -L http://dl.google.com/android/repository/android-ndk-r12b-linux-x86_64.zip -o ndk.zip  \
+    && unzip ndk.zip -d /opt/android-sdk-linux/android-ndk-r12b \
+    && rm -rf ndk.zip
 ```
 
 After updating your PATH (see next step), you may now use the `sdkmanager` tool bundled with `android-sdk` to browse and install new sdk packages from Google.
@@ -118,24 +125,16 @@ sdkmanager --list | grep tools
 To install all of the dependencies listed above (targetting SDK versions 23 - 25), run:
 
 ```shell
-# update sdk tools
 sdkmanager tools
-
-# get supporting packages
 sdkmanager platform-tools
 sdkmanager extras;android;m2repository
 sdkmanager extras;google;m2repository
-
-# get build tools and sdk platforms for api v 23 - 25
 sdkmanager build-tools;25.0.2
 sdkmanager build-tools;24.0.3
 sdkmanager build-tools;23.0.3
 sdkmanager platforms;android-25
 sdkmanager platforms;android-24
 sdkmanager platforms;android-23
-
-# install NDK (for C code)
-sdkmanager ndk-bundle
 ```
 
 #### Updating Your Path <a name="updating-your-path"></a>
@@ -161,22 +160,21 @@ To keep ourselves from messing it up all the time everyone someone new joins the
 Assuming you've already [installed docker](https://docs.docker.com/engine/installation/), you can pull the image with:
 
 ``` shell
-docker pull 0xacab.org:4567/aguestuser/bitmask_android:android-sdk-25
+docker pull 0xacab.org:4567/aguestuser/bitmask_android:android-ndk:latest
 ```
 
 Run the image with:
 
 ``` shell
-docker run -i -t 0xacab.org:4567/aguestuser/bitmask_android:android-sdk-25
+docker run --rm -it 0xacab.org:4567/aguestuser/bitmask_android:android-ndk:latest
 ```
 More likely than not, you'll want to run the image with the source code mounted. You can do that with:
 
 ``` shell
 cd <path/to/bitmask_android>
-docker run -i -v`pwd`:/bitmask_android -t 0xacab.org:4567/aguestuser/bitmask_android:android-sdk-25
+docker run --rm -it -v`pwd`:/bitmask_android -t 0xacab.org:4567/aguestuser/bitmask_android:android-ndk:latest
 ```
 
-*TODO(@aguestuser|04.16.17): move docker registry to 0xacab.org/leap (pending permissions)*
 
 ### Submodules <a name="submodules"></a>
 
@@ -241,7 +239,7 @@ If you want to make sure the environment you use to build APKs matches exactly t
 
 ``` shell
 $ cd <path/to/bitmask_android>
-$ sudo docker run -i -t `pwd`:/bitmask_android 0xacab.org/aguestuser/bitmask_android:android-sdk-25
+$ sudo docker run --rm -it -v `pwd`:/bitmask_android 0xacab.org/leap/bitmask_android/android-ndk:latest
 # cd /bitmask_android
 # ./gradlew assembleRelease
 ```
