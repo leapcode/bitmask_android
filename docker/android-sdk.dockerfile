@@ -18,9 +18,16 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
   # ndk dependencies
   make gcc file lib32stdc++6 lib32z1 # (incl. 32-bit compatible versions)
 
-# Set Locale
-RUN locale-gen en_US.UTF-8  
+# ------------------------------------------------------
+# --- Set Locales
+
+# Generate All Locales
+RUN cp /usr/share/i18n/SUPPORTED /etc/locale.gen
+RUN locale-gen
+
+# Set Default Locale
 RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ENV LANG en_US.UTF-8
 
 # ------------------------------------------------------
 # --- Install Android SDK Tools
