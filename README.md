@@ -4,7 +4,7 @@ This repository contains the source code for the [Bitmask](https://bitmask.net/)
 
 To lean about the stack, visit [leap.se](https://leap.se).
 
-Please see the [issues](https://github.com/leapcode/bitmask_android/issues) section to report any bugs or feature requests, and to see the list of known issues.
+Please see the [issues](https://0xacab.org/leap/bitmask_android/issues) section to report any bugs or feature requests, and to see the list of known issues.
 
 # Table Of Contents
 
