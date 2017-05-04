@@ -1,5 +1,4 @@
-image: "0xacab.org:4567/leap/gitlab-buildpackage:android"
-#image: "gfx2015/android"
+image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
 
 stages:
   - build
