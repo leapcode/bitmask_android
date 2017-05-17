@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Arne Schwabe
+ * Copyright (c) 2012-2016 Arne Schwabe
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
@@ -42,10 +42,9 @@ public class SeekBarTicks extends SeekBar {
         TypedArray a = context.obtainStyledAttributes(attrs,
                 new int[] { android.R.attr.secondaryProgress }, defStyle, 0);
 
-
-        int tickColor = a.getColor(0, android.R.color.black);
         mTickPaint = new Paint();
-        mTickPaint.setColor( context.getResources().getColor(tickColor));
+        //noinspection deprecation
+        mTickPaint.setColor( context.getResources().getColor(android.R.color.black));
         a.recycle();
     }
 

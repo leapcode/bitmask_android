@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Arne Schwabe
+ * Copyright (c) 2012-2016 Arne Schwabe
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
@@ -14,30 +14,38 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Vector;
 
 import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
 
 public class VPNLaunchHelper {
-    private static final String MININONPIEVPN = "nopievpn";
-    private static final String MINIPIEVPN = "pievpn";
+    private static final String MININONPIEVPN = "nopie_openvpn";
+    private static final String MINIPIEVPN = "pie_openvpn";
     private static final String OVPNCONFIGFILE = "android.conf";
 
 
 
-    static private String writeMiniVPN(Context context) {
+    private static String writeMiniVPN(Context context) {
         String[] abis;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            abis = getSupportedAbisLollipop();
+            abis = getSupportedABIsLollipop();
         else
+            //noinspection deprecation
             abis = new String[]{Build.CPU_ABI, Build.CPU_ABI2};
+
+        String nativeAPI = NativeUtils.getNativeAPI();
+        if (!nativeAPI.equals(abis[0])) {
+            VpnStatus.logWarning(R.string.abi_mismatch, Arrays.toString(abis), nativeAPI);
+            abis = new String[] {nativeAPI};
+        }
 
         for (String abi: abis) {
 
-            File mvpnout = new File(context.getCacheDir(), getMiniVPNExecutableName() + "." + abi);
-            if ((mvpnout.exists() && mvpnout.canExecute()) || writeMiniVPNBinary(context, abi, mvpnout)) {
-                return mvpnout.getPath();
+            File vpnExecutable = new File(context.getCacheDir(), getMiniVPNExecutableName() + "." + abi);
+            if ((vpnExecutable.exists() && vpnExecutable.canExecute()) || writeMiniVPNBinary(context, abi, vpnExecutable)) {
+                return vpnExecutable.getPath();
             }
         }
 
@@ -45,7 +53,7 @@ public class VPNLaunchHelper {
 	}
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static String[] getSupportedAbisLollipop() {
+    private static String[] getSupportedABIsLollipop() {
         return Build.SUPPORTED_ABIS;
     }
 
@@ -65,12 +73,18 @@ public class VPNLaunchHelper {
     }
 
 
-    public static String[] buildOpenvpnArgv(Context c) {
+    static String[] buildOpenvpnArgv(Context c) {
         Vector<String> args = new Vector<>();
 
+        String binaryName = writeMiniVPN(c);
         // Add fixed paramenters
         //args.add("/data/data/de.blinkt.openvpn/lib/openvpn");
-        args.add(writeMiniVPN(c));
+        if(binaryName==null) {
+            VpnStatus.logError("Error writing minivpn binary");
+            return null;
+        }
+
+        args.add(binaryName);
 
         args.add("--config");
         args.add(getConfigFilePath(c));
@@ -118,13 +132,6 @@ public class VPNLaunchHelper {
 	
 
 	public static void startOpenVpn(VpnProfile startprofile, Context context) {
-		if(writeMiniVPN(context)==null) {
-			VpnStatus.logError("Error writing minivpn binary");
-			return;
-		}
-
-		VpnStatus.logInfo(R.string.building_configration);
-
 		Intent startVPN = startprofile.prepareStartService(context);
 		if(startVPN!=null)
 			context.startService(startVPN);

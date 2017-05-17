@@ -79,7 +79,7 @@ public class VpnTestController {
         a = whole_icon != null ?
                 (ProgressRingView) getVpnWholeIcon().findViewById(R.id.fabbutton_ring) :
                 new ProgressRingView(solo.getCurrentActivity());
-        BaseTestDashboard.isShownWithinConfinesOfVisibleScreen(a);
+        BaseTestDashboardFragment.isShownWithinConfinesOfVisibleScreen(a);
     }
 
     private boolean iconShowsConnected() {

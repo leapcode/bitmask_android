@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Arne Schwabe
+ * Copyright (c) 2012-2016 Arne Schwabe
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
@@ -15,7 +15,7 @@ import de.blinkt.openvpn.fragments.LogFragment;
 /**
  * Created by arne on 13.10.13.
  */
-public class LogWindow extends Activity {
+public class LogWindow extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

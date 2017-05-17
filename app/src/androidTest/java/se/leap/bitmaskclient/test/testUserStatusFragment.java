@@ -1,6 +1,6 @@
 package se.leap.bitmaskclient.test;
 
-public class testUserStatusFragment extends BaseTestDashboard {
+public class testUserStatusFragment extends BaseTestDashboardFragment {
 
     public final String TAG = testUserStatusFragment.class.getName();
 
@@ -18,7 +18,10 @@ public class testUserStatusFragment extends BaseTestDashboard {
 
     public void testLogInAndOut() {
         user_status_controller.clickUserSessionButton();
+        Screenshot.take("Login dialog");
         user_status_controller.logIn(test_username, test_password);
+        Screenshot.setTimeToSleep(2);
+        Screenshot.takeWithSleep("Logging in");
         user_status_controller.logOut();
     }
 

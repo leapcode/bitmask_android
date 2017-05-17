@@ -1,0 +1,16 @@
+image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
+
+stages:
+  - build
+
+before_script:
+  - git submodule sync --recursive
+  - git submodule update --init --recursive
+
+build:
+  stage: build
+  script:
+    - ./gradlew assembleDebug
+  artifacts:
+    paths:
+    - app/build/outputs/

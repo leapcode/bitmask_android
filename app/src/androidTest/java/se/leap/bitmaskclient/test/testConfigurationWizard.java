@@ -29,6 +29,7 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
     protected void setUp() throws Exception {
         super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
+        Screenshot.initialize(solo);
         //ConnectionManager.setMobileDataEnabled(true, solo.getCurrentActivity().getApplicationContext());
     }
 
@@ -62,17 +63,21 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
     }
 
     public void testSelectProvider() {
+        Screenshot.take("Initial CW");
         selectProvider("demo.bitmask.net");
     }
 
     private void selectProvider(String provider) {
         solo.clickOnText(provider);
+        Screenshot.setTimeToSleep(1);
+        Screenshot.take("Configuring provider");
         waitForProviderDetails();
     }
 
     private void waitForProviderDetails() {
         String text = solo.getString(R.string.provider_details_fragment_title);
         assertTrue("Provider details dialog did not appear", solo.waitForText(text, 1, 60*1000));
+        Screenshot.take("Provider details");
     }
 
     public void testAddNewProvider() {

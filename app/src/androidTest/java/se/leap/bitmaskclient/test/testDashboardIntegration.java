@@ -1,20 +1,10 @@
 package se.leap.bitmaskclient.test;
 
-import android.graphics.*;
-import android.graphics.drawable.Drawable;
-import android.widget.Button;
-
-import com.robotium.solo.*;
-
 import java.io.*;
 
-import de.blinkt.openvpn.activities.*;
-import mbanje.kurt.fabbutton.CircleImageView;
-import mbanje.kurt.fabbutton.FabButton;
-import mbanje.kurt.fabbutton.ProgressRingView;
 import se.leap.bitmaskclient.*;
 
-public class testDashboardIntegration extends BaseTestDashboard {
+public class testDashboardIntegration extends BaseTestDashboardFragment {
 
     @Override
     protected void tearDown() throws Exception {

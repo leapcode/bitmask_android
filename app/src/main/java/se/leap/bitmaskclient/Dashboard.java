@@ -14,6 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * Copyright (c) 2013 LEAP Encryption Access Project and contributers
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.leap.bitmaskclient;
 
 import android.annotation.*;
@@ -31,6 +47,7 @@ import org.json.*;
 import java.net.*;
 
 import butterknife.*;
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.*;
 import se.leap.bitmaskclient.userstatus.*;
 
@@ -71,35 +88,55 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        app = this;
-
-        PRNGFixes.apply();
-
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
-        handleVersion();
-        User.init(getString(R.string.default_username));
 
         ProviderAPICommand.initialize(this);
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
 
-        restoreProvider(savedInstanceState);
-        if (!provider.isConfigured())
+        if (app == null) {
+            app = this;
+
+            PRNGFixes.apply();
+            VpnStatus.initLogCache(getApplicationContext().getCacheDir());
+            handleVersion();
+            User.init(getString(R.string.default_username));
+        }
+        boolean provider_exists = previousProviderExists(savedInstanceState);
+        if (provider_exists) {
+            provider = getProvider(savedInstanceState);
+            if(!provider.isConfigured())
+                startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
+            else {
+                buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
+                user_status_fragment.restoreSessionStatus(savedInstanceState);
+            }
+        } else {
             startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
-        else {
-            buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
-            user_status_fragment.restoreSessionStatus(savedInstanceState);
         }
     }
 
-    private void restoreProvider(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(Provider.KEY))
-                provider = savedInstanceState.getParcelable(Provider.KEY);
-        }
-        if (!provider.isConfigured() && preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false))
+    private boolean previousProviderExists(Bundle savedInstanceState) {
+        return providerInSavedInstance(savedInstanceState) || providerInSharedPreferences();
+    }
+
+    private Provider getProvider(Bundle savedInstanceState) {
+        if(providerInSavedInstance(savedInstanceState))
+            provider = savedInstanceState.getParcelable(Provider.KEY);
+        else if (providerInSharedPreferences())
             provider = getSavedProviderFromSharedPreferences();
+        return provider;
+    }
+
+    private boolean providerInSavedInstance(Bundle savedInstanceState) {
+        return savedInstanceState != null &&
+                savedInstanceState.containsKey(Provider.KEY);
+    }
+
+    private boolean providerInSharedPreferences() {
+        return preferences != null &&
+                preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false);
+
     }
 
     @Override

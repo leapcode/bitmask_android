@@ -22,7 +22,6 @@ import android.content.res.*;
 import android.os.*;
 import android.util.*;
 
-import org.apache.http.client.*;
 import org.json.*;
 import org.thoughtcrime.ssl.pinning.util.*;
 
@@ -440,9 +439,6 @@ public class ProviderAPI extends IntentService {
             is = urlConnection.getInputStream();
             String plain_response = new Scanner(is).useDelimiter("\\A").next();
             json_response = new JSONObject(plain_response);
-        } catch (ClientProtocolException e) {
-            json_response = getErrorMessage(urlConnection);
-            e.printStackTrace();
         } catch (IOException e) {
             json_response = getErrorMessage(urlConnection);
             e.printStackTrace();
@@ -908,10 +904,6 @@ public class ProviderAPI extends IntentService {
             responseCode = urlConnection.getResponseCode();
             broadcastProgress(progress++);
             LeapSRPSession.setToken("");
-        } catch (ClientProtocolException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return false;
         } catch (IndexOutOfBoundsException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

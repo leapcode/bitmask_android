@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Arne Schwabe
+ * Copyright (c) 2012-2016 Arne Schwabe
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
@@ -81,7 +81,7 @@ public class DisconnectVPN extends Activity implements DialogInterface.OnClickLi
         if (which == DialogInterface.BUTTON_POSITIVE) {
             ProfileManager.setConntectedVpnProfileDisconnected(this);
             if (mService != null && mService.getManagement() != null)
-                mService.getManagement().stopVPN();
+                mService.getManagement().stopVPN(false);
         }
         finish();
     }
