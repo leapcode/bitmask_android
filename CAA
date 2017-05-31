@@ -1,0 +1,56 @@
+Copyright Assignment Agreement
+
+Definitions:
+
+        LEAP: LEAP Encryption Access Project.
+
+    Software: The computer code and documentation contained in this repository.
+
+ Contributor: An author who digitally signs the text of this agreement with
+              their OpenPGP key.
+
+Contribution: Any original work of authorship (software and/or documentation)
+              including any modifications or additions to an existing work,
+              submitted by Contributor to this Software, in which Contributor
+              owns the copyright.
+
+This copyright assignment agreement is entered between LEAP and Contributor. 
+
+Whereas, Contributor wishes for LEAP to be free to use, modify, and distribute
+Software, and LEAP wishes to do so.
+
+Therefore, Contributor agrees to assign and hereby assigns all copyright to
+LEAP for Contributions made to the Software. If the Contributor's jurisdiction
+does not recognize assignment of copyright or related rights, Contributor
+grants to LEAP a perpetual, world-wide, sub-licensable license to such rights.
+
+Contributor asserts that they have all the rights necessary to assign the
+Software, and that its publication will not infringe on the intellectual
+property rights of any third party.
+
+Contributor and LEAP agree that this agreement shall be binding upon the legal
+successors and assigns of LEAP.
+
+Moral Rights remain unaffected to the extent they are recognized and not
+waivable by applicable law. Notwithstanding, Contributor may add their
+name in the header of the source code files of their Contribution and LEAP
+will respect this attribution when using the Contribution.
+
+LEAP agrees to make the Software, and all future derivations, available under
+the terms of a license on the Free Software Foundation's list of "Recommended
+Copyleft Licenses." This currently includes, but is not limited to the GPL,
+AGPL, LGPL, MIT, BSD, and Apache licenses. Contributor shall have the right to
+terminate this agreement if LEAP does not fulfill its license obligations.
+
+The Contribution is provided "as is": All express or implied warranties
+including, without limitation, any implied warranty of merchantability,
+fitness for a particular purpose and non-infringement are expressly disclaimed
+by Contributor to LEAP and by LEAP to Contributor.
+
+This agreement and all disputes, claims, actions, suits or other proceedings
+arising out of this agreement or relating in any way to it shall be governed
+by the laws of United States excluding its private international law
+provisions. If any provision of this agreement is found void and
+unenforceable, such provision will be replaced to the extent possible with a
+provision that comes closest to the meaning of the original provision and that
+is enforceable.
