@@ -30,10 +30,11 @@ import se.leap.bitmaskclient.eip.*;
 
 /**
  * @author parmegv
+ * //FIXME: The class VpnCertificateValidator should be tested with unit tests!
  */
-public class testVpnCertificateValidator extends InstrumentationTestCase {
+public class TestVpnCertificateValidator extends InstrumentationTestCase {
 
-    String certificate_valid_from_jan2015_to_nov2022 = "";
+    String certificate_valid_from_nov2012_to_nov2022 = "";
 
     Context context;
     FromAssets assets;
@@ -43,16 +44,47 @@ public class testVpnCertificateValidator extends InstrumentationTestCase {
         context = getInstrumentation().getContext();
         assets = new FromAssets(context);
         JSONObject secrets = new JSONObject(assets.toString(TestConstants.SECRETS_FILE));
-        certificate_valid_from_jan2015_to_nov2022 = secrets.getString(Provider.CA_CERT);
+        certificate_valid_from_nov2012_to_nov2022 = secrets.getString(Provider.CA_CERT);
         super.setUp();
     }
 
+
+    //TODO: This test proves that the validation method is weird. Valid dates range between Nov. 2oo6 and Nov. 2017 instead of Nov. 2012 and Nov.2022
     public void testIsValid() {
-        VpnCertificateValidator validator = new VpnCertificateValidator(certificate_valid_from_jan2015_to_nov2022);
-        setTime(2015, 1, 6);
-        assertTrue(validator.isValid());
-        setTime(2020, 1, 6);
+        VpnCertificateValidator validator = new VpnCertificateValidator(certificate_valid_from_nov2012_to_nov2022);
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.YEAR, 2006);
+        calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 6);        calendar.set(Calendar.YEAR, 2006);
+        validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
         assertFalse(validator.isValid());
+
+        calendar.set(Calendar.YEAR, 2010);
+        calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 6);
+        validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
+        assertTrue(validator.isValid());
+
+        calendar.set(Calendar.YEAR, 2011);
+        calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 6);
+        validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
+        assertTrue(validator.isValid());
+
+        calendar.set(Calendar.YEAR, 2017);
+        calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 5);
+        validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
+        assertTrue(validator.isValid());
+
+        calendar.set(Calendar.YEAR, 2017);
+        calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 6);
+        validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
+        assertFalse(validator.isValid());
+
+
     }
 
     private void setTime(int year, int month, int day) {

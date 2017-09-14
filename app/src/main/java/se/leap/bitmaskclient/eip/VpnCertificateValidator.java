@@ -25,9 +25,15 @@ public class VpnCertificateValidator {
     public final static String TAG = VpnCertificateValidator.class.getSimpleName();
 
     private String certificate;
+    protected CalendarProviderInterface calendarProvider;
 
     public VpnCertificateValidator(String certificate) {
         this.certificate = certificate;
+        calendarProvider = new CalendarProvider();
+    }
+
+    public void setCalendarProvider(CalendarProviderInterface calendarProvider) {
+        this.calendarProvider = calendarProvider;
     }
 
     public boolean isValid() {
@@ -37,6 +43,10 @@ public class VpnCertificateValidator {
         } else return true;
     }
 
+
+    /* FIXME: the validation seems to be syntactically wrong.
+     * if the valid time span of a certificate is between 01.01.14 and 01.01.16 this method would return true for current dates between 01.01.13 and 01.01.15!!!
+     */
     private boolean isValid(X509Certificate certificate) {
         Calendar offset_date = calculateOffsetCertificateValidity(certificate);
         try {
@@ -51,9 +61,9 @@ public class VpnCertificateValidator {
 
     private Calendar calculateOffsetCertificateValidity(X509Certificate certificate) {
         long preventive_time = Math.abs(certificate.getNotBefore().getTime() - certificate.getNotAfter().getTime()) / 2;
-        long current_date_millis = Calendar.getInstance().getTimeInMillis();
+        long current_date_millis = calendarProvider.getCalendar().getTimeInMillis();
 
-        Calendar limit_date = Calendar.getInstance();
+        Calendar limit_date = calendarProvider.getCalendar();
         limit_date.setTimeInMillis(current_date_millis + preventive_time);
         return limit_date;
     }
