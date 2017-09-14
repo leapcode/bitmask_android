@@ -1,43 +1,36 @@
 package se.leap.bitmaskclient.test;
 
-import android.os.Build;
-import android.test.*;
-import android.widget.*;
+import android.test.ActivityInstrumentationTestCase2;
+import android.widget.ListView;
 
-import com.robotium.solo.*;
+import com.robotium.solo.Solo;
 
-import java.io.*;
+import java.io.IOException;
 
-import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.AboutActivity;
+import se.leap.bitmaskclient.ConfigurationWizard;
+import se.leap.bitmaskclient.R;
 
-public class testConfigurationWizard extends ActivityInstrumentationTestCase2<ConfigurationWizard> {
+public class TestConfigurationWizard extends ActivityInstrumentationTestCase2<ConfigurationWizard> {
 
     private Solo solo;
     private static int added_providers;
-    private boolean executing_from_dashboard = false;
 
-    public testConfigurationWizard() {
+    public TestConfigurationWizard() {
         super(ConfigurationWizard.class);
     }
 
-    public testConfigurationWizard(Solo solo) {
-        super(ConfigurationWizard.class);
-        this.solo = solo;
-        executing_from_dashboard = true;
-    }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         solo = new Solo(getInstrumentation(), getActivity());
         Screenshot.initialize(solo);
-        //ConnectionManager.setMobileDataEnabled(true, solo.getCurrentActivity().getApplicationContext());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        if(!executing_from_dashboard)
-            solo.finishOpenedActivities();
+        solo.finishOpenedActivities();
         super.tearDown();
     }
 
@@ -111,18 +104,4 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
         assertTrue("Provider details dialog did not appear", solo.waitForActivity(AboutActivity.class));
     }
 
-    protected void toDashboardAnonymously(String provider) {
-        selectProvider(provider);
-        useAnonymously();
-    }
-
-    private void useAnonymously() {
-        String text = solo.getString(R.string.use_anonymously_button);
-        clickAndWaitForDashboard(text);
-    }
-
-    private void clickAndWaitForDashboard(String click_text) {
-        solo.clickOnText(click_text);
-        assertTrue(solo.waitForActivity(Dashboard.class, 5000));
-    }
 }
