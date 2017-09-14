@@ -1,5 +1,6 @@
 package se.leap.bitmaskclient.test;
 
+import android.os.Build;
 import android.test.*;
 import android.widget.*;
 
@@ -81,7 +82,8 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
     }
 
     public void testAddNewProvider() {
-        addProvider("calyx.net");
+        //addProvider("calyx.net");
+        addProvider("riseup.net");
     }
 
     private void addProvider(String url) {
@@ -91,7 +93,9 @@ public class testConfigurationWizard extends ActivityInstrumentationTestCase2<Co
             added_providers = added_providers + 1;
         solo.clickOnActionBarItem(R.id.new_provider);
         solo.enterText(0, url);
-        solo.clickOnCheckBox(0);
+        if ( BuildConfig.FLAVOR.equals("insecure")) {
+            solo.clickOnCheckBox(0);
+        }
         solo.clickOnText(solo.getString(R.string.save));
         waitForProviderDetails();
         solo.goBack();

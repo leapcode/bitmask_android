@@ -4,7 +4,7 @@ import java.io.*;
 
 import se.leap.bitmaskclient.*;
 
-public class testDashboardIntegration extends BaseTestDashboardFragment {
+public class TestDashboardIntegration extends BaseTestDashboardFragment {
 
     @Override
     protected void tearDown() throws Exception {

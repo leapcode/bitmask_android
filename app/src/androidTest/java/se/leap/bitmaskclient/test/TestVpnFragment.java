@@ -1,6 +1,6 @@
 package se.leap.bitmaskclient.test;
 
-public class testVpnFragment extends BaseTestDashboardFragment {
+public class TestVpnFragment extends BaseTestDashboardFragment {
 
     /**
      * This test will fail if Android does not trust VPN connection.
@@ -8,7 +8,7 @@ public class testVpnFragment extends BaseTestDashboardFragment {
      */
     public void testOnOffOpenVpn() {
         vpn_controller.clickVpnButton();
-        Screenshot.setTimeToSleep(8);
+        Screenshot.setTimeToSleep(2);
         Screenshot.takeWithSleep("Turning VPN on");
         vpn_controller.turningEipOn();
         Screenshot.setTimeToSleep(0.5);
@@ -23,13 +23,6 @@ public class testVpnFragment extends BaseTestDashboardFragment {
 
         vpn_controller.clickVpnButton();
         vpn_controller.turningEipOff();
-
-        /*clickVpnButton();;
-        turningEipOn();
-
-	    turnNetworkOff();
-        restartAdbServer(); // This doesn't work
-        */
 
     }
 
@@ -47,27 +40,27 @@ public class testVpnFragment extends BaseTestDashboardFragment {
     }
 
     public void testVpnEveryProvider() {
-        testDemoBitmaskNet();
-        testRiseupNet();
-        testCalyxNet();
+        checkDemoBitmaskNet();
+        checkRiseupNet();
+        checkCalyxNet();
     }
 
-    private void testDemoBitmaskNet() {
-        testProvider("demo.bitmask.net");
+    private void checkDemoBitmaskNet() {
+        checkProvider("demo.bitmask.net");
     }
 
-    private void testRiseupNet() {
-        testProvider("riseup.net");
+    private void checkRiseupNet() {
+        checkProvider("riseup.net");
     }
 
-    private void testCalyxNet() {
-        testProvider("calyx.net");
+    private void checkCalyxNet() {
+        checkProvider("calyx.net");
     }
 
-    private void testProvider(String provider) {
+    private void checkProvider(String provider) {
         changeProviderAndLogIn(provider);
         vpn_controller.sleepSeconds(1);
-        vpn_controller.turnVpnOndAndOff(provider);
+        vpn_controller.turnVpnOndAndOff();
         vpn_controller.sleepSeconds(1);
     }
 

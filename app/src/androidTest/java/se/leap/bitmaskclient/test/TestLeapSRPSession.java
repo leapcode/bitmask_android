@@ -11,9 +11,9 @@ import se.leap.bitmaskclient.*;
 
 import junit.framework.*;
 
-public class testLeapSRPSession extends TestCase {
+public class TestLeapSRPSession extends TestCase {
 
-    public testLeapSRPSession(String name) {
+    public TestLeapSRPSession(String name) {
         super(name);
     }
 
