@@ -65,7 +65,7 @@ public class VpnTestController {
                 return iconShowsConnected();
             }
         };
-        assertTrue("condition iconShowsConnected not fulfilled within " + max_seconds_until_connected * 1000 + " seconds." , solo.waitForCondition(condition, max_seconds_until_connected * 1000));
+        assertTrue("condition iconShowsConnected not fulfilled within " + max_seconds_until_connected + " seconds." , solo.waitForCondition(condition, max_seconds_until_connected * 1000));
         sleepSeconds(2);
     }
 

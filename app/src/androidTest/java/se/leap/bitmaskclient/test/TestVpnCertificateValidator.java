@@ -49,7 +49,6 @@ public class TestVpnCertificateValidator extends InstrumentationTestCase {
     }
 
 
-    //TODO: This test proves that the validation method is weird. Valid dates range between Nov. 2oo6 and Nov. 2017 instead of Nov. 2012 and Nov.2022
     public void testIsValid() {
         VpnCertificateValidator validator = new VpnCertificateValidator(certificate_valid_from_nov2012_to_nov2022);
         Calendar calendar = Calendar.getInstance();
@@ -60,26 +59,26 @@ public class TestVpnCertificateValidator extends InstrumentationTestCase {
         validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
         assertFalse(validator.isValid());
 
-        calendar.set(Calendar.YEAR, 2010);
-        calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
-        calendar.set(Calendar.DAY_OF_MONTH, 6);
-        validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
-        assertTrue(validator.isValid());
-
         calendar.set(Calendar.YEAR, 2011);
         calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
         calendar.set(Calendar.DAY_OF_MONTH, 6);
         validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
+        assertFalse(validator.isValid());
+
+        calendar.set(Calendar.YEAR, 2012);
+        calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 6);
+        validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
         assertTrue(validator.isValid());
 
-        calendar.set(Calendar.YEAR, 2017);
-        calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
+        calendar.set(Calendar.YEAR, 2022);
+        calendar.set(Calendar.MONTH, Calendar.AUGUST);
         calendar.set(Calendar.DAY_OF_MONTH, 5);
         validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
         assertTrue(validator.isValid());
 
-        calendar.set(Calendar.YEAR, 2017);
-        calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
+        calendar.set(Calendar.YEAR, 2022);
+        calendar.set(Calendar.MONTH, Calendar.AUGUST);
         calendar.set(Calendar.DAY_OF_MONTH, 6);
         validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
         assertFalse(validator.isValid());

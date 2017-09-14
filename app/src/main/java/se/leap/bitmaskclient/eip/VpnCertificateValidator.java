@@ -25,32 +25,35 @@ public class VpnCertificateValidator {
     public final static String TAG = VpnCertificateValidator.class.getSimpleName();
 
     private String certificate;
-    protected CalendarProviderInterface calendarProvider;
+    private CalendarProviderInterface calendarProvider;
 
     public VpnCertificateValidator(String certificate) {
         this.certificate = certificate;
-        calendarProvider = new CalendarProvider();
+        this.calendarProvider = new CalendarProvider();
     }
 
     public void setCalendarProvider(CalendarProviderInterface calendarProvider) {
         this.calendarProvider = calendarProvider;
     }
 
+    /**
+     *
+     * @return true if there's a certificate that is valid for more than 3 more months
+     */
     public boolean isValid() {
-        if (!certificate.isEmpty()) {
-            X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate);
-            return isValid(certificate_x509);
-        } else return true;
+        if (certificate.isEmpty()) {
+            return false;
+        }
+
+        X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate);
+        return isValid(certificate_x509);
     }
 
 
-    /* FIXME: the validation seems to be syntactically wrong.
-     * if the valid time span of a certificate is between 01.01.14 and 01.01.16 this method would return true for current dates between 01.01.13 and 01.01.15!!!
-     */
     private boolean isValid(X509Certificate certificate) {
-        Calendar offset_date = calculateOffsetCertificateValidity(certificate);
+        Calendar offsetDate = calculateOffsetCertificateValidity(certificate);
         try {
-            certificate.checkValidity(offset_date.getTime());
+            certificate.checkValidity(offsetDate.getTime());
             return true;
         } catch (CertificateExpiredException e) {
             return false;
@@ -60,11 +63,15 @@ public class VpnCertificateValidator {
     }
 
     private Calendar calculateOffsetCertificateValidity(X509Certificate certificate) {
-        long preventive_time = Math.abs(certificate.getNotBefore().getTime() - certificate.getNotAfter().getTime()) / 2;
-        long current_date_millis = calendarProvider.getCalendar().getTimeInMillis();
+        Calendar limitDate = calendarProvider.getCalendar();
+        Date startDate = certificate.getNotBefore();
+        // if certificates start date is before current date just return the current date without an offset
+        if (startDate.getTime() >= limitDate.getTime().getTime()) {
+            return limitDate;
+        }
+        // else add an offset of 3 months to the current date
+        limitDate.add(Calendar.MONTH, 3);
 
-        Calendar limit_date = calendarProvider.getCalendar();
-        limit_date.setTimeInMillis(current_date_millis + preventive_time);
-        return limit_date;
+        return limitDate;
     }
 }
