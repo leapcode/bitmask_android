@@ -49,6 +49,7 @@ public class VpnFragment extends Fragment implements Observer {
     private static EipStatus eip_status;
     private boolean wants_to_connect;
 
+    //FIXME: replace with onAttach(Context context)
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
@@ -254,12 +255,15 @@ public class VpnFragment extends Fragment implements Observer {
             if(eip_status.isConnecting()) {
                 vpn_status_image.showProgress(true);
                 vpn_status_image.setIcon(R.drawable.ic_stat_vpn_empty_halo, R.drawable.ic_stat_vpn_empty_halo);
+                vpn_status_image.setTag(R.drawable.ic_stat_vpn_empty_halo);
             } else {
                 vpn_status_image.showProgress(false);
                 vpn_status_image.setIcon(R.drawable.ic_stat_vpn, R.drawable.ic_stat_vpn);
+                vpn_status_image.setTag(R.drawable.ic_stat_vpn);
             }
         } else {
             vpn_status_image.setIcon(R.drawable.ic_stat_vpn_offline, R.drawable.ic_stat_vpn_offline);
+            vpn_status_image.setTag(R.drawable.ic_stat_vpn_offline);
             vpn_status_image.showProgress(false);
         }
     }
