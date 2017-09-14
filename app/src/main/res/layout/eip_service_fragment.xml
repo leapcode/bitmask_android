@@ -30,14 +30,13 @@
             android:textSize="12sp"
             />
 
-        <view
+        <mbanje.kurt.fabbutton.FabButton
             android:id="@+id/vpn.Status.Image"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginLeft="3dp"
             android:layout_marginStart="3dp"
             android:color="@android:color/holo_blue_dark"
-            class="mbanje.kurt.fabbutton.FabButton"
             android:layout_gravity="center"
             android:visibility="visible"
             android:indeterminate="true"
