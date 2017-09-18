@@ -38,7 +38,7 @@ public class VpnCertificateValidator {
 
     /**
      *
-     * @return true if there's a certificate that is valid for more than 3 more months
+     * @return true if there's a certificate that is valid for more than 15 more days
      */
     public boolean isValid() {
         if (certificate.isEmpty()) {
@@ -69,8 +69,8 @@ public class VpnCertificateValidator {
         if (startDate.getTime() >= limitDate.getTime().getTime()) {
             return limitDate;
         }
-        // else add an offset of 3 months to the current date
-        limitDate.add(Calendar.MONTH, 3);
+        // else add an offset of 15 days to the current date
+        limitDate.add(Calendar.DAY_OF_YEAR, 15);
 
         return limitDate;
     }

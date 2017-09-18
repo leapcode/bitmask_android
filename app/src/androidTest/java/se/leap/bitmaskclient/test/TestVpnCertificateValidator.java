@@ -16,17 +16,15 @@
  */
 package se.leap.bitmaskclient.test;
 
-import android.content.*;
-import android.os.*;
-import android.test.*;
+import android.content.Context;
+import android.test.InstrumentationTestCase;
 
-import org.json.*;
+import org.json.JSONObject;
 
-import java.io.*;
-import java.util.*;
+import java.util.Calendar;
 
-import se.leap.bitmaskclient.*;
-import se.leap.bitmaskclient.eip.*;
+import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.eip.VpnCertificateValidator;
 
 /**
  * @author parmegv
@@ -72,35 +70,17 @@ public class TestVpnCertificateValidator extends InstrumentationTestCase {
         assertTrue(validator.isValid());
 
         calendar.set(Calendar.YEAR, 2022);
-        calendar.set(Calendar.MONTH, Calendar.AUGUST);
-        calendar.set(Calendar.DAY_OF_MONTH, 5);
+        calendar.set(Calendar.MONTH, Calendar.OCTOBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 21);
         validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
         assertTrue(validator.isValid());
 
         calendar.set(Calendar.YEAR, 2022);
-        calendar.set(Calendar.MONTH, Calendar.AUGUST);
-        calendar.set(Calendar.DAY_OF_MONTH, 6);
+        calendar.set(Calendar.MONTH, Calendar.OCTOBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 22);
         validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
         assertFalse(validator.isValid());
 
-
     }
 
-    private void setTime(int year, int month, int day) {
-        shellCommand("adb shell chmod 666 /dev/alarm");
-        Calendar c = Calendar.getInstance();
-        c.set(year, month, day, 12, 00, 00);
-        SystemClock.setCurrentTimeMillis(c.getTimeInMillis());
-        shellCommand("adb shell chmod 664 /dev/alarm");
-    }
-
-    private int shellCommand(String command) {
-        int result = 0;
-        try {
-            Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
 }
