@@ -29,7 +29,7 @@ import se.leap.bitmaskclient.eip.*;
 /**
  * @author parmegv
  */
-public class testGatewaysManager extends InstrumentationTestCase {
+public class TestGatewaysManager extends InstrumentationTestCase {
 
     GatewaysManager gateways_manager;
     Gateway gateway;

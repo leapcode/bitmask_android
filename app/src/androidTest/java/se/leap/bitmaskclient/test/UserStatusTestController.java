@@ -6,6 +6,8 @@ import com.robotium.solo.*;
 
 import se.leap.bitmaskclient.*;
 
+import static junit.framework.Assert.assertTrue;
+
 public class UserStatusTestController {
     private final Solo solo;
 
@@ -25,22 +27,32 @@ public class UserStatusTestController {
         return view;
     }
 
-    void logIn(String username, String password) {
+    void logIn(String username, String password, boolean expectSuccess) {
         solo.enterText(0, username);
         solo.enterText(1, password);
         solo.clickOnText(solo.getString(R.string.login_button));
-        solo.waitForDialogToClose();
-        assertLoggedIn();
+        assertTrue(solo.waitForDialogToClose());
+
+        if (expectSuccess) {
+            assertLoggedIn();
+        } else {
+            solo.waitForText(solo.getString(R.string.cancel));
+            assertTrue(solo.waitForText(solo.getString(R.string.login_button)));
+        }
+    }
+
+    void logIn(String username, String password) {
+       logIn(username, password, true);
     }
 
     private void assertLoggedIn() {
         String log_out = solo.getString(R.string.logout_button);
-        solo.waitForText(log_out);
+        assertTrue(solo.waitForText(log_out));
     }
 
     void assertLoggedOut() {
         String log_in = solo.getString(R.string.login_button);
-        solo.waitForText(log_in);
+        assertTrue(solo.waitForText(log_in));
     }
 
     void logOut() {
@@ -53,7 +65,7 @@ public class UserStatusTestController {
     }
 
     boolean assertErrorLogInDialogAppears() {
-        solo.waitForDialogToOpen();
+        assertTrue(solo.waitForDialogToOpen());
 
         String username_hint = solo.getEditText(0).getHint().toString();
         String correct_username_hint = solo.getString(R.string.username_hint);

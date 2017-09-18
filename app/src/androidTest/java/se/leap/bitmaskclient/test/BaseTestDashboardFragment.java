@@ -1,13 +1,15 @@
 package se.leap.bitmaskclient.test;
 
-import android.content.*;
-import android.graphics.*;
-import android.test.*;
-import android.view.*;
+import android.content.Context;
+import android.graphics.Rect;
+import android.test.ActivityInstrumentationTestCase2;
+import android.view.View;
 
-import com.robotium.solo.*;
+import com.robotium.solo.Solo;
 
-import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.ConfigurationWizard;
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.R;
 
 public abstract class BaseTestDashboardFragment extends ActivityInstrumentationTestCase2<Dashboard> {
 
@@ -28,8 +30,9 @@ public abstract class BaseTestDashboardFragment extends ActivityInstrumentationT
         vpn_controller = new VpnTestController(solo);
         ConnectionManager.setMobileDataEnabled(true, context);
         solo.unlockScreen();
-        if (solo.searchText(solo.getString(R.string.configuration_wizard_title)))
-            new testConfigurationWizard(solo).toDashboardAnonymously("demo.bitmask.net");
+        if (solo.searchText(solo.getString(R.string.configuration_wizard_title))) {
+            toDashboardAnonymously("demo.bitmask.net");
+        }
     }
 
     void changeProviderAndLogIn(String provider) {
@@ -60,4 +63,32 @@ public abstract class BaseTestDashboardFragment extends ActivityInstrumentationT
         view.getHitRect(scrollBounds);
         return view.getLocalVisibleRect(scrollBounds);
     }
+
+
+    private void toDashboardAnonymously(String provider) {
+        selectProvider(provider);
+        useAnonymously();
+    }
+
+    private void useAnonymously() {
+        String text = solo.getString(R.string.use_anonymously_button);
+        clickAndWaitForDashboard(text);
+    }
+
+
+    private void selectProvider(String provider) {
+        solo.clickOnText(provider);
+        Screenshot.setTimeToSleep(1);
+        Screenshot.take("Configuring provider");
+        waitForProviderDetails();
+    }
+
+    private void waitForProviderDetails() {
+        String text = solo.getString(R.string.provider_details_fragment_title);
+        assertTrue("Provider details dialog did not appear", solo.waitForText(text, 1, 60*1000));
+        Screenshot.take("Provider details");
+    }
+
+
+
 }

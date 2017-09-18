@@ -1,8 +1,8 @@
 package se.leap.bitmaskclient.test;
 
-public class testUserStatusFragment extends BaseTestDashboardFragment {
+public class TestUserStatusFragment extends BaseTestDashboardFragment {
 
-    public final String TAG = testUserStatusFragment.class.getName();
+    public final String TAG = TestUserStatusFragment.class.getName();
 
     private final String provider = "demo.bitmask.net";
     private final String test_username = "parmegvtest1";
@@ -27,7 +27,7 @@ public class testUserStatusFragment extends BaseTestDashboardFragment {
 
     public void testFailedLogIn() {
         user_status_controller.clickUserSessionButton();
-        user_status_controller.logIn(test_username, TAG);
+        user_status_controller.logIn(test_username, TAG, false);
         if(!user_status_controller.assertErrorLogInDialogAppears())
             throw new IllegalStateException();
     }

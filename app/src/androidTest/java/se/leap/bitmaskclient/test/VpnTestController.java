@@ -1,17 +1,17 @@
 package se.leap.bitmaskclient.test;
 
-import android.graphics.*;
-import android.graphics.drawable.*;
-import android.view.*;
-import android.widget.*;
+import android.view.View;
+import android.widget.Button;
 
-import com.robotium.solo.*;
+import com.robotium.solo.Condition;
+import com.robotium.solo.Solo;
 
-import junit.framework.AssertionFailedError;
-
-import de.blinkt.openvpn.activities.*;
-import mbanje.kurt.fabbutton.*;
+import de.blinkt.openvpn.activities.DisconnectVPN;
+import mbanje.kurt.fabbutton.FabButton;
+import mbanje.kurt.fabbutton.ProgressRingView;
 import se.leap.bitmaskclient.R;
+
+import static junit.framework.Assert.assertTrue;
 
 public class VpnTestController {
 
@@ -21,7 +21,7 @@ public class VpnTestController {
         this.solo = solo;
     }
 
-    protected void turnVpnOndAndOff(String provider) {
+    protected void turnVpnOndAndOff() {
         clickVpnButton();
         turningEipOn();
         clickVpnButton();
@@ -36,19 +36,15 @@ public class VpnTestController {
     }
 
     protected Button getVpnButton() {
-        try {
-            View button_view = solo.getView(R.id.vpn_main_button);
-            if (button_view != null)
-                return (Button) button_view;
-            else
-                return new Button(solo.getCurrentActivity());
-        } catch (AssertionFailedError e) {
-            return new Button(solo.getCurrentActivity());
-        }
+        View button_view = solo.getView(R.id.vpn_main_button);
+        if (button_view != null)
+            return (Button) button_view;
+        else
+            return null;
     }
 
     private boolean isVpnButton(Button button) {
-        return !button.getText().toString().isEmpty();
+        return button != null && !button.getText().toString().isEmpty();
     }
 
     protected FabButton getVpnWholeIcon() {
@@ -69,7 +65,7 @@ public class VpnTestController {
                 return iconShowsConnected();
             }
         };
-        solo.waitForCondition(condition, max_seconds_until_connected * 1000);
+        assertTrue("condition iconShowsConnected not fulfilled within " + max_seconds_until_connected + " seconds." , solo.waitForCondition(condition, max_seconds_until_connected * 1000));
         sleepSeconds(2);
     }
 
@@ -83,43 +79,13 @@ public class VpnTestController {
     }
 
     private boolean iconShowsConnected() {
-        return iconEquals(iconConnectedDrawable());
+        View vpnIconView = getVpnWholeIcon();
+        return vpnIconView.getTag().equals(R.drawable.ic_stat_vpn);
     }
 
     protected boolean iconShowsDisconnected() {
-        return iconEquals(iconDisconnectedDrawable());
-    }
-
-    private boolean iconEquals(Drawable drawable) {
-        Bitmap inside_icon = getVpnInsideIcon();
-        if(inside_icon != null)
-            return inside_icon.equals(drawable);
-        else
-            return false;
-
-    }
-
-    private Drawable iconConnectedDrawable() {
-        return getDrawable(R.drawable.ic_stat_vpn);
-    }
-
-    private Drawable iconDisconnectedDrawable() {
-        return getDrawable(R.drawable.ic_stat_vpn_offline);
-    }
-
-    private Drawable getDrawable(int resId) {
-        return solo.getCurrentActivity().getResources().getDrawable(resId);
-    }
-
-    private Bitmap getVpnInsideIcon() {
-        FabButton whole_icon = getVpnWholeIcon();
-
-        CircleImageView a;
-        a = whole_icon != null ?
-                (CircleImageView) getVpnWholeIcon().findViewById(R.id.fabbutton_circle)
-                : new CircleImageView(solo.getCurrentActivity());
-        a.setDrawingCacheEnabled(true);
-        return a.getDrawingCache();
+        View vpnIconView = getVpnWholeIcon();
+        return vpnIconView.getTag().equals(R.drawable.ic_stat_vpn_offline);
     }
 
     protected void turningEipOff() {
@@ -134,12 +100,12 @@ public class VpnTestController {
                 return iconShowsDisconnected();
             }
         };
-        solo.waitForCondition(condition, max_seconds_until_connected * 1000);
+        assertTrue(solo.waitForCondition(condition, max_seconds_until_connected * 1000));
         sleepSeconds(2);
     }
 
     private void okToBrowserWarning() {
-        solo.waitForDialogToOpen();
+        assertTrue(solo.waitForDialogToOpen());
         clickYes();
     }
 

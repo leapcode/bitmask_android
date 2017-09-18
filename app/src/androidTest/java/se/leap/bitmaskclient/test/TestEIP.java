@@ -27,13 +27,13 @@ import se.leap.bitmaskclient.eip.*;
 /**
  * @author parmegv
  */
-public class testEIP extends ServiceTestCase<EIP> {
+public class TestEIP extends ServiceTestCase<EIP> {
 
     private Context context;
     private Intent intent;
     private SharedPreferences preferences;
 
-    public testEIP(Class<EIP> activityClass) {
+    public TestEIP(Class<EIP> activityClass) {
         super(activityClass);
         context = getSystemContext();
         intent = new Intent(context, EIP.class);

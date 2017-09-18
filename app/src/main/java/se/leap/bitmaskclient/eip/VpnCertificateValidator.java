@@ -25,22 +25,35 @@ public class VpnCertificateValidator {
     public final static String TAG = VpnCertificateValidator.class.getSimpleName();
 
     private String certificate;
+    private CalendarProviderInterface calendarProvider;
 
     public VpnCertificateValidator(String certificate) {
         this.certificate = certificate;
+        this.calendarProvider = new CalendarProvider();
     }
 
-    public boolean isValid() {
-        if (!certificate.isEmpty()) {
-            X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate);
-            return isValid(certificate_x509);
-        } else return true;
+    public void setCalendarProvider(CalendarProviderInterface calendarProvider) {
+        this.calendarProvider = calendarProvider;
     }
+
+    /**
+     *
+     * @return true if there's a certificate that is valid for more than 15 more days
+     */
+    public boolean isValid() {
+        if (certificate.isEmpty()) {
+            return false;
+        }
+
+        X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate);
+        return isValid(certificate_x509);
+    }
+
 
     private boolean isValid(X509Certificate certificate) {
-        Calendar offset_date = calculateOffsetCertificateValidity(certificate);
+        Calendar offsetDate = calculateOffsetCertificateValidity(certificate);
         try {
-            certificate.checkValidity(offset_date.getTime());
+            certificate.checkValidity(offsetDate.getTime());
             return true;
         } catch (CertificateExpiredException e) {
             return false;
@@ -50,11 +63,15 @@ public class VpnCertificateValidator {
     }
 
     private Calendar calculateOffsetCertificateValidity(X509Certificate certificate) {
-        long preventive_time = Math.abs(certificate.getNotBefore().getTime() - certificate.getNotAfter().getTime()) / 2;
-        long current_date_millis = Calendar.getInstance().getTimeInMillis();
+        Calendar limitDate = calendarProvider.getCalendar();
+        Date startDate = certificate.getNotBefore();
+        // if certificates start date is before current date just return the current date without an offset
+        if (startDate.getTime() >= limitDate.getTime().getTime()) {
+            return limitDate;
+        }
+        // else add an offset of 15 days to the current date
+        limitDate.add(Calendar.DAY_OF_YEAR, 15);
 
-        Calendar limit_date = Calendar.getInstance();
-        limit_date.setTimeInMillis(current_date_millis + preventive_time);
-        return limit_date;
+        return limitDate;
     }
 }
