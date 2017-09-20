@@ -30,7 +30,7 @@ public class UserStatusTestController {
     void logIn(String username, String password, boolean expectSuccess) {
         solo.enterText(0, username);
         solo.enterText(1, password);
-        solo.clickOnText(solo.getString(R.string.login_button));
+        solo.clickOnButton(solo.getString(R.string.login_button));
         assertTrue(solo.waitForDialogToClose());
 
         if (expectSuccess) {

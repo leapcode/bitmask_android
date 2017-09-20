@@ -54,7 +54,7 @@ public abstract class BaseTestDashboardFragment extends ActivityInstrumentationT
     }
 
     private void clickAndWaitForDashboard(String click_text) {
-        solo.clickOnText(click_text);
+        solo.clickOnButton(click_text);
         assertTrue(solo.waitForActivity(Dashboard.class, 80 * 1000));
     }
 

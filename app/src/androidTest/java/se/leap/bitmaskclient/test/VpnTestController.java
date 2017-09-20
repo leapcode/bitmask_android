@@ -9,6 +9,7 @@ import com.robotium.solo.Solo;
 import de.blinkt.openvpn.activities.DisconnectVPN;
 import mbanje.kurt.fabbutton.FabButton;
 import mbanje.kurt.fabbutton.ProgressRingView;
+import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
 
 import static junit.framework.Assert.assertTrue;
@@ -48,7 +49,9 @@ public class VpnTestController {
     }
 
     protected FabButton getVpnWholeIcon() {
-        View view = solo.getView(R.id.vpn_Status_Image);
+        assertTrue(solo.waitForActivity(Dashboard.class, 5 * 1000));
+
+        View view = solo.getView(R.id.vpn_status_image);
         if (view != null)
             return (FabButton) view;
         else
@@ -92,9 +95,9 @@ public class VpnTestController {
         okToBrowserWarning();
         sayOkToDisconnect();
 
-        int max_seconds_until_connected = 1;
+        int max_seconds_until_connected = 120;
 
-        Condition condition = new Condition() {
+         Condition condition = new Condition() {
             @Override
             public boolean isSatisfied() {
                 return iconShowsDisconnected();
@@ -107,17 +110,25 @@ public class VpnTestController {
     private void okToBrowserWarning() {
         assertTrue(solo.waitForDialogToOpen());
         clickYes();
+        solo.waitForDialogToClose();
     }
 
     private void clickYes() {
         String yes = solo.getString(android.R.string.yes);
-        solo.clickOnText(yes);
+        solo.clickOnButton(yes);
+    }
+
+    private void clickDisconnect() {
+        String disconnect = solo.getString(R.string.cancel_connection);
+        solo.clickOnButton(disconnect);
     }
 
     private void sayOkToDisconnect() throws IllegalStateException {
         boolean disconnect_vpn_appeared = solo.waitForActivity(DisconnectVPN.class);
-        if(disconnect_vpn_appeared)
-            clickYes();
+        if(disconnect_vpn_appeared){
+            clickDisconnect();
+            solo.waitForDialogToClose();
+        }
         else throw new IllegalStateException();
     }
 
