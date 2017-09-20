@@ -1,4 +1,4 @@
 [submodule "ics-openvpn"]
 	path = ics-openvpn
 	branch = bitmask
-	url = https://github.com/parmegv/ics-openvpn.git
+	url = ssh://gitolite@code.leap.se/ics_openvpn
