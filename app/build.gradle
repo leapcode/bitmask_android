@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 23
-  buildToolsVersion '25.0.2'
+  compileSdkVersion 26
+  buildToolsVersion '26.0.0'
 ;
   signingConfigs {
     release {
@@ -56,7 +56,8 @@ dependencies {
   compile 'com.google.code.gson:gson:2.4'
   compile 'org.thoughtcrime.ssl.pinning:AndroidPinning:1.0.0'
   compile 'mbanje.kurt:fabbutton:1.1.4'
-  compile 'com.android.support:support-annotations:23.2.1'
+  compile 'com.android.support:support-annotations:25.3.1'
+  compile 'com.android.support:support-v4:26.0.0-alpha1'
 }
 
 def processFileInplace(file, Closure processText) {
@@ -84,6 +85,9 @@ task copyIcsOpenVPNClasses( type: Copy ) {
     include '**/logmenu.xml'
     include '**/core/**.java'
     include '**/activities/BaseActivity.java'
+    include '**/APIVpnProfile.java'
+    include '**/aidl/**/api/**.aidl'
+    include '**/aidl/**/core/**.aidl'
 
     includeEmptyDirs = false
 
@@ -111,9 +115,11 @@ task copyIcsOpenVPNXml( type: Copy )  {
     include '**/colours.xml'
     include '**/logmenu.xml'
     include '**/white_rect.xml'
+    include '**/plurals.xml'
     includeEmptyDirs = false
 
     rename 'strings.xml', 'strings-icsopenvpn.xml'
+    rename 'plurals.xml', 'plurals-icsopenvpn.xml'
     filter {
       line -> line.replaceAll('.*name="app".*', '')
     }
@@ -135,12 +141,25 @@ task copyIcsOpenVPNImages( type: Copy ) {
   } into '.'
 }
 
+//TODO: avoid code duplication
 // thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
 task removeDuplicatedStrings() {
   println "removeDuplicatedStrings"
   new File('.').eachFileRecurse {
     if(it.name.equals('strings.xml')) {
       def ics_openvpn_file = file(it.absolutePath.replace('strings.xml', 'strings-icsopenvpn.xml'))
+      if(ics_openvpn_file.exists()) {
+        def ics_openvpn_strings_names = (new XmlParser()).parse(ics_openvpn_file)
+        def current_file = it
+
+        ics_openvpn_strings_names.string.each {
+          processFileInplace(current_file) { text ->
+            text.replaceAll('.*name=\"' + it.attribute('name') + '\".*(\n)*.*string>.*\n+', '')
+          }
+        }
+      }
+    } else if (it.name.equals('plurals.xml')) {
+      def ics_openvpn_file = file(it.absolutePath.replace('plurals.xml', 'plurals-icsopenvpn.xml'))
       if(ics_openvpn_file.exists()) {
         def ics_openvpn_strings_names = (new XmlParser()).parse(ics_openvpn_file)
         def current_file = it

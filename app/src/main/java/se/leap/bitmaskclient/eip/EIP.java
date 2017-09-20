@@ -117,8 +117,8 @@ public final class EIP extends IntentService {
         Intent intent = new Intent(this, LaunchVPN.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(LaunchVPN.EXTRA_NAME, gateway.getProfile().getName());
         intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
+        intent.putExtra(LaunchVPN.EXTRA_TEMP_VPN_PROFILE, gateway.getProfile());
         startActivity(intent);
     }
 

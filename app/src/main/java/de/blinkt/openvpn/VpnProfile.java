@@ -11,7 +11,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -54,6 +53,7 @@ import javax.crypto.NoSuchPaddingException;
 import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.NativeUtils;
 import de.blinkt.openvpn.core.OpenVPNService;
+import de.blinkt.openvpn.core.PasswordCache;
 import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.X509Utils;
@@ -73,13 +73,9 @@ public class VpnProfile implements Serializable, Cloneable {
     private static final long serialVersionUID = 7085688938959334563L;
     public static final int MAXLOGLEVEL = 4;
     public static final int CURRENT_PROFILE_VERSION = 6;
-    public static final int DEFAULT_MSSFIX_SIZE = 1450;
+    public static final int DEFAULT_MSSFIX_SIZE = 1280;
     public static String DEFAULT_DNS1 = "8.8.8.8";
     public static String DEFAULT_DNS2 = "8.8.4.4";
-
-    public transient String mTransientPW = null;
-    public transient String mTransientPCKS12PW = null;
-
 
     public static final int TYPE_CERTIFICATES = 0;
     public static final int TYPE_PKCS12 = 1;
@@ -94,6 +90,12 @@ public class VpnProfile implements Serializable, Cloneable {
     public static final int X509_VERIFY_TLSREMOTE_DN = 2;
     public static final int X509_VERIFY_TLSREMOTE_RDN = 3;
     public static final int X509_VERIFY_TLSREMOTE_RDN_PREFIX = 4;
+
+
+    public static final int AUTH_RETRY_NONE_FORGET = 0;
+    private static final int AUTH_RETRY_NONE_KEEP = 1;
+    public static final int AUTH_RETRY_NOINTERACT = 2;
+    private static final int AUTH_RETRY_INTERACT = 3;
     // variable named wrong and should haven beeen transient
     // but needs to keep wrong name to guarante loading of old
     // profiles
@@ -137,11 +139,14 @@ public class VpnProfile implements Serializable, Cloneable {
     public String mCustomRoutesv6 = "";
     public String mKeyPassword = "";
     public boolean mPersistTun = false;
-    public String mConnectRetryMax = "5";
-    public String mConnectRetry = "5";
+    public String mConnectRetryMax = "-1";
+    public String mConnectRetry = "2";
+    public String mConnectRetryMaxTime = "300";
     public boolean mUserEditable = true;
     public String mAuth = "";
     public int mX509AuthType = X509_VERIFY_TLSREMOTE_RDN;
+    public String mx509UsernameField = null;
+
     private transient PrivateKey mPrivateKey;
     // Public attributes, since I got mad with getter/setter
     // set members to default values
@@ -159,14 +164,24 @@ public class VpnProfile implements Serializable, Cloneable {
     public String mCrlFilename;
     public String mProfileCreator;
 
+    public int mAuthRetry = AUTH_RETRY_NONE_FORGET;
+    public int mTunMtu;
+
 
     public boolean mPushPeerInfo = false;
     public static final boolean mIsOpenVPN22 = false;
 
+    public int mVersion = 0;
+
+    // timestamp when the profile was last used
+    public long mLastUsed;
+
     /* Options no longer used in new profiles */
-    public String mServerName = "openvpn.blinkt.de";
+    public String mServerName = "openvpn.example.com";
     public String mServerPort = "1194";
     public boolean mUseUdp = true;
+
+
 
     public VpnProfile(String name) {
         mUuid = UUID.randomUUID();
@@ -175,6 +190,7 @@ public class VpnProfile implements Serializable, Cloneable {
 
         mConnections = new Connection[1];
         mConnections[0] = new Connection();
+        mLastUsed = System.currentTimeMillis();
     }
 
     public static String openVpnEscape(String unescaped) {
@@ -190,6 +206,17 @@ public class VpnProfile implements Serializable, Cloneable {
             return unescaped;
         else
             return '"' + escapedString + '"';
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof VpnProfile) {
+            VpnProfile vpnProfile = (VpnProfile) obj;
+            return mUuid.equals(vpnProfile.mUuid);
+        } else {
+            return false;
+        }
     }
 
     public void clearDefaults() {
@@ -212,7 +239,7 @@ public class VpnProfile implements Serializable, Cloneable {
     }
 
     public String getName() {
-        if (mName == null)
+        if (TextUtils.isEmpty(mName))
             return "No profile name";
         return mName;
     }
@@ -274,12 +301,13 @@ public class VpnProfile implements Serializable, Cloneable {
 
         if (!configForOvpn3) {
             cfg += String.format("setenv IV_GUI_VER %s \n", openVpnEscape(getVersionEnvString(context)));
-            String versionString = String.format("%d %s %s %s %s %s", Build.VERSION.SDK_INT, Build.VERSION.RELEASE,
+            String versionString = String.format(Locale.US, "%d %s %s %s %s %s", Build.VERSION.SDK_INT, Build.VERSION.RELEASE,
                     NativeUtils.getNativeAPI(), Build.BRAND, Build.BOARD, Build.MODEL);
             cfg += String.format("setenv IV_PLAT_VER %s\n", openVpnEscape(versionString));
         }
 
         cfg += "machine-readable-output\n";
+        cfg += "allow-recursive-routing\n";
 
         // Users are confused by warnings that are misleading...
         cfg += "ifconfig-nowarn\n";
@@ -299,18 +327,24 @@ public class VpnProfile implements Serializable, Cloneable {
         cfg += "verb " + MAXLOGLEVEL + "\n";
 
         if (mConnectRetryMax == null) {
-            mConnectRetryMax = "5";
+            mConnectRetryMax = "-1";
         }
 
         if (!mConnectRetryMax.equals("-1"))
             cfg += "connect-retry-max " + mConnectRetryMax + "\n";
 
-        if (mConnectRetry == null)
-            mConnectRetry = "5";
+        if (TextUtils.isEmpty(mConnectRetry))
+            mConnectRetry = "2";
+
+        if (TextUtils.isEmpty(mConnectRetryMaxTime))
+            mConnectRetryMaxTime = "300";
 
 
-        if (!mIsOpenVPN22 || !mUseUdp)
+        if (!mIsOpenVPN22)
+            cfg += "connect-retry " + mConnectRetry + " " + mConnectRetryMaxTime + "\n";
+        else if (mIsOpenVPN22 && mUseUdp)
             cfg += "connect-retry " + mConnectRetry + "\n";
+
 
         cfg += "resolv-retry 60\n";
 
@@ -384,6 +418,12 @@ public class VpnProfile implements Serializable, Cloneable {
                 cfg += insertFileData("ca", mCaFilename);
         }
 
+        if (isUserPWAuth())
+        {
+            if (mAuthenticationType == AUTH_RETRY_NOINTERACT)
+                cfg += "auth-retry nointeract";
+        }
+
         if (!TextUtils.isEmpty(mCrlFilename))
             cfg += insertFileData("crl-verify", mCrlFilename);
 
@@ -392,12 +432,16 @@ public class VpnProfile implements Serializable, Cloneable {
         }
 
         if (mUseTLSAuth) {
+            boolean useTlsCrypt = mTLSAuthDirection.equals("tls-crypt");
+
             if (mAuthenticationType == TYPE_STATICKEYS)
                 cfg += insertFileData("secret", mTLSAuthFilename);
+            else if (useTlsCrypt)
+                cfg += insertFileData("tls-crypt", mTLSAuthFilename);
             else
                 cfg += insertFileData("tls-auth", mTLSAuthFilename);
 
-            if (!TextUtils.isEmpty(mTLSAuthDirection)) {
+            if (!TextUtils.isEmpty(mTLSAuthDirection) && !useTlsCrypt) {
                 cfg += "key-direction ";
                 cfg += mTLSAuthDirection;
                 cfg += "\n";
@@ -409,8 +453,12 @@ public class VpnProfile implements Serializable, Cloneable {
             if (!TextUtils.isEmpty(mIPv4Address))
                 cfg += "ifconfig " + cidrToIPAndNetmask(mIPv4Address) + "\n";
 
-            if (!TextUtils.isEmpty(mIPv6Address))
-                cfg += "ifconfig-ipv6 " + mIPv6Address + "\n";
+            if (!TextUtils.isEmpty(mIPv6Address)) {
+                // Use our own ip as gateway since we ignore it anyway
+                String fakegw = mIPv6Address.split("/", 2)[0];
+                cfg += "ifconfig-ipv6 " + mIPv6Address + " " + fakegw  +"\n";
+            }
+
         }
 
         if (mUsePull && mRoutenopull)
@@ -441,20 +489,31 @@ public class VpnProfile implements Serializable, Cloneable {
         cfg += routes;
 
         if (mOverrideDNS || !mUsePull) {
-            if (!TextUtils.isEmpty(mDNS1))
-                cfg += "dhcp-option DNS " + mDNS1 + "\n";
-            if (!TextUtils.isEmpty(mDNS2))
-                cfg += "dhcp-option DNS " + mDNS2 + "\n";
-            if (!TextUtils.isEmpty(mSearchDomain))
+            if (!TextUtils.isEmpty(mDNS1)) {
+                if (mDNS1.contains(":"))
+                    cfg += "dhcp-option DNS6 " + mDNS1 + "\n";
+                else
+                    cfg += "dhcp-option DNS " + mDNS1 + "\n";
+            } if (!TextUtils.isEmpty(mDNS2)) {
+                if (mDNS2.contains(":"))
+                    cfg += "dhcp-option DNS6 " + mDNS2 + "\n";
+                else
+                    cfg += "dhcp-option DNS " + mDNS2 + "\n";
+            } if (!TextUtils.isEmpty(mSearchDomain))
                 cfg += "dhcp-option DOMAIN " + mSearchDomain + "\n";
 
         }
 
         if (mMssFix != 0) {
             if (mMssFix != 1450) {
-                cfg += String.format("mssfix %d\n", mMssFix, Locale.US);
+                cfg += String.format(Locale.US, "mssfix %d\n", mMssFix);
             } else
                 cfg += "mssfix\n";
+        }
+
+        if (mTunMtu >= 48 && mTunMtu != 1500)
+        {
+            cfg+= String.format(Locale.US, "tun-mtu %d\n", mTunMtu);
         }
 
         if (mNobind)
@@ -465,7 +524,7 @@ public class VpnProfile implements Serializable, Cloneable {
         if (mAuthenticationType != TYPE_STATICKEYS) {
             if (mCheckRemoteCN) {
                 if (mRemoteCN == null || mRemoteCN.equals(""))
-                    cfg += "verify-x509-name " + mConnections[0].mServerName + " name\n";
+                    cfg += "verify-x509-name " + openVpnEscape(mConnections[0].mServerName) + " name\n";
                 else
                     switch (mX509AuthType) {
 
@@ -488,6 +547,8 @@ public class VpnProfile implements Serializable, Cloneable {
                             cfg += "verify-x509-name " + openVpnEscape(mRemoteCN) + "\n";
                             break;
                     }
+                if (!TextUtils.isEmpty(mx509UsernameField))
+                    cfg += "x509-username-field " + openVpnEscape(mx509UsernameField) + "\n";
             }
             if (mExpectTLSCert)
                 cfg += "remote-cert-tls server\n";
@@ -659,7 +720,7 @@ public class VpnProfile implements Serializable, Cloneable {
 
         Intent intent = new Intent(context, OpenVPNService.class);
         intent.putExtra(prefix + ".profileUUID", mUuid.toString());
-
+        intent.putExtra(prefix + ".profileVersion", mVersion);
         return intent;
     }
 
@@ -730,6 +791,10 @@ public class VpnProfile implements Serializable, Cloneable {
         }
     }
 
+    public void pwDidFail(Context c) {
+
+    }
+
 
     class NoCertReturnedException extends Exception {
         public NoCertReturnedException(String msg) {
@@ -738,6 +803,10 @@ public class VpnProfile implements Serializable, Cloneable {
     }
 
     synchronized String[] getKeyStoreCertificates(Context context, int tries) {
+        // Force application context- KeyChain methods will block long enough that by the time they
+        // are finished and try to unbind, the original activity context might have been destroyed.
+        context = context.getApplicationContext();
+
         try {
             PrivateKey privateKey = KeyChain.getPrivateKey(context, mAlias);
             mPrivateKey = privateKey;
@@ -838,7 +907,13 @@ public class VpnProfile implements Serializable, Cloneable {
         if (mAuthenticationType == TYPE_KEYSTORE || mAuthenticationType == TYPE_USERPASS_KEYSTORE) {
             if (mAlias == null)
                 return R.string.no_keystore_cert_selected;
+        } else if (mAuthenticationType == TYPE_CERTIFICATES || mAuthenticationType == TYPE_USERPASS_CERTIFICATES){
+            if (TextUtils.isEmpty(mCaFilename))
+                return R.string.no_ca_cert_selected;
         }
+
+        if (mCheckRemoteCN && mX509AuthType==X509_VERIFY_TLSREMOTE)
+            return R.string.deprecated_tls_remote;
 
         if (!mUsePull || mAuthenticationType == TYPE_STATICKEYS) {
             if (mIPv4Address == null || cidrToIPAndNetmask(mIPv4Address) == null)
@@ -881,10 +956,9 @@ public class VpnProfile implements Serializable, Cloneable {
     //! Openvpn asks for a "Private Key", this should be pkcs12 key
     //
     public String getPasswordPrivateKey() {
-        if (mTransientPCKS12PW != null) {
-            String pwcopy = mTransientPCKS12PW;
-            mTransientPCKS12PW = null;
-            return pwcopy;
+        String cachedPw = PasswordCache.getPKCS12orCertificatePassword(mUuid, true);
+        if (cachedPw != null) {
+            return cachedPw;
         }
         switch (mAuthenticationType) {
             case TYPE_PKCS12:
@@ -949,33 +1023,32 @@ public class VpnProfile implements Serializable, Cloneable {
             return false;
     }
 
-    public int needUserPWInput(boolean ignoreTransient) {
+    public int needUserPWInput(String transientCertOrPkcs12PW, String mTransientAuthPW) {
         if ((mAuthenticationType == TYPE_PKCS12 || mAuthenticationType == TYPE_USERPASS_PKCS12) &&
                 (mPKCS12Password == null || mPKCS12Password.equals(""))) {
-            if (ignoreTransient || mTransientPCKS12PW == null)
+            if (transientCertOrPkcs12PW == null)
                 return R.string.pkcs12_file_encryption_key;
         }
 
         if (mAuthenticationType == TYPE_CERTIFICATES || mAuthenticationType == TYPE_USERPASS_CERTIFICATES) {
             if (requireTLSKeyPassword() && TextUtils.isEmpty(mKeyPassword))
-                if (ignoreTransient || mTransientPCKS12PW == null) {
+                if (transientCertOrPkcs12PW == null) {
                     return R.string.private_key_password;
                 }
         }
 
         if (isUserPWAuth() &&
                 (TextUtils.isEmpty(mUsername) ||
-                        (TextUtils.isEmpty(mPassword) && (mTransientPW == null || ignoreTransient)))) {
+                        (TextUtils.isEmpty(mPassword) && mTransientAuthPW == null))) {
             return R.string.password;
         }
         return 0;
     }
 
     public String getPasswordAuth() {
-        if (mTransientPW != null) {
-            String pwcopy = mTransientPW;
-            mTransientPW = null;
-            return pwcopy;
+        String cachedPw = PasswordCache.getAuthPassword(mUuid, true);
+        if (cachedPw != null) {
+            return cachedPw;
         } else {
             return mPassword;
         }
@@ -1008,7 +1081,6 @@ public class VpnProfile implements Serializable, Cloneable {
 
 
         try {
-
             /* ECB is perfectly fine in this special case, since we are using it for
                the public/private part in the TLS exchange
              */

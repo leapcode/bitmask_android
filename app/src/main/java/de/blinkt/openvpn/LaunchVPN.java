@@ -7,15 +7,25 @@ package de.blinkt.openvpn;
 
 import se.leap.bitmaskclient.R;
 
+import se.leap.bitmaskclient.R;
+
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.VpnService;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -28,10 +38,14 @@ import android.widget.EditText;
 import java.io.IOException;
 
 import de.blinkt.openvpn.activities.LogWindow;
+import de.blinkt.openvpn.core.ConnectionStatus;
+import de.blinkt.openvpn.core.IServiceStatus;
+import de.blinkt.openvpn.core.OpenVPNStatusService;
+import de.blinkt.openvpn.core.PasswordCache;
+import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
-import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
 
 /**
  * This Activity actually handles two stages of a launcher shortcut's life cycle.
@@ -64,6 +78,7 @@ public class LaunchVPN extends Activity {
     public static final String EXTRA_NAME = "de.blinkt.openvpn.shortcutProfileName";
     public static final String EXTRA_HIDELOG = "de.blinkt.openvpn.showNoLogWindow";
     public static final String CLEARLOG = "clearlogconnect";
+    public static final String EXTRA_TEMP_VPN_PROFILE = "se.leap.bitmask.tempVpnProfile";
 
 
     private static final int START_VPN_PROFILE = 70;
@@ -92,15 +107,17 @@ public class LaunchVPN extends Activity {
 
         if (Intent.ACTION_MAIN.equals(action)) {
             // Check if we need to clear the log
-            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(CLEARLOG, true))
+            if (Preferences.getDefaultSharedPreferences(this).getBoolean(CLEARLOG, true))
                 VpnStatus.clearLog();
 
             // we got called to be the starting point, most likely a shortcut
             String shortcutUUID = intent.getStringExtra(EXTRA_KEY);
             String shortcutName = intent.getStringExtra(EXTRA_NAME);
             mhideLog = intent.getBooleanExtra(EXTRA_HIDELOG, false);
+            VpnProfile profileToConnect = (VpnProfile) intent.getExtras().getSerializable(EXTRA_TEMP_VPN_PROFILE);
+            if (profileToConnect ==  null)
+                profileToConnect = ProfileManager.get(this, shortcutUUID);
 
-            VpnProfile profileToConnect = ProfileManager.get(this, shortcutUUID);
             if (shortcutName != null && profileToConnect == null)
                 profileToConnect = ProfileManager.getInstance(this).getProfileByName(shortcutName);
 
@@ -118,24 +135,28 @@ public class LaunchVPN extends Activity {
 
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent data) {
-	super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
 
-	if(requestCode==START_VPN_PROFILE) {
-	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-	    boolean showLogWindow = prefs.getBoolean("showlogwindow", true);
+        if(requestCode==START_VPN_PROFILE) {
+            SharedPreferences prefs = Preferences.getDefaultSharedPreferences(this);
+            boolean showLogWindow = prefs.getBoolean("showlogwindow", true);
 
-	    if(!mhideLog && showLogWindow)
-		showLogWindow();
+            if(!mhideLog && showLogWindow)
+                showLogWindow();
+            ProfileManager.updateLRU(this, mSelectedProfile);
+            VPNLaunchHelper.startOpenVpn(mSelectedProfile, getBaseContext());
+            finish();
 
-	    VPNLaunchHelper.startOpenVpn(mSelectedProfile, getBaseContext());
-	    finish();
-	} else if (resultCode == Activity.RESULT_CANCELED) {
-	    // User does not want us to start, so we just vanish
-	    VpnStatus.updateStateString("USER_VPN_PERMISSION_CANCELLED", "", R.string.state_user_vpn_permission_cancelled,
-					ConnectionStatus.LEVEL_NOTCONNECTED);
+        } else if (resultCode == Activity.RESULT_CANCELED) {
+            // User does not want us to start, so we just vanish
+            VpnStatus.updateStateString("USER_VPN_PERMISSION_CANCELLED", "", R.string.state_user_vpn_permission_cancelled,
+                    ConnectionStatus.LEVEL_NOTCONNECTED);
 
-	    finish();
-	}
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                VpnStatus.logError(R.string.nought_alwayson_warning);
+
+            finish();
+        }
     }
 
     void showLogWindow() {
@@ -158,7 +179,25 @@ public class LaunchVPN extends Activity {
 
             }
         });
+        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                finish();
+            }
+        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+            setOnDismissListener(d);
         d.show();
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    private void setOnDismissListener(AlertDialog.Builder d) {
+        d.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                finish();
+            }
+        });
     }
 
     void launchVPN() {
@@ -170,7 +209,7 @@ public class LaunchVPN extends Activity {
 
         Intent intent = VpnService.prepare(this);
         // Check if we want to fix /dev/tun
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = Preferences.getDefaultSharedPreferences(this);
         boolean usecm9fix = prefs.getBoolean("useCM9Fix", false);
         boolean loadTunModule = prefs.getBoolean("loadTunModule", false);
 

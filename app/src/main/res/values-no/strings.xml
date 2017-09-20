@@ -2,7 +2,5 @@
 <resources>
   <string name="info">info</string>
   <string name="show_connection_details">Vis Tilkoblingsdetaljer</string>
-  <string name="dns_server_info">DNS-server: %s</string>
-  <string name="dns_domain_info">DNS-domene: %s</string>
   <string name="routes_info">Ruter: %s</string>
 </resources>

@@ -27,7 +27,7 @@
         android:layout_centerInParent="true">
 
         <Button
-            android:id="@+id/vpn.main.button"
+            android:id="@+id/vpn_main_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -35,12 +35,11 @@
             android:textSize="32sp"
             />
 
-        <view
-            android:id="@+id/vpn.Status.Image"
+        <mbanje.kurt.fabbutton.FabButton
+            android:id="@+id/vpn_status_image"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:color="@android:color/holo_blue_dark"
-            class="mbanje.kurt.fabbutton.FabButton"
             android:layout_gravity="center"
             android:visibility="visible"
             android:indeterminate="true"

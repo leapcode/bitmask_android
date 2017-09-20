@@ -26,7 +26,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     public static String TAG = EipStatus.class.getSimpleName();
     private static EipStatus current_status;
 
-    private static VpnStatus.ConnectionStatus level = VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
+    private static ConnectionStatus level = ConnectionStatus.LEVEL_NOTCONNECTED;
     private static boolean
             wants_to_disconnect = false,
             is_connecting = false;
@@ -47,7 +47,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     @Override
-    public void updateState(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
+    public void updateState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
         updateStatus(state, logmessage, localizedResId, level);
         if (isConnected() || isDisconnected() || wantsToDisconnect()) {
             setConnectedOrDisconnected();
@@ -55,7 +55,11 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
             setConnecting();
     }
 
-    private void updateStatus(final String state, final String logmessage, final int localizedResId, final VpnStatus.ConnectionStatus level) {
+    @Override
+    public void setConnectedVPN(String uuid) {
+    }
+
+    private void updateStatus(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
         current_status = getInstance();
         current_status.setState(state);
         current_status.setLogMessage(logmessage);
@@ -73,15 +77,15 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public boolean isConnected() {
-        return level == VpnStatus.ConnectionStatus.LEVEL_CONNECTED;
+        return level == ConnectionStatus.LEVEL_CONNECTED;
     }
 
     public boolean isDisconnected() {
-        return level == VpnStatus.ConnectionStatus.LEVEL_NOTCONNECTED;
+        return level == ConnectionStatus.LEVEL_NOTCONNECTED;
     }
 
     public boolean isPaused() {
-        return level == VpnStatus.ConnectionStatus.LEVEL_VPNPAUSED;
+        return level == ConnectionStatus.LEVEL_VPNPAUSED;
     }
 
     public void setConnecting() {
@@ -116,7 +120,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         return localized_res_id;
     }
 
-    public VpnStatus.ConnectionStatus getLevel() {
+    public ConnectionStatus getLevel() {
         return level;
     }
 
@@ -132,7 +136,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         this.localized_res_id = localized_res_id;
     }
 
-    private void setLevel(VpnStatus.ConnectionStatus level) {
+    private void setLevel(ConnectionStatus level) {
         EipStatus.level = level;
     }
 
@@ -145,13 +149,13 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
         String[] error_keywords = {"error", "ERROR", "fatal", "FATAL"};
 
-        VpnStatus.LogItem[] log = VpnStatus.getlogbuffer();
+        LogItem[] log = VpnStatus.getlogbuffer();
         if(log.length < last_error_line)
             last_error_line = 0;
         String message = "";
         for (int i = 1; i <= lines && log.length > i; i++) {
             int line = log.length - i;
-            VpnStatus.LogItem log_item = log[line];
+            LogItem log_item = log[line];
             message = log_item.getString(context);
             for (int j = 0; j < error_keywords.length; j++)
                 if (message.contains(error_keywords[j]) && line > last_error_line) {
