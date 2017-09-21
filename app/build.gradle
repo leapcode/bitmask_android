@@ -141,34 +141,25 @@ task copyIcsOpenVPNImages( type: Copy ) {
   } into '.'
 }
 
-//TODO: avoid code duplication
 // thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
 task removeDuplicatedStrings() {
   println "removeDuplicatedStrings"
   new File('.').eachFileRecurse {
-    if(it.name.equals('strings.xml')) {
-      def ics_openvpn_file = file(it.absolutePath.replace('strings.xml', 'strings-icsopenvpn.xml'))
-      if(ics_openvpn_file.exists()) {
-        def ics_openvpn_strings_names = (new XmlParser()).parse(ics_openvpn_file)
-        def current_file = it
+    if(it.name.equals('strings.xml') || it.name.equals('plurals.xml')) {
+      replaceDuplicatesForSource(it, it.name.substring(0, it.name.lastIndexOf('.')))
+    }
+  }
+}
 
-        ics_openvpn_strings_names.string.each {
-          processFileInplace(current_file) { text ->
-            text.replaceAll('.*name=\"' + it.attribute('name') + '\".*(\n)*.*string>.*\n+', '')
-          }
-        }
-      }
-    } else if (it.name.equals('plurals.xml')) {
-      def ics_openvpn_file = file(it.absolutePath.replace('plurals.xml', 'plurals-icsopenvpn.xml'))
-      if(ics_openvpn_file.exists()) {
-        def ics_openvpn_strings_names = (new XmlParser()).parse(ics_openvpn_file)
-        def current_file = it
+def replaceDuplicatesForSource(File it, String type) {
+  def ics_openvpn_file = file(it.absolutePath.replace(type+'.xml', type+'-icsopenvpn.xml'))
+  if(ics_openvpn_file.exists()) {
+    def ics_openvpn_strings_names = (new XmlParser()).parse(ics_openvpn_file)
+    def current_file = it
 
-        ics_openvpn_strings_names.string.each {
-          processFileInplace(current_file) { text ->
-            text.replaceAll('.*name=\"' + it.attribute('name') + '\".*(\n)*.*string>.*\n+', '')
-          }
-        }
+    ics_openvpn_strings_names.string.each {
+      processFileInplace(current_file) { text ->
+        text.replaceAll('.*name=\"' + it.attribute('name') + '\".*(\n)*.*string>.*\n+', '')
       }
     }
   }
