@@ -1,15 +1,52 @@
-image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
-
+---
 stages:
+  - docker_image_sdk
+  - docker_image_other
   - build
 
-before_script:
-  - git submodule sync --recursive
-  - git submodule update --init --recursive
+# When using dind, it's wise to use the overlayfs driver for
+# improved performance.
+variables:
+  DOCKER_DRIVER: overlay
+
+.job_template: &build_docker_image
+  image: 0xacab.org:4567/leap/docker/debian:stretch_amd64
+  tags:
+    - docker-in-docker
+  services:
+    - docker:dind
+  script:
+    - docker --version
+    - docker info
+    - >
+      export LAST_COMMIT=$(curl -s --header "PRIVATE-TOKEN: ${LEAP_CODE_O_MATIC_PRIVATE_TOKEN}" https://0xacab.org/api/v4/projects/578/pipelines |
+      python -c "import sys, json; print json.load(sys.stdin)[1]['sha']")
+    - .gitlab/build.sh ${DOCKER_IMAGE}
+
+docker_image:sdk:
+  stage: docker_image_sdk
+  variables:
+    DOCKER_IMAGE: android-sdk
+  <<: *build_docker_image
+
+docker_image:ndk:
+  stage: docker_image_other
+  variables:
+    DOCKER_IMAGE: android-ndk
+  <<: *build_docker_image
+
+docker_image:emulator:
+  stage: docker_image_other
+  variables:
+    DOCKER_IMAGE: android-emulator
+  <<: *build_docker_image
 
 build:
+  image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
     - ./gradlew assembleDebug
   artifacts:
     paths:
