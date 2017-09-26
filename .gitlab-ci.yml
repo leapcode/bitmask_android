@@ -16,7 +16,7 @@ variables:
   services:
     - docker:dind
 
-  before script:
+  before_script:
     - >
       export LAST_COMMIT=$(curl -s --header "PRIVATE-TOKEN: ${LEAP_CODE_O_MATIC_PRIVATE_TOKEN}" https://0xacab.org/api/v4/projects/578/pipelines |
       python -c "import sys, json; print json.load(sys.stdin)[1]['sha']")
