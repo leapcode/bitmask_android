@@ -6,7 +6,7 @@ LABEL Description="Android SDK baseimage based on debian:stretch" Vendor="LEAP" 
 # ------------------------------------------------------
 # --- Install System Dependencies
 
- Make sure debconf doesn't complain about lack of interactivity
+# Make sure debconf doesn't complain about lack of interactivity
 ENV DEBIAN_FRONTEND noninteractive
 
 # Need docker package in order to do Docker-in-Docker (DIND)
