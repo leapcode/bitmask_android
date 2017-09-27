@@ -45,7 +45,7 @@ docker_image:emulator:
   <<: *build_docker_image
 
 build:
-  image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
+  image: "${CI_REGISTRY_IMAGE}:android-ndk:latest" # "0xacab.org:4567/cyberta/bitmask_android/android-ndk:latest"
   stage: build
   script:
     - git submodule sync --recursive
