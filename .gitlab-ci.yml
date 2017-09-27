@@ -15,12 +15,15 @@ variables:
     - docker-in-docker
   services:
     - docker:dind
-  script:
-    - docker --version
-    - docker info
+
+  before_script:
     - >
       export LAST_COMMIT=$(curl -s --header "PRIVATE-TOKEN: ${LEAP_CODE_O_MATIC_PRIVATE_TOKEN}" https://0xacab.org/api/v4/projects/578/pipelines |
       python -c "import sys, json; print json.load(sys.stdin)[1]['sha']")
+
+  script:
+    - docker --version
+    - docker info
     - .gitlab/build.sh ${DOCKER_IMAGE}
 
 docker_image:sdk:
@@ -47,7 +50,7 @@ build:
   script:
     - git submodule sync --recursive
     - git submodule update --init --recursive
-    - ./gradlew assembleDebug
+    - ./gradlew clean assembleDebug
   artifacts:
     paths:
     - app/build/outputs/
