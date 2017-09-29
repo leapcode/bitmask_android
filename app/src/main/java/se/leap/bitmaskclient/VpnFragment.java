@@ -19,6 +19,7 @@ package se.leap.bitmaskclient;
 import android.app.*;
 import android.content.*;
 import android.os.*;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
@@ -39,7 +40,7 @@ public class VpnFragment extends Fragment implements Observer {
     protected static final String IS_CONNECTED = TAG + ".is_connected";
     public static final String START_ON_BOOT = "start on boot";
 
-    @InjectView(R.id.vpn_Status_Image)
+    @InjectView(R.id.vpn_status_image)
     FabButton vpn_status_image;
     @InjectView(R.id.vpn_main_button)
     Button main_button;
@@ -91,7 +92,8 @@ public class VpnFragment extends Fragment implements Observer {
     @Override
     public void onResume() {
         super.onResume();
-        eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
+        //FIXME: avoid race conditions while checking certificate an logging in at about the same time
+        //eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
         handleNewState(eip_status);
     }
 

@@ -19,15 +19,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import se.leap.bitmaskclient.R;
-import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.core.VpnStatus.ConnectionStatus;
-import de.blinkt.openvpn.core.VpnStatus.LogItem;
 
 public class OpenVPNThread implements Runnable {
     private static final String DUMP_PATH_STRING = "Dump path: ";
@@ -44,15 +39,13 @@ public class OpenVPNThread implements Runnable {
     private String mNativeDir;
     private OpenVPNService mService;
     private String mDumpPath;
-    private Map<String, String> mProcessEnv;
     private boolean mBrokenPie = false;
     private boolean mNoProcessExitStatus = false;
 
-    public OpenVPNThread(OpenVPNService service, String[] argv, Map<String, String> processEnv, String nativelibdir) {
+    public OpenVPNThread(OpenVPNService service, String[] argv, String nativelibdir) {
         mArgv = argv;
         mNativeDir = nativelibdir;
         mService = service;
-        mProcessEnv = processEnv;
     }
 
     public void stopProcess() {
@@ -68,7 +61,7 @@ public class OpenVPNThread implements Runnable {
     public void run() {
         try {
             Log.i(TAG, "Starting openvpn");
-            startOpenVPNThreadArgs(mArgv, mProcessEnv);
+            startOpenVPNThreadArgs(mArgv);
             Log.i(TAG, "OpenVPN process exited");
         } catch (Exception e) {
             VpnStatus.logException("Starting OpenVPN Thread", e);
@@ -94,7 +87,6 @@ public class OpenVPNThread implements Runnable {
                         mArgv = noPieArgv;
                         VpnStatus.logInfo("PIE Version could not be executed. Trying no PIE version");
                         run();
-                        return;
                     }
 
                 }
@@ -124,7 +116,7 @@ public class OpenVPNThread implements Runnable {
         }
     }
 
-    private void startOpenVPNThreadArgs(String[] argv, Map<String, String> env) {
+    private void startOpenVPNThreadArgs(String[] argv) {
         LinkedList<String> argvlist = new LinkedList<String>();
 
         Collections.addAll(argvlist, argv);
@@ -136,10 +128,6 @@ public class OpenVPNThread implements Runnable {
 
         pb.environment().put("LD_LIBRARY_PATH", lbpath);
 
-        // Add extra variables
-        for (Entry<String, String> e : env.entrySet()) {
-            pb.environment().put(e.getKey(), e.getValue());
-        }
         pb.redirectErrorStream(true);
         try {
             mProcess = pb.start();
@@ -164,6 +152,7 @@ public class OpenVPNThread implements Runnable {
 
                 Pattern p = Pattern.compile("(\\d+).(\\d+) ([0-9a-f])+ (.*)");
                 Matcher m = p.matcher(logline);
+                int logerror = 0;
                 if (m.matches()) {
                     int flags = Integer.parseInt(m.group(3), 16);
                     String msg = m.group(4);
@@ -183,15 +172,22 @@ public class OpenVPNThread implements Runnable {
                     if (msg.startsWith("MANAGEMENT: CMD"))
                         logLevel = Math.max(4, logLevel);
 
+                    if ((msg.endsWith("md too weak") && msg.startsWith("OpenSSL: error")) || msg.contains("error:140AB18E"))
+                        logerror = 1;
 
                     VpnStatus.logMessageOpenVPN(logStatus, logLevel, msg);
+                    if (logerror==1)
+                        VpnStatus.logError("OpenSSL reproted a certificate with a weak hash, please the in app FAQ about weak hashes");
+
                 } else {
                     VpnStatus.logInfo("P:" + logline);
                 }
+
+                if (Thread.interrupted()) {
+                    throw new InterruptedException("OpenVpn process was killed form java code");
+                }
             }
-
-
-        } catch (IOException e) {
+        } catch (InterruptedException | IOException e) {
             VpnStatus.logException("Error reading from output of OpenVPN process", e);
             stopProcess();
         }

@@ -16,26 +16,63 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.*;
-import android.content.*;
-import android.content.res.*;
-import android.os.*;
-import android.util.*;
+import android.app.IntentService;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.util.Base64;
 
-import java.io.*;
-import java.math.*;
-import java.net.*;
-import java.security.*;
-import java.security.cert.*;
-import java.security.interfaces.*;
-import java.util.*;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.thoughtcrime.ssl.pinning.util.PinningHelper;
 
-import javax.net.ssl.*;
+import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.net.ConnectException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
-import org.json.*;
-import org.thoughtcrime.ssl.pinning.util.*;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
-import se.leap.bitmaskclient.eip.*;
+import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatus;
@@ -952,6 +989,7 @@ public class ProviderAPI extends IntentService {
         }
     }
 
+    //FIXME: don't save private keys in shared preferences! use the keystore
     private boolean loadCertificate(String cert_string) {
         try {
             // API returns concatenated cert & key.  Split them for OpenVPN options

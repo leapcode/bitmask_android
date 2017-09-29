@@ -20,7 +20,7 @@ import android.app.*;
 import android.content.*;
 import android.content.res.*;
 import android.os.*;
-import android.util.*;
+import android.util.Base64;
 
 import org.json.*;
 import org.thoughtcrime.ssl.pinning.util.*;
