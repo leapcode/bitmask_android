@@ -66,9 +66,11 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     public static final String TAG = Dashboard.class.getSimpleName();
     public static final String SHARED_PREFERENCES = "LEAPPreferences";
     public static final String ACTION_QUIT = "quit";
+    public static final String ACTION_ASK_TO_CANCEL_VPN = "ask to cancel vpn";
     public static final String REQUEST_CODE = "request_code";
     public static final String PARAMETERS = "dashboard parameters";
     public static final String START_ON_BOOT = "dashboard start on boot";
+    //FIXME: remove OR FIX ON_BOOT
     public static final String ON_BOOT = "dashboard on boot";
     public static final String APP_VERSION = "bitmask version";
 
@@ -114,6 +116,12 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         } else {
             startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        handleVPNCancellation(getIntent());
     }
 
     private boolean previousProviderExists(Bundle savedInstanceState) {
@@ -176,6 +184,13 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleVPNCancellation(intent);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
             if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
@@ -192,8 +207,13 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
                 finish();
             } else
                 configErrorDialog();
-        } else if (requestCode == EIP.DISCONNECT) {
-            EipStatus.getInstance().setConnectedOrDisconnected();
+        }
+    }
+
+    private void handleVPNCancellation(Intent intent) {
+        if (intent.hasExtra(Dashboard.ACTION_ASK_TO_CANCEL_VPN)) {
+            eip_fragment.askToStopEIP();
+            intent.removeExtra(ACTION_ASK_TO_CANCEL_VPN);
         }
     }
 
@@ -247,7 +267,9 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
             eip_fragment = new VpnFragment();
 
             if (hide_and_turn_on_eip) {
+                //TODO: remove line below if not in use anymore...
                 preferences.edit().remove(Dashboard.START_ON_BOOT).apply();
+                //FIXME: always start on Boot? Why do we keep shared preferences then?
                 Bundle arguments = new Bundle();
                 arguments.putBoolean(VpnFragment.START_ON_BOOT, true);
                 if (eip_fragment != null) eip_fragment.setArguments(arguments);

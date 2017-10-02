@@ -85,7 +85,7 @@
             android:name="se.leap.bitmaskclient.Dashboard"
             android:label="@string/title_activity_dashboard"
             android:uiOptions="splitActionBarWhenNarrow"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             >
 
             <intent-filter android:label="@string/app_name">
