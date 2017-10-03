@@ -8,7 +8,6 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # ------------------------------------------------------
 # --- Install System Dependencies
-RUN if test -f /etc/apt/sources.list.d/leap.list; then rm /etc/apt/sources.list.d/leap.list; fi
 # Need docker package in order to do Docker-in-Docker (DIND)
 RUN apt-get update -qq && \
     apt-get -y dist-upgrade && \
@@ -21,7 +20,6 @@ RUN apt-get update -qq && \
     apt-get clean && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 
 # ------------------------------------------------------
 # --- Install Android NDK (for running C code)
