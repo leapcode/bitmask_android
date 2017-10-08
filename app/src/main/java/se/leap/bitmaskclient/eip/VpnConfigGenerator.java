@@ -56,7 +56,7 @@ public class VpnConfigGenerator {
                 String key = keys.next().toString();
 
                 common_options += key + " ";
-                for (String word : general_configuration.getString(key).split(" "))
+                for (String word : String.valueOf(general_configuration.get(key)).split(" "))
                     common_options += word + " ";
                 common_options += new_line;
 
@@ -79,7 +79,6 @@ public class VpnConfigGenerator {
         String ports_keyword = "ports";
         String protocol_keyword = "protocols";
         String capabilities_keyword = "capabilities";
-        String udp = "udp";
 
         try {
             String ip_address = gateway.getString(ip_address_keyword);
@@ -93,9 +92,7 @@ public class VpnConfigGenerator {
                     String protocol = protocols.optString(j);
                     String new_remote = remote_keyword + " " + ip_address + " " + port + " " + protocol + new_line;
 
-                    port_specific_remotes = protocol.equalsIgnoreCase(udp) ?
-                            port_specific_remotes.replaceFirst(remote_keyword, new_remote + new_line + remote_keyword) :
-                            new_remote;
+                    port_specific_remotes += new_remote;
                 }
                 remotes += port_specific_remotes;
             }
@@ -103,7 +100,9 @@ public class VpnConfigGenerator {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
+        if (remotes.endsWith(new_line)) {
+            remotes = remotes.substring(0, remotes.lastIndexOf(new_line));
+        }
         return remotes;
     }
 
