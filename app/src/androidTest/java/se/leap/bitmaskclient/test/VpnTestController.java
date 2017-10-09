@@ -33,7 +33,7 @@ public class VpnTestController {
         Button button = getVpnButton();
         if(!isVpnButton(button))
             throw new IllegalStateException();
-        solo.clickOnView(button);
+        solo.clickOnButton(String.valueOf(button.getText()));
     }
 
     protected Button getVpnButton() {
@@ -93,8 +93,6 @@ public class VpnTestController {
 
     protected void turningEipOff() {
         okToBrowserWarning();
-        sayOkToDisconnect();
-
         int max_seconds_until_connected = 120;
 
          Condition condition = new Condition() {
@@ -123,6 +121,7 @@ public class VpnTestController {
         solo.clickOnButton(disconnect);
     }
 
+    @SuppressWarnings("unused")
     private void sayOkToDisconnect() throws IllegalStateException {
         boolean disconnect_vpn_appeared = solo.waitForActivity(DisconnectVPN.class);
         if(disconnect_vpn_appeared){
