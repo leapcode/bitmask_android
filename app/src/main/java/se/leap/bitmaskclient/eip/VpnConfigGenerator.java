@@ -56,7 +56,7 @@ public class VpnConfigGenerator {
                 String key = keys.next().toString();
 
                 common_options += key + " ";
-                for (String word : general_configuration.getString(key).split(" "))
+                for (String word : String.valueOf(general_configuration.get(key)).split(" "))
                     common_options += word + " ";
                 common_options += new_line;
 

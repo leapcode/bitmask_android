@@ -43,12 +43,17 @@ android {
     debug {
       assets.srcDirs = ['src/debug/assets']
     }
+    test {
+      resources.srcDirs += ['src/test/resources']
+    }
   }
 }
 
 dependencies {
+  testCompile 'org.mockito:mockito-core:2.6.3'
   androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.5.4'
   testCompile 'junit:junit:4.12'
+  testCompile 'org.json:json:20170516'
   compile 'com.jakewharton:butterknife:6.1.0'
   provided 'com.squareup.dagger:dagger-compiler:1.2.2'
   compile 'com.github.pedrovgs:renderers:1.5'
