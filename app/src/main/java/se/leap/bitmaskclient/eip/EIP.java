@@ -168,6 +168,7 @@ public final class EIP extends IntentService {
     }
 
     private void updateGateways() {
+        gateways_manager.clearGatewaysAndProfiles();
         gateways_manager.fromEipServiceJson(eip_definition);
         gatewaysToPreferences();
     }

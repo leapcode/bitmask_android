@@ -143,15 +143,20 @@ public class GatewaysManager {
         return result;
     }
 
+    protected void clearGatewaysAndProfiles() {
+        gateways.clear();
+        ArrayList<VpnProfile> profiles = new ArrayList<>(profile_manager.getProfiles());
+        for (VpnProfile profile : profiles) {
+            profile_manager.removeProfile(context, profile);
+        }
+    }
+
     private void addGateway(Gateway gateway) {
         removeDuplicatedGateway(gateway);
-
         gateways.add(gateway);
 
         VpnProfile profile = gateway.getProfile();
         profile_manager.addProfile(profile);
-        //profile_manager.saveProfile(context, profile);
-        //profile_manager.saveProfileList(context);
     }
 
     private void removeDuplicatedGateway(Gateway gateway) {
