@@ -23,9 +23,12 @@ import android.view.*;
 import android.widget.*;
 
 import butterknife.*;
+import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.VpnFragment;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
+
+import static android.view.View.VISIBLE;
 
 /**
  * Implements the log in dialog, currently without progress dialog.
@@ -47,7 +50,8 @@ public class SessionDialog extends DialogFragment {
     public static enum ERRORS {
         USERNAME_MISSING,
         PASSWORD_INVALID_LENGTH,
-        RISEUP_WARNING
+        RISEUP_WARNING,
+        INITIALIZATION_ERROR
     }
 
     @InjectView(R.id.user_message)
@@ -117,8 +121,11 @@ public class SessionDialog extends DialogFragment {
         if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
             password_field.setError(getString(R.string.error_not_valid_password_user_message));
         else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
-            user_message.setVisibility(TextView.VISIBLE);
+            user_message.setVisibility(VISIBLE);
             user_message.setText(R.string.login_riseup_warning);
+        } else if (arguments.containsKey(ERRORS.INITIALIZATION_ERROR.toString())) {
+            user_message.setVisibility(VISIBLE);
+            user_message.setText(String.valueOf(arguments.get(ERRORS.INITIALIZATION_ERROR.toString())));
         }
         if (arguments.containsKey(USERNAME)) {
             String username = arguments.getString(USERNAME);
@@ -129,8 +136,8 @@ public class SessionDialog extends DialogFragment {
         }
         if (arguments.containsKey(getString(R.string.user_message))) {
             user_message.setText(arguments.getString(getString(R.string.user_message)));
-            user_message.setVisibility(View.VISIBLE);
-        } else if (user_message.getVisibility() != TextView.VISIBLE)
+            user_message.setVisibility(VISIBLE);
+        } else if (user_message.getVisibility() != VISIBLE)
             user_message.setVisibility(View.GONE);
 
         if (!username_field.getText().toString().isEmpty() && password_field.isFocusable())

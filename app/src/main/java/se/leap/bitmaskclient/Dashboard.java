@@ -32,24 +32,36 @@
  */
 package se.leap.bitmaskclient;
 
-import android.annotation.*;
-import android.app.*;
-import android.content.*;
-import android.content.pm.PackageManager.*;
-import android.os.*;
-import android.util.*;
-import android.view.*;
-import android.widget.*;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
 
-import org.jetbrains.annotations.*;
-import org.json.*;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import butterknife.*;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.eip.*;
-import se.leap.bitmaskclient.userstatus.*;
+import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.userstatus.SessionDialog;
+import se.leap.bitmaskclient.userstatus.User;
+import se.leap.bitmaskclient.userstatus.UserStatusFragment;
 
 /**
  * The main user facing Activity of Bitmask Android, consisting of status, controls,
@@ -99,7 +111,6 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         if (app == null) {
             app = this;
 
-            PRNGFixes.apply();
             VpnStatus.initLogCache(getApplicationContext().getCacheDir());
             handleVersion();
             User.init(getString(R.string.default_username));
@@ -352,7 +363,9 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
-        if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
+        if (resultCode == ProviderAPI.INITIALIZATION_ERROR) {
+            sessionDialog(resultData);
+        } else if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
             String username = resultData.getString(SessionDialog.USERNAME);
             String password = resultData.getString(SessionDialog.PASSWORD);
             user_status_fragment.logIn(username, password);

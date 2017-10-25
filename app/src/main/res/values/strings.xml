@@ -37,7 +37,7 @@
     <string name="error_client_http_user_message">Try again: Client HTTP error</string>
     <string name="error_io_exception_user_message">Try again: I/O error</string>
     <string name="error_json_exception_user_message">Try again: Bad response from the server</string>
-    <string name="error_no_such_algorithm_exception_user_message">Update the app</string>
+    <string name="error_no_such_algorithm_exception_user_message">Encryption algorithm not found. Please update your OS!</string>
     <string name="signup_or_login_button">Sign Up/Log In</string>
     <string name="login_button">Log In</string>
     <string name="logout_button">Log Out</string>
