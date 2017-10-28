@@ -970,7 +970,7 @@ public class ProviderAPI extends IntentService {
             JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 
             String provider_main_url = provider_json.getString(Provider.API_URL);
-            URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + Constants.CERTIFICATE);
+            URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + Constants.VPN_CERTIFICATE);
 
             String cert_string = downloadWithProviderCA(new_cert_string_url.toString());
 
@@ -1009,7 +1009,7 @@ public class ProviderAPI extends IntentService {
 
             X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
             certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
-            preferences.edit().putString(Constants.CERTIFICATE, "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----").commit();
+            preferences.edit().putString(Constants.VPN_CERTIFICATE, "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----").commit();
             return true;
         } catch (CertificateException e) {
             // TODO Auto-generated catch block
