@@ -59,13 +59,13 @@ public class TestEIP extends ServiceTestCase<EIP> {
     }
 
     private void testEmptyCertificate() {
-        preferences.edit().putString(Constants.CERTIFICATE, "").apply();
+        preferences.edit().putString(Constants.VPN_CERTIFICATE, "").apply();
         startService(Constants.ACTION_CHECK_CERT_VALIDITY);
     }
 
     private void testExpiredCertificate() {
         String expired_certificate = "expired certificate";
-        preferences.edit().putString(Constants.CERTIFICATE, expired_certificate).apply();
+        preferences.edit().putString(Constants.VPN_CERTIFICATE, expired_certificate).apply();
         startService(Constants.ACTION_CHECK_CERT_VALIDITY);
     }
 

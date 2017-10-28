@@ -33,7 +33,7 @@ public interface Constants {
     public final static String EIP_NOTIFICATION = TAG + ".EIP_NOTIFICATION";
     public final static String ALLOWED_ANON = "allow_anonymous";
     public final static String ALLOWED_REGISTERED = "allow_registration";
-    public final static String CERTIFICATE = "cert";
+    public final static String VPN_CERTIFICATE = "cert";
     public final static String PRIVATE_KEY = TAG + ".PRIVATE_KEY";
     public final static String KEY = TAG + ".KEY";
     public final static String RECEIVER_TAG = TAG + ".RECEIVER_TAG";

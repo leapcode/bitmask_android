@@ -1,6 +1,6 @@
 package se.leap.bitmaskclient;
 
-import android.util.Log;
+import android.text.TextUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -33,14 +33,14 @@ public class TLSCompatSocketFactory extends SSLSocketFactory {
 
     private static final String TAG = TLSCompatSocketFactory.class.getName();
     private SSLSocketFactory internalSSLSocketFactory;
-    private SSLContext sslContext;
     private TrustManager trustManager;
 
     public TLSCompatSocketFactory(String trustedCaCert) throws KeyManagementException, NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, NoSuchProviderException {
+        initForSelfSignedCAs(trustedCaCert);
+    }
 
-        initTrustManager(trustedCaCert);
-        internalSSLSocketFactory = sslContext.getSocketFactory();
-
+    public TLSCompatSocketFactory() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, NoSuchProviderException, IOException {
+        initForCommercialCAs();
     }
 
     public void initSSLSocketFactory(OkHttpClient.Builder builder) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, KeyManagementException, IllegalStateException {
@@ -48,14 +48,15 @@ public class TLSCompatSocketFactory extends SSLSocketFactory {
     }
 
 
-    private void initTrustManager(String trustedCaCert) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException, IllegalStateException, KeyManagementException, NoSuchProviderException {
-        java.security.cert.Certificate provider_certificate = ConfigHelper.parseX509CertificateFromString(trustedCaCert);
-
+    private void initForSelfSignedCAs(String trustedSelfSignedCaCert) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException, IllegalStateException, KeyManagementException, NoSuchProviderException {
         // Create a KeyStore containing our trusted CAs
         String defaultType = KeyStore.getDefaultType();
         KeyStore keyStore = KeyStore.getInstance(defaultType);
         keyStore.load(null, null);
-        keyStore.setCertificateEntry("provider_ca_certificate", provider_certificate);
+        if (!TextUtils.isEmpty(trustedSelfSignedCaCert)) {
+            java.security.cert.Certificate provider_certificate = ConfigHelper.parseX509CertificateFromString(trustedSelfSignedCaCert);
+            keyStore.setCertificateEntry("provider_ca_certificate", provider_certificate);
+        }
 
         // Create a TrustManager that trusts the CAs in our KeyStore
         String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
@@ -72,9 +73,32 @@ public class TLSCompatSocketFactory extends SSLSocketFactory {
         trustManager = trustManagers[0];
 
         // Create an SSLContext that uses our TrustManager
-        sslContext = SSLContext.getInstance("TLS");
+        SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, tmf.getTrustManagers(), null);
+        internalSSLSocketFactory = sslContext.getSocketFactory();
 
+    }
+
+
+    private void initForCommercialCAs() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+
+        // Create a TrustManager that trusts the CAs in our KeyStore
+        String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+        tmf.init((KeyStore) null);
+
+        // Check if there's only 1 X509Trustmanager -> from okttp3 source code example
+        TrustManager[] trustManagers = tmf.getTrustManagers();
+        if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
+            throw new IllegalStateException("Unexpected default trust managers:"
+                    + Arrays.toString(trustManagers));
+        }
+
+        trustManager = trustManagers[0];
+
+        SSLContext context = SSLContext.getInstance("TLS");
+        context.init(null, null, null);
+        internalSSLSocketFactory = context.getSocketFactory();
     }
 
 
@@ -89,39 +113,39 @@ public class TLSCompatSocketFactory extends SSLSocketFactory {
     }
 
     @Override
-    public Socket createSocket() throws IOException {
+    public Socket createSocket() throws IOException, IllegalArgumentException {
         return enableTLSOnSocket(internalSSLSocketFactory.createSocket());
     }
 
     @Override
-    public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
+    public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException, IllegalArgumentException {
         return enableTLSOnSocket(internalSSLSocketFactory.createSocket(s, host, port, autoClose));
     }
 
     @Override
-    public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+    public Socket createSocket(String host, int port) throws IOException, UnknownHostException, IllegalArgumentException {
         return enableTLSOnSocket(internalSSLSocketFactory.createSocket(host, port));
     }
 
     @Override
-    public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
+    public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException, IllegalArgumentException {
         return enableTLSOnSocket(internalSSLSocketFactory.createSocket(host, port, localHost, localPort));
     }
 
     @Override
-    public Socket createSocket(InetAddress host, int port) throws IOException {
+    public Socket createSocket(InetAddress host, int port) throws IOException, IllegalArgumentException {
         return enableTLSOnSocket(internalSSLSocketFactory.createSocket(host, port));
     }
 
     @Override
-    public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+    public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException, IllegalArgumentException {
         return enableTLSOnSocket(internalSSLSocketFactory.createSocket(address, port, localAddress, localPort));
     }
 
-    private Socket enableTLSOnSocket(Socket socket) {
+    private Socket enableTLSOnSocket(Socket socket) throws IllegalArgumentException {
         if(socket != null && (socket instanceof SSLSocket)) {
             ((SSLSocket)socket).setEnabledProtocols(new String[] {"TLSv1.2"});
-            ((SSLSocket)socket).setEnabledCipherSuites(getSupportedCipherSuites());
+            //TODO: add a android version check as soon as a new Android API or bcjsse supports TLSv1.3
         }
         return socket;
 

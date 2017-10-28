@@ -363,9 +363,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
-        if (resultCode == ProviderAPI.INITIALIZATION_ERROR) {
-            sessionDialog(resultData);
-        } else if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
+        if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
             String username = resultData.getString(SessionDialog.USERNAME);
             String password = resultData.getString(SessionDialog.PASSWORD);
             user_status_fragment.logIn(username, password);
