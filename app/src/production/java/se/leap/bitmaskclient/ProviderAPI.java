@@ -20,62 +20,70 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
 import android.util.Base64;
+import android.util.Pair;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.thoughtcrime.ssl.pinning.util.PinningHelper;
 
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.ConnectException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.net.UnknownServiceException;
 import java.security.KeyManagementException;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.security.NoSuchProviderException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
+import okhttp3.CipherSuite;
+import okhttp3.ConnectionSpec;
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.TlsVersion;
 import se.leap.bitmaskclient.eip.Constants;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatus;
+
+import static se.leap.bitmaskclient.R.string.certificate_error;
+import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
+import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
+import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
+import static se.leap.bitmaskclient.R.string.keyChainAccessError;
+import static se.leap.bitmaskclient.R.string.malformed_url;
+import static se.leap.bitmaskclient.R.string.server_unreachable_message;
+import static se.leap.bitmaskclient.R.string.service_is_down_error;
 
 /**
  * Implements HTTP api methods used to manage communications with the provider server.
@@ -133,6 +141,9 @@ public class ProviderAPI extends IntentService {
         go_ahead = false;
     }
 
+    private final MediaType JSON
+            = MediaType.parse("application/json; charset=utf-8");
+
     public ProviderAPI() {
         super(TAG);
     }
@@ -142,15 +153,11 @@ public class ProviderAPI extends IntentService {
         super.onCreate();
 
         preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
-        CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER));
+        resources = getResources();
     }
 
     public static String lastProviderMainUrl() {
         return last_provider_main_url;
-    }
-
-    private String formatErrorMessage(final int toast_string_id) {
-        return "{ \"" + ERRORS + "\" : \"" + getResources().getString(toast_string_id) + "\" }";
     }
 
     @Override
@@ -221,6 +228,118 @@ public class ProviderAPI extends IntentService {
         }
     }
 
+    private String formatErrorMessage(final int toastStringId) {
+        return formatErrorMessage(getResources().getString(toastStringId));
+    }
+
+    private String formatErrorMessage(String errorMessage) {
+        return "{ \"" + ERRORS + "\" : \"" + errorMessage + "\" }";
+    }
+
+    private JSONObject getErrorMessageAsJson(final int toastStringId) {
+        try {
+            return new JSONObject(formatErrorMessage(toastStringId));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new JSONObject();
+        }
+    }
+
+    private JSONObject getErrorMessageAsJson(String message) {
+        try {
+            return new JSONObject(formatErrorMessage(message));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new JSONObject();
+        }
+    }
+    private OkHttpClient initHttpClient(JSONObject initError, boolean isSelfSigned) {
+        try {
+            TLSCompatSocketFactory sslCompatFactory;
+            ConnectionSpec spec = getConnectionSpec();
+            OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+            if (isSelfSigned) {
+                sslCompatFactory = new TLSCompatSocketFactory(preferences.getString(Provider.CA_CERT, ""));
+
+            } else {
+                sslCompatFactory = new TLSCompatSocketFactory();
+            }
+            sslCompatFactory.initSSLSocketFactory(clientBuilder);
+            clientBuilder.cookieJar(getCookieJar())
+                    .connectionSpecs(Collections.singletonList(spec));
+            return clientBuilder.build();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            initError = getErrorMessageAsJson(String.format(resources.getString(keyChainAccessError), e.getLocalizedMessage()));
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+            initError = getErrorMessageAsJson(String.format(resources.getString(keyChainAccessError), e.getLocalizedMessage()));
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+            initError = getErrorMessageAsJson(String.format(resources.getString(keyChainAccessError), e.getLocalizedMessage()));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            initError = getErrorMessageAsJson(resources.getString(error_no_such_algorithm_exception_user_message));
+        } catch (CertificateException e) {
+            e.printStackTrace();
+            initError = getErrorMessageAsJson(resources.getString(certificate_error));
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            initError = getErrorMessageAsJson(resources.getString(server_unreachable_message));
+        } catch (IOException e) {
+            e.printStackTrace();
+            initError = getErrorMessageAsJson(resources.getString(error_io_exception_user_message));
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+            initError = getErrorMessageAsJson(resources.getString(error_no_such_algorithm_exception_user_message));
+        }
+        return null;
+    }
+    private OkHttpClient initCommercialCAHttpClient(JSONObject initError) {
+        return initHttpClient(initError, false);
+    }
+
+    private OkHttpClient initSelfSignedCAHttpClient(JSONObject initError) {
+        return initHttpClient(initError, true);
+    }
+
+    @NonNull
+    private ConnectionSpec getConnectionSpec() {
+        ConnectionSpec.Builder connectionSpecbuilder = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_3);
+        //FIXME: restrict connection further to the following recommended cipher suites for ALL supported API levels
+        //figure out how to use bcjsse for that purpose
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+            connectionSpecbuilder.cipherSuites(
+                    CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                    CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                    CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+                    CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+                    CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+                    CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+            );
+        return connectionSpecbuilder.build();
+    }
+
+    @NonNull
+    private CookieJar getCookieJar() {
+        return new CookieJar() {
+            private final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();
+
+            @Override
+            public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+                cookieStore.put(url.host(), cookies);
+            }
+
+            @Override
+            public List<Cookie> loadForRequest(HttpUrl url) {
+                List<Cookie> cookies = cookieStore.get(url.host());
+                return cookies != null ? cookies : new ArrayList<Cookie>();
+            }
+        };
+    }
+
+
     private Bundle tryToRegister(Bundle task) {
         Bundle result = new Bundle();
         int progress = 0;
@@ -247,12 +366,18 @@ public class ProviderAPI extends IntentService {
     }
 
     private Bundle register(String username, String password) {
+        JSONObject stepResult = null;
+        OkHttpClient okHttpClient = initSelfSignedCAHttpClient(stepResult);
+        if (okHttpClient == null) {
+            return authFailedNotification(stepResult, username);
+        }
+
         LeapSRPSession client = new LeapSRPSession(username, password);
         byte[] salt = client.calculateNewSalt();
 
         BigInteger password_verifier = client.calculateV(username, password, salt);
 
-        JSONObject api_result = sendNewUserDataToSRPServer(provider_api_url, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16));
+        JSONObject api_result = sendNewUserDataToSRPServer(provider_api_url, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16), okHttpClient);
 
         Bundle result = new Bundle();
         if (api_result.has(ERRORS))
@@ -298,17 +423,22 @@ public class ProviderAPI extends IntentService {
 
     private Bundle authenticate(String username, String password) {
         Bundle result = new Bundle();
+        JSONObject stepResult = new JSONObject();
+        OkHttpClient okHttpClient = initSelfSignedCAHttpClient(stepResult);
+        if (okHttpClient == null) {
+            return authFailedNotification(stepResult, username);
+        }
 
         LeapSRPSession client = new LeapSRPSession(username, password);
         byte[] A = client.exponential();
 
-        JSONObject step_result = sendAToSRPServer(provider_api_url, username, new BigInteger(1, A).toString(16));
+        JSONObject step_result = sendAToSRPServer(provider_api_url, username, new BigInteger(1, A).toString(16), okHttpClient);
         try {
             String salt = step_result.getString(LeapSRPSession.SALT);
             byte[] Bbytes = new BigInteger(step_result.getString("B"), 16).toByteArray();
             byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
             if (M1 != null) {
-                step_result = sendM1ToSRPServer(provider_api_url, username, M1);
+                step_result = sendM1ToSRPServer(provider_api_url, username, M1, okHttpClient);
                 setTokenIfAvailable(step_result);
                 byte[] M2 = new BigInteger(step_result.getString(LeapSRPSession.M2), 16).toByteArray();
                 if (client.verify(M2)) {
@@ -319,7 +449,7 @@ public class ProviderAPI extends IntentService {
             } else {
                 result.putBoolean(RESULT_KEY, false);
                 result.putString(SessionDialog.USERNAME, username);
-                result.putString(getResources().getString(R.string.user_message), getResources().getString(R.string.error_srp_math_error_user_message));
+                result.putString(resources.getString(R.string.user_message), resources.getString(R.string.error_srp_math_error_user_message));
             }
         } catch (JSONException e) {
             result = authFailedNotification(step_result, username);
@@ -332,7 +462,6 @@ public class ProviderAPI extends IntentService {
     private boolean setTokenIfAvailable(JSONObject authentication_step_result) {
         try {
             LeapSRPSession.setToken(authentication_step_result.getString(LeapSRPSession.TOKEN));
-            CookieHandler.setDefault(null); // we don't need cookies anymore
         } catch (JSONException e) { //
             return false;
         }
@@ -340,20 +469,33 @@ public class ProviderAPI extends IntentService {
     }
 
     private Bundle authFailedNotification(JSONObject result, String username) {
-        Bundle user_notification_bundle = new Bundle();
-        try {
-            JSONObject error_message = result.getJSONObject(ERRORS);
-            String error_type = error_message.keys().next().toString();
-            String message = error_message.get(error_type).toString();
-            user_notification_bundle.putString(getResources().getString(R.string.user_message), message);
-        } catch (JSONException e) {
+        Bundle userNotificationBundle = new Bundle();
+        Object baseErrorMessage = result.opt(ERRORS);
+        if (baseErrorMessage != null) {
+            if (baseErrorMessage instanceof JSONObject) {
+                try {
+                    JSONObject errorMessage = result.getJSONObject(ERRORS);
+                    String errorType = errorMessage.keys().next().toString();
+                    String message = errorMessage.get(errorType).toString();
+                    userNotificationBundle.putString(resources.getString(R.string.user_message), message);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else if (baseErrorMessage instanceof String) {
+                try {
+                    String errorMessage = result.getString(ERRORS);
+                    userNotificationBundle.putString(resources.getString(R.string.user_message), errorMessage);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         if (!username.isEmpty())
-            user_notification_bundle.putString(SessionDialog.USERNAME, username);
-        user_notification_bundle.putBoolean(RESULT_KEY, false);
+            userNotificationBundle.putString(SessionDialog.USERNAME, username);
+        userNotificationBundle.putBoolean(RESULT_KEY, false);
 
-        return user_notification_bundle;
+        return userNotificationBundle;
     }
 
     /**
@@ -401,13 +543,12 @@ public class ProviderAPI extends IntentService {
      * @param server_url
      * @param username
      * @param clientA    First SRP parameter sent
+     * @param okHttpClient
      * @return response from authentication server
      */
-    private JSONObject sendAToSRPServer(String server_url, String username, String clientA) {
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("login", username);
-        parameters.put("A", clientA);
-        return sendToServer(server_url + "/sessions.json", "POST", parameters);
+    private JSONObject sendAToSRPServer(String server_url, String username, String clientA, OkHttpClient okHttpClient) {
+        SrpCredentials srpCredentials = new SrpCredentials(username, clientA);
+        return sendToServer(server_url + "/sessions.json", "POST", srpCredentials.toString(), okHttpClient);
     }
 
     /**
@@ -416,12 +557,12 @@ public class ProviderAPI extends IntentService {
      * @param server_url
      * @param username
      * @param m1         Second SRP parameter sent
+     * @param okHttpClient
      * @return response from authentication server
      */
-    private JSONObject sendM1ToSRPServer(String server_url, String username, byte[] m1) {
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("client_auth", new BigInteger(1, ConfigHelper.trim(m1)).toString(16));
-        return sendToServer(server_url + "/sessions/" + username + ".json", "PUT", parameters);
+    private JSONObject sendM1ToSRPServer(String server_url, String username, byte[] m1, OkHttpClient okHttpClient) {
+        String m1json = "{\"client_auth\":\"" + new BigInteger(1, ConfigHelper.trim(m1)).toString(16)+ "\"}";
+        return sendToServer(server_url + "/sessions/" + username + ".json", "PUT", m1json, okHttpClient);
     }
 
     /**
@@ -431,14 +572,11 @@ public class ProviderAPI extends IntentService {
      * @param username
      * @param salt
      * @param password_verifier
+     * @param okHttpClient
      * @return response from authentication server
      */
-    private JSONObject sendNewUserDataToSRPServer(String server_url, String username, String salt, String password_verifier) {
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("user[login]", username);
-        parameters.put("user[password_salt]", salt);
-        parameters.put("user[password_verifier]", password_verifier);
-        return sendToServer(server_url + "/users.json", "POST", parameters);
+    private JSONObject sendNewUserDataToSRPServer(String server_url, String username, String salt, String password_verifier, OkHttpClient okHttpClient) {
+        return sendToServer(server_url + "/users.json", "POST", new SrpRegistrationData(username, salt, password_verifier).toString(), okHttpClient);
     }
 
     /**
@@ -446,88 +584,81 @@ public class ProviderAPI extends IntentService {
      *
      * @param url
      * @param request_method
-     * @param parameters
      * @return response from authentication server
      */
-    private JSONObject sendToServer(String url, String request_method, Map<String, String> parameters) {
-        JSONObject json_response;
-        HttpsURLConnection urlConnection = null;
-        try {
-            InputStream is = null;
-            urlConnection = (HttpsURLConnection) new URL(url).openConnection();
-            urlConnection.setRequestMethod(request_method);
-            String locale = Locale.getDefault().getLanguage() + Locale.getDefault().getCountry();
-            urlConnection.setRequestProperty("Accept-Language", locale);
-            urlConnection.setChunkedStreamingMode(0);
-            urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
-
-            DataOutputStream writer = new DataOutputStream(urlConnection.getOutputStream());
-            writer.writeBytes(formatHttpParameters(parameters));
-            writer.close();
-
-            is = urlConnection.getInputStream();
-            String plain_response = new Scanner(is).useDelimiter("\\A").next();
-            json_response = new JSONObject(plain_response);
-        } catch (IOException e) {
-            json_response = getErrorMessage(urlConnection);
-            e.printStackTrace();
-        } catch (JSONException e) {
-            json_response = getErrorMessage(urlConnection);
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            json_response = getErrorMessage(urlConnection);
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            json_response = getErrorMessage(urlConnection);
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            json_response = getErrorMessage(urlConnection);
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            json_response = getErrorMessage(urlConnection);
-            e.printStackTrace();
-        }
-
-        return json_response;
+    private JSONObject sendToServer(String url, String request_method, String jsonString, OkHttpClient okHttpClient) {
+        return requestJsonFromServer(url, request_method, jsonString, null, okHttpClient);
     }
 
-    private JSONObject getErrorMessage(HttpsURLConnection urlConnection) {
-        JSONObject error_message = new JSONObject();
-        if (urlConnection != null) {
-            InputStream error_stream = urlConnection.getErrorStream();
-            if (error_stream != null) {
-                String error_response = new Scanner(error_stream).useDelimiter("\\A").next();
-                try {
-                    error_message = new JSONObject(error_response);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                urlConnection.disconnect();
+    private String sendGetStringToServer(String url, List<Pair<String, String>> headerArgs, OkHttpClient okHttpClient) {
+        return requestStringFromServer(url, "GET", null, headerArgs, okHttpClient);
+    }
+
+
+
+    private JSONObject requestJsonFromServer(String url, String request_method, String jsonString, List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient)  {
+        JSONObject responseJson;
+        String plain_response = requestStringFromServer(url, request_method, jsonString, headerArgs, okHttpClient);
+
+        try {
+            responseJson = new JSONObject(plain_response);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            responseJson = getErrorMessageAsJson(error_json_exception_user_message);
+        }
+        return responseJson;
+
+    }
+
+    private String requestStringFromServer(String url, String request_method, String jsonString, List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient) {
+        Response response;
+        String plainResponseBody = null;
+
+        RequestBody jsonBody = jsonString != null ? RequestBody.create(JSON, jsonString) : null;
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(url)
+                .method(request_method, jsonBody);
+        if (headerArgs != null) {
+            for (Pair<String, String> keyValPair : headerArgs) {
+                requestBuilder.addHeader(keyValPair.first, keyValPair.second);
             }
         }
-        return error_message;
-    }
+        //TODO: move to getHeaderArgs()?
+        String locale = Locale.getDefault().getLanguage() + Locale.getDefault().getCountry();
+        requestBuilder.addHeader("Accept-Language", locale);
+        Request request = requestBuilder.build();
 
-    private String formatHttpParameters(Map<String, String> parameters) throws UnsupportedEncodingException {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
+        try {
+            response = okHttpClient.newCall(request).execute();
 
-        Iterator<String> parameter_iterator = parameters.keySet().iterator();
-        while (parameter_iterator.hasNext()) {
-            if (first)
-                first = false;
-            else
-                result.append("&&");
+            InputStream inputStream = response.body().byteStream();
+            Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+            if (scanner.hasNext()) {
+                plainResponseBody = scanner.next();
+            }
 
-            String key = parameter_iterator.next();
-            String value = parameters.get(key);
-
-            result.append(URLEncoder.encode(key, "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(value, "UTF-8"));
+        } catch (NullPointerException npe) {
+            plainResponseBody = formatErrorMessage(error_json_exception_user_message);
+        } catch (UnknownHostException e) {
+            plainResponseBody = formatErrorMessage(server_unreachable_message);
+        } catch (MalformedURLException e) {
+            plainResponseBody = formatErrorMessage(malformed_url);
+        } catch (SocketTimeoutException e) {
+            plainResponseBody = formatErrorMessage(server_unreachable_message);
+        } catch (SSLHandshakeException e) {
+            plainResponseBody = formatErrorMessage(certificate_error);
+        } catch (ConnectException e) {
+            plainResponseBody = formatErrorMessage(service_is_down_error);
+        } catch (IllegalArgumentException e) {
+            plainResponseBody = formatErrorMessage(error_no_such_algorithm_exception_user_message);
+        } catch (UnknownServiceException e) {
+            //unable to find acceptable protocols - tlsv1.2 not enabled?
+            plainResponseBody = formatErrorMessage(error_no_such_algorithm_exception_user_message);
+        } catch (IOException e) {
+            plainResponseBody = formatErrorMessage(error_io_exception_user_message);
         }
 
-        return result.toString();
+        return plainResponseBody;
     }
 
     /**
@@ -591,7 +722,7 @@ public class ProviderAPI extends IntentService {
                 result.putBoolean(RESULT_KEY, false);
             }
         } catch (JSONException e) {
-            String reason_to_fail = formatErrorMessage(R.string.malformed_url);
+            String reason_to_fail = formatErrorMessage(malformed_url);
             result.putString(ERRORS, reason_to_fail);
             result.putBoolean(RESULT_KEY, false);
         }
@@ -650,7 +781,6 @@ public class ProviderAPI extends IntentService {
 
         if (go_ahead) {
             String provider_dot_json_string;
-
             if(provider_ca_cert_fingerprint.isEmpty())
                 provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json");
             else
@@ -720,6 +850,7 @@ public class ProviderAPI extends IntentService {
         return error_message;
     }
 
+    //TODO: refactor with ticket #8773
     private String downloadWithCommercialCA(String url_string, String ca_cert_fingerprint) {
         String result = "";
 
@@ -736,7 +867,7 @@ public class ProviderAPI extends IntentService {
             if(e instanceof SSLHandshakeException)
                 result = formatErrorMessage(R.string.error_security_pinnedcertificate);
             else
-                result = formatErrorMessage(R.string.error_io_exception_user_message);
+                result = formatErrorMessage(error_io_exception_user_message);
         }
 
         return result;
@@ -750,212 +881,90 @@ public class ProviderAPI extends IntentService {
      */
     private String downloadWithCommercialCA(String string_url) {
 
-        String json_file_content = "";
+        String responseString;
+        JSONObject errorJson = new JSONObject();
 
-        URL provider_url = null;
-        int seconds_of_timeout = 1;
-        try {
-            provider_url = new URL(string_url);
-            URLConnection url_connection = provider_url.openConnection();
-            url_connection.setConnectTimeout(seconds_of_timeout * 1000);
-            if (!LeapSRPSession.getToken().isEmpty())
-                url_connection.addRequestProperty(LeapSRPSession.AUTHORIZATION_HEADER, "Token token = " + LeapSRPSession.getToken());
-            json_file_content = new Scanner(url_connection.getInputStream()).useDelimiter("\\A").next();
-        } catch (MalformedURLException e) {
-            json_file_content = formatErrorMessage(R.string.malformed_url);
-        } catch (SocketTimeoutException e) {
-            e.printStackTrace();
-            json_file_content = formatErrorMessage(R.string.server_unreachable_message);
-        } catch (SSLHandshakeException e) {
-            if (provider_url != null) {
-                json_file_content = downloadWithProviderCA(string_url);
-            } else {
-                json_file_content = formatErrorMessage(R.string.certificate_error);
-            }
-        } catch (ConnectException e) {
-            json_file_content = formatErrorMessage(R.string.service_is_down_error);
-        } catch (FileNotFoundException e) {
-            json_file_content = formatErrorMessage(R.string.malformed_url);
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (provider_url != null) {
-                json_file_content = downloadWithProviderCA(string_url);
+        OkHttpClient okHttpClient = initCommercialCAHttpClient(errorJson);
+        if (okHttpClient == null) {
+            return errorJson.toString();
+        }
+
+        List<Pair<String, String>> headerArgs = getAuthorizationHeader();
+
+        responseString = sendGetStringToServer(string_url, headerArgs, okHttpClient);
+
+        if (responseString.contains(ERRORS)) {
+            try {
+                // try to download with provider CA on certificate error
+                JSONObject responseErrorJson = new JSONObject(responseString);
+                if (responseErrorJson.getString(ERRORS).equals(getString(R.string.certificate_error))) {
+                    responseString = downloadWithProviderCA(string_url);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
 
-        return json_file_content;
+        return responseString;
+    }
+
+
+    @NonNull
+    private List<Pair<String, String>> getAuthorizationHeader() {
+        List<Pair<String, String>> headerArgs = new ArrayList<>();
+        if (!LeapSRPSession.getToken().isEmpty()) {
+            Pair<String, String> authorizationHeaderPair = new Pair<>(LeapSRPSession.AUTHORIZATION_HEADER, "Token token=" + LeapSRPSession.getToken());
+            headerArgs.add(authorizationHeaderPair);
+        }
+        return headerArgs;
     }
 
     /**
      * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider.
      *
-     * @param url_string as a string
+     * @param urlString as a string
      * @return an empty string if it fails, the url content if not.
      */
-    private String downloadWithProviderCA(String url_string) {
-        String json_file_content = "";
+    private String downloadWithProviderCA(String urlString) {
+        JSONObject initError = new JSONObject();
+        String responseString;
 
-        try {
-            URL url = new URL(url_string);
-            // Tell the URLConnection to use a SocketFactory from our SSLContext
-            HttpsURLConnection urlConnection =
-                    (HttpsURLConnection) url.openConnection();
-            urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
-            if (!LeapSRPSession.getToken().isEmpty())
-                urlConnection.addRequestProperty(LeapSRPSession.AUTHORIZATION_HEADER, "Token token=" + LeapSRPSession.getToken());
-            json_file_content = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
-        } catch (CertificateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            json_file_content = formatErrorMessage(R.string.server_unreachable_message);
-        } catch (IOException e) {
-            // The downloaded certificate doesn't validate our https connection.
-            json_file_content = formatErrorMessage(R.string.certificate_error);
-        } catch (KeyStoreException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NoSuchElementException e) {
-            e.printStackTrace();
-            json_file_content = formatErrorMessage(R.string.server_unreachable_message);
+        OkHttpClient okHttpClient = initSelfSignedCAHttpClient(initError);
+        if (okHttpClient == null) {
+            return initError.toString();
         }
-        return json_file_content;
-    }
 
-    private javax.net.ssl.SSLSocketFactory getProviderSSLSocketFactory() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, KeyManagementException {
-        String provider_cert_string = preferences.getString(Provider.CA_CERT, "");
+        List<Pair<String, String>> headerArgs = getAuthorizationHeader();
 
-        java.security.cert.Certificate provider_certificate = ConfigHelper.parseX509CertificateFromString(provider_cert_string);
+        responseString = sendGetStringToServer(urlString, headerArgs, okHttpClient);
 
-        // Create a KeyStore containing our trusted CAs
-        String keyStoreType = KeyStore.getDefaultType();
-        KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-        keyStore.load(null, null);
-        keyStore.setCertificateEntry("provider_ca_certificate", provider_certificate);
-
-        // Create a TrustManager that trusts the CAs in our KeyStore
-        String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-        tmf.init(keyStore);
-
-        // Create an SSLContext that uses our TrustManager
-        SSLContext context = SSLContext.getInstance("TLS");
-        context.init(null, tmf.getTrustManagers(), null);
-
-        return context.getSocketFactory();
-    }
-
-    /**
-     * Downloads the string that's in the url with any certificate.
-     */
-    private String downloadWithoutCA(String url_string) {
-        String string = "";
-        try {
-
-            HostnameVerifier hostnameVerifier = new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            };
-
-            class DefaultTrustManager implements X509TrustManager {
-
-                @Override
-                public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-                }
-
-                @Override
-                public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-                }
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-            }
-
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(new KeyManager[0], new TrustManager[]{new DefaultTrustManager()}, new SecureRandom());
-
-            URL url = new URL(url_string);
-            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-            urlConnection.setSSLSocketFactory(context.getSocketFactory());
-            urlConnection.setHostnameVerifier(hostnameVerifier);
-            string = new Scanner(urlConnection.getInputStream()).useDelimiter("\\A").next();
-            System.out.println("String ignoring certificate = " + string);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            string = formatErrorMessage(R.string.malformed_url);
-        } catch (IOException e) {
-            // The downloaded certificate doesn't validate our https connection.
-            e.printStackTrace();
-            string = formatErrorMessage(R.string.certificate_error);
-        } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return string;
+        return responseString;
     }
 
     private boolean logOut() {
-        String delete_url = provider_api_url + "/logout";
-
-        HttpsURLConnection urlConnection = null;
-        int responseCode = 0;
-        int progress = 0;
-        try {
-
-            urlConnection = (HttpsURLConnection) new URL(delete_url).openConnection();
-            urlConnection.setRequestMethod("DELETE");
-            urlConnection.setSSLSocketFactory(getProviderSSLSocketFactory());
-
-            responseCode = urlConnection.getResponseCode();
-            broadcastProgress(progress++);
-            LeapSRPSession.setToken("");
-        } catch (IndexOutOfBoundsException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        OkHttpClient okHttpClient = initSelfSignedCAHttpClient(new JSONObject());
+        if (okHttpClient == null) {
             return false;
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            try {
-                if (urlConnection != null) {
-                    responseCode = urlConnection.getResponseCode();
-                    if (responseCode == 401) {
-                        broadcastProgress(progress++);
-                        LeapSRPSession.setToken("");
-                        return true;
-                    }
-                }
-            } catch (IOException e1) {
-                e1.printStackTrace();
+        }
+
+        String deleteUrl = provider_api_url + "/logout";
+        int progress = 0;
+
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(deleteUrl)
+                .delete();
+        Request request = requestBuilder.build();
+
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+                                            // v---- was already not authorized
+            if (response.isSuccessful() || response.code() == 401) {
+                broadcastProgress(progress++);
+                LeapSRPSession.setToken("");
             }
 
-            e.printStackTrace();
+        } catch (IOException e) {
             return false;
-        } catch (KeyManagementException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
         return true;
     }

@@ -307,6 +307,7 @@ public class ProviderAPI extends IntentService {
             initError = getErrorMessageAsJson(getResources().getString(error_io_exception_user_message));
         } catch (NoSuchProviderException e) {
             e.printStackTrace();
+            initError = getErrorMessageAsJson(getResources().getString(error_no_such_algorithm_exception_user_message));
         }
         return null;
     }
@@ -632,6 +633,9 @@ public class ProviderAPI extends IntentService {
                 requestBuilder.addHeader(keyValPair.first, keyValPair.second);
             }
         }
+        //TODO: move to getHeaderArgs()?
+        String locale = Locale.getDefault().getLanguage() + Locale.getDefault().getCountry();
+        requestBuilder.addHeader("Accept-Language", locale);
         Request request = requestBuilder.build();
 
         try {
@@ -931,7 +935,6 @@ public class ProviderAPI extends IntentService {
      * @return an empty string if it fails, the url content if not.
      */
     private String downloadWithProviderCA(String urlString, boolean dangerOn) {
-        Log.d(TAG, "download with providerCA: " + urlString);
         JSONObject initError = new JSONObject();
         String responseString;
 
