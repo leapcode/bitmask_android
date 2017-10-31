@@ -331,6 +331,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             nbuilder.addAction(R.drawable.ic_menu_close_clear_cancel,
                     getString(R.string.cancel_connection), disconnectPendingIntent);
 
+            /* NO PAUSE VPN functionality for Bitmask (yet)
             Intent pauseVPN = new Intent(this, OpenVPNService.class);
             if (mDeviceStateReceiver == null || !mDeviceStateReceiver.isUserPaused()) {
                 pauseVPN.setAction(PAUSE_VPN);
@@ -343,7 +344,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 PendingIntent resumeVPNPending = PendingIntent.getService(this, 0, pauseVPN, 0);
                 nbuilder.addAction(R.drawable.ic_menu_play,
                         getString(R.string.resumevpn), resumeVPNPending);
-            }
+            } */
 
 
             //ignore exception
