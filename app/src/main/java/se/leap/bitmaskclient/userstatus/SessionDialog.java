@@ -50,8 +50,7 @@ public class SessionDialog extends DialogFragment {
     public static enum ERRORS {
         USERNAME_MISSING,
         PASSWORD_INVALID_LENGTH,
-        RISEUP_WARNING,
-        INITIALIZATION_ERROR
+        RISEUP_WARNING
     }
 
     @InjectView(R.id.user_message)
@@ -123,9 +122,6 @@ public class SessionDialog extends DialogFragment {
         else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
             user_message.setVisibility(VISIBLE);
             user_message.setText(R.string.login_riseup_warning);
-        } else if (arguments.containsKey(ERRORS.INITIALIZATION_ERROR.toString())) {
-            user_message.setVisibility(VISIBLE);
-            user_message.setText(String.valueOf(arguments.get(ERRORS.INITIALIZATION_ERROR.toString())));
         }
         if (arguments.containsKey(USERNAME)) {
             String username = arguments.getString(USERNAME);
