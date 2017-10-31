@@ -348,7 +348,7 @@ public class ConfigurationWizard extends Activity
      * use it anonymously (if possible)
      * or cancel his/her election pressing the back button.
      *
-     * @param view
+     *
      */
     private void showProviderDetails() {
         if (setting_up_provider) {
@@ -380,8 +380,6 @@ public class ConfigurationWizard extends Activity
     /**
      * Asks ProviderAPI to download a new provider.json file
      *
-     * @param provider_name
-     * @param provider_main_url
      */
     public void setUpProvider() {
         Intent provider_API_command = new Intent(this, ProviderAPI.class);
