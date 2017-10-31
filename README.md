@@ -462,6 +462,9 @@ A bunch of conflicts may arise. The guidelines are:
 
 This project bases its work in [ics-openvpn project](https://code.google.com/p/ics-openvpn/).
 
+## Reporting Bugs <a name="reporting-bugs"></a>
+Please file bug tickets on our main [development platform](https://0xacab.org/leap/bitmask_android/issues). You'll need to set up an account on our gitlab instance to create new tickets.
+
 ## Contributing <a name="contributing"></a>
 
 Please fork this repository and contribute back using [pull requests](https://github.com/leapcode/leap_android/pulls).
