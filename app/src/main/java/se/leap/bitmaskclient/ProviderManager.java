@@ -26,16 +26,15 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     public static ProviderManager getInstance(AssetManager assets_manager, File external_files_dir) {
         if (instance == null)
-            instance = new ProviderManager(assets_manager);
+            instance = new ProviderManager(assets_manager, external_files_dir);
 
-        if(external_files_dir != null)
-            instance.addCustomProviders(external_files_dir);
         return instance;
     }
 
-    public ProviderManager(AssetManager assets_manager) {
+    public ProviderManager(AssetManager assets_manager, File external_files_dir) {
         this.assets_manager = assets_manager;
         addDefaultProviders(assets_manager);
+        addCustomProviders(external_files_dir);
     }
 
     private void addDefaultProviders(AssetManager assets_manager) {
@@ -67,7 +66,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     private void addCustomProviders(File external_files_dir) {
         this.external_files_dir = external_files_dir;
-        custom_providers = external_files_dir.isDirectory() ?
+        custom_providers = external_files_dir != null && external_files_dir.isDirectory() ?
                 providersFromFiles(external_files_dir.list()) :
                 new HashSet<Provider>();
     }
