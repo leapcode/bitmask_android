@@ -60,7 +60,7 @@ public class TestVpnFragment extends BaseTestDashboardFragment {
     private void checkProvider(String provider) {
         changeProviderAndLogIn(provider);
         vpn_controller.sleepSeconds(1);
-        vpn_controller.turnVpnOndAndOff();
+        vpn_controller.turnVpnOnAndOff();
         vpn_controller.sleepSeconds(1);
     }
 

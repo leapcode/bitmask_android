@@ -125,7 +125,7 @@ public class VpnConfigGenerator {
             String openvpn_cert =
                     "<cert>"
                             + new_line
-                            + secrets.getString(Constants.CERTIFICATE)
+                            + secrets.getString(Constants.VPN_CERTIFICATE)
                             + new_line
                             + "</cert>";
 

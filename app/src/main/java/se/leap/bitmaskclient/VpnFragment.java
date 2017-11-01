@@ -19,6 +19,7 @@ package se.leap.bitmaskclient;
 import android.app.*;
 import android.content.*;
 import android.os.*;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
@@ -152,11 +153,15 @@ public class VpnFragment extends Fragment implements Observer {
             Bundle bundle = new Bundle();
             bundle.putBoolean(IS_PENDING, true);
             dashboard.sessionDialog(bundle);
+        } else {
+            Log.d(TAG, "WHAT IS GOING ON HERE?!");
+            // TODO: implement a fallback: check if vpncertificate was not downloaded properly or give
+            // a user feedback. A button that does nothing on click is not a good option
         }
     }
 
     private boolean canStartEIP() {
-        boolean certificateExists = !Dashboard.preferences.getString(Constants.CERTIFICATE, "").isEmpty();
+        boolean certificateExists = !Dashboard.preferences.getString(Constants.VPN_CERTIFICATE, "").isEmpty();
         boolean isAllowedAnon = Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false);
         return (isAllowedAnon || certificateExists) && !eip_status.isConnected() && !eip_status.isConnecting();
     }

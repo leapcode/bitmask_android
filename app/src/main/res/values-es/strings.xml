@@ -38,7 +38,7 @@
     <string name="error_client_http_user_message">Inténtalo de nuevo: error en el cliente HTTP</string>
     <string name="error_io_exception_user_message">Inténtalo de nuevo: error de E/S</string>
     <string name="error_json_exception_user_message">Inténtalo de nuevo: respuesta mal formada del servidor</string>
-    <string name="error_no_such_algorithm_exception_user_message">Actualiza Bitmask</string>
+    <string name="error_no_such_algorithm_exception_user_message">Algoritmo de cifrado no encontrado. Por favor actualice su sistema operativo!</string>
     <string name="signup_or_login_button">Registrarse/Iniciar sesión</string>
     <string name="login_button">Iniciar sesión</string>
     <string name="logout_button">Cerrar sesión</string>

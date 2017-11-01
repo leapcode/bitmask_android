@@ -124,7 +124,7 @@ public class GatewaysManager {
         try {
             result.put(Provider.CA_CERT, preferences.getString(Provider.CA_CERT, ""));
             result.put(Constants.PRIVATE_KEY, preferences.getString(Constants.PRIVATE_KEY, ""));
-            result.put(Constants.CERTIFICATE, preferences.getString(Constants.CERTIFICATE, ""));
+            result.put(Constants.VPN_CERTIFICATE, preferences.getString(Constants.VPN_CERTIFICATE, ""));
         } catch (JSONException e) {
             e.printStackTrace();
         }

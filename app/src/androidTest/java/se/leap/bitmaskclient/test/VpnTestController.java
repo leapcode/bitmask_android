@@ -22,7 +22,7 @@ public class VpnTestController {
         this.solo = solo;
     }
 
-    protected void turnVpnOndAndOff() {
+    protected void turnVpnOnAndOff() {
         clickVpnButton();
         turningEipOn();
         clickVpnButton();
