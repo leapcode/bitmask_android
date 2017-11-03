@@ -107,6 +107,12 @@ public class ProviderAPI extends ProviderApiBase {
             else
                 provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json", provider_ca_cert_fingerprint);
 
+                if (!isValidJson(provider_dot_json_string)) {
+                    result.putString(ERRORS, getString(malformed_url));
+                    result.putBoolean(RESULT_KEY, false);
+                    return result;
+                }
+
             try {
                 JSONObject provider_json = new JSONObject(provider_dot_json_string);
                 provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
@@ -147,7 +153,7 @@ public class ProviderAPI extends ProviderApiBase {
                 preferences.edit().putString(Constants.KEY, eip_service_json.toString()).commit();
 
                 result.putBoolean(RESULT_KEY, true);
-            } catch (JSONException e) {
+            } catch (NullPointerException | JSONException e) {
                 String reason_to_fail = pickErrorMessage(eip_service_json_string);
                 result.putString(ERRORS, reason_to_fail);
                 result.putBoolean(RESULT_KEY, false);
@@ -171,7 +177,7 @@ public class ProviderAPI extends ProviderApiBase {
 
             String cert_string = downloadWithProviderCA(new_cert_string_url.toString());
 
-            if (cert_string.isEmpty() || ConfigHelper.checkErroneousDownload(cert_string))
+            if (cert_string == null || cert_string.isEmpty() || ConfigHelper.checkErroneousDownload(cert_string))
                 return false;
             else
                 return loadCertificate(cert_string);
@@ -253,7 +259,7 @@ public class ProviderAPI extends ProviderApiBase {
 
         responseString = sendGetStringToServer(string_url, headerArgs, okHttpClient);
 
-        if (responseString.contains(ERRORS)) {
+        if (responseString != null && responseString.contains(ERRORS)) {
             try {
                 // try to download with provider CA on certificate error
                 JSONObject responseErrorJson = new JSONObject(responseString);

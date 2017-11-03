@@ -687,6 +687,17 @@ public abstract class ProviderApiBase extends IntentService {
         return CA_CERT_DOWNLOADED;
     }
 
+    protected boolean isValidJson(String jsonString) {
+        try {
+            new JSONObject(jsonString);
+            return true;
+        } catch(JSONException e) {
+            return false;
+        } catch(NullPointerException e) {
+            return false;
+        }
+    }
+
     protected boolean validCertificate(String cert_string) {
         boolean result = false;
         if (!ConfigHelper.checkErroneousDownload(cert_string)) {

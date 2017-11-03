@@ -47,7 +47,7 @@ public class ConfigHelper {
             } else {
                 return false;
             }
-        } catch (JSONException e) {
+        } catch (NullPointerException | JSONException e) {
             return false;
         }
     }
