@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="repository_url_text">请前往 https://github.com/leapcode/bitmask_android/ 源码或提供问题反馈</string>
+  <string name="repository_url_text">请前往 https://0xacab.org/leap/bitmask_android 源码或提供问题反馈</string>
   <string name="show_connection_details">显示连接信息</string>
   <string name="routes_info">IPv4 路由： %s</string>
   <string name="routes_info6">IPv6 路由： %s</string>

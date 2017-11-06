@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="repository_url_text">取得原始碼與個案追蹤，可上 https://github.com/leapcode/bitmask_android/</string>
+  <string name="repository_url_text">取得原始碼與個案追蹤，可上 https://0xacab.org/leap/bitmask_android</string>
   <string name="show_connection_details">顯示連線的詳細資訊</string>
   <string name="dns_domain_info">DNS網域: %s</string>
   <string name="routes_info">路徑: %s</string>

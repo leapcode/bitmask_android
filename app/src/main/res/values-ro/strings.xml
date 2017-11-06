@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="repository_url_text">Cod sursă şi tracker probleme disponibile la https://github.com/leapcode/bitmask_android/</string>
+  <string name="repository_url_text">Cod sursă şi tracker probleme disponibile la https://0xacab.org/leap/bitmask_android</string>
   <string name="info">info</string>
   <string name="show_connection_details">Arată detaliile conexiunii</string>
   <string name="routes_info">Rute: %s</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="repository_url_text">소스 코드와 문제 추적기는 https://github.com/leapcode/bitmask_android/에서 사용할 수 있습니다</string>
+  <string name="repository_url_text">소스 코드와 문제 추적기는 https://0xacab.org/leap/bitmask_android 에서 사용할 수 있습니다</string>
   <string name="info">정보</string>
   <string name="show_connection_details">연결 세부 정보 보기</string>
   <string name="routes_info">라우트: %s</string>

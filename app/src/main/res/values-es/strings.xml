@@ -11,8 +11,8 @@
     <string name="routes_info6">Rutas IPv6: %s</string>
     <string name="error_empty_username">El usuario no puede estar vacío.</string>
     <string name="cert_from_keystore">Certificado de \'%s\' obtenido de almacén de claves</string>
-    <string name="repository_url_text">Código fuente disponible en https://github.com/leapcode/bitmask_android/</string>
-    <string name="leap_tracker">Tracker disponible en https://leap.se/code</string>
+    <string name="repository_url_text">Código fuente disponible en https://0xacab.org/leap/bitmask_android</string>
+    <string name="leap_tracker">Tracker disponible en  https://0xacab.org/leap/bitmask_android/issues</string>
     <string name="title_activity_dashboard">Bitmask</string>
     <string name="provider_label">Proveedor:</string>
     <string name="provider_label_none">Ningún proveedor configurado</string>

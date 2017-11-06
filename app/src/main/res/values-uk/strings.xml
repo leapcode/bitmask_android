@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="repository_url_text">Початковий код і відстеження проблем доступні по https://github.com/leapcode/bitmask_android/</string>
+  <string name="repository_url_text">Початковий код і відстеження проблем доступні по https://0xacab.org/leap/bitmask_android</string>
   <string name="info">Інформація</string>
   <string name="show_connection_details">Показати відомості про підключення</string>
   <string name="routes_info">Маршрути: %s</string>
