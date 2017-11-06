@@ -80,7 +80,7 @@ public class ProviderDetailFragment extends DialogFragment {
         super.onCancel(dialog);
         SharedPreferences.Editor editor = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit();
         editor.remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).commit();
-        interface_with_configuration_wizard.showAllProviders();
+        interface_with_configuration_wizard.cancelAndShowAllProviders();
     }
 
     public static DialogFragment newInstance() {
@@ -104,7 +104,7 @@ public class ProviderDetailFragment extends DialogFragment {
 
         public void use_anonymously();
 
-        public void showAllProviders();
+        public void cancelAndShowAllProviders();
     }
 
     ProviderDetailFragmentInterface interface_with_configuration_wizard;

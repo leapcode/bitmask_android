@@ -42,12 +42,15 @@ import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import se.leap.bitmaskclient.eip.*;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 
+import static android.view.View.*;
+
 /**
  * Activity that builds and shows the list of known available providers.
  * <p/>
  * It also allows the user to enter custom providers with a button.
  *
  * @author parmegv
+ * @author cyberta
  */
 public class ConfigurationWizard extends Activity
         implements NewProviderDialogInterface, ProviderDetailFragmentInterface, DownloadFailedDialogInterface, Receiver {
@@ -63,11 +66,14 @@ public class ConfigurationWizard extends Activity
     ProviderListAdapter adapter;
 
     private ProviderManager provider_manager;
-    private Intent mConfigState = new Intent();
+    private Intent mConfigState = new Intent(PROVIDER_NOT_SET);
     private Provider selected_provider;
 
     final public static String TAG = ConfigurationWizard.class.getSimpleName();
 
+    final protected static String PROVIDER_NOT_SET = "PROVIDER NOT SET";
+    final protected static String SETTING_UP_PROVIDER = "PROVIDER GETS SET";
+    private static final String SETTING_UP_PROVIDER_SHOW_PROVIDER_DETILS = "PROVIDER DETAILS SHOWN";
     final protected static String PROVIDER_SET = "PROVIDER SET";
     final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
 
@@ -79,10 +85,8 @@ public class ConfigurationWizard extends Activity
 
     private static SharedPreferences preferences;
     FragmentManagerEnhanced fragment_manager;
-    private static boolean setting_up_provider = false;
+    //TODO: add some states (values for progressbar_text) about ongoing setup or remove that field
     private String progressbar_text = "";
-    private String provider_name = "";
-    private int progress = -1;
 
     private void initProviderList() {
         List<Renderer<Provider>> prototypes = new ArrayList<>();
@@ -120,28 +124,22 @@ public class ConfigurationWizard extends Activity
 
     private void restoreState(Bundle savedInstanceState) {
         progressbar_text = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
-        provider_name = savedInstanceState.getString(Provider.NAME, "");
         selected_provider = savedInstanceState.getParcelable(Provider.KEY);
-        progress = savedInstanceState.getInt(PROGRESSBAR_NUMBER, -1);
 
-        if (fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null && setting_up_provider) {
+        if (fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null && SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
             onItemSelectedUi();
-            if (progress > 0)
-                mProgressBar.setProgress(progress);
         }
 
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        if (!progressbar_text.isEmpty() && !provider_name.isEmpty() && progress != -1) {
-            progressbar_description.setText(progressbar_text);
-            mProgressBar.setProgress(progress);
-
-            progressbar_text = "";
-            provider_name = "";
-            progress = -1;
+    protected void onResume() {
+        super.onResume();
+        if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
+            showProgressBar();
+            adapter.hideAllBut(adapter.indexOf(selected_provider));
+        } else if (SETTING_UP_PROVIDER_SHOW_PROVIDER_DETILS.equals(mConfigState.getAction())) {
+            showProviderDetails();
         }
     }
 
@@ -153,8 +151,15 @@ public class ConfigurationWizard extends Activity
     }
 
     private void hideProgressBar() {
-        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-        progressbar_description.setVisibility(TextView.INVISIBLE);
+        //needs to be "INVISIBLE" instead of GONE b/c the progressbar_description gets translated
+        // by the height of mProgressbar (and the height of the first list item)
+        mProgressBar.setVisibility(INVISIBLE);
+        progressbar_description.setVisibility(INVISIBLE);
+    }
+
+    private void showProgressBar() {
+        mProgressBar.setVisibility(VISIBLE);
+        progressbar_description.setVisibility(VISIBLE);
     }
 
     @Override
@@ -176,8 +181,6 @@ public class ConfigurationWizard extends Activity
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         if (resultCode == ProviderAPI.PROVIDER_OK) {
-            mConfigState.setAction(PROVIDER_SET);
-
             try {
                 String provider_json_string = preferences.getString(Provider.KEY, "");
                 if (!provider_json_string.isEmpty())
@@ -197,20 +200,20 @@ public class ConfigurationWizard extends Activity
                 showProviderDetails();
             }
         } else if (resultCode == ProviderAPI.PROVIDER_NOK) {
+            mConfigState.setAction(PROVIDER_NOT_SET);
             hideProgressBar();
             preferences.edit().remove(Provider.KEY).apply();
-            setting_up_provider = false;
 
             String reason_to_fail = resultData.getString(ProviderAPI.ERRORS);
             showDownloadFailedDialog(reason_to_fail);
         } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
             mProgressBar.incrementProgressBy(1);
             hideProgressBar();
-
             showProviderDetails();
         } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
+            mConfigState.setAction(PROVIDER_NOT_SET);
             hideProgressBar();
-            cancelSettingUpProvider();
+            setResult(RESULT_CANCELED, mConfigState);
             Toast.makeText(getApplicationContext(), R.string.provider_problem, Toast.LENGTH_LONG).show();
         } else if (resultCode == AboutActivity.VIEWED) {
             // Do nothing, right now
@@ -220,7 +223,13 @@ public class ConfigurationWizard extends Activity
 
     @OnItemClick(R.id.provider_list)
     void onItemSelected(int position) {
+        if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
+                SETTING_UP_PROVIDER_SHOW_PROVIDER_DETILS.equals(mConfigState.getAction())) {
+            return;
+        }
+
         //TODO Code 2 pane view
+        mConfigState.setAction(SETTING_UP_PROVIDER);
         selected_provider = adapter.getItem(position);
         onItemSelectedLogic();
         onItemSelectedUi();
@@ -232,13 +241,13 @@ public class ConfigurationWizard extends Activity
     }
 
     private void onItemSelectedUi() {
-        startProgressBar();
         adapter.hideAllBut(adapter.indexOf(selected_provider));
+        startProgressBar();
     }
 
     @Override
     public void onBackPressed() {
-        if (setting_up_provider) {
+        if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
             stopSettingUpProvider();
         } else {
             askDashboardToQuitApp();
@@ -248,16 +257,16 @@ public class ConfigurationWizard extends Activity
 
     private void stopSettingUpProvider() {
         ProviderAPI.stop();
-        mProgressBar.setVisibility(ProgressBar.GONE);
+        mProgressBar.setVisibility(GONE);
         mProgressBar.setProgress(0);
-        progressbar_description.setVisibility(TextView.GONE);
+        progressbar_description.setVisibility(GONE);
 
         cancelSettingUpProvider();
     }
 
     public void cancelSettingUpProvider() {
+        mConfigState.setAction(PROVIDER_NOT_SET);
         adapter.showAllProviders();
-        setting_up_provider = false;
         preferences.edit().remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).commit();
     }
 
@@ -268,8 +277,7 @@ public class ConfigurationWizard extends Activity
     }
 
     private void startProgressBar() {
-        mProgressBar.setVisibility(ProgressBar.VISIBLE);
-        progressbar_description.setVisibility(TextView.VISIBLE);
+        showProgressBar();
         mProgressBar.setProgress(0);
         mProgressBar.setMax(3);
 
@@ -289,8 +297,8 @@ public class ConfigurationWizard extends Activity
         int screenWidth = display.getWidth(); // deprecated
 
         int listViewWidth = screenWidth - 10 - 10;
-        int widthSpec = View.MeasureSpec.makeMeasureSpec(listViewWidth,
-                View.MeasureSpec.AT_MOST);
+        int widthSpec = MeasureSpec.makeMeasureSpec(listViewWidth,
+                MeasureSpec.AT_MOST);
         listItem.measure(widthSpec, 0);
 
         return listItem.getMeasuredHeight();
@@ -349,12 +357,14 @@ public class ConfigurationWizard extends Activity
      * or cancel his/her election pressing the back button.
      */
     private void showProviderDetails() {
-        if (setting_up_provider) {
+        mConfigState.setAction(SETTING_UP_PROVIDER_SHOW_PROVIDER_DETILS);
+        try {
             FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(ProviderDetailFragment.TAG);
 
             DialogFragment newFragment = ProviderDetailFragment.newInstance();
             newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
-            setting_up_provider = false;
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
         }
     }
 
@@ -382,6 +392,7 @@ public class ConfigurationWizard extends Activity
      * @param danger_on         tells if HTTPS client should bypass certificate errors
      */
     public void setUpProvider(boolean danger_on) {
+        mConfigState.setAction(SETTING_UP_PROVIDER);
         Intent provider_API_command = new Intent(this, ProviderAPI.class);
         Bundle parameters = new Bundle();
         parameters.putString(Provider.MAIN_URL, selected_provider.mainUrl().getUrl().toString());
@@ -393,7 +404,6 @@ public class ConfigurationWizard extends Activity
         provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
 
         startService(provider_API_command);
-        setting_up_provider = true;
     }
 
     public void retrySetUpProvider() {
@@ -430,26 +440,29 @@ public class ConfigurationWizard extends Activity
         }
     }
 
-    public void showAllProviders() {
+    @Override
+    public void cancelAndShowAllProviders() {
+        mConfigState.setAction(PROVIDER_NOT_SET);
+        selected_provider = null;
         adapter.showAllProviders();
     }
 
     @Override
     public void login() {
+        mConfigState.setAction(PROVIDER_SET);
         Intent ask_login = new Intent();
         ask_login.putExtra(SessionDialog.TAG, SessionDialog.TAG);
         ask_login.putExtra(Provider.KEY, selected_provider);
         setResult(RESULT_OK, ask_login);
-        setting_up_provider = false;
         finish();
     }
 
     @Override
     public void use_anonymously() {
+        mConfigState.setAction(PROVIDER_SET);
         Intent pass_provider = new Intent();
         pass_provider.putExtra(Provider.KEY, selected_provider);
         setResult(RESULT_OK, pass_provider);
-        setting_up_provider = false;
         finish();
     }
 

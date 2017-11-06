@@ -99,13 +99,12 @@ public class ConfigHelper {
         return (X509Certificate) certificate;
     }
 
-    protected static RSAPrivateKey parseRsaKeyFromString(String RsaKeyString) {
+    protected static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {
         RSAPrivateKey key = null;
         try {
             KeyFactory kf = KeyFactory.getInstance("RSA", "BC");
-
-            RsaKeyString = RsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(RsaKeyString, Base64.DEFAULT));
+            rsaKeyString = rsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(rsaKeyString, Base64.DEFAULT));
             key = (RSAPrivateKey) kf.generatePrivate(keySpec);
         } catch (InvalidKeySpecException e) {
             // TODO Auto-generated catch block
@@ -117,6 +116,9 @@ public class ConfigHelper {
             return null;
         } catch (NoSuchProviderException e) {
             // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        } catch (NullPointerException e) {
             e.printStackTrace();
             return null;
         }
