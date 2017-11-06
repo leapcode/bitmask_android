@@ -84,4 +84,3 @@ public class TestVpnCertificateValidator extends InstrumentationTestCase {
     }
 
 }
-2
