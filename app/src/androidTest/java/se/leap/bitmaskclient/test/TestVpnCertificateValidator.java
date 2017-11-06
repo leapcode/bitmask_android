@@ -65,7 +65,7 @@ public class TestVpnCertificateValidator extends InstrumentationTestCase {
 
         calendar.set(Calendar.YEAR, 2012);
         calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
-        calendar.set(Calendar.DAY_OF_MONTH, 6);
+        calendar.set(Calendar.DAY_OF_MONTH, 7);
         validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
         assertTrue(validator.isValid());
 
@@ -77,10 +77,11 @@ public class TestVpnCertificateValidator extends InstrumentationTestCase {
 
         calendar.set(Calendar.YEAR, 2022);
         calendar.set(Calendar.MONTH, Calendar.OCTOBER);
-        calendar.set(Calendar.DAY_OF_MONTH, 22);
+        calendar.set(Calendar.DAY_OF_MONTH, 23);
         validator.setCalendarProvider(new TestCalendarProvider(calendar.getTimeInMillis()));
         assertFalse(validator.isValid());
 
     }
 
 }
+2
