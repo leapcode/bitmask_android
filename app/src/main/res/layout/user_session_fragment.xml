@@ -26,7 +26,7 @@
         android:textSize="14sp"
         />
 
-    <view
+    <se.leap.bitmaskclient.userstatus.FabButton
         android:id="@+id/user.status.icon"
         android:layout_width="32dp"
         android:layout_height="32dp"
@@ -35,7 +35,6 @@
         android:shadowRadius="0"
         android:src="@drawable/ic_account_circle"
         android:color="@android:color/transparent"
-        class="se.leap.bitmaskclient.userstatus.FabButton"
         android:layout_gravity="center"
         android:indeterminate="true"
         app:fbb_progressColor="@android:color/holo_green_dark"

@@ -33,7 +33,7 @@
             android:textSize="24sp"
             />
 
-        <view
+        <se.leap.bitmaskclient.userstatus.FabButton
             android:id="@+id/user.status.icon"
             android:layout_width="56dp"
             android:layout_height="56dp"
@@ -41,7 +41,6 @@
             android:layout_marginStart="26dp"
             android:background="@android:color/transparent"
             android:color="@android:color/holo_blue_dark"
-            class="mbanje.kurt.fabbutton.FabButton"
             android:layout_gravity="center"
             android:visibility="visible"
             android:indeterminate="true"

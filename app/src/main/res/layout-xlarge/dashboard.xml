@@ -22,28 +22,10 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <LinearLayout
+        android:id="@+id/user.status.fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="32dp"
-        android:layout_marginStart="32dp">
-        <ProgressBar
-            android:id="@+id/user_session_status_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:indeterminate="true"
-            android:visibility="gone"/>
-        <TextView
-            android:id="@+id/user_session_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="10dp"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            />
-    </LinearLayout>
+        android:orientation="horizontal"/>
 
     <LinearLayout
         android:id="@+id/servicesCollection"

@@ -35,7 +35,7 @@
             android:textSize="32sp"
             />
 
-        <mbanje.kurt.fabbutton.FabButton
+        <se.leap.bitmaskclient.userstatus.FabButton
             android:id="@+id/vpn_status_image"
             android:layout_width="48dp"
             android:layout_height="48dp"
