@@ -12,7 +12,7 @@
         Copyright © 1998-2008 The OpenSSL Project. All rights reserved.\n\n
         This product includes cryptographic software written by Eric Young (eay@cryptsoft.com)\n
         Copyright © 1995-1998 Eric Young (eay@cryptsoft.com) All rights reserved.</string>
-    <string name="copyright_okhttp" translatable="false">Copyright Copyright 2016 Square, Inc.</string>
+    <string name="copyright_okhttp" translatable="false">Copyright © 2016 Square, Inc.</string>
     <string name="okhttp" translatable="false">OkHttp</string>
     <string name="openvpn" translatable="false">OpenVPN</string>
     <string name="lzo" translatable="false">LZO</string>
