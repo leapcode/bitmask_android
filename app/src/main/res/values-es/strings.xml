@@ -79,4 +79,5 @@
     <string name="signingup_message">está siendo registrado.</string>
     <string name="vpn.button.turn.on">Iniciar</string>
     <string name="vpn.button.turn.off">Apagar</string>
+    <string name="bitmask_log">Registro de Bitmask</string>
 </resources>

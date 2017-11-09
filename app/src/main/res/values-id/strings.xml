@@ -6,4 +6,5 @@
   <string name="routes_info6">Rute IPv6: %s</string>
   <string name="error_empty_username">Nama pengguna tidak boleh kosong.</string>
   <string name="cert_from_keystore">Sertifikat didapatkan \'%s\' dari Keystore</string>
+  <string name="bitmask_log">Catatan Bitmask</string>
 </resources>

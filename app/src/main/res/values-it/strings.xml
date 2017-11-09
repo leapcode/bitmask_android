@@ -6,4 +6,5 @@
   <string name="routes_info6">Instradamenti (route) IPv6: %s</string>
   <string name="error_empty_username">L\'username non deve essere vuoto.</string>
   <string name="cert_from_keystore">Ottenuto il certificato \'%s\' dal Keystore</string>
+  <string name="bitmask_log">Log di Bitmask</string>
 </resources>

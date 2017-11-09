@@ -7,4 +7,5 @@
   <string name="routes_info6">라우트 IPv6: %s</string>
   <string name="error_empty_username">사용자 이름이 비어 있지 않아야 합니다.</string>
   <string name="cert_from_keystore">Keystore에서 인증서 \'%s\'  받음</string>
+  <string name="bitmask_log">Bitmask 로그</string>
 </resources>

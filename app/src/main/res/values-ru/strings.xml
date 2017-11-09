@@ -6,4 +6,5 @@
   <string name="routes_info6">Маршруты IPv6: %s</string>
   <string name="error_empty_username">Имя пользователя не должно быть пустым.</string>
   <string name="cert_from_keystore">Получен сертификат \'%s\' из хранилища ключей</string>
+  <string name="bitmask_log">Журнал Bitmask</string>
 </resources>

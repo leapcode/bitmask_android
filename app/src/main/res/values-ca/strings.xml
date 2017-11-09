@@ -7,4 +7,6 @@
   <string name="routes_info">Rutes: %s</string>
   <string name="routes_info6">Rutes IPv6: %s</string>
   <string name="bitmask_openvpn_log_file">Fitxer de registre de LEAP Android</string>
+  <string name="bitmask_log">Registre Bitmask</string>
+
 </resources>
