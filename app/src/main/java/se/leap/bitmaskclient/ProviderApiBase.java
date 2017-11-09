@@ -799,6 +799,10 @@ public abstract class ProviderApiBase extends IntentService {
 
     //FIXME: don't save private keys in shared preferences! use the keystore
     protected boolean loadCertificate(String cert_string) {
+        if (cert_string == null) {
+            return false;
+        }
+
         try {
             // API returns concatenated cert & key.  Split them for OpenVPN options
             String certificateString = null, keyString = null;
