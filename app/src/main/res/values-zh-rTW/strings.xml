@@ -5,4 +5,5 @@
   <string name="dns_domain_info">DNS網域: %s</string>
   <string name="routes_info">路徑: %s</string>
   <string name="routes_info6">IPv6路由: %s</string>
+  <string name="bitmask_log">Bitmask 運作記錄</string>
 </resources>

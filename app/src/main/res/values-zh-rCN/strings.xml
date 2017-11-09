@@ -4,4 +4,5 @@
   <string name="show_connection_details">显示连接信息</string>
   <string name="routes_info">IPv4 路由： %s</string>
   <string name="routes_info6">IPv6 路由： %s</string>
+  <string name="bitmask_log">Bitmask 日志</string>
 </resources>

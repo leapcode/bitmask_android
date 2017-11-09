@@ -18,7 +18,7 @@ public class AboutActivity extends Activity {
         TextView ver = (TextView) findViewById(R.id.version);
 
         String version;
-        String name = "Openvpn";
+        String name = "Bitmask";
         try {
             PackageInfo packageinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             version = packageinfo.versionName;
