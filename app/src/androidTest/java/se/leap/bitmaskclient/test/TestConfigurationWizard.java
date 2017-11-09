@@ -14,7 +14,6 @@ import se.leap.bitmaskclient.R;
 public class TestConfigurationWizard extends ActivityInstrumentationTestCase2<ConfigurationWizard> {
 
     private Solo solo;
-    private static int added_providers;
 
     public TestConfigurationWizard() {
         super(ConfigurationWizard.class);
@@ -34,11 +33,14 @@ public class TestConfigurationWizard extends ActivityInstrumentationTestCase2<Co
         super.tearDown();
     }
 
-    public void testListProviders() {
+    /**
+     * Tests should run independently from each other. We need a better approach to test the amount of providers added
+      */
+    /*public void testListProviders() {
         assertEquals(solo.getCurrentViews(ListView.class).size(), 1);
 
         assertEquals("Number of available providers differ", predefinedProviders() + added_providers, shownProviders());
-    }
+    }*/
 
     private int shownProviders() {
         return solo.getCurrentViews(ListView.class).get(0).getCount();
@@ -76,22 +78,38 @@ public class TestConfigurationWizard extends ActivityInstrumentationTestCase2<Co
 
     public void testAddNewProvider() {
         //addProvider("calyx.net");
-        addProvider("riseup.net");
+        addProvider("riseup.net", true);
     }
 
-    private void addProvider(String url) {
-        boolean is_new_provider = !solo.searchText(url);
+    public void testAddFalseProviderReturning404() {
+        //addProvider("calyx.net");
+        addProvider("startpage.com", false);
+    }
 
-        if (is_new_provider)
-            added_providers = added_providers + 1;
+    public void testAddFalseProviderReturning200() {
+        //addProvider("calyx.net");
+        addProvider("test.com", false);
+    }
+
+    private void addProvider(String url, boolean expectSuccess) {
+
         solo.clickOnActionBarItem(R.id.new_provider);
         solo.enterText(0, url);
         if ( BuildConfig.FLAVOR.equals("insecure")) {
             solo.clickOnCheckBox(0);
         }
         solo.clickOnText(solo.getString(R.string.save));
-        waitForProviderDetails();
+        if (expectSuccess) {
+            waitForProviderDetails();
+        } else {
+            waitForNoValidProviderError();
+        }
         solo.goBack();
+    }
+
+    private void waitForNoValidProviderError() {
+        String text = solo.getString(R.string.malformed_url);
+        assertTrue("Provider details dialog did not appear", solo.waitForText(text, 1, 60*1000));
     }
 
     public void testShowAbout() {
