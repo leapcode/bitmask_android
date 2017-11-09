@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="30dp"
@@ -13,8 +14,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"
-        android:layout_marginRight="60dp"
-        android:layout_marginEnd="60dp"
         android:layout_gravity="center"
         android:textSize="46sp"
         android:text="@string/default_username"
@@ -30,24 +29,25 @@
             android:id="@+id/user.status.button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="24sp"
+            android:textSize="32sp"
             />
 
         <se.leap.bitmaskclient.userstatus.FabButton
             android:id="@+id/user.status.icon"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:layout_marginLeft="26dp"
-            android:layout_marginStart="26dp"
-            android:background="@android:color/transparent"
+            android:layout_marginStart="24dp"
+            android:layout_marginLeft="24dp"
+            android:shadowRadius="0"
+            android:src="@drawable/icon_user"
             android:color="@android:color/holo_blue_dark"
             android:layout_gravity="center"
             android:visibility="visible"
             android:indeterminate="true"
             android:max="100"
             fbb_autoStart="true"
-            fbb_progressColor="#ff170aff"
-            fbb_progressWidthRatio="0.3"
+            app:fbb_progressColor="@android:color/holo_green_dark"
+            app:fbb_progressWidthRatio="0.2"
             />
 
     </LinearLayout>

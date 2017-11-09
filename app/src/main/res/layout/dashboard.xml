@@ -15,7 +15,7 @@
         android:textSize="26sp"
         android:ellipsize="marquee"
         android:gravity="center_vertical"
-        android:singleLine="true"
+        android:maxLines="1"
         android:text="@string/provider_label_none"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
