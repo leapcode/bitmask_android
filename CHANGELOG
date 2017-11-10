@@ -4,6 +4,10 @@ Bugs:
 - switching between different providers was buggy - bitmask selected
   the nearest gateway of all providers ever chosen, now the nearest
   gateway of the current provider is selected
+- fixes app crashes on tablets
+- fix major tablet layout issues
+- fixes app crashes during provider set up if a user clicks too fast around
+- update information in About Page
 
 Features:
 - updated ics-openvpn code, incl. openvpn and openssl
