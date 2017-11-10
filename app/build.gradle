@@ -3,7 +3,12 @@ apply plugin: 'com.android.application'
 android {
   compileSdkVersion 26
   buildToolsVersion '26.0.0'
-;
+
+  defaultConfig {
+    applicationId "se.leap.bitmaskclient"
+    resValue "string", "app_name", "Bitmask"
+  }
+
   signingConfigs {
     release {
       storeFile project.hasProperty('storeFileProperty') ? file(storeFileProperty) : null
@@ -27,6 +32,11 @@ android {
       //runProguard true
       if(signingConfigs.contains(release))
         signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
+    }
+    beta {
+      initWith release
+      applicationIdSuffix ".beta"
+      resValue "string", "app_name", "Bitmask Beta"
     }
   }
 

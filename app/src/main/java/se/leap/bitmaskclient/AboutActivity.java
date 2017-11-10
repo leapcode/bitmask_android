@@ -22,7 +22,7 @@ public class AboutActivity extends Activity {
         try {
             PackageInfo packageinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             version = packageinfo.versionName;
-            name = getString(R.string.app);
+            name = getString(R.string.app_name);
         } catch (NameNotFoundException e) {
             version = "error fetching version";
         }

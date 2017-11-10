@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app" translatable="false">Bitmask</string>
-	<string name="app_name" translatable="false">Bitmask</string>
     <string name="notifcation_title_bitmask">Bitmask - %s</string>
 
     <string name="copyright_leapgui" translatable="false">Copyright 2012-2017\nLEAP Encryption Access Project &lt;info@leap.se></string>

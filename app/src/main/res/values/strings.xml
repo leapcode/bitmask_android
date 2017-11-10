@@ -12,7 +12,6 @@
     <string name="routes_info6">Routes IPv6: %s</string>
     <string name="error_empty_username">The username must not be empty.</string>
     <string name="cert_from_keystore">Got certificate \'%s\' from Keystore</string>
-    <string name="title_activity_dashboard">Bitmask</string>
     <string name="provider_label">Provider:</string>
     <string name="provider_label_none">No provider configured</string>
     <string name="status_unknown">Status unknown.</string>
