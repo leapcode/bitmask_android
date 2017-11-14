@@ -1,3 +1,6 @@
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 apply plugin: 'com.android.application'
 
 android {
@@ -231,6 +234,39 @@ task updateIcsOpenVpn( type: Exec ) {
 task buildNative ( type: Exec ) {
   println "buildNative"
   commandLine 'sh', 'misc/build-native.sh', 'USE_BREAKPAD=0', '-j 8'
+}
+
+task cleanNative( type: Delete ) {
+  def shouldClean = getCurrentFlavorForBetaOrRelease() == "production"
+  println  "cleanNative: " + shouldClean
+
+  if (shouldClean) {
+    def dirName = "obj"
+    file( dirName ).list().each{
+      f -> delete "${dirName}/${f}"
+    }
+  }
+}
+
+def getCurrentFlavorForBetaOrRelease() {
+  Gradle gradle = getGradle()
+  String  tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
+
+  Pattern pattern;
+
+  if( tskReqStr.contains( "assemble" ) )
+    pattern = Pattern.compile("assemble(\\w+)(Beta|Release)")
+  else
+    pattern = Pattern.compile("generate(\\w+)(Beta|Release)")
+
+  Matcher matcher = pattern.matcher( tskReqStr )
+
+  if( matcher.find() )
+    return matcher.group(1).toLowerCase()
+  else
+  {
+    return "";
+  }
 }
 
 preBuild.dependsOn buildNative
