@@ -60,3 +60,17 @@ build:
   artifacts:
     paths:
     - app/build/outputs/
+
+build_release:
+  image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
+  stage: build
+  script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - ./gradlew clean
+    - ./gradlew assembleProductionRelease
+    - ./gradlew assembleProductionBeta
+  artifacts:
+    paths:
+    - app/build/outputs/
+  when: manual
