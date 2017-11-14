@@ -49,7 +49,7 @@ do
         FILE_NAME_STRING=${!i}
         FILE_NAME=${FILE_NAME_STRING##*/} #remove everything till the last '/'
         FILE_DIR=${FILE_NAME_STRING%/*} #remove everything after the last '/'
-    
+
     elif [[ ${!i} = "-ks" || ${!i} = "-keystore" ]] 
     then 
         ((i++)) 
@@ -65,15 +65,6 @@ do
         then
             echo "ERROR: Version name has to be a git tag!"
             exit
-        else 
-            #---- COMPARE TAG COMMIT WITH CURRENT COMMIT AND CHECK OUT TAG COMMIT IF NECESSARY ----
-            TAG_COMMIT=$(git log -n 1 ${VERSION_NAME} --format="%H")
-            CURRENT_COMMIT=$(git log -n 1 --format="%H")
-            if [[ ${TAG_COMMIT} != ${CURRENT_COMMIT} ]]
-            then
-                echo "CHECKING OUT VERSION: ${VERSION_NAME} ..."
-                git checkout ${VERSION_NAME} || quit
-            fi
         fi
 
     elif [[ ${!i} = "-k" || ${!i} = "-key" ]];
@@ -123,6 +114,15 @@ fi
 
 if [[ ${DO_BUILD} == true ]]
 then
+    #---- COMPARE TAG COMMIT WITH CURRENT COMMIT AND CHECK OUT TAG COMMIT IF NECESSARY ----
+    TAG_COMMIT=$(git log -n 1 ${VERSION_NAME} --format="%H")
+    CURRENT_COMMIT=$(git log -n 1 --format="%H")
+    if [[ ${TAG_COMMIT} != ${CURRENT_COMMIT} ]]
+    then
+        echo "CHECKING OUT VERSION: ${VERSION_NAME} ..."
+        git checkout ${VERSION_NAME} || quit
+    fi
+
     if [[ ${BETA} == true ]]
     then
         ./gradlew clean assembleProductionBeta --stacktrace || quit
@@ -151,7 +151,7 @@ then
     #---- OPT: SELECT APK FROM LAST BUILD ----
     if [[ ${DO_BUILD} == true ]]
     then
-        FILE_DIR="app/build/outputs/apk/"
+        FILE_DIR="$(pwd)/app/build/outputs/apk/"
         if [[ ${BETA} == true ]]
         then
             FILE_NAME="app-production-beta.apk"
@@ -161,10 +161,10 @@ then
     fi
     
     #---- ALIGN AND JARSIGN APK  -----
-    ALIGNED_UNSIGNED_APK="$(pwd)/${FILE_DIR}/aligned-${FILE_NAME}"
-    ALIGNED_SIGNED_APK="$(pwd)/${FILE_DIR}/aligned-signed-${FILE_NAME}"
-    
-    ${ANDROID_BUILD_TOOLS}/zipalign -v -p 4 "$(pwd)/${FILE_DIR}/${FILE_NAME}" ${ALIGNED_UNSIGNED_APK} || quit
+    ALIGNED_UNSIGNED_APK="${FILE_DIR}/aligned-${FILE_NAME}"
+    ALIGNED_SIGNED_APK="${FILE_DIR}/aligned-signed-${FILE_NAME}"
+
+    ${ANDROID_BUILD_TOOLS}/zipalign -v -p 4 "${FILE_DIR}/${FILE_NAME}" ${ALIGNED_UNSIGNED_APK} || quit
     ${ANDROID_BUILD_TOOLS}/apksigner sign --ks "${KEY_STORE_STRING}" --out ${ALIGNED_SIGNED_APK} ${ALIGNED_UNSIGNED_APK} || quit
     rm ${ALIGNED_UNSIGNED_APK}
     
@@ -189,7 +189,7 @@ then
         else 
             FINAL_FILE_NAME="Bitmask-Android-${VERSION_NAME}.apk"
         fi
-        FINAL_APK="$(pwd)/${FILE_DIR}/${FINAL_FILE_NAME}"
+        FINAL_APK="${FILE_DIR}/${FINAL_FILE_NAME}"
         cp ${ALIGNED_SIGNED_APK} ${FINAL_APK} || quit
         cleanUp
     fi
