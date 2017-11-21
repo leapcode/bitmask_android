@@ -368,9 +368,7 @@ public abstract class BaseConfigurationWizard extends Activity
     }
 
     /**
-     * Once selected a provider, this fragment offers the user to log in,
-     * use it anonymously (if possible)
-     * or cancel his/her election pressing the back button.
+     * Shows an error dialog, if configuring of a provider failed.
      *
      * @param reason_to_fail
      */

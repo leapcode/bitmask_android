@@ -349,8 +349,12 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     }
 
     public void sessionDialog(Bundle resultData) {
-        FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
-        SessionDialog.getInstance(provider, resultData).show(transaction, SessionDialog.TAG);
+        try {
+            FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
+            SessionDialog.getInstance(provider, resultData).show(transaction, SessionDialog.TAG);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
     }
 
     private void switchProvider() {
