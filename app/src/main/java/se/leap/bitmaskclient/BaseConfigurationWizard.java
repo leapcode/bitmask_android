@@ -89,7 +89,9 @@ public abstract class BaseConfigurationWizard extends Activity
 
     final protected static String PROVIDER_NOT_SET = "PROVIDER NOT SET";
     final protected static String SETTING_UP_PROVIDER = "PROVIDER GETS SET";
-    private static final String SETTING_UP_PROVIDER_SHOW_PROVIDER_DETILS = "PROVIDER DETAILS SHOWN";
+    final private static  String PENDING_SHOW_PROVIDER_DETAILS = "PROVIDER DETAILS SHOWN";
+    final private static String PENDING_SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG";
+    final private static String REASON_TO_FAIL = "REASON TO FAIL";
     final protected static String PROVIDER_SET = "PROVIDER SET";
     final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
 
@@ -149,7 +151,11 @@ public abstract class BaseConfigurationWizard extends Activity
         progressbar_text = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
         selected_provider = savedInstanceState.getParcelable(Provider.KEY);
 
-        if (fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null && SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
+        if (fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null &&
+                (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
+                         PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction()) ||
+                         PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())
+                )) {
             onItemSelectedUi();
         }
     }
@@ -160,8 +166,10 @@ public abstract class BaseConfigurationWizard extends Activity
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
             showProgressBar();
             adapter.hideAllBut(adapter.indexOf(selected_provider));
-        } else if (SETTING_UP_PROVIDER_SHOW_PROVIDER_DETILS.equals(mConfigState.getAction())) {
+        } else if (PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction())) {
             showProviderDetails();
+        } else if (PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
+            showDownloadFailedDialog(mConfigState.getStringExtra(REASON_TO_FAIL));
         }
     }
 
@@ -248,7 +256,8 @@ public abstract class BaseConfigurationWizard extends Activity
     @OnItemClick(R.id.provider_list)
     void onItemSelected(int position) {
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
-                SETTING_UP_PROVIDER_SHOW_PROVIDER_DETILS.equals(mConfigState.getAction())) {
+                PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction()) ||
+                PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             return;
         }
 
@@ -266,7 +275,9 @@ public abstract class BaseConfigurationWizard extends Activity
 
     @Override
     public void onBackPressed() {
-        if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
+        if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
+            PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction()) ||
+                PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             stopSettingUpProvider();
         } else {
             askDashboardToQuitApp();
@@ -357,17 +368,22 @@ public abstract class BaseConfigurationWizard extends Activity
     }
 
     /**
-     * Once selected a provider, this fragment offers the user to log in,
-     * use it anonymously (if possible)
-     * or cancel his/her election pressing the back button.
+     * Shows an error dialog, if configuring of a provider failed.
      *
      * @param reason_to_fail
      */
     public void showDownloadFailedDialog(String reason_to_fail) {
-        FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(DownloadFailedDialog.TAG);
+        try {
+            FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(DownloadFailedDialog.TAG);
 
-        DialogFragment newFragment = DownloadFailedDialog.newInstance(reason_to_fail);
-        newFragment.show(fragment_transaction, DownloadFailedDialog.TAG);
+            DialogFragment newFragment = DownloadFailedDialog.newInstance(reason_to_fail);
+            newFragment.show(fragment_transaction, DownloadFailedDialog.TAG);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            mConfigState.setAction(PENDING_SHOW_FAILED_DIALOG);
+            mConfigState.putExtra(REASON_TO_FAIL, reason_to_fail);
+        }
+
     }
 
 
@@ -380,7 +396,6 @@ public abstract class BaseConfigurationWizard extends Activity
      *
      */
     public void showProviderDetails() {
-        mConfigState.setAction(SETTING_UP_PROVIDER_SHOW_PROVIDER_DETILS);
         try {
             FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(ProviderDetailFragment.TAG);
 
@@ -388,6 +403,7 @@ public abstract class BaseConfigurationWizard extends Activity
             newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
         } catch (IllegalStateException e) {
             e.printStackTrace();
+            mConfigState.setAction(PENDING_SHOW_PROVIDER_DETAILS);
         }
     }
 
