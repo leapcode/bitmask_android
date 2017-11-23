@@ -6,6 +6,8 @@ import android.os.*;
 
 import java.io.*;
 
+import se.leap.bitmaskclient.Constants;
+
 public class VoidVpnService extends VpnService {
 
     static final String TAG = VoidVpnService.class.getSimpleName();
@@ -16,7 +18,7 @@ public class VoidVpnService extends VpnService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent != null ? intent.getAction() : "";
-        if (action == Constants.START_BLOCKING_VPN_PROFILE) {
+        if (action == Constants.EIP_ACTION_BLOCK_VPN_PROFILE) {
             thread = new Thread(new Runnable() {
                 public void run() {
                     Builder builder = new Builder();

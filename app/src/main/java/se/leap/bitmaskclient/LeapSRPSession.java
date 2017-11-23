@@ -72,7 +72,6 @@ public class LeapSRPSession {
      *
      * @param username, the user ID
      * @param password, the user clear text password
-     * @param params,   the SRP parameters for the session
      */
     public LeapSRPSession(String username, String password) {
         this(username, password, null);
@@ -84,7 +83,6 @@ public class LeapSRPSession {
      *
      * @param username, the user ID
      * @param password, the user clear text password
-     * @param params,   the SRP parameters for the session
      * @param abytes,   the random exponent used in the A public key
      */
     public LeapSRPSession(String username, String password, byte[] abytes) {
@@ -187,7 +185,6 @@ public class LeapSRPSession {
      *
      * @param b1     the positive source to build first BigInteger
      * @param b2     the positive source to build second BigInteger
-     * @param length
      * @return
      */
     public byte[] xor(byte[] b1, byte[] b2) {
