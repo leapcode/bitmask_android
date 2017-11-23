@@ -25,7 +25,7 @@ import org.json.*;
 import de.blinkt.openvpn.*;
 import se.leap.bitmaskclient.*;
 
-import static se.leap.bitmaskclient.eip.Constants.*;
+import static se.leap.bitmaskclient.eip.EIPConstants.*;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -59,7 +59,7 @@ public final class EIP extends IntentService {
         super.onCreate();
 
         context = getApplicationContext();
-        preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
         eip_definition = eipDefinitionFromPreferences();
         if (gateways_manager.isEmpty())
             gatewaysFromPreferences();

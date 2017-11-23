@@ -23,7 +23,7 @@ public class ProviderDetailFragment extends DialogFragment {
             LayoutInflater inflater = getActivity().getLayoutInflater();
             View provider_detail_view = inflater.inflate(R.layout.provider_detail_fragment, null);
 
-            JSONObject provider_json = new JSONObject(getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, getActivity().MODE_PRIVATE).getString(Provider.KEY, ""));
+            JSONObject provider_json = new JSONObject(getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, getActivity().MODE_PRIVATE).getString(Provider.KEY, ""));
 
             final TextView domain = (TextView) provider_detail_view.findViewById(R.id.provider_detail_domain);
             domain.setText(provider_json.getString(Provider.DOMAIN));
@@ -60,7 +60,7 @@ public class ProviderDetailFragment extends DialogFragment {
     private boolean anon_allowed(JSONObject provider_json) {
         try {
             JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
-            return service_description.has(Constants.ALLOWED_ANON) && service_description.getBoolean(Constants.ALLOWED_ANON);
+            return service_description.has(EIPConstants.ALLOWED_ANON) && service_description.getBoolean(EIPConstants.ALLOWED_ANON);
         } catch (JSONException e) {
             return false;
         }
@@ -78,8 +78,8 @@ public class ProviderDetailFragment extends DialogFragment {
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
-        SharedPreferences.Editor editor = getActivity().getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit();
-        editor.remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).commit();
+        SharedPreferences.Editor editor = getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit();
+        editor.remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(EIPConstants.ALLOWED_ANON).remove(EIPConstants.KEY).commit();
         interface_with_configuration_wizard.cancelAndShowAllProviders();
     }
 

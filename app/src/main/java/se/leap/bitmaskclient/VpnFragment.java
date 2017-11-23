@@ -33,7 +33,10 @@ import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 import mbanje.kurt.fabbutton.*;
-import se.leap.bitmaskclient.eip.*;
+import se.leap.bitmaskclient.eip.EIPConstants;
+import se.leap.bitmaskclient.eip.EIP;
+import se.leap.bitmaskclient.eip.EipStatus;
+import se.leap.bitmaskclient.eip.VoidVpnService;
 
 public class VpnFragment extends Fragment implements Observer {
 
@@ -112,7 +115,7 @@ public class VpnFragment extends Fragment implements Observer {
     public void onResume() {
         super.onResume();
         //FIXME: avoid race conditions while checking certificate an logging in at about the same time
-        //eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
+        //eipCommand(EIPConstants.ACTION_CHECK_CERT_VALIDITY);
         handleNewState(eip_status);
         bindOpenVpnService();
     }
@@ -161,13 +164,13 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     private boolean canStartEIP() {
-        boolean certificateExists = !Dashboard.preferences.getString(Constants.VPN_CERTIFICATE, "").isEmpty();
-        boolean isAllowedAnon = Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false);
+        boolean certificateExists = !Dashboard.preferences.getString(EIPConstants.VPN_CERTIFICATE, "").isEmpty();
+        boolean isAllowedAnon = Dashboard.preferences.getBoolean(EIPConstants.ALLOWED_ANON, false);
         return (isAllowedAnon || certificateExists) && !eip_status.isConnected() && !eip_status.isConnecting();
     }
 
     private boolean canLogInToStartEIP() {
-        boolean isAllowedRegistered = Dashboard.preferences.getBoolean(Constants.ALLOWED_REGISTERED, false);
+        boolean isAllowedRegistered = Dashboard.preferences.getBoolean(EIPConstants.ALLOWED_REGISTERED, false);
         boolean isLoggedIn = !LeapSRPSession.getToken().isEmpty();
         return isAllowedRegistered && !isLoggedIn && !eip_status.isConnecting() && !eip_status.isConnected();
     }
@@ -204,7 +207,7 @@ public class VpnFragment extends Fragment implements Observer {
         eip_status.setConnecting();
 
         saveStatus();
-        eipCommand(Constants.ACTION_START_EIP);
+        eipCommand(EIPConstants.ACTION_START_EIP);
     }
 
     private void stop() {
@@ -227,7 +230,7 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     protected void stopEipIfPossible() {
-        eipCommand(Constants.ACTION_STOP_EIP);
+        eipCommand(EIPConstants.ACTION_STOP_EIP);
     }
 
     private void downloadEIPServiceConfig() {
@@ -255,7 +258,7 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     protected void updateEipService() {
-        eipCommand(Constants.ACTION_UPDATE_EIP_SERVICE);
+        eipCommand(EIPConstants.ACTION_UPDATE_EIP_SERVICE);
     }
 
     /**
@@ -268,7 +271,7 @@ public class VpnFragment extends Fragment implements Observer {
         // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
         Intent vpn_intent = new Intent(dashboard.getApplicationContext(), EIP.class);
         vpn_intent.setAction(action);
-        vpn_intent.putExtra(Constants.RECEIVER_TAG, eip_receiver);
+        vpn_intent.putExtra(EIPConstants.RECEIVER_TAG, eip_receiver);
         dashboard.startService(vpn_intent);
     }
 
@@ -341,9 +344,9 @@ public class VpnFragment extends Fragment implements Observer {
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             super.onReceiveResult(resultCode, resultData);
 
-            String request = resultData.getString(Constants.REQUEST_TAG);
+            String request = resultData.getString(EIPConstants.REQUEST_TAG);
 
-            if (request.equals(Constants.ACTION_START_EIP)) {
+            if (request.equals(EIPConstants.ACTION_START_EIP)) {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         break;
@@ -351,7 +354,7 @@ public class VpnFragment extends Fragment implements Observer {
 
                         break;
                 }
-            } else if (request.equals(Constants.ACTION_STOP_EIP)) {
+            } else if (request.equals(EIPConstants.ACTION_STOP_EIP)) {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         stop();
@@ -359,14 +362,14 @@ public class VpnFragment extends Fragment implements Observer {
                     case Activity.RESULT_CANCELED:
                         break;
                 }
-            } else if (request.equals(Constants.EIP_NOTIFICATION)) {
+            } else if (request.equals(EIPConstants.EIP_NOTIFICATION)) {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         break;
                     case Activity.RESULT_CANCELED:
                         break;
                 }
-            } else if (request.equals(Constants.ACTION_CHECK_CERT_VALIDITY)) {
+            } else if (request.equals(EIPConstants.ACTION_CHECK_CERT_VALIDITY)) {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         break;
@@ -374,7 +377,7 @@ public class VpnFragment extends Fragment implements Observer {
                         dashboard.downloadVpnCertificate();
                         break;
                 }
-            } else if (request.equals(Constants.ACTION_UPDATE_EIP_SERVICE)) {
+            } else if (request.equals(EIPConstants.ACTION_UPDATE_EIP_SERVICE)) {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         if (wants_to_connect)

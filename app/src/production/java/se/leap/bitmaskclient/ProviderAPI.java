@@ -33,7 +33,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
 
 import okhttp3.OkHttpClient;
-import se.leap.bitmaskclient.eip.Constants;
+import se.leap.bitmaskclient.eip.EIPConstants;
 import se.leap.bitmaskclient.eip.EIP;
 
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
@@ -120,8 +120,8 @@ public class ProviderAPI extends ProviderApiBase {
                 //TODO setProviderName(name);
 
                 preferences.edit().putString(Provider.KEY, provider_json.toString()).commit();
-                preferences.edit().putBoolean(Constants.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(Constants.ALLOWED_ANON)).commit();
-                preferences.edit().putBoolean(Constants.ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(Constants.ALLOWED_REGISTERED)).commit();
+                preferences.edit().putBoolean(EIPConstants.ALLOWED_ANON, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIPConstants.ALLOWED_ANON)).commit();
+                preferences.edit().putBoolean(EIPConstants.ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(EIPConstants.ALLOWED_REGISTERED)).commit();
 
                 result.putBoolean(RESULT_KEY, true);
             } catch (JSONException e) {
@@ -150,7 +150,7 @@ public class ProviderAPI extends ProviderApiBase {
                 JSONObject eip_service_json = new JSONObject(eip_service_json_string);
                 eip_service_json.getInt(Provider.API_RETURN_SERIAL);
 
-                preferences.edit().putString(Constants.KEY, eip_service_json.toString()).commit();
+                preferences.edit().putString(EIPConstants.KEY, eip_service_json.toString()).commit();
 
                 result.putBoolean(RESULT_KEY, true);
             } catch (NullPointerException | JSONException e) {
@@ -173,7 +173,7 @@ public class ProviderAPI extends ProviderApiBase {
             JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 
             String provider_main_url = provider_json.getString(Provider.API_URL);
-            URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + Constants.VPN_CERTIFICATE);
+            URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIPConstants.VPN_CERTIFICATE);
 
             String cert_string = downloadWithProviderCA(new_cert_string_url.toString());
 

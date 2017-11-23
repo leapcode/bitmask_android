@@ -2,7 +2,8 @@ package se.leap.bitmaskclient;
 
 import android.content.*;
 
-import se.leap.bitmaskclient.eip.*;
+import se.leap.bitmaskclient.eip.EIPConstants;
+
 
 public class OnBootReceiver extends BroadcastReceiver {
 
@@ -11,12 +12,12 @@ public class OnBootReceiver extends BroadcastReceiver {
     // Debug: am broadcast -a android.intent.action.BOOT_COMPLETED
     @Override
     public void onReceive(Context context, Intent intent) {
-        preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
         boolean provider_configured = !preferences.getString(Provider.KEY, "").isEmpty();
         boolean start_on_boot = preferences.getBoolean(Dashboard.START_ON_BOOT, false);
         if (provider_configured && start_on_boot) {
             Intent dashboard_intent = new Intent(context, Dashboard.class);
-            dashboard_intent.setAction(Constants.ACTION_START_EIP);
+            dashboard_intent.setAction(EIPConstants.ACTION_START_EIP);
             dashboard_intent.putExtra(Dashboard.ON_BOOT, true);
             dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(dashboard_intent);
