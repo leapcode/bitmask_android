@@ -30,7 +30,7 @@
     <string name="password_hint">password</string>
     <string name="user_message">User message</string>
     <string name="title_about_activity">About Bitmask</string>
-    <string name="error_srp_math_error_user_message">Try again: server math error.</string>    
+    <string name="error_srp_math_error_user_message">Try again: server math error.</string>
     <string name="error_bad_user_password_user_message">Incorrect username or password.</string>
     <string name="error_not_valid_password_user_message">It should have at least 8 characters.</string>
     <string name="error_client_http_user_message">Try again: Client HTTP error</string>
@@ -77,4 +77,16 @@
     <string name="vpn.button.turn.on">Turn on</string>
     <string name="vpn.button.turn.off">Turn off</string>
     <string name="bitmask_log">Bitmask Log</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_example">Example action</string>
+
+    <string name="action_settings">Settings</string>
 </resources>

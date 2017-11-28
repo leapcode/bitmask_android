@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
      Copyright (C) 2011 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,38 +13,38 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="se.leap.bitmaskclient"
     android:versionCode="131"
-    android:versionName="0.9.7" >
+    android:versionName="0.9.7">
+
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="26" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-		     android:maxSdkVersion="18"/>
-
-    <uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="26"/>
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".BitmaskApp"
         android:allowBackup="true"
         android:icon="@drawable/icon"
-        android:logo="@drawable/icon"
         android:label="@string/app_name"
-        android:theme="@style/blinkt">
-
+        android:logo="@drawable/icon"
+        android:theme="@style/AppTheme">
         <service
-            android:name="se.leap.bitmaskclient.eip.VoidVpnService"
+            android:name=".eip.VoidVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
-	
         <service
             android:name="de.blinkt.openvpn.core.OpenVPNService"
             android:permission="android.permission.BIND_VPN_SERVICE">
@@ -53,50 +52,42 @@
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
-	<service android:name="se.leap.bitmaskclient.ProviderAPI" android:enabled="true"/>
-	
+        <service
+            android:name=".ProviderAPI"
+            android:enabled="true" />
+
         <receiver
-            android:name="se.leap.bitmaskclient.OnBootReceiver"
+            android:name=".OnBootReceiver"
             android:enabled="true"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
-          <intent-filter android:priority="999">
-            <action android:name="android.intent.action.BOOT_COMPLETED" />
-          </intent-filter>
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter android:priority="999">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
 
-	<activity
-	    android:name="se.leap.bitmaskclient.eip.VoidVpnLauncher"
-	    android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-	
         <activity
-                android:name="de.blinkt.openvpn.activities.DisconnectVPN" />
-	
+            android:name=".eip.VoidVpnLauncher"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity android:name="de.blinkt.openvpn.activities.DisconnectVPN" />
         <activity
             android:name="de.blinkt.openvpn.LaunchVPN"
-            android:label="@string/vpn_launch_title" >
-        </activity>
-	
+            android:label="@string/vpn_launch_title"></activity>
         <activity
             android:name="de.blinkt.openvpn.activities.LogWindow"
             android:allowTaskReparenting="true"
             android:label="@string/bitmask_log"
             android:launchMode="singleTask" />
-
         <activity
-            android:name="se.leap.bitmaskclient.Dashboard"
+            android:name=".Dashboard"
             android:label="@string/app_name"
-            android:uiOptions="splitActionBarWhenNarrow"
             android:launchMode="singleTop"
-            >
-        </activity>
+            android:uiOptions="splitActionBarWhenNarrow"></activity>
         <activity
-            android:name="se.leap.bitmaskclient.StartActivity"
+            android:name=".StartActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:noHistory="true"
-            android:theme="@style/SplashTheme"
-            >
-
+            android:theme="@style/SplashTheme">
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.MAIN" />
 
@@ -104,22 +95,26 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="se.leap.bitmaskclient.ConfigurationWizard"
+            android:name=".ConfigurationWizard"
             android:label="@string/configuration_wizard_title"
-            android:uiOptions="splitActionBarWhenNarrow" >
-        </activity>
+            android:uiOptions="splitActionBarWhenNarrow"></activity>
         <activity
-            android:name="se.leap.bitmaskclient.AboutActivity"
-            android:label="@string/title_about_activity" >
-        </activity>
-        
-        <service android:name="se.leap.bitmaskclient.eip.EIP" android:exported="false">
+            android:name=".AboutActivity"
+            android:label="@string/title_about_activity"></activity>
+
+        <service
+            android:name=".eip.EIP"
+            android:exported="false">
             <intent-filter>
-                <action android:name="se.leap.bitmaskclient.eip.UPDATE_EIP_SERVICE"/>
-                <action android:name="se.leap.bitmaskclient.eip.START_EIP"/>
-                <action android:name="se.leap.bitmaskclient.eip.STOP_EIP"/>
+                <action android:name="se.leap.bitmaskclient.eip.UPDATE_EIP_SERVICE" />
+                <action android:name="se.leap.bitmaskclient.eip.START_EIP" />
+                <action android:name="se.leap.bitmaskclient.eip.STOP_EIP" />
             </intent-filter>
         </service>
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"></activity>
     </application>
 
 </manifest>
