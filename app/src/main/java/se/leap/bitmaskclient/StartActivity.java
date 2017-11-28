@@ -67,7 +67,7 @@ public class StartActivity extends Activity {
         User.init(getString(R.string.default_username));
 
         // go to Dashboard
-        Intent intent = new Intent(this, Dashboard.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
