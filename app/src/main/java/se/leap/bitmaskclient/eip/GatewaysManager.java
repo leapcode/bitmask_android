@@ -123,8 +123,8 @@ public class GatewaysManager {
         JSONObject result = new JSONObject();
         try {
             result.put(Provider.CA_CERT, preferences.getString(Provider.CA_CERT, ""));
-            result.put(EIPConstants.PRIVATE_KEY, preferences.getString(EIPConstants.PRIVATE_KEY, ""));
-            result.put(EIPConstants.VPN_CERTIFICATE, preferences.getString(EIPConstants.VPN_CERTIFICATE, ""));
+            result.put(Constants.PRIVATE_KEY, preferences.getString(Constants.PRIVATE_KEY, ""));
+            result.put(Constants.VPN_CERTIFICATE, preferences.getString(Constants.VPN_CERTIFICATE, ""));
         } catch (JSONException e) {
             e.printStackTrace();
         }

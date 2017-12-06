@@ -118,14 +118,14 @@ public class VpnConfigGenerator {
             String key =
                     "<key>"
                             + new_line
-                            + secrets.getString(EIPConstants.PRIVATE_KEY)
+                            + secrets.getString(Constants.PRIVATE_KEY)
                             + new_line
                             + "</key>";
 
             String openvpn_cert =
                     "<cert>"
                             + new_line
-                            + secrets.getString(EIPConstants.VPN_CERTIFICATE)
+                            + secrets.getString(Constants.VPN_CERTIFICATE)
                             + new_line
                             + "</cert>";
 

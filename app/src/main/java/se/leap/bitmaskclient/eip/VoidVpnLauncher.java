@@ -5,6 +5,8 @@ import android.content.*;
 import android.net.*;
 import android.os.*;
 
+import se.leap.bitmaskclient.Constants;
+
 public class VoidVpnLauncher extends Activity {
 
     private static final int VPN_USER_PERMISSION = 71;
@@ -28,7 +30,7 @@ public class VoidVpnLauncher extends Activity {
         if (requestCode == VPN_USER_PERMISSION) {
             if (resultCode == RESULT_OK) {
                 Intent void_vpn_service = new Intent(getApplicationContext(), VoidVpnService.class);
-                void_vpn_service.setAction(EIPConstants.START_BLOCKING_VPN_PROFILE);
+                void_vpn_service.setAction(Constants.EIP_ACTION_BLOCK_VPN_PROFILE);
                 startService(void_vpn_service);
             }
         }

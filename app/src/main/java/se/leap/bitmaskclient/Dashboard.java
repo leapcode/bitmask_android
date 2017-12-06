@@ -41,7 +41,6 @@ import java.net.URL;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import se.leap.bitmaskclient.eip.EIPConstants;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
@@ -131,7 +130,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
     private boolean providerInSharedPreferences() {
         return preferences != null &&
-                preferences.getBoolean(EIPConstants.PROVIDER_CONFIGURED, false);
+                preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false);
 
     }
 
@@ -160,7 +159,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
             switch (versionCode) {
                 case 91: // 0.6.0 without Bug #5999
                 case 101: // 0.8.0
-                    if (!preferences.getString(EIPConstants.KEY, "").isEmpty())
+                    if (!preferences.getString(Constants.KEY, "").isEmpty())
                         eip_fragment.updateEipService();
                     break;
             }
@@ -205,7 +204,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
     @SuppressLint("CommitPrefEdits")
     private void providerToPreferences(Provider provider) {
-        preferences.edit().putBoolean(EIPConstants.PROVIDER_CONFIGURED, true).commit();
+        preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).commit();
         preferences.edit().putString(Provider.MAIN_URL, provider.mainUrl().toString()).apply();
         preferences.edit().putString(Provider.KEY, provider.definition().toString()).apply();
     }
@@ -225,7 +224,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
                 .setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        preferences.edit().remove(Provider.KEY).remove(EIPConstants.PROVIDER_CONFIGURED).apply();
+                        preferences.edit().remove(Provider.KEY).remove(Constants.PROVIDER_CONFIGURED).apply();
                         finish();
                     }
                 })
@@ -316,7 +315,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
     public void downloadVpnCertificate() {
         boolean is_authenticated = User.loggedIn();
-        boolean allowed_anon = preferences.getBoolean(EIPConstants.ALLOWED_ANON, false);
+        boolean allowed_anon = preferences.getBoolean(Constants.ALLOWED_ANON, false);
         if (allowed_anon || is_authenticated)
             ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_CERTIFICATE, providerAPI_result_receiver);
         else

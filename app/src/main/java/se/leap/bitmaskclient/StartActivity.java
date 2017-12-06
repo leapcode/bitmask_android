@@ -13,6 +13,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.updates.ConstantUnification;
 import se.leap.bitmaskclient.userstatus.User;
 
 /**
@@ -31,55 +32,15 @@ public class StartActivity extends Activity {
     private static final int UPGRADE = 2;
     private static final int DOWNGRADE = 3;
 
-    /**
-     *  check if normal start, first run, up or downgrade
-     *  @return @StartupMode
-     */
-    @StartupMode
-    private int checkAppStart() {
-        SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
-        try {
-            int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-            int lastDetectedVersion = preferences.getInt(Constants.PREFERENCES_APP_VERSION, -1);
+    private int versionCode;
+    private int previousVersionCode;
 
-            // versions do match -> normal start
-            if (versionCode == lastDetectedVersion) {
-                Log.d(TAG, "App start was: NORMAL START");
-                return NORMAL;
-            }
-
-            // something changed -> save current version
-            preferences.edit().putInt(Constants.PREFERENCES_APP_VERSION, versionCode).apply();
-
-            // no previous app version -> first start
-            if (lastDetectedVersion == -1 ) {
-                Log.d(TAG, "App start was: FIRST START");
-                return FIRST;
-            }
-
-            // version has increased -> upgrade
-            if (versionCode > lastDetectedVersion) {
-                Log.d(TAG, "App start was: UPGRADE");
-                return UPGRADE;
-            }
-            // version has decreased -> downgrade
-            if (versionCode < lastDetectedVersion) {
-                Log.d(TAG, "App start was: DOWNGRADE");
-                return DOWNGRADE;
-            }
-
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.d(TAG, "Splash screen didn't find any " + getPackageName() + " package");
-        }
-
-        return NORMAL;
-    }
-
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent;
+        preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
 
         Log.d(TAG, "Started");
 
@@ -89,12 +50,10 @@ public class StartActivity extends Activity {
 
             case FIRST:
                 // TODO start ProfileCreation & replace below code
-                intent = new Intent(this, Dashboard.class);
-                startActivity(intent);
                 break;
 
             case UPGRADE:
-                // TODO appropriate data copying
+                executeUpgrade();
                 // TODO show donation dialog
                 break;
 
@@ -109,7 +68,72 @@ public class StartActivity extends Activity {
         User.init(getString(R.string.default_username));
 
         // go to Dashboard
-        intent = new Intent(this, Dashboard.class);
+        Intent intent = new Intent(this, Dashboard.class);
         startActivity(intent);
     }
+
+    /**
+     *  check if normal start, first run, up or downgrade
+     *  @return @StartupMode
+     */
+    @StartupMode
+    private int checkAppStart() {
+        try {
+            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            previousVersionCode = preferences.getInt(Constants.PREFERENCES_APP_VERSION, -1);
+
+            // versions do match -> normal start
+            if (versionCode == previousVersionCode) {
+                Log.d(TAG, "App start was: NORMAL START");
+                return NORMAL;
+            }
+
+            // no previous app version -> first start
+            if (previousVersionCode == -1 ) {
+                Log.d(TAG, "FIRST START");
+                return FIRST;
+            }
+
+            // version has increased -> upgrade
+            if (versionCode > previousVersionCode) {
+                Log.d(TAG, "UPGRADE");
+                return UPGRADE;
+            }
+            // version has decreased -> downgrade
+            if (versionCode < previousVersionCode) {
+                Log.d(TAG, "DOWNGRADE");
+                return DOWNGRADE;
+            }
+
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.d(TAG, "Splash screen didn't find any " + getPackageName() + " package");
+        }
+
+        return NORMAL;
+    }
+
+    /**
+     * execute necessary updates for version change
+     */
+    private void executeUpgrade() {
+        if (passedMilestone(VersionMilestone.MULTIPLE_PROFILES)) {
+            // TODO prepare usage of multiple profiles
+        }
+        if (passedMilestone(VersionMilestone.CONSTANT_UNIFICATION)) {
+            ConstantUnification.upgrade(preferences);
+        }
+
+        // ensure all upgrades have passed before storing new information
+        preferences.edit().putInt(Constants.PREFERENCES_APP_VERSION, versionCode).apply();
+    }
+
+    /**
+     * check if an upgrade passed or moved to given milestone
+     * @param milestone Version code of the Milestone VersionMilestone.MILE_STONE
+     * @return true if milestone is reached - false otherwise
+     */
+    private boolean passedMilestone(int milestone) {
+        return previousVersionCode < milestone && versionCode >= milestone;
+    }
+
 }

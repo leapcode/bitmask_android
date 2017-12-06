@@ -25,8 +25,6 @@ import org.json.*;
 import de.blinkt.openvpn.*;
 import se.leap.bitmaskclient.*;
 
-import static se.leap.bitmaskclient.eip.EIPConstants.*;
-
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
  * Internet Proxy connection.  Connections are started, stopped, and queried through
@@ -68,17 +66,17 @@ public final class EIP extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         String action = intent.getAction();
-        mReceiver = intent.getParcelableExtra(RECEIVER_TAG);
+        mReceiver = intent.getParcelableExtra(Constants.EIP_RECEIVER);
 
-        if (action.equals(ACTION_START_EIP))
+        if (action.equals(Constants.EIP_ACTION_START))
             startEIP();
-        else if (action.equals(ACTION_STOP_EIP))
+        else if (action.equals(Constants.EIP_ACTION_STOP))
             stopEIP();
-        else if (action.equals(ACTION_IS_EIP_RUNNING))
+        else if (action.equals(Constants.EIP_ACTION_IS_RUNNING))
             isRunning();
-        else if (action.equals(ACTION_UPDATE_EIP_SERVICE))
+        else if (action.equals(Constants.EIP_ACTION_UPDATE))
             updateEIPService();
-        else if (action.equals(ACTION_CHECK_CERT_VALIDITY))
+        else if (action.equals(Constants.EIP_ACTION_CHECK_CERT_VALIDITY))
             checkCertValidity();
     }
 
@@ -96,9 +94,9 @@ public final class EIP extends IntentService {
         if (gateway != null && gateway.getProfile() != null) {
             mReceiver = VpnFragment.getReceiver();
             launchActiveGateway();
-            tellToReceiver(ACTION_START_EIP, Activity.RESULT_OK);
+            tellToReceiver(Constants.EIP_ACTION_START, Activity.RESULT_OK);
         } else
-            tellToReceiver(ACTION_START_EIP, Activity.RESULT_CANCELED);
+            tellToReceiver(Constants.EIP_ACTION_START, Activity.RESULT_CANCELED);
     }
 
     /**
@@ -126,7 +124,7 @@ public final class EIP extends IntentService {
         if (eip_status.isConnected() || eip_status.isConnecting())
             result_code = Activity.RESULT_OK;
 
-        tellToReceiver(ACTION_STOP_EIP, result_code);
+        tellToReceiver(Constants.EIP_ACTION_STOP, result_code);
     }
 
     /**
@@ -139,7 +137,7 @@ public final class EIP extends IntentService {
         int resultCode = (eip_status.isConnected()) ?
                 Activity.RESULT_OK :
                 Activity.RESULT_CANCELED;
-        tellToReceiver(ACTION_IS_EIP_RUNNING, resultCode);
+        tellToReceiver(Constants.EIP_ACTION_IS_RUNNING, resultCode);
     }
 
     /**
@@ -150,13 +148,13 @@ public final class EIP extends IntentService {
         eip_definition = eipDefinitionFromPreferences();
         if (eip_definition.length() > 0)
             updateGateways();
-        tellToReceiver(ACTION_UPDATE_EIP_SERVICE, Activity.RESULT_OK);
+        tellToReceiver(Constants.EIP_ACTION_UPDATE, Activity.RESULT_OK);
     }
 
     private JSONObject eipDefinitionFromPreferences() {
         JSONObject result = new JSONObject();
         try {
-            String eip_definition_string = preferences.getString(KEY, "");
+            String eip_definition_string = preferences.getString(Constants.KEY, "");
             if (!eip_definition_string.isEmpty()) {
                 result = new JSONObject(eip_definition_string);
             }
@@ -186,17 +184,17 @@ public final class EIP extends IntentService {
     }
 
     private void checkCertValidity() {
-        VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(VPN_CERTIFICATE, ""));
+        VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(Constants.VPN_CERTIFICATE, ""));
         int resultCode = validator.isValid() ?
                 Activity.RESULT_OK :
                 Activity.RESULT_CANCELED;
-        tellToReceiver(ACTION_CHECK_CERT_VALIDITY, resultCode);
+        tellToReceiver(Constants.EIP_ACTION_CHECK_CERT_VALIDITY, resultCode);
     }
 
     private void tellToReceiver(String action, int resultCode) {
         if (mReceiver != null) {
             Bundle resultData = new Bundle();
-            resultData.putString(REQUEST_TAG, action);
+            resultData.putString(Constants.EIP_REQUEST, action);
             mReceiver.send(resultCode, resultData);
         }
     }
