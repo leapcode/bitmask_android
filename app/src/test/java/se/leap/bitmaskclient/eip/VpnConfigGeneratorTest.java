@@ -62,7 +62,7 @@ public class VpnConfigGeneratorTest {
             "\n" +
             "</ca>\n" +
             "<key>\n" +
-            "-----BEGIN RSA PRIVATE PROVIDER_KEY-----\n" +
+            "-----BEGIN RSA PRIVATE KEY-----\n" +
             "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
             "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
             "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
@@ -85,7 +85,7 @@ public class VpnConfigGeneratorTest {
             "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
             "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
             "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE PROVIDER_KEY-----\n" +
+            "-----END RSA PRIVATE KEY-----\n" +
             "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
@@ -160,7 +160,7 @@ public class VpnConfigGeneratorTest {
             "\n" +
             "</ca>\n" +
             "<key>\n" +
-            "-----BEGIN RSA PRIVATE PROVIDER_KEY-----\n" +
+            "-----BEGIN RSA PRIVATE KEY-----\n" +
             "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
             "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
             "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
@@ -183,7 +183,7 @@ public class VpnConfigGeneratorTest {
             "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
             "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
             "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE PROVIDER_KEY-----\n" +
+            "-----END RSA PRIVATE KEY-----\n" +
             "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
