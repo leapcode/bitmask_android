@@ -219,7 +219,7 @@ public abstract class BaseConfigurationWizard extends Activity
                 e.printStackTrace();
             }
 
-            if (preferences.getBoolean(Constants.ALLOWED_ANON, false)) {
+            if (preferences.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, false)) {
                 mConfigState.putExtra(SERVICES_RETRIEVED, true);
 
                 downloadVpnCertificate();
@@ -296,7 +296,7 @@ public abstract class BaseConfigurationWizard extends Activity
     public void cancelSettingUpProvider() {
         mConfigState.setAction(PROVIDER_NOT_SET);
         adapter.showAllProviders();
-        preferences.edit().remove(Provider.KEY).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).apply();
+        preferences.edit().remove(Provider.KEY).remove(Constants.PROVIDER_ALLOW_ANONYMOUS).remove(Constants.PROVIDER_KEY).apply();
     }
 
     private void askDashboardToQuitApp() {

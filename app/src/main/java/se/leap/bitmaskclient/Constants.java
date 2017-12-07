@@ -27,14 +27,12 @@ public interface Constants {
 
 
     //////////////////////////////////////////////
-    // ? CONSTANTS
+    // PROVIDER CONSTANTS
     /////////////////////////////////////////////
-
-    // TODO FIND BETTER NAMES AND DO NOT USE AS PREFERENCES KEY
-    String ALLOWED_ANON = "allow_anonymous";
-    String ALLOWED_REGISTERED = "allow_registration";
-    String VPN_CERTIFICATE = "cert";
-    String PRIVATE_KEY = "Constants.PRIVATE_KEY";
-    String KEY = "Constants.KEY";
+    String PROVIDER_ALLOW_ANONYMOUS = "allow_anonymous";
+    String PROVIDER_ALLOWED_REGISTERED = "allow_registration";
+    String PROVIDER_VPN_CERTIFICATE = "cert";
+    String PROVIDER_PRIVATE_KEY = "Constants.PROVIDER_PRIVATE_KEY";
+    String PROVIDER_KEY = "Constants.PROVIDER_KEY";
     String PROVIDER_CONFIGURED = "Constants.PROVIDER_CONFIGURED";
 }

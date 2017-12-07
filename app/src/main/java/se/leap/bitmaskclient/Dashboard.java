@@ -159,7 +159,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
             switch (versionCode) {
                 case 91: // 0.6.0 without Bug #5999
                 case 101: // 0.8.0
-                    if (!preferences.getString(Constants.KEY, "").isEmpty())
+                    if (!preferences.getString(Constants.PROVIDER_KEY, "").isEmpty())
                         eip_fragment.updateEipService();
                     break;
             }
@@ -315,7 +315,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
     public void downloadVpnCertificate() {
         boolean is_authenticated = User.loggedIn();
-        boolean allowed_anon = preferences.getBoolean(Constants.ALLOWED_ANON, false);
+        boolean allowed_anon = preferences.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, false);
         if (allowed_anon || is_authenticated)
             ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_CERTIFICATE, providerAPI_result_receiver);
         else

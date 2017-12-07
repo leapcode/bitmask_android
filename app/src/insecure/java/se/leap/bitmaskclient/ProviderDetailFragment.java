@@ -2,7 +2,6 @@ package se.leap.bitmaskclient;
 
 import org.json.*;
 
-import se.leap.bitmaskclient.eip.*;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
 import android.app.*;
@@ -60,7 +59,7 @@ public class ProviderDetailFragment extends DialogFragment {
     private boolean anon_allowed(JSONObject provider_json) {
         try {
             JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
-            return service_description.has(Constants.ALLOWED_ANON) && service_description.getBoolean(Constants.ALLOWED_ANON);
+            return service_description.has(Constants.PROVIDER_ALLOW_ANONYMOUS) && service_description.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS);
         } catch (JSONException e) {
             return false;
         }
@@ -79,7 +78,7 @@ public class ProviderDetailFragment extends DialogFragment {
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
         SharedPreferences.Editor editor = getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE).edit();
-        editor.remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).commit();
+        editor.remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(Constants.PROVIDER_ALLOW_ANONYMOUS).remove(Constants.PROVIDER_KEY).commit();
         interface_with_configuration_wizard.cancelAndShowAllProviders();
     }
 

@@ -43,9 +43,9 @@ public class GatewaysManagerTest {
 
         JSONObject secrets = new JSONObject(getJsonStringFor("secrets.json"));
 
-        when(sharedPreferences.getString(eq(Constants.PRIVATE_KEY), anyString())).thenReturn(secrets.getString(Constants.PRIVATE_KEY));
+        when(sharedPreferences.getString(eq(Constants.PROVIDER_PRIVATE_KEY), anyString())).thenReturn(secrets.getString(Constants.PROVIDER_PRIVATE_KEY));
         when(sharedPreferences.getString(eq(Provider.CA_CERT), anyString())).thenReturn(secrets.getString(Provider.CA_CERT));
-        when(sharedPreferences.getString(eq(Constants.VPN_CERTIFICATE), anyString())).thenReturn(secrets.getString(Constants.VPN_CERTIFICATE));
+        when(sharedPreferences.getString(eq(Constants.PROVIDER_VPN_CERTIFICATE), anyString())).thenReturn(secrets.getString(Constants.PROVIDER_VPN_CERTIFICATE));
         when(mockContext.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
 
 

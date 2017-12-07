@@ -163,13 +163,13 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     private boolean canStartEIP() {
-        boolean certificateExists = !Dashboard.preferences.getString(Constants.VPN_CERTIFICATE, "").isEmpty();
-        boolean isAllowedAnon = Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false);
+        boolean certificateExists = !Dashboard.preferences.getString(Constants.PROVIDER_VPN_CERTIFICATE, "").isEmpty();
+        boolean isAllowedAnon = Dashboard.preferences.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, false);
         return (isAllowedAnon || certificateExists) && !eip_status.isConnected() && !eip_status.isConnecting();
     }
 
     private boolean canLogInToStartEIP() {
-        boolean isAllowedRegistered = Dashboard.preferences.getBoolean(Constants.ALLOWED_REGISTERED, false);
+        boolean isAllowedRegistered = Dashboard.preferences.getBoolean(Constants.PROVIDER_ALLOWED_REGISTERED, false);
         boolean isLoggedIn = !LeapSRPSession.getToken().isEmpty();
         return isAllowedRegistered && !isLoggedIn && !eip_status.isConnecting() && !eip_status.isConnected();
     }

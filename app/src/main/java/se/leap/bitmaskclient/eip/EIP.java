@@ -154,7 +154,7 @@ public final class EIP extends IntentService {
     private JSONObject eipDefinitionFromPreferences() {
         JSONObject result = new JSONObject();
         try {
-            String eip_definition_string = preferences.getString(Constants.KEY, "");
+            String eip_definition_string = preferences.getString(Constants.PROVIDER_KEY, "");
             if (!eip_definition_string.isEmpty()) {
                 result = new JSONObject(eip_definition_string);
             }
@@ -184,7 +184,7 @@ public final class EIP extends IntentService {
     }
 
     private void checkCertValidity() {
-        VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(Constants.VPN_CERTIFICATE, ""));
+        VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(Constants.PROVIDER_VPN_CERTIFICATE, ""));
         int resultCode = validator.isValid() ?
                 Activity.RESULT_OK :
                 Activity.RESULT_CANCELED;

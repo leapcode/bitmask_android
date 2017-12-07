@@ -1017,7 +1017,7 @@ public class VpnProfile implements Serializable, Cloneable {
 
         if (data.contains("Proc-Type: 4,ENCRYPTED"))
             return true;
-        else if (data.contains("-----BEGIN ENCRYPTED PRIVATE KEY-----"))
+        else if (data.contains("-----BEGIN ENCRYPTED PRIVATE PROVIDER_KEY-----"))
             return true;
         else
             return false;

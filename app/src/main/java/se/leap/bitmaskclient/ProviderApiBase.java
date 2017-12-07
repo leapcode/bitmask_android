@@ -807,7 +807,7 @@ public abstract class ProviderApiBase extends IntentService {
             String certificateString = null, keyString = null;
             String[] certAndKey = cert_string.split("(?<=-\n)");
             for (int i = 0; i < certAndKey.length - 1; i++) {
-                if (certAndKey[i].contains("KEY")) {
+                if (certAndKey[i].contains("PROVIDER_KEY")) {
                     keyString = certAndKey[i++] + certAndKey[i];
                 } else if (certAndKey[i].contains("CERTIFICATE")) {
                     certificateString = certAndKey[i++] + certAndKey[i];
@@ -816,11 +816,11 @@ public abstract class ProviderApiBase extends IntentService {
 
             RSAPrivateKey key = ConfigHelper.parseRsaKeyFromString(keyString);
             keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
-            preferences.edit().putString(Constants.PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----").commit();
+            preferences.edit().putString(Constants.PROVIDER_PRIVATE_KEY, "-----BEGIN RSA PRIVATE PROVIDER_KEY-----\n" + keyString + "-----END RSA PRIVATE PROVIDER_KEY-----").commit();
 
             X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
             certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
-            preferences.edit().putString(Constants.VPN_CERTIFICATE, "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----").commit();
+            preferences.edit().putString(Constants.PROVIDER_VPN_CERTIFICATE, "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----").commit();
             return true;
         } catch (CertificateException e) {
             // TODO Auto-generated catch block

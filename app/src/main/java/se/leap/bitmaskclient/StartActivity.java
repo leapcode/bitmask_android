@@ -13,7 +13,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.updates.ConstantUnification;
 import se.leap.bitmaskclient.userstatus.User;
 
 /**
@@ -113,14 +112,11 @@ public class StartActivity extends Activity {
     }
 
     /**
-     * execute necessary updates for version change
+     * execute necessary upgrades for version change
      */
     private void executeUpgrade() {
-        if (passedMilestone(VersionMilestone.MULTIPLE_PROFILES)) {
+        if (hasNewFeature(FeatureVersionCode.MULTIPLE_PROFILES)) {
             // TODO prepare usage of multiple profiles
-        }
-        if (passedMilestone(VersionMilestone.CONSTANT_UNIFICATION)) {
-            ConstantUnification.upgrade(preferences);
         }
 
         // ensure all upgrades have passed before storing new information
@@ -129,11 +125,11 @@ public class StartActivity extends Activity {
 
     /**
      * check if an upgrade passed or moved to given milestone
-     * @param milestone Version code of the Milestone VersionMilestone.MILE_STONE
+     * @param featureVersionCode Version code of the Milestone FeatureVersionCode.MILE_STONE
      * @return true if milestone is reached - false otherwise
      */
-    private boolean passedMilestone(int milestone) {
-        return previousVersionCode < milestone && versionCode >= milestone;
+    private boolean hasNewFeature(int featureVersionCode) {
+        return previousVersionCode < featureVersionCode && versionCode >= featureVersionCode;
     }
 
 }
