@@ -24,7 +24,6 @@ import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.ProviderAPICommand;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.eip.EipStatus;
 
 public class UserStatusFragment extends Fragment implements Observer, SessionDialog.SessionDialogInterface {
 
@@ -169,7 +168,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     }
 
     public void cancelLoginOrSignup() {
-        EipStatus.getInstance().setConnectedOrDisconnected();
+        //EipStatus.getInstance().setConnectedOrDisconnected();
     }
 
     private Bundle bundlePassword(String password) {

@@ -17,19 +17,37 @@
 package se.leap.bitmaskclient.eip;
 
 import android.content.*;
+import android.os.AsyncTask;
+import android.support.annotation.VisibleForTesting;
 
 import java.util.*;
 
 import de.blinkt.openvpn.core.*;
 
+/**
+ * EipStatus is a Singleton that represents a reduced set of a vpn's ConnectionStatus.
+ * EipStatus changes it's state (EipLevel) when ConnectionStatus gets updated by OpenVpnService or
+ * by VoidVpnService.
+ */
 public class EipStatus extends Observable implements VpnStatus.StateListener {
     public static String TAG = EipStatus.class.getSimpleName();
     private static EipStatus current_status;
+    public enum EipLevel {
+        CONNECTING,
+        DISCONNECTING,
+        CONNECTED,
+        DISCONNECTED,
+        BLOCKING,
+        UNKNOWN
+    }
 
-    private static ConnectionStatus level = ConnectionStatus.LEVEL_NOTCONNECTED;
-    private static boolean
-            wants_to_disconnect = false,
-            is_connecting = false;
+    /**
+     * vpn_level holds the connection status of the openvpn vpn and the traffic blocking
+     * void vpn. LEVEL_BLOCKING is set when the latter vpn is up. All other states are set by
+     * openvpn.
+     */
+    private ConnectionStatus vpn_level = ConnectionStatus.LEVEL_NOTCONNECTED;
+    private EipLevel current_eip_level = EipLevel.DISCONNECTED;
 
     int last_error_line = 0;
     private String state, log_message;
@@ -48,64 +66,137 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
     @Override
     public void updateState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
-        updateStatus(state, logmessage, localizedResId, level);
-        if (isConnected() || isDisconnected() || wantsToDisconnect()) {
-            setConnectedOrDisconnected();
-        } else
-            setConnecting();
+        current_status = getInstance();
+        current_status.setState(state);
+        current_status.setLogMessage(logmessage);
+        current_status.setLocalizedResId(localizedResId);
+        current_status.setLevel(level);
+        current_status.setEipLevel(level);
     }
 
     @Override
     public void setConnectedVPN(String uuid) {
     }
 
-    private void updateStatus(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
-        current_status = getInstance();
-        current_status.setState(state);
-        current_status.setLogMessage(logmessage);
-        current_status.setLocalizedResId(localizedResId);
-        current_status.setLevel(level);
-        current_status.setChanged();
+
+    private void setEipLevel(ConnectionStatus level) {
+        EipLevel tmp = current_eip_level;
+        switch (level) {
+            case LEVEL_CONNECTED:
+                current_eip_level = EipLevel.CONNECTED;
+                break;
+            case LEVEL_VPNPAUSED:
+                throw new IllegalStateException("Ics-Openvpn's VPNPAUSED state is not supported by Bitmask");
+            case LEVEL_CONNECTING_SERVER_REPLIED:
+            case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
+            case LEVEL_WAITING_FOR_USER_INPUT:
+            case LEVEL_START:
+                current_eip_level = EipLevel.CONNECTING;
+                break;
+            case LEVEL_AUTH_FAILED:
+            case LEVEL_NOTCONNECTED:
+                current_eip_level = EipLevel.DISCONNECTED;
+                break;
+            case LEVEL_NONETWORK:
+            case LEVEL_BLOCKING:
+                setEipLevelWithDelay(level);
+                break;
+            case UNKNOWN_LEVEL:
+                current_eip_level = EipLevel.UNKNOWN; //??
+                break;
+        }
+        if (tmp != current_eip_level) {
+            current_status.setChanged();
+            current_status.notifyObservers();
+        }
     }
 
-    public boolean wantsToDisconnect() {
-        return wants_to_disconnect;
+    @VisibleForTesting
+    EipLevel getEipLevel() {
+        return current_eip_level;
+    }
+
+    /**
+     * This method intends to ignore states that are valid for less than a second.
+     * This way flickering UI changes can be avoided
+     *
+     * @param futureLevel
+     */
+    private void setEipLevelWithDelay(ConnectionStatus futureLevel) {
+        new DelayTask(current_status.getLevel(), futureLevel).execute();
+    }
+
+    private class DelayTask extends AsyncTask<Void, Void, Void> {
+
+        private final ConnectionStatus currentLevel;
+        private final ConnectionStatus futureLevel;
+
+        public DelayTask(ConnectionStatus currentLevel, ConnectionStatus futureLevel) {
+            this.currentLevel = currentLevel;
+            this.futureLevel = futureLevel;
+        }
+        protected Void doInBackground(Void... levels) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.interrupted();
+            }
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {;
+            if (currentLevel == current_status.getLevel()) {
+                switch (futureLevel) {
+                    case LEVEL_NONETWORK:
+                        current_eip_level = EipLevel.DISCONNECTED;
+                        break;
+                    case LEVEL_BLOCKING:
+                        current_eip_level = EipLevel.BLOCKING;
+                        break;
+                    default:
+                        break;
+                }
+                current_status.setChanged();
+                current_status.notifyObservers();
+            }
+        }
     }
 
     public boolean isConnecting() {
-        return is_connecting;
+        return current_eip_level == EipLevel.CONNECTING;
     }
 
     public boolean isConnected() {
-        return level == ConnectionStatus.LEVEL_CONNECTED;
+        return current_eip_level == EipLevel.CONNECTED;
+    }
+
+    /**
+     * @return true if current_eip_level is for at least a second {@link EipLevel#BLOCKING}.
+     * See {@link #setEipLevelWithDelay(ConnectionStatus)}.
+     */
+    public boolean isBlocking() {
+        return current_eip_level == EipLevel.BLOCKING;
+    }
+
+    /**
+     *
+     * @return true immediately after traffic blocking VoidVpn was established.
+     */
+    public boolean isBlockingVpnEstablished() {
+        return vpn_level == ConnectionStatus.LEVEL_BLOCKING;
     }
 
     public boolean isDisconnected() {
-        return level == ConnectionStatus.LEVEL_NOTCONNECTED;
+        return current_eip_level == EipLevel.DISCONNECTED;
     }
 
+    /**
+     * ics-openvpn's paused state is not implemented yet
+     * @return
+     */
+    @Deprecated
     public boolean isPaused() {
-        return level == ConnectionStatus.LEVEL_VPNPAUSED;
-    }
-
-    public void setConnecting() {
-        is_connecting = true;
-
-        wants_to_disconnect = false;
-        current_status.setChanged();
-        current_status.notifyObservers();
-    }
-
-    public void setConnectedOrDisconnected() {
-        is_connecting = false;
-        wants_to_disconnect = false;
-        current_status.setChanged();
-        current_status.notifyObservers();
-    }
-
-    public void setDisconnecting() {
-        wants_to_disconnect = true;
-        is_connecting = false;
+        return vpn_level == ConnectionStatus.LEVEL_VPNPAUSED;
     }
 
     public String getState() {
@@ -121,7 +212,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public ConnectionStatus getLevel() {
-        return level;
+        return vpn_level;
     }
 
     private void setState(String state) {
@@ -137,7 +228,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     private void setLevel(ConnectionStatus level) {
-        EipStatus.level = level;
+        this.vpn_level = level;
     }
 
     public boolean errorInLast(int lines, Context context) {
@@ -169,7 +260,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
     @Override
     public String toString() {
-        return "State: " + state + " Level: " + level.toString();
+        return "State: " + state + " Level: " + vpn_level.toString();
     }
 
 }

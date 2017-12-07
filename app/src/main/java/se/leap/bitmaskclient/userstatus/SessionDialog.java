@@ -159,7 +159,7 @@ public class SessionDialog extends DialogFragment {
         public void logIn(String username, String password);
 
         public void signUp(String username, String password);
-
+        //FIXME: can we remove this method?
         public void cancelLoginOrSignup();
     }
 

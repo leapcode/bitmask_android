@@ -115,6 +115,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         public boolean stopVPN(boolean replaceConnection) throws RemoteException {
             return OpenVPNService.this.stopVPN(replaceConnection);
         }
+
+        @Override
+        public boolean isVpnRunning() throws RemoteException {
+            return OpenVPNService.this.isVpnRunning();
+        }
     };
 
     // From: http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
@@ -412,6 +417,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     }
 
+    @Override
     public void userPause(boolean shouldBePaused) {
         if (mDeviceStateReceiver != null)
             mDeviceStateReceiver.userPause(shouldBePaused);
@@ -423,6 +429,20 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return getManagement().stopVPN(replaceConnection);
         else
             return false;
+    }
+
+    /**
+     * used in Bitmask
+     */
+    @Override
+    public boolean isVpnRunning() {
+        boolean hasVPNProcessThread = false;
+        synchronized (mProcessLock) {
+            hasVPNProcessThread = mProcessThread != null && mProcessThread.isAlive();
+        }
+
+        return hasVPNProcessThread;
+
     }
 
     @Override

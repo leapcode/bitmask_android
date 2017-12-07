@@ -76,5 +76,10 @@
     <string name="signingup_message">is being registered.</string>
     <string name="vpn.button.turn.on">Turn on</string>
     <string name="vpn.button.turn.off">Turn off</string>
+    <string name="vpn_button_turn_off_blocking">Stop blocking</string>
     <string name="bitmask_log">Bitmask Log</string>
+    <string name="void_vpn_establish">Bitmask blocks all outgoing internet traffic.</string>
+    <string name="void_vpn_error_establish">Failed to establish blocking VPN.</string>
+    <string name="void_vpn_stopped">Stopped blocking all outgoing internet traffic.</string>
+    <string name="void_vpn_title">Blocking traffic</string>
 </resources>

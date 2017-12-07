@@ -19,6 +19,7 @@ package se.leap.bitmaskclient.eip;
 import android.app.*;
 import android.content.*;
 import android.os.*;
+import android.util.Log;
 
 import org.json.*;
 
@@ -57,7 +58,6 @@ public final class EIP extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-
         context = getApplicationContext();
         preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
         eip_definition = eipDefinitionFromPreferences();
@@ -72,6 +72,8 @@ public final class EIP extends IntentService {
 
         if (action.equals(ACTION_START_EIP))
             startEIP();
+        else if (action.equals(ACTION_START_ALWAYS_ON_EIP))
+            startAlwaysOnEIP();
         else if (action.equals(ACTION_STOP_EIP))
             stopEIP();
         else if (action.equals(ACTION_IS_EIP_RUNNING))
@@ -88,9 +90,12 @@ public final class EIP extends IntentService {
      * It also sets up early routes.
      */
     private void startEIP() {
+        Log.d(TAG, "startEIP vpn");
         if (gateways_manager.isEmpty())
             updateEIPService();
-        earlyRoutes();
+        if (!EipStatus.getInstance().isBlockingVpnEstablished())  {
+            earlyRoutes();
+        }
 
         gateway = gateways_manager.select();
         if (gateway != null && gateway.getProfile() != null) {
@@ -99,6 +104,27 @@ public final class EIP extends IntentService {
             tellToReceiver(ACTION_START_EIP, Activity.RESULT_OK);
         } else
             tellToReceiver(ACTION_START_EIP, Activity.RESULT_CANCELED);
+    }
+
+    /**
+     * Tries to start the last used vpn profile when the OS was rebooted and always-on-VPN is enabled.
+     * The {@link OnBootReceiver} will care if there is no profile.
+     */
+    private void startAlwaysOnEIP() {
+        Log.d(TAG, "startAlwaysOnEIP vpn");
+
+        if (gateways_manager.isEmpty())
+            updateEIPService();
+
+        gateway = gateways_manager.select();
+
+        if (gateway != null && gateway.getProfile() != null) {
+            //mReceiver = VpnFragment.getReceiver();
+            Log.d(TAG, "startAlwaysOnEIP eip launch avtive gateway vpn");
+            launchActiveGateway();
+        } else {
+            Log.d(TAG, "startAlwaysOnEIP no active profile available!");
+        }
     }
 
     /**
