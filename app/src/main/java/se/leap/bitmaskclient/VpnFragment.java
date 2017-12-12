@@ -67,7 +67,7 @@ public class VpnFragment extends Fragment implements Observer {
     @InjectView(R.id.vpn_main_button)
     Button main_button;
 
-    private static Dashboard dashboard;
+    private Dashboard dashboard;
     private static EIPReceiver eip_receiver;
     private static EipStatus eip_status;
     private boolean wants_to_connect;
@@ -143,8 +143,7 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     private void saveStatus(boolean restartOnBoot) {
-        //boolean is_on = eip_status.isConnected() || eip_status.isConnecting() || eip_status.isBlocking();
-        Dashboard.preferences.edit().putBoolean(Constants.RESTART_ON_BOOT, restartOnBoot).commit();
+        Dashboard.preferences.edit().putBoolean(Constants.RESTART_ON_BOOT, restartOnBoot).apply();
     }
 
     @OnClick(R.id.vpn_main_button)
@@ -153,8 +152,6 @@ public class VpnFragment extends Fragment implements Observer {
             handleSwitchOff();
         else
             handleSwitchOn();
-        //FIXME ONBOOT IS BROKEN!
-        saveStatus(eip_status.isConnected() || eip_status.isConnecting());
     }
 
     private void handleSwitchOn() {
@@ -189,9 +186,6 @@ public class VpnFragment extends Fragment implements Observer {
             askPendingStartCancellation();
         } else if (eip_status.isConnected()) {
             askToStopEIP();
-        } else if (eip_status.isBlocking()) {
-            //FIXME DEAD CODE
-            stop();
         } else {
             updateIcon();
         }
@@ -217,13 +211,12 @@ public class VpnFragment extends Fragment implements Observer {
 
     public void startEipFromScratch() {
         wants_to_connect = false;
-        //eip_status.setEipLevel(BLOCKING);
-
         saveStatus(true);
         eipCommand(Constants.ACTION_START_EIP);
     }
 
     private void stop() {
+        saveStatus(false);
         if (eip_status.isBlockingVpnEstablished()) {
             stopBlockingVpn();
         }
