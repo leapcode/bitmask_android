@@ -3,17 +3,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:background="@color/colorBackground"
         tools:context="se.leap.bitmaskclient.NavigationDrawerFragment">
 
     <ImageView android:id="@+id/imageView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/ic_colorsquare"
         android:src="@drawable/mask" />
 
     <ListView android:id="@+id/accountList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#cccc"
         android:choiceMode="singleChoice"
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp">
