@@ -31,6 +31,8 @@ public interface Constants {
     public final static String ACTION_STOP_EIP = TAG + ".STOP_EIP";
     public final static String ACTION_UPDATE_EIP_SERVICE = TAG + ".UPDATE_EIP_SERVICE";
     public final static String ACTION_IS_EIP_RUNNING = TAG + ".IS_RUNNING";
+    public final static String ACTION_START_BLOCKING_VPN = TAG + ".ACTION_START_BLOCKING_VPN";
+    public final static String ACTION_STOP_BLOCKING_VPN = TAG + ".ACTION_STOP_BLOCKING_VPN";
     public final static String EIP_NOTIFICATION = TAG + ".EIP_NOTIFICATION";
     public final static String ALLOWED_ANON = "allow_anonymous";
     public final static String ALLOWED_REGISTERED = "allow_registration";
@@ -39,7 +41,6 @@ public interface Constants {
     public final static String KEY = TAG + ".KEY";
     public final static String RECEIVER_TAG = TAG + ".RECEIVER_TAG";
     public final static String REQUEST_TAG = TAG + ".REQUEST_TAG";
-    public final static String START_BLOCKING_VPN_PROFILE = TAG + ".START_BLOCKING_VPN_PROFILE";
     public final static String PROVIDER_CONFIGURED = TAG + ".PROVIDER_CONFIGURED";
     public final static String IS_ALWAYS_ON = TAG + ".IS_ALWAYS_ON";
     public final static String RESTART_ON_BOOT = TAG + ".RESTART_ON_BOOT";

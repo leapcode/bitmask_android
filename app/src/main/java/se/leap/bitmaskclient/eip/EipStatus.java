@@ -66,12 +66,17 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
     @Override
     public void updateState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
+        ConnectionStatus tmp = current_status.getLevel();
         current_status = getInstance();
         current_status.setState(state);
         current_status.setLogMessage(logmessage);
         current_status.setLocalizedResId(localizedResId);
         current_status.setLevel(level);
         current_status.setEipLevel(level);
+        if (tmp != current_status.getLevel()) {
+            current_status.setChanged();
+            current_status.notifyObservers();
+        }
     }
 
     @Override
@@ -80,7 +85,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
 
     private void setEipLevel(ConnectionStatus level) {
-        EipLevel tmp = current_eip_level;
         switch (level) {
             case LEVEL_CONNECTED:
                 current_eip_level = EipLevel.CONNECTED;
@@ -105,10 +109,6 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
                 current_eip_level = EipLevel.UNKNOWN; //??
                 break;
         }
-        if (tmp != current_eip_level) {
-            current_status.setChanged();
-            current_status.notifyObservers();
-        }
     }
 
     @VisibleForTesting
@@ -117,8 +117,8 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     /**
-     * This method intends to ignore states that are valid for less than a second.
-     * This way flickering UI changes can be avoided
+     * This is a debouncing method ignoring states that are valid for less than a second.
+     * This way flickering UI changes can be avoided.
      *
      * @param futureLevel
      */

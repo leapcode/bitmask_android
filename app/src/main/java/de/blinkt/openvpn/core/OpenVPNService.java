@@ -243,8 +243,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             //noinspection NewApi
             nbuilder.setChannelId(channel);
             if (mProfile != null)
-             //noinspection NewApi
-            nbuilder.setShortcutId(mProfile.getUUIDString());
+                //noinspection NewApi
+                nbuilder.setShortcutId(mProfile.getUUIDString());
 
         }
 

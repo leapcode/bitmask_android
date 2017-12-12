@@ -35,15 +35,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Observable;
 import java.util.Observer;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
@@ -55,11 +52,7 @@ import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VoidVpnService;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
-import static se.leap.bitmaskclient.eip.EipStatus.EipLevel.BLOCKING;
-import static se.leap.bitmaskclient.eip.EipStatus.EipLevel.CONNECTED;
-import static se.leap.bitmaskclient.eip.EipStatus.EipLevel.CONNECTING;
-import static se.leap.bitmaskclient.eip.EipStatus.EipLevel.DISCONNECTED;
-import static se.leap.bitmaskclient.eip.EipStatus.EipLevel.DISCONNECTING;
+import static se.leap.bitmaskclient.eip.Constants.ACTION_STOP_BLOCKING_VPN;
 
 public class VpnFragment extends Fragment implements Observer {
 
@@ -160,7 +153,7 @@ public class VpnFragment extends Fragment implements Observer {
             handleSwitchOff();
         else
             handleSwitchOn();
-
+        //FIXME ONBOOT IS BROKEN!
         saveStatus(eip_status.isConnected() || eip_status.isConnecting());
     }
 
@@ -197,6 +190,7 @@ public class VpnFragment extends Fragment implements Observer {
         } else if (eip_status.isConnected()) {
             askToStopEIP();
         } else if (eip_status.isBlocking()) {
+            //FIXME DEAD CODE
             stop();
         } else {
             updateIcon();
@@ -230,12 +224,17 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     private void stop() {
-
         if (eip_status.isBlockingVpnEstablished()) {
-            Log.d(TAG, "stop VoidVpn!");
-            VoidVpnService.stop();
+            stopBlockingVpn();
         }
         disconnect();
+    }
+
+    private void stopBlockingVpn() {
+        Log.d(TAG, "stop VoidVpn!");
+        Intent stopVoidVpnIntent = new Intent(dashboard, VoidVpnService.class);
+        stopVoidVpnIntent.setAction(ACTION_STOP_BLOCKING_VPN);
+        dashboard.startService(stopVoidVpnIntent);
     }
 
     private void disconnect() {

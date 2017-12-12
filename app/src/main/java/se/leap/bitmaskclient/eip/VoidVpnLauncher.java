@@ -28,8 +28,12 @@ public class VoidVpnLauncher extends Activity {
         if (requestCode == VPN_USER_PERMISSION) {
             if (resultCode == RESULT_OK) {
                 Intent void_vpn_service = new Intent(getApplicationContext(), VoidVpnService.class);
-                void_vpn_service.setAction(Constants.START_BLOCKING_VPN_PROFILE);
-                startService(void_vpn_service);
+                void_vpn_service.setAction(Constants.ACTION_START_BLOCKING_VPN);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(void_vpn_service);
+                } else {
+                    startService(void_vpn_service);
+                }
             }
         }
         finish();
