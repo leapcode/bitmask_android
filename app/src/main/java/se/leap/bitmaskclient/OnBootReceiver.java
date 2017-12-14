@@ -19,16 +19,16 @@ public class OnBootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Context.MODE_PRIVATE);
-        boolean provider_configured = !preferences.getString(VPN_CERTIFICATE, "").isEmpty();
-        boolean start_on_boot = preferences.getBoolean(RESTART_ON_BOOT, false);
+        boolean providerConfigured = !preferences.getString(VPN_CERTIFICATE, "").isEmpty();
+        boolean startOnBoot = preferences.getBoolean(RESTART_ON_BOOT, false);
         boolean isAlwaysOnConfigured = preferences.getBoolean(IS_ALWAYS_ON, false);
-        Log.d("OpenVPN", "OpenVPN onBoot intent received. Provider configured? " + provider_configured + "  Start on boot? " + start_on_boot + "  isAlwaysOn feature configured: " + isAlwaysOnConfigured);
-        if (provider_configured) {
+        Log.d("OpenVPN", "OpenVPN onBoot intent received. Provider configured? " + providerConfigured + "  Start on boot? " + startOnBoot + "  isAlwaysOn feature configured: " + isAlwaysOnConfigured);
+        if (providerConfigured) {
             if (isAlwaysOnConfigured) {
                 //exit because the app is already setting up the vpn
                 return;
             }
-            if (start_on_boot) {
+            if (startOnBoot) {
                 Intent dashboard_intent = new Intent(context, Dashboard.class);
                 dashboard_intent.putExtra(RESTART_ON_BOOT, true);
                 dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
