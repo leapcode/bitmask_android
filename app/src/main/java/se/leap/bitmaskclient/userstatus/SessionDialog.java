@@ -60,8 +60,6 @@ public class SessionDialog extends DialogFragment {
     @InjectView(R.id.password_entered)
     EditText password_field;
 
-    private static boolean is_eip_pending = false;
-
     public static SessionDialog getInstance(Provider provider, Bundle arguments) {
         SessionDialog dialog = new SessionDialog();
         if (provider.getName().equalsIgnoreCase("riseup")) {
@@ -100,7 +98,6 @@ public class SessionDialog extends DialogFragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
-                        interface_with_Dashboard.cancelLoginOrSignup();
                     }
                 })
                 .setNeutralButton(R.string.signup_button, new DialogInterface.OnClickListener() {
@@ -116,7 +113,6 @@ public class SessionDialog extends DialogFragment {
     }
 
     private void setUp(Bundle arguments) {
-        is_eip_pending = arguments.getBoolean(VpnFragment.IS_PENDING, false);
         if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
             password_field.setError(getString(R.string.error_not_valid_password_user_message));
         else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
@@ -159,8 +155,7 @@ public class SessionDialog extends DialogFragment {
         public void logIn(String username, String password);
 
         public void signUp(String username, String password);
-        //FIXME: can we remove this method?
-        public void cancelLoginOrSignup();
+
     }
 
     SessionDialogInterface interface_with_Dashboard;
@@ -177,10 +172,4 @@ public class SessionDialog extends DialogFragment {
         }
     }
 
-    @Override
-    public void onCancel(DialogInterface dialog) {
-        super.onCancel(dialog);
-        if (is_eip_pending)
-            interface_with_Dashboard.cancelLoginOrSignup();
-    }
 }

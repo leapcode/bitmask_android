@@ -137,7 +137,6 @@ public class VpnFragment extends Fragment implements Observer {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean(IS_PENDING, eip_status.isConnecting());
         outState.putBoolean(IS_CONNECTED, eip_status.isConnected());
         super.onSaveInstanceState(outState);
     }
@@ -160,7 +159,6 @@ public class VpnFragment extends Fragment implements Observer {
         else if (canLogInToStartEIP()) {
             wants_to_connect = true;
             Bundle bundle = new Bundle();
-            bundle.putBoolean(IS_PENDING, true);
             dashboard.sessionDialog(bundle);
         } else {
             Log.d(TAG, "WHAT IS GOING ON HERE?!");
