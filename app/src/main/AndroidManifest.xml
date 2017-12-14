@@ -115,9 +115,11 @@
         
         <service android:name="se.leap.bitmaskclient.eip.EIP" android:exported="false">
             <intent-filter>
-                <action android:name="se.leap.bitmaskclient.eip.UPDATE_EIP_SERVICE"/>
-                <action android:name="se.leap.bitmaskclient.eip.START_EIP"/>
-                <action android:name="se.leap.bitmaskclient.eip.STOP_EIP"/>
+                <action android:name="se.leap.bitmaskclient.EIP.UPDATE"/>
+                <action android:name="se.leap.bitmaskclient.EIP.START"/>
+                <action android:name="se.leap.bitmaskclient.EIP.STOP"/>
+                <action android:name="se.leap.bitmaskclient.START_ALWAYS_ON_EIP"/>
+                <action android:name="se.leap.bitmaskclient.EIP.IS_RUNNING"/>
             </intent-filter>
         </service>
     </application>

@@ -2,7 +2,7 @@ package se.leap.bitmaskclient.test;
 
 import java.io.*;
 
-import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.R;
 
 public class TestDashboardIntegration extends BaseTestDashboardFragment {
 
