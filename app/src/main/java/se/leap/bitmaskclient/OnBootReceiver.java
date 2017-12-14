@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import static android.content.Intent.ACTION_BOOT_COMPLETED;
 import static se.leap.bitmaskclient.eip.Constants.IS_ALWAYS_ON;
 import static se.leap.bitmaskclient.eip.Constants.RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.eip.Constants.VPN_CERTIFICATE;
@@ -14,10 +15,13 @@ public class OnBootReceiver extends BroadcastReceiver {
 
     SharedPreferences preferences;
 
-
     // Debug: su && am broadcast -a android.intent.action.BOOT_COMPLETED
     @Override
     public void onReceive(Context context, Intent intent) {
+        //Lint complains if we're not checking the intent action
+        if (intent == null || !ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            return;
+        }
         preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Context.MODE_PRIVATE);
         boolean providerConfigured = !preferences.getString(VPN_CERTIFICATE, "").isEmpty();
         boolean startOnBoot = preferences.getBoolean(RESTART_ON_BOOT, false);
