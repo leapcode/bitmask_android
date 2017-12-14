@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity
                 mTitle = getString(R.string.title_section3);
                 break;
             default:
-                mTitle = getString(R.string.title_log_fragment);
+                mTitle = getString(R.string.log_fragment_title);
                 break;
         }
         restoreActionBar();
