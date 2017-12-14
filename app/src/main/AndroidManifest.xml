@@ -68,15 +68,9 @@
         <activity
             android:name=".eip.VoidVpnLauncher"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <activity android:name="de.blinkt.openvpn.activities.DisconnectVPN" />
         <activity
             android:name="de.blinkt.openvpn.LaunchVPN"
             android:label="@string/vpn_launch_title"></activity>
-        <activity
-            android:name="de.blinkt.openvpn.activities.LogWindow"
-            android:allowTaskReparenting="true"
-            android:label="@string/bitmask_log"
-            android:launchMode="singleTask" />
         <activity
             android:name=".Dashboard"
             android:label="@string/app_name"

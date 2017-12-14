@@ -3,14 +3,13 @@
  * Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
  */
 
-package de.blinkt.openvpn.fragments;
+package se.leap.bitmaskclient.fragments;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListFragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -23,9 +22,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ListFragment;
+import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.format.DateFormat;
 import android.text.style.ImageSpan;
@@ -54,22 +54,21 @@ import java.util.Locale;
 import java.util.Vector;
 
 import de.blinkt.openvpn.LaunchVPN;
-import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.core.ConnectionStatus;
+import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.OpenVPNManagement;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
-import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.VpnStatus.LogListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.NavigationDrawerFragment;
+import se.leap.bitmaskclient.R;
 
 import static de.blinkt.openvpn.core.OpenVPNService.humanReadableByteCount;
-
-import se.leap.bitmaskclient.Dashboard;
 
 public class LogFragment extends ListFragment implements StateListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, VpnStatus.ByteCountListener {
     private static final String LOGTIMEFORMAT = "logtimeformat";
@@ -428,10 +427,6 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
         if (item.getItemId() == R.id.clearlog) {
             ladapter.clearLog();
             return true;
-        } else if (item.getItemId() == R.id.cancel) {
-            Intent intent = new Intent(getActivity(), DisconnectVPN.class);
-            startActivity(intent);
-            return true;
         } else if (item.getItemId() == R.id.send) {
             ladapter.shareLog();
         } else if (item.getItemId() == R.id.edit_vpn) {
@@ -495,7 +490,7 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.logmenu, menu);
+        inflater.inflate(R.menu.f_log, menu);
         if (getResources().getBoolean(R.bool.logSildersAlwaysVisible))
             menu.removeItem(R.id.toggle_time);
     }
@@ -583,7 +578,7 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.log_fragment, container, false);
+        View v = inflater.inflate(R.layout.f_log, container, false);
 
         setHasOptionsMenu(true);
 
@@ -654,8 +649,6 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 

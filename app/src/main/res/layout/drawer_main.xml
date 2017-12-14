@@ -17,7 +17,7 @@
             android:layout_height="match_parent"
             android:adjustViewBounds="false"
             android:cropToPadding="false"
-            android:scaleType="fitStart"
+            android:scaleType="fitXY"
             app:srcCompat="@drawable/ic_colorsquare" />
 
         <android.support.v7.widget.AppCompatImageView
@@ -32,9 +32,21 @@
 
     </FrameLayout>
 
-    <ListView
-        android:id="@+id/accountList"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@+id/accountList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/appActionFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </LinearLayout>
