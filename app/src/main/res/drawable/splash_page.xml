@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
  <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
- <item android:drawable="@drawable/ic_colorsquare"
+ <item android:drawable="@drawable/ic_splash_background"
      android:gravity="fill_horizontal|fill_vertical"/>
 
- <item android:drawable="@drawable/mask"
-     android:gravity="center" >
+ <item>
+  <bitmap
+      android:src="@drawable/mask"
+      android:gravity="center" />
  </item>
 
 </layer-list>
