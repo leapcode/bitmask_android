@@ -1,20 +1,4 @@
-/**
- * Copyright (c) 2013 LEAP Encryption Access Project and contributers
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
+/*
  * Copyright (c) 2013 LEAP Encryption Access Project and contributers
  *
  * This program is free software: you can redistribute it and/or modify
@@ -57,8 +41,6 @@ import java.net.URL;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.eip.Constants;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
@@ -76,7 +58,6 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     protected static final int SWITCH_PROVIDER = 1;
 
     public static final String TAG = Dashboard.class.getSimpleName();
-    public static final String SHARED_PREFERENCES = "LEAPPreferences";
     public static final String ACTION_QUIT = "quit";
     public static final String ACTION_ASK_TO_CANCEL_VPN = "ask to cancel vpn";
     public static final String REQUEST_CODE = "request_code";
@@ -84,7 +65,6 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     public static final String START_ON_BOOT = "dashboard start on boot";
     //FIXME: remove OR FIX ON_BOOT
     public static final String ON_BOOT = "dashboard on boot";
-    public static final String APP_VERSION = "bitmask version";
 
     private static Context app;
     protected static SharedPreferences preferences;
@@ -102,18 +82,14 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 
-        ProviderAPICommand.initialize(this);
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
 
         if (app == null) {
             app = this;
-
-            VpnStatus.initLogCache(getApplicationContext().getCacheDir());
             handleVersion();
-            User.init(getString(R.string.default_username));
         }
         boolean provider_exists = previousProviderExists(savedInstanceState);
         if (provider_exists) {
@@ -179,13 +155,11 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     private void handleVersion() {
         try {
             int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-            int lastDetectedVersion = preferences.getInt(APP_VERSION, 0);
-            preferences.edit().putInt(APP_VERSION, versionCode).apply();
 
             switch (versionCode) {
                 case 91: // 0.6.0 without Bug #5999
                 case 101: // 0.8.0
-                    if (!preferences.getString(Constants.KEY, "").isEmpty())
+                    if (!preferences.getString(Constants.PROVIDER_KEY, "").isEmpty())
                         eip_fragment.updateEipService();
                     break;
             }
@@ -341,7 +315,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
     public void downloadVpnCertificate() {
         boolean is_authenticated = User.loggedIn();
-        boolean allowed_anon = preferences.getBoolean(Constants.ALLOWED_ANON, false);
+        boolean allowed_anon = preferences.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, false);
         if (allowed_anon || is_authenticated)
             ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_CERTIFICATE, providerAPI_result_receiver);
         else
