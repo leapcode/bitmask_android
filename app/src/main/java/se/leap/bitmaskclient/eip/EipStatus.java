@@ -47,7 +47,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
      * openvpn.
      */
     private ConnectionStatus vpn_level = ConnectionStatus.LEVEL_NOTCONNECTED;
-    private EipLevel current_eip_level = EipLevel.DISCONNECTED;
+    private static EipLevel current_eip_level = EipLevel.DISCONNECTED;
 
     int last_error_line = 0;
     private String state, log_message;
@@ -126,7 +126,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         new DelayTask(current_status.getLevel(), futureLevel).execute();
     }
 
-    private class DelayTask extends AsyncTask<Void, Void, Void> {
+    private static class DelayTask extends AsyncTask<Void, Void, Void> {
 
         private final ConnectionStatus currentLevel;
         private final ConnectionStatus futureLevel;
