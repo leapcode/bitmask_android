@@ -25,7 +25,7 @@ import org.json.*;
 import java.io.IOException;
 import java.util.Arrays;
 
-import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.eip.*;
 
 /**
@@ -109,7 +109,7 @@ public class TestGatewaysManager extends InstrumentationTestCase {
 
     private void mockGatewaysManager() {
         context = getInstrumentation().getContext();
-        preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         gateways_manager = new GatewaysManager(context, preferences);
     }
 

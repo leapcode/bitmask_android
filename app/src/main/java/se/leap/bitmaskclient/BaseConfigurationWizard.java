@@ -51,7 +51,6 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
-import se.leap.bitmaskclient.eip.Constants;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 import static android.view.View.GONE;
@@ -134,7 +133,7 @@ public abstract class BaseConfigurationWizard extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(Dashboard.SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
         provider_manager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
 
@@ -220,7 +219,7 @@ public abstract class BaseConfigurationWizard extends Activity
                 e.printStackTrace();
             }
 
-            if (preferences.getBoolean(Constants.ALLOWED_ANON, false)) {
+            if (preferences.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, false)) {
                 mConfigState.putExtra(SERVICES_RETRIEVED, true);
 
                 downloadVpnCertificate();
@@ -297,7 +296,7 @@ public abstract class BaseConfigurationWizard extends Activity
     public void cancelSettingUpProvider() {
         mConfigState.setAction(PROVIDER_NOT_SET);
         adapter.showAllProviders();
-        preferences.edit().remove(Provider.KEY).remove(Constants.ALLOWED_ANON).remove(Constants.KEY).apply();
+        preferences.edit().remove(Provider.KEY).remove(Constants.PROVIDER_ALLOW_ANONYMOUS).remove(Constants.PROVIDER_KEY).apply();
     }
 
     private void askDashboardToQuitApp() {
