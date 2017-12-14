@@ -1,11 +1,12 @@
 package se.leap.bitmaskclient.eip;
 
-import android.app.*;
-import android.content.*;
-import android.net.*;
-import android.os.*;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.VpnService;
+import android.os.Build;
+import android.os.Bundle;
 
-import se.leap.bitmaskclient.Constants;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_BLOCKING_VPN;
 
 public class VoidVpnLauncher extends Activity {
 
@@ -30,8 +31,12 @@ public class VoidVpnLauncher extends Activity {
         if (requestCode == VPN_USER_PERMISSION) {
             if (resultCode == RESULT_OK) {
                 Intent void_vpn_service = new Intent(getApplicationContext(), VoidVpnService.class);
-                void_vpn_service.setAction(Constants.EIP_ACTION_BLOCK_VPN_PROFILE);
-                startService(void_vpn_service);
+                void_vpn_service.setAction(EIP_ACTION_START_BLOCKING_VPN);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(void_vpn_service);
+                } else {
+                    startService(void_vpn_service);
+                }
             }
         }
         finish();

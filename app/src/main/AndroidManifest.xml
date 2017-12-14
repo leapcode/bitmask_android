@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
      Copyright (C) 2011 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
@@ -103,6 +104,11 @@
                 <action android:name="se.leap.bitmaskclient.eip.UPDATE_EIP_SERVICE" />
                 <action android:name="se.leap.bitmaskclient.eip.START_EIP" />
                 <action android:name="se.leap.bitmaskclient.eip.STOP_EIP" />
+                <action android:name="se.leap.bitmaskclient.EIP.UPDATE"/>
+                <action android:name="se.leap.bitmaskclient.EIP.START"/>
+                <action android:name="se.leap.bitmaskclient.EIP.STOP"/>
+                <action android:name="se.leap.bitmaskclient.START_ALWAYS_ON_EIP"/>
+                <action android:name="se.leap.bitmaskclient.EIP.IS_RUNNING"/>
             </intent-filter>
         </service>
 

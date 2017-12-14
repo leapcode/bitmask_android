@@ -4,7 +4,7 @@ import android.view.*;
 
 import com.robotium.solo.*;
 
-import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.R;
 
 import static junit.framework.Assert.assertTrue;
 

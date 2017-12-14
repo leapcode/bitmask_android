@@ -45,6 +45,9 @@ import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
 
+import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
+import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
+
 /**
  * The main user facing Activity of Bitmask Android, consisting of status, controls,
  * and access to preferences.
@@ -59,14 +62,23 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
     public static final String TAG = Dashboard.class.getSimpleName();
     public static final String ACTION_QUIT = "quit";
+
+    /**
+     * When "Disconnect" is clicked from the notification this extra gets added to the calling intent.
+     */
     public static final String ACTION_ASK_TO_CANCEL_VPN = "ask to cancel vpn";
+    /**
+     * if always-on feature is enabled, but there's no provider configured the EIP Service
+     * adds this intent extra. ACTION_CONFIGURE_ALWAYS_ON_PROFILE
+     * serves to start the Configuration Wizard on top of the Dashboard Activity.
+     */
+    public static final String ACTION_CONFIGURE_ALWAYS_ON_PROFILE = "configure always-on profile";
     public static final String REQUEST_CODE = "request_code";
     public static final String PARAMETERS = "dashboard parameters";
-    public static final String START_ON_BOOT = "dashboard start on boot";
-    //FIXME: remove OR FIX ON_BOOT
-    public static final String ON_BOOT = "dashboard on boot";
+    public static final String APP_VERSION = "bitmask version";
 
-    private static Context app;
+    //FIXME: context classes in static fields lead to memory leaks!
+    private static Context dashboardContext;
     protected static SharedPreferences preferences;
     private FragmentManagerEnhanced fragment_manager;
 
@@ -87,28 +99,18 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
 
-        if (app == null) {
-            app = this;
+        if (dashboardContext == null) {
+            dashboardContext = this;
             handleVersion();
         }
-        boolean provider_exists = previousProviderExists(savedInstanceState);
-        if (provider_exists) {
-            provider = getProvider(savedInstanceState);
-            if(!provider.isConfigured())
-                startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
-            else {
-                buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
-                user_status_fragment.restoreSessionStatus(savedInstanceState);
-            }
-        } else {
-            startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
-        }
+
+        prepareEIP(savedInstanceState);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        handleVPNCancellation(getIntent());
+        handleVpnCancellation(getIntent());
     }
 
     private boolean previousProviderExists(Bundle savedInstanceState) {
@@ -172,7 +174,19 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        handleVPNCancellation(intent);
+        handleIntentExtras(intent);
+    }
+
+    private void handleIntentExtras(Intent intent) {
+        if (intent.hasExtra(ACTION_ASK_TO_CANCEL_VPN)) {
+            handleVpnCancellation(intent);
+        } else if (intent.hasExtra(EIP_RESTART_ON_BOOT)) {
+            Log.d(TAG, "Dashboard: EIP_RESTART_ON_BOOT");
+            prepareEIP(null);
+        } else if (intent.hasExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+            Log.d(TAG, "Dashboard: ACTION_CONFIGURE_ALWAYS_ON_PROFILE");
+            handleConfigureAlwaysOn(getIntent());
+        }
     }
 
     @Override
@@ -195,15 +209,44 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         }
     }
 
-    private void handleVPNCancellation(Intent intent) {
+    private void handleVpnCancellation(Intent intent) {
         if (intent.hasExtra(Dashboard.ACTION_ASK_TO_CANCEL_VPN)) {
             eip_fragment.askToStopEIP();
             intent.removeExtra(ACTION_ASK_TO_CANCEL_VPN);
         }
     }
 
+    private void handleConfigureAlwaysOn(Intent intent) {
+            intent.removeExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
+            Log.d(TAG, "start Configuration wizard!");
+            startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
+    }
+
+    private void prepareEIP(Bundle savedInstanceState) {
+        boolean provider_exists = previousProviderExists(savedInstanceState);
+        if (provider_exists) {
+            provider = getProvider(savedInstanceState);
+            if(!provider.isConfigured()) {
+                configureLeapProvider();
+            } else {
+                Log.d(TAG, "vpn provider is configured");
+                buildDashboard(getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false));
+                user_status_fragment.restoreSessionStatus(savedInstanceState);
+            }
+        } else {
+            configureLeapProvider();
+        }
+    }
+
+    private void configureLeapProvider() {
+        if (getIntent().hasExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+            getIntent().removeExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
+        }
+        startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
+    }
     @SuppressLint("CommitPrefEdits")
     private void providerToPreferences(Provider provider) {
+        //FIXME: figure out why .commit() is used and try refactor that cause, currently runs on UI thread
         preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).commit();
         preferences.edit().putString(Provider.MAIN_URL, provider.mainUrl().toString()).apply();
         preferences.edit().putString(Provider.KEY, provider.definition().toString()).apply();
@@ -235,7 +278,10 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
      * Inflates permanent UI elements of the View and contains logic for what
      * service dependent UI elements to include.
      */
-    private void buildDashboard(boolean hide_and_turn_on_eip) {
+    //TODO: REFACTOR ME! Consider implementing a manager that handles most of VpnFragment's logic about handling EIP commands.
+    //This way, we could avoid to create UI elements (like fragment_manager.replace(R.id.servicesCollection, eip_fragment, VpnFragment.TAG); )
+    // just to start services and destroy them afterwards
+    private void buildDashboard(boolean hideAndTurnOnEipOnBoot) {
         setContentView(R.layout.dashboard);
         ButterKnife.inject(this);
 
@@ -249,23 +295,42 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
         if (provider.hasEIP()) {
             fragment_manager.removePreviousFragment(VpnFragment.TAG);
-            eip_fragment = new VpnFragment();
-
-            if (hide_and_turn_on_eip) {
-                //TODO: remove line below if not in use anymore...
-                preferences.edit().remove(Dashboard.START_ON_BOOT).apply();
-                //FIXME: always start on Boot? Why do we keep shared preferences then?
-                Bundle arguments = new Bundle();
-                arguments.putBoolean(VpnFragment.START_ON_BOOT, true);
-                if (eip_fragment != null) eip_fragment.setArguments(arguments);
-            }
-
+            eip_fragment = prepareEipFragment(hideAndTurnOnEipOnBoot);
             fragment_manager.replace(R.id.servicesCollection, eip_fragment, VpnFragment.TAG);
-            if (hide_and_turn_on_eip) {
+            if (hideAndTurnOnEipOnBoot) {
                 onBackPressed();
             }
         }
     }
+
+    /**
+     *
+     * @param hideAndTurnOnEipOnBoot Flag that indicates if system intent android.intent.action.BOOT_COMPLETED
+     *                               has caused to start Dashboard
+     * @return
+     */
+    private VpnFragment prepareEipFragment(boolean hideAndTurnOnEipOnBoot) {
+        VpnFragment eip_fragment = new VpnFragment();
+
+        if (hideAndTurnOnEipOnBoot && !isAlwaysOn()) {
+            preferences.edit().remove(EIP_RESTART_ON_BOOT).apply();
+            Bundle arguments = new Bundle();
+            arguments.putBoolean(VpnFragment.START_EIP_ON_BOOT, true);
+            Log.d(TAG, "set START_EIP_ON_BOOT argument for eip_fragment");
+            eip_fragment.setArguments(arguments);
+
+        }
+        return eip_fragment;
+    }
+
+    /**
+     * checks if Android's VPN feature 'always-on' is enabled for Bitmask
+     * @return
+     */
+    private boolean isAlwaysOn() {
+        return  preferences.getBoolean(EIP_IS_ALWAYS_ON, false);
+    }
+
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -369,7 +434,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     }
 
     public static Context getContext() {
-        return app;
+        return dashboardContext;
     }
 
     public static Provider getProvider() { return provider; }
