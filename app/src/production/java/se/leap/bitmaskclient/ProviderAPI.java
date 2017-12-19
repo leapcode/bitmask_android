@@ -53,7 +53,7 @@ public class ProviderAPI extends ProviderApiBase {
 
     /**
      * Downloads a provider.json from a given URL, adding a new provider using the given name.
-     *
+     */
      * @param task containing a boolean meaning if the provider is custom or not, another boolean meaning if the user completely trusts this provider, the provider name and its provider.json url.
      * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if the update was successful.
      */
@@ -224,7 +224,7 @@ public class ProviderAPI extends ProviderApiBase {
         String[] pins = new String[] {ca_cert_fingerprint};
         try {
             URL url = new URL(url_string);
-            HttpsURLConnection connection = PinningHelper.getPinnedHttpsURLConnection(Dashboard.getContext(), pins, url);
+            HttpsURLConnection connection = PinningHelper.getPinnedHttpsURLConnection(getApplicationContext(), pins, url);
             connection.setConnectTimeout(seconds_of_timeout * 1000);
             if (!LeapSRPSession.getToken().isEmpty())
                 connection.addRequestProperty(LeapSRPSession.AUTHORIZATION_HEADER, "Token token=" + LeapSRPSession.getToken());

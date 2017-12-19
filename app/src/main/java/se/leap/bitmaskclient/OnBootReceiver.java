@@ -41,7 +41,7 @@ public class OnBootReceiver extends BroadcastReceiver {
         } else {
             if (isAlwaysOnConfigured) {
                 Intent dashboard_intent = new Intent(context, Dashboard.class);
-                dashboard_intent.putExtra(Dashboard.ACTION_CONFIGURE_ALWAYS_ON_PROFILE, true);
+                dashboard_intent.putExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE, true);
                 dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(dashboard_intent);
             }

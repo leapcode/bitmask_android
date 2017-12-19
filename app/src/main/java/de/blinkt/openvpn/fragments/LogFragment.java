@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.text.SpannableString;
@@ -54,29 +53,26 @@ import java.util.Locale;
 import java.util.Vector;
 
 import de.blinkt.openvpn.LaunchVPN;
-import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.core.ConnectionStatus;
+import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.OpenVPNManagement;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
-import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.VpnStatus.LogListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
+import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.R;
 
 import static de.blinkt.openvpn.core.OpenVPNService.humanReadableByteCount;
-
-import se.leap.bitmaskclient.Dashboard;
 
 public class LogFragment extends ListFragment implements StateListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, VpnStatus.ByteCountListener {
     private static final String LOGTIMEFORMAT = "logtimeformat";
     private static final int START_VPN_CONFIG = 0;
     private static final String VERBOSITYLEVEL = "verbositylevel";
-
-
 
     private SeekBar mLogLevelSlider;
     private LinearLayout mOptionsLayout;
@@ -434,16 +430,6 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
             return true;
         } else if (item.getItemId() == R.id.send) {
             ladapter.shareLog();
-        } else if (item.getItemId() == R.id.edit_vpn) {
-            VpnProfile lastConnectedprofile = ProfileManager.get(getActivity(), VpnStatus.getLastConnectedVPNProfile());
-
-            if (lastConnectedprofile != null) {
-                Intent vprefintent = new Intent(getActivity(), Dashboard.class)
-                        .putExtra(VpnProfile.EXTRA_PROFILEUUID, lastConnectedprofile.getUUIDString());
-                startActivityForResult(vprefintent, START_VPN_CONFIG);
-            } else {
-                Toast.makeText(getActivity(), R.string.log_no_last_vpn, Toast.LENGTH_LONG).show();
-            }
         } else if (item.getItemId() == R.id.toggle_time) {
             showHideOptionsPanel();
         } else if (item.getItemId() == android.R.id.home) {

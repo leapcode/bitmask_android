@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,6 +46,8 @@ import se.leap.bitmaskclient.userstatus.UserStatusFragment;
 
 import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
+import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 
 /**
  * The main user facing Activity of Bitmask Android, consisting of status, controls,
@@ -55,13 +56,9 @@ import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author parmegv
  */
-public class Dashboard extends Activity implements ProviderAPIResultReceiver.Receiver {
-
-    protected static final int CONFIGURE_LEAP = 0;
-    protected static final int SWITCH_PROVIDER = 1;
+public class Dashboard extends Activity {
 
     public static final String TAG = Dashboard.class.getSimpleName();
-    public static final String ACTION_QUIT = "quit";
 
     /**
      * When "Disconnect" is clicked from the notification this extra gets added to the calling intent.
@@ -69,39 +66,38 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     public static final String ACTION_ASK_TO_CANCEL_VPN = "ask to cancel vpn";
     /**
      * if always-on feature is enabled, but there's no provider configured the EIP Service
-     * adds this intent extra. ACTION_CONFIGURE_ALWAYS_ON_PROFILE
+     * adds this intent extra. Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE
      * serves to start the Configuration Wizard on top of the Dashboard Activity.
      */
-    public static final String ACTION_CONFIGURE_ALWAYS_ON_PROFILE = "configure always-on profile";
-    public static final String REQUEST_CODE = "request_code";
-    public static final String PARAMETERS = "dashboard parameters";
-    public static final String APP_VERSION = "bitmask version";
 
-    //FIXME: context classes in static fields lead to memory leaks!
-    private static Context dashboardContext;
     protected static SharedPreferences preferences;
-    private FragmentManagerEnhanced fragment_manager;
+    private static FragmentManagerEnhanced fragment_manager;
 
     @InjectView(R.id.providerName)
     TextView provider_name;
 
-    VpnFragment eip_fragment;
-    UserStatusFragment user_status_fragment;
+    private VpnFragment eip_fragment;
+    private UserStatusFragment user_status_fragment;
+
     private static Provider provider = new Provider();
-    public ProviderAPIResultReceiver providerAPI_result_receiver;
-    private boolean switching_provider;
+    public static ProviderAPIResultReceiver providerAPI_result_receiver;
+    private static boolean switching_provider;
+    private boolean handledVersion;
+
+    public static DashboardReceiver dashboardReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        dashboardReceiver = new DashboardReceiver(this);
         preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
+        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), dashboardReceiver);
 
-        if (dashboardContext == null) {
-            dashboardContext = this;
+        if (handledVersion) {
             handleVersion();
+            handledVersion = true;
         }
 
         prepareEIP(savedInstanceState);
@@ -183,15 +179,15 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         } else if (intent.hasExtra(EIP_RESTART_ON_BOOT)) {
             Log.d(TAG, "Dashboard: EIP_RESTART_ON_BOOT");
             prepareEIP(null);
-        } else if (intent.hasExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
-            Log.d(TAG, "Dashboard: ACTION_CONFIGURE_ALWAYS_ON_PROFILE");
+        } else if (intent.hasExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+            Log.d(TAG, "Dashboard: Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE");
             handleConfigureAlwaysOn(getIntent());
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CONFIGURE_LEAP || requestCode == SWITCH_PROVIDER) {
+        if (requestCode == REQUEST_CODE_CONFIGURE_LEAP || requestCode == REQUEST_CODE_SWITCH_PROVIDER) {
             if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
                 provider = data.getParcelableExtra(Provider.KEY);
                 providerToPreferences(provider);
@@ -202,7 +198,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
                     sessionDialog(Bundle.EMPTY);
                 }
 
-            } else if (resultCode == RESULT_CANCELED && data != null && data.hasExtra(ACTION_QUIT)) {
+            } else if (resultCode == RESULT_CANCELED && data != null && data.hasExtra(Constants.APP_ACTION_QUIT)) {
                 finish();
             } else
                 configErrorDialog();
@@ -217,9 +213,9 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     }
 
     private void handleConfigureAlwaysOn(Intent intent) {
-            intent.removeExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
+            intent.removeExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
             Log.d(TAG, "start Configuration wizard!");
-            startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
+            startActivityForResult(new Intent(this, ConfigurationWizard.class), Constants.REQUEST_CODE_CONFIGURE_LEAP);
     }
 
     private void prepareEIP(Bundle savedInstanceState) {
@@ -239,10 +235,10 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     }
 
     private void configureLeapProvider() {
-        if (getIntent().hasExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
-            getIntent().removeExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
+        if (getIntent().hasExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+            getIntent().removeExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
         }
-        startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
+        startActivityForResult(new Intent(this, ConfigurationWizard.class), Constants.REQUEST_CODE_CONFIGURE_LEAP);
     }
     @SuppressLint("CommitPrefEdits")
     private void providerToPreferences(Provider provider) {
@@ -253,7 +249,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     }
 
     private void configErrorDialog() {
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setTitle(getResources().getString(R.string.setup_error_title));
         alertBuilder
                 .setMessage(getResources().getString(R.string.setup_error_text))
@@ -261,7 +257,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
                 .setPositiveButton(getResources().getString(R.string.setup_error_configure_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivityForResult(new Intent(getContext(), ConfigurationWizard.class), CONFIGURE_LEAP);
+                        startActivityForResult(new Intent(getApplicationContext(), ConfigurationWizard.class), Constants.REQUEST_CODE_CONFIGURE_LEAP);
                     }
                 })
                 .setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
@@ -307,7 +303,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
      *
      * @param hideAndTurnOnEipOnBoot Flag that indicates if system intent android.intent.action.BOOT_COMPLETED
      *                               has caused to start Dashboard
-     * @return
+     * @return the created VPNFragment
      */
     private VpnFragment prepareEipFragment(boolean hideAndTurnOnEipOnBoot) {
         VpnFragment eip_fragment = new VpnFragment();
@@ -325,7 +321,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
     /**
      * checks if Android's VPN feature 'always-on' is enabled for Bitmask
-     * @return
+     * @return true if 'always-on' is enabled false if not
      */
     private boolean isAlwaysOn() {
         return  preferences.getBoolean(EIP_IS_ALWAYS_ON, false);
@@ -374,11 +370,13 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     }
 
     public void showLog() {
-        LogWindowWrapper log_window_wrapper = LogWindowWrapper.getInstance(getContext());
+        LogWindowWrapper log_window_wrapper = LogWindowWrapper.getInstance(this);
         log_window_wrapper.showLog();
     }
 
-    public void downloadVpnCertificate() {
+
+    // TODO MOVE TO VPNManager(?)
+    public static void downloadVpnCertificate() {
         boolean is_authenticated = User.loggedIn();
         boolean allowed_anon = preferences.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, false);
         if (allowed_anon || is_authenticated)
@@ -387,7 +385,8 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
             sessionDialog(Bundle.EMPTY);
     }
 
-    public void sessionDialog(Bundle resultData) {
+    // TODO how can we replace this
+    public static void sessionDialog(Bundle resultData) {
         try {
             FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
             SessionDialog.getInstance(provider, resultData).show(transaction, SessionDialog.TAG);
@@ -401,47 +400,52 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
         preferences.edit().clear().apply();
         switching_provider = false;
-        startActivityForResult(new Intent(this, ConfigurationWizard.class), SWITCH_PROVIDER);
+        startActivityForResult(new Intent(this, ConfigurationWizard.class), Constants.REQUEST_CODE_SWITCH_PROVIDER);
     }
 
-    @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
-        if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
-            String username = resultData.getString(SessionDialog.USERNAME);
-            String password = resultData.getString(SessionDialog.PASSWORD);
-            user_status_fragment.logIn(username, password);
-        } else if (resultCode == ProviderAPI.FAILED_SIGNUP) {
-            sessionDialog(resultData);
-        } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
-            downloadVpnCertificate();
-        } else if (resultCode == ProviderAPI.FAILED_LOGIN) {
-            sessionDialog(resultData);
-        } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGOUT) {
-            if (switching_provider) switchProvider();
-        } else if (resultCode == ProviderAPI.LOGOUT_FAILED) {
-            setResult(RESULT_CANCELED);
-        } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
-            eip_fragment.updateEipService();
-            setResult(RESULT_OK);
-        } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
-            setResult(RESULT_CANCELED);
-        } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE) {
-            eip_fragment.updateEipService();
-            setResult(RESULT_OK);
-        } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE) {
-            setResult(RESULT_CANCELED);
+    public static class DashboardReceiver implements ProviderAPIResultReceiver.Receiver{
+
+        private Dashboard dashboard;
+
+        DashboardReceiver(Dashboard dashboard) {
+            this.dashboard = dashboard;
         }
-    }
 
-    public static Context getContext() {
-        return dashboardContext;
+        @Override
+        public void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
+                String username = resultData.getString(SessionDialog.USERNAME);
+                String password = resultData.getString(SessionDialog.PASSWORD);
+                dashboard.user_status_fragment.logIn(username, password);
+            } else if (resultCode == ProviderAPI.FAILED_SIGNUP) {
+                Dashboard.sessionDialog(resultData);
+            } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
+                Dashboard.downloadVpnCertificate();
+            } else if (resultCode == ProviderAPI.FAILED_LOGIN) {
+                Dashboard.sessionDialog(resultData);
+            } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGOUT) {
+                if (switching_provider) dashboard.switchProvider();
+            } else if (resultCode == ProviderAPI.LOGOUT_FAILED) {
+                dashboard.setResult(RESULT_CANCELED);
+            } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
+                dashboard.eip_fragment.updateEipService();
+                dashboard.setResult(RESULT_OK);
+            } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
+                dashboard.setResult(RESULT_CANCELED);
+            } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE) {
+                dashboard.eip_fragment.updateEipService();
+                dashboard.setResult(RESULT_OK);
+            } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE) {
+                dashboard.setResult(RESULT_CANCELED);
+            }
+        }
     }
 
     public static Provider getProvider() { return provider; }
 
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
-        intent.putExtra(Dashboard.REQUEST_CODE, requestCode);
+        intent.putExtra(Constants.REQUEST_CODE_KEY, requestCode);
         super.startActivityForResult(intent, requestCode);
     }
 

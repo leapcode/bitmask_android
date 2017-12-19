@@ -301,7 +301,7 @@ public abstract class BaseConfigurationWizard extends Activity
 
     private void askDashboardToQuitApp() {
         Intent ask_quit = new Intent();
-        ask_quit.putExtra(Dashboard.ACTION_QUIT, Dashboard.ACTION_QUIT);
+        ask_quit.putExtra(Constants.APP_ACTION_QUIT, Constants.APP_ACTION_QUIT);
         setResult(RESULT_CANCELED, ask_quit);
     }
 
