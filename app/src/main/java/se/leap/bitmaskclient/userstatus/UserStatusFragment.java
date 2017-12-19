@@ -28,7 +28,6 @@ import se.leap.bitmaskclient.R;
 public class UserStatusFragment extends Fragment implements Observer, SessionDialog.SessionDialogInterface {
 
     public static String TAG = UserStatusFragment.class.getSimpleName();
-    private static Dashboard dashboard;
     private ProviderAPIResultReceiver providerAPI_result_receiver;
 
     @InjectView(R.id.user_status_username)
@@ -74,16 +73,14 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        dashboard = (Dashboard) activity;
-
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), dashboard);
+        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), Dashboard.dashboardReceiver);
     }
 
     public void restoreSessionStatus(Bundle savedInstanceState) {
         if (savedInstanceState != null)
             if (savedInstanceState.containsKey(UserStatus.TAG)) {
                 UserStatus.SessionStatus status = (UserStatus.SessionStatus) savedInstanceState.getSerializable(UserStatus.TAG);
-                this.status.updateStatus(status, getResources());
+                UserStatus.updateStatus(status, getResources());
             }
     }
 
@@ -93,7 +90,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
         if(status.isLoggedIn())
             logOut();
         else if(status.isLoggedOut())
-            dashboard.sessionDialog(Bundle.EMPTY);
+            Dashboard.sessionDialog(Bundle.EMPTY);
         else if(status.inProgress())
             cancelLoginOrSignup();
     }
@@ -102,7 +99,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     public void update(Observable observable, Object data) {
         if (observable instanceof UserStatus) {
             final UserStatus status = (UserStatus) observable;
-            dashboard.runOnUiThread(new Runnable() {
+            getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     handleNewStatus(status);
@@ -138,12 +135,12 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
 
     private void updateButton() {
         if(status.isLoggedIn() || status.didntLogOut())
-            button.setText(dashboard.getString(R.string.logout_button));
+            button.setText(getActivity().getString(R.string.logout_button));
         else if(allows_registration) {
             if (status.isLoggedOut() || status.notLoggedIn())
-                button.setText(dashboard.getString(R.string.login_button));
+                button.setText(getActivity().getString(R.string.login_button));
             else if (status.inProgress())
-                button.setText(dashboard.getString(android.R.string.cancel));
+                button.setText(getActivity().getString(android.R.string.cancel));
         }
     }
 

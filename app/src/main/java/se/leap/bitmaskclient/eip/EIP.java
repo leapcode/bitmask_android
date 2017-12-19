@@ -16,15 +16,21 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
+import android.app.Activity;
+import android.app.IntentService;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.util.Log;
 
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import de.blinkt.openvpn.*;
-import se.leap.bitmaskclient.*;
+import de.blinkt.openvpn.LaunchVPN;
+import se.leap.bitmaskclient.OnBootReceiver;
+import se.leap.bitmaskclient.VpnFragment;
 
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;

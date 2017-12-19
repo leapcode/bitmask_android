@@ -16,11 +16,14 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.*;
+import java.util.Iterator;
 
-import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.Constants;
+import se.leap.bitmaskclient.Provider;
 
 public class VpnConfigGenerator {
 
