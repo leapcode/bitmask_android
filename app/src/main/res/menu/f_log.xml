@@ -28,12 +28,4 @@
             android:title="@string/send_logfile"
             android:titleCondensed="@string/send"/>
 
-    <item
-            android:id="@+id/edit_vpn"
-            android:alphabeticShortcut="e"
-            android:icon="@drawable/ic_menu_edit"
-            app:showAsAction="withText|ifRoom"
-            android:title="@string/edit_vpn"
-	    android:visible="false"/>
-
 </menu>
