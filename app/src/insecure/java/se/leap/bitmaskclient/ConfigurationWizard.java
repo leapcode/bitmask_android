@@ -16,10 +16,10 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.DialogFragment;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 
 import java.net.MalformedURLException;
 import java.net.URL;

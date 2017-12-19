@@ -17,15 +17,15 @@
 package se.leap.bitmaskclient;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,7 +56,7 @@ import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author parmegv
  */
-public class Dashboard extends Activity {
+public class Dashboard extends AppCompatActivity {
 
     public static final String TAG = Dashboard.class.getSimpleName();
 
@@ -91,7 +91,7 @@ public class Dashboard extends Activity {
         super.onCreate(savedInstanceState);
         dashboardReceiver = new DashboardReceiver(this);
         preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
-        fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
+        fragment_manager = new FragmentManagerEnhanced(getSupportFragmentManager());
 
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), dashboardReceiver);
 
@@ -305,7 +305,7 @@ public class Dashboard extends Activity {
      *                               has caused to start Dashboard
      * @return the created VPNFragment
      */
-    private VpnFragment prepareEipFragment(boolean hideAndTurnOnEipOnBoot) {
+    public static VpnFragment prepareEipFragment(boolean hideAndTurnOnEipOnBoot) {
         VpnFragment eip_fragment = new VpnFragment();
 
         if (hideAndTurnOnEipOnBoot && !isAlwaysOn()) {
@@ -323,7 +323,7 @@ public class Dashboard extends Activity {
      * checks if Android's VPN feature 'always-on' is enabled for Bitmask
      * @return true if 'always-on' is enabled false if not
      */
-    private boolean isAlwaysOn() {
+    private static boolean isAlwaysOn() {
         return  preferences.getBoolean(EIP_IS_ALWAYS_ON, false);
     }
 
@@ -418,11 +418,11 @@ public class Dashboard extends Activity {
                 String password = resultData.getString(SessionDialog.PASSWORD);
                 dashboard.user_status_fragment.logIn(username, password);
             } else if (resultCode == ProviderAPI.FAILED_SIGNUP) {
-                Dashboard.sessionDialog(resultData);
+                MainActivity.sessionDialog(resultData);
             } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
                 Dashboard.downloadVpnCertificate();
             } else if (resultCode == ProviderAPI.FAILED_LOGIN) {
-                Dashboard.sessionDialog(resultData);
+                MainActivity.sessionDialog(resultData);
             } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGOUT) {
                 if (switching_provider) dashboard.switchProvider();
             } else if (resultCode == ProviderAPI.LOGOUT_FAILED) {

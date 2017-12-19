@@ -17,9 +17,6 @@
 
 package se.leap.bitmaskclient;
 
-import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +24,9 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,7 +68,7 @@ import static android.view.View.VISIBLE;
  * @author cyberta
  */
 
-public abstract class BaseConfigurationWizard extends Activity
+public abstract class BaseConfigurationWizard extends AppCompatActivity
         implements NewProviderDialog.NewProviderDialogInterface, ProviderDetailFragment.ProviderDetailFragmentInterface, DownloadFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
     @InjectView(R.id.progressbar_configuration_wizard)
     protected ProgressBar mProgressBar;
@@ -134,7 +134,7 @@ public abstract class BaseConfigurationWizard extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
-        fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
+        fragment_manager = new FragmentManagerEnhanced(getSupportFragmentManager());
         provider_manager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
 
         setUpInitialUI();

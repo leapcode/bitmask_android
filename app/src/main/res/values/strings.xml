@@ -81,8 +81,7 @@
     <string name="title_activity_main">Bitmask</string>
 
     <string name="log_fragment_title">Log</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
+    <string name="vpn_fragment_title">VPN</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

@@ -123,9 +123,9 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 new String[]{
+                        getString(R.string.vpn_fragment_title),
+                        getString(R.string.switch_provider_menu_option),
                         getString(R.string.log_fragment_title),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
                 }));
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         mFragmentContainerView = activity.findViewById(fragmentId);

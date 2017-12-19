@@ -16,21 +16,28 @@
  */
 package se.leap.bitmaskclient;
 
-import butterknife.*;
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Toast;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
-import android.view.*;
-import android.widget.*;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
 /**
  * Implements the new custom provider dialog.
  *
  * @author parmegv
  */
-public class NewProviderDialog extends DialogFragment {
+public class NewProviderDialog extends DialogFragment{
 
     final public static String TAG = "newProviderDialog";
 

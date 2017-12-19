@@ -18,7 +18,6 @@ package se.leap.bitmaskclient;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,6 +29,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -127,7 +127,6 @@ public class VpnFragment extends Fragment implements Observer {
         if (arguments != null && arguments.containsKey(START_EIP_ON_BOOT) && arguments.getBoolean(START_EIP_ON_BOOT)) {
             startEipFromScratch();
         }
-
         return view;
     }
 
@@ -170,7 +169,7 @@ public class VpnFragment extends Fragment implements Observer {
         else if (canLogInToStartEIP()) {
             wants_to_connect = true;
             Bundle bundle = new Bundle();
-            Dashboard.sessionDialog(bundle);
+            MainActivity.sessionDialog(bundle);
         } else {
             Log.d(TAG, "WHAT IS GOING ON HERE?!");
             // TODO: implement a fallback: check if vpncertificate was not downloaded properly or give
@@ -305,12 +304,17 @@ public class VpnFragment extends Fragment implements Observer {
     public void update(Observable observable, Object data) {
         if (observable instanceof EipStatus) {
             eip_status = (EipStatus) observable;
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    handleNewState();
-                }
-            });
+            Activity activity = getActivity();
+            if (activity != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleNewState();
+                    }
+                });
+            } else {
+                Log.e("VpnFragment", "activity is null");
+            }
         }
     }
 

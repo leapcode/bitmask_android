@@ -1,9 +1,9 @@
 package se.leap.bitmaskclient.userstatus;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +19,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.MainActivity;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.ProviderAPICommand;
@@ -90,7 +91,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
         if(status.isLoggedIn())
             logOut();
         else if(status.isLoggedOut())
-            Dashboard.sessionDialog(Bundle.EMPTY);
+            MainActivity.sessionDialog(Bundle.EMPTY);
         else if(status.inProgress())
             cancelLoginOrSignup();
     }

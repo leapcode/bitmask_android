@@ -16,15 +16,18 @@
  */
 package se.leap.bitmaskclient.userstatus;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
-import android.view.*;
-import android.widget.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
-import butterknife.*;
-import se.leap.bitmaskclient.ProviderAPI;
-import se.leap.bitmaskclient.VpnFragment;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
 
