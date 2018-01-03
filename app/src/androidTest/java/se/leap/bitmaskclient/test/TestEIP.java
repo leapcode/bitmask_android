@@ -37,7 +37,7 @@ public class TestEIP extends ServiceTestCase<EIP> {
         super(activityClass);
         context = getSystemContext();
         intent = new Intent(context, EIP.class);
-        preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     @Override
