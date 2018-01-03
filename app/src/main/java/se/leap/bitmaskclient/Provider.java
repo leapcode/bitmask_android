@@ -18,9 +18,11 @@ package se.leap.bitmaskclient;
 
 import android.os.*;
 
+import com.google.gson.Gson;
+
 import org.json.*;
 
-import java.io.*;
+import java.io.Serializable;
 import java.net.*;
 import java.util.*;
 
@@ -31,8 +33,11 @@ import java.util.*;
 public final class Provider implements Parcelable {
 
     private JSONObject definition = new JSONObject(); // Represents our Provider's provider.json
-    private DefaultedURL main_url = new DefaultedURL();
-    private String certificate_pin = "";
+    private DefaultedURL mainUrl = new DefaultedURL();
+    private DefaultedURL apiUrl = new DefaultedURL();
+    private String certificatePin = "";
+    private String certificatePinEncoding = "";
+    private String caCert = "";
 
     final public static String
             API_URL = "api_uri",
@@ -61,13 +66,20 @@ public final class Provider implements Parcelable {
 
     public Provider() { }
 
-    public Provider(URL main_url) {
-        this.main_url.setUrl(main_url);
+    public Provider(URL mainUrl) {
+        this.mainUrl.setUrl(mainUrl);
     }
 
-    public Provider(URL main_url, String certificate_pin) {
-        this.main_url.setUrl(main_url);
-        this.certificate_pin = certificate_pin;
+    public Provider(URL mainUrl, String caCert,  /*String certificatePin,*/ String definition) {
+        this.mainUrl.setUrl(mainUrl);
+        this.caCert = caCert;
+        try {
+            this.definition = new JSONObject(definition);
+            parseDefinition(this.definition);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static final Parcelable.Creator<Provider> CREATOR
@@ -81,42 +93,57 @@ public final class Provider implements Parcelable {
         }
     };
 
-    private Provider(Parcel in) {
-        try {
-            main_url.setUrl(new URL(in.readString()));
-            String definition_string = in.readString();
-            if (!definition_string.isEmpty())
-                definition = new JSONObject((definition_string));
-        } catch (MalformedURLException | JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     public boolean isConfigured() {
-        return !main_url.isDefault() && definition.length() > 0;
+        return !mainUrl.isDefault() &&
+                definition.length() > 0 &&
+                !apiUrl.isDefault() &&
+                caCert != null &&
+                !caCert.isEmpty();
     }
 
     protected void setUrl(URL url) {
-        main_url.setUrl(url);
+        mainUrl.setUrl(url);
     }
 
     protected void define(JSONObject provider_json) {
         definition = provider_json;
+        parseDefinition(definition);
     }
 
-    protected JSONObject definition() {
+    protected JSONObject getDefinition() {
         return definition;
     }
 
     protected String getDomain() {
-        return main_url.getDomain();
+        return mainUrl.getDomain();
     }
 
-    protected DefaultedURL mainUrl() {
-        return main_url;
+    protected DefaultedURL getMainUrl() {
+        return mainUrl;
     }
 
-    protected String certificatePin() { return certificate_pin; }
+    protected DefaultedURL getApiUrl() {
+        return apiUrl;
+    }
+
+    protected String certificatePin() { return certificatePin; }
+
+    protected boolean hasCertificatePin() {
+        return certificatePin != null && !certificatePin.isEmpty();
+    }
+
+    boolean hasCaCert() {
+        return caCert != null && !caCert.isEmpty();
+    }
+
+    public boolean hasDefinition() {
+        return definition != null && definition.length() > 0;
+    }
+
+
+    public String getCaCert() {
+        return caCert;
+    }
 
     public String getName() {
         // Should we pass the locale in, or query the system here?
@@ -127,8 +154,8 @@ public final class Provider implements Parcelable {
                 name = definition.getJSONObject(API_TERM_NAME).getString(lang);
             else throw new JSONException("Provider not defined");
         } catch (JSONException e) {
-            if (main_url != null) {
-                String host = main_url.getDomain();
+            if (mainUrl != null) {
+                String host = mainUrl.getDomain();
                 name = host.substring(0, host.indexOf("."));
             }
         }
@@ -191,24 +218,29 @@ public final class Provider implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        if(main_url != null)
-            parcel.writeString(main_url.toString());
+        if(mainUrl != null)
+            parcel.writeString(mainUrl.toString());
         if (definition != null)
             parcel.writeString(definition.toString());
+        if (caCert != null)
+            parcel.writeString(caCert);
     }
 
     @Override
     public boolean equals(Object o) {
         if (o instanceof Provider) {
             Provider p = (Provider) o;
-            return p.mainUrl().getDomain().equals(mainUrl().getDomain());
+            return p.getMainUrl().getDomain().equals(getMainUrl().getDomain());
         } else return false;
     }
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         try {
-            json.put(Provider.MAIN_URL, main_url);
+            json.put(Provider.MAIN_URL, mainUrl);
+            //TODO: add other fields here?
+            //this is used to save custom providers as json. I guess this doesn't work correctly
+            //TODO 2: verify that
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -217,6 +249,44 @@ public final class Provider implements Parcelable {
 
     @Override
     public int hashCode() {
-        return mainUrl().getDomain().hashCode();
+        return getMainUrl().getDomain().hashCode();
     }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
+    }
+
+    private Provider(Parcel in) {
+        try {
+            mainUrl.setUrl(new URL(in.readString()));
+            String definitionString = in.readString();
+            if (!definitionString.isEmpty()) {
+                definition = new JSONObject((definitionString));
+                parseDefinition(definition);
+            }
+            String caCert = in.readString();
+            if (!caCert.isEmpty()) {
+                this.caCert = caCert;
+            }
+        } catch (MalformedURLException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void parseDefinition(JSONObject definition) {
+        try {
+            String pin =  definition.getString(CA_CERT_FINGERPRINT);
+            this.certificatePin = pin.split(":")[1].trim();
+            this.certificatePinEncoding = pin.split(":")[0].trim();
+            this.apiUrl.setUrl(new URL(definition.getString(API_URL)));
+        } catch (JSONException | ArrayIndexOutOfBoundsException | MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setCACert(String cert) {
+        this.caCert = cert;
+    }
+
 }

@@ -45,6 +45,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
@@ -71,6 +73,12 @@ import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatus;
 
+import static android.text.TextUtils.isEmpty;
+import static se.leap.bitmaskclient.ConfigHelper.base64toHex;
+import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
+import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
+import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
+import static se.leap.bitmaskclient.Provider.MAIN_URL;
 import static se.leap.bitmaskclient.R.string.certificate_error;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
@@ -96,6 +104,7 @@ public abstract class ProviderApiBase extends IntentService {
     final public static String
             TAG = ProviderAPI.class.getSimpleName(),
             SET_UP_PROVIDER = "setUpProvider",
+            UPDATE_PROVIDER_DETAILS = "updateProviderDetails",
             DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
             SIGN_UP = "srpRegister",
             LOG_IN = "srpAuth",
@@ -105,6 +114,7 @@ public abstract class ProviderApiBase extends IntentService {
             RESULT_KEY = "result",
             RECEIVER_KEY = "receiver",
             ERRORS = "errors",
+            ERRORID = "errorId",
             UPDATE_PROGRESSBAR = "update_progressbar",
             CURRENT_PROGRESS = "current_progress",
             DOWNLOAD_EIP_SERVICE = TAG + ".DOWNLOAD_EIP_SERVICE";
@@ -123,16 +133,18 @@ public abstract class ProviderApiBase extends IntentService {
             CORRECTLY_DOWNLOADED_EIP_SERVICE = 13,
             INCORRECTLY_DOWNLOADED_EIP_SERVICE = 14;
 
-    public static boolean
+    protected static boolean
             CA_CERT_DOWNLOADED = false,
             PROVIDER_JSON_DOWNLOADED = false,
             EIP_SERVICE_JSON_DOWNLOADED = false;
 
-    protected static String last_provider_main_url;
+    protected static String lastProviderMainUrl;
     protected static boolean go_ahead = true;
     protected static SharedPreferences preferences;
-    protected static String provider_api_url;
-    protected static String provider_ca_cert_fingerprint;
+    protected static String providerApiUrl;
+    protected static String providerCaCertFingerprint;
+    protected static String providerCaCert;
+    protected static JSONObject providerDefinition;
     protected Resources resources;
 
     public static void stop() {
@@ -155,7 +167,7 @@ public abstract class ProviderApiBase extends IntentService {
     }
 
     public static String lastProviderMainUrl() {
-        return last_provider_main_url;
+        return lastProviderMainUrl;
     }
 
     @Override
@@ -164,17 +176,26 @@ public abstract class ProviderApiBase extends IntentService {
         String action = command.getAction();
         Bundle parameters = command.getBundleExtra(PARAMETERS);
 
-        if (provider_api_url == null && preferences.contains(Provider.KEY)) {
+        if (providerApiUrl == null && preferences.contains(Provider.KEY)) {
             try {
                 JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
-                provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
+                providerApiUrl = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
                 go_ahead = true;
             } catch (JSONException e) {
                 go_ahead = false;
             }
         }
-
-        if (action.equalsIgnoreCase(SET_UP_PROVIDER)) {
+        if (action.equals(UPDATE_PROVIDER_DETAILS)) {
+            resetProviderDetails();
+            Bundle task = new Bundle();
+            task.putString(MAIN_URL, lastProviderMainUrl);
+            Bundle result = setUpProvider(task);
+            if (result.getBoolean(RESULT_KEY)) {
+                receiver.send(PROVIDER_OK, result);
+            } else {
+                receiver.send(PROVIDER_NOK, result);
+            }
+        } else if (action.equalsIgnoreCase(SET_UP_PROVIDER)) {
             Bundle result = setUpProvider(parameters);
             if (go_ahead) {
                 if (result.getBoolean(RESULT_KEY)) {
@@ -226,6 +247,13 @@ public abstract class ProviderApiBase extends IntentService {
         }
     }
 
+    protected void resetProviderDetails() {
+        CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = false;
+        deleteProviderDetailsFromPreferences(providerDefinition);
+        providerCaCert = "";
+        providerDefinition = new JSONObject();
+    }
+
     protected String formatErrorMessage(final int toastStringId) {
         return formatErrorMessage(getResources().getString(toastStringId));
     }
@@ -243,22 +271,31 @@ public abstract class ProviderApiBase extends IntentService {
         }
     }
 
-    private JSONObject getErrorMessageAsJson(String message) {
+    protected void addErrorMessageToJson(JSONObject jsonObject, String errorMessage) {
         try {
-            return new JSONObject(formatErrorMessage(message));
+            jsonObject.put(ERRORS, errorMessage);
         } catch (JSONException e) {
             e.printStackTrace();
-            return new JSONObject();
         }
     }
-    private OkHttpClient initHttpClient(JSONObject initError, boolean isSelfSigned) {
+
+    protected void addErrorMessageToJson(JSONObject jsonObject, String errorMessage, String errorId) {
+        try {
+            jsonObject.put(ERRORS, errorMessage);
+            jsonObject.put(ERRORID, errorId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private OkHttpClient initHttpClient(JSONObject initError, String certificate) {
         try {
             TLSCompatSocketFactory sslCompatFactory;
             ConnectionSpec spec = getConnectionSpec();
             OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
-            if (isSelfSigned) {
-                sslCompatFactory = new TLSCompatSocketFactory(preferences.getString(Provider.CA_CERT, ""));
 
+            if (!isEmpty(certificate)) {
+                sslCompatFactory = new TLSCompatSocketFactory(certificate);
             } else {
                 sslCompatFactory = new TLSCompatSocketFactory();
             }
@@ -266,40 +303,39 @@ public abstract class ProviderApiBase extends IntentService {
             clientBuilder.cookieJar(getCookieJar())
                     .connectionSpecs(Collections.singletonList(spec));
             return clientBuilder.build();
-        } catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            initError = getErrorMessageAsJson(String.format(resources.getString(keyChainAccessError), e.getLocalizedMessage()));
-        } catch (KeyStoreException e) {
+            addErrorMessageToJson(initError, resources.getString(R.string.certificate_error));
+        } catch (IllegalStateException | KeyManagementException | KeyStoreException e) {
             e.printStackTrace();
-            initError = getErrorMessageAsJson(String.format(resources.getString(keyChainAccessError), e.getLocalizedMessage()));
-        } catch (KeyManagementException e) {
+            addErrorMessageToJson(initError, String.format(resources.getString(keyChainAccessError), e.getLocalizedMessage()));
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             e.printStackTrace();
-            initError = getErrorMessageAsJson(String.format(resources.getString(keyChainAccessError), e.getLocalizedMessage()));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            initError = getErrorMessageAsJson(resources.getString(error_no_such_algorithm_exception_user_message));
+            addErrorMessageToJson(initError, resources.getString(error_no_such_algorithm_exception_user_message));
         } catch (CertificateException e) {
             e.printStackTrace();
-            initError = getErrorMessageAsJson(resources.getString(certificate_error));
+            addErrorMessageToJson(initError, resources.getString(certificate_error));
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            initError = getErrorMessageAsJson(resources.getString(server_unreachable_message));
+            addErrorMessageToJson(initError, resources.getString(server_unreachable_message));
         } catch (IOException e) {
             e.printStackTrace();
-            initError = getErrorMessageAsJson(resources.getString(error_io_exception_user_message));
-        } catch (NoSuchProviderException e) {
-            e.printStackTrace();
-            initError = getErrorMessageAsJson(resources.getString(error_no_such_algorithm_exception_user_message));
+            addErrorMessageToJson(initError, resources.getString(error_io_exception_user_message));
         }
         return null;
     }
 
     protected OkHttpClient initCommercialCAHttpClient(JSONObject initError) {
-        return initHttpClient(initError, false);
+        return initHttpClient(initError, null);
     }
 
     protected OkHttpClient initSelfSignedCAHttpClient(JSONObject initError) {
-        return initHttpClient(initError, true);
+        String certificate = preferences.getString(Provider.CA_CERT, "");
+        return initHttpClient(initError, certificate);
+    }
+
+    protected OkHttpClient initSelfSignedCAHttpClient(JSONObject initError, String certificate) {
+        return initHttpClient(initError, certificate);
     }
 
     @NonNull
@@ -376,7 +412,7 @@ public abstract class ProviderApiBase extends IntentService {
 
         BigInteger password_verifier = client.calculateV(username, password, salt);
 
-        JSONObject api_result = sendNewUserDataToSRPServer(provider_api_url, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16), okHttpClient);
+        JSONObject api_result = sendNewUserDataToSRPServer(providerApiUrl, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16), okHttpClient);
 
         Bundle result = new Bundle();
         if (api_result.has(ERRORS))
@@ -431,13 +467,13 @@ public abstract class ProviderApiBase extends IntentService {
         LeapSRPSession client = new LeapSRPSession(username, password);
         byte[] A = client.exponential();
 
-        JSONObject step_result = sendAToSRPServer(provider_api_url, username, new BigInteger(1, A).toString(16), okHttpClient);
+        JSONObject step_result = sendAToSRPServer(providerApiUrl, username, new BigInteger(1, A).toString(16), okHttpClient);
         try {
             String salt = step_result.getString(LeapSRPSession.SALT);
             byte[] Bbytes = new BigInteger(step_result.getString("B"), 16).toByteArray();
             byte[] M1 = client.response(new BigInteger(salt, 16).toByteArray(), Bbytes);
             if (M1 != null) {
-                step_result = sendM1ToSRPServer(provider_api_url, username, M1, okHttpClient);
+                step_result = sendM1ToSRPServer(providerApiUrl, username, M1, okHttpClient);
                 setTokenIfAvailable(step_result);
                 byte[] M2 = new BigInteger(step_result.getString(LeapSRPSession.M2), 16).toByteArray();
                 if (client.verify(M2)) {
@@ -629,6 +665,9 @@ public abstract class ProviderApiBase extends IntentService {
 
         try {
             response = okHttpClient.newCall(request).execute();
+            if (!response.isSuccessful()){
+                 return formatErrorMessage(error_json_exception_user_message);
+            }
 
             InputStream inputStream = response.body().byteStream();
             Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
@@ -638,12 +677,10 @@ public abstract class ProviderApiBase extends IntentService {
 
         } catch (NullPointerException npe) {
             plainResponseBody = formatErrorMessage(error_json_exception_user_message);
-        } catch (UnknownHostException e) {
+        } catch (UnknownHostException | SocketTimeoutException e) {
             plainResponseBody = formatErrorMessage(server_unreachable_message);
         } catch (MalformedURLException e) {
             plainResponseBody = formatErrorMessage(malformed_url);
-        } catch (SocketTimeoutException e) {
-            plainResponseBody = formatErrorMessage(server_unreachable_message);
         } catch (SSLHandshakeException e) {
             plainResponseBody = formatErrorMessage(certificate_error);
         } catch (ConnectException e) {
@@ -693,6 +730,7 @@ public abstract class ProviderApiBase extends IntentService {
         } catch(JSONException e) {
             return false;
         } catch(NullPointerException e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -714,11 +752,7 @@ public abstract class ProviderApiBase extends IntentService {
                     result = real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim());
                 } else
                     result = false;
-            } catch (JSONException e) {
-                result = false;
-            } catch (NoSuchAlgorithmException e) {
-                result = false;
-            } catch (CertificateEncodingException e) {
+            } catch (JSONException | NoSuchAlgorithmException | CertificateEncodingException e) {
                 result = false;
             }
         }
@@ -726,16 +760,179 @@ public abstract class ProviderApiBase extends IntentService {
         return result;
     }
 
-    private String base64toHex(String base64_input) {
-        byte[] byteArray = Base64.decode(base64_input, Base64.DEFAULT);
-        int readBytes = byteArray.length;
-        StringBuffer hexData = new StringBuffer();
-        int onebyte;
-        for (int i = 0; i < readBytes; i++) {
-            onebyte = ((0x000000ff & byteArray[i]) | 0xffffff00);
-            hexData.append(Integer.toHexString(onebyte).substring(6));
+    protected Bundle validateCertificateForProvider(String cert_string, JSONObject providerDefinition, String mainUrl) {
+        Bundle result = new Bundle();
+        result.putBoolean(RESULT_KEY, false);
+
+        if (ConfigHelper.checkErroneousDownload(cert_string)) {
+            return result;
         }
-        return hexData.toString();
+
+        X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
+        if (certificate == null) {
+            return setErrorResult(result, getString(R.string.warning_corrupted_provider_cert), ERROR_INVALID_CERTIFICATE.toString());
+        }
+        try {
+            certificate.checkValidity();
+            String fingerprint = getCaCertFingerprint(providerDefinition);
+            String encoding = fingerprint.split(":")[0];
+            String expected_fingerprint = fingerprint.split(":")[1];
+            String real_fingerprint = base64toHex(Base64.encodeToString(
+                    MessageDigest.getInstance(encoding).digest(certificate.getEncoded()),
+                    Base64.DEFAULT));
+            if (!real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim())) {
+                return setErrorResult(result, getString(R.string.warning_corrupted_provider_cert), ERROR_CERTIFICATE_PINNING.toString());
+            }
+
+            if (!hasApiUrlExpectedDomain(providerDefinition, mainUrl)){
+                return setErrorResult(result, getString(R.string.warning_corrupted_provider_details), ERROR_CORRUPTED_PROVIDER_JSON.toString());
+            }
+
+            if (!canConnect(cert_string, providerDefinition, result)) {
+                return result;
+            }
+        } catch (NoSuchAlgorithmException e ) {
+            return setErrorResult(result, resources.getString(error_no_such_algorithm_exception_user_message), null);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return setErrorResult(result, getString(R.string.warning_corrupted_provider_details), ERROR_CORRUPTED_PROVIDER_JSON.toString());
+        } catch (CertificateEncodingException | CertificateNotYetValidException | CertificateExpiredException e) {
+            return setErrorResult(result, getString(R.string.warning_expired_provider_cert), ERROR_INVALID_CERTIFICATE.toString());
+        }
+
+        result.putBoolean(RESULT_KEY, true);
+        return result;
+    }
+
+    protected Bundle setErrorResult(Bundle result, String errorMessage, String errorId) {
+        JSONObject errorJson = new JSONObject();
+        if (errorId != null) {
+            addErrorMessageToJson(errorJson, errorMessage, errorId);
+        } else {
+            addErrorMessageToJson(errorJson, errorMessage);
+        }
+        result.putString(ERRORS, errorJson.toString());
+        return result;
+    }
+
+    /**
+     * This method aims to prevent attacks where the provider.json file got manipulated by a third party.
+     * The main url is visible to the provider when setting up a new provider.
+     * The user is responsible to check that this is the provider main url he intends to connect to.
+     *
+     * @param providerDefinition
+     * @param mainUrlString
+     * @return
+     */
+    private boolean hasApiUrlExpectedDomain(JSONObject providerDefinition, String mainUrlString) {
+        //  fix against "api_uri": "https://calyx.net.malicious.url.net:4430",
+        String apiUrlString = getApiUrl(providerDefinition);
+        String providerDomain = getProviderDomain(providerDefinition);
+        if (mainUrlString.contains(providerDomain) && apiUrlString.contains(providerDomain  + ":")) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean canConnect(String caCert, JSONObject providerDefinition, Bundle result) {
+        JSONObject errorJson = new JSONObject();
+        String baseUrl = getApiUrl(providerDefinition);
+
+        OkHttpClient okHttpClient = initSelfSignedCAHttpClient(errorJson, caCert);
+        if (okHttpClient == null) {
+            result.putString(ERRORS, errorJson.toString());
+            return false;
+        }
+
+        List<Pair<String, String>> headerArgs = getAuthorizationHeader();
+        String plain_response = requestStringFromServer(baseUrl, "GET", null, headerArgs, okHttpClient);
+
+        try {
+            if (new JSONObject(plain_response).has(ERRORS)) {
+                result.putString(ERRORS, plain_response);
+                return false;
+            }
+        } catch (JSONException e) {
+            //eat me
+        }
+
+        return true;
+    }
+
+    protected String getCaCertFingerprint(JSONObject providerDefinition) {
+        try {
+            return providerDefinition.getString(Provider.CA_CERT_FINGERPRINT);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    protected String getApiUrl(JSONObject providerDefinition) {
+        try {
+            return providerDefinition.getString(Provider.API_URL);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    protected String getApiUrlWithVersion(JSONObject providerDefinition) {
+        try {
+            return providerDefinition.getString(Provider.API_URL) + "/" + providerDefinition.getString(Provider.API_VERSION);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    protected void deleteProviderDetailsFromPreferences(JSONObject providerDefinition) {
+        String providerDomain = getProviderDomain(providerDefinition);
+
+        if (preferences.contains(Provider.KEY + "." + providerDomain)) {
+            preferences.edit().remove(Provider.KEY + "." + providerDomain).apply();
+        }
+        if (preferences.contains(Provider.CA_CERT + "." + providerDomain)) {
+            preferences.edit().remove(Provider.CA_CERT + "." + providerDomain).apply();
+        }
+        if (preferences.contains(Provider.CA_CERT_FINGERPRINT + "." + providerDomain)) {
+            preferences.edit().remove(Provider.CA_CERT_FINGERPRINT + "." + providerDomain).apply();
+        }
+    }
+
+    protected String getPersistedCaCertFingerprint(String providerDomain) {
+        try {
+            return getPersistedProviderDefinition(providerDomain).getString(Provider.CA_CERT_FINGERPRINT);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    protected JSONObject getPersistedProviderDefinition(String providerDomain) {
+        try {
+            return new JSONObject(preferences.getString(Provider.KEY + "." + providerDomain, ""));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new JSONObject();
+        }
+    }
+
+    protected String getPersistedProviderCA(String providerDomain) {
+        return preferences.getString(Provider.CA_CERT + "." + providerDomain, "");
+    }
+
+    protected String getProviderDomain(JSONObject providerDefinition) {
+        try {
+            return providerDefinition.getString(Provider.DOMAIN);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
+    protected boolean hasUpdatedProviderDetails(String providerDomain) {
+        return preferences.contains(Provider.KEY + "." + providerDomain) && preferences.contains(Provider.CA_CERT + "." + providerDomain);
     }
 
     /**
@@ -774,7 +971,7 @@ public abstract class ProviderApiBase extends IntentService {
             return false;
         }
 
-        String deleteUrl = provider_api_url + "/logout";
+        String deleteUrl = providerApiUrl + "/logout";
         int progress = 0;
 
         Request.Builder requestBuilder = new Request.Builder()

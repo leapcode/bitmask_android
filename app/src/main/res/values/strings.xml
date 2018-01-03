@@ -82,4 +82,9 @@
     <string name="void_vpn_error_establish">Failed to establish blocking VPN.</string>
     <string name="void_vpn_stopped">Stopped blocking all outgoing internet traffic.</string>
     <string name="void_vpn_title">Blocking traffic</string>
+    <string name="update_provider_details">Update provider details</string>
+    <string name="update_certificate">Update certificate</string>
+    <string name="warning_corrupted_provider_details">Stored provider details are corrupted. You can either update Bitmask (recommended) or update the provider details using a commercial CA certificate.</string>
+    <string name="warning_corrupted_provider_cert">Stored provider certificate is corrupted. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.</string>
+    <string name="warning_expired_provider_cert">Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.</string>
 </resources>

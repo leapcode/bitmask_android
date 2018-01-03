@@ -27,6 +27,8 @@ import java.security.cert.*;
 import java.security.interfaces.*;
 import java.security.spec.*;
 
+import static android.R.attr.name;
+
 /**
  * Stores constants, and implements auxiliary methods used across all LEAP Android classes.
  *
@@ -34,6 +36,7 @@ import java.security.spec.*;
  * @author MeanderingCode
  */
 public class ConfigHelper {
+    private static final String TAG = ConfigHelper.class.getName();
     private static KeyStore keystore_trusted;
 
     final public static String NG_1024 =
@@ -42,7 +45,7 @@ public class ConfigHelper {
 
     public static boolean checkErroneousDownload(String downloaded_string) {
         try {
-            if (new JSONObject(downloaded_string).has(ProviderAPI.ERRORS) || downloaded_string.isEmpty()) {
+            if (downloaded_string == null || downloaded_string.isEmpty() || new JSONObject(downloaded_string).has(ProviderAPI.ERRORS)) {
                 return true;
             } else {
                 return false;
@@ -99,6 +102,38 @@ public class ConfigHelper {
         return (X509Certificate) certificate;
     }
 
+
+    public static String loadInputStreamAsString(InputStream inputStream) {
+        BufferedReader in = null;
+        try {
+            StringBuilder buf = new StringBuilder();
+            in = new BufferedReader(new InputStreamReader(inputStream));
+
+            String str;
+            boolean isFirst = true;
+            while ( (str = in.readLine()) != null ) {
+                if (isFirst)
+                    isFirst = false;
+                else
+                    buf.append('\n');
+                buf.append(str);
+            }
+            return buf.toString();
+        } catch (IOException e) {
+            Log.e(TAG, "Error opening asset " + name);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Error closing asset " + name);
+                }
+            }
+        }
+
+        return null;
+    }
+
     protected static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {
         RSAPrivateKey key = null;
         try {
@@ -126,6 +161,18 @@ public class ConfigHelper {
         return key;
     }
 
+    public static String base64toHex(String base64_input) {
+        byte[] byteArray = Base64.decode(base64_input, Base64.DEFAULT);
+        int readBytes = byteArray.length;
+        StringBuffer hexData = new StringBuffer();
+        int onebyte;
+        for (int i = 0; i < readBytes; i++) {
+            onebyte = ((0x000000ff & byteArray[i]) | 0xffffff00);
+            hexData.append(Integer.toHexString(onebyte).substring(6));
+        }
+        return hexData.toString();
+    }
+    
     /**
      * Adds a new X509 certificate given its input stream and its provider name
      *

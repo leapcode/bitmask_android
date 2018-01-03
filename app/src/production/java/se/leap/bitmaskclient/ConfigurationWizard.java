@@ -63,8 +63,16 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
         mConfigState.setAction(SETTING_UP_PROVIDER);
         Intent provider_API_command = new Intent(this, ProviderAPI.class);
         Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, selected_provider.mainUrl().toString());
-        parameters.putString(Provider.CA_CERT_FINGERPRINT, selected_provider.certificatePin());
+        parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
+        if (selected_provider.hasCertificatePin()){
+            parameters.putString(Provider.CA_CERT_FINGERPRINT, selected_provider.certificatePin());
+        }
+        if (selected_provider.hasCaCert()) {
+            parameters.putString(Provider.CA_CERT, selected_provider.getCaCert());
+        }
+        if (selected_provider.hasDefinition()) {
+            parameters.putString(Provider.KEY, selected_provider.getDefinition().toString());
+        }
 
         provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
         provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
@@ -73,18 +81,39 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
         startService(provider_API_command);
     }
 
+    @Override
     public void retrySetUpProvider() {
         cancelSettingUpProvider();
         if (!ProviderAPI.caCertDownloaded()) {
             addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl());
         } else {
-            Intent provider_API_command = new Intent(this, ProviderAPI.class);
+            showProgressBar();
+            adapter.hideAllBut(adapter.indexOf(selected_provider));
 
+
+            Intent provider_API_command = new Intent(this, ProviderAPI.class);
             provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
             provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+            Bundle parameters = new Bundle();
+            parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
+            provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 
             startService(provider_API_command);
         }
+    }
+
+    @Override
+    public void updateProviderDetails() {
+        mConfigState.setAction(SETTING_UP_PROVIDER);
+        Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+        provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DETAILS);
+        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+        Bundle parameters = new Bundle();
+        parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
+        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
+
+        startService(provider_API_command);
     }
 
 }

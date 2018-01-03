@@ -38,9 +38,13 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
@@ -104,6 +108,11 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
             handleVersion();
         }
 
+        // initialize app necessities
+        ProviderAPICommand.initialize(this);
+        VpnStatus.initLogCache(getApplicationContext().getCacheDir());
+        User.init(getString(R.string.default_username));
+
         prepareEIP(savedInstanceState);
     }
 
@@ -147,6 +156,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         try {
             provider.setUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
+            provider.setCACert(preferences.getString(Provider.CA_CERT, ""));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -246,10 +256,9 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     }
     @SuppressLint("CommitPrefEdits")
     private void providerToPreferences(Provider provider) {
-        //FIXME: figure out why .commit() is used and try refactor that cause, currently runs on UI thread
-        preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).commit();
-        preferences.edit().putString(Provider.MAIN_URL, provider.mainUrl().toString()).apply();
-        preferences.edit().putString(Provider.KEY, provider.definition().toString()).apply();
+        preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).
+                putString(Provider.MAIN_URL, provider.getMainUrl().toString()).
+                putString(Provider.KEY, provider.getDefinition().toString()).apply();
     }
 
     private void configErrorDialog() {
@@ -399,7 +408,25 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     private void switchProvider() {
         if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
 
-        preferences.edit().clear().apply();
+        Map<String, ?> allEntries = preferences.getAll();
+        List<String> lastProvidersKeys = new ArrayList<>();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            //sort out all preferences that don't belong to the last provider
+            if (entry.getKey().startsWith(Provider.KEY + ".") ||
+                    entry.getKey().startsWith(Provider.CA_CERT + ".") ||
+                    entry.getKey().startsWith(Provider.CA_CERT_FINGERPRINT + ".")
+                    ) {
+                continue;
+            }
+            lastProvidersKeys.add(entry.getKey());
+        }
+
+        SharedPreferences.Editor preferenceEditor = preferences.edit();
+        for (String key : lastProvidersKeys) {
+            preferenceEditor.remove(key);
+        }
+        preferenceEditor.apply();
+
         switching_provider = false;
         startActivityForResult(new Intent(this, ConfigurationWizard.class), SWITCH_PROVIDER);
     }
