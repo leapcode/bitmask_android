@@ -216,6 +216,8 @@ public abstract class BaseConfigurationWizard extends Activity
                 String provider_json_string = preferences.getString(Provider.KEY, "");
                 if (!provider_json_string.isEmpty())
                     selected_provider.define(new JSONObject(provider_json_string));
+                String caCert = preferences.getString(Provider.CA_CERT, "");
+                selected_provider.setCACert(caCert);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -299,6 +301,20 @@ public abstract class BaseConfigurationWizard extends Activity
         mConfigState.setAction(PROVIDER_NOT_SET);
         adapter.showAllProviders();
         preferences.edit().remove(Provider.KEY).remove(Constants.PROVIDER_ALLOW_ANONYMOUS).remove(Constants.PROVIDER_KEY).apply();
+    }
+
+    @Override
+    public void updateProviderDetails() {
+        mConfigState.setAction(SETTING_UP_PROVIDER);
+        Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+        provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DETAILS);
+        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+        Bundle parameters = new Bundle();
+        parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
+        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
+
+        startService(provider_API_command);
     }
 
     private void askDashboardToQuitApp() {

@@ -665,9 +665,6 @@ public abstract class ProviderApiBase extends IntentService {
 
         try {
             response = okHttpClient.newCall(request).execute();
-            if (!response.isSuccessful()){
-                 return formatErrorMessage(error_json_exception_user_message);
-            }
 
             InputStream inputStream = response.body().byteStream();
             Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
@@ -755,6 +752,42 @@ public abstract class ProviderApiBase extends IntentService {
             } catch (JSONException | NoSuchAlgorithmException | CertificateEncodingException e) {
                 result = false;
             }
+        }
+
+        return result;
+    }
+
+    protected void checkPersistedProviderUpdates() {
+        String providerDomain = getProviderDomain(providerDefinition);
+        if (hasUpdatedProviderDetails(providerDomain)) {
+            providerCaCert = getPersistedProviderCA(providerDomain);
+            providerDefinition = getPersistedProviderDefinition(providerDomain);
+            providerCaCertFingerprint = getPersistedCaCertFingerprint(providerDomain);
+            providerApiUrl = getApiUrlWithVersion(providerDefinition);
+        }
+    }
+
+    protected Bundle validateProviderDetails() {
+        Bundle result = validateCertificateForProvider(providerCaCert, providerDefinition, lastProviderMainUrl);
+
+        //invalid certificate or no certificate
+        if (result.containsKey(ERRORS) || (result.containsKey(RESULT_KEY) && !result.getBoolean(RESULT_KEY)) ) {
+            return result;
+        }
+
+        //valid certificate: skip download, save loaded provider CA cert and provider definition directly
+        try {
+            preferences.edit().putString(Provider.KEY, providerDefinition.toString()).
+                    putBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS)).
+                    putBoolean(Constants.PROVIDER_ALLOWED_REGISTERED, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOWED_REGISTERED)).
+                    putString(Provider.CA_CERT, providerCaCert).commit();
+            CA_CERT_DOWNLOADED = true;
+            PROVIDER_JSON_DOWNLOADED = true;
+            result.putBoolean(RESULT_KEY, true);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            result.putBoolean(RESULT_KEY, false);
+            result = setErrorResult(result,  getString(R.string.warning_corrupted_provider_details), ERROR_CORRUPTED_PROVIDER_JSON.toString());
         }
 
         return result;

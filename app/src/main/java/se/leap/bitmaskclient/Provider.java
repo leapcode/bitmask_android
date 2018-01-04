@@ -70,14 +70,18 @@ public final class Provider implements Parcelable {
         this.mainUrl.setUrl(mainUrl);
     }
 
-    public Provider(URL mainUrl, String caCert,  /*String certificatePin,*/ String definition) {
+    public Provider(URL mainUrl, String caCert, String definition) {
         this.mainUrl.setUrl(mainUrl);
-        this.caCert = caCert;
-        try {
-            this.definition = new JSONObject(definition);
-            parseDefinition(this.definition);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (caCert != null) {
+            this.caCert = caCert;
+        }
+        if (definition != null) {
+            try {
+                this.definition = new JSONObject(definition);
+                parseDefinition(this.definition);
+            } catch (JSONException | NullPointerException e) {
+                e.printStackTrace();
+            }
         }
 
     }

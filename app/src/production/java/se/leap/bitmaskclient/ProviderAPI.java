@@ -62,6 +62,7 @@ public class ProviderAPI extends ProviderApiBase {
             lastProviderMainUrl = task.containsKey(Provider.MAIN_URL) ?
                     task.getString(Provider.MAIN_URL) :
                     "";
+            //TODO: remove that
             providerCaCertFingerprint = task.containsKey(Provider.CA_CERT_FINGERPRINT) ?
                     task.getString(Provider.CA_CERT_FINGERPRINT) :
                     "";
@@ -119,43 +120,6 @@ public class ProviderAPI extends ProviderApiBase {
     }
 
 
-    private Bundle validateProviderDetails() {
-        Bundle result = validateCertificateForProvider(providerCaCert, providerDefinition, lastProviderMainUrl);
-
-        //invalid certificate or no certificate
-        if (result.containsKey(ERRORS) || (result.containsKey(RESULT_KEY) && !result.getBoolean(RESULT_KEY)) ) {
-            return result;
-        }
-
-        //valid certificate: skip download, save loaded provider CA cert and provider definition directly
-        try {
-            preferences.edit().putString(Provider.KEY, providerDefinition.toString()).
-                    putBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS)).
-                    putBoolean(Constants.PROVIDER_ALLOWED_REGISTERED, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOWED_REGISTERED)).
-                    putString(Provider.CA_CERT, providerCaCert).commit();
-            CA_CERT_DOWNLOADED = true;
-            PROVIDER_JSON_DOWNLOADED = true;
-            result.putBoolean(RESULT_KEY, true);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            result.putBoolean(RESULT_KEY, false);
-            result = setErrorResult(result,  getString(R.string.warning_corrupted_provider_details), ERROR_CORRUPTED_PROVIDER_JSON.toString());
-        }
-
-        return result;
-    }
-
-    private void checkPersistedProviderUpdates() {
-        String providerDomain = getProviderDomain(providerDefinition);
-        if (hasUpdatedProviderDetails(providerDomain)) {
-            providerCaCert = getPersistedProviderCA(providerDomain);
-            providerDefinition = getPersistedProviderDefinition(providerDomain);
-            providerCaCertFingerprint = getPersistedCaCertFingerprint(providerDomain);
-            providerApiUrl = getApiUrlWithVersion(providerDefinition);
-        }
-    }
-
-
     private Bundle getAndSetProviderJson(String providerMainUrl, String caCert, JSONObject providerDefinition) {
         Bundle result = new Bundle();
 
@@ -186,7 +150,6 @@ public class ProviderAPI extends ProviderApiBase {
                         putString(Provider.KEY + "." + providerDomain, providerJson.toString()).commit();
                 result.putBoolean(RESULT_KEY, true);
             } catch (JSONException e) {
-                //TODO Error message should be contained in that provider_dot_json_string
                 String reason_to_fail = pickErrorMessage(providerDotJsonString);
                 result.putString(ERRORS, reason_to_fail);
                 result.putBoolean(RESULT_KEY, false);
@@ -261,7 +224,6 @@ public class ProviderAPI extends ProviderApiBase {
             String providerDomain = providerJson.getString(Provider.DOMAIN);
 
             String cert_string = downloadWithCommercialCA(caCertUrl);
-            result.putBoolean(RESULT_KEY, true);
 
             if (validCertificate(cert_string) && go_ahead) {
                 preferences.edit().putString(Provider.CA_CERT, cert_string).commit();
@@ -321,7 +283,7 @@ public class ProviderAPI extends ProviderApiBase {
      *
      * @return an empty string if it fails, the response body if not.
      */
-    protected String downloadFromApiUrlWithProviderCA(String path, String caCert, JSONObject providerDefinition) {
+    private String downloadFromApiUrlWithProviderCA(String path, String caCert, JSONObject providerDefinition) {
         String responseString;
         JSONObject errorJson = new JSONObject();
         String baseUrl = getApiUrl(providerDefinition);

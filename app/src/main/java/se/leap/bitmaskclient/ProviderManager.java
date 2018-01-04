@@ -58,19 +58,27 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     private Set<Provider> providersFromAssets(String directory, String[] relative_file_paths) {
         Set<Provider> providers = new HashSet<Provider>();
-        try {
-            for (String file : relative_file_paths) {
 
-                String provider = file.substring(0, file.length() - ".url".length());
-                InputStream provider_file = assets_manager.open(directory + "/" + file);
-                String mainUrl = extractMainUrlFromInputStream(provider_file);
-                String certificate = ConfigHelper.loadInputStreamAsString(assets_manager.open(provider + ".pem"));
-                String providerDefinition = ConfigHelper.loadInputStreamAsString(assets_manager.open(provider + ".json"));
-                providers.add(new Provider(new URL(mainUrl), certificate, providerDefinition));
+            for (String file : relative_file_paths) {
+                String mainUrl = null;
+                String certificate = null;
+                String providerDefinition = null;
+                try {
+                    String provider = file.substring(0, file.length() - ".url".length());
+                    InputStream provider_file = assets_manager.open(directory + "/" + file);
+                    mainUrl = extractMainUrlFromInputStream(provider_file);
+                    certificate = ConfigHelper.loadInputStreamAsString(assets_manager.open(provider + ".pem"));
+                    providerDefinition = ConfigHelper.loadInputStreamAsString(assets_manager.open(provider + ".json"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    providers.add(new Provider(new URL(mainUrl), certificate, providerDefinition));
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         return providers;
     }
 

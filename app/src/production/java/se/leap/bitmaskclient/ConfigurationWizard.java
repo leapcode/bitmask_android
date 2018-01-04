@@ -102,18 +102,4 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
         }
     }
 
-    @Override
-    public void updateProviderDetails() {
-        mConfigState.setAction(SETTING_UP_PROVIDER);
-        Intent provider_API_command = new Intent(this, ProviderAPI.class);
-
-        provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DETAILS);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
-        Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-
-        startService(provider_API_command);
-    }
-
 }
