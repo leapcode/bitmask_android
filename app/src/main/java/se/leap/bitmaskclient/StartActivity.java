@@ -48,7 +48,7 @@ public class StartActivity extends Activity {
                 break;
 
             case FIRST:
-                // TODO start ProfileCreation & replace below code
+                // (new Intent(getActivity(), ConfigurationWizard.class), Constants.REQUEST_CODE_SWITCH_PROVIDER);
                 break;
 
             case UPGRADE:

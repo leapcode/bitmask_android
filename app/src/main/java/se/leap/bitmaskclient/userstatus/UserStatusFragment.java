@@ -1,6 +1,6 @@
 package se.leap.bitmaskclient.userstatus;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -72,7 +72,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), Dashboard.dashboardReceiver);
     }

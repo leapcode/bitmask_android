@@ -25,7 +25,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
-import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.format.DateFormat;
 import android.text.style.ImageSpan;
@@ -65,7 +64,6 @@ import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.VpnStatus.LogListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import se.leap.bitmaskclient.Dashboard;
-import se.leap.bitmaskclient.NavigationDrawerFragment;
 import se.leap.bitmaskclient.R;
 
 import static de.blinkt.openvpn.core.OpenVPNService.humanReadableByteCount;

@@ -11,17 +11,20 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 
+import se.leap.bitmaskclient.drawer.NavigationDrawerFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
+import se.leap.bitmaskclient.userstatus.User;
+import se.leap.bitmaskclient.userstatus.UserStatusFragment;
 
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity extends AppCompatActivity {
 
     private static Provider provider = new Provider();
     private static FragmentManagerEnhanced fragmentManager;
@@ -56,56 +59,6 @@ public class MainActivity extends AppCompatActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-    }
-
-    @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment fragment = null;
-        switch (position) {
-            case 1:
-                // TODO STOP VPN
-                // if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
-                preferences.edit().clear().apply();
-                startActivityForResult(new Intent(this, ConfigurationWizard.class), Constants.REQUEST_CODE_SWITCH_PROVIDER);
-                break;
-            case 2:
-                fragment = new LogFragment();
-                break;
-            default:
-                fragment = new VpnFragment();
-                break;
-        }
-        if (fragment != null) {
-            fragmentManager.beginTransaction()
-                    .replace(R.id.container, fragment)
-                    .commit();
-        }
-        onSectionAttached(position);
-    }
-
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.switch_provider_menu_option);
-                break;
-            case 2:
-                mTitle = getString(R.string.log_fragment_title);
-                break;
-            default:
-                mTitle = getString(R.string.vpn_fragment_title);
-                break;
-        }
-        restoreActionBar();
-    }
-
-    public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setSubtitle(mTitle);
-        }
     }
 
     /**

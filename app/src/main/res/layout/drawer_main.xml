@@ -5,7 +5,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@color/colorBackground"
-        tools:context="se.leap.bitmaskclient.NavigationDrawerFragment">
+        tools:context="se.leap.bitmaskclient.drawer.NavigationDrawerFragment">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -32,21 +32,23 @@
 
     </FrameLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <ListView
             android:id="@+id/accountList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <FrameLayout
-            android:id="@+id/appActionFrame"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-    </LinearLayout>
+        <ListView
+            android:id="@+id/settingsList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true" />
+
+    </RelativeLayout>
 
 </LinearLayout>

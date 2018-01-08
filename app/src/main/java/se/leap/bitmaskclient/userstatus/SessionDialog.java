@@ -16,11 +16,12 @@
  */
 package se.leap.bitmaskclient.userstatus;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -164,11 +165,11 @@ public class SessionDialog extends DialogFragment {
     SessionDialogInterface interface_with_Dashboard;
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
 
         try {
-            interface_with_Dashboard = (SessionDialogInterface) activity.getFragmentManager().findFragmentById(R.id.user_status_fragment);;
+            interface_with_Dashboard = (SessionDialogInterface) ((AppCompatActivity) activity).getSupportFragmentManager().getFragments().get(0);
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement LogInDialogListener");
