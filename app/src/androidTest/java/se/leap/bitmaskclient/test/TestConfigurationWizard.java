@@ -112,14 +112,4 @@ public class TestConfigurationWizard extends ActivityInstrumentationTestCase2<Co
         assertTrue("Provider details dialog did not appear", solo.waitForText(text, 1, 60*1000));
     }
 
-    public void testShowAbout() {
-        showAbout();
-    }
-
-    private void showAbout() {
-        String text = solo.getString(R.string.about);
-        solo.clickOnMenuItem(text);
-        assertTrue("Provider details dialog did not appear", solo.waitForActivity(AboutFragment.class));
-    }
-
 }
