@@ -51,6 +51,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
+import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 import static android.view.View.GONE;
@@ -246,7 +247,7 @@ public abstract class BaseConfigurationWizard extends AppCompatActivity
             mConfigState.setAction(PROVIDER_NOT_SET);
             hideProgressBar();
             setResult(RESULT_CANCELED, mConfigState);
-        } else if (resultCode == AboutActivity.VIEWED) {
+        } else if (resultCode == AboutFragment.VIEWED) {
             // Do nothing, right now
             // I need this for CW to wait for the About activity to end before going back to Dashboard.
         }
@@ -417,7 +418,7 @@ public abstract class BaseConfigurationWizard extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.about_leap:
-                startActivityForResult(new Intent(this, AboutActivity.class), 0);
+                startActivityForResult(new Intent(this, AboutFragment.class), 0);
                 return true;
             case R.id.new_provider:
                 addAndSelectNewProvider();

@@ -32,6 +32,7 @@ import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnFragment;
+import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
@@ -142,6 +143,7 @@ public class NavigationDrawerFragment extends Fragment {
                         getString(R.string.vpn_fragment_title),
                         getString(R.string.switch_provider_menu_option),
                         getString(R.string.log_fragment_title),
+                        getString(R.string.about_fragment_title),
                 }));
         mDrawerSettingsListView.setItemChecked(mCurrentSelectedPosition, true);
 
@@ -320,6 +322,10 @@ public class NavigationDrawerFragment extends Fragment {
                 case 2:
                     mTitle = getString(R.string.log_fragment_title);
                     fragment = new LogFragment();
+                    break;
+                case 3:
+                    mTitle = getString(R.string.about_fragment_title);
+                    fragment = new AboutFragment();
                     break;
                 default:
                     mTitle = getString(R.string.vpn_fragment_title);

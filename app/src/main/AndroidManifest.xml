@@ -94,8 +94,8 @@
             android:label="@string/configuration_wizard_title"
             android:uiOptions="splitActionBarWhenNarrow"></activity>
         <activity
-            android:name=".AboutActivity"
-            android:label="@string/title_about_activity"></activity>
+            android:name=".fragments.AboutFragment"
+            android:label="@string/about_fragment_title"></activity>
 
         <service
             android:name=".eip.EIP"

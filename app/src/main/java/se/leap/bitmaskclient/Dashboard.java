@@ -40,6 +40,7 @@ import java.net.URL;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
@@ -365,7 +366,7 @@ public class Dashboard extends AppCompatActivity {
     }
 
     public void showAbout() {
-        Intent intent = new Intent(this, AboutActivity.class);
+        Intent intent = new Intent(this, AboutFragment.class);
         startActivity(intent);
     }
 
