@@ -38,7 +38,7 @@
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:logo="@drawable/icon"
-        android:theme="@style/AppTheme">
+        android:theme="@style/BitmaskTheme">
         <service
             android:name=".eip.VoidVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE">
@@ -71,12 +71,12 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name="de.blinkt.openvpn.LaunchVPN"
-            android:label="@string/vpn_launch_title"></activity>
+            android:label="@string/vpn_launch_title" />
         <activity
             android:name=".Dashboard"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:uiOptions="splitActionBarWhenNarrow"></activity>
+            android:uiOptions="splitActionBarWhenNarrow" />
         <activity
             android:name=".StartActivity"
             android:label="@string/app_name"
@@ -89,6 +89,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main" />
+
         <activity
             android:name=".ConfigurationWizard"
             android:label="@string/configuration_wizard_title" />
@@ -96,6 +101,10 @@
         <activity
             android:name=".ProviderDetailActivity"
             android:label="@string/provider_details_title" />
+
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".SignupActivity"
+            android:theme="@style/BitmaskTheme"/>
 
         <service
             android:name=".eip.EIP"
@@ -111,10 +120,6 @@
                 <action android:name="se.leap.bitmaskclient.EIP.IS_RUNNING"/>
             </intent-filter>
         </service>
-
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_main"></activity>
     </application>
 
 </manifest>

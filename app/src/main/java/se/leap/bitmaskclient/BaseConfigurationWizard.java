@@ -69,7 +69,7 @@ import static android.view.View.VISIBLE;
  * @author cyberta
  */
 
-public abstract class BaseConfigurationWizard extends AppCompatActivity
+public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         implements NewProviderDialog.NewProviderDialogInterface, DownloadFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
     @InjectView(R.id.progressbar_configuration_wizard)
     protected ProgressBar mProgressBar;
@@ -166,7 +166,6 @@ public abstract class BaseConfigurationWizard extends AppCompatActivity
 
     private void setUpInitialUI() {
         setContentView(R.layout.configuration_wizard_activity);
-        ButterKnife.inject(this);
 
         hideProgressBar();
     }

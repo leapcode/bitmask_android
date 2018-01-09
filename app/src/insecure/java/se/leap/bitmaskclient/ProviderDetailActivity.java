@@ -1,6 +1,5 @@
 package se.leap.bitmaskclient;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,10 +16,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class ProviderDetailActivity extends Activity {
+public class ProviderDetailActivity extends ButterKnifeActivity {
 
     final public static String TAG = "providerDetailActivity";
     private SharedPreferences preferences;
@@ -41,7 +39,6 @@ public class ProviderDetailActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.provider_detail_fragment);
-        ButterKnife.inject(this);
 
         preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
         try {
@@ -71,15 +68,18 @@ public class ProviderDetailActivity extends Activity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     String text = ((TextView) view).getText().toString();
+                    Intent intent;
                     if (text.equals(getString(R.string.login_button))) {
                         Log.d(TAG, "login selected");
+                        intent = new Intent(getApplicationContext(), LoginActivity.class);
                     } else if (text.equals(getString(R.string.signup_button))) {
                         Log.d(TAG, "signup selected");
-                    } else if (text.equals(getString(R.string.use_anonymously_button))) {
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                        startActivity(intent);
+                        intent = new Intent(getApplicationContext(), SignupActivity.class);
+                    } else {
+                        intent = new Intent(getApplicationContext(), MainActivity.class);
                     }
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(intent);
                 }
             });
         } catch (JSONException e) {
@@ -108,7 +108,7 @@ public class ProviderDetailActivity extends Activity {
     @Override
     public void onBackPressed() {
         SharedPreferences.Editor editor = preferences.edit();
-        editor.remove(Provider.KEY).remove(ProviderItem.DANGER_ON).remove(Constants.PROVIDER_ALLOW_ANONYMOUS).remove(Constants.PROVIDER_KEY).apply();
+        editor.remove(Provider.KEY).remove(ProviderListContent.ProviderItem.DANGER_ON).remove(Constants.PROVIDER_ALLOW_ANONYMOUS).remove(Constants.PROVIDER_KEY).apply();
         super.onBackPressed();
     }
 

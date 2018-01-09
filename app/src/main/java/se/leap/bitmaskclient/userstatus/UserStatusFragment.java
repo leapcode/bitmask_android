@@ -2,7 +2,6 @@ package se.leap.bitmaskclient.userstatus;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +17,6 @@ import java.util.Observer;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.MainActivity;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderAPI;
@@ -74,7 +72,6 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     @Override
     public void onAttach(Context activity) {
         super.onAttach(activity);
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), Dashboard.dashboardReceiver);
     }
 
     public void restoreSessionStatus(Bundle savedInstanceState) {

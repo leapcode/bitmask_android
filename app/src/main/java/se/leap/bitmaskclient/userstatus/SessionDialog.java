@@ -51,7 +51,7 @@ public class SessionDialog extends DialogFragment {
     final public static String USERNAME = "username";
     final public static String PASSWORD = "password";
 
-    public static enum ERRORS {
+    public enum ERRORS {
         USERNAME_MISSING,
         PASSWORD_INVALID_LENGTH,
         RISEUP_WARNING
@@ -156,9 +156,9 @@ public class SessionDialog extends DialogFragment {
      * @author parmegv
      */
     public interface SessionDialogInterface {
-        public void logIn(String username, String password);
+        void logIn(String username, String password);
 
-        public void signUp(String username, String password);
+        void signUp(String username, String password);
 
     }
 

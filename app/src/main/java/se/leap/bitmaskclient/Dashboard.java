@@ -57,7 +57,7 @@ import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author parmegv
  */
-public class Dashboard extends AppCompatActivity {
+public class Dashboard extends ButterKnifeActivity {
 
     public static final String TAG = Dashboard.class.getSimpleName();
 
@@ -280,7 +280,6 @@ public class Dashboard extends AppCompatActivity {
     // just to start services and destroy them afterwards
     private void buildDashboard(boolean hideAndTurnOnEipOnBoot) {
         setContentView(R.layout.dashboard);
-        ButterKnife.inject(this);
 
         provider_name.setText(provider.getDomain());
 

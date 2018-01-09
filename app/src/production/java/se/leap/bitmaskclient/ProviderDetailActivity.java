@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class ProviderDetailActivity extends Activity {
+public class ProviderDetailActivity extends ButterKnifeActivity {
 
     final public static String TAG = "providerDetailActivity";
     private SharedPreferences preferences;
@@ -41,7 +41,6 @@ public class ProviderDetailActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.provider_detail_fragment);
-        ButterKnife.inject(this);
 
         preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
         try {

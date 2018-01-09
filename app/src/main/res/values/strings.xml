@@ -27,7 +27,10 @@
     <string name="use_anonymously_button">Use anonymously</string>
     <string name="username_hint">username</string>
     <string name="username_ask">Please enter your username</string>
+    <string name="password_ask">Please enter your password</string>
     <string name="password_hint">password</string>
+    <string name="password_match">Passwords match</string>
+    <string name="password_mismatch">Passwords do not match</string>
     <string name="user_message">User message</string>
     <string name="about_fragment_title">About Bitmask</string>
     <string name="error_srp_math_error_user_message">Try again: server math error.</string>
