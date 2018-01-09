@@ -56,7 +56,7 @@ import se.leap.bitmaskclient.userstatus.SessionDialog;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static se.leap.bitmaskclient.ProviderApiBase.ERRORS;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 
 /**
  * abstract base Activity that builds and shows the list of known available providers.
@@ -352,7 +352,7 @@ public abstract class BaseConfigurationWizard extends Activity
     }
 
     /**
-     * Asks ProviderAPI to download an anonymous (anon) VPN certificate.
+     * Asks ProviderApiService to download an anonymous (anon) VPN certificate.
      */
     private void downloadVpnCertificate() {
         Intent provider_API_command = new Intent(this, ProviderAPI.class);

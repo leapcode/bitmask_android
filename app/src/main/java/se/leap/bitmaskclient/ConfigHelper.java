@@ -16,16 +16,33 @@
  */
 package se.leap.bitmaskclient;
 
-import android.util.*;
+import android.support.annotation.NonNull;
+import android.util.Log;
 
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.spongycastle.util.encoders.Base64;
 
-import java.io.*;
-import java.math.*;
-import java.security.*;
-import java.security.cert.*;
-import java.security.interfaces.*;
-import java.security.spec.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 
 import static android.R.attr.name;
 
@@ -82,7 +99,7 @@ public class ConfigHelper {
             cf = CertificateFactory.getInstance("X.509");
 
             certificate_string = certificate_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
-            byte[] cert_bytes = Base64.decode(certificate_string, Base64.DEFAULT);
+            byte[] cert_bytes = Base64.decode(certificate_string);
             InputStream caInput = new ByteArrayInputStream(cert_bytes);
             try {
                 certificate = cf.generateCertificate(caInput);
@@ -90,15 +107,9 @@ public class ConfigHelper {
             } finally {
                 caInput.close();
             }
-        } catch (CertificateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            return null;
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException | CertificateException | IOException | IllegalArgumentException e) {
             return null;
         }
-
         return (X509Certificate) certificate;
     }
 
@@ -139,7 +150,7 @@ public class ConfigHelper {
         try {
             KeyFactory kf = KeyFactory.getInstance("RSA", "BC");
             rsaKeyString = rsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(rsaKeyString, Base64.DEFAULT));
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(rsaKeyString));
             key = (RSAPrivateKey) kf.generatePrivate(keySpec);
         } catch (InvalidKeySpecException e) {
             // TODO Auto-generated catch block
@@ -162,7 +173,7 @@ public class ConfigHelper {
     }
 
     public static String base64toHex(String base64_input) {
-        byte[] byteArray = Base64.decode(base64_input, Base64.DEFAULT);
+        byte[] byteArray = Base64.decode(base64_input);
         int readBytes = byteArray.length;
         StringBuffer hexData = new StringBuffer();
         int onebyte;
@@ -171,6 +182,15 @@ public class ConfigHelper {
             hexData.append(Integer.toHexString(onebyte).substring(6));
         }
         return hexData.toString();
+    }
+
+    @NonNull
+    public static String getFingerprintFromCertificate(X509Certificate certificate, String encoding) throws NoSuchAlgorithmException, CertificateEncodingException /*, UnsupportedEncodingException*/ {
+        return base64toHex(
+                //new String(Base64.encode(MessageDigest.getInstance(encoding).digest(certificate.getEncoded())), "US-ASCII"));
+                android.util.Base64.encodeToString(
+                MessageDigest.getInstance(encoding).digest(certificate.getEncoded()),
+                android.util.Base64.DEFAULT));
     }
     
     /**

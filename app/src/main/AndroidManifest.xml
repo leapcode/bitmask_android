@@ -54,7 +54,7 @@
             </intent-filter>
         </service>
 	<service android:name="se.leap.bitmaskclient.ProviderAPI" android:enabled="true"/>
-	
+
         <receiver
             android:name="se.leap.bitmaskclient.OnBootReceiver"
             android:enabled="true"

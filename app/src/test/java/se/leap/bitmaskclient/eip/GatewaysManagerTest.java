@@ -16,7 +16,7 @@ import java.io.IOException;
 
 import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.Provider;
-import se.leap.bitmaskclient.TestUtils;
+import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -61,17 +61,17 @@ public class GatewaysManagerTest {
 
     @Test
     public void testFromEipServiceJson_ignoreDuplicateGateways() throws Exception {
-        String eipServiceJson = TestUtils.getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-two-gateways.json"));
+        String eipServiceJson = TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-two-gateways.json"));
         gatewaysManager.fromEipServiceJson(new JSONObject(eipServiceJson));
         assertEquals(2, gatewaysManager.size());
-        eipServiceJson = TestUtils.getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-one-gateway.json"));
+        eipServiceJson = TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-one-gateway.json"));
         gatewaysManager.fromEipServiceJson(new JSONObject(eipServiceJson));
         assertEquals(2, gatewaysManager.size());
     }
 
     @Test
     public void testClearGatewaysAndProfiles_resetGateways() throws Exception {
-        String eipServiceJson = TestUtils.getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-two-gateways.json"));
+        String eipServiceJson = TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-two-gateways.json"));
         gatewaysManager.fromEipServiceJson(new JSONObject(eipServiceJson));
         assertEquals(2, gatewaysManager.size());
         gatewaysManager.clearGatewaysAndProfiles();
@@ -79,7 +79,7 @@ public class GatewaysManagerTest {
     }
 
     private String getJsonStringFor(String filename) throws IOException {
-        return TestUtils.getInputAsString(getClass().getClassLoader().getResourceAsStream(filename));
+        return TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream(filename));
     }
 
 }

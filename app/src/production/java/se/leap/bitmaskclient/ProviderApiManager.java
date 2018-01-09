@@ -1,6 +1,5 @@
-
 /**
- * Copyright (c) 2013 LEAP Encryption Access Project and contributers
+ * Copyright (c) 2018 LEAP Encryption Access Project and contributers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package se.leap.bitmaskclient;
 
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Pair;
 
@@ -30,21 +32,30 @@ import java.util.List;
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.eip.EIP;
 
-import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
+import static android.text.TextUtils.isEmpty;
+import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
 import static se.leap.bitmaskclient.R.string.malformed_url;
 
 /**
- * Implements HTTP api methods used to manage communications with the provider server.
- * It extends the abstract ProviderApiBase and implements the diverging method calls between the different flavors
- * of ProviderAPI.
- * <p/>
- * It extends an  IntentService because it downloads data from the Internet, so it operates in the background.
- *
- * @author parmegv
- * @author MeanderingCode
- * @author cyberta
+ * Implements the logic of the provider api http requests. The methods of this class need to be called from
+ * a background thread.
  */
-public class ProviderAPI extends ProviderApiBase {
+
+
+public class ProviderApiManager extends ProviderApiManagerBase {
+
+    public ProviderApiManager(SharedPreferences preferences, Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
+        super(preferences, resources, clientGenerator, callback);
+    }
+
+    /**
+     * Only used in insecure flavor.
+     */
+    static boolean lastDangerOn() {
+        return false;
+    }
 
     /**
      * Downloads a provider.json from a given URL, adding a new provider using the given name.
@@ -62,6 +73,13 @@ public class ProviderAPI extends ProviderApiBase {
             lastProviderMainUrl = task.containsKey(Provider.MAIN_URL) ?
                     task.getString(Provider.MAIN_URL) :
                     "";
+
+            if (isEmpty(lastProviderMainUrl)) {
+                currentDownload.putBoolean(RESULT_KEY, false);
+                setErrorResult(currentDownload, resources.getString(R.string.malformed_url), null);
+                return currentDownload;
+            }
+
             //TODO: remove that
             providerCaCertFingerprint = task.containsKey(Provider.CA_CERT_FINGERPRINT) ?
                     task.getString(Provider.CA_CERT_FINGERPRINT) :
@@ -131,17 +149,17 @@ public class ProviderAPI extends ProviderApiBase {
                 providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, providerDefinition);
             }
 
-                if (!isValidJson(providerDotJsonString)) {
-                    result.putString(ERRORS, getString(malformed_url));
-                    result.putBoolean(RESULT_KEY, false);
-                    return result;
-                }
+            if (!isValidJson(providerDotJsonString)) {
+                result.putString(ERRORS, resources.getString(malformed_url));
+                result.putBoolean(RESULT_KEY, false);
+                return result;
+            }
 
             try {
                 JSONObject providerJson = new JSONObject(providerDotJsonString);
-                String providerDomain = providerJson.getString(Provider.DOMAIN);
+                String providerDomain = getDomainFromMainURL(lastProviderMainUrl);
                 providerApiUrl = getApiUrlWithVersion(providerJson);
-                String name = providerJson.getString(Provider.NAME);
+                //String name = providerJson.getString(Provider.NAME);
                 //TODO setProviderName(name);
 
                 preferences.edit().putString(Provider.KEY, providerJson.toString()).
@@ -221,8 +239,7 @@ public class ProviderAPI extends ProviderApiBase {
         try {
             JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
             String caCertUrl = providerJson.getString(Provider.CA_CERT_URI);
-            String providerDomain = providerJson.getString(Provider.DOMAIN);
-
+            String providerDomain = getDomainFromMainURL(lastProviderMainUrl);
             String cert_string = downloadWithCommercialCA(caCertUrl);
 
             if (validCertificate(cert_string) && go_ahead) {
@@ -230,13 +247,11 @@ public class ProviderAPI extends ProviderApiBase {
                 preferences.edit().putString(Provider.CA_CERT + "." + providerDomain, cert_string).commit();
                 result.putBoolean(RESULT_KEY, true);
             } else {
-                String reason_to_fail = pickErrorMessage(cert_string);
-                result.putString(ERRORS, reason_to_fail);
+                setErrorResult(result, resources.getString(R.string.warning_corrupted_provider_cert), ERROR_CERTIFICATE_PINNING.toString());
                 result.putBoolean(RESULT_KEY, false);
             }
         } catch (JSONException e) {
-            String reason_to_fail = formatErrorMessage(malformed_url);
-            result.putString(ERRORS, reason_to_fail);
+            setErrorResult(result, resources.getString(malformed_url), null);
             result.putBoolean(RESULT_KEY, false);
         }
 
@@ -249,11 +264,11 @@ public class ProviderAPI extends ProviderApiBase {
      * @param string_url
      * @return
      */
-    protected String downloadWithCommercialCA(String string_url) {
+    private String downloadWithCommercialCA(String string_url) {
         String responseString;
         JSONObject errorJson = new JSONObject();
 
-        OkHttpClient okHttpClient = initCommercialCAHttpClient(errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initCommercialCAHttpClient(errorJson);
         if (okHttpClient == null) {
             return errorJson.toString();
         }
@@ -266,7 +281,7 @@ public class ProviderAPI extends ProviderApiBase {
             try {
                 // try to download with provider CA on certificate error
                 JSONObject responseErrorJson = new JSONObject(responseString);
-                if (responseErrorJson.getString(ERRORS).equals(getString(R.string.certificate_error))) {
+                if (responseErrorJson.getString(ERRORS).equals(resources.getString(R.string.certificate_error))) {
                     responseString = downloadWithProviderCA(string_url);
                 }
             } catch (JSONException e) {
@@ -287,7 +302,7 @@ public class ProviderAPI extends ProviderApiBase {
         String responseString;
         JSONObject errorJson = new JSONObject();
         String baseUrl = getApiUrl(providerDefinition);
-        OkHttpClient okHttpClient = initSelfSignedCAHttpClient(errorJson, caCert);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(errorJson, caCert);
         if (okHttpClient == null) {
             return errorJson.toString();
         }
@@ -301,18 +316,17 @@ public class ProviderAPI extends ProviderApiBase {
     }
 
 
-
     /**
      * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider.
      *
      * @param urlString as a string
      * @return an empty string if it fails, the url content if not.
      */
-    protected String downloadWithProviderCA(String urlString) {
+    private String downloadWithProviderCA(String urlString) {
         JSONObject initError = new JSONObject();
         String responseString;
 
-        OkHttpClient okHttpClient = initSelfSignedCAHttpClient(initError);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(initError);
         if (okHttpClient == null) {
             return initError.toString();
         }
@@ -323,5 +337,4 @@ public class ProviderAPI extends ProviderApiBase {
 
         return responseString;
     }
-
 }

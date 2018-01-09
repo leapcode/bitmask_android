@@ -16,19 +16,19 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.os.Bundle;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.DEFAULT;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.valueOf;
-import static se.leap.bitmaskclient.ProviderApiBase.ERRORID;
-import static se.leap.bitmaskclient.ProviderApiBase.ERRORS;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORID;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 
 /**
  * Implements a dialog to show why a download failed.
