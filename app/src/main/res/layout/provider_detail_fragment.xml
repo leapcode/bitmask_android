@@ -38,4 +38,9 @@
         android:textStyle="normal"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
+    <ListView
+        android:id="@+id/provider_detail_options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

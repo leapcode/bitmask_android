@@ -16,14 +16,20 @@
  */
 package se.leap.bitmaskclient;
 
-import butterknife.*;
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
-import android.view.*;
-import android.widget.*;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 /**
  * Implements the new custom provider dialog.
@@ -38,23 +44,24 @@ public class NewProviderDialog extends DialogFragment {
     EditText url_input_field;
 
     public interface NewProviderDialogInterface {
-        public void showAndSelectProvider(String url_provider);
+        void showAndSelectProvider(String url_provider);
     }
 
     NewProviderDialogInterface interface_with_ConfigurationWizard;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            interface_with_ConfigurationWizard = (NewProviderDialogInterface) activity;
+            interface_with_ConfigurationWizard = (NewProviderDialogInterface) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement NoticeDialogListener");
         }
     }
 
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -96,7 +103,6 @@ public class NewProviderDialog extends DialogFragment {
         } else {
             url_input_field.setText("");
             Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();
-            ;
         }
     }
 

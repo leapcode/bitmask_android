@@ -7,7 +7,6 @@ import com.robotium.solo.Solo;
 
 import java.io.IOException;
 
-import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.ConfigurationWizard;
 import se.leap.bitmaskclient.R;
 
@@ -71,7 +70,7 @@ public class TestConfigurationWizard extends ActivityInstrumentationTestCase2<Co
     }
 
     private void waitForProviderDetails() {
-        String text = solo.getString(R.string.provider_details_fragment_title);
+        String text = solo.getString(R.string.provider_details_title);
         assertTrue("Provider details dialog did not appear", solo.waitForText(text, 1, 60*1000));
         Screenshot.take("Provider details");
     }

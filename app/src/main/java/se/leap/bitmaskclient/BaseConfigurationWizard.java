@@ -70,7 +70,7 @@ import static android.view.View.VISIBLE;
  */
 
 public abstract class BaseConfigurationWizard extends AppCompatActivity
-        implements NewProviderDialog.NewProviderDialogInterface, ProviderDetailFragment.ProviderDetailFragmentInterface, DownloadFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
+        implements NewProviderDialog.NewProviderDialogInterface, DownloadFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
     @InjectView(R.id.progressbar_configuration_wizard)
     protected ProgressBar mProgressBar;
     @InjectView(R.id.progressbar_description)
@@ -150,22 +150,13 @@ public abstract class BaseConfigurationWizard extends AppCompatActivity
     private void restoreState(Bundle savedInstanceState) {
         progressbar_text = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
         selected_provider = savedInstanceState.getParcelable(Provider.KEY);
-
-        if (fragment_manager.findFragmentByTag(ProviderDetailFragment.TAG) == null &&
-                (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
-                         PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction()) ||
-                         PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())
-                )) {
-            onItemSelectedUi();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
-            showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(selected_provider));
+            cancelAndShowAllProviders();
         } else if (PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction())) {
             showProviderDetails();
         } else if (PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
@@ -396,15 +387,9 @@ public abstract class BaseConfigurationWizard extends AppCompatActivity
      *
      */
     public void showProviderDetails() {
-        try {
-            FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(ProviderDetailFragment.TAG);
-
-            DialogFragment newFragment = ProviderDetailFragment.newInstance();
-            newFragment.show(fragment_transaction, ProviderDetailFragment.TAG);
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-            mConfigState.setAction(PENDING_SHOW_PROVIDER_DETAILS);
-        }
+        Intent intent = new Intent(this, ProviderDetailActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(intent);
     }
 
 
@@ -428,30 +413,10 @@ public abstract class BaseConfigurationWizard extends AppCompatActivity
         }
     }
 
-    @Override
     public void cancelAndShowAllProviders() {
         mConfigState.setAction(PROVIDER_NOT_SET);
         selected_provider = null;
         adapter.showAllProviders();
-    }
-
-    @Override
-    public void login() {
-        mConfigState.setAction(PROVIDER_SET);
-        Intent ask_login = new Intent();
-        ask_login.putExtra(Provider.KEY, selected_provider);
-        ask_login.putExtra(SessionDialog.TAG, SessionDialog.TAG);
-        setResult(RESULT_OK, ask_login);
-        finish();
-    }
-
-    @Override
-    public void use_anonymously() {
-        mConfigState.setAction(PROVIDER_SET);
-        Intent pass_provider = new Intent();
-        pass_provider.putExtra(Provider.KEY, selected_provider);
-        setResult(RESULT_OK, pass_provider);
-        finish();
     }
 
     public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {

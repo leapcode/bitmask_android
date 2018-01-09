@@ -25,7 +25,7 @@
     <string name="new_provider_uri">Dominio</string>
     <string name="valid_url_entered">El dominio está bien formado</string>
     <string name="not_valid_url_entered">Dominio no válido</string>
-    <string name="provider_details_fragment_title">Detalles del proveedor</string>
+    <string name="provider_details_title">Detalles del proveedor</string>
     <string name="use_anonymously_button">Utilizar sin registrarse</string>
     <string name="username_hint">usuario</string>
     <string name="username_ask">Por favor, introduce tu usuario</string>

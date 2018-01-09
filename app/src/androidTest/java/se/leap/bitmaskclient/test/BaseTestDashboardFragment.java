@@ -84,7 +84,7 @@ public abstract class BaseTestDashboardFragment extends ActivityInstrumentationT
     }
 
     private void waitForProviderDetails() {
-        String text = solo.getString(R.string.provider_details_fragment_title);
+        String text = solo.getString(R.string.provider_details_title);
         assertTrue("Provider details dialog did not appear", solo.waitForText(text, 1, 60*1000));
         Screenshot.take("Provider details");
     }

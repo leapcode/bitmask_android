@@ -16,11 +16,12 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,33 +38,35 @@ import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
  *
  * @author parmegv
  */
-public class NewProviderDialog extends DialogFragment{
+public class NewProviderDialog extends DialogFragment {
 
     final public static String TAG = "newProviderDialog";
 
     @InjectView(R.id.new_provider_url)
     EditText url_input_field;
+
     @InjectView(R.id.danger_checkbox)
     CheckBox danger_checkbox;
 
     public interface NewProviderDialogInterface {
-        public void showAndSelectProvider(String url_provider, boolean danger_on);
+        void showAndSelectProvider(String url_provider, boolean danger_on);
     }
 
     NewProviderDialogInterface interface_with_ConfigurationWizard;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            interface_with_ConfigurationWizard = (NewProviderDialogInterface) activity;
+            interface_with_ConfigurationWizard = (NewProviderDialogInterface) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement NoticeDialogListener");
         }
     }
 
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -107,7 +110,6 @@ public class NewProviderDialog extends DialogFragment{
             url_input_field.setText("");
             danger_checkbox.setChecked(false);
             Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();
-            ;
         }
     }
 

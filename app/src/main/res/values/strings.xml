@@ -23,7 +23,7 @@
     <string name="new_provider_uri">Domain name</string>
     <string name="valid_url_entered">It seems your URL is well formed</string>
     <string name="not_valid_url_entered">It seems your URL is not well formed</string>
-    <string name="provider_details_fragment_title">Provider details</string>
+    <string name="provider_details_title">Provider details</string>
     <string name="use_anonymously_button">Use anonymously</string>
     <string name="username_hint">username</string>
     <string name="username_ask">Please enter your username</string>

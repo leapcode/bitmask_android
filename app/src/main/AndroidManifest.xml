@@ -91,11 +91,11 @@
         </activity>
         <activity
             android:name=".ConfigurationWizard"
-            android:label="@string/configuration_wizard_title"
-            android:uiOptions="splitActionBarWhenNarrow"></activity>
+            android:label="@string/configuration_wizard_title" />
+
         <activity
-            android:name=".fragments.AboutFragment"
-            android:label="@string/about_fragment_title"></activity>
+            android:name=".ProviderDetailActivity"
+            android:label="@string/provider_details_title" />
 
         <service
             android:name=".eip.EIP"
