@@ -30,7 +30,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
@@ -46,16 +45,10 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatus;
@@ -96,9 +89,11 @@ import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
 import static se.leap.bitmaskclient.R.string.malformed_url;
-import static se.leap.bitmaskclient.R.string.retry;
 import static se.leap.bitmaskclient.R.string.server_unreachable_message;
 import static se.leap.bitmaskclient.R.string.service_is_down_error;
+import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
+import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
+import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
 
 /**
  * Implements the logic of the http api calls. The methods of this class needs to be called from
@@ -135,10 +130,6 @@ public abstract class ProviderApiManagerBase {
     public static String lastProviderMainUrl() {
         return lastProviderMainUrl;
     }
-
-
-    private final MediaType JSON
-            = MediaType.parse("application/json; charset=utf-8");
 
     public ProviderApiManagerBase(SharedPreferences preferences, Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
         this.preferences = preferences;
@@ -390,7 +381,7 @@ public abstract class ProviderApiManagerBase {
     private boolean setTokenIfAvailable(JSONObject authentication_step_result) {
         try {
             LeapSRPSession.setToken(authentication_step_result.getString(LeapSRPSession.TOKEN));
-        } catch (JSONException e) { //
+        } catch (JSONException e) {
             return false;
         }
         return true;
@@ -540,33 +531,12 @@ public abstract class ProviderApiManagerBase {
     }
 
     private String requestStringFromServer(String url, String request_method, String jsonString, List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient) {
-        //Response response;
         String plainResponseBody = null;
 
-        /*RequestBody jsonBody = jsonString != null ? RequestBody.create(JSON, jsonString) : null;
-        Request.Builder requestBuilder = new Request.Builder()
-                .url(url)
-                .method(request_method, jsonBody);
-        if (headerArgs != null) {
-            for (Pair<String, String> keyValPair : headerArgs) {
-                requestBuilder.addHeader(keyValPair.first, keyValPair.second);
-            }
-        }
-        //TODO: move to getHeaderArgs()?
-        String locale = Locale.getDefault().getLanguage() + Locale.getDefault().getCountry();
-        requestBuilder.addHeader("Accept-Language", locale);
-        Request request = requestBuilder.build();
-*/
         try {
-            //response = okHttpClient.newCall(request).execute();
-            //response = ProviderApiConnector.requestStringFromServer(url, request_method, jsonString, headerArgs, okHttpClient);
-            //InputStream inputStream = response.body().byteStream();
-            //Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-            //if (scanner.hasNext()) {
-            //    plainResponseBody = scanner.next();
-            //}
 
             plainResponseBody = ProviderApiConnector.requestStringFromServer(url, request_method, jsonString, headerArgs, okHttpClient);
+
         } catch (NullPointerException npe) {
             plainResponseBody = formatErrorMessage(error_json_exception_user_message);
         } catch (UnknownHostException | SocketTimeoutException e) {
@@ -587,6 +557,39 @@ public abstract class ProviderApiManagerBase {
         }
 
         return plainResponseBody;
+    }
+
+    private boolean canConnect(String caCert, JSONObject providerDefinition, Bundle result) {
+        JSONObject errorJson = new JSONObject();
+        String baseUrl = getApiUrl(providerDefinition);
+
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(errorJson, caCert);
+        if (okHttpClient == null) {
+            result.putString(ERRORS, errorJson.toString());
+            return false;
+        }
+
+        try {
+
+            return ProviderApiConnector.canConnect(okHttpClient, baseUrl);
+
+        }  catch (UnknownHostException | SocketTimeoutException e) {
+            setErrorResult(result, server_unreachable_message, null);
+        } catch (MalformedURLException e) {
+            setErrorResult(result, malformed_url, null);
+        } catch (SSLHandshakeException e) {
+            setErrorResult(result, warning_corrupted_provider_cert, ERROR_INVALID_CERTIFICATE.toString());
+        } catch (ConnectException e) {
+            setErrorResult(result, service_is_down_error, null);
+        } catch (IllegalArgumentException e) {
+            setErrorResult(result, error_no_such_algorithm_exception_user_message, null);
+        } catch (UnknownServiceException e) {
+            //unable to find acceptable protocols - tlsv1.2 not enabled?
+            setErrorResult(result, error_no_such_algorithm_exception_user_message, null);
+        } catch (IOException e) {
+            setErrorResult(result, error_io_exception_user_message, null);
+        }
+        return false;
     }
 
     /**
@@ -642,7 +645,7 @@ public abstract class ProviderApiManagerBase {
                     result = real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim());
                 } else
                     result = false;
-            } catch (JSONException | NoSuchAlgorithmException | CertificateEncodingException /*| UnsupportedEncodingException*/ e) {
+            } catch (JSONException | NoSuchAlgorithmException | CertificateEncodingException e) {
                 result = false;
             }
         }
@@ -650,10 +653,7 @@ public abstract class ProviderApiManagerBase {
         return result;
     }
 
-
-
     protected void checkPersistedProviderUpdates() {
-        //String providerDomain = getProviderDomain(providerDefinition);
         String providerDomain = getDomainFromMainURL(lastProviderMainUrl);
         if (hasUpdatedProviderDetails(providerDomain)) {
             providerCaCert = getPersistedProviderCA(providerDomain);
@@ -682,8 +682,7 @@ public abstract class ProviderApiManagerBase {
             result.putBoolean(RESULT_KEY, true);
         } catch (JSONException e) {
             e.printStackTrace();
-            result.putBoolean(RESULT_KEY, false);
-            result = setErrorResult(result,  resources.getString(R.string.warning_corrupted_provider_details), ERROR_CORRUPTED_PROVIDER_JSON.toString());
+            setErrorResult(result, warning_corrupted_provider_details, ERROR_CORRUPTED_PROVIDER_JSON.toString());
         }
 
         return result;
@@ -699,7 +698,7 @@ public abstract class ProviderApiManagerBase {
 
         X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
         if (certificate == null) {
-            return setErrorResult(result, resources.getString(R.string.warning_corrupted_provider_cert), ERROR_INVALID_CERTIFICATE.toString());
+            return setErrorResult(result, warning_corrupted_provider_cert, ERROR_INVALID_CERTIFICATE.toString());
         }
         try {
             certificate.checkValidity();
@@ -708,39 +707,38 @@ public abstract class ProviderApiManagerBase {
             String expected_fingerprint = fingerprint.split(":")[1];
             String real_fingerprint = getFingerprintFromCertificate(certificate, encoding);
             if (!real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim())) {
-                return setErrorResult(result, resources.getString(R.string.warning_corrupted_provider_cert), ERROR_CERTIFICATE_PINNING.toString());
+                return setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
             }
 
 
             if (!hasApiUrlExpectedDomain(providerDefinition, mainUrl)){
-                return setErrorResult(result, resources.getString(R.string.warning_corrupted_provider_details), ERROR_CORRUPTED_PROVIDER_JSON.toString());
+                return setErrorResult(result, warning_corrupted_provider_details, ERROR_CORRUPTED_PROVIDER_JSON.toString());
             }
 
             if (!canConnect(cert_string, providerDefinition, result)) {
                 return result;
             }
         } catch (NoSuchAlgorithmException e ) {
-            return setErrorResult(result, resources.getString(error_no_such_algorithm_exception_user_message), null);
+            return setErrorResult(result, error_no_such_algorithm_exception_user_message, null);
         } catch (ArrayIndexOutOfBoundsException e) {
-            return setErrorResult(result, resources.getString(R.string.warning_corrupted_provider_details), ERROR_CORRUPTED_PROVIDER_JSON.toString());
+            return setErrorResult(result, warning_corrupted_provider_details, ERROR_CORRUPTED_PROVIDER_JSON.toString());
         } catch (CertificateEncodingException | CertificateNotYetValidException | CertificateExpiredException e) {
-            return setErrorResult(result, resources.getString(R.string.warning_expired_provider_cert), ERROR_INVALID_CERTIFICATE.toString());
-        } /*catch (UnsupportedEncodingException e) {
-            return setErrorResult(result, resources.getString(R.string.warning_corrupted_provider_cert), ERROR_CERTIFICATE_PINNING.toString());
-        }*/
+            return setErrorResult(result, warning_expired_provider_cert, ERROR_INVALID_CERTIFICATE.toString());
+        }
 
         result.putBoolean(RESULT_KEY, true);
         return result;
     }
 
-    protected Bundle setErrorResult(Bundle result, String errorMessage, String errorId) {
+    protected Bundle setErrorResult(Bundle result, int errorMessageId, String errorId) {
         JSONObject errorJson = new JSONObject();
         if (errorId != null) {
-            addErrorMessageToJson(errorJson, errorMessage, errorId);
+            addErrorMessageToJson(errorJson, resources.getString(errorMessageId), errorId);
         } else {
-            addErrorMessageToJson(errorJson, errorMessage);
+            addErrorMessageToJson(errorJson, resources.getString(errorMessageId));
         }
         result.putString(ERRORS, errorJson.toString());
+        result.putBoolean(RESULT_KEY, false);
         return result;
     }
 
@@ -761,41 +759,6 @@ public abstract class ProviderApiManagerBase {
             return true;
         }
         return false;
-    }
-
-    private boolean canConnect(String caCert, JSONObject providerDefinition, Bundle result) {
-        JSONObject errorJson = new JSONObject();
-        String baseUrl = getApiUrl(providerDefinition);
-
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(errorJson, caCert);
-        if (okHttpClient == null) {
-            result.putString(ERRORS, errorJson.toString());
-            return false;
-        }
-
-        //try {
-
-        return ProviderApiConnector.canConnect(okHttpClient, baseUrl);
-        /*} catch (RuntimeException | IOException e) {
-            e.printStackTrace();
-        }*/
-
-        //return false;
-
-
-        /*List<Pair<String, String>> headerArgs = getAuthorizationHeader();
-        String plain_response = requestStringFromServer(baseUrl, "GET", null, headerArgs, okHttpClient);
-
-        try {
-            if (new JSONObject(plain_response).has(ERRORS)) {
-                result.putString(ERRORS, plain_response);
-                return false;
-            }
-        } catch (JSONException e) {
-            //eat me
-        }
-
-        return true;*/
     }
 
     protected String getCaCertFingerprint(JSONObject providerDefinition) {
@@ -920,26 +883,6 @@ public abstract class ProviderApiManagerBase {
 
         String deleteUrl = providerApiUrl + "/logout";
         int progress = 0;
-
-       /* Request.Builder requestBuilder = new Request.Builder()
-                .url(deleteUrl)
-                .delete();
-        Request request = requestBuilder.build();*/
-
-        //try {
-
-            //Response response = okHttpClient.newCall(request).execute();
-//            Response response = ProviderApiConnector.delete(okHttpClient, deleteUrl);
-//                                            // v---- was already not authorized
-//            if (response.isSuccessful() || response.code() == 401) {
-//                broadcastProgress(progress++);
-//                LeapSRPSession.setToken("");
-//            }
-//
-//        } catch (IOException | RuntimeException e) {
-//            return false;
-//        }
-//        return true;
 
         if (ProviderApiConnector.delete(okHttpClient, deleteUrl)) {
             broadcastProgress(progress++);

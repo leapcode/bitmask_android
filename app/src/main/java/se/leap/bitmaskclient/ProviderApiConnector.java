@@ -60,18 +60,14 @@ public class ProviderApiConnector {
         return false;
     }
 
-    public static boolean canConnect(@NonNull OkHttpClient okHttpClient, String url) {
-        try {
-            Request.Builder requestBuilder = new Request.Builder()
-                    .url(url)
-                    .method("GET", null);
-            Request request = requestBuilder.build();
+    public static boolean canConnect(@NonNull OkHttpClient okHttpClient, String url) throws RuntimeException, IOException {
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(url)
+                .method("GET", null);
+        Request request = requestBuilder.build();
 
-            Response response = okHttpClient.newCall(request).execute();
-            return response.isSuccessful();
-        } catch (RuntimeException | IOException e) {
-            return false;
-        }
+        Response response = okHttpClient.newCall(request).execute();
+        return response.isSuccessful();
 
     }
 

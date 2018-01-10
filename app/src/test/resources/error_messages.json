@@ -11,6 +11,6 @@
 "error_json_exception_user_message": "Try again: Bad response from the server",
 "error_no_such_algorithm_exception_user_message": "Encryption algorithm not found. Please update your OS!",
 "warning_corrupted_provider_details": "Stored provider details are corrupted. You can either update Bitmask (recommended) or update the provider details using a commercial CA certificate.",
-"warning_corrupted_provider_cert": "Stored provider certificate is corrupted. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.",
+"warning_corrupted_provider_cert": "Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.",
 "warning_expired_provider_cert": "Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate."
 }

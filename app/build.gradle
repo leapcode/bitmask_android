@@ -70,9 +70,9 @@ dependencies {
   testCompile 'org.powermock:powermock-module-junit4:1.7.3'
   testCompile 'org.powermock:powermock-core:1.7.3'
   testCompile 'org.powermock:powermock-module-junit4-rule:1.7.3'
-  testCompile 'com.madgag.spongycastle:bctls-jdk15on:1.58.0.0'
-  testCompile 'com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0'
-  testCompile 'com.madgag.spongycastle:bcpg-jdk15on:1.58.0.0'
+  //testCompile 'com.madgag.spongycastle:bctls-jdk15on:1.58.0.0'
+  //testCompile 'com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0'
+  //testCompile 'com.madgag.spongycastle:bcpg-jdk15on:1.58.0.0'
 
   androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.6.3'
   testCompile 'junit:junit:4.12'

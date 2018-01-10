@@ -14,22 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+package se.leap.bitmaskclient.testutils.BackendMockResponses;
 
-package se.leap.bitmaskclient.testutils.answers;
-
-import org.mockito.stubbing.Answer;
+import java.io.IOException;
 
 /**
- * Created by cyberta on 09.01.18.
+ * Created by cyberta on 10.01.18.
  */
 
-public class BackendAnswerFabric {
+public class BackendMockProvider {
     /**
      * This enum can be useful to provide different responses from a mocked ProviderApiConnector
      * in order to test different error scenarios
      */
     public enum TestBackendErrorCase {
         NO_ERROR,
+        ERROR_CASE_UPDATED_CERTIFICATE,
         ERROR_NO_RESPONSE_BODY,         // => NullPointerException
         ERROR_DNS_RESOLUTION_ERROR,     // => UnkownHostException
         ERROR_SOCKET_TIMEOUT,           // => SocketTimeoutException
@@ -45,10 +45,16 @@ public class BackendAnswerFabric {
         ERROR_WRONG_SRP_CREDENTIALS
     }
 
-    public static Answer<String> getAnswerForErrorcase(TestBackendErrorCase errorCase) {
+
+    public static void provideBackendResponsesFor(TestBackendErrorCase errorCase) throws IOException {
         switch (errorCase) {
+
             case NO_ERROR:
-                return new NoErrorAnswer();
+                new NoErrorBackendResponse();
+                break;
+            case ERROR_CASE_UPDATED_CERTIFICATE:
+                new UpdatedCertificateBackendResponse();
+                break;
             case ERROR_NO_RESPONSE_BODY:
                 break;
             case ERROR_DNS_RESOLUTION_ERROR:
@@ -76,7 +82,5 @@ public class BackendAnswerFabric {
             case ERROR_WRONG_SRP_CREDENTIALS:
                 break;
         }
-        return null;
     }
-
 }

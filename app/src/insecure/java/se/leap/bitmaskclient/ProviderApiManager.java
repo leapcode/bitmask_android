@@ -49,11 +49,11 @@ import se.leap.bitmaskclient.eip.EIP;
 
 import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
-import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
 import static se.leap.bitmaskclient.R.string.certificate_error;
 import static se.leap.bitmaskclient.R.string.malformed_url;
+import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 
 /**
  * Created by cyberta on 04.01.18.
@@ -89,8 +89,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                     "";
 
             if (isEmpty(lastProviderMainUrl)) {
-                currentDownload.putBoolean(RESULT_KEY, false);
-                setErrorResult(currentDownload, resources.getString(R.string.malformed_url), null);
+                setErrorResult(currentDownload, malformed_url, null);
                 return currentDownload;
             }
 
@@ -260,12 +259,10 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 preferences.edit().putString(Provider.CA_CERT + "." + providerDomain, certString).commit();
                 result.putBoolean(RESULT_KEY, true);
             } else {
-                setErrorResult(result, resources.getString(R.string.warning_corrupted_provider_cert), ERROR_CERTIFICATE_PINNING.toString());
-                result.putBoolean(RESULT_KEY, false);
+                setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
             }
         } catch (JSONException e) {
-            setErrorResult(result, resources.getString(malformed_url), null);
-            result.putBoolean(RESULT_KEY, false);
+            setErrorResult(result, malformed_url, null);
         }
 
         return result;

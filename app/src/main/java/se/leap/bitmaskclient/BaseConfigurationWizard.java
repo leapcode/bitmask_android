@@ -409,8 +409,6 @@ public abstract class BaseConfigurationWizard extends Activity
 
     }
 
-
-
     /**
      * Once selected a provider, this fragment offers the user to log in,
      * use it anonymously (if possible)
@@ -429,7 +427,6 @@ public abstract class BaseConfigurationWizard extends Activity
             mConfigState.setAction(PENDING_SHOW_PROVIDER_DETAILS);
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

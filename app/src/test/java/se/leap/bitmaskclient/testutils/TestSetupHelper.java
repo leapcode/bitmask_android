@@ -24,11 +24,9 @@ import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Pair;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -50,9 +48,8 @@ import java.util.Set;
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.ConfigHelper;
 import se.leap.bitmaskclient.OkHttpClientGenerator;
-import se.leap.bitmaskclient.ProviderApiConnector;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.testutils.answers.BackendAnswerFabric;
+import se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider;
 import se.leap.bitmaskclient.testutils.matchers.BundleMatcher;
 
 import static org.junit.Assert.assertEquals;
@@ -61,14 +58,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static se.leap.bitmaskclient.testutils.answers.BackendAnswerFabric.TestBackendErrorCase.ERROR_NO_CONNECTION;
-import static se.leap.bitmaskclient.testutils.answers.BackendAnswerFabric.getAnswerForErrorcase;
 
 /**
  * Created by cyberta on 08.10.17.
@@ -383,14 +377,11 @@ public class TestSetupHelper {
         mockStatic(ConfigHelper.class);
         when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
         when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
-        when(ConfigHelper.base64toHex(anyString())).thenCallRealMethod();
         when(ConfigHelper.parseX509CertificateFromString(anyString())).thenCallRealMethod();
     }
 
-    public static void mockProviderApiConnector(final BackendAnswerFabric.TestBackendErrorCase errorCase) throws IOException {
-        mockStatic(ProviderApiConnector.class);
-        when(ProviderApiConnector.canConnect(any(OkHttpClient.class), anyString())).thenReturn(errorCase != ERROR_NO_CONNECTION);
-        when(ProviderApiConnector.requestStringFromServer(anyString(), anyString(), nullable(String.class), ArgumentMatchers.<Pair<String,String>>anyList(), any(OkHttpClient.class))).thenAnswer(getAnswerForErrorcase(errorCase));
+    public static void mockProviderApiConnector(final BackendMockProvider.TestBackendErrorCase errorCase) throws IOException {
+        BackendMockProvider.provideBackendResponsesFor(errorCase);
     }
 
     public static OkHttpClientGenerator mockClientGenerator() {
