@@ -234,7 +234,7 @@ public final class Provider implements Parcelable {
     public boolean equals(Object o) {
         if (o instanceof Provider) {
             Provider p = (Provider) o;
-            return p.getMainUrl().getDomain().equals(getMainUrl().getDomain());
+            return p.getDomain().equals(getDomain());
         } else return false;
     }
 
@@ -253,7 +253,7 @@ public final class Provider implements Parcelable {
 
     @Override
     public int hashCode() {
-        return getMainUrl().getDomain().hashCode();
+        return getDomain().hashCode();
     }
 
     @Override
@@ -261,6 +261,7 @@ public final class Provider implements Parcelable {
         return new Gson().toJson(this);
     }
 
+    //TODO: write a test for marshalling!
     private Provider(Parcel in) {
         try {
             mainUrl.setUrl(new URL(in.readString()));

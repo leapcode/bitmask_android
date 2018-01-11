@@ -510,13 +510,13 @@ public abstract class ProviderApiManagerBase {
         return requestJsonFromServer(url, request_method, jsonString, null, okHttpClient);
     }
 
-    protected String sendGetStringToServer(String url, List<Pair<String, String>> headerArgs, OkHttpClient okHttpClient) {
+    protected String sendGetStringToServer(@NonNull String url, @NonNull List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient) {
         return requestStringFromServer(url, "GET", null, headerArgs, okHttpClient);
     }
 
 
 
-    private JSONObject requestJsonFromServer(String url, String request_method, String jsonString, List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient)  {
+    private JSONObject requestJsonFromServer(@NonNull String url, @NonNull String request_method, String jsonString, @NonNull List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient)  {
         JSONObject responseJson;
         String plain_response = requestStringFromServer(url, request_method, jsonString, headerArgs, okHttpClient);
 
@@ -530,7 +530,7 @@ public abstract class ProviderApiManagerBase {
 
     }
 
-    private String requestStringFromServer(String url, String request_method, String jsonString, List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient) {
+    private String requestStringFromServer(@NonNull String url, @NonNull String request_method, String jsonString, @NonNull List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient) {
         String plainResponseBody = null;
 
         try {

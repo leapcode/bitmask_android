@@ -50,6 +50,7 @@ public class ProviderApiConnector {
             Request request = requestBuilder.build();
 
             Response response = okHttpClient.newCall(request).execute();
+            //response code 401: already logged out
             if (response.isSuccessful() || response.code() == 401) {
                 return true;
             }
@@ -77,11 +78,10 @@ public class ProviderApiConnector {
         Request.Builder requestBuilder = new Request.Builder()
                 .url(url)
                 .method(request_method, jsonBody);
-        if (headerArgs != null) {
-            for (Pair<String, String> keyValPair : headerArgs) {
-                requestBuilder.addHeader(keyValPair.first, keyValPair.second);
-            }
+        for (Pair<String, String> keyValPair : headerArgs) {
+            requestBuilder.addHeader(keyValPair.first, keyValPair.second);
         }
+
         //TODO: move to getHeaderArgs()?
         String locale = Locale.getDefault().getLanguage() + Locale.getDefault().getCountry();
         requestBuilder.addHeader("Accept-Language", locale);
