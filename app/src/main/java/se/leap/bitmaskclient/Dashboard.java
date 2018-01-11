@@ -405,13 +405,21 @@ public class Dashboard extends ButterKnifeActivity {
     private void switchProvider() {
         if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
 
+        clearDataOfLastProvider();
+
+        switching_provider = false;
+        startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_SWITCH_PROVIDER);
+    }
+
+    private void clearDataOfLastProvider() {
         Map<String, ?> allEntries = preferences.getAll();
         List<String> lastProvidersKeys = new ArrayList<>();
         for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
             //sort out all preferences that don't belong to the last provider
             if (entry.getKey().startsWith(Provider.KEY + ".") ||
                     entry.getKey().startsWith(Provider.CA_CERT + ".") ||
-                    entry.getKey().startsWith(Provider.CA_CERT_FINGERPRINT + ".")
+                    entry.getKey().startsWith(Provider.CA_CERT_FINGERPRINT + "." )||
+                    entry.getKey().equals(Constants.PREFERENCES_APP_VERSION)
                     ) {
                 continue;
             }

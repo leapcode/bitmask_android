@@ -48,6 +48,8 @@ public class StartActivity extends Activity {
                 break;
 
             case FIRST:
+                storeAppVersion();
+                // TODO start ProfileCreation & replace below code
                 // (new Intent(getActivity(), ConfigurationWizard.class), Constants.REQUEST_CODE_SWITCH_PROVIDER);
                 break;
 
@@ -120,7 +122,7 @@ public class StartActivity extends Activity {
         }
 
         // ensure all upgrades have passed before storing new information
-        preferences.edit().putInt(Constants.PREFERENCES_APP_VERSION, versionCode).apply();
+        storeAppVersion();
     }
 
     /**
@@ -130,6 +132,10 @@ public class StartActivity extends Activity {
      */
     private boolean hasNewFeature(int featureVersionCode) {
         return previousVersionCode < featureVersionCode && versionCode >= featureVersionCode;
+    }
+
+    private void storeAppVersion() {
+        preferences.edit().putInt(Constants.PREFERENCES_APP_VERSION, versionCode).apply();
     }
 
 }
