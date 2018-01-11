@@ -37,7 +37,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     Button button;
 
     private UserStatus status;
-    private boolean allows_registration = false;
+    private boolean allowsRegistration = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,7 +63,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
         ButterKnife.inject(this, view);
 
         Bundle arguments = getArguments();
-        allows_registration = arguments.getBoolean(Provider.ALLOW_REGISTRATION);
+        allowsRegistration = arguments.getBoolean(Provider.ALLOW_REGISTRATION);
         handleNewStatus(status);
 
         return view;
@@ -108,7 +108,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
 
     private void handleNewStatus(UserStatus status) {
         this.status = status;
-        if (allows_registration) {
+        if (allowsRegistration) {
             if (this.status.inProgress())
                 showUserSessionProgressBar();
             else
@@ -134,7 +134,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     private void updateButton() {
         if(status.isLoggedIn() || status.didntLogOut())
             button.setText(getActivity().getString(R.string.logout_button));
-        else if(allows_registration) {
+        else if(allowsRegistration) {
             if (status.isLoggedOut() || status.notLoggedIn())
                 button.setText(getActivity().getString(R.string.login_button));
             else if (status.inProgress())

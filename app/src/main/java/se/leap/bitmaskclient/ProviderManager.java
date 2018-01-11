@@ -27,39 +27,39 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     private static final String TAG = ProviderManager.class.getName();
     private AssetManager assets_manager;
-    private File external_files_dir;
-    private Set<Provider> default_providers;
-    private Set<Provider> custom_providers;
+    private File externalFilesDir;
+    private Set<Provider> defaultProviders;
+    private Set<Provider> customProviders;
 
     private static ProviderManager instance;
 
     final protected static String URLS = "urls";
 
-    public static ProviderManager getInstance(AssetManager assets_manager, File external_files_dir) {
+    public static ProviderManager getInstance(AssetManager assetsManager, File externalFilesDir) {
         if (instance == null)
-            instance = new ProviderManager(assets_manager, external_files_dir);
+            instance = new ProviderManager(assetsManager, externalFilesDir);
 
         return instance;
     }
 
-    public ProviderManager(AssetManager assets_manager, File external_files_dir) {
-        this.assets_manager = assets_manager;
-        addDefaultProviders(assets_manager);
-        addCustomProviders(external_files_dir);
+    public ProviderManager(AssetManager assetManager, File externalFilesDir) {
+        this.assets_manager = assetManager;
+        addDefaultProviders(assetManager);
+        addCustomProviders(externalFilesDir);
     }
 
     private void addDefaultProviders(AssetManager assets_manager) {
         try {
-            default_providers = providersFromAssets(URLS, assets_manager.list(URLS));
+            defaultProviders = providersFromAssets(URLS, assets_manager.list(URLS));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private Set<Provider> providersFromAssets(String directory, String[] relative_file_paths) {
+    private Set<Provider> providersFromAssets(String directory, String[] relativeFilePaths) {
         Set<Provider> providers = new HashSet<Provider>();
 
-            for (String file : relative_file_paths) {
+            for (String file : relativeFilePaths) {
                 String mainUrl = null;
                 String certificate = null;
                 String providerDefinition = null;
@@ -83,10 +83,10 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     }
 
 
-    private void addCustomProviders(File external_files_dir) {
-        this.external_files_dir = external_files_dir;
-        custom_providers = external_files_dir != null && external_files_dir.isDirectory() ?
-                providersFromFiles(external_files_dir.list()) :
+    private void addCustomProviders(File externalFilesDir) {
+        this.externalFilesDir = externalFilesDir;
+        customProviders = externalFilesDir != null && externalFilesDir.isDirectory() ?
+                providersFromFiles(externalFilesDir.list()) :
                 new HashSet<Provider>();
     }
 
@@ -94,7 +94,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         Set<Provider> providers = new HashSet<Provider>();
         try {
             for (String file : files) {
-                String main_url = extractMainUrlFromInputStream(new FileInputStream(external_files_dir.getAbsolutePath() + "/" + file));
+                String main_url = extractMainUrlFromInputStream(new FileInputStream(externalFilesDir.getAbsolutePath() + "/" + file));
                 providers.add(new Provider(new URL(main_url)));
             }
         } catch (MalformedURLException | FileNotFoundException e) {
@@ -105,21 +105,21 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     }
 
     private String extractMainUrlFromInputStream(InputStream input_stream) {
-        String main_url = "";
+        String mainUrl = "";
 
         JSONObject file_contents = inputStreamToJson(input_stream);
         if (file_contents != null)
-            main_url = file_contents.optString(Provider.MAIN_URL);
-        return main_url;
+            mainUrl = file_contents.optString(Provider.MAIN_URL);
+        return mainUrl;
     }
 
-    private JSONObject inputStreamToJson(InputStream input_stream) {
+    private JSONObject inputStreamToJson(InputStream inputStream) {
         JSONObject json = null;
         try {
-            byte[] bytes = new byte[input_stream.available()];
-            if (input_stream.read(bytes) > 0)
+            byte[] bytes = new byte[inputStream.available()];
+            if (inputStream.read(bytes) > 0)
                 json = new JSONObject(new String(bytes));
-            input_stream.reset();
+            inputStream.reset();
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
@@ -128,9 +128,9 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     public Set<Provider> providers() {
         Set<Provider> all_providers = new HashSet<Provider>();
-        all_providers.addAll(default_providers);
-        if(custom_providers != null)
-            all_providers.addAll(custom_providers);
+        all_providers.addAll(defaultProviders);
+        if(customProviders != null)
+            all_providers.addAll(customProviders);
         return all_providers;
     }
 
@@ -151,40 +151,40 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     @Override
     public boolean add(Provider element) {
-        if (!default_providers.contains(element))
-            return custom_providers.add(element);
+        if (!defaultProviders.contains(element))
+            return customProviders.add(element);
         else return true;
     }
 
     @Override
     public boolean remove(Object element) {
-        return custom_providers.remove(element);
+        return customProviders.remove(element);
     }
 
     @Override
     public boolean addAll(Collection<? extends Provider> elements) {
-        return custom_providers.addAll(elements);
+        return customProviders.addAll(elements);
     }
 
     @Override
     public boolean removeAll(Collection<?> elements) {
         if(!elements.getClass().equals(Provider.class))
             return false;
-        return default_providers.removeAll(elements) || custom_providers.removeAll(elements);
+        return defaultProviders.removeAll(elements) || customProviders.removeAll(elements);
     }
 
     @Override
     public void clear() {
-        default_providers.clear();
-        custom_providers.clear();
+        defaultProviders.clear();
+        customProviders.clear();
     }
 
     protected void saveCustomProvidersToFile() {
         try {
-            for (Provider provider : custom_providers) {
-                File provider_file = new File(external_files_dir, provider.getName() + ".json");
-                if (!provider_file.exists()) {
-                    FileWriter writer = new FileWriter(provider_file);
+            for (Provider provider : customProviders) {
+                File providerFile = new File(externalFilesDir, provider.getName() + ".json");
+                if (!providerFile.exists()) {
+                    FileWriter writer = new FileWriter(providerFile);
                     writer.write(provider.toJson().toString());
                     writer.close();
                 }

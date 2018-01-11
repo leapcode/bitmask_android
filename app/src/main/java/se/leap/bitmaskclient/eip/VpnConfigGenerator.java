@@ -32,7 +32,7 @@ public class VpnConfigGenerator {
     private JSONObject secrets;
 
     public final static String TAG = VpnConfigGenerator.class.getSimpleName();
-    private final String new_line = System.getProperty("line.separator"); // Platform new line
+    private final String newLine = System.getProperty("line.separator"); // Platform new line
 
     public VpnConfigGenerator(JSONObject general_configuration, JSONObject secrets, JSONObject gateway) {
         this.general_configuration = general_configuration;
@@ -43,25 +43,25 @@ public class VpnConfigGenerator {
     public String generate() {
         return
                 generalConfiguration()
-                        + new_line
+                        + newLine
                         + gatewayConfiguration()
-                        + new_line
+                        + newLine
                         + secretsConfiguration()
-                        + new_line
+                        + newLine
                         + androidCustomizations();
     }
 
     private String generalConfiguration() {
-        String common_options = "";
+        String commonOptions = "";
         try {
             Iterator keys = general_configuration.keys();
             while (keys.hasNext()) {
                 String key = keys.next().toString();
 
-                common_options += key + " ";
+                commonOptions += key + " ";
                 for (String word : String.valueOf(general_configuration.get(key)).split(" "))
-                    common_options += word + " ";
-                common_options += new_line;
+                    commonOptions += word + " ";
+                commonOptions += newLine;
 
             }
         } catch (JSONException e) {
@@ -69,31 +69,31 @@ public class VpnConfigGenerator {
             e.printStackTrace();
         }
 
-        common_options += "client";
+        commonOptions += "client";
 
-        return common_options;
+        return commonOptions;
     }
 
     private String gatewayConfiguration() {
         String remotes = "";
 
-        String ip_address_keyword = "ip_address";
-        String remote_keyword = "remote";
-        String ports_keyword = "ports";
-        String protocol_keyword = "protocols";
-        String capabilities_keyword = "capabilities";
+        String ipAddressKeyword = "ip_address";
+        String remoteKeyword = "remote";
+        String portsKeyword = "ports";
+        String protocolKeyword = "protocols";
+        String capabilitiesKeyword = "capabilities";
 
         try {
-            String ip_address = gateway.getString(ip_address_keyword);
-            JSONObject capabilities = gateway.getJSONObject(capabilities_keyword);
-            JSONArray ports = capabilities.getJSONArray(ports_keyword);
+            String ip_address = gateway.getString(ipAddressKeyword);
+            JSONObject capabilities = gateway.getJSONObject(capabilitiesKeyword);
+            JSONArray ports = capabilities.getJSONArray(portsKeyword);
             for (int i = 0; i < ports.length(); i++) {
                 String port_specific_remotes = "";
                 int port = ports.getInt(i);
-                JSONArray protocols = capabilities.getJSONArray(protocol_keyword);
+                JSONArray protocols = capabilities.getJSONArray(protocolKeyword);
                 for (int j = 0; j < protocols.length(); j++) {
                     String protocol = protocols.optString(j);
-                    String new_remote = remote_keyword + " " + ip_address + " " + port + " " + protocol + new_line;
+                    String new_remote = remoteKeyword + " " + ip_address + " " + port + " " + protocol + newLine;
 
                     port_specific_remotes += new_remote;
                 }
@@ -103,8 +103,8 @@ public class VpnConfigGenerator {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        if (remotes.endsWith(new_line)) {
-            remotes = remotes.substring(0, remotes.lastIndexOf(new_line));
+        if (remotes.endsWith(newLine)) {
+            remotes = remotes.substring(0, remotes.lastIndexOf(newLine));
         }
         return remotes;
     }
@@ -113,26 +113,26 @@ public class VpnConfigGenerator {
         try {
             String ca =
                     "<ca>"
-                            + new_line
+                            + newLine
                             + secrets.getString(Provider.CA_CERT)
-                            + new_line
+                            + newLine
                             + "</ca>";
 
             String key =
                     "<key>"
-                            + new_line
+                            + newLine
                             + secrets.getString(Constants.PROVIDER_PRIVATE_KEY)
-                            + new_line
+                            + newLine
                             + "</key>";
 
-            String openvpn_cert =
+            String openvpnCert =
                     "<cert>"
-                            + new_line
+                            + newLine
                             + secrets.getString(Constants.PROVIDER_VPN_CERTIFICATE)
-                            + new_line
+                            + newLine
                             + "</cert>";
 
-            return ca + new_line + key + new_line + openvpn_cert;
+            return ca + newLine + key + newLine + openvpnCert;
         } catch (JSONException e) {
             e.printStackTrace();
             return "";
@@ -142,9 +142,9 @@ public class VpnConfigGenerator {
     private String androidCustomizations() {
         return
                 "remote-cert-tls server"
-                        + new_line
+                        + newLine
                         + "persist-tun"
-                        + new_line
+                        + newLine
                         + "auth-retry nointeract";
     }
 }

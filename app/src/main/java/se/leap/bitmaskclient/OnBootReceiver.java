@@ -33,17 +33,17 @@ public class OnBootReceiver extends BroadcastReceiver {
                 return;
             }
             if (startOnBoot) {
-                Intent dashboard_intent = new Intent(context, Dashboard.class);
-                dashboard_intent.putExtra(EIP_RESTART_ON_BOOT, true);
-                dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(dashboard_intent);
+                Intent dashboardIntent = new Intent(context, Dashboard.class);
+                dashboardIntent.putExtra(EIP_RESTART_ON_BOOT, true);
+                dashboardIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(dashboardIntent);
             }
         } else {
             if (isAlwaysOnConfigured) {
-                Intent dashboard_intent = new Intent(context, Dashboard.class);
-                dashboard_intent.putExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE, true);
-                dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(dashboard_intent);
+                Intent dashboardIntent = new Intent(context, Dashboard.class);
+                dashboardIntent.putExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE, true);
+                dashboardIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(dashboardIntent);
             }
         }
     }

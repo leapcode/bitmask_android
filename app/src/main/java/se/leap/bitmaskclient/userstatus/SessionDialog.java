@@ -58,11 +58,11 @@ public class SessionDialog extends DialogFragment {
     }
 
     @InjectView(R.id.user_message)
-    TextView user_message;
+    TextView userMessage;
     @InjectView(R.id.username_entered)
-    EditText username_field;
+    EditText usernameField;
     @InjectView(R.id.password_entered)
-    EditText password_field;
+    EditText passwordField;
 
     public static SessionDialog getInstance(Provider provider, Bundle arguments) {
         SessionDialog dialog = new SessionDialog();
@@ -118,35 +118,35 @@ public class SessionDialog extends DialogFragment {
 
     private void setUp(Bundle arguments) {
         if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
-            password_field.setError(getString(R.string.error_not_valid_password_user_message));
+            passwordField.setError(getString(R.string.error_not_valid_password_user_message));
         else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
-            user_message.setVisibility(VISIBLE);
-            user_message.setText(R.string.login_riseup_warning);
+            userMessage.setVisibility(VISIBLE);
+            userMessage.setText(R.string.login_riseup_warning);
         }
         if (arguments.containsKey(USERNAME)) {
             String username = arguments.getString(USERNAME);
-            username_field.setText(username);
+            usernameField.setText(username);
         }
         if (arguments.containsKey(ERRORS.USERNAME_MISSING.toString())) {
-            username_field.setError(getString(R.string.username_ask));
+            usernameField.setError(getString(R.string.username_ask));
         }
         if (arguments.containsKey(getString(R.string.user_message))) {
-            user_message.setText(arguments.getString(getString(R.string.user_message)));
-            user_message.setVisibility(VISIBLE);
-        } else if (user_message.getVisibility() != VISIBLE)
-            user_message.setVisibility(View.GONE);
+            userMessage.setText(arguments.getString(getString(R.string.user_message)));
+            userMessage.setVisibility(VISIBLE);
+        } else if (userMessage.getVisibility() != VISIBLE)
+            userMessage.setVisibility(View.GONE);
 
-        if (!username_field.getText().toString().isEmpty() && password_field.isFocusable())
-            password_field.requestFocus();
+        if (!usernameField.getText().toString().isEmpty() && passwordField.isFocusable())
+            passwordField.requestFocus();
 
     }
 
     private String getEnteredUsername() {
-        return username_field.getText().toString();
+        return usernameField.getText().toString();
     }
 
     private String getEnteredPassword() {
-        return password_field.getText().toString();
+        return passwordField.getText().toString();
     }
 
 

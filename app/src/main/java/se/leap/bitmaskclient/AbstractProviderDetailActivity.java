@@ -42,20 +42,20 @@ public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity
 
         preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
         try {
-            JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
-            domain.setText(provider_json.getString(Provider.DOMAIN));
-            name.setText(provider_json.getJSONObject(Provider.NAME).getString("en"));
-            description.setText(provider_json.getJSONObject(Provider.DESCRIPTION).getString("en"));
+            JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
+            domain.setText(providerJson.getString(Provider.DOMAIN));
+            name.setText(providerJson.getJSONObject(Provider.NAME).getString("en"));
+            description.setText(providerJson.getJSONObject(Provider.DESCRIPTION).getString("en"));
 
             setTitle(R.string.provider_details_title);
 
             // Show only the options allowed by the provider
             ArrayList<String> optionsList = new ArrayList<>();
-            if (registration_allowed(provider_json)) {
+            if (registrationAllowed(providerJson)) {
                 optionsList.add(getString(R.string.login_button));
                 optionsList.add(getString(R.string.signup_button));
             }
-            if (anon_allowed(provider_json)) {
+            if (anonAllowed(providerJson)) {
                 optionsList.add(getString(R.string.use_anonymously_button));
             }
 
@@ -77,6 +77,7 @@ public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity
                         Log.d(TAG, "signup selected");
                         intent = new Intent(getApplicationContext(), SignupActivity.class);
                     } else {
+                        Log.d(TAG, "use anonymously selected");
                         intent = new Intent(getApplicationContext(), MainActivity.class);
                     }
                     intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -88,19 +89,19 @@ public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity
         }
     }
 
-    private boolean anon_allowed(JSONObject provider_json) {
+    private boolean anonAllowed(JSONObject providerJson) {
         try {
-            JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
-            return service_description.has(Constants.PROVIDER_ALLOW_ANONYMOUS) && service_description.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS);
+            JSONObject serviceDescription = providerJson.getJSONObject(Provider.SERVICE);
+            return serviceDescription.has(Constants.PROVIDER_ALLOW_ANONYMOUS) && serviceDescription.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS);
         } catch (JSONException e) {
             return false;
         }
     }
 
-    private boolean registration_allowed(JSONObject provider_json) {
+    private boolean registrationAllowed(JSONObject providerJson) {
         try {
-            JSONObject service_description = provider_json.getJSONObject(Provider.SERVICE);
-            return service_description.has(Provider.ALLOW_REGISTRATION) && service_description.getBoolean(Provider.ALLOW_REGISTRATION);
+            JSONObject serviceDescription = providerJson.getJSONObject(Provider.SERVICE);
+            return serviceDescription.has(Provider.ALLOW_REGISTRATION) && serviceDescription.getBoolean(Provider.ALLOW_REGISTRATION);
         } catch (JSONException e) {
             return false;
         }

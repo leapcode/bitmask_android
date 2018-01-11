@@ -76,13 +76,13 @@ public class VpnFragment extends Fragment implements Observer {
     private SharedPreferences preferences;
 
     @InjectView(R.id.vpn_status_image)
-    FabButton vpn_status_image;
+    FabButton vpnStatusImage;
     @InjectView(R.id.vpn_main_button)
-    Button main_button;
+    Button mainButton;
 
-    private static EIPReceiver eip_receiver;
-    private static EipStatus eip_status;
-    private boolean wants_to_connect;
+    private static EIPReceiver eipReceiver;
+    private static EipStatus eipStatus;
+    private boolean wantsToConnect;
 
     private IOpenVPNServiceInternal mService;
     private ServiceConnection openVpnConnection = new ServiceConnection() {
@@ -103,18 +103,17 @@ public class VpnFragment extends Fragment implements Observer {
 
     };
 
-    //FIXME: replace with onAttach(Context context)
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         downloadEIPServiceConfig();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        eip_status = EipStatus.getInstance();
-        eip_status.addObserver(this);
-        eip_receiver = new EIPReceiver(new Handler());
+        eipStatus = EipStatus.getInstance();
+        eipStatus.addObserver(this);
+        eipReceiver = new EIPReceiver(new Handler());
         preferences = getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
     }
 
@@ -147,7 +146,7 @@ public class VpnFragment extends Fragment implements Observer {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean(IS_CONNECTED, eip_status.isConnected());
+        outState.putBoolean(IS_CONNECTED, eipStatus.isConnected());
         super.onSaveInstanceState(outState);
     }
 
@@ -157,7 +156,7 @@ public class VpnFragment extends Fragment implements Observer {
 
     @OnClick(R.id.vpn_main_button)
     void handleIcon() {
-        if (eip_status.isConnected() || eip_status.isConnecting())
+        if (eipStatus.isConnected() || eipStatus.isConnecting())
             handleSwitchOff();
         else
             handleSwitchOn();
@@ -167,7 +166,7 @@ public class VpnFragment extends Fragment implements Observer {
         if (canStartEIP())
             startEipFromScratch();
         else if (canLogInToStartEIP()) {
-            wants_to_connect = true;
+            wantsToConnect = true;
             Bundle bundle = new Bundle();
             MainActivity.sessionDialog(bundle);
         } else {
@@ -180,19 +179,19 @@ public class VpnFragment extends Fragment implements Observer {
     private boolean canStartEIP() {
         boolean certificateExists = !preferences.getString(PROVIDER_VPN_CERTIFICATE, "").isEmpty();
         boolean isAllowedAnon = preferences.getBoolean(PROVIDER_ALLOW_ANONYMOUS, false);
-        return (isAllowedAnon || certificateExists) && !eip_status.isConnected() && !eip_status.isConnecting();
+        return (isAllowedAnon || certificateExists) && !eipStatus.isConnected() && !eipStatus.isConnecting();
     }
 
     private boolean canLogInToStartEIP() {
         boolean isAllowedRegistered = preferences.getBoolean(PROVIDER_ALLOWED_REGISTERED, false);
         boolean isLoggedIn = !LeapSRPSession.getToken().isEmpty();
-        return isAllowedRegistered && !isLoggedIn && !eip_status.isConnecting() && !eip_status.isConnected();
+        return isAllowedRegistered && !isLoggedIn && !eipStatus.isConnecting() && !eipStatus.isConnected();
     }
 
     private void handleSwitchOff() {
-        if (eip_status.isConnecting()) {
+        if (eipStatus.isConnecting()) {
             askPendingStartCancellation();
-        } else if (eip_status.isConnected()) {
+        } else if (eipStatus.isConnected()) {
             askToStopEIP();
         } else {
             updateIcon();
@@ -219,14 +218,14 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     public void startEipFromScratch() {
-        wants_to_connect = false;
+        wantsToConnect = false;
         saveStatus(true);
         eipCommand(EIP_ACTION_START);
     }
 
     private void stop() {
         saveStatus(false);
-        if (eip_status.isBlockingVpnEstablished()) {
+        if (eipStatus.isBlockingVpnEstablished()) {
             stopBlockingVpn();
         }
         disconnect();
@@ -258,7 +257,7 @@ public class VpnFragment extends Fragment implements Observer {
 
     private void downloadEIPServiceConfig() {
         ProviderAPIResultReceiver provider_api_receiver = new ProviderAPIResultReceiver(new Handler(), Dashboard.dashboardReceiver);
-        if(eip_receiver != null)
+        if(eipReceiver != null)
             ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_EIP_SERVICE, provider_api_receiver);
     }
 
@@ -296,14 +295,14 @@ public class VpnFragment extends Fragment implements Observer {
         // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
         Intent vpn_intent = new Intent(activity.getApplicationContext(), EIP.class);
         vpn_intent.setAction(action);
-        vpn_intent.putExtra(EIP_RECEIVER, eip_receiver);
+        vpn_intent.putExtra(EIP_RECEIVER, eipReceiver);
         activity.startService(vpn_intent);
     }
 
     @Override
     public void update(Observable observable, Object data) {
         if (observable instanceof EipStatus) {
-            eip_status = (EipStatus) observable;
+            eipStatus = (EipStatus) observable;
             Activity activity = getActivity();
             if (activity != null) {
                 getActivity().runOnUiThread(new Runnable() {
@@ -324,40 +323,40 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     private void updateIcon() {
-        if (eip_status.isBlocking()) {
-            vpn_status_image.showProgress(false);
-            vpn_status_image.setIcon(R.drawable.ic_stat_vpn_blocking, R.drawable.ic_stat_vpn_blocking);
-            vpn_status_image.setTag(R.drawable.ic_stat_vpn_blocking);
-        } else if (eip_status.isConnecting()) {
-            vpn_status_image.showProgress(true);
-            vpn_status_image.setIcon(R.drawable.ic_stat_vpn_empty_halo, R.drawable.ic_stat_vpn_empty_halo);
-            vpn_status_image.setTag(R.drawable.ic_stat_vpn_empty_halo);
-        } else  if (eip_status.isConnected()){
-            vpn_status_image.showProgress(false);
-            vpn_status_image.setIcon(R.drawable.ic_stat_vpn, R.drawable.ic_stat_vpn);
-            vpn_status_image.setTag(R.drawable.ic_stat_vpn);
+        if (eipStatus.isBlocking()) {
+            vpnStatusImage.showProgress(false);
+            vpnStatusImage.setIcon(R.drawable.ic_stat_vpn_blocking, R.drawable.ic_stat_vpn_blocking);
+            vpnStatusImage.setTag(R.drawable.ic_stat_vpn_blocking);
+        } else if (eipStatus.isConnecting()) {
+            vpnStatusImage.showProgress(true);
+            vpnStatusImage.setIcon(R.drawable.ic_stat_vpn_empty_halo, R.drawable.ic_stat_vpn_empty_halo);
+            vpnStatusImage.setTag(R.drawable.ic_stat_vpn_empty_halo);
+        } else  if (eipStatus.isConnected()){
+            vpnStatusImage.showProgress(false);
+            vpnStatusImage.setIcon(R.drawable.ic_stat_vpn, R.drawable.ic_stat_vpn);
+            vpnStatusImage.setTag(R.drawable.ic_stat_vpn);
         } else {
-            vpn_status_image.setIcon(R.drawable.ic_stat_vpn_offline, R.drawable.ic_stat_vpn_offline);
-            vpn_status_image.setTag(R.drawable.ic_stat_vpn_offline);
-            vpn_status_image.showProgress(false);
+            vpnStatusImage.setIcon(R.drawable.ic_stat_vpn_offline, R.drawable.ic_stat_vpn_offline);
+            vpnStatusImage.setTag(R.drawable.ic_stat_vpn_offline);
+            vpnStatusImage.showProgress(false);
         }
     }
 
     private void updateButton() {
         Activity activity = getActivity();
-        if (eip_status.isConnecting()) {
-            main_button.setText(activity.getString(android.R.string.cancel));
-        } else if (eip_status.isConnected() || isOpenVpnRunningWithoutNetwork()) {
-            main_button.setText(activity.getString(R.string.vpn_button_turn_off));
+        if (eipStatus.isConnecting()) {
+            mainButton.setText(activity.getString(android.R.string.cancel));
+        } else if (eipStatus.isConnected() || isOpenVpnRunningWithoutNetwork()) {
+            mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
         } else {
-            main_button.setText(activity.getString(R.string.vpn_button_turn_on));
+            mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
         }
     }
 
     private boolean isOpenVpnRunningWithoutNetwork() {
         boolean isRunning = false;
         try {
-            isRunning = eip_status.getLevel() == LEVEL_NONETWORK &&
+            isRunning = eipStatus.getLevel() == LEVEL_NONETWORK &&
                     mService.isVpnRunning();
         } catch (Exception e) {
             //eat me
@@ -428,7 +427,7 @@ public class VpnFragment extends Fragment implements Observer {
                 case EIP_ACTION_UPDATE:
                     switch (resultCode) {
                         case Activity.RESULT_OK:
-                            if (wants_to_connect)
+                            if (wantsToConnect)
                                 startEipFromScratch();
                             break;
                         case Activity.RESULT_CANCELED:
@@ -441,6 +440,6 @@ public class VpnFragment extends Fragment implements Observer {
 
 
     public static EIPReceiver getReceiver() {
-        return eip_receiver;
+        return eipReceiver;
     }
 }

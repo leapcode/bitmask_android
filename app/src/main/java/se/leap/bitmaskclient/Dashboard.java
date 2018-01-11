@@ -283,7 +283,7 @@ public class Dashboard extends ButterKnifeActivity {
      * service dependent UI elements to include.
      */
     //TODO: REFACTOR ME! Consider implementing a manager that handles most of VpnFragment's logic about handling EIP commands.
-    //This way, we could avoid to create UI elements (like fragment_manager.replace(R.id.servicesCollection, eip_fragment, VpnFragment.TAG); )
+    //This way, we could avoid to create UI elements (like fragmentManager.replace(R.id.servicesCollection, eip_fragment, VpnFragment.TAG); )
     // just to start services and destroy them afterwards
     private void buildDashboard(boolean hideAndTurnOnEipOnBoot) {
         setContentView(R.layout.dashboard);

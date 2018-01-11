@@ -26,7 +26,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,11 +47,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
 import se.leap.bitmaskclient.fragments.AboutFragment;
-import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
@@ -75,16 +72,16 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     @InjectView(R.id.progressbar_configuration_wizard)
     protected ProgressBar mProgressBar;
     @InjectView(R.id.progressbar_description)
-    protected TextView progressbar_description;
+    protected TextView progressbarDescription;
 
     @InjectView(R.id.provider_list)
-    protected ListView provider_list_view;
+    protected ListView providerListView;
     @Inject
     protected ProviderListAdapter adapter;
 
-    private ProviderManager provider_manager;
+    private ProviderManager providerManager;
     protected Intent mConfigState = new Intent(PROVIDER_NOT_SET);
-    protected Provider selected_provider;
+    protected Provider selectedProvider;
 
     final public static String TAG = ConfigurationWizard.class.getSimpleName();
 
@@ -99,13 +96,13 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     final private static String PROGRESSBAR_TEXT = TAG + "PROGRESSBAR_TEXT";
     final private static String PROGRESSBAR_NUMBER = TAG + "PROGRESSBAR_NUMBER";
 
-    public ProviderAPIResultReceiver providerAPI_result_receiver;
-    private ProviderAPIBroadcastReceiver_Update providerAPI_broadcast_receiver_update;
+    public ProviderAPIResultReceiver providerAPIResultReceiver;
+    private BaseConfigurationWizard.providerAPIBroadcastReceiverUpdate providerAPIBroadcastReceiverUpdate;
 
     protected static SharedPreferences preferences;
-    FragmentManagerEnhanced fragment_manager;
-    //TODO: add some states (values for progressbar_text) about ongoing setup or remove that field
-    private String progressbar_text = "";
+    FragmentManagerEnhanced fragmentManager;
+    //TODO: add some states (values for progressbarText) about ongoing setup or remove that field
+    private String progressbarText = "";
 
 
 
@@ -118,17 +115,17 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         List<Renderer<Provider>> prototypes = new ArrayList<>();
         prototypes.add(new ProviderRenderer(this));
         ProviderRendererBuilder providerRendererBuilder = new ProviderRendererBuilder(prototypes);
-        adapter = new ProviderListAdapter(getLayoutInflater(), providerRendererBuilder, provider_manager);
-        provider_list_view.setAdapter(adapter);
+        adapter = new ProviderListAdapter(getLayoutInflater(), providerRendererBuilder, providerManager);
+        providerListView.setAdapter(adapter);
     }
 
     @Override
     protected void onSaveInstanceState(@NotNull Bundle outState) {
         if (mProgressBar != null)
             outState.putInt(PROGRESSBAR_NUMBER, mProgressBar.getProgress());
-        if (progressbar_description != null)
-            outState.putString(PROGRESSBAR_TEXT, progressbar_description.getText().toString());
-        outState.putParcelable(Provider.KEY, selected_provider);
+        if (progressbarDescription != null)
+            outState.putString(PROGRESSBAR_TEXT, progressbarDescription.getText().toString());
+        outState.putParcelable(Provider.KEY, selectedProvider);
         super.onSaveInstanceState(outState);
     }
 
@@ -136,8 +133,8 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
-        fragment_manager = new FragmentManagerEnhanced(getSupportFragmentManager());
-        provider_manager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
+        fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
+        providerManager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
 
         setUpInitialUI();
 
@@ -149,8 +146,8 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     }
 
     private void restoreState(Bundle savedInstanceState) {
-        progressbar_text = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
-        selected_provider = savedInstanceState.getParcelable(Provider.KEY);
+        progressbarText = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
+        selectedProvider = savedInstanceState.getParcelable(Provider.KEY);
     }
 
     @Override
@@ -172,43 +169,43 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     }
 
     private void hideProgressBar() {
-        //needs to be "INVISIBLE" instead of GONE b/c the progressbar_description gets translated
+        //needs to be "INVISIBLE" instead of GONE b/c the progressbarDescription gets translated
         // by the height of mProgressbar (and the height of the first list item)
         mProgressBar.setVisibility(INVISIBLE);
-        progressbar_description.setVisibility(INVISIBLE);
+        progressbarDescription.setVisibility(INVISIBLE);
         mProgressBar.setProgress(0);
     }
 
     protected void showProgressBar() {
         mProgressBar.setVisibility(VISIBLE);
-        progressbar_description.setVisibility(VISIBLE);
+        progressbarDescription.setVisibility(VISIBLE);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (providerAPI_broadcast_receiver_update != null)
-            unregisterReceiver(providerAPI_broadcast_receiver_update);
+        if (providerAPIBroadcastReceiverUpdate != null)
+            unregisterReceiver(providerAPIBroadcastReceiverUpdate);
     }
 
     private void setUpProviderAPIResultReceiver() {
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
-        providerAPI_broadcast_receiver_update = new ProviderAPIBroadcastReceiver_Update();
+        providerAPIResultReceiver = new ProviderAPIResultReceiver(new Handler(), this);
+        providerAPIBroadcastReceiverUpdate = new providerAPIBroadcastReceiverUpdate();
 
         IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_PROGRESSBAR);
         update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(providerAPI_broadcast_receiver_update, update_intent_filter);
+        registerReceiver(providerAPIBroadcastReceiverUpdate, update_intent_filter);
     }
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         if (resultCode == ProviderAPI.PROVIDER_OK) {
             try {
-                String provider_json_string = preferences.getString(Provider.KEY, "");
-                if (!provider_json_string.isEmpty())
-                    selected_provider.define(new JSONObject(provider_json_string));
+                String providerJsonString = preferences.getString(Provider.KEY, "");
+                if (!providerJsonString.isEmpty())
+                    selectedProvider.define(new JSONObject(providerJsonString));
                 String caCert = preferences.getString(Provider.CA_CERT, "");
-                selected_provider.setCACert(caCert);
+                selectedProvider.setCACert(caCert);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -255,13 +252,13 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
         //TODO Code 2 pane view
         mConfigState.setAction(SETTING_UP_PROVIDER);
-        selected_provider = adapter.getItem(position);
+        selectedProvider = adapter.getItem(position);
         onItemSelectedUi();
         onItemSelectedLogic();
     }
 
     protected void onItemSelectedUi() {
-        adapter.hideAllBut(adapter.indexOf(selected_provider));
+        adapter.hideAllBut(adapter.indexOf(selectedProvider));
         startProgressBar();
     }
 
@@ -281,7 +278,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         ProviderAPI.stop();
         mProgressBar.setVisibility(GONE);
         mProgressBar.setProgress(0);
-        progressbar_description.setVisibility(GONE);
+        progressbarDescription.setVisibility(GONE);
 
         cancelSettingUpProvider();
     }
@@ -297,21 +294,21 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     @Override
     public void updateProviderDetails() {
         mConfigState.setAction(SETTING_UP_PROVIDER);
-        Intent provider_API_command = new Intent(this, ProviderAPI.class);
+        Intent providerAPICommand = new Intent(this, ProviderAPI.class);
 
-        provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DETAILS);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+        providerAPICommand.setAction(ProviderAPI.UPDATE_PROVIDER_DETAILS);
+        providerAPICommand.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
         Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
+        parameters.putString(Provider.MAIN_URL, selectedProvider.getMainUrl().toString());
+        providerAPICommand.putExtra(ProviderAPI.PARAMETERS, parameters);
 
-        startService(provider_API_command);
+        startService(providerAPICommand);
     }
 
     private void askDashboardToQuitApp() {
-        Intent ask_quit = new Intent();
-        ask_quit.putExtra(Constants.APP_ACTION_QUIT, Constants.APP_ACTION_QUIT);
-        setResult(RESULT_CANCELED, ask_quit);
+        Intent askQuit = new Intent();
+        askQuit.putExtra(Constants.APP_ACTION_QUIT, Constants.APP_ACTION_QUIT);
+        setResult(RESULT_CANCELED, askQuit);
     }
 
     private void startProgressBar() {
@@ -321,11 +318,11 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
         int measured_height = listItemHeight();
         mProgressBar.setTranslationY(measured_height);
-        progressbar_description.setTranslationY(measured_height + mProgressBar.getHeight());
+        progressbarDescription.setTranslationY(measured_height + mProgressBar.getHeight());
     }
 
     private int listItemHeight() {
-        View listItem = adapter.getView(0, null, provider_list_view);
+        View listItem = adapter.getView(0, null, providerListView);
         listItem.setLayoutParams(new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT));
@@ -346,33 +343,33 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
      * Asks ProviderApiService to download an anonymous (anon) VPN certificate.
      */
     private void downloadVpnCertificate() {
-        Intent provider_API_command = new Intent(this, ProviderAPI.class);
+        Intent providerAPICommand = new Intent(this, ProviderAPI.class);
 
-        provider_API_command.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+        providerAPICommand.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
+        providerAPICommand.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
 
-        startService(provider_API_command);
+        startService(providerAPICommand);
     }
 
     /**
      * Open the new provider dialog
      */
     public void addAndSelectNewProvider() {
-        FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(NewProviderDialog.TAG);
-        new NewProviderDialog().show(fragment_transaction, NewProviderDialog.TAG);
+        FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(NewProviderDialog.TAG);
+        new NewProviderDialog().show(fragmentTransaction, NewProviderDialog.TAG);
     }
 
     /**
      * Open the new provider dialog with data
      */
     public void addAndSelectNewProvider(String main_url) {
-        FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(NewProviderDialog.TAG);
+        FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(NewProviderDialog.TAG);
 
         DialogFragment newFragment = new NewProviderDialog();
         Bundle data = new Bundle();
         data.putString(Provider.MAIN_URL, main_url);
         newFragment.setArguments(data);
-        newFragment.show(fragment_transaction, NewProviderDialog.TAG);
+        newFragment.show(fragmentTransaction, NewProviderDialog.TAG);
     }
 
     /**
@@ -382,7 +379,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
      */
     public void showDownloadFailedDialog(String reasonToFail) {
         try {
-            FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(DownloadFailedDialog.TAG);
+            FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(DownloadFailedDialog.TAG);
             DialogFragment newFragment;
             try {
                 JSONObject errorJson = new JSONObject(reasonToFail);
@@ -391,7 +388,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
                 e.printStackTrace();
                 newFragment = DownloadFailedDialog.newInstance(reasonToFail);
             }
-            newFragment.show(fragment_transaction, DownloadFailedDialog.TAG);
+            newFragment.show(fragmentTransaction, DownloadFailedDialog.TAG);
         } catch (IllegalStateException e) {
             e.printStackTrace();
             mConfigState.setAction(PENDING_SHOW_FAILED_DIALOG);
@@ -435,11 +432,11 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
     public void cancelAndShowAllProviders() {
         mConfigState.setAction(PROVIDER_NOT_SET);
-        selected_provider = null;
+        selectedProvider = null;
         adapter.showAllProviders();
     }
 
-    public class ProviderAPIBroadcastReceiver_Update extends BroadcastReceiver {
+    public class providerAPIBroadcastReceiverUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             int update = intent.getIntExtra(ProviderAPI.CURRENT_PROGRESS, 0);

@@ -41,19 +41,19 @@ public class NewProviderDialog extends DialogFragment {
     final public static String TAG = "newProviderDialog";
 
     @InjectView(R.id.new_provider_url)
-    EditText url_input_field;
+    EditText urlInputField;
 
     public interface NewProviderDialogInterface {
         void showAndSelectProvider(String url_provider);
     }
 
-    NewProviderDialogInterface interface_with_ConfigurationWizard;
+    NewProviderDialogInterface interfaceWithConfigurationWizard;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            interface_with_ConfigurationWizard = (NewProviderDialogInterface) context;
+            interfaceWithConfigurationWizard = (NewProviderDialogInterface) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " must implement NoticeDialogListener");
@@ -69,7 +69,7 @@ public class NewProviderDialog extends DialogFragment {
         ButterKnife.inject(this, view);
         Bundle arguments = getArguments();
         if (arguments != null) {
-            url_input_field.setText(arguments.getString(Provider.MAIN_URL, ""));
+            urlInputField.setText(arguments.getString(Provider.MAIN_URL, ""));
         }
 
         builder.setView(view)
@@ -89,7 +89,7 @@ public class NewProviderDialog extends DialogFragment {
     }
 
     private void saveProvider() {
-        String entered_url = url_input_field.getText().toString().trim();
+        String entered_url = urlInputField.getText().toString().trim();
         if (!entered_url.startsWith("https://")) {
             if (entered_url.startsWith("http://")) {
                 entered_url = entered_url.substring("http://".length());
@@ -98,10 +98,10 @@ public class NewProviderDialog extends DialogFragment {
         }
 
         if (validURL(entered_url)) {
-            interface_with_ConfigurationWizard.showAndSelectProvider(entered_url);
+            interfaceWithConfigurationWizard.showAndSelectProvider(entered_url);
             Toast.makeText(getActivity().getApplicationContext(), R.string.valid_url_entered, Toast.LENGTH_LONG).show();
         } else {
-            url_input_field.setText("");
+            urlInputField.setText("");
             Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();
         }
     }
@@ -109,11 +109,11 @@ public class NewProviderDialog extends DialogFragment {
     /**
      * Checks if the entered url is valid or not.
      *
-     * @param entered_url
+     * @param enteredUrl
      * @return true if it's not empty nor contains only the protocol.
      */
-    boolean validURL(String entered_url) {
-        //return !entered_url.isEmpty() && entered_url.matches("http[s]?://.+") && !entered_url.replaceFirst("http[s]?://", "").isEmpty();
-        return android.util.Patterns.WEB_URL.matcher(entered_url).matches();
+    boolean validURL(String enteredUrl) {
+        //return !enteredUrl.isEmpty() && enteredUrl.matches("http[s]?://.+") && !enteredUrl.replaceFirst("http[s]?://", "").isEmpty();
+        return android.util.Patterns.WEB_URL.matcher(enteredUrl).matches();
     }
 }
