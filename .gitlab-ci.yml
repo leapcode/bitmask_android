@@ -52,7 +52,6 @@ docker_image:emulator:
   <<: *build_docker_image
 
 unit_test:
-  image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: test
   script:
     - ./gradlew test
