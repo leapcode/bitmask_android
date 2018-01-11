@@ -64,7 +64,16 @@ android {
 }
 
 dependencies {
-  testCompile 'org.mockito:mockito-core:2.6.3'
+  testCompile 'junit:junit:4.12'
+  testCompile 'org.mockito:mockito-core:2.8.0'
+  testCompile 'org.powermock:powermock-api-mockito2:1.7.3'
+  testCompile 'org.powermock:powermock-module-junit4:1.7.3'
+  testCompile 'org.powermock:powermock-core:1.7.3'
+  testCompile 'org.powermock:powermock-module-junit4-rule:1.7.3'
+  //testCompile 'com.madgag.spongycastle:bctls-jdk15on:1.58.0.0'
+  //testCompile 'com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0'
+  //testCompile 'com.madgag.spongycastle:bcpg-jdk15on:1.58.0.0'
+
   androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.6.3'
   testCompile 'junit:junit:4.12'
   testCompile 'org.json:json:20170516'
@@ -72,8 +81,7 @@ dependencies {
   provided 'com.squareup.dagger:dagger-compiler:1.2.2'
   compile 'com.github.pedrovgs:renderers:1.5'
   compile 'com.intellij:annotations:12.0'
-  compile 'com.google.code.gson:gson:2.4'
-  compile 'org.thoughtcrime.ssl.pinning:AndroidPinning:1.0.0'
+  compile 'com.google.code.gson:gson:2.8.2'
   compile 'com.squareup.okhttp3:okhttp:3.9.0'
   compile 'mbanje.kurt:fabbutton:1.1.4'
   compile "com.android.support:support-core-utils:26.1.0"

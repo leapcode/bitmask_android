@@ -19,9 +19,16 @@ package se.leap.bitmaskclient;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+
+import org.json.JSONObject;
+
+import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.DEFAULT;
+import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.valueOf;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORID;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 
 /**
  * Implements a dialog to show why a download failed.
@@ -32,6 +39,13 @@ public class DownloadFailedDialog extends DialogFragment {
 
     public static String TAG = "downloaded_failed_dialog";
     private String reason_to_fail;
+    private DOWNLOAD_ERRORS downloadError = DEFAULT;
+    public enum DOWNLOAD_ERRORS {
+        DEFAULT,
+        ERROR_CORRUPTED_PROVIDER_JSON,
+        ERROR_INVALID_CERTIFICATE,
+        ERROR_CERTIFICATE_PINNING
+    }
 
     /**
      * @return a new instance of this DialogFragment.
@@ -42,32 +56,79 @@ public class DownloadFailedDialog extends DialogFragment {
         return dialog_fragment;
     }
 
+    /**
+     * @return a new instance of this DialogFragment.
+     */
+    public static DialogFragment newInstance(JSONObject errorJson) {
+        DownloadFailedDialog dialog_fragment = new DownloadFailedDialog();
+        try {
+            if (errorJson.has(ERRORS)) {
+                dialog_fragment.reason_to_fail = errorJson.getString(ERRORS);
+            } else {
+                //default error msg
+                dialog_fragment.reason_to_fail = dialog_fragment.getString(R.string.error_io_exception_user_message);
+            }
+
+            if (errorJson.has(ERRORID)) {
+                dialog_fragment.downloadError = valueOf(errorJson.getString(ERRORID));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            dialog_fragment.reason_to_fail = dialog_fragment.getString(R.string.error_io_exception_user_message);
+        }
+        return dialog_fragment;
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
         builder.setMessage(reason_to_fail)
-                .setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dismiss();
-                        interface_with_ConfigurationWizard.retrySetUpProvider();
-                    }
-                })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        interface_with_ConfigurationWizard.cancelSettingUpProvider();
-                        dialog.dismiss();
+            public void onClick(DialogInterface dialog, int id) {
+                interface_with_ConfigurationWizard.cancelSettingUpProvider();
+                dialog.dismiss();
+            }
+        });
+        switch (downloadError) {
+            case ERROR_CORRUPTED_PROVIDER_JSON:
+                builder.setPositiveButton(R.string.update_provider_details, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dismiss();
+                        interface_with_ConfigurationWizard.updateProviderDetails();
                     }
                 });
+                break;
+            case ERROR_CERTIFICATE_PINNING:
+            case ERROR_INVALID_CERTIFICATE:
+                builder.setPositiveButton(R.string.update_certificate, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dismiss();
+                        interface_with_ConfigurationWizard.updateProviderDetails();
+                    }
+                });
+                break;
+            default:
+                builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dismiss();
+                                interface_with_ConfigurationWizard.retrySetUpProvider();
+                            }
+                        });
+                break;
+        }
 
         // Create the AlertDialog object and return it
         return builder.create();
     }
 
     public interface DownloadFailedDialogInterface {
-        public void retrySetUpProvider();
+        void retrySetUpProvider();
 
-        public void cancelSettingUpProvider();
+        void cancelSettingUpProvider();
+
+        void updateProviderDetails();
     }
 
     DownloadFailedDialogInterface interface_with_ConfigurationWizard;
