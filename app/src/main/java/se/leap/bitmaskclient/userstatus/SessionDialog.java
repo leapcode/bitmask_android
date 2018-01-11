@@ -23,8 +23,6 @@ import android.view.*;
 import android.widget.*;
 
 import butterknife.*;
-import se.leap.bitmaskclient.ProviderAPI;
-import se.leap.bitmaskclient.VpnFragment;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
 

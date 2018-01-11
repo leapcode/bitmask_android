@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013 LEAP Encryption Access Project and contributers
+ * Copyright (c) 2018 LEAP Encryption Access Project and contributers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package se.leap.bitmaskclient;
 
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Pair;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.thoughtcrime.ssl.pinning.util.PinningHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,36 +40,35 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 import se.leap.bitmaskclient.eip.EIP;
 
+import static android.text.TextUtils.isEmpty;
+import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
 import static se.leap.bitmaskclient.R.string.certificate_error;
-import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.malformed_url;
+import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 
 /**
- * Implements HTTP api methods used to manage communications with the provider server.
- * It extends the abstract ProviderApiBase and implements the diverging method calls between the different flavors
- * of ProviderAPI.
- * <p/>
- * It extends an  IntentService because it downloads data from the Internet, so it operates in the background.
- *
- * @author parmegv
- * @author MeanderingCode
- * @author cyberta
+ * Created by cyberta on 04.01.18.
  */
-public class ProviderAPI extends ProviderApiBase {
 
-    private static boolean last_danger_on = true;
+public class ProviderApiManager extends ProviderApiManagerBase {
+    protected static boolean lastDangerOn = true;
+
+
+    public ProviderApiManager(SharedPreferences preferences, Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
+        super(preferences, resources, clientGenerator, callback);
+    }
 
     public static boolean lastDangerOn() {
-        return last_danger_on;
+        return lastDangerOn;
     }
 
     /**
@@ -79,71 +80,105 @@ public class ProviderAPI extends ProviderApiBase {
     @Override
     protected Bundle setUpProvider(Bundle task) {
         int progress = 0;
-        Bundle current_download = new Bundle();
+        Bundle currentDownload = new Bundle();
 
         if (task != null) {
-            last_danger_on = task.containsKey(ProviderItem.DANGER_ON) && task.getBoolean(ProviderItem.DANGER_ON);
-            last_provider_main_url = task.containsKey(Provider.MAIN_URL) ?
+            lastDangerOn = task.containsKey(ProviderListContent.ProviderItem.DANGER_ON) && task.getBoolean(ProviderListContent.ProviderItem.DANGER_ON);
+            lastProviderMainUrl = task.containsKey(Provider.MAIN_URL) ?
                     task.getString(Provider.MAIN_URL) :
                     "";
-            provider_ca_cert_fingerprint = task.containsKey(Provider.CA_CERT_FINGERPRINT) ?
+
+            if (isEmpty(lastProviderMainUrl)) {
+                setErrorResult(currentDownload, malformed_url, null);
+                return currentDownload;
+            }
+
+            providerCaCertFingerprint = task.containsKey(Provider.CA_CERT_FINGERPRINT) ?
                     task.getString(Provider.CA_CERT_FINGERPRINT) :
                     "";
-            CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = EIP_SERVICE_JSON_DOWNLOADED = false;
+            providerCaCert = task.containsKey(Provider.CA_CERT) ?
+                    task.getString(Provider.CA_CERT) :
+                    "";
+
+            try {
+                providerDefinition = task.containsKey(Provider.KEY) ?
+                        new JSONObject(task.getString(Provider.KEY)) :
+                        new JSONObject();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                providerDefinition = new JSONObject();
+            }
+            providerApiUrl = getApiUrlWithVersion(providerDefinition);
+
+            checkPersistedProviderUpdates();
+            currentDownload = validateProviderDetails();
+
+            //provider details invalid
+            if (currentDownload.containsKey(ERRORS)) {
+                return currentDownload;
+            }
+
+            //no provider certificate available
+            if (currentDownload.containsKey(RESULT_KEY) && !currentDownload.getBoolean(RESULT_KEY)) {
+                resetProviderDetails();
+            }
+
+            EIP_SERVICE_JSON_DOWNLOADED = false;
             go_ahead = true;
         }
 
         if (!PROVIDER_JSON_DOWNLOADED)
-            current_download = getAndSetProviderJson(last_provider_main_url, last_danger_on, provider_ca_cert_fingerprint);
-        if (PROVIDER_JSON_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
+            currentDownload = getAndSetProviderJson(lastProviderMainUrl, lastDangerOn, providerCaCert, providerDefinition);
+        if (PROVIDER_JSON_DOWNLOADED || (currentDownload.containsKey(RESULT_KEY) && currentDownload.getBoolean(RESULT_KEY))) {
             broadcastProgress(progress++);
             PROVIDER_JSON_DOWNLOADED = true;
-            current_download = downloadCACert(last_danger_on);
 
-            if (CA_CERT_DOWNLOADED || (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY))) {
+            if (!CA_CERT_DOWNLOADED)
+                currentDownload = downloadCACert(lastDangerOn);
+            if (CA_CERT_DOWNLOADED || (currentDownload.containsKey(RESULT_KEY) && currentDownload.getBoolean(RESULT_KEY))) {
                 broadcastProgress(progress++);
                 CA_CERT_DOWNLOADED = true;
-                current_download = getAndSetEipServiceJson();
-                if (current_download.containsKey(RESULT_KEY) && current_download.getBoolean(RESULT_KEY)) {
+                currentDownload = getAndSetEipServiceJson();
+                if (currentDownload.containsKey(RESULT_KEY) && currentDownload.getBoolean(RESULT_KEY)) {
                     broadcastProgress(progress++);
                     EIP_SERVICE_JSON_DOWNLOADED = true;
                 }
             }
         }
 
-        return current_download;
+        return currentDownload;
     }
 
-    private Bundle getAndSetProviderJson(String provider_main_url, boolean danger_on, String provider_ca_cert_fingerprint) {
+    private Bundle getAndSetProviderJson(String providerMainUrl, boolean dangerOn, String caCert, JSONObject providerDefinition) {
         Bundle result = new Bundle();
 
         if (go_ahead) {
-            String provider_dot_json_string;
-            if(provider_ca_cert_fingerprint.isEmpty())
-                provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json", danger_on);
+            String providerDotJsonString;
+            if(providerDefinition.length() == 0 || caCert.isEmpty())
+                providerDotJsonString = downloadWithCommercialCA(providerMainUrl + "/provider.json", dangerOn);
             else
-                provider_dot_json_string = downloadWithCommercialCA(provider_main_url + "/provider.json", danger_on, provider_ca_cert_fingerprint);
+                providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, providerDefinition, dangerOn);
 
-            if (!isValidJson(provider_dot_json_string)) {
-                result.putString(ERRORS, getString(malformed_url));
+            if (!isValidJson(providerDotJsonString)) {
+                result.putString(ERRORS, resources.getString(malformed_url));
                 result.putBoolean(RESULT_KEY, false);
                 return result;
             }
 
             try {
-                JSONObject provider_json = new JSONObject(provider_dot_json_string);
-                provider_api_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
-                String name = provider_json.getString(Provider.NAME);
+                JSONObject providerJson = new JSONObject(providerDotJsonString);
+                String providerDomain = getDomainFromMainURL(lastProviderMainUrl);
+                providerApiUrl = getApiUrlWithVersion(providerJson);
+                //String name = providerJson.getString(Provider.NAME);
                 //TODO setProviderName(name);
 
-                preferences.edit().putString(Provider.KEY, provider_json.toString()).commit();
-                preferences.edit().putBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, provider_json.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS)).commit();
-                preferences.edit().putBoolean(Constants.PROVIDER_ALLOWED_REGISTERED, provider_json.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOWED_REGISTERED)).commit();
-
+                preferences.edit().putString(Provider.KEY, providerJson.toString()).
+                        putBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, providerJson.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS)).
+                        putBoolean(Constants.PROVIDER_ALLOWED_REGISTERED, providerJson.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOWED_REGISTERED)).
+                        putString(Provider.KEY + "." + providerDomain, providerJson.toString()).commit();
                 result.putBoolean(RESULT_KEY, true);
             } catch (JSONException e) {
-                //TODO Error message should be contained in that provider_dot_json_string
-                String reason_to_fail = pickErrorMessage(provider_dot_json_string);
+                String reason_to_fail = pickErrorMessage(providerDotJsonString);
                 result.putString(ERRORS, reason_to_fail);
                 result.putBoolean(RESULT_KEY, false);
             }
@@ -163,7 +198,7 @@ public class ProviderAPI extends ProviderApiBase {
             try {
                 JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
                 String eip_service_url = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
-                eip_service_json_string = downloadWithProviderCA(eip_service_url, last_danger_on);
+                eip_service_json_string = downloadWithProviderCA(eip_service_url, lastDangerOn);
                 JSONObject eip_service_json = new JSONObject(eip_service_json_string);
                 eip_service_json.getInt(Provider.API_RETURN_SERIAL);
 
@@ -192,7 +227,7 @@ public class ProviderAPI extends ProviderApiBase {
             String provider_main_url = provider_json.getString(Provider.API_URL);
             URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + Constants.PROVIDER_VPN_CERTIFICATE);
 
-            String cert_string = downloadWithProviderCA(new_cert_string_url.toString(), last_danger_on);
+            String cert_string = downloadWithProviderCA(new_cert_string_url.toString(), lastDangerOn);
 
             if (cert_string == null || cert_string.isEmpty() || ConfigHelper.checkErroneousDownload(cert_string))
                 return false;
@@ -210,48 +245,24 @@ public class ProviderAPI extends ProviderApiBase {
     }
 
 
-    private Bundle downloadCACert(boolean danger_on) {
+    private Bundle downloadCACert(boolean dangerOn) {
         Bundle result = new Bundle();
         try {
-            JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
-            String ca_cert_url = provider_json.getString(Provider.CA_CERT_URI);
-            String cert_string = downloadWithCommercialCA(ca_cert_url, danger_on);
+            JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
+            String caCertUrl = providerJson.getString(Provider.CA_CERT_URI);
+            String providerDomain = providerJson.getString(Provider.DOMAIN);
 
-            if (validCertificate(cert_string) && go_ahead) {
-                preferences.edit().putString(Provider.CA_CERT, cert_string).commit();
+            String certString = downloadWithCommercialCA(caCertUrl, dangerOn);
+
+            if (validCertificate(certString) && go_ahead) {
+                preferences.edit().putString(Provider.CA_CERT, certString).commit();
+                preferences.edit().putString(Provider.CA_CERT + "." + providerDomain, certString).commit();
                 result.putBoolean(RESULT_KEY, true);
             } else {
-                String reason_to_fail = pickErrorMessage(cert_string);
-                result.putString(ERRORS, reason_to_fail);
-                result.putBoolean(RESULT_KEY, false);
+                setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
             }
         } catch (JSONException e) {
-            String reason_to_fail = formatErrorMessage(malformed_url);
-            result.putString(ERRORS, reason_to_fail);
-            result.putBoolean(RESULT_KEY, false);
-        }
-
-        return result;
-    }
-
-    //TODO: refactor with ticket #8773
-    private String downloadWithCommercialCA(String urlString, boolean dangerOn, String caCertFingerprint) {
-        String result = "";
-        int seconds_of_timeout = 2;
-        String[] pins = new String[] {caCertFingerprint};
-        try {
-            URL url = new URL(urlString);
-            HttpsURLConnection connection = PinningHelper.getPinnedHttpsURLConnection(getApplicationContext(), pins, url);
-            connection.setConnectTimeout(seconds_of_timeout * 1000);
-            if (!LeapSRPSession.getToken().isEmpty())
-                connection.addRequestProperty(LeapSRPSession.AUTHORIZATION_HEADER, "Token token=" + LeapSRPSession.getToken());
-            result = new Scanner(connection.getInputStream()).useDelimiter("\\A").next();
-        } catch (IOException e) {
-            if(e instanceof SSLHandshakeException) {
-                result = dangerOn ? downloadWithoutCA(urlString) :
-                        formatErrorMessage(R.string.error_security_pinnedcertificate);
-            } else
-                result = formatErrorMessage(error_io_exception_user_message);
+            setErrorResult(result, malformed_url, null);
         }
 
         return result;
@@ -270,7 +281,7 @@ public class ProviderAPI extends ProviderApiBase {
         String responseString;
         JSONObject errorJson = new JSONObject();
 
-        OkHttpClient okHttpClient = initCommercialCAHttpClient(errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initCommercialCAHttpClient(errorJson);
         if (okHttpClient == null) {
             return errorJson.toString();
         }
@@ -283,8 +294,36 @@ public class ProviderAPI extends ProviderApiBase {
             try {
                 // try to download with provider CA on certificate error
                 JSONObject responseErrorJson = new JSONObject(responseString);
-                if (danger_on && responseErrorJson.getString(ERRORS).equals(getString(R.string.certificate_error))) {
-                    responseString = downloadWithProviderCA(string_url, danger_on);
+                if (danger_on && responseErrorJson.getString(ERRORS).equals(resources.getString(R.string.certificate_error))) {
+                    responseString = downloadWithoutCA(string_url);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return responseString;
+    }
+
+    private String downloadFromApiUrlWithProviderCA(String path, String caCert, JSONObject providerDefinition, boolean dangerOn) {
+        String responseString;
+        JSONObject errorJson = new JSONObject();
+        String baseUrl = getApiUrl(providerDefinition);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(errorJson, caCert);
+        if (okHttpClient == null) {
+            return errorJson.toString();
+        }
+
+        String urlString = baseUrl + path;
+        List<Pair<String, String>> headerArgs = getAuthorizationHeader();
+        responseString = sendGetStringToServer(urlString, headerArgs, okHttpClient);
+
+        if (responseString != null && responseString.contains(ERRORS)) {
+            try {
+                // try to download with provider CA on certificate error
+                JSONObject responseErrorJson = new JSONObject(responseString);
+                if (dangerOn && responseErrorJson.getString(ERRORS).equals(resources.getString(R.string.certificate_error))) {
+                    responseString = downloadWithCommercialCA(urlString, dangerOn);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -305,7 +344,7 @@ public class ProviderAPI extends ProviderApiBase {
         JSONObject initError = new JSONObject();
         String responseString;
 
-        OkHttpClient okHttpClient = initSelfSignedCAHttpClient(initError);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(initError);
         if (okHttpClient == null) {
             return initError.toString();
         }
@@ -318,7 +357,7 @@ public class ProviderAPI extends ProviderApiBase {
             try {
                 // danger danger: try to download without CA on certificate error
                 JSONObject responseErrorJson = new JSONObject(responseString);
-                if (dangerOn && responseErrorJson.getString(ERRORS).equals(getString(R.string.certificate_error))) {
+                if (dangerOn && responseErrorJson.getString(ERRORS).equals(resources.getString(R.string.certificate_error))) {
                     responseString = downloadWithoutCA(urlString);
                 }
             } catch (JSONException e) {
@@ -385,5 +424,4 @@ public class ProviderAPI extends ProviderApiBase {
         }
         return string;
     }
-
 }

@@ -4,7 +4,7 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
-import se.leap.bitmaskclient.TestUtils;
+import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -217,13 +217,13 @@ public class VpnConfigGeneratorTest {
 
     @Before
     public void setUp() throws  Exception {
-        generalConfig = new JSONObject(TestUtils.getInputAsString(getClass().getClassLoader().getResourceAsStream("general_configuration.json")));
-        secrets = new JSONObject(TestUtils.getInputAsString(getClass().getClassLoader().getResourceAsStream("secrets.json")));
+        generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("general_configuration.json")));
+        secrets = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("secrets.json")));
 
     }
     @Test
     public void testGenerate_tcp_udp() throws Exception {
-        gateway = new JSONObject(TestUtils.getInputAsString(getClass().getClassLoader().getResourceAsStream("gateway_tcp_udp.json")));
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("gateway_tcp_udp.json")));
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway);
 
         String vpnConfig = vpnConfigGenerator.generate();
@@ -232,7 +232,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerate_udp_tcp() throws Exception {
-        gateway = new JSONObject(TestUtils.getInputAsString(getClass().getClassLoader().getResourceAsStream("gateway_udp_tcp.json")));
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("gateway_udp_tcp.json")));
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway);
 
         String vpnConfig = vpnConfigGenerator.generate();

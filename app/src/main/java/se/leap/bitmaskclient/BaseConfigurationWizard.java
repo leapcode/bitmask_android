@@ -56,6 +56,7 @@ import se.leap.bitmaskclient.userstatus.SessionDialog;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 
 /**
  * abstract base Activity that builds and shows the list of known available providers.
@@ -184,10 +185,10 @@ public abstract class BaseConfigurationWizard extends Activity
         // by the height of mProgressbar (and the height of the first list item)
         mProgressBar.setVisibility(INVISIBLE);
         progressbar_description.setVisibility(INVISIBLE);
-
+        mProgressBar.setProgress(0);
     }
 
-    private void showProgressBar() {
+    protected void showProgressBar() {
         mProgressBar.setVisibility(VISIBLE);
         progressbar_description.setVisibility(VISIBLE);
     }
@@ -215,6 +216,8 @@ public abstract class BaseConfigurationWizard extends Activity
                 String provider_json_string = preferences.getString(Provider.KEY, "");
                 if (!provider_json_string.isEmpty())
                     selected_provider.define(new JSONObject(provider_json_string));
+                String caCert = preferences.getString(Provider.CA_CERT, "");
+                selected_provider.setCACert(caCert);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -231,12 +234,11 @@ public abstract class BaseConfigurationWizard extends Activity
             }
         } else if (resultCode == ProviderAPI.PROVIDER_NOK) {
             mConfigState.setAction(PROVIDER_NOT_SET);
-            hideProgressBar();
             preferences.edit().remove(Provider.KEY).apply();
 
             setResult(RESULT_CANCELED, mConfigState);
 
-            String reason_to_fail = resultData.getString(ProviderAPI.ERRORS);
+            String reason_to_fail = resultData.getString(ERRORS);
             showDownloadFailedDialog(reason_to_fail);
         } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
             mProgressBar.incrementProgressBy(1);
@@ -293,10 +295,26 @@ public abstract class BaseConfigurationWizard extends Activity
         cancelSettingUpProvider();
     }
 
+    @Override
     public void cancelSettingUpProvider() {
+        hideProgressBar();
         mConfigState.setAction(PROVIDER_NOT_SET);
         adapter.showAllProviders();
         preferences.edit().remove(Provider.KEY).remove(Constants.PROVIDER_ALLOW_ANONYMOUS).remove(Constants.PROVIDER_KEY).apply();
+    }
+
+    @Override
+    public void updateProviderDetails() {
+        mConfigState.setAction(SETTING_UP_PROVIDER);
+        Intent provider_API_command = new Intent(this, ProviderAPI.class);
+
+        provider_API_command.setAction(ProviderAPI.UPDATE_PROVIDER_DETAILS);
+        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+        Bundle parameters = new Bundle();
+        parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
+        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
+
+        startService(provider_API_command);
     }
 
     private void askDashboardToQuitApp() {
@@ -334,7 +352,7 @@ public abstract class BaseConfigurationWizard extends Activity
     }
 
     /**
-     * Asks ProviderAPI to download an anonymous (anon) VPN certificate.
+     * Asks ProviderApiService to download an anonymous (anon) VPN certificate.
      */
     private void downloadVpnCertificate() {
         Intent provider_API_command = new Intent(this, ProviderAPI.class);
@@ -369,23 +387,27 @@ public abstract class BaseConfigurationWizard extends Activity
     /**
      * Shows an error dialog, if configuring of a provider failed.
      *
-     * @param reason_to_fail
+     * @param reasonToFail
      */
-    public void showDownloadFailedDialog(String reason_to_fail) {
+    public void showDownloadFailedDialog(String reasonToFail) {
         try {
             FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(DownloadFailedDialog.TAG);
-
-            DialogFragment newFragment = DownloadFailedDialog.newInstance(reason_to_fail);
+            DialogFragment newFragment;
+            try {
+                JSONObject errorJson = new JSONObject(reasonToFail);
+                newFragment = DownloadFailedDialog.newInstance(errorJson);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                newFragment = DownloadFailedDialog.newInstance(reasonToFail);
+            }
             newFragment.show(fragment_transaction, DownloadFailedDialog.TAG);
         } catch (IllegalStateException e) {
             e.printStackTrace();
             mConfigState.setAction(PENDING_SHOW_FAILED_DIALOG);
-            mConfigState.putExtra(REASON_TO_FAIL, reason_to_fail);
+            mConfigState.putExtra(REASON_TO_FAIL, reasonToFail);
         }
 
     }
-
-
 
     /**
      * Once selected a provider, this fragment offers the user to log in,
@@ -405,7 +427,6 @@ public abstract class BaseConfigurationWizard extends Activity
             mConfigState.setAction(PENDING_SHOW_PROVIDER_DETAILS);
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

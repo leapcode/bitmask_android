@@ -16,7 +16,9 @@
  */
 package se.leap.bitmaskclient;
 
-import android.os.*;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 
 /**
  * Implements the ResultReceiver needed by Activities using ProviderAPI to receive the results of its operations.
