@@ -507,7 +507,7 @@ public abstract class ProviderApiManagerBase {
      * @return response from authentication server
      */
     private JSONObject sendToServer(String url, String request_method, String jsonString, OkHttpClient okHttpClient) {
-        return requestJsonFromServer(url, request_method, jsonString, null, okHttpClient);
+        return requestJsonFromServer(url, request_method, jsonString, new ArrayList<Pair<String, String>>(), okHttpClient);
     }
 
     protected String sendGetStringToServer(@NonNull String url, @NonNull List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient) {
