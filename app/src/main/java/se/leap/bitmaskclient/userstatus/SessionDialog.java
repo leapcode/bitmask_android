@@ -165,13 +165,13 @@ public class SessionDialog extends DialogFragment {
     SessionDialogInterface interface_with_Dashboard;
 
     @Override
-    public void onAttach(Context activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
         try {
-            interface_with_Dashboard = (SessionDialogInterface) ((AppCompatActivity) activity).getSupportFragmentManager().getFragments().get(0);
+            interface_with_Dashboard = (SessionDialogInterface) ((AppCompatActivity) context).getSupportFragmentManager().getFragments().get(0);
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement LogInDialogListener");
         }
     }

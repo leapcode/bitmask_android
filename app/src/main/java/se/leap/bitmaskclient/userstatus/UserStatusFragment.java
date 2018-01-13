@@ -70,8 +70,8 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     }
 
     @Override
-    public void onAttach(Context activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
     }
 
     public void restoreSessionStatus(Bundle savedInstanceState) {
