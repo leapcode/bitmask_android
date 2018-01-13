@@ -306,7 +306,7 @@ public class VpnFragment extends Fragment implements Observer {
             eipStatus = (EipStatus) observable;
             Activity activity = getActivity();
             if (activity != null) {
-                getActivity().runOnUiThread(new Runnable() {
+                activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         handleNewState();
