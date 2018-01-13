@@ -52,7 +52,7 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
      * Open the new provider dialog with data
      */
     public void addAndSelectNewProvider(String main_url, boolean danger_on) {
-        FragmentTransaction fragment_transaction = fragment_manager.removePreviousFragment(NewProviderDialog.TAG);
+        FragmentTransaction fragment_transaction = fragmentManager.removePreviousFragment(NewProviderDialog.TAG);
 
         DialogFragment newFragment = new NewProviderDialog();
         Bundle data = new Bundle();
@@ -64,10 +64,10 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
 
     public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
         try {
-            selected_provider = new Provider(new URL((provider_main_url)));
-            adapter.add(selected_provider);
+            selectedProvider = new Provider(new URL((provider_main_url)));
+            adapter.add(selectedProvider);
             adapter.saveProviders();
-            autoSelectProvider(selected_provider, danger_on);
+            autoSelectProvider(selectedProvider, danger_on);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -75,7 +75,7 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
 
     private void autoSelectProvider(Provider provider, boolean danger_on) {
         preferences.edit().putBoolean(ProviderItem.DANGER_ON, danger_on).apply();
-        selected_provider = provider;
+        selectedProvider = provider;
         onItemSelectedLogic();
         onItemSelectedUi();
     }
@@ -89,21 +89,21 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
         mConfigState.setAction(SETTING_UP_PROVIDER);
         Intent provider_API_command = new Intent(this, ProviderAPI.class);
         Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
+        parameters.putString(Provider.MAIN_URL, selectedProvider.getMainUrl().toString());
         parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
-        if (selected_provider.hasCertificatePin()){
-            parameters.putString(Provider.CA_CERT_FINGERPRINT, selected_provider.certificatePin());
+        if (selectedProvider.hasCertificatePin()){
+            parameters.putString(Provider.CA_CERT_FINGERPRINT, selectedProvider.certificatePin());
         }
-        if (selected_provider.hasCaCert()) {
-            parameters.putString(Provider.CA_CERT, selected_provider.getCaCert());
+        if (selectedProvider.hasCaCert()) {
+            parameters.putString(Provider.CA_CERT, selectedProvider.getCaCert());
         }
-        if (selected_provider.hasDefinition()) {
-            parameters.putString(Provider.KEY, selected_provider.getDefinition().toString());
+        if (selectedProvider.hasDefinition()) {
+            parameters.putString(Provider.KEY, selectedProvider.getDefinition().toString());
         }
 
         provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
         provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
 
         startService(provider_API_command);
     }
@@ -118,14 +118,14 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
             addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl(), ProviderAPI.lastDangerOn());
         } else {
             showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(selected_provider));
+            adapter.hideAllBut(adapter.indexOf(selectedProvider));
 
             Intent provider_API_command = new Intent(this, ProviderAPI.class);
 
             provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-            provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+            provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
             Bundle parameters = new Bundle();
-            parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
+            parameters.putString(Provider.MAIN_URL, selectedProvider.getMainUrl().toString());
             provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
 
             startService(provider_API_command);

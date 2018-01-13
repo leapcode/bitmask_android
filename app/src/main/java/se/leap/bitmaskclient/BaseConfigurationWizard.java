@@ -158,6 +158,13 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         progressbarText = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
         selectedProvider = savedInstanceState.getParcelable(Provider.KEY);
         mConfigState.setAction(savedInstanceState.getString(ACTIVITY_STATE, PROVIDER_NOT_SET));
+
+        if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
+                         PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction()) ||
+                         PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())
+                ) {
+            onItemSelectedUi();
+        }
     }
 
     @Override
