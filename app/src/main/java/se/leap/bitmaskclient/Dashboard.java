@@ -18,6 +18,7 @@ package se.leap.bitmaskclient;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -320,7 +321,7 @@ public class Dashboard extends ButterKnifeActivity {
      *                               has caused to start Dashboard
      * @return the created VPNFragment
      */
-    public static VpnFragment prepareEipFragment(boolean hideAndTurnOnEipOnBoot) {
+    public VpnFragment prepareEipFragment(boolean hideAndTurnOnEipOnBoot) {
         VpnFragment eip_fragment = new VpnFragment();
 
         if (hideAndTurnOnEipOnBoot && !isAlwaysOn()) {
@@ -338,7 +339,7 @@ public class Dashboard extends ButterKnifeActivity {
      * checks if Android's VPN feature 'always-on' is enabled for Bitmask
      * @return true if 'always-on' is enabled false if not
      */
-    private static boolean isAlwaysOn() {
+    private boolean isAlwaysOn() {
         return  preferences.getBoolean(EIP_IS_ALWAYS_ON, false);
     }
 
@@ -444,7 +445,7 @@ public class Dashboard extends ButterKnifeActivity {
         startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_SWITCH_PROVIDER);
     }
 
-    public static class DashboardReceiver implements ProviderAPIResultReceiver.Receiver{
+    private static class DashboardReceiver implements ProviderAPIResultReceiver.Receiver{
 
         private Dashboard dashboard;
 
