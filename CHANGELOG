@@ -1,3 +1,17 @@
+0.9.8 - the UI overhaul
+Bugs:
+- fixes notification channel bug on Android 8+
+- fixes Bitmask starting always on restart regardless of the last state before the phone was turned off
+
+Features:
+- support for Android's always-on vpn system setting:
+    - Bitmask starts the vpn with the last selected profile
+    - if no vpn provile is available Bitmask blocks all outgoing internet traffic until
+      the user creates a vpn profile or enables unsecured internet traffic
+      with a click on a notification
+- improved certificate pinning mechanism
+- (more to come)
+
 0.9.7 - the maintenance release
 Bugs:
 - fixes failing login on Android 7.0 and Android 7.1 (Android Nougat)

@@ -207,7 +207,7 @@ public class VpnFragment extends Fragment implements Observer {
                 .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        askToStopEIP();
+                        stopEipIfPossible();
                     }
                 })
                 .setNegativeButton(activity.getString(android.R.string.no), new DialogInterface.OnClickListener() {
