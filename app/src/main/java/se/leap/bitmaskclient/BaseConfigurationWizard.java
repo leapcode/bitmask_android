@@ -54,6 +54,10 @@ import se.leap.bitmaskclient.fragments.AboutFragment;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static se.leap.bitmaskclient.Constants.APP_ACTION_QUIT;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 
 /**
@@ -132,7 +136,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
         providerManager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
 
@@ -210,7 +214,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
                 e.printStackTrace();
             }
 
-            if (preferences.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, false)) {
+            if (preferences.getBoolean(PROVIDER_ALLOW_ANONYMOUS, false)) {
                 mConfigState.putExtra(SERVICES_RETRIEVED, true);
 
                 downloadVpnCertificate();
@@ -288,7 +292,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         hideProgressBar();
         mConfigState.setAction(PROVIDER_NOT_SET);
         adapter.showAllProviders();
-        preferences.edit().remove(Provider.KEY).remove(Constants.PROVIDER_ALLOW_ANONYMOUS).remove(Constants.PROVIDER_KEY).apply();
+        preferences.edit().remove(Provider.KEY).remove(PROVIDER_ALLOW_ANONYMOUS).remove(PROVIDER_KEY).apply();
     }
 
     @Override
@@ -307,7 +311,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
     private void askDashboardToQuitApp() {
         Intent askQuit = new Intent();
-        askQuit.putExtra(Constants.APP_ACTION_QUIT, Constants.APP_ACTION_QUIT);
+        askQuit.putExtra(APP_ACTION_QUIT, APP_ACTION_QUIT);
         setResult(RESULT_CANCELED, askQuit);
     }
 

@@ -18,6 +18,10 @@ import java.util.ArrayList;
 
 import butterknife.InjectView;
 
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+
 public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity {
 
     final public static String TAG = "providerDetailActivity";
@@ -40,7 +44,7 @@ public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.provider_detail_fragment);
 
-        preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         try {
             JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
             domain.setText(providerJson.getString(Provider.DOMAIN));
@@ -92,7 +96,7 @@ public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity
     private boolean anonAllowed(JSONObject providerJson) {
         try {
             JSONObject serviceDescription = providerJson.getJSONObject(Provider.SERVICE);
-            return serviceDescription.has(Constants.PROVIDER_ALLOW_ANONYMOUS) && serviceDescription.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS);
+            return serviceDescription.has(PROVIDER_ALLOW_ANONYMOUS) && serviceDescription.getBoolean(PROVIDER_ALLOW_ANONYMOUS);
         } catch (JSONException e) {
             return false;
         }
@@ -110,7 +114,7 @@ public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity
     @Override
     public void onBackPressed() {
         SharedPreferences.Editor editor = preferences.edit();
-        editor.remove(Provider.KEY).remove(Constants.PROVIDER_ALLOW_ANONYMOUS).remove(Constants.PROVIDER_KEY).apply();
+        editor.remove(Provider.KEY).remove(PROVIDER_ALLOW_ANONYMOUS).remove(PROVIDER_KEY).apply();
         super.onBackPressed();
     }
 

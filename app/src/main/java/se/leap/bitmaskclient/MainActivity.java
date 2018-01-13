@@ -23,6 +23,8 @@ import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
 
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         mTitle = getTitle();
 
         fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
-        preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
