@@ -98,7 +98,7 @@ public class Dashboard extends ButterKnifeActivity {
 
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), dashboardReceiver);
 
-        if (handledVersion) {
+        if (!handledVersion) {
             handleVersion();
             handledVersion = true;
         }
