@@ -3,16 +3,16 @@ package se.leap.bitmaskclient.drawer;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -28,7 +28,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import se.leap.bitmaskclient.ConfigurationWizard;
-import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnFragment;
@@ -36,6 +35,9 @@ import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
+
+import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -86,7 +88,7 @@ public class NavigationDrawerFragment extends Fragment {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
 
-        preferences = getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
 
         if (savedInstanceState != null) {
             mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
@@ -317,7 +319,7 @@ public class NavigationDrawerFragment extends Fragment {
                     // TODO STOP VPN
                     // if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
                     preferences.edit().clear().apply();
-                    startActivityForResult(new Intent(getActivity(), ConfigurationWizard.class), Constants.REQUEST_CODE_SWITCH_PROVIDER);
+                    startActivityForResult(new Intent(getActivity(), ConfigurationWizard.class), REQUEST_CODE_SWITCH_PROVIDER);
                     break;
                 case 2:
                     mTitle = getString(R.string.log_fragment_title);

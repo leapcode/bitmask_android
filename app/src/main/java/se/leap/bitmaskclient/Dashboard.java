@@ -47,10 +47,18 @@ import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
 
+import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
+import static se.leap.bitmaskclient.Constants.APP_ACTION_QUIT;
 import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
+import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
+import static se.leap.bitmaskclient.Constants.REQUEST_CODE_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 /**
  * The main user facing Activity of Bitmask Android, consisting of status, controls,
@@ -93,7 +101,7 @@ public class Dashboard extends ButterKnifeActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dashboardReceiver = new DashboardReceiver(this);
-        preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getSupportFragmentManager());
 
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), dashboardReceiver);
@@ -136,7 +144,7 @@ public class Dashboard extends ButterKnifeActivity {
 
     private boolean providerInSharedPreferences() {
         return preferences != null &&
-                preferences.getBoolean(Constants.PROVIDER_CONFIGURED, false);
+                preferences.getBoolean(PROVIDER_CONFIGURED, false);
 
     }
 
@@ -166,7 +174,7 @@ public class Dashboard extends ButterKnifeActivity {
             switch (versionCode) {
                 case 91: // 0.6.0 without Bug #5999
                 case 101: // 0.8.0
-                    if (!preferences.getString(Constants.PROVIDER_KEY, "").isEmpty())
+                    if (!preferences.getString(PROVIDER_KEY, "").isEmpty())
                         eip_fragment.updateEipService();
                     break;
             }
@@ -188,7 +196,7 @@ public class Dashboard extends ButterKnifeActivity {
         } else if (intent.hasExtra(EIP_RESTART_ON_BOOT)) {
             Log.d(TAG, "Dashboard: EIP_RESTART_ON_BOOT");
             prepareEIP(null);
-        } else if (intent.hasExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+        } else if (intent.hasExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
             Log.d(TAG, "Dashboard: Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE");
             handleConfigureAlwaysOn(getIntent());
         }
@@ -207,7 +215,7 @@ public class Dashboard extends ButterKnifeActivity {
                     sessionDialog(Bundle.EMPTY);
                 }
 
-            } else if (resultCode == RESULT_CANCELED && data != null && data.hasExtra(Constants.APP_ACTION_QUIT)) {
+            } else if (resultCode == RESULT_CANCELED && data != null && data.hasExtra(APP_ACTION_QUIT)) {
                 finish();
             } else
                 configErrorDialog();
@@ -222,9 +230,9 @@ public class Dashboard extends ButterKnifeActivity {
     }
 
     private void handleConfigureAlwaysOn(Intent intent) {
-            intent.removeExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
+            intent.removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
             Log.d(TAG, "start Configuration wizard!");
-            startActivityForResult(new Intent(this, ConfigurationWizard.class), Constants.REQUEST_CODE_CONFIGURE_LEAP);
+            startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
     }
 
     private void prepareEIP(Bundle savedInstanceState) {
@@ -244,14 +252,14 @@ public class Dashboard extends ButterKnifeActivity {
     }
 
     private void configureLeapProvider() {
-        if (getIntent().hasExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
-            getIntent().removeExtra(Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
+        if (getIntent().hasExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+            getIntent().removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
         }
-        startActivityForResult(new Intent(this, ConfigurationWizard.class), Constants.REQUEST_CODE_CONFIGURE_LEAP);
+        startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
     }
     @SuppressLint("CommitPrefEdits")
     private void providerToPreferences(Provider provider) {
-        preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).
+        preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
                 putString(Provider.MAIN_URL, provider.getMainUrl().toString()).
                 putString(Provider.KEY, provider.getDefinition().toString()).apply();
     }
@@ -265,13 +273,13 @@ public class Dashboard extends ButterKnifeActivity {
                 .setPositiveButton(getResources().getString(R.string.setup_error_configure_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivityForResult(new Intent(getApplicationContext(), ConfigurationWizard.class), Constants.REQUEST_CODE_CONFIGURE_LEAP);
+                        startActivityForResult(new Intent(getApplicationContext(), ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
                     }
                 })
                 .setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        preferences.edit().remove(Provider.KEY).remove(Constants.PROVIDER_CONFIGURED).apply();
+                        preferences.edit().remove(Provider.KEY).remove(PROVIDER_CONFIGURED).apply();
                         finish();
                     }
                 })
@@ -385,7 +393,7 @@ public class Dashboard extends ButterKnifeActivity {
     // TODO MOVE TO VPNManager(?)
     public static void downloadVpnCertificate() {
         boolean is_authenticated = User.loggedIn();
-        boolean allowed_anon = preferences.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, false);
+        boolean allowed_anon = preferences.getBoolean(PROVIDER_ALLOW_ANONYMOUS, false);
         if (allowed_anon || is_authenticated)
             ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_CERTIFICATE, providerAPI_result_receiver);
         else
@@ -419,7 +427,7 @@ public class Dashboard extends ButterKnifeActivity {
             if (entry.getKey().startsWith(Provider.KEY + ".") ||
                     entry.getKey().startsWith(Provider.CA_CERT + ".") ||
                     entry.getKey().startsWith(Provider.CA_CERT_FINGERPRINT + "." )||
-                    entry.getKey().equals(Constants.PREFERENCES_APP_VERSION)
+                    entry.getKey().equals(PREFERENCES_APP_VERSION)
                     ) {
                 continue;
             }
@@ -433,7 +441,7 @@ public class Dashboard extends ButterKnifeActivity {
         preferenceEditor.apply();
 
         switching_provider = false;
-        startActivityForResult(new Intent(this, ConfigurationWizard.class), Constants.REQUEST_CODE_SWITCH_PROVIDER);
+        startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_SWITCH_PROVIDER);
     }
 
     public static class DashboardReceiver implements ProviderAPIResultReceiver.Receiver{
@@ -478,7 +486,7 @@ public class Dashboard extends ButterKnifeActivity {
 
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
-        intent.putExtra(Constants.REQUEST_CODE_KEY, requestCode);
+        intent.putExtra(REQUEST_CODE_KEY, requestCode);
         super.startActivityForResult(intent, requestCode);
     }
 

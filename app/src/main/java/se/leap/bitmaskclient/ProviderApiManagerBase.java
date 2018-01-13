@@ -54,6 +54,10 @@ import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatus;
 
 import static se.leap.bitmaskclient.ConfigHelper.getFingerprintFromCertificate;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
+import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
@@ -674,8 +678,8 @@ public abstract class ProviderApiManagerBase {
         //valid certificate: skip download, save loaded provider CA cert and provider definition directly
         try {
             preferences.edit().putString(Provider.KEY, providerDefinition.toString()).
-                    putBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS)).
-                    putBoolean(Constants.PROVIDER_ALLOWED_REGISTERED, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOWED_REGISTERED)).
+                    putBoolean(PROVIDER_ALLOW_ANONYMOUS, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS)).
+                    putBoolean(PROVIDER_ALLOWED_REGISTERED, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED)).
                     putString(Provider.CA_CERT, providerCaCert).commit();
             CA_CERT_DOWNLOADED = true;
             PROVIDER_JSON_DOWNLOADED = true;
@@ -912,11 +916,11 @@ public abstract class ProviderApiManagerBase {
 
             RSAPrivateKey key = ConfigHelper.parseRsaKeyFromString(keyString);
             keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
-            preferences.edit().putString(Constants.PROVIDER_PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----").commit();
+            preferences.edit().putString(PROVIDER_PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----").commit();
 
             X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
             certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
-            preferences.edit().putString(Constants.PROVIDER_VPN_CERTIFICATE, "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----").commit();
+            preferences.edit().putString(PROVIDER_VPN_CERTIFICATE, "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----").commit();
             return true;
         } catch (CertificateException e) {
             // TODO Auto-generated catch block

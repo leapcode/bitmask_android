@@ -64,6 +64,7 @@ import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 public class VpnFragment extends Fragment implements Observer {
 
@@ -114,7 +115,7 @@ public class VpnFragment extends Fragment implements Observer {
         eipStatus = EipStatus.getInstance();
         eipStatus.addObserver(this);
         eipReceiver = new EIPReceiver(new Handler());
-        preferences = getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     @Override

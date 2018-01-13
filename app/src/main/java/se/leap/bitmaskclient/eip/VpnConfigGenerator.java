@@ -22,8 +22,10 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 
-import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.Provider;
+
+import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 
 public class VpnConfigGenerator {
 
@@ -121,14 +123,14 @@ public class VpnConfigGenerator {
             String key =
                     "<key>"
                             + newLine
-                            + secrets.getString(Constants.PROVIDER_PRIVATE_KEY)
+                            + secrets.getString(PROVIDER_PRIVATE_KEY)
                             + newLine
                             + "</key>";
 
             String openvpnCert =
                     "<cert>"
                             + newLine
-                            + secrets.getString(Constants.PROVIDER_VPN_CERTIFICATE)
+                            + secrets.getString(PROVIDER_VPN_CERTIFICATE)
                             + newLine
                             + "</cert>";
 

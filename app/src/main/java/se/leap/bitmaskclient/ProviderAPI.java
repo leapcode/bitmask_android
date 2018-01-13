@@ -21,7 +21,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
-import de.blinkt.openvpn.core.Preferences;
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 /**
  * Implements HTTP api methods (encapsulated in {{@link ProviderApiManager}})
@@ -117,7 +117,7 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
 
 
     private ProviderApiManager initApiManager() {
-        SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(preferences, getResources());
         return new ProviderApiManager(preferences, getResources(), clientGenerator, this);
     }
