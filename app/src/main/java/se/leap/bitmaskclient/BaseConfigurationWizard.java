@@ -59,6 +59,8 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
+import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROGRESSBAR;
 
 /**
  * abstract base Activity that builds and shows the list of known available providers.
@@ -91,7 +93,8 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
     final protected static String PROVIDER_NOT_SET = "PROVIDER NOT SET";
     final protected static String SETTING_UP_PROVIDER = "PROVIDER GETS SET";
-    final private static  String PENDING_SHOW_PROVIDER_DETAILS = "PROVIDER DETAILS SHOWN";
+    final private static  String PENDING_SHOW_PROVIDER_DETAILS = "PENDING PROVIDER DETAILS";
+    final private static  String SHOWING_PROVIDER_DETAILS = "SHOWING PROVIDER DETAILS SHOWN";
     final private static String PENDING_SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG";
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
     final protected static String PROVIDER_SET = "PROVIDER SET";
@@ -99,16 +102,17 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
     final private static String PROGRESSBAR_TEXT = TAG + "PROGRESSBAR_TEXT";
     final private static String PROGRESSBAR_NUMBER = TAG + "PROGRESSBAR_NUMBER";
+    final private static String ACTIVITY_STATE = "ACTIVITY STATE";
 
     public ProviderAPIResultReceiver providerAPIResultReceiver;
-    private BaseConfigurationWizard.providerAPIBroadcastReceiverUpdate providerAPIBroadcastReceiverUpdate;
+    private ProviderAPIBroadcastReceiver providerAPIBroadcastReceiver;
 
     protected static SharedPreferences preferences;
     FragmentManagerEnhanced fragmentManager;
     //TODO: add some states (values for progressbarText) about ongoing setup or remove that field
     private String progressbarText = "";
 
-
+    private boolean isActivityShowing;
 
     public abstract void retrySetUpProvider();
 
@@ -129,6 +133,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
             outState.putInt(PROGRESSBAR_NUMBER, mProgressBar.getProgress());
         if (progressbarDescription != null)
             outState.putString(PROGRESSBAR_TEXT, progressbarDescription.getText().toString());
+        outState.putString(ACTIVITY_STATE, mConfigState.getAction());
         outState.putParcelable(Provider.KEY, selectedProvider);
         super.onSaveInstanceState(outState);
     }
@@ -152,23 +157,30 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     private void restoreState(Bundle savedInstanceState) {
         progressbarText = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
         selectedProvider = savedInstanceState.getParcelable(Provider.KEY);
+        mConfigState.setAction(savedInstanceState.getString(ACTIVITY_STATE, PROVIDER_NOT_SET));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        hideProgressBar();
+        isActivityShowing = true;
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
-            cancelAndShowAllProviders();
+            showProgressBar();
+            adapter.hideAllBut(adapter.indexOf(selectedProvider));
+            // TODO find a better replacement! This can lead to loops
+            onItemSelectedLogic();
         } else if (PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction())) {
             showProviderDetails();
         } else if (PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             showDownloadFailedDialog(mConfigState.getStringExtra(REASON_TO_FAIL));
+        } else if (SHOWING_PROVIDER_DETAILS.equals(mConfigState.getAction())) {
+            cancelAndShowAllProviders();
         }
     }
 
     private void setUpInitialUI() {
         setContentView(R.layout.configuration_wizard_activity);
-
         hideProgressBar();
     }
 
@@ -186,19 +198,26 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        isActivityShowing = false;
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (providerAPIBroadcastReceiverUpdate != null)
-            unregisterReceiver(providerAPIBroadcastReceiverUpdate);
+        if (providerAPIBroadcastReceiver != null)
+            unregisterReceiver(providerAPIBroadcastReceiver);
     }
 
     private void setUpProviderAPIResultReceiver() {
         providerAPIResultReceiver = new ProviderAPIResultReceiver(new Handler(), this);
-        providerAPIBroadcastReceiverUpdate = new providerAPIBroadcastReceiverUpdate();
+        providerAPIBroadcastReceiver = new ProviderAPIBroadcastReceiver();
 
-        IntentFilter update_intent_filter = new IntentFilter(ProviderAPI.UPDATE_PROGRESSBAR);
-        update_intent_filter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(providerAPIBroadcastReceiverUpdate, update_intent_filter);
+        IntentFilter updateIntentFilter = new IntentFilter(UPDATE_PROGRESSBAR);
+        updateIntentFilter.addAction(SET_UP_PROVIDER);
+        updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
     }
 
     @Override
@@ -222,7 +241,6 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
                 mProgressBar.incrementProgressBy(1);
                 hideProgressBar();
 
-                showProviderDetails();
             }
         } else if (resultCode == ProviderAPI.PROVIDER_NOK) {
             mConfigState.setAction(PROVIDER_NOT_SET);
@@ -409,9 +427,16 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
      *
      */
     public void showProviderDetails() {
-        Intent intent = new Intent(this, ProviderDetailActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        startActivity(intent);
+        // show only if current activity is shown
+        if (isActivityShowing) {
+            mConfigState.setAction(SHOWING_PROVIDER_DETAILS);
+            Intent intent = new Intent(this, ProviderDetailActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivity(intent);
+        } else {
+            // may be called AFTER onSaveInstanceState (!)
+            mConfigState.setAction(PENDING_SHOW_PROVIDER_DETAILS);
+        }
     }
 
     @Override
@@ -440,7 +465,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         adapter.showAllProviders();
     }
 
-    public class providerAPIBroadcastReceiverUpdate extends BroadcastReceiver {
+    public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             int update = intent.getIntExtra(ProviderAPI.CURRENT_PROGRESS, 0);

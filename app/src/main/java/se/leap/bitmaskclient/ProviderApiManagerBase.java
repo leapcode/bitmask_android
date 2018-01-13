@@ -433,7 +433,6 @@ public abstract class ProviderApiManagerBase {
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
         intentUpdate.putExtra(CURRENT_PROGRESS, progress);
         serviceCallback.broadcastProgress(intentUpdate);
-        //sendBroadcast(intentUpdate);
     }
 
     /**

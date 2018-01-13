@@ -123,17 +123,17 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         if (!PROVIDER_JSON_DOWNLOADED)
             currentDownload = getAndSetProviderJson(lastProviderMainUrl, providerCaCert, providerDefinition);
         if (PROVIDER_JSON_DOWNLOADED || (currentDownload.containsKey(RESULT_KEY) && currentDownload.getBoolean(RESULT_KEY))) {
-            broadcastProgress(progress++);
+            broadcastProgress(++progress);
             PROVIDER_JSON_DOWNLOADED = true;
 
             if (!CA_CERT_DOWNLOADED)
                 currentDownload = downloadCACert();
             if (CA_CERT_DOWNLOADED || (currentDownload.containsKey(RESULT_KEY) && currentDownload.getBoolean(RESULT_KEY))) {
-                broadcastProgress(progress++);
+                broadcastProgress(++progress);
                 CA_CERT_DOWNLOADED = true;
                 currentDownload = getAndSetEipServiceJson();
                 if (currentDownload.containsKey(RESULT_KEY) && currentDownload.getBoolean(RESULT_KEY)) {
-                    broadcastProgress(progress++);
+                    broadcastProgress(++progress);
                     EIP_SERVICE_JSON_DOWNLOADED = true;
                 }
             }
