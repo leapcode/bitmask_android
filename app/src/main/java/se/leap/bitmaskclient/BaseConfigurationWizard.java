@@ -118,6 +118,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     //TODO: add some states (values for progressbarText) about ongoing setup or remove that field
 
     private boolean isActivityShowing;
+    private String reasonToFail;
 
     public abstract void retrySetUpProvider();
 
@@ -140,6 +141,13 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
             outState.putString(PROGRESSBAR_TEXT, progressbarDescription.getText().toString());
         outState.putString(ACTIVITY_STATE, mConfigState.getAction());
         outState.putParcelable(Provider.KEY, selectedProvider);
+
+        DialogFragment dialogFragment = (DialogFragment) fragmentManager.findFragmentByTag(DownloadFailedDialog.TAG);
+        if (dialogFragment != null) {
+            outState.putString(REASON_TO_FAIL, reasonToFail);
+            dialogFragment.dismiss();
+        }
+
         super.onSaveInstanceState(outState);
     }
 
@@ -160,8 +168,14 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     }
 
     private void restoreState(Bundle savedInstanceState) {
+
         selectedProvider = savedInstanceState.getParcelable(Provider.KEY);
         mConfigState.setAction(savedInstanceState.getString(ACTIVITY_STATE, PROVIDER_NOT_SET));
+
+        reasonToFail = savedInstanceState.getString(REASON_TO_FAIL);
+        if(reasonToFail != null) {
+            showDownloadFailedDialog();
+        }
 
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
                          PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())
@@ -180,9 +194,8 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
             showProgressBar();
             adapter.hideAllBut(adapter.indexOf(selectedProvider));
             checkProviderSetUp();
-            showDownloadFailedDialog(null);
         } else if (PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
-            showDownloadFailedDialog(mConfigState.getStringExtra(REASON_TO_FAIL));
+            showDownloadFailedDialog();
         } else if (SHOWING_PROVIDER_DETAILS.equals(mConfigState.getAction())) {
             cancelAndShowAllProviders();
         }
@@ -259,8 +272,8 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
         setResult(RESULT_CANCELED, mConfigState);
 
-        String reasonToFail = resultData.getString(ERRORS);
-        showDownloadFailedDialog(reasonToFail);
+        reasonToFail = resultData.getString(ERRORS);
+        showDownloadFailedDialog();
     }
 
     void handleCorrectlyDownloadedCertificate() {
@@ -418,10 +431,8 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
     /**
      * Shows an error dialog, if configuring of a provider failed.
-     *
-     * @param reasonToFail - the reason it has failed
      */
-    public void showDownloadFailedDialog(String reasonToFail) {
+    public void showDownloadFailedDialog() {
         try {
             FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(DownloadFailedDialog.TAG);
             DialogFragment newFragment;
