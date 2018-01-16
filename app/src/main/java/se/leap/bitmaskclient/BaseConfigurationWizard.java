@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,8 +59,15 @@ import static se.leap.bitmaskclient.Constants.APP_ACTION_QUIT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
-import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_API_EVENT;
+import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
+import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
+import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
+import static se.leap.bitmaskclient.ProviderAPI.RESULT_CODE;
+import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROGRESSBAR;
 
 /**
@@ -93,11 +101,9 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
     final protected static String PROVIDER_NOT_SET = "PROVIDER NOT SET";
     final protected static String SETTING_UP_PROVIDER = "PROVIDER GETS SET";
-    final private static  String PENDING_SHOW_PROVIDER_DETAILS = "PENDING PROVIDER DETAILS";
-    final private static  String SHOWING_PROVIDER_DETAILS = "SHOWING PROVIDER DETAILS SHOWN";
+    final private static  String SHOWING_PROVIDER_DETAILS = "SHOWING PROVIDER DETAILS";
     final private static String PENDING_SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG";
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
-    final protected static String PROVIDER_SET = "PROVIDER SET";
     final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
 
     final private static String PROGRESSBAR_TEXT = TAG + "PROGRESSBAR_TEXT";
@@ -110,7 +116,6 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     protected static SharedPreferences preferences;
     FragmentManagerEnhanced fragmentManager;
     //TODO: add some states (values for progressbarText) about ongoing setup or remove that field
-    private String progressbarText = "";
 
     private boolean isActivityShowing;
 
@@ -155,12 +160,10 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     }
 
     private void restoreState(Bundle savedInstanceState) {
-        progressbarText = savedInstanceState.getString(PROGRESSBAR_TEXT, "");
         selectedProvider = savedInstanceState.getParcelable(Provider.KEY);
         mConfigState.setAction(savedInstanceState.getString(ACTIVITY_STATE, PROVIDER_NOT_SET));
 
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
-                         PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction()) ||
                          PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())
                 ) {
             onItemSelectedUi();
@@ -169,16 +172,15 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
     @Override
     protected void onResume() {
+        Log.d(TAG, "resuming with ConfigState: " + mConfigState.getAction());
         super.onResume();
         hideProgressBar();
         isActivityShowing = true;
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
             showProgressBar();
             adapter.hideAllBut(adapter.indexOf(selectedProvider));
-            // TODO find a better replacement! This can lead to loops
-            onItemSelectedLogic();
-        } else if (PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction())) {
-            showProviderDetails();
+            checkProviderSetUp();
+            showDownloadFailedDialog(null);
         } else if (PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             showDownloadFailedDialog(mConfigState.getStringExtra(REASON_TO_FAIL));
         } else if (SHOWING_PROVIDER_DETAILS.equals(mConfigState.getAction())) {
@@ -215,6 +217,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         super.onDestroy();
         if (providerAPIBroadcastReceiver != null)
             unregisterReceiver(providerAPIBroadcastReceiver);
+        providerAPIResultReceiver = null;
     }
 
     private void setUpProviderAPIResultReceiver() {
@@ -222,49 +225,60 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         providerAPIBroadcastReceiver = new ProviderAPIBroadcastReceiver();
 
         IntentFilter updateIntentFilter = new IntentFilter(UPDATE_PROGRESSBAR);
-        updateIntentFilter.addAction(SET_UP_PROVIDER);
+        updateIntentFilter.addAction(PROVIDER_API_EVENT);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
+    }
+
+    void handleProviderSetUp() {
+        try {
+            String providerJsonString = preferences.getString(Provider.KEY, "");
+            if (!providerJsonString.isEmpty())
+                selectedProvider.define(new JSONObject(providerJsonString));
+            String caCert = preferences.getString(Provider.CA_CERT, "");
+            selectedProvider.setCACert(caCert);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if (preferences.getBoolean(PROVIDER_ALLOW_ANONYMOUS, false)) {
+            mConfigState.putExtra(SERVICES_RETRIEVED, true);
+
+            downloadVpnCertificate();
+        } else {
+            mProgressBar.incrementProgressBy(1);
+            hideProgressBar();
+
+            showProviderDetails();
+        }
+    }
+
+    void handleProviderSetupFailed(Bundle resultData) {
+        mConfigState.setAction(PROVIDER_NOT_SET);
+        preferences.edit().remove(Provider.KEY).apply();
+
+        setResult(RESULT_CANCELED, mConfigState);
+
+        String reasonToFail = resultData.getString(ERRORS);
+        showDownloadFailedDialog(reasonToFail);
+    }
+
+    void handleCorrectlyDownloadedCertificate() {
+        mProgressBar.incrementProgressBy(1);
+        hideProgressBar();
+        showProviderDetails();
+    }
+
+    void handleIncorrectlyDownloadedCertificate() {
+        mConfigState.setAction(PROVIDER_NOT_SET);
+        hideProgressBar();
+        setResult(RESULT_CANCELED, mConfigState);
     }
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         if (resultCode == ProviderAPI.PROVIDER_OK) {
-            try {
-                String providerJsonString = preferences.getString(Provider.KEY, "");
-                if (!providerJsonString.isEmpty())
-                    selectedProvider.define(new JSONObject(providerJsonString));
-                String caCert = preferences.getString(Provider.CA_CERT, "");
-                selectedProvider.setCACert(caCert);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            if (preferences.getBoolean(PROVIDER_ALLOW_ANONYMOUS, false)) {
-                mConfigState.putExtra(SERVICES_RETRIEVED, true);
-
-                downloadVpnCertificate();
-            } else {
-                mProgressBar.incrementProgressBy(1);
-                hideProgressBar();
-
-            }
-        } else if (resultCode == ProviderAPI.PROVIDER_NOK) {
-            mConfigState.setAction(PROVIDER_NOT_SET);
-            preferences.edit().remove(Provider.KEY).apply();
-
-            setResult(RESULT_CANCELED, mConfigState);
-
-            String reason_to_fail = resultData.getString(ERRORS);
-            showDownloadFailedDialog(reason_to_fail);
-        } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
-            mProgressBar.incrementProgressBy(1);
-            hideProgressBar();
-            showProviderDetails();
-        } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
-            mConfigState.setAction(PROVIDER_NOT_SET);
-            hideProgressBar();
-            setResult(RESULT_CANCELED, mConfigState);
+            handleProviderSetUp();
         } else if (resultCode == AboutFragment.VIEWED) {
             // Do nothing, right now
             // I need this for CW to wait for the About activity to end before going back to Dashboard.
@@ -274,7 +288,6 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     @OnItemClick(R.id.provider_list)
     void onItemSelected(int position) {
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
-                PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction()) ||
                 PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             return;
         }
@@ -294,7 +307,6 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     @Override
     public void onBackPressed() {
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
-            PENDING_SHOW_PROVIDER_DETAILS.equals(mConfigState.getAction()) ||
                 PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             stopSettingUpProvider();
         } else {
@@ -326,11 +338,17 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         Intent providerAPICommand = new Intent(this, ProviderAPI.class);
 
         providerAPICommand.setAction(ProviderAPI.UPDATE_PROVIDER_DETAILS);
-        providerAPICommand.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
         Bundle parameters = new Bundle();
         parameters.putString(Provider.MAIN_URL, selectedProvider.getMainUrl().toString());
         providerAPICommand.putExtra(ProviderAPI.PARAMETERS, parameters);
 
+        startService(providerAPICommand);
+    }
+
+    public void checkProviderSetUp() {
+        Intent providerAPICommand = new Intent(this, ProviderAPI.class);
+        providerAPICommand.setAction(PROVIDER_SET_UP);
+        providerAPICommand.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
         startService(providerAPICommand);
     }
 
@@ -373,10 +391,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
      */
     private void downloadVpnCertificate() {
         Intent providerAPICommand = new Intent(this, ProviderAPI.class);
-
         providerAPICommand.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
-        providerAPICommand.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
-
         startService(providerAPICommand);
     }
 
@@ -404,7 +419,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     /**
      * Shows an error dialog, if configuring of a provider failed.
      *
-     * @param reasonToFail
+     * @param reasonToFail - the reason it has failed
      */
     public void showDownloadFailedDialog(String reasonToFail) {
         try {
@@ -435,14 +450,11 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
      */
     public void showProviderDetails() {
         // show only if current activity is shown
-        if (isActivityShowing) {
+        if (isActivityShowing && !mConfigState.getAction().equalsIgnoreCase(SHOWING_PROVIDER_DETAILS)) {
             mConfigState.setAction(SHOWING_PROVIDER_DETAILS);
             Intent intent = new Intent(this, ProviderDetailActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             startActivity(intent);
-        } else {
-            // may be called AFTER onSaveInstanceState (!)
-            mConfigState.setAction(PENDING_SHOW_PROVIDER_DETAILS);
         }
     }
 
@@ -475,8 +487,34 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int update = intent.getIntExtra(ProviderAPI.CURRENT_PROGRESS, 0);
-            mProgressBar.setProgress(update);
+            String action = intent.getAction();
+
+            if (action == null) {
+                return;
+            }
+
+            if (action.equalsIgnoreCase(UPDATE_PROGRESSBAR)) {
+                int update = intent.getIntExtra(ProviderAPI.CURRENT_PROGRESS, 0);
+                mProgressBar.setProgress(update);
+            } else if (action.equalsIgnoreCase(PROVIDER_API_EVENT)) {
+                int resultCode = intent.getIntExtra(RESULT_CODE, -1);
+
+                switch (resultCode) {
+                    case PROVIDER_OK:
+                        handleProviderSetUp();
+                        break;
+                    case PROVIDER_NOK:
+                        handleProviderSetupFailed((Bundle) intent.getParcelableExtra(RESULT_KEY));
+                        break;
+                    case CORRECTLY_DOWNLOADED_CERTIFICATE:
+                        handleCorrectlyDownloadedCertificate();
+                        break;
+                    case INCORRECTLY_DOWNLOADED_CERTIFICATE:
+                        handleIncorrectlyDownloadedCertificate();
+                        break;
+
+                }
+            }
         }
     }
 }

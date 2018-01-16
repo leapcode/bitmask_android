@@ -76,7 +76,6 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
 
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.PARAMETERS, parameters);
-        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
 
         startService(providerApiCommand);
     }

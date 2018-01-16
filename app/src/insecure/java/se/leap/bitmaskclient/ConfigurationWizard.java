@@ -103,7 +103,6 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
 
         provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
         provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
 
         startService(provider_API_command);
     }
@@ -120,15 +119,14 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
             showProgressBar();
             adapter.hideAllBut(adapter.indexOf(selectedProvider));
 
-            Intent provider_API_command = new Intent(this, ProviderAPI.class);
+            Intent providerAPICommand = new Intent(this, ProviderAPI.class);
 
-            provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-            provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
+            providerAPICommand.setAction(ProviderAPI.SET_UP_PROVIDER);
             Bundle parameters = new Bundle();
             parameters.putString(Provider.MAIN_URL, selectedProvider.getMainUrl().toString());
-            provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
+            providerAPICommand.putExtra(ProviderAPI.PARAMETERS, parameters);
 
-            startService(provider_API_command);
+            startService(providerAPICommand);
         }
     }
 

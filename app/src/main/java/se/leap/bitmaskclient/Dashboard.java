@@ -274,7 +274,7 @@ public class Dashboard extends ButterKnifeActivity {
                 .setPositiveButton(getResources().getString(R.string.setup_error_configure_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivityForResult(new Intent(getApplicationContext(), ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
+                        startActivityForResult(new Intent(Dashboard.this, ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
                     }
                 })
                 .setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {

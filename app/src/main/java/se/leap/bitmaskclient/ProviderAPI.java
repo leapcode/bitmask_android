@@ -47,12 +47,15 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
             DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
             PARAMETERS = "parameters",
             RESULT_KEY = "result",
+            RESULT_CODE = "RESULT CODE",
             RECEIVER_KEY = "receiver",
             ERRORS = "errors",
             ERRORID = "errorId",
             UPDATE_PROGRESSBAR = "update_progressbar",
             CURRENT_PROGRESS = "current_progress",
-            DOWNLOAD_EIP_SERVICE = TAG + ".DOWNLOAD_EIP_SERVICE";
+            DOWNLOAD_EIP_SERVICE = TAG + ".DOWNLOAD_EIP_SERVICE",
+            PROVIDER_SET_UP = TAG + ".PROVIDER_SET_UP",
+            PROVIDER_API_EVENT = "PROVIDER_API_EVENT";
 
     final public static int
             SUCCESSFUL_LOGIN = 3,
@@ -106,7 +109,7 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
     }
 
     @Override
-    public void broadcastProgress(Intent intent) {
+    public void broadcastEvent(Intent intent) {
         sendBroadcast(intent);
     }
 

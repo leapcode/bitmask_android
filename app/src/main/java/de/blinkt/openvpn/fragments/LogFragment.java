@@ -642,8 +642,8 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onAttach(Context activity) {
+        super.onAttach(activity);
         if (getResources().getBoolean(R.bool.logSildersAlwaysVisible)) {
             mShowOptionsLayout = true;
             if (mOptionsLayout != null)

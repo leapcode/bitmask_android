@@ -2,6 +2,7 @@ package se.leap.bitmaskclient;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import butterknife.OnClick;
 
@@ -18,6 +19,11 @@ public class LoginActivity extends ProviderCredentialsBaseActivity {
 
         setProviderHeaderText("providerNAME");
         setProviderHeaderLogo(R.drawable.mask);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
