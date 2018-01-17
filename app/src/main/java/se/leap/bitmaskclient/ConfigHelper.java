@@ -16,24 +16,44 @@
  */
 package se.leap.bitmaskclient;
 
-import android.util.*;
+import android.support.annotation.NonNull;
+import android.util.Log;
 
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.spongycastle.util.encoders.Base64;
 
-import java.io.*;
-import java.math.*;
-import java.security.*;
-import java.security.cert.*;
-import java.security.interfaces.*;
-import java.security.spec.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+
+import static android.R.attr.name;
 
 /**
- * Stores constants, and implements auxiliary methods used across all LEAP Android classes.
+ * Stores constants, and implements auxiliary methods used across all Bitmask Android classes.
  *
  * @author parmegv
  * @author MeanderingCode
  */
 public class ConfigHelper {
+    private static final String TAG = ConfigHelper.class.getName();
     private static KeyStore keystore_trusted;
 
     final public static String NG_1024 =
@@ -42,12 +62,12 @@ public class ConfigHelper {
 
     public static boolean checkErroneousDownload(String downloaded_string) {
         try {
-            if (new JSONObject(downloaded_string).has(ProviderAPI.ERRORS) || downloaded_string.isEmpty()) {
+            if (downloaded_string == null || downloaded_string.isEmpty() || new JSONObject(downloaded_string).has(ProviderAPI.ERRORS)) {
                 return true;
             } else {
                 return false;
             }
-        } catch (JSONException e) {
+        } catch (NullPointerException | JSONException e) {
             return false;
         }
     }
@@ -79,7 +99,7 @@ public class ConfigHelper {
             cf = CertificateFactory.getInstance("X.509");
 
             certificate_string = certificate_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
-            byte[] cert_bytes = Base64.decode(certificate_string, Base64.DEFAULT);
+            byte[] cert_bytes = Base64.decode(certificate_string);
             InputStream caInput = new ByteArrayInputStream(cert_bytes);
             try {
                 certificate = cf.generateCertificate(caInput);
@@ -87,25 +107,50 @@ public class ConfigHelper {
             } finally {
                 caInput.close();
             }
-        } catch (CertificateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            return null;
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException | CertificateException | IOException | IllegalArgumentException e) {
             return null;
         }
-
         return (X509Certificate) certificate;
     }
 
-    protected static RSAPrivateKey parseRsaKeyFromString(String RsaKeyString) {
+
+    public static String loadInputStreamAsString(InputStream inputStream) {
+        BufferedReader in = null;
+        try {
+            StringBuilder buf = new StringBuilder();
+            in = new BufferedReader(new InputStreamReader(inputStream));
+
+            String str;
+            boolean isFirst = true;
+            while ( (str = in.readLine()) != null ) {
+                if (isFirst)
+                    isFirst = false;
+                else
+                    buf.append('\n');
+                buf.append(str);
+            }
+            return buf.toString();
+        } catch (IOException e) {
+            Log.e(TAG, "Error opening asset " + name);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Error closing asset " + name);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {
         RSAPrivateKey key = null;
         try {
             KeyFactory kf = KeyFactory.getInstance("RSA", "BC");
-
-            RsaKeyString = RsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(RsaKeyString, Base64.DEFAULT));
+            rsaKeyString = rsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(rsaKeyString));
             key = (RSAPrivateKey) kf.generatePrivate(keySpec);
         } catch (InvalidKeySpecException e) {
             // TODO Auto-generated catch block
@@ -119,11 +164,40 @@ public class ConfigHelper {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return null;
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return null;
         }
 
         return key;
     }
 
+    private static String byteArrayToHex(byte[] input) {
+        int readBytes = input.length;
+        StringBuffer hexData = new StringBuffer();
+        int onebyte;
+        for (int i = 0; i < readBytes; i++) {
+            onebyte = ((0x000000ff & input[i]) | 0xffffff00);
+            hexData.append(Integer.toHexString(onebyte).substring(6));
+        }
+        return hexData.toString();
+    }
+
+    /**
+     * Calculates the hexadecimal representation of a sha256/sha1 fingerprint of a certificate
+     *
+     * @param certificate
+     * @param encoding
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws CertificateEncodingException
+     */
+    @NonNull
+    public static String getFingerprintFromCertificate(X509Certificate certificate, String encoding) throws NoSuchAlgorithmException, CertificateEncodingException /*, UnsupportedEncodingException*/ {
+        byte[] byteArray = MessageDigest.getInstance(encoding).digest(certificate.getEncoded());
+        return byteArrayToHex(byteArray);
+    }
+    
     /**
      * Adds a new X509 certificate given its input stream and its provider name
      *

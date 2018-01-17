@@ -6,4 +6,5 @@
   <string name="routes_info6">経路 IPv6：%s</string>
   <string name="error_empty_username">ユーザ名を空に設定することはできません</string>
   <string name="cert_from_keystore">\'%s\'の証明書をキーストアから読み出し</string>
+  <string name="bitmask_log">Bitmaskログ</string>
 </resources>

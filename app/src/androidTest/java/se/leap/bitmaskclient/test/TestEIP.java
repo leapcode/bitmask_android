@@ -37,7 +37,7 @@ public class TestEIP extends ServiceTestCase<EIP> {
         super(activityClass);
         context = getSystemContext();
         intent = new Intent(context, EIP.class);
-        preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -59,14 +59,14 @@ public class TestEIP extends ServiceTestCase<EIP> {
     }
 
     private void testEmptyCertificate() {
-        preferences.edit().putString(Constants.CERTIFICATE, "").apply();
-        startService(Constants.ACTION_CHECK_CERT_VALIDITY);
+        preferences.edit().putString(Constants.PROVIDER_VPN_CERTIFICATE, "").apply();
+        startService(Constants.EIP_ACTION_CHECK_CERT_VALIDITY);
     }
 
     private void testExpiredCertificate() {
         String expired_certificate = "expired certificate";
-        preferences.edit().putString(Constants.CERTIFICATE, expired_certificate).apply();
-        startService(Constants.ACTION_CHECK_CERT_VALIDITY);
+        preferences.edit().putString(Constants.PROVIDER_VPN_CERTIFICATE, expired_certificate).apply();
+        startService(Constants.EIP_ACTION_CHECK_CERT_VALIDITY);
     }
 
     private void startService(String action) {

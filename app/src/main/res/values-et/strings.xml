@@ -6,4 +6,6 @@
   <string name="routes_info6">IPv6 marsruudid: %s</string>
   <string name="error_empty_username">Kasutajanimi peab olema määratud.</string>
   <string name="cert_from_keystore">Saadud sertifikaat \'%s\' võtmehoidlast</string>
+  <string name="bitmask_log">Bitmask Logi</string>
+
 </resources>

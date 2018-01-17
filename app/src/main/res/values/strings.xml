@@ -2,8 +2,8 @@
 <resources>
 
     <string name="retry">Retry</string>
-    <string name="repository_url_text">Source code available at https://github.com/leapcode/bitmask_android/</string>
-    <string name="leap_tracker">Issue tracker available at https://leap.se/code</string>
+    <string name="repository_url_text">Source code available at https://0xacab.org/leap/bitmask_android</string>
+    <string name="leap_tracker">Issue tracker available at https://0xacab.org/leap/bitmask_android/issues</string>
     <string name="translation_project_text">Translations welcome and appreciated. See our Transifex project at https://www.transifex.com/projects/p/bitmask-android/</string>
     <string name="switch_provider_menu_option">Switch provider</string>
     <string name="info">info</string>
@@ -12,7 +12,6 @@
     <string name="routes_info6">IPv6 routes: %s</string>
     <string name="error_empty_username">The username must not be empty.</string>
     <string name="cert_from_keystore">Got certificate \'%s\' from keystore</string>
-    <string name="title_activity_dashboard">Bitmask</string>
     <string name="provider_label">Provider:</string>
     <string name="provider_label_none">No provider configured</string>
     <string name="status_unknown">Status unknown.</string>
@@ -37,7 +36,7 @@
     <string name="error_client_http_user_message">Try again: Client HTTP error</string>
     <string name="error_io_exception_user_message">Try again: I/O error</string>
     <string name="error_json_exception_user_message">Try again: Bad response from the server</string>
-    <string name="error_no_such_algorithm_exception_user_message">Upgrade the app</string>
+    <string name="error_no_such_algorithm_exception_user_message">Encryption algorithm not found. Please upgrade Android!</string>
     <string name="signup_or_login_button">Sign Up/Log In</string>
     <string name="login_button">Log In</string>
     <string name="logout_button">Log Out</string>
@@ -77,4 +76,15 @@
     <string name="signingup_message">is being registered.</string>
     <string name="vpn.button.turn.on">Turn on</string>
     <string name="vpn.button.turn.off">Turn off</string>
+    <string name="vpn_button_turn_off_blocking">Stop blocking</string>
+    <string name="bitmask_log">Bitmask Log</string>
+    <string name="void_vpn_establish">Bitmask blocks all outgoing internet traffic.</string>
+    <string name="void_vpn_error_establish">Failed to establish blocking VPN.</string>
+    <string name="void_vpn_stopped">Stopped blocking all outgoing internet traffic.</string>
+    <string name="void_vpn_title">Blocking traffic</string>
+    <string name="update_provider_details">Update provider details</string>
+    <string name="update_certificate">Update certificate</string>
+    <string name="warning_corrupted_provider_details">Stored provider details are corrupted. You can either update Bitmask (recommended) or update the provider details using a commercial CA certificate.</string>
+    <string name="warning_corrupted_provider_cert">Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.</string>
+    <string name="warning_expired_provider_cert">Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.</string>
 </resources>

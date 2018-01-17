@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#b39ddb</color>
+    <color name="colorPrimaryDark">#ac97d2</color>
+
+    <color name="red200">#ef9a9a</color>
+    <color name="pink200">#f48fb1</color>
+    <color name="purple200">#ce93d8</color>
+    <color name="deepPurple200">#b39ddb</color>
+    <color name="indigo200">#9fa8da</color>
+    <color name="blue200">#90caf9</color>
+    <color name="lightBlue200">#81d4fa</color>
+    <color name="cyan200">#80deea</color>
+    <color name="teal200">#80cbc4</color>
+    <color name="green200">#a5d6a7</color>
+    <color name="lightGreen200">#c5e1a5</color>
+    <color name="lime200">#e6ee9c</color>
+    <color name="yellow200">#fff59d</color>
+    <color name="amber200">#ffe082</color>
+    <color name="orange200">#ffcc80</color>
+    <color name="deepOrange200">#ffab91</color>
+
+</resources>

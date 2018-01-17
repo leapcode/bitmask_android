@@ -19,11 +19,13 @@ package se.leap.bitmaskclient.test;
 import android.app.*;
 import android.content.*;
 import android.test.*;
-import android.test.suitebuilder.annotation.*;
 
 import org.json.*;
 
-import se.leap.bitmaskclient.*;
+import java.io.IOException;
+import java.util.Arrays;
+
+import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.eip.*;
 
 /**
@@ -42,14 +44,13 @@ public class TestGatewaysManager extends InstrumentationTestCase {
 
     @Override
     protected void setUp() throws Exception {
+        super.setUp();
         context = getInstrumentation().getContext();
         assets = new FromAssets(context);
         mockGatewaysManager();
         mockRealGateway();
-        super.setUp();
     }
 
-    @MediumTest
     public void testFromEipServiceJson() {
         gateways_manager.fromEipServiceJson(eip_definition);
         assertEquals(2, gateways_manager.size());
@@ -57,13 +58,31 @@ public class TestGatewaysManager extends InstrumentationTestCase {
         assertEquals(2, gateways_manager.size());
     }
 
-    @SmallTest
-    public void testAddFromString() {
-        gateways_manager.addFromString("");
+    public void testOrderOfGateways_UDP_TCP() {
+        String[] protocolsInOrder = {"udp", "tcp"};
+        manipulateSupportedProtocols(protocolsInOrder);
+        gateways_manager.fromEipServiceJson(eip_definition);
         gateways_manager.addFromString(gateway.toString());
+        assertTrue(gateways_manager.select().toString().contains("[\"udp\",\"tcp\"]"));
+        assertFalse(gateways_manager.select().toString().contains("[\"tcp\",\"udp\"]"));
     }
 
-    @MediumTest
+    public void testOrderOfGateways_TCP_UDP() {
+        String[] protocolsInOrder = {"tcp", "udp"};
+        manipulateSupportedProtocols(protocolsInOrder);
+        gateways_manager.fromEipServiceJson(eip_definition);
+        gateways_manager.addFromString(gateway.toString());
+        assertFalse(gateways_manager.select().toString().contains("[\"udp\",\"tcp\"]"));
+        assertTrue(gateways_manager.select().toString().contains("[\"tcp\",\"udp\"]"));
+    }
+
+    public void testAddFromString() {
+        gateways_manager.addFromString("");
+        assertEquals(0, gateways_manager.size());
+        gateways_manager.addFromString(gateway.toString());
+        assertEquals(1, gateways_manager.size());
+    }
+
     public void testRemoveDuplicate() {
         gateways_manager.addFromString(gateway.toString());
         assertEquals(1, gateways_manager.size());
@@ -73,7 +92,6 @@ public class TestGatewaysManager extends InstrumentationTestCase {
         assertEquals(1, gateways_manager.size());
     }
 
-    @MediumTest
     public void testToString() {
         assertEquals("[]", gateways_manager.toString());
 
@@ -81,7 +99,6 @@ public class TestGatewaysManager extends InstrumentationTestCase {
         assertEquals("[" + gateway.toString() + "]", gateways_manager.toString());
     }
 
-    @SmallTest
     public void testIsEmpty() {
         assertTrue(gateways_manager.isEmpty());
         gateways_manager.addFromString("");
@@ -92,7 +109,7 @@ public class TestGatewaysManager extends InstrumentationTestCase {
 
     private void mockGatewaysManager() {
         context = getInstrumentation().getContext();
-        preferences = context.getSharedPreferences(Dashboard.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         gateways_manager = new GatewaysManager(context, preferences);
     }
 
@@ -105,6 +122,29 @@ public class TestGatewaysManager extends InstrumentationTestCase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void manipulateSupportedProtocols(String[] protocols) {
+        try {
+            eip_definition = new JSONObject(assets.toString(TestConstants.EIP_DEFINITION_FILE));
+            JSONObject secrets = new JSONObject(assets.toString(TestConstants.SECRETS_FILE));
+            JSONArray protocolJsonArray = new JSONArray(Arrays.asList(protocols));
+            JSONArray gateways = eip_definition.getJSONArray("gateways");
+            for (int i = 0; i < gateways.length(); i++) {
+                JSONObject gatewayJson = gateways.getJSONObject(i);
+                JSONObject capabilitiesJson = gatewayJson.getJSONObject("capabilities");
+                capabilitiesJson.put("protocols", protocolJsonArray);
+                gatewayJson.put("protocols", protocolJsonArray);
+            }
+            this.gateway = new Gateway(eip_definition, secrets, gateways.getJSONObject(0));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            assertFalse(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertFalse(true);
+        }
+
     }
 
     private void mockArtificialGateway() {

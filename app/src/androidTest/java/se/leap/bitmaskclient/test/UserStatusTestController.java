@@ -4,7 +4,7 @@ import android.view.*;
 
 import com.robotium.solo.*;
 
-import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.R;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -30,7 +30,8 @@ public class UserStatusTestController {
     void logIn(String username, String password, boolean expectSuccess) {
         solo.enterText(0, username);
         solo.enterText(1, password);
-        solo.clickOnButton(solo.getString(R.string.login_button));
+        // https://stackoverflow.com/questions/33560746/how-to-test-alertdialog-item-click-in-robotium-for-android-studio
+        solo.clickOnView(solo.getView(android.R.id.button1));
         assertTrue(solo.waitForDialogToClose());
 
         if (expectSuccess) {

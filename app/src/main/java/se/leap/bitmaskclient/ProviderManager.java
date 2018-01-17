@@ -1,20 +1,31 @@
 package se.leap.bitmaskclient;
 
-import android.content.res.*;
+import android.content.res.AssetManager;
 
-import com.pedrogomez.renderers.*;
+import com.pedrogomez.renderers.AdapteeCollection;
 
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Created by parmegv on 4/12/14.
  */
 public class ProviderManager implements AdapteeCollection<Provider> {
 
+    private static final String TAG = ProviderManager.class.getName();
     private AssetManager assets_manager;
     private File external_files_dir;
     private Set<Provider> default_providers;
@@ -26,16 +37,15 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     public static ProviderManager getInstance(AssetManager assets_manager, File external_files_dir) {
         if (instance == null)
-            instance = new ProviderManager(assets_manager);
+            instance = new ProviderManager(assets_manager, external_files_dir);
 
-        if(external_files_dir != null)
-            instance.addCustomProviders(external_files_dir);
         return instance;
     }
 
-    public ProviderManager(AssetManager assets_manager) {
+    public ProviderManager(AssetManager assets_manager, File external_files_dir) {
         this.assets_manager = assets_manager;
         addDefaultProviders(assets_manager);
+        addCustomProviders(external_files_dir);
     }
 
     private void addDefaultProviders(AssetManager assets_manager) {
@@ -48,26 +58,34 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     private Set<Provider> providersFromAssets(String directory, String[] relative_file_paths) {
         Set<Provider> providers = new HashSet<Provider>();
-        try {
+
             for (String file : relative_file_paths) {
-                InputStream provider_file = assets_manager.open(directory + "/" + file);
-                String main_url = extractMainUrlFromInputStream(provider_file);
-                String certificate_pin = extractCertificatePinFromInputStream(provider_file);
-                if(certificate_pin.isEmpty())
-                    providers.add(new Provider(new URL(main_url)));
-                else
-                    providers.add(new Provider(new URL(main_url), certificate_pin));
+                String mainUrl = null;
+                String certificate = null;
+                String providerDefinition = null;
+                try {
+                    String provider = file.substring(0, file.length() - ".url".length());
+                    InputStream provider_file = assets_manager.open(directory + "/" + file);
+                    mainUrl = extractMainUrlFromInputStream(provider_file);
+                    certificate = ConfigHelper.loadInputStreamAsString(assets_manager.open(provider + ".pem"));
+                    providerDefinition = ConfigHelper.loadInputStreamAsString(assets_manager.open(provider + ".json"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    providers.add(new Provider(new URL(mainUrl), certificate, providerDefinition));
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         return providers;
     }
 
 
     private void addCustomProviders(File external_files_dir) {
         this.external_files_dir = external_files_dir;
-        custom_providers = external_files_dir.isDirectory() ?
+        custom_providers = external_files_dir != null && external_files_dir.isDirectory() ?
                 providersFromFiles(external_files_dir.list()) :
                 new HashSet<Provider>();
     }
@@ -90,19 +108,9 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         String main_url = "";
 
         JSONObject file_contents = inputStreamToJson(input_stream);
-        if(file_contents != null)
+        if (file_contents != null)
             main_url = file_contents.optString(Provider.MAIN_URL);
         return main_url;
-    }
-
-    private String extractCertificatePinFromInputStream(InputStream input_stream) {
-        String certificate_pin = "";
-
-        JSONObject file_contents = inputStreamToJson(input_stream);
-        if(file_contents != null)
-            certificate_pin = file_contents.optString(Provider.CA_CERT_FINGERPRINT);
-
-        return certificate_pin;
     }
 
     private JSONObject inputStreamToJson(InputStream input_stream) {

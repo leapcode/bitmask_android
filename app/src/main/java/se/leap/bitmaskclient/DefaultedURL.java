@@ -31,6 +31,7 @@ public class DefaultedURL {
         return url;
     }
 
+    @Override
     public String toString() {
         return url.toString();
     }

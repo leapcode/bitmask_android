@@ -8,15 +8,17 @@
 
     <TextView
         android:id="@+id/eipLabel"
+        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="30dp"
         android:text="@string/eip_service_label"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="24sp"/>
+        android:textSize="46sp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        />
 
 
     <LinearLayout
@@ -35,10 +37,10 @@
             android:textSize="32sp"
             />
 
-        <mbanje.kurt.fabbutton.FabButton
+        <se.leap.bitmaskclient.userstatus.FabButton
             android:id="@+id/vpn_status_image"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:color="@android:color/holo_blue_dark"
             android:layout_gravity="center"
             android:visibility="visible"
@@ -46,7 +48,7 @@
             android:max="100"
             fbb_autoStart="true"
             fbb_progressColor="#ff170aff"
-            fbb_progressWidthRatio="0.1"
+            fbb_progressWidthRatio="0.2"
             android:layout_marginStart="24dp"
             android:layout_marginLeft="24dp"
             />

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="repository_url_text">Cod sursă şi tracker probleme disponibile la https://github.com/leapcode/bitmask_android/</string>
+  <string name="repository_url_text">Cod sursă şi tracker probleme disponibile la https://0xacab.org/leap/bitmask_android</string>
   <string name="info">info</string>
   <string name="show_connection_details">Arată detaliile conexiunii</string>
   <string name="routes_info">Rute: %s</string>
   <string name="routes_info6">Rute IPv6: %s</string>
   <string name="bitmask_openvpn_log_file">Fişier jurnal LEAP Android</string>
   <string name="cert_from_keystore">Am primit certificatul \'%s\' din Keystore</string>
+  <string name="bitmask_log">Jurnal Bitmask</string>
+
 </resources>

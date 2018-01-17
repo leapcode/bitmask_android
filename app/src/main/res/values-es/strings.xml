@@ -11,8 +11,8 @@
     <string name="routes_info6">Rutas IPv6: %s</string>
     <string name="error_empty_username">El usuario no puede estar vacío.</string>
     <string name="cert_from_keystore">Certificado de \'%s\' obtenido de almacén de claves</string>
-    <string name="repository_url_text">Código fuente disponible en https://github.com/leapcode/bitmask_android/</string>
-    <string name="leap_tracker">Tracker disponible en https://leap.se/code</string>
+    <string name="repository_url_text">Código fuente disponible en https://0xacab.org/leap/bitmask_android</string>
+    <string name="leap_tracker">Tracker disponible en  https://0xacab.org/leap/bitmask_android/issues</string>
     <string name="title_activity_dashboard">Bitmask</string>
     <string name="provider_label">Proveedor:</string>
     <string name="provider_label_none">Ningún proveedor configurado</string>
@@ -38,7 +38,7 @@
     <string name="error_client_http_user_message">Inténtalo de nuevo: error en el cliente HTTP</string>
     <string name="error_io_exception_user_message">Inténtalo de nuevo: error de E/S</string>
     <string name="error_json_exception_user_message">Inténtalo de nuevo: respuesta mal formada del servidor</string>
-    <string name="error_no_such_algorithm_exception_user_message">Actualiza Bitmask</string>
+    <string name="error_no_such_algorithm_exception_user_message">Algoritmo de cifrado no encontrado. Por favor actualice su sistema operativo!</string>
     <string name="signup_or_login_button">Registrarse/Iniciar sesión</string>
     <string name="login_button">Iniciar sesión</string>
     <string name="logout_button">Cerrar sesión</string>
@@ -79,4 +79,5 @@
     <string name="signingup_message">está siendo registrado.</string>
     <string name="vpn.button.turn.on">Iniciar</string>
     <string name="vpn.button.turn.off">Apagar</string>
+    <string name="bitmask_log">Registro de Bitmask</string>
 </resources>

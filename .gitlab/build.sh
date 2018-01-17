@@ -17,8 +17,13 @@ TAG=${2:-latest}
 DOCKERFILE=docker/${DIR}/${2:-Dockerfile}${2:+.dockerfile}
 TARGET=${CI_REGISTRY_IMAGE}/${DIR}:${TAG}
 
+function quit {
+    echo "Image build failed. Exit value: $?."
+    exit 1
+}
+
 if git diff "$LAST_COMMIT" HEAD --name-only | egrep "($DOCKERFILE|^.gitlab)"; then
-  docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
-  docker build -t "$TARGET" -f "$DOCKERFILE" docker/
-  docker push "$TARGET"
+  docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY" || quit
+  docker build -t "$TARGET" -f "$DOCKERFILE" docker/ || quit
+  docker push "$TARGET" || quit
 fi

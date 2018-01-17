@@ -23,9 +23,10 @@ import android.view.*;
 import android.widget.*;
 
 import butterknife.*;
-import se.leap.bitmaskclient.VpnFragment;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
+
+import static android.view.View.VISIBLE;
 
 /**
  * Implements the log in dialog, currently without progress dialog.
@@ -56,8 +57,6 @@ public class SessionDialog extends DialogFragment {
     EditText username_field;
     @InjectView(R.id.password_entered)
     EditText password_field;
-
-    private static boolean is_eip_pending = false;
 
     public static SessionDialog getInstance(Provider provider, Bundle arguments) {
         SessionDialog dialog = new SessionDialog();
@@ -97,7 +96,6 @@ public class SessionDialog extends DialogFragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
-                        interface_with_Dashboard.cancelLoginOrSignup();
                     }
                 })
                 .setNeutralButton(R.string.signup_button, new DialogInterface.OnClickListener() {
@@ -113,11 +111,10 @@ public class SessionDialog extends DialogFragment {
     }
 
     private void setUp(Bundle arguments) {
-        is_eip_pending = arguments.getBoolean(VpnFragment.IS_PENDING, false);
         if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
             password_field.setError(getString(R.string.error_not_valid_password_user_message));
         else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
-            user_message.setVisibility(TextView.VISIBLE);
+            user_message.setVisibility(VISIBLE);
             user_message.setText(R.string.login_riseup_warning);
         }
         if (arguments.containsKey(USERNAME)) {
@@ -129,8 +126,8 @@ public class SessionDialog extends DialogFragment {
         }
         if (arguments.containsKey(getString(R.string.user_message))) {
             user_message.setText(arguments.getString(getString(R.string.user_message)));
-            user_message.setVisibility(View.VISIBLE);
-        } else if (user_message.getVisibility() != TextView.VISIBLE)
+            user_message.setVisibility(VISIBLE);
+        } else if (user_message.getVisibility() != VISIBLE)
             user_message.setVisibility(View.GONE);
 
         if (!username_field.getText().toString().isEmpty() && password_field.isFocusable())
@@ -157,7 +154,6 @@ public class SessionDialog extends DialogFragment {
 
         public void signUp(String username, String password);
 
-        public void cancelLoginOrSignup();
     }
 
     SessionDialogInterface interface_with_Dashboard;
@@ -174,10 +170,4 @@ public class SessionDialog extends DialogFragment {
         }
     }
 
-    @Override
-    public void onCancel(DialogInterface dialog) {
-        super.onCancel(dialog);
-        if (is_eip_pending)
-            interface_with_Dashboard.cancelLoginOrSignup();
-    }
 }

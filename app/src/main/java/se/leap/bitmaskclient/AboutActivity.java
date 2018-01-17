@@ -18,11 +18,11 @@ public class AboutActivity extends Activity {
         TextView ver = (TextView) findViewById(R.id.version);
 
         String version;
-        String name = "Openvpn";
+        String name = "Bitmask";
         try {
             PackageInfo packageinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             version = packageinfo.versionName;
-            name = getString(R.string.app);
+            name = getString(R.string.app_name);
         } catch (NameNotFoundException e) {
             version = "error fetching version";
         }

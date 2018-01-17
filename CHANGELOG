@@ -1,3 +1,37 @@
+0.9.8 - the UI overhaul
+Bugs:
+- fixes notification channel bug on Android 8+
+- fixes Bitmask starting always on restart regardless of the last state before the phone was turned off
+
+Features:
+- support for Android's always-on vpn system setting:
+    - Bitmask starts the vpn with the last selected profile
+    - if no vpn provile is available Bitmask blocks all outgoing internet traffic until
+      the user creates a vpn profile or enables unsecured internet traffic
+      with a click on a notification
+- improved certificate pinning mechanism
+- (more to come)
+
+0.9.7 - the maintenance release
+Bugs:
+- fixes failing login on Android 7.0 and Android 7.1 (Android Nougat)
+- switching between different providers was buggy - bitmask selected
+  the nearest gateway of all providers ever chosen, now the nearest
+  gateway of the current provider is selected
+- fixes app crashes on tablets
+- fixes major tablet layout issues
+- fixes different app crashes during provider set up
+- update information in About Page
+
+Features:
+- updated ics-openvpn code, incl. openvpn and openssl
+- show vpn data throughput and button to disconnect vpn in notification bar
+- support for Android O
+- enforce TLSv1.2 on all devices
+- bitmask honors the default protocol order (udp/tcp) specified by
+  the provider
+- removes redundant cancellation confirmation dialog - one is sufficient
+
 0.9.4 June 16th, 2015 - the "fabbutton" release
 Bugs:
 - Show the log window only when a real error happened, since some

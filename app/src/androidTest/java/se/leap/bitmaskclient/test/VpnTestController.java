@@ -7,10 +7,10 @@ import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 
 import de.blinkt.openvpn.activities.DisconnectVPN;
-import mbanje.kurt.fabbutton.FabButton;
 import mbanje.kurt.fabbutton.ProgressRingView;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.userstatus.FabButton;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -22,7 +22,7 @@ public class VpnTestController {
         this.solo = solo;
     }
 
-    protected void turnVpnOndAndOff() {
+    protected void turnVpnOnAndOff() {
         clickVpnButton();
         turningEipOn();
         clickVpnButton();
@@ -33,7 +33,7 @@ public class VpnTestController {
         Button button = getVpnButton();
         if(!isVpnButton(button))
             throw new IllegalStateException();
-        solo.clickOnView(button);
+        solo.clickOnButton(String.valueOf(button.getText()));
     }
 
     protected Button getVpnButton() {
@@ -93,8 +93,6 @@ public class VpnTestController {
 
     protected void turningEipOff() {
         okToBrowserWarning();
-        sayOkToDisconnect();
-
         int max_seconds_until_connected = 120;
 
          Condition condition = new Condition() {
@@ -123,6 +121,7 @@ public class VpnTestController {
         solo.clickOnButton(disconnect);
     }
 
+    @SuppressWarnings("unused")
     private void sayOkToDisconnect() throws IllegalStateException {
         boolean disconnect_vpn_appeared = solo.waitForActivity(DisconnectVPN.class);
         if(disconnect_vpn_appeared){

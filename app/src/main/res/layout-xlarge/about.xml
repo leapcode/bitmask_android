@@ -16,7 +16,7 @@
             android:id="@+id/version"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp" />
+            android:textSize="24sp" />
 
         <Space
             android:layout_width="match_parent"
@@ -40,9 +40,16 @@
             android:autoLink="all"
             android:text="@string/repository_url_text" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:autoLink="all"
+            android:text="@string/leap_tracker" />
+
         <Space
             android:layout_width="match_parent"
-            android:layout_height="12sp" />
+            android:layout_height="18sp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -74,12 +81,12 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="12sp" />
+            android:layout_height="20sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="24sp"
             android:text="@string/openvpn"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         <!--
@@ -103,7 +110,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="24sp"
             android:text="@string/lzo"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -120,7 +127,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="24sp"
             android:text="@string/openssl"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -129,6 +136,22 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:text="@string/copyright_openssl" />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/okhttp"
+            android:textSize="24sp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="@string/copyright_okhttp" />
     </LinearLayout>
 
 </ScrollView>

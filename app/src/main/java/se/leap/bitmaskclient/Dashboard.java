@@ -1,20 +1,4 @@
-/**
- * Copyright (c) 2013 LEAP Encryption Access Project and contributers
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
+/*
  * Copyright (c) 2013 LEAP Encryption Access Project and contributers
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,24 +16,41 @@
  */
 package se.leap.bitmaskclient;
 
-import android.annotation.*;
-import android.app.*;
-import android.content.*;
-import android.content.pm.PackageManager.*;
-import android.os.*;
-import android.util.*;
-import android.view.*;
-import android.widget.*;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
 
-import org.jetbrains.annotations.*;
-import org.json.*;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import butterknife.*;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.eip.*;
-import se.leap.bitmaskclient.userstatus.*;
+import se.leap.bitmaskclient.userstatus.SessionDialog;
+import se.leap.bitmaskclient.userstatus.User;
+import se.leap.bitmaskclient.userstatus.UserStatusFragment;
+
+import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
+import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 
 /**
  * The main user facing Activity of Bitmask Android, consisting of status, controls,
@@ -64,15 +65,24 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     protected static final int SWITCH_PROVIDER = 1;
 
     public static final String TAG = Dashboard.class.getSimpleName();
-    public static final String SHARED_PREFERENCES = "LEAPPreferences";
     public static final String ACTION_QUIT = "quit";
+
+    /**
+     * When "Disconnect" is clicked from the notification this extra gets added to the calling intent.
+     */
+    public static final String ACTION_ASK_TO_CANCEL_VPN = "ask to cancel vpn";
+    /**
+     * if always-on feature is enabled, but there's no provider configured the EIP Service
+     * adds this intent extra. ACTION_CONFIGURE_ALWAYS_ON_PROFILE
+     * serves to start the Configuration Wizard on top of the Dashboard Activity.
+     */
+    public static final String ACTION_CONFIGURE_ALWAYS_ON_PROFILE = "configure always-on profile";
     public static final String REQUEST_CODE = "request_code";
     public static final String PARAMETERS = "dashboard parameters";
-    public static final String START_ON_BOOT = "dashboard start on boot";
-    public static final String ON_BOOT = "dashboard on boot";
     public static final String APP_VERSION = "bitmask version";
 
-    private static Context app;
+    //FIXME: context classes in static fields lead to memory leaks!
+    private static Context dashboardContext;
     protected static SharedPreferences preferences;
     private FragmentManagerEnhanced fragment_manager;
 
@@ -88,32 +98,28 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getFragmentManager());
 
-        ProviderAPICommand.initialize(this);
         providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), this);
 
-        if (app == null) {
-            app = this;
-
-            PRNGFixes.apply();
-            VpnStatus.initLogCache(getApplicationContext().getCacheDir());
+        if (dashboardContext == null) {
+            dashboardContext = this;
             handleVersion();
-            User.init(getString(R.string.default_username));
         }
-        boolean provider_exists = previousProviderExists(savedInstanceState);
-        if (provider_exists) {
-            provider = getProvider(savedInstanceState);
-            if(!provider.isConfigured())
-                startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
-            else {
-                buildDashboard(getIntent().getBooleanExtra(ON_BOOT, false));
-                user_status_fragment.restoreSessionStatus(savedInstanceState);
-            }
-        } else {
-            startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
-        }
+
+        // initialize app necessities
+        ProviderAPICommand.initialize(this);
+        VpnStatus.initLogCache(getApplicationContext().getCacheDir());
+        User.init(getString(R.string.default_username));
+
+        prepareEIP(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        handleVpnCancellation(getIntent());
     }
 
     private boolean previousProviderExists(Bundle savedInstanceState) {
@@ -150,6 +156,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
         try {
             provider.setUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
+            provider.setCACert(preferences.getString(Provider.CA_CERT, ""));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -160,18 +167,35 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     private void handleVersion() {
         try {
             int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-            int lastDetectedVersion = preferences.getInt(APP_VERSION, 0);
-            preferences.edit().putInt(APP_VERSION, versionCode).apply();
 
             switch (versionCode) {
                 case 91: // 0.6.0 without Bug #5999
                 case 101: // 0.8.0
-                    if (!preferences.getString(Constants.KEY, "").isEmpty())
+                    if (!preferences.getString(Constants.PROVIDER_KEY, "").isEmpty())
                         eip_fragment.updateEipService();
                     break;
             }
         } catch (NameNotFoundException e) {
             Log.d(TAG, "Handle version didn't find any " + getPackageName() + " package");
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntentExtras(intent);
+    }
+
+    private void handleIntentExtras(Intent intent) {
+        if (intent.hasExtra(ACTION_ASK_TO_CANCEL_VPN)) {
+            handleVpnCancellation(intent);
+        } else if (intent.hasExtra(EIP_RESTART_ON_BOOT)) {
+            Log.d(TAG, "Dashboard: EIP_RESTART_ON_BOOT");
+            prepareEIP(null);
+        } else if (intent.hasExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+            Log.d(TAG, "Dashboard: ACTION_CONFIGURE_ALWAYS_ON_PROFILE");
+            handleConfigureAlwaysOn(getIntent());
         }
     }
 
@@ -192,16 +216,49 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
                 finish();
             } else
                 configErrorDialog();
-        } else if (requestCode == EIP.DISCONNECT) {
-            EipStatus.getInstance().setConnectedOrDisconnected();
         }
     }
 
+    private void handleVpnCancellation(Intent intent) {
+        if (intent.hasExtra(Dashboard.ACTION_ASK_TO_CANCEL_VPN)) {
+            eip_fragment.askToStopEIP();
+            intent.removeExtra(ACTION_ASK_TO_CANCEL_VPN);
+        }
+    }
+
+    private void handleConfigureAlwaysOn(Intent intent) {
+            intent.removeExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
+            Log.d(TAG, "start Configuration wizard!");
+            startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
+    }
+
+    private void prepareEIP(Bundle savedInstanceState) {
+        boolean provider_exists = previousProviderExists(savedInstanceState);
+        if (provider_exists) {
+            provider = getProvider(savedInstanceState);
+            if(!provider.isConfigured()) {
+                configureLeapProvider();
+            } else {
+                Log.d(TAG, "vpn provider is configured");
+                buildDashboard(getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false));
+                user_status_fragment.restoreSessionStatus(savedInstanceState);
+            }
+        } else {
+            configureLeapProvider();
+        }
+    }
+
+    private void configureLeapProvider() {
+        if (getIntent().hasExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+            getIntent().removeExtra(ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
+        }
+        startActivityForResult(new Intent(this, ConfigurationWizard.class), CONFIGURE_LEAP);
+    }
     @SuppressLint("CommitPrefEdits")
     private void providerToPreferences(Provider provider) {
-        preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).commit();
-        preferences.edit().putString(Provider.MAIN_URL, provider.mainUrl().toString()).apply();
-        preferences.edit().putString(Provider.KEY, provider.definition().toString()).apply();
+        preferences.edit().putBoolean(Constants.PROVIDER_CONFIGURED, true).
+                putString(Provider.MAIN_URL, provider.getMainUrl().toString()).
+                putString(Provider.KEY, provider.getDefinition().toString()).apply();
     }
 
     private void configErrorDialog() {
@@ -230,7 +287,10 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
      * Inflates permanent UI elements of the View and contains logic for what
      * service dependent UI elements to include.
      */
-    private void buildDashboard(boolean hide_and_turn_on_eip) {
+    //TODO: REFACTOR ME! Consider implementing a manager that handles most of VpnFragment's logic about handling EIP commands.
+    //This way, we could avoid to create UI elements (like fragment_manager.replace(R.id.servicesCollection, eip_fragment, VpnFragment.TAG); )
+    // just to start services and destroy them afterwards
+    private void buildDashboard(boolean hideAndTurnOnEipOnBoot) {
         setContentView(R.layout.dashboard);
         ButterKnife.inject(this);
 
@@ -244,21 +304,42 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
         if (provider.hasEIP()) {
             fragment_manager.removePreviousFragment(VpnFragment.TAG);
-            eip_fragment = new VpnFragment();
-
-            if (hide_and_turn_on_eip) {
-                preferences.edit().remove(Dashboard.START_ON_BOOT).apply();
-                Bundle arguments = new Bundle();
-                arguments.putBoolean(VpnFragment.START_ON_BOOT, true);
-                if (eip_fragment != null) eip_fragment.setArguments(arguments);
-            }
-
+            eip_fragment = prepareEipFragment(hideAndTurnOnEipOnBoot);
             fragment_manager.replace(R.id.servicesCollection, eip_fragment, VpnFragment.TAG);
-            if (hide_and_turn_on_eip) {
+            if (hideAndTurnOnEipOnBoot) {
                 onBackPressed();
             }
         }
     }
+
+    /**
+     *
+     * @param hideAndTurnOnEipOnBoot Flag that indicates if system intent android.intent.action.BOOT_COMPLETED
+     *                               has caused to start Dashboard
+     * @return
+     */
+    private VpnFragment prepareEipFragment(boolean hideAndTurnOnEipOnBoot) {
+        VpnFragment eip_fragment = new VpnFragment();
+
+        if (hideAndTurnOnEipOnBoot && !isAlwaysOn()) {
+            preferences.edit().remove(EIP_RESTART_ON_BOOT).apply();
+            Bundle arguments = new Bundle();
+            arguments.putBoolean(VpnFragment.START_EIP_ON_BOOT, true);
+            Log.d(TAG, "set START_EIP_ON_BOOT argument for eip_fragment");
+            eip_fragment.setArguments(arguments);
+
+        }
+        return eip_fragment;
+    }
+
+    /**
+     * checks if Android's VPN feature 'always-on' is enabled for Bitmask
+     * @return
+     */
+    private boolean isAlwaysOn() {
+        return  preferences.getBoolean(EIP_IS_ALWAYS_ON, false);
+    }
+
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -308,7 +389,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
 
     public void downloadVpnCertificate() {
         boolean is_authenticated = User.loggedIn();
-        boolean allowed_anon = preferences.getBoolean(Constants.ALLOWED_ANON, false);
+        boolean allowed_anon = preferences.getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, false);
         if (allowed_anon || is_authenticated)
             ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_CERTIFICATE, providerAPI_result_receiver);
         else
@@ -316,16 +397,44 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     }
 
     public void sessionDialog(Bundle resultData) {
-        FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
-        SessionDialog.getInstance(provider, resultData).show(transaction, SessionDialog.TAG);
+        try {
+            FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
+            SessionDialog.getInstance(provider, resultData).show(transaction, SessionDialog.TAG);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
     }
 
     private void switchProvider() {
         if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
 
-        preferences.edit().clear().apply();
+        clearDataOfLastProvider();
+
         switching_provider = false;
         startActivityForResult(new Intent(this, ConfigurationWizard.class), SWITCH_PROVIDER);
+    }
+
+    private void clearDataOfLastProvider() {
+        Map<String, ?> allEntries = preferences.getAll();
+        List<String> lastProvidersKeys = new ArrayList<>();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            //sort out all preferences that don't belong to the last provider
+            if (entry.getKey().startsWith(Provider.KEY + ".") ||
+                    entry.getKey().startsWith(Provider.CA_CERT + ".") ||
+                    entry.getKey().startsWith(Provider.CA_CERT_FINGERPRINT + "." )||
+                    entry.getKey().equals(Constants.PREFERENCES_APP_VERSION)
+                    ) {
+                continue;
+            }
+            lastProvidersKeys.add(entry.getKey());
+        }
+
+        SharedPreferences.Editor preferenceEditor = preferences.edit();
+        for (String key : lastProvidersKeys) {
+            preferenceEditor.remove(key);
+        }
+        preferenceEditor.apply();
+
     }
 
     @Override
@@ -358,7 +467,7 @@ public class Dashboard extends Activity implements ProviderAPIResultReceiver.Rec
     }
 
     public static Context getContext() {
-        return app;
+        return dashboardContext;
     }
 
     public static Provider getProvider() { return provider; }

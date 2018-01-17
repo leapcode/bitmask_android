@@ -36,6 +36,7 @@ import java.util.List;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.ProfileManager;
+import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.Provider;
 
 /**
@@ -123,8 +124,8 @@ public class GatewaysManager {
         JSONObject result = new JSONObject();
         try {
             result.put(Provider.CA_CERT, preferences.getString(Provider.CA_CERT, ""));
-            result.put(Constants.PRIVATE_KEY, preferences.getString(Constants.PRIVATE_KEY, ""));
-            result.put(Constants.CERTIFICATE, preferences.getString(Constants.CERTIFICATE, ""));
+            result.put(Constants.PROVIDER_PRIVATE_KEY, preferences.getString(Constants.PROVIDER_PRIVATE_KEY, ""));
+            result.put(Constants.PROVIDER_VPN_CERTIFICATE, preferences.getString(Constants.PROVIDER_VPN_CERTIFICATE, ""));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -143,15 +144,20 @@ public class GatewaysManager {
         return result;
     }
 
+    protected void clearGatewaysAndProfiles() {
+        gateways.clear();
+        ArrayList<VpnProfile> profiles = new ArrayList<>(profile_manager.getProfiles());
+        for (VpnProfile profile : profiles) {
+            profile_manager.removeProfile(context, profile);
+        }
+    }
+
     private void addGateway(Gateway gateway) {
         removeDuplicatedGateway(gateway);
-
         gateways.add(gateway);
 
         VpnProfile profile = gateway.getProfile();
         profile_manager.addProfile(profile);
-        //profile_manager.saveProfile(context, profile);
-        //profile_manager.saveProfileList(context);
     }
 
     private void removeDuplicatedGateway(Gateway gateway) {

@@ -3,6 +3,7 @@ stages:
   - docker_image_sdk
   - docker_image_other
   - build
+  - test
 
 # When using dind, it's wise to use the overlayfs driver for
 # improved performance.
@@ -24,7 +25,13 @@ variables:
   script:
     - docker --version
     - docker info
-    - .gitlab/build.sh ${DOCKER_IMAGE}
+    - if ! .gitlab/build.sh ${DOCKER_IMAGE} >> dockerbuild.log 2>&1; then echo "Image build failed. Please check dockerbuild.log."; exit 1; fi;
+  allow_failure: false
+  artifacts:
+    when: on_failure
+    expire_in: 31d
+    paths:
+    - dockerbuild.log
 
 docker_image:sdk:
   stage: docker_image_sdk
@@ -44,6 +51,12 @@ docker_image:emulator:
     DOCKER_IMAGE: android-emulator
   <<: *build_docker_image
 
+unit_test:
+  image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
+  stage: test
+  script:
+    - ./gradlew test
+
 build:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
@@ -54,3 +67,17 @@ build:
   artifacts:
     paths:
     - app/build/outputs/
+
+build_release:
+  image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
+  stage: build
+  script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - ./gradlew clean
+    - ./gradlew assembleProductionRelease
+    - ./gradlew assembleProductionBeta
+  artifacts:
+    paths:
+    - app/build/outputs/
+  when: manual

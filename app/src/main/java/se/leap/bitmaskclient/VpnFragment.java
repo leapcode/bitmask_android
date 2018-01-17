@@ -16,21 +16,53 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Fragment;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.os.ResultReceiver;
 import android.util.Log;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 
-import org.jetbrains.annotations.*;
+import java.util.Observable;
+import java.util.Observer;
 
-import java.util.*;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
+import de.blinkt.openvpn.core.OpenVPNService;
+import de.blinkt.openvpn.core.ProfileManager;
+import de.blinkt.openvpn.core.VpnStatus;
+import mbanje.kurt.fabbutton.FabButton;
+import se.leap.bitmaskclient.eip.EIP;
+import se.leap.bitmaskclient.eip.EipStatus;
+import se.leap.bitmaskclient.eip.VoidVpnService;
 
-import butterknife.*;
-import de.blinkt.openvpn.activities.*;
-import mbanje.kurt.fabbutton.*;
-import se.leap.bitmaskclient.eip.*;
+import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_UPDATE;
+import static se.leap.bitmaskclient.Constants.EIP_NOTIFICATION;
+import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
+import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
+import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 
 public class VpnFragment extends Fragment implements Observer {
 
@@ -38,27 +70,43 @@ public class VpnFragment extends Fragment implements Observer {
 
     public static final String IS_PENDING = TAG + ".is_pending";
     protected static final String IS_CONNECTED = TAG + ".is_connected";
-    public static final String START_ON_BOOT = "start on boot";
+    public static final String START_EIP_ON_BOOT = "start on boot";
 
     @InjectView(R.id.vpn_status_image)
     FabButton vpn_status_image;
     @InjectView(R.id.vpn_main_button)
     Button main_button;
 
-    private static Dashboard dashboard;
+    private Dashboard dashboard;
     private static EIPReceiver eip_receiver;
     private static EipStatus eip_status;
     private boolean wants_to_connect;
+
+    private IOpenVPNServiceInternal mService;
+    private ServiceConnection openVpnConnection = new ServiceConnection() {
+
+
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+
+            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+        }
+
+    };
 
     //FIXME: replace with onAttach(Context context)
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
         dashboard = (Dashboard) activity;
-        ProviderAPIResultReceiver provider_api_receiver = new ProviderAPIResultReceiver(new Handler(), dashboard);
-
-        if(eip_receiver != null)
-            ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_EIP_SERVICE, provider_api_receiver);
+        downloadEIPServiceConfig();
     }
 
     @Override
@@ -75,38 +123,36 @@ public class VpnFragment extends Fragment implements Observer {
         ButterKnife.inject(this, view);
 
         Bundle arguments = getArguments();
-        if (arguments != null && arguments.containsKey(START_ON_BOOT) && arguments.getBoolean(START_ON_BOOT))
+        if (arguments != null && arguments.containsKey(START_EIP_ON_BOOT) && arguments.getBoolean(START_EIP_ON_BOOT)) {
             startEipFromScratch();
-        if (savedInstanceState != null) restoreState(savedInstanceState);
+        }
 
         return view;
-    }
-
-    private void restoreState(@NotNull Bundle savedInstanceState) {
-        if (savedInstanceState.getBoolean(IS_PENDING))
-            eip_status.setConnecting();
-        else if (savedInstanceState.getBoolean(IS_CONNECTED))
-            eip_status.setConnectedOrDisconnected();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         //FIXME: avoid race conditions while checking certificate an logging in at about the same time
-        //eipCommand(Constants.ACTION_CHECK_CERT_VALIDITY);
-        handleNewState(eip_status);
+        //eipCommand(Constants.EIP_ACTION_CHECK_CERT_VALIDITY);
+        handleNewState();
+        bindOpenVpnService();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        dashboard.unbindService(openVpnConnection);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean(IS_PENDING, eip_status.isConnecting());
         outState.putBoolean(IS_CONNECTED, eip_status.isConnected());
         super.onSaveInstanceState(outState);
     }
 
-    protected void saveStatus() {
-        boolean is_on = eip_status.isConnected() || eip_status.isConnecting();
-        Dashboard.preferences.edit().putBoolean(Dashboard.START_ON_BOOT, is_on).commit();
+    private void saveStatus(boolean restartOnBoot) {
+        Dashboard.preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, restartOnBoot).apply();
     }
 
     @OnClick(R.id.vpn_main_button)
@@ -115,8 +161,6 @@ public class VpnFragment extends Fragment implements Observer {
             handleSwitchOff();
         else
             handleSwitchOn();
-
-        saveStatus();
     }
 
     private void handleSwitchOn() {
@@ -125,19 +169,22 @@ public class VpnFragment extends Fragment implements Observer {
         else if (canLogInToStartEIP()) {
             wants_to_connect = true;
             Bundle bundle = new Bundle();
-            bundle.putBoolean(IS_PENDING, true);
             dashboard.sessionDialog(bundle);
+        } else {
+            Log.d(TAG, "WHAT IS GOING ON HERE?!");
+            // TODO: implement a fallback: check if vpncertificate was not downloaded properly or give
+            // a user feedback. A button that does nothing on click is not a good option
         }
     }
 
     private boolean canStartEIP() {
-        boolean certificateExists = !Dashboard.preferences.getString(Constants.CERTIFICATE, "").isEmpty();
-        boolean isAllowedAnon = Dashboard.preferences.getBoolean(Constants.ALLOWED_ANON, false);
+        boolean certificateExists = !Dashboard.preferences.getString(PROVIDER_VPN_CERTIFICATE, "").isEmpty();
+        boolean isAllowedAnon = Dashboard.preferences.getBoolean(PROVIDER_ALLOW_ANONYMOUS, false);
         return (isAllowedAnon || certificateExists) && !eip_status.isConnected() && !eip_status.isConnecting();
     }
 
     private boolean canLogInToStartEIP() {
-        boolean isAllowedRegistered = Dashboard.preferences.getBoolean(Constants.ALLOWED_REGISTERED, false);
+        boolean isAllowedRegistered = Dashboard.preferences.getBoolean(PROVIDER_ALLOWED_REGISTERED, false);
         boolean isLoggedIn = !LeapSRPSession.getToken().isEmpty();
         return isAllowedRegistered && !isLoggedIn && !eip_status.isConnecting() && !eip_status.isConnected();
     }
@@ -147,8 +194,9 @@ public class VpnFragment extends Fragment implements Observer {
             askPendingStartCancellation();
         } else if (eip_status.isConnected()) {
             askToStopEIP();
-        } else
+        } else {
             updateIcon();
+        }
     }
 
     private void askPendingStartCancellation() {
@@ -171,29 +219,48 @@ public class VpnFragment extends Fragment implements Observer {
 
     public void startEipFromScratch() {
         wants_to_connect = false;
-        eip_status.setConnecting();
-
-        saveStatus();
-        eipCommand(Constants.ACTION_START_EIP);
+        saveStatus(true);
+        eipCommand(EIP_ACTION_START);
     }
 
     private void stop() {
-        if (eip_status.isConnecting())
-            VoidVpnService.stop();
+        saveStatus(false);
+        if (eip_status.isBlockingVpnEstablished()) {
+            stopBlockingVpn();
+        }
         disconnect();
     }
 
+    private void stopBlockingVpn() {
+        Log.d(TAG, "stop VoidVpn!");
+        Intent stopVoidVpnIntent = new Intent(dashboard, VoidVpnService.class);
+        stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
+        dashboard.startService(stopVoidVpnIntent);
+    }
+
     private void disconnect() {
-        Intent disconnect_vpn = new Intent(dashboard, DisconnectVPN.class);
-        dashboard.startActivityForResult(disconnect_vpn, EIP.DISCONNECT);
-        eip_status.setDisconnecting();
+        ProfileManager.setConntectedVpnProfileDisconnected(dashboard);
+        if (mService != null) {
+            try {
+                mService.stopVPN(false);
+            } catch (RemoteException e) {
+                VpnStatus.logException(e);
+            }
+        }
     }
 
     protected void stopEipIfPossible() {
-        eipCommand(Constants.ACTION_STOP_EIP);
+        //FIXME: no need to start a service here!
+        eipCommand(EIP_ACTION_STOP);
     }
 
-    private void askToStopEIP() {
+    private void downloadEIPServiceConfig() {
+        ProviderAPIResultReceiver provider_api_receiver = new ProviderAPIResultReceiver(new Handler(), dashboard);
+        if(eip_receiver != null)
+            ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_EIP_SERVICE, provider_api_receiver);
+    }
+
+    protected void askToStopEIP() {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(dashboard);
         alertBuilder.setTitle(dashboard.getString(R.string.eip_cancel_connect_title))
                 .setMessage(dashboard.getString(R.string.eip_warning_browser_inconsistency))
@@ -212,7 +279,7 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     protected void updateEipService() {
-        eipCommand(Constants.ACTION_UPDATE_EIP_SERVICE);
+        eipCommand(EIP_ACTION_UPDATE);
     }
 
     /**
@@ -225,7 +292,7 @@ public class VpnFragment extends Fragment implements Observer {
         // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
         Intent vpn_intent = new Intent(dashboard.getApplicationContext(), EIP.class);
         vpn_intent.setAction(action);
-        vpn_intent.putExtra(Constants.RECEIVER_TAG, eip_receiver);
+        vpn_intent.putExtra(EIP_RECEIVER, eip_receiver);
         dashboard.startService(vpn_intent);
     }
 
@@ -233,36 +300,33 @@ public class VpnFragment extends Fragment implements Observer {
     public void update(Observable observable, Object data) {
         if (observable instanceof EipStatus) {
             eip_status = (EipStatus) observable;
-            final EipStatus eip_status = (EipStatus) observable;
             dashboard.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    handleNewState(eip_status);
+                    handleNewState();
                 }
             });
         }
     }
 
-    private void handleNewState(EipStatus eip_status) {
-        Context context = dashboard.getApplicationContext();
-        String error = eip_status.lastError(5, context);
-
-        if (!error.isEmpty()) VoidVpnService.stop();
+    private void handleNewState() {
         updateIcon();
         updateButton();
     }
 
     private void updateIcon() {
-        if (eip_status.isConnected() || eip_status.isConnecting()) {
-            if(eip_status.isConnecting()) {
-                vpn_status_image.showProgress(true);
-                vpn_status_image.setIcon(R.drawable.ic_stat_vpn_empty_halo, R.drawable.ic_stat_vpn_empty_halo);
-                vpn_status_image.setTag(R.drawable.ic_stat_vpn_empty_halo);
-            } else {
-                vpn_status_image.showProgress(false);
-                vpn_status_image.setIcon(R.drawable.ic_stat_vpn, R.drawable.ic_stat_vpn);
-                vpn_status_image.setTag(R.drawable.ic_stat_vpn);
-            }
+        if (eip_status.isBlocking()) {
+            vpn_status_image.showProgress(false);
+            vpn_status_image.setIcon(R.drawable.ic_stat_vpn_blocking, R.drawable.ic_stat_vpn_blocking);
+            vpn_status_image.setTag(R.drawable.ic_stat_vpn_blocking);
+        } else if (eip_status.isConnecting()) {
+            vpn_status_image.showProgress(true);
+            vpn_status_image.setIcon(R.drawable.ic_stat_vpn_empty_halo, R.drawable.ic_stat_vpn_empty_halo);
+            vpn_status_image.setTag(R.drawable.ic_stat_vpn_empty_halo);
+        } else  if (eip_status.isConnected()){
+            vpn_status_image.showProgress(false);
+            vpn_status_image.setIcon(R.drawable.ic_stat_vpn, R.drawable.ic_stat_vpn);
+            vpn_status_image.setTag(R.drawable.ic_stat_vpn);
         } else {
             vpn_status_image.setIcon(R.drawable.ic_stat_vpn_offline, R.drawable.ic_stat_vpn_offline);
             vpn_status_image.setTag(R.drawable.ic_stat_vpn_offline);
@@ -271,15 +335,32 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     private void updateButton() {
-        if (eip_status.isConnected() || eip_status.isConnecting()) {
-            if(eip_status.isConnecting()) {
-                main_button.setText(dashboard.getString(android.R.string.cancel));
-            } else {
-                main_button.setText(dashboard.getString(R.string.vpn_button_turn_off));
-            }
+        if (eip_status.isConnecting()) {
+            main_button.setText(dashboard.getString(android.R.string.cancel));
+        } else if (eip_status.isConnected() || isOpenVpnRunningWithoutNetwork()) {
+            main_button.setText(dashboard.getString(R.string.vpn_button_turn_off));
         } else {
             main_button.setText(dashboard.getString(R.string.vpn_button_turn_on));
         }
+    }
+
+    private boolean isOpenVpnRunningWithoutNetwork() {
+        boolean isRunning = false;
+        try {
+            isRunning = eip_status.getLevel() == LEVEL_NONETWORK &&
+                    mService.isVpnRunning();
+        } catch (Exception e) {
+            //eat me
+            e.printStackTrace();
+        }
+
+        return isRunning;
+    }
+
+    private void bindOpenVpnService() {
+        Intent intent = new Intent(dashboard, OpenVPNService.class);
+        intent.setAction(OpenVPNService.START_SERVICE);
+        dashboard.bindService(intent, openVpnConnection, Context.BIND_AUTO_CREATE);
     }
 
     protected class EIPReceiver extends ResultReceiver {
@@ -292,9 +373,9 @@ public class VpnFragment extends Fragment implements Observer {
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             super.onReceiveResult(resultCode, resultData);
 
-            String request = resultData.getString(Constants.REQUEST_TAG);
+            String request = resultData.getString(EIP_REQUEST);
 
-            if (request.equals(Constants.ACTION_START_EIP)) {
+            if (request.equals(EIP_ACTION_START)) {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         break;
@@ -302,7 +383,7 @@ public class VpnFragment extends Fragment implements Observer {
 
                         break;
                 }
-            } else if (request.equals(Constants.ACTION_STOP_EIP)) {
+            } else if (request.equals(EIP_ACTION_STOP)) {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         stop();
@@ -310,14 +391,14 @@ public class VpnFragment extends Fragment implements Observer {
                     case Activity.RESULT_CANCELED:
                         break;
                 }
-            } else if (request.equals(Constants.EIP_NOTIFICATION)) {
+            } else if (request.equals(EIP_NOTIFICATION)) {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         break;
                     case Activity.RESULT_CANCELED:
                         break;
                 }
-            } else if (request.equals(Constants.ACTION_CHECK_CERT_VALIDITY)) {
+            } else if (request.equals(EIP_ACTION_CHECK_CERT_VALIDITY)) {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         break;
@@ -325,14 +406,14 @@ public class VpnFragment extends Fragment implements Observer {
                         dashboard.downloadVpnCertificate();
                         break;
                 }
-            } else if (request.equals(Constants.ACTION_UPDATE_EIP_SERVICE)) {
+            } else if (request.equals(EIP_ACTION_UPDATE)) {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         if (wants_to_connect)
                             startEipFromScratch();
                         break;
                     case Activity.RESULT_CANCELED:
-                        handleNewState(eip_status);
+                        handleNewState();
                         break;
                 }
             }

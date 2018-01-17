@@ -115,6 +115,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         public boolean stopVPN(boolean replaceConnection) throws RemoteException {
             return OpenVPNService.this.stopVPN(replaceConnection);
         }
+
+        @Override
+        public boolean isVpnRunning() throws RemoteException {
+            return OpenVPNService.this.isVpnRunning();
+        }
     };
 
     // From: http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
@@ -238,8 +243,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             //noinspection NewApi
             nbuilder.setChannelId(channel);
             if (mProfile != null)
-             //noinspection NewApi
-            nbuilder.setShortcutId(mProfile.getUUIDString());
+                //noinspection NewApi
+                nbuilder.setShortcutId(mProfile.getUUIDString());
 
         }
 
@@ -322,13 +327,16 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
             }
 
-            Intent disconnectVPN = new Intent(this, DisconnectVPN.class);
-            disconnectVPN.setAction(DISCONNECT_VPN);
-            PendingIntent disconnectPendingIntent = PendingIntent.getActivity(this, 0, disconnectVPN, 0);
+            Intent disconnectVPN = new Intent(this, Dashboard.class);
+            disconnectVPN.putExtra(Dashboard.ACTION_ASK_TO_CANCEL_VPN, true);
+            disconnectVPN.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent disconnectPendingIntent = PendingIntent.getActivity(this, 0, disconnectVPN, PendingIntent.FLAG_CANCEL_CURRENT);
 
             nbuilder.addAction(R.drawable.ic_menu_close_clear_cancel,
                     getString(R.string.cancel_connection), disconnectPendingIntent);
 
+            /* NO PAUSE VPN functionality for Bitmask (yet)
             Intent pauseVPN = new Intent(this, OpenVPNService.class);
             if (mDeviceStateReceiver == null || !mDeviceStateReceiver.isUserPaused()) {
                 pauseVPN.setAction(PAUSE_VPN);
@@ -341,7 +349,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 PendingIntent resumeVPNPending = PendingIntent.getService(this, 0, pauseVPN, 0);
                 nbuilder.addAction(R.drawable.ic_menu_play,
                         getString(R.string.resumevpn), resumeVPNPending);
-            }
+            } */
 
 
             //ignore exception
@@ -409,6 +417,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     }
 
+    @Override
     public void userPause(boolean shouldBePaused) {
         if (mDeviceStateReceiver != null)
             mDeviceStateReceiver.userPause(shouldBePaused);
@@ -420,6 +429,20 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return getManagement().stopVPN(replaceConnection);
         else
             return false;
+    }
+
+    /**
+     * used in Bitmask
+     */
+    @Override
+    public boolean isVpnRunning() {
+        boolean hasVPNProcessThread = false;
+        synchronized (mProcessLock) {
+            hasVPNProcessThread = mProcessThread != null && mProcessThread.isAlive();
+        }
+
+        return hasVPNProcessThread;
+
     }
 
     @Override

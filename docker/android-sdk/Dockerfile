@@ -28,9 +28,8 @@ RUN apt-get update -qq && \
 # ------------------------------------------------------
 # --- Set Locales
 
-# Generate All Locales
-RUN cp /usr/share/i18n/SUPPORTED /etc/locale.gen
-RUN locale-gen
+# Generate only en_US Locales
+RUN locale-gen en_US.UTF-8
 
 # Set Default Locale
 RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
