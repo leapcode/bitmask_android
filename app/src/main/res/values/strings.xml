@@ -10,7 +10,7 @@
     <string name="show_connection_details">Show connection details</string>
     <string name="routes_info">Routes: %s</string>
     <string name="routes_info6">IPv6 routes: %s</string>
-    <string name="error_empty_username">The username can not be empty.</string>
+    <string name="error_empty_username">The username must not be empty.</string>
     <string name="cert_from_keystore">Got certificate \'%s\' from keystore</string>
     <string name="title_activity_dashboard">Bitmask</string>
     <string name="provider_label">Provider:</string>
