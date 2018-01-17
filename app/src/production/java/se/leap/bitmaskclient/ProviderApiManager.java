@@ -33,6 +33,10 @@ import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.eip.EIP;
 
 import static android.text.TextUtils.isEmpty;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
@@ -119,17 +123,17 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         if (!PROVIDER_JSON_DOWNLOADED)
             currentDownload = getAndSetProviderJson(lastProviderMainUrl, providerCaCert, providerDefinition);
         if (PROVIDER_JSON_DOWNLOADED || (currentDownload.containsKey(RESULT_KEY) && currentDownload.getBoolean(RESULT_KEY))) {
-            broadcastProgress(progress++);
+            broadcastProgress(++progress);
             PROVIDER_JSON_DOWNLOADED = true;
 
             if (!CA_CERT_DOWNLOADED)
                 currentDownload = downloadCACert();
             if (CA_CERT_DOWNLOADED || (currentDownload.containsKey(RESULT_KEY) && currentDownload.getBoolean(RESULT_KEY))) {
-                broadcastProgress(progress++);
+                broadcastProgress(++progress);
                 CA_CERT_DOWNLOADED = true;
                 currentDownload = getAndSetEipServiceJson();
                 if (currentDownload.containsKey(RESULT_KEY) && currentDownload.getBoolean(RESULT_KEY)) {
-                    broadcastProgress(progress++);
+                    broadcastProgress(++progress);
                     EIP_SERVICE_JSON_DOWNLOADED = true;
                 }
             }
@@ -163,8 +167,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 //TODO setProviderName(name);
 
                 preferences.edit().putString(Provider.KEY, providerJson.toString()).
-                        putBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, providerJson.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS)).
-                        putBoolean(Constants.PROVIDER_ALLOWED_REGISTERED, providerJson.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOWED_REGISTERED)).
+                        putBoolean(PROVIDER_ALLOW_ANONYMOUS, providerJson.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS)).
+                        putBoolean(PROVIDER_ALLOWED_REGISTERED, providerJson.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED)).
                         putString(Provider.KEY + "." + providerDomain, providerJson.toString()).commit();
                 result.putBoolean(RESULT_KEY, true);
             } catch (JSONException e) {
@@ -192,7 +196,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 JSONObject eip_service_json = new JSONObject(eip_service_json_string);
                 eip_service_json.getInt(Provider.API_RETURN_SERIAL);
 
-                preferences.edit().putString(Constants.PROVIDER_KEY, eip_service_json.toString()).commit();
+                preferences.edit().putString(PROVIDER_KEY, eip_service_json.toString()).commit();
 
                 result.putBoolean(RESULT_KEY, true);
             } catch (NullPointerException | JSONException e) {
@@ -215,7 +219,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
 
             String provider_main_url = provider_json.getString(Provider.API_URL);
-            URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + Constants.PROVIDER_VPN_CERTIFICATE);
+            URL new_cert_string_url = new URL(provider_main_url + "/" + provider_json.getString(Provider.API_VERSION) + "/" + PROVIDER_VPN_CERTIFICATE);
 
             String cert_string = downloadWithProviderCA(new_cert_string_url.toString());
 

@@ -16,13 +16,19 @@
  */
 package se.leap.bitmaskclient.userstatus;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
-import android.view.*;
-import android.widget.*;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
-import butterknife.*;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
 
@@ -45,18 +51,18 @@ public class SessionDialog extends DialogFragment {
     final public static String USERNAME = "username";
     final public static String PASSWORD = "password";
 
-    public static enum ERRORS {
+    public enum ERRORS {
         USERNAME_MISSING,
         PASSWORD_INVALID_LENGTH,
         RISEUP_WARNING
     }
 
     @InjectView(R.id.user_message)
-    TextView user_message;
+    TextView userMessage;
     @InjectView(R.id.username_entered)
-    EditText username_field;
+    EditText usernameField;
     @InjectView(R.id.password_entered)
-    EditText password_field;
+    EditText passwordField;
 
     public static SessionDialog getInstance(Provider provider, Bundle arguments) {
         SessionDialog dialog = new SessionDialog();
@@ -112,35 +118,35 @@ public class SessionDialog extends DialogFragment {
 
     private void setUp(Bundle arguments) {
         if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
-            password_field.setError(getString(R.string.error_not_valid_password_user_message));
+            passwordField.setError(getString(R.string.error_not_valid_password_user_message));
         else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
-            user_message.setVisibility(VISIBLE);
-            user_message.setText(R.string.login_riseup_warning);
+            userMessage.setVisibility(VISIBLE);
+            userMessage.setText(R.string.login_riseup_warning);
         }
         if (arguments.containsKey(USERNAME)) {
             String username = arguments.getString(USERNAME);
-            username_field.setText(username);
+            usernameField.setText(username);
         }
         if (arguments.containsKey(ERRORS.USERNAME_MISSING.toString())) {
-            username_field.setError(getString(R.string.username_ask));
+            usernameField.setError(getString(R.string.username_ask));
         }
         if (arguments.containsKey(getString(R.string.user_message))) {
-            user_message.setText(arguments.getString(getString(R.string.user_message)));
-            user_message.setVisibility(VISIBLE);
-        } else if (user_message.getVisibility() != VISIBLE)
-            user_message.setVisibility(View.GONE);
+            userMessage.setText(arguments.getString(getString(R.string.user_message)));
+            userMessage.setVisibility(VISIBLE);
+        } else if (userMessage.getVisibility() != VISIBLE)
+            userMessage.setVisibility(View.GONE);
 
-        if (!username_field.getText().toString().isEmpty() && password_field.isFocusable())
-            password_field.requestFocus();
+        if (!usernameField.getText().toString().isEmpty() && passwordField.isFocusable())
+            passwordField.requestFocus();
 
     }
 
     private String getEnteredUsername() {
-        return username_field.getText().toString();
+        return usernameField.getText().toString();
     }
 
     private String getEnteredPassword() {
-        return password_field.getText().toString();
+        return passwordField.getText().toString();
     }
 
 
@@ -150,22 +156,22 @@ public class SessionDialog extends DialogFragment {
      * @author parmegv
      */
     public interface SessionDialogInterface {
-        public void logIn(String username, String password);
+        void logIn(String username, String password);
 
-        public void signUp(String username, String password);
+        void signUp(String username, String password);
 
     }
 
     SessionDialogInterface interface_with_Dashboard;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
         try {
-            interface_with_Dashboard = (SessionDialogInterface) activity.getFragmentManager().findFragmentById(R.id.user_status_fragment);;
+            interface_with_Dashboard = (SessionDialogInterface) ((AppCompatActivity) context).getSupportFragmentManager().getFragments().get(0);
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement LogInDialogListener");
         }
     }

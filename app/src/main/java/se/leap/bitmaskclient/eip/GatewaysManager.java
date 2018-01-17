@@ -36,8 +36,10 @@ import java.util.List;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.ProfileManager;
-import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.Provider;
+
+import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 
 /**
  * @author parmegv
@@ -124,8 +126,8 @@ public class GatewaysManager {
         JSONObject result = new JSONObject();
         try {
             result.put(Provider.CA_CERT, preferences.getString(Provider.CA_CERT, ""));
-            result.put(Constants.PROVIDER_PRIVATE_KEY, preferences.getString(Constants.PROVIDER_PRIVATE_KEY, ""));
-            result.put(Constants.PROVIDER_VPN_CERTIFICATE, preferences.getString(Constants.PROVIDER_VPN_CERTIFICATE, ""));
+            result.put(PROVIDER_PRIVATE_KEY, preferences.getString(PROVIDER_PRIVATE_KEY, ""));
+            result.put(PROVIDER_VPN_CERTIFICATE, preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
         } catch (JSONException e) {
             e.printStackTrace();
         }

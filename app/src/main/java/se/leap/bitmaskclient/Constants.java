@@ -10,6 +10,23 @@ public interface Constants {
     String PREFERENCES_APP_VERSION = "bitmask version";
 
 
+     //////////////////////////////////////////////
+    // REQUEST CODE CONSTANTS
+    /////////////////////////////////////////////
+
+    String REQUEST_CODE_KEY = "request_code";
+    int REQUEST_CODE_CONFIGURE_LEAP = 0;
+    int REQUEST_CODE_SWITCH_PROVIDER = 1;
+
+
+    //////////////////////////////////////////////
+    // APP CONSTANTS
+    /////////////////////////////////////////////
+
+    String APP_ACTION_QUIT = "quit";
+    String APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE = "configure always-on profile";
+
+
     //////////////////////////////////////////////
     // EIP CONSTANTS
     /////////////////////////////////////////////
@@ -28,7 +45,6 @@ public interface Constants {
     String EIP_REQUEST = "EIP.REQUEST";
     String EIP_RESTART_ON_BOOT = "EIP.RESTART_ON_BOOT";
     String EIP_IS_ALWAYS_ON = "EIP.EIP_IS_ALWAYS_ON";
-
 
 
     //////////////////////////////////////////////

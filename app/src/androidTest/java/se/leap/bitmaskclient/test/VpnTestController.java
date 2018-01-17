@@ -6,7 +6,6 @@ import android.widget.Button;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 
-import de.blinkt.openvpn.activities.DisconnectVPN;
 import mbanje.kurt.fabbutton.ProgressRingView;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;

@@ -17,12 +17,17 @@
 package se.leap.bitmaskclient.test;
 
 
-import android.content.*;
-import android.test.*;
-import android.test.suitebuilder.annotation.*;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.test.ServiceTestCase;
+import android.test.suitebuilder.annotation.MediumTest;
 
-import se.leap.bitmaskclient.*;
-import se.leap.bitmaskclient.eip.*;
+import se.leap.bitmaskclient.eip.EIP;
+
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 /**
  * @author parmegv
@@ -37,7 +42,7 @@ public class TestEIP extends ServiceTestCase<EIP> {
         super(activityClass);
         context = getSystemContext();
         intent = new Intent(context, EIP.class);
-        preferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -59,14 +64,14 @@ public class TestEIP extends ServiceTestCase<EIP> {
     }
 
     private void testEmptyCertificate() {
-        preferences.edit().putString(Constants.PROVIDER_VPN_CERTIFICATE, "").apply();
-        startService(Constants.EIP_ACTION_CHECK_CERT_VALIDITY);
+        preferences.edit().putString(PROVIDER_VPN_CERTIFICATE, "").apply();
+        startService(EIP_ACTION_CHECK_CERT_VALIDITY);
     }
 
     private void testExpiredCertificate() {
         String expired_certificate = "expired certificate";
-        preferences.edit().putString(Constants.PROVIDER_VPN_CERTIFICATE, expired_certificate).apply();
-        startService(Constants.EIP_ACTION_CHECK_CERT_VALIDITY);
+        preferences.edit().putString(PROVIDER_VPN_CERTIFICATE, expired_certificate).apply();
+        startService(EIP_ACTION_CHECK_CERT_VALIDITY);
     }
 
     private void startService(String action) {

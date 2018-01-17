@@ -54,6 +54,10 @@ import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatus;
 
 import static se.leap.bitmaskclient.ConfigHelper.getFingerprintFromCertificate;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
+import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
@@ -69,6 +73,8 @@ import static se.leap.bitmaskclient.ProviderAPI.FAILED_LOGIN;
 import static se.leap.bitmaskclient.ProviderAPI.FAILED_SIGNUP;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
+import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_API_EVENT;
+import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
 import static se.leap.bitmaskclient.ProviderAPI.LOGOUT_FAILED;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_OUT;
@@ -76,6 +82,7 @@ import static se.leap.bitmaskclient.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.ProviderAPI.RECEIVER_KEY;
+import static se.leap.bitmaskclient.ProviderAPI.RESULT_CODE;
 import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.ProviderAPI.SIGN_UP;
@@ -89,6 +96,7 @@ import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
 import static se.leap.bitmaskclient.R.string.malformed_url;
+import static se.leap.bitmaskclient.R.string.routes_info_excl;
 import static se.leap.bitmaskclient.R.string.server_unreachable_message;
 import static se.leap.bitmaskclient.R.string.service_is_down_error;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
@@ -103,7 +111,7 @@ import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
 public abstract class ProviderApiManagerBase {
 
     public interface ProviderApiServiceCallback {
-        void broadcastProgress(Intent intent);
+        void broadcastEvent(Intent intent);
     }
 
     private ProviderApiServiceCallback serviceCallback;
@@ -167,50 +175,56 @@ public abstract class ProviderApiManagerBase {
             Bundle result = setUpProvider(parameters);
             if (go_ahead) {
                 if (result.getBoolean(RESULT_KEY)) {
-                    receiver.send(PROVIDER_OK, result);
+                    sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result);
                 } else {
-                    receiver.send(PROVIDER_NOK, result);
+                    sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result);
                 }
             }
         } else if (action.equalsIgnoreCase(SIGN_UP)) {
             UserStatus.updateStatus(UserStatus.SessionStatus.SIGNING_UP, resources);
             Bundle result = tryToRegister(parameters);
             if (result.getBoolean(RESULT_KEY)) {
-                receiver.send(SUCCESSFUL_SIGNUP, result);
+                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_SIGNUP, result);
             } else {
-                receiver.send(FAILED_SIGNUP, result);
+                sendToReceiverOrBroadcast(receiver, FAILED_SIGNUP, result);
             }
         } else if (action.equalsIgnoreCase(LOG_IN)) {
             UserStatus.updateStatus(UserStatus.SessionStatus.LOGGING_IN, resources);
             Bundle result = tryToAuthenticate(parameters);
             if (result.getBoolean(RESULT_KEY)) {
-                receiver.send(SUCCESSFUL_LOGIN, result);
+                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGIN, result);
                 UserStatus.updateStatus(UserStatus.SessionStatus.LOGGED_IN, resources);
             } else {
-                receiver.send(FAILED_LOGIN, result);
+                sendToReceiverOrBroadcast(receiver, FAILED_LOGIN, result);
                 UserStatus.updateStatus(UserStatus.SessionStatus.NOT_LOGGED_IN, resources);
             }
         } else if (action.equalsIgnoreCase(LOG_OUT)) {
             UserStatus.updateStatus(UserStatus.SessionStatus.LOGGING_OUT, resources);
             if (logOut()) {
-                receiver.send(SUCCESSFUL_LOGOUT, Bundle.EMPTY);
+                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGOUT, Bundle.EMPTY);
                 UserStatus.updateStatus(UserStatus.SessionStatus.LOGGED_OUT, resources);
             } else {
-                receiver.send(LOGOUT_FAILED, Bundle.EMPTY);
+                sendToReceiverOrBroadcast(receiver, LOGOUT_FAILED, Bundle.EMPTY);
                 UserStatus.updateStatus(UserStatus.SessionStatus.DIDNT_LOG_OUT, resources);
             }
         } else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
             if (updateVpnCertificate()) {
-                receiver.send(CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+                sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
             } else {
-                receiver.send(INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+                sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
             }
         } else if (action.equalsIgnoreCase(DOWNLOAD_EIP_SERVICE)) {
             Bundle result = getAndSetEipServiceJson();
             if (result.getBoolean(RESULT_KEY)) {
-                receiver.send(CORRECTLY_DOWNLOADED_EIP_SERVICE, result);
+                sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_EIP_SERVICE, result);
             } else {
-                receiver.send(INCORRECTLY_DOWNLOADED_EIP_SERVICE, result);
+                sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_EIP_SERVICE, result);
+            }
+        } else if (action.equalsIgnoreCase(PROVIDER_SET_UP)) {
+            if(EIP_SERVICE_JSON_DOWNLOADED && CA_CERT_DOWNLOADED && PROVIDER_JSON_DOWNLOADED ) {
+                if(receiver!= null) {
+                    receiver.send(PROVIDER_OK, Bundle.EMPTY);
+                }
             }
         }
     }
@@ -417,20 +431,35 @@ public abstract class ProviderApiManagerBase {
         return userNotificationBundle;
     }
 
+    void sendToReceiverOrBroadcast(ResultReceiver receiver, int resultCode, Bundle resultData) {
+        if (receiver != null) {
+            receiver.send(resultCode, resultData);
+        } else {
+            broadcastEvent(PROVIDER_API_EVENT, resultCode, resultData);
+        }
+    }
+
     /**
      * Sets up an intent with the progress value passed as a parameter
      * and sends it as a broadcast.
      *
      * @param progress
      */
-    protected void broadcastProgress(int progress) {
-        Intent intentUpdate = new Intent();
-        intentUpdate.setAction(UPDATE_PROGRESSBAR);
+    void broadcastProgress(int progress) {
+        Intent intentUpdate = new Intent(UPDATE_PROGRESSBAR);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
         intentUpdate.putExtra(CURRENT_PROGRESS, progress);
-        serviceCallback.broadcastProgress(intentUpdate);
-        //sendBroadcast(intentUpdate);
+        serviceCallback.broadcastEvent(intentUpdate);
     }
+
+    void broadcastEvent(String action, int resultCode , Bundle resultData) {
+        Intent intentUpdate = new Intent(action);
+        intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
+        intentUpdate.putExtra(RESULT_CODE, resultCode);
+        intentUpdate.putExtra(RESULT_KEY, resultData);
+        serviceCallback.broadcastEvent(intentUpdate);
+    }
+
 
     /**
      * Validates parameters entered by the user to log in
@@ -674,8 +703,8 @@ public abstract class ProviderApiManagerBase {
         //valid certificate: skip download, save loaded provider CA cert and provider definition directly
         try {
             preferences.edit().putString(Provider.KEY, providerDefinition.toString()).
-                    putBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOW_ANONYMOUS)).
-                    putBoolean(Constants.PROVIDER_ALLOWED_REGISTERED, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(Constants.PROVIDER_ALLOWED_REGISTERED)).
+                    putBoolean(PROVIDER_ALLOW_ANONYMOUS, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS)).
+                    putBoolean(PROVIDER_ALLOWED_REGISTERED, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED)).
                     putString(Provider.CA_CERT, providerCaCert).commit();
             CA_CERT_DOWNLOADED = true;
             PROVIDER_JSON_DOWNLOADED = true;
@@ -912,11 +941,11 @@ public abstract class ProviderApiManagerBase {
 
             RSAPrivateKey key = ConfigHelper.parseRsaKeyFromString(keyString);
             keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
-            preferences.edit().putString(Constants.PROVIDER_PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----").commit();
+            preferences.edit().putString(PROVIDER_PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----").commit();
 
             X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
             certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
-            preferences.edit().putString(Constants.PROVIDER_VPN_CERTIFICATE, "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----").commit();
+            preferences.edit().putString(PROVIDER_VPN_CERTIFICATE, "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----").commit();
             return true;
         } catch (CertificateException e) {
             // TODO Auto-generated catch block

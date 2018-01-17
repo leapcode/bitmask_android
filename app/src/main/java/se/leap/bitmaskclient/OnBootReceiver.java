@@ -7,9 +7,11 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import static android.content.Intent.ACTION_BOOT_COMPLETED;
+import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 public class OnBootReceiver extends BroadcastReceiver {
 
@@ -22,7 +24,7 @@ public class OnBootReceiver extends BroadcastReceiver {
         if (intent == null || !ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             return;
         }
-        preferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
         boolean providerConfigured = !preferences.getString(PROVIDER_VPN_CERTIFICATE, "").isEmpty();
         boolean startOnBoot = preferences.getBoolean(EIP_RESTART_ON_BOOT, false);
         boolean isAlwaysOnConfigured = preferences.getBoolean(EIP_IS_ALWAYS_ON, false);
@@ -33,17 +35,17 @@ public class OnBootReceiver extends BroadcastReceiver {
                 return;
             }
             if (startOnBoot) {
-                Intent dashboard_intent = new Intent(context, Dashboard.class);
-                dashboard_intent.putExtra(EIP_RESTART_ON_BOOT, true);
-                dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(dashboard_intent);
+                Intent dashboardIntent = new Intent(context, Dashboard.class);
+                dashboardIntent.putExtra(EIP_RESTART_ON_BOOT, true);
+                dashboardIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(dashboardIntent);
             }
         } else {
             if (isAlwaysOnConfigured) {
-                Intent dashboard_intent = new Intent(context, Dashboard.class);
-                dashboard_intent.putExtra(Dashboard.ACTION_CONFIGURE_ALWAYS_ON_PROFILE, true);
-                dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(dashboard_intent);
+                Intent dashboardIntent = new Intent(context, Dashboard.class);
+                dashboardIntent.putExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE, true);
+                dashboardIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(dashboardIntent);
             }
         }
     }

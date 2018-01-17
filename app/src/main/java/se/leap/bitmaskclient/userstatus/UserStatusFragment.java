@@ -1,9 +1,8 @@
 package se.leap.bitmaskclient.userstatus;
 
-import android.app.Activity;
-import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,7 @@ import java.util.Observer;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import se.leap.bitmaskclient.Dashboard;
+import se.leap.bitmaskclient.MainActivity;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.ProviderAPICommand;
@@ -28,7 +27,6 @@ import se.leap.bitmaskclient.R;
 public class UserStatusFragment extends Fragment implements Observer, SessionDialog.SessionDialogInterface {
 
     public static String TAG = UserStatusFragment.class.getSimpleName();
-    private static Dashboard dashboard;
     private ProviderAPIResultReceiver providerAPI_result_receiver;
 
     @InjectView(R.id.user_status_username)
@@ -39,7 +37,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     Button button;
 
     private UserStatus status;
-    private boolean allows_registration = false;
+    private boolean allowsRegistration = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,25 +63,22 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
         ButterKnife.inject(this, view);
 
         Bundle arguments = getArguments();
-        allows_registration = arguments.getBoolean(Provider.ALLOW_REGISTRATION);
+        allowsRegistration = arguments.getBoolean(Provider.ALLOW_REGISTRATION);
         handleNewStatus(status);
 
         return view;
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        dashboard = (Dashboard) activity;
-
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), dashboard);
+    public void onAttach(Context context) {
+        super.onAttach(context);
     }
 
     public void restoreSessionStatus(Bundle savedInstanceState) {
         if (savedInstanceState != null)
             if (savedInstanceState.containsKey(UserStatus.TAG)) {
                 UserStatus.SessionStatus status = (UserStatus.SessionStatus) savedInstanceState.getSerializable(UserStatus.TAG);
-                this.status.updateStatus(status, getResources());
+                UserStatus.updateStatus(status, getResources());
             }
     }
 
@@ -93,7 +88,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
         if(status.isLoggedIn())
             logOut();
         else if(status.isLoggedOut())
-            dashboard.sessionDialog(Bundle.EMPTY);
+            MainActivity.sessionDialog(Bundle.EMPTY);
         else if(status.inProgress())
             cancelLoginOrSignup();
     }
@@ -102,7 +97,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     public void update(Observable observable, Object data) {
         if (observable instanceof UserStatus) {
             final UserStatus status = (UserStatus) observable;
-            dashboard.runOnUiThread(new Runnable() {
+            getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     handleNewStatus(status);
@@ -113,7 +108,7 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
 
     private void handleNewStatus(UserStatus status) {
         this.status = status;
-        if (allows_registration) {
+        if (allowsRegistration) {
             if (this.status.inProgress())
                 showUserSessionProgressBar();
             else
@@ -138,12 +133,12 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
 
     private void updateButton() {
         if(status.isLoggedIn() || status.didntLogOut())
-            button.setText(dashboard.getString(R.string.logout_button));
-        else if(allows_registration) {
+            button.setText(getActivity().getString(R.string.logout_button));
+        else if(allowsRegistration) {
             if (status.isLoggedOut() || status.notLoggedIn())
-                button.setText(dashboard.getString(R.string.login_button));
+                button.setText(getActivity().getString(R.string.login_button));
             else if (status.inProgress())
-                button.setText(dashboard.getString(android.R.string.cancel));
+                button.setText(getActivity().getString(android.R.string.cancel));
         }
     }
 

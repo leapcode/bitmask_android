@@ -15,6 +15,9 @@ import java.lang.annotation.RetentionPolicy;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.userstatus.User;
 
+import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+
 /**
  * Activity shown at startup. Evaluates if App is started for the first time or has been upgraded
  * and acts and calls another activity accordingly.
@@ -39,7 +42,7 @@ public class StartActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
 
         Log.d(TAG, "Started");
 
@@ -50,6 +53,7 @@ public class StartActivity extends Activity {
             case FIRST:
                 storeAppVersion();
                 // TODO start ProfileCreation & replace below code
+                // (new Intent(getActivity(), ConfigurationWizard.class), Constants.REQUEST_CODE_SWITCH_PROVIDER);
                 break;
 
             case UPGRADE:
@@ -68,7 +72,7 @@ public class StartActivity extends Activity {
         User.init(getString(R.string.default_username));
 
         // go to Dashboard
-        Intent intent = new Intent(this, Dashboard.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
@@ -80,7 +84,7 @@ public class StartActivity extends Activity {
     private int checkAppStart() {
         try {
             versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-            previousVersionCode = preferences.getInt(Constants.PREFERENCES_APP_VERSION, -1);
+            previousVersionCode = preferences.getInt(PREFERENCES_APP_VERSION, -1);
 
             // versions do match -> normal start
             if (versionCode == previousVersionCode) {
@@ -134,7 +138,7 @@ public class StartActivity extends Activity {
     }
 
     private void storeAppVersion() {
-        preferences.edit().putInt(Constants.PREFERENCES_APP_VERSION, versionCode).apply();
+        preferences.edit().putInt(PREFERENCES_APP_VERSION, versionCode).apply();
     }
 
 }

@@ -16,21 +16,23 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.*;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 
 public class FragmentManagerEnhanced {
 
-    private FragmentManager generic_fragment_manager;
+    private FragmentManager genericFragmentManager;
 
-    public FragmentManagerEnhanced(FragmentManager generic_fragment_manager) {
-        this.generic_fragment_manager = generic_fragment_manager;
+    public FragmentManagerEnhanced(FragmentManager genericFragmentManager) {
+        this.genericFragmentManager = genericFragmentManager;
     }
 
     public FragmentTransaction removePreviousFragment(String tag) {
-        FragmentTransaction transaction = generic_fragment_manager.beginTransaction();
-        Fragment previous_fragment = generic_fragment_manager.findFragmentByTag(tag);
-        if (previous_fragment != null) {
-            transaction.remove(previous_fragment);
+        FragmentTransaction transaction = genericFragmentManager.beginTransaction();
+        Fragment previousFragment = genericFragmentManager.findFragmentByTag(tag);
+        if (previousFragment != null) {
+            transaction.remove(previousFragment);
         }
         transaction.addToBackStack(null);
 
@@ -38,16 +40,16 @@ public class FragmentManagerEnhanced {
     }
 
     public void replace(int containerViewId, Fragment fragment, String tag) {
-        FragmentTransaction transaction = generic_fragment_manager.beginTransaction();
+        FragmentTransaction transaction = genericFragmentManager.beginTransaction();
 
         transaction.replace(containerViewId, fragment, tag).commit();
     }
 
     public FragmentTransaction beginTransaction() {
-        return generic_fragment_manager.beginTransaction();
+        return genericFragmentManager.beginTransaction();
     }
 
     public Fragment findFragmentByTag(String tag) {
-        return generic_fragment_manager.findFragmentByTag(tag);
+        return genericFragmentManager.findFragmentByTag(tag);
     }
 }

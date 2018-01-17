@@ -86,7 +86,7 @@ public class ProviderApiManagerTest {
         }
 
         @Override
-        public void broadcastProgress(Intent intent) {
+        public void broadcastEvent(Intent intent) {
             //assertEquals("expected intent: ", expectedIntent, intent);
         }
     }

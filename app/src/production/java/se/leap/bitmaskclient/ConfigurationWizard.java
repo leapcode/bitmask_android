@@ -40,17 +40,17 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
 
     public void showAndSelectProvider(String provider_main_url) {
         try {
-            selected_provider = new Provider(new URL((provider_main_url)));
-            adapter.add(selected_provider);
+            selectedProvider = new Provider(new URL((provider_main_url)));
+            adapter.add(selectedProvider);
             adapter.saveProviders();
-            autoSelectProvider(selected_provider);
+            autoSelectProvider(selectedProvider);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
     }
 
     private void autoSelectProvider(Provider provider) {
-        selected_provider = provider;
+        selectedProvider = provider;
         onItemSelectedUi();
         onItemSelectedLogic();
     }
@@ -61,24 +61,23 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
      */
     public void setUpProvider() {
         mConfigState.setAction(SETTING_UP_PROVIDER);
-        Intent provider_API_command = new Intent(this, ProviderAPI.class);
+        Intent providerApiCommand = new Intent(this, ProviderAPI.class);
         Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
-        if (selected_provider.hasCertificatePin()){
-            parameters.putString(Provider.CA_CERT_FINGERPRINT, selected_provider.certificatePin());
+        parameters.putString(Provider.MAIN_URL, selectedProvider.getMainUrl().toString());
+        if (selectedProvider.hasCertificatePin()){
+            parameters.putString(Provider.CA_CERT_FINGERPRINT, selectedProvider.certificatePin());
         }
-        if (selected_provider.hasCaCert()) {
-            parameters.putString(Provider.CA_CERT, selected_provider.getCaCert());
+        if (selectedProvider.hasCaCert()) {
+            parameters.putString(Provider.CA_CERT, selectedProvider.getCaCert());
         }
-        if (selected_provider.hasDefinition()) {
-            parameters.putString(Provider.KEY, selected_provider.getDefinition().toString());
+        if (selectedProvider.hasDefinition()) {
+            parameters.putString(Provider.KEY, selectedProvider.getDefinition().toString());
         }
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.PARAMETERS, parameters);
 
-        startService(provider_API_command);
+        startService(providerApiCommand);
     }
 
     @Override
@@ -88,17 +87,17 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
             addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl());
         } else {
             showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(selected_provider));
+            adapter.hideAllBut(adapter.indexOf(selectedProvider));
 
 
-            Intent provider_API_command = new Intent(this, ProviderAPI.class);
-            provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-            provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, providerAPI_result_receiver);
+            Intent providerApiCommand = new Intent(this, ProviderAPI.class);
+            providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+            providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
             Bundle parameters = new Bundle();
-            parameters.putString(Provider.MAIN_URL, selected_provider.getMainUrl().toString());
-            provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
+            parameters.putString(Provider.MAIN_URL, selectedProvider.getMainUrl().toString());
+            providerApiCommand.putExtra(ProviderAPI.PARAMETERS, parameters);
 
-            startService(provider_API_command);
+            startService(providerApiCommand);
         }
     }
 

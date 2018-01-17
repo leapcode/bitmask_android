@@ -16,15 +16,21 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
+import android.app.Activity;
+import android.app.IntentService;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.util.Log;
 
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import de.blinkt.openvpn.*;
-import se.leap.bitmaskclient.*;
+import de.blinkt.openvpn.LaunchVPN;
+import se.leap.bitmaskclient.OnBootReceiver;
+import se.leap.bitmaskclient.VpnFragment;
 
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;
@@ -57,8 +63,8 @@ public final class EIP extends IntentService {
     private static ResultReceiver mReceiver;
     private static SharedPreferences preferences;
 
-    private static JSONObject eip_definition;
-    private static GatewaysManager gateways_manager = new GatewaysManager();
+    private static JSONObject eipDefinition;
+    private static GatewaysManager gatewaysManager = new GatewaysManager();
     private static Gateway gateway;
 
     public EIP() {
@@ -70,8 +76,8 @@ public final class EIP extends IntentService {
         super.onCreate();
         context = getApplicationContext();
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        eip_definition = eipDefinitionFromPreferences();
-        if (gateways_manager.isEmpty())
+        eipDefinition = eipDefinitionFromPreferences();
+        if (gatewaysManager.isEmpty())
             gatewaysFromPreferences();
     }
 
@@ -100,13 +106,13 @@ public final class EIP extends IntentService {
      * It also sets up early routes.
      */
     private void startEIP() {
-        if (gateways_manager.isEmpty())
+        if (gatewaysManager.isEmpty())
             updateEIPService();
         if (!EipStatus.getInstance().isBlockingVpnEstablished())  {
             earlyRoutes();
         }
 
-        gateway = gateways_manager.select();
+        gateway = gatewaysManager.select();
         if (gateway != null && gateway.getProfile() != null) {
             mReceiver = VpnFragment.getReceiver();
             launchActiveGateway();
@@ -122,10 +128,10 @@ public final class EIP extends IntentService {
     private void startAlwaysOnEIP() {
         Log.d(TAG, "startAlwaysOnEIP vpn");
 
-        if (gateways_manager.isEmpty())
+        if (gatewaysManager.isEmpty())
             updateEIPService();
 
-        gateway = gateways_manager.select();
+        gateway = gatewaysManager.select();
 
         if (gateway != null && gateway.getProfile() != null) {
             //mReceiver = VpnFragment.getReceiver();
@@ -141,9 +147,9 @@ public final class EIP extends IntentService {
      * VpnService is started properly.
      */
     private void earlyRoutes() {
-        Intent void_vpn_launcher = new Intent(context, VoidVpnLauncher.class);
-        void_vpn_launcher.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(void_vpn_launcher);
+        Intent voidVpnLauncher = new Intent(context, VoidVpnLauncher.class);
+        voidVpnLauncher.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(voidVpnLauncher);
     }
 
     private void launchActiveGateway() {
@@ -156,12 +162,12 @@ public final class EIP extends IntentService {
     }
 
     private void stopEIP() {
-        EipStatus eip_status = EipStatus.getInstance();
-        int result_code = Activity.RESULT_CANCELED;
-        if (eip_status.isConnected() || eip_status.isConnecting())
-            result_code = Activity.RESULT_OK;
+        EipStatus eipStatus = EipStatus.getInstance();
+        int resultCode = Activity.RESULT_CANCELED;
+        if (eipStatus.isConnected() || eipStatus.isConnecting())
+            resultCode = Activity.RESULT_OK;
 
-        tellToReceiver(EIP_ACTION_STOP, result_code);
+        tellToReceiver(EIP_ACTION_STOP, resultCode);
     }
 
     /**
@@ -170,8 +176,8 @@ public final class EIP extends IntentService {
      * request if it's not connected, <code>Activity.RESULT_OK</code> otherwise.
      */
     private void isRunning() {
-        EipStatus eip_status = EipStatus.getInstance();
-        int resultCode = (eip_status.isConnected()) ?
+        EipStatus eipStatus = EipStatus.getInstance();
+        int resultCode = (eipStatus.isConnected()) ?
                 Activity.RESULT_OK :
                 Activity.RESULT_CANCELED;
         tellToReceiver(EIP_ACTION_IS_RUNNING, resultCode);
@@ -182,8 +188,8 @@ public final class EIP extends IntentService {
      * TODO Implement API call to refresh eip-service.json from the provider
      */
     private void updateEIPService() {
-        eip_definition = eipDefinitionFromPreferences();
-        if (eip_definition.length() > 0)
+        eipDefinition = eipDefinitionFromPreferences();
+        if (eipDefinition.length() > 0)
             updateGateways();
         tellToReceiver(EIP_ACTION_UPDATE, Activity.RESULT_OK);
     }
@@ -191,9 +197,9 @@ public final class EIP extends IntentService {
     private JSONObject eipDefinitionFromPreferences() {
         JSONObject result = new JSONObject();
         try {
-            String eip_definition_string = preferences.getString(PROVIDER_KEY, "");
-            if (!eip_definition_string.isEmpty()) {
-                result = new JSONObject(eip_definition_string);
+            String eipDefinitionString = preferences.getString(PROVIDER_KEY, "");
+            if (!eipDefinitionString.isEmpty()) {
+                result = new JSONObject(eipDefinitionString);
             }
         } catch (JSONException e) {
             // TODO Auto-generated catch block
@@ -203,20 +209,20 @@ public final class EIP extends IntentService {
     }
 
     private void updateGateways() {
-        gateways_manager.clearGatewaysAndProfiles();
-        gateways_manager.fromEipServiceJson(eip_definition);
+        gatewaysManager.clearGatewaysAndProfiles();
+        gatewaysManager.fromEipServiceJson(eipDefinition);
         gatewaysToPreferences();
     }
 
     private void gatewaysFromPreferences() {
-        String gateways_string = preferences.getString(Gateway.TAG, "");
-        gateways_manager = new GatewaysManager(context, preferences);
-        gateways_manager.addFromString(gateways_string);
+        String gatewaysString = preferences.getString(Gateway.TAG, "");
+        gatewaysManager = new GatewaysManager(context, preferences);
+        gatewaysManager.addFromString(gatewaysString);
         preferences.edit().remove(Gateway.TAG).apply();
     }
 
     private void gatewaysToPreferences() {
-        String gateways_string = gateways_manager.toString();
+        String gateways_string = gatewaysManager.toString();
         preferences.edit().putString(Gateway.TAG, gateways_string).commit();
     }
 

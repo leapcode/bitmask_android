@@ -16,14 +16,20 @@
  */
 package se.leap.bitmaskclient;
 
-import butterknife.*;
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
-import android.view.*;
-import android.widget.*;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 /**
  * Implements the new custom provider dialog.
@@ -35,26 +41,27 @@ public class NewProviderDialog extends DialogFragment {
     final public static String TAG = "newProviderDialog";
 
     @InjectView(R.id.new_provider_url)
-    EditText url_input_field;
+    EditText urlInputField;
 
     public interface NewProviderDialogInterface {
-        public void showAndSelectProvider(String url_provider);
+        void showAndSelectProvider(String url_provider);
     }
 
-    NewProviderDialogInterface interface_with_ConfigurationWizard;
+    NewProviderDialogInterface interfaceWithConfigurationWizard;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            interface_with_ConfigurationWizard = (NewProviderDialogInterface) activity;
+            interfaceWithConfigurationWizard = (NewProviderDialogInterface) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement NoticeDialogListener");
         }
     }
 
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -62,7 +69,7 @@ public class NewProviderDialog extends DialogFragment {
         ButterKnife.inject(this, view);
         Bundle arguments = getArguments();
         if (arguments != null) {
-            url_input_field.setText(arguments.getString(Provider.MAIN_URL, ""));
+            urlInputField.setText(arguments.getString(Provider.MAIN_URL, ""));
         }
 
         builder.setView(view)
@@ -82,7 +89,7 @@ public class NewProviderDialog extends DialogFragment {
     }
 
     private void saveProvider() {
-        String entered_url = url_input_field.getText().toString().trim();
+        String entered_url = urlInputField.getText().toString().trim();
         if (!entered_url.startsWith("https://")) {
             if (entered_url.startsWith("http://")) {
                 entered_url = entered_url.substring("http://".length());
@@ -91,23 +98,22 @@ public class NewProviderDialog extends DialogFragment {
         }
 
         if (validURL(entered_url)) {
-            interface_with_ConfigurationWizard.showAndSelectProvider(entered_url);
+            interfaceWithConfigurationWizard.showAndSelectProvider(entered_url);
             Toast.makeText(getActivity().getApplicationContext(), R.string.valid_url_entered, Toast.LENGTH_LONG).show();
         } else {
-            url_input_field.setText("");
+            urlInputField.setText("");
             Toast.makeText(getActivity().getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();
-            ;
         }
     }
 
     /**
      * Checks if the entered url is valid or not.
      *
-     * @param entered_url
+     * @param enteredUrl
      * @return true if it's not empty nor contains only the protocol.
      */
-    boolean validURL(String entered_url) {
-        //return !entered_url.isEmpty() && entered_url.matches("http[s]?://.+") && !entered_url.replaceFirst("http[s]?://", "").isEmpty();
-        return android.util.Patterns.WEB_URL.matcher(entered_url).matches();
+    boolean validURL(String enteredUrl) {
+        //return !enteredUrl.isEmpty() && enteredUrl.matches("http[s]?://.+") && !enteredUrl.replaceFirst("http[s]?://", "").isEmpty();
+        return android.util.Patterns.WEB_URL.matcher(enteredUrl).matches();
     }
 }

@@ -2,6 +2,9 @@
 <resources>
     <color name="colorPrimary">#b39ddb</color>
     <color name="colorPrimaryDark">#ac97d2</color>
+    <color name="colorBackground">#fffafafa</color>
+    <color name="colorError">#ef9a9a</color>
+    <color name="colorSuccess">#a5d6a7</color>
 
     <color name="red200">#ef9a9a</color>
     <color name="pink200">#f48fb1</color>

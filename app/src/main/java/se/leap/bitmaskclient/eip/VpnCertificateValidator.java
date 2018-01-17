@@ -16,10 +16,13 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import java.security.cert.*;
-import java.util.*;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.util.Calendar;
+import java.util.Date;
 
-import se.leap.bitmaskclient.*;
+import se.leap.bitmaskclient.ConfigHelper;
 
 public class VpnCertificateValidator {
     public final static String TAG = VpnCertificateValidator.class.getSimpleName();
