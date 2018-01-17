@@ -16,6 +16,8 @@ import butterknife.OnClick;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 
+import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
+
 /**
  * Created by fupduck on 09.01.18.
  */
@@ -109,6 +111,7 @@ public abstract class ProviderCredentialsBaseActivity extends ButterKnifeActivit
                 //MainActivity.sessionDialog(resultData);
             } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
                 Intent intent = new Intent(activity, MainActivity.class);
+                intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
                 activity.startActivity(intent);
             } else if (resultCode == ProviderAPI.FAILED_LOGIN) {
                 //MainActivity.sessionDialog(resultData);

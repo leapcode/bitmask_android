@@ -16,6 +16,7 @@
  */
 package se.leap.bitmaskclient;
 
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -28,8 +29,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -45,6 +47,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 
 import static android.R.attr.name;
+import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 
 /**
  * Stores constants, and implements auxiliary methods used across all Bitmask Android classes.
@@ -256,4 +259,33 @@ public class ConfigHelper {
     public static KeyStore getKeystore() {
         return keystore_trusted;
     }
+
+
+    public static String getCurrentProviderName(@NonNull SharedPreferences preferences) {
+        try {
+            JSONObject providerDefintion = new JSONObject(preferences.getString(Provider.KEY, ""));
+            return providerDefintion.getString(Provider.DOMAIN);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static boolean providerInSharedPreferences(@NonNull SharedPreferences preferences) {
+        return preferences.getBoolean(PROVIDER_CONFIGURED, false);
+    }
+
+    public static Provider getSavedProviderFromSharedPreferences(@NonNull SharedPreferences preferences) {
+        Provider provider = new Provider();
+        try {
+            provider.setUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
+            provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
+            provider.setCACert(preferences.getString(Provider.CA_CERT, ""));
+        } catch (MalformedURLException | JSONException e) {
+            e.printStackTrace();
+        }
+
+        return provider;
+    }
+
 }
