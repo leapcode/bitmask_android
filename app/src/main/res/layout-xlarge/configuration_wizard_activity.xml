@@ -3,7 +3,8 @@
     android:id="@+id/configuration_wizard_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ConfigurationWizard" >
+    tools:context=".ConfigurationWizard"
+    style="@style/BitmaskActivity" >
 
   <ListView
         android:id="@+id/provider_list"

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,21 +21,13 @@ import butterknife.InjectView;
 
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
-import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
-public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity {
+public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseActivity {
 
     final public static String TAG = "providerDetailActivity";
-    protected SharedPreferences preferences;
-
-    @InjectView(R.id.provider_detail_domain)
-    TextView domain;
-
-    @InjectView(R.id.provider_detail_name)
-    TextView name;
 
     @InjectView(R.id.provider_detail_description)
-    TextView description;
+    AppCompatTextView description;
 
     @InjectView(R.id.provider_detail_options)
     ListView options;
@@ -44,20 +37,16 @@ public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.provider_detail_fragment);
 
-        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         try {
             JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
-            domain.setText(providerJson.getString(Provider.DOMAIN));
-            name.setText(providerJson.getJSONObject(Provider.NAME).getString("en"));
+            setProviderHeaderText(getProviderName());
             description.setText(providerJson.getJSONObject(Provider.DESCRIPTION).getString("en"));
-
-            setTitle(R.string.provider_details_title);
 
             // Show only the options allowed by the provider
             ArrayList<String> optionsList = new ArrayList<>();
             if (registrationAllowed(providerJson)) {
-                optionsList.add(getString(R.string.login_button));
-                optionsList.add(getString(R.string.signup_button));
+                optionsList.add(getString(R.string.login_to_profile));
+                optionsList.add(getString(R.string.create_profile));
             }
             if (anonAllowed(providerJson)) {
                 optionsList.add(getString(R.string.use_anonymously_button));
@@ -74,10 +63,10 @@ public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     String text = ((TextView) view).getText().toString();
                     Intent intent;
-                    if (text.equals(getString(R.string.login_button))) {
+                    if (text.equals(getString(R.string.login_to_profile))) {
                         Log.d(TAG, "login selected");
                         intent = new Intent(getApplicationContext(), LoginActivity.class);
-                    } else if (text.equals(getString(R.string.signup_button))) {
+                    } else if (text.equals(getString(R.string.create_profile))) {
                         Log.d(TAG, "signup selected");
                         intent = new Intent(getApplicationContext(), SignupActivity.class);
                     } else {

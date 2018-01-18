@@ -26,4 +26,9 @@
         <item name="android:colorAccent">@color/accent</item>
     </style>
 
+    <style name="BitmaskButton" parent="android:Widget.Button">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:backgroundTint">@color/colorPrimaryDark</item>
+    </style>
+
 </resources>

@@ -102,9 +102,10 @@
             android:label="@string/provider_details_title"
             android:launchMode="singleTop" />
 
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".LoginActivity"
+            android:noHistory="true" />
         <activity android:name=".SignupActivity"
-            android:theme="@style/BitmaskTheme"/>
+            android:noHistory="true" />
 
         <service
             android:name=".eip.EIP"

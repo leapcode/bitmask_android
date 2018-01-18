@@ -3,13 +3,10 @@ package se.leap.bitmaskclient;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.TextInputEditText;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.support.v7.widget.AppCompatButton;
 
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -17,18 +14,14 @@ import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 
 /**
+ * Base Activity for activities concerning a provider interaction
+ *
  * Created by fupduck on 09.01.18.
  */
 
-public abstract class ProviderCredentialsBaseActivity extends ButterKnifeActivity {
+public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseActivity {
 
     protected ProviderAPIResultReceiver providerAPIResultReceiver;
-
-    @InjectView(R.id.provider_header_logo)
-    ImageView providerHeaderLogo;
-
-    @InjectView(R.id.provider_header_text)
-    TextView providerHeaderText;
 
     @InjectView(R.id.provider_credentials_username)
     TextInputEditText providerCredentialsUsername;
@@ -37,29 +30,16 @@ public abstract class ProviderCredentialsBaseActivity extends ButterKnifeActivit
     TextInputEditText providerCredentialsPassword;
 
     @InjectView(R.id.button)
-    Button providerCredentialsButton;
+    AppCompatButton providerCredentialsButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         providerAPIResultReceiver = new ProviderAPIResultReceiver(new Handler(), new ProviderCredentialsReceiver(this));
-
     }
 
     @OnClick(R.id.button)
     abstract void handleButton();
-
-    protected void setProviderHeaderLogo(@DrawableRes int providerHeaderLogo) {
-        this.providerHeaderLogo.setImageResource(providerHeaderLogo);
-    }
-
-    protected void setProviderHeaderText(String providerHeaderText) {
-        this.providerHeaderText.setText(providerHeaderText);
-    }
-
-    protected void setProviderHeaderText(@StringRes int providerHeaderText) {
-        this.providerHeaderText.setText(providerHeaderText);
-    }
 
     protected void setButtonText(@StringRes int buttonText) {
         providerCredentialsButton.setText(buttonText);
@@ -74,16 +54,25 @@ public abstract class ProviderCredentialsBaseActivity extends ButterKnifeActivit
     }
 
     void login(String username, String password) {
+        showProgressBar();
         User.setUserName(username);
         Bundle parameters = bundlePassword(password);
         ProviderAPICommand.execute(parameters, ProviderAPI.LOG_IN, providerAPIResultReceiver);
     }
 
+    void downloadVpnCertificate() {
+        Intent providerAPICommand = new Intent(this, ProviderAPI.class);
+        ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_CERTIFICATE, providerAPIResultReceiver);
+    }
+
+
     public void signUp(String username, String password) {
+        showProgressBar();
         User.setUserName(username);
         Bundle parameters = bundlePassword(password);
         ProviderAPICommand.execute(parameters, ProviderAPI.SIGN_UP, providerAPIResultReceiver);
     }
+
     protected Bundle bundlePassword(String password) {
         Bundle parameters = new Bundle();
         if (!password.isEmpty())
@@ -102,14 +91,11 @@ public abstract class ProviderCredentialsBaseActivity extends ButterKnifeActivit
         @Override
         public void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
-                String username = resultData.getString(SessionDialog.USERNAME);
-                String password = resultData.getString(SessionDialog.PASSWORD);
-                activity.login(username, password);
+                activity.downloadVpnCertificate();
             } else if (resultCode == ProviderAPI.FAILED_SIGNUP) {
                 //MainActivity.sessionDialog(resultData);
             } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
-                Intent intent = new Intent(activity, MainActivity.class);
-                activity.startActivity(intent);
+                activity.downloadVpnCertificate();
             } else if (resultCode == ProviderAPI.FAILED_LOGIN) {
                 //MainActivity.sessionDialog(resultData);
 //  TODO MOVE
@@ -117,11 +103,12 @@ public abstract class ProviderCredentialsBaseActivity extends ButterKnifeActivit
 //                if (switching_provider) activity.switchProvider();
 //            } else if (resultCode == ProviderAPI.LOGOUT_FAILED) {
 //                activity.setResult(RESULT_CANCELED);
-//            } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
-//                activity.eip_fragment.updateEipService();
-//                activity.setResult(RESULT_OK);
-//            } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
-//                activity.setResult(RESULT_CANCELED);
+            } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
+                Intent intent = new Intent(activity, MainActivity.class);
+                activity.startActivity(intent);
+                //activity.eip_fragment.updateEipService();
+            } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
+                // TODO activity.setResult(RESULT_CANCELED);
 //            } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE) {
 //                activity.eip_fragment.updateEipService();
 //                activity.setResult(RESULT_OK);

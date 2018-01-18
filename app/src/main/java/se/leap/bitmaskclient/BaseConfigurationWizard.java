@@ -21,21 +21,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.pedrogomez.renderers.Renderer;
 
@@ -53,12 +46,9 @@ import butterknife.OnItemClick;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.Constants.APP_ACTION_QUIT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
-import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE;
@@ -68,7 +58,6 @@ import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
 import static se.leap.bitmaskclient.ProviderAPI.RESULT_CODE;
 import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
-import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROGRESSBAR;
 
 /**
  * abstract base Activity that builds and shows the list of known available providers.
@@ -81,12 +70,8 @@ import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROGRESSBAR;
  * @author cyberta
  */
 
-public abstract class BaseConfigurationWizard extends ButterKnifeActivity
+public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
         implements NewProviderDialog.NewProviderDialogInterface, DownloadFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
-    @InjectView(R.id.progressbar_configuration_wizard)
-    protected ProgressBar mProgressBar;
-    @InjectView(R.id.progressbar_description)
-    protected TextView progressbarDescription;
 
     @InjectView(R.id.provider_list)
     protected ListView providerListView;
@@ -106,16 +91,12 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
     final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
 
-    final private static String PROGRESSBAR_TEXT = TAG + "PROGRESSBAR_TEXT";
-    final private static String PROGRESSBAR_NUMBER = TAG + "PROGRESSBAR_NUMBER";
     final private static String ACTIVITY_STATE = "ACTIVITY STATE";
 
     public ProviderAPIResultReceiver providerAPIResultReceiver;
     private ProviderAPIBroadcastReceiver providerAPIBroadcastReceiver;
 
-    protected static SharedPreferences preferences;
     FragmentManagerEnhanced fragmentManager;
-    //TODO: add some states (values for progressbarText) about ongoing setup or remove that field
 
     private boolean isActivityShowing;
     private String reasonToFail;
@@ -135,10 +116,8 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
     @Override
     protected void onSaveInstanceState(@NotNull Bundle outState) {
-        if (mProgressBar != null)
-            outState.putInt(PROGRESSBAR_NUMBER, mProgressBar.getProgress());
-        if (progressbarDescription != null)
-            outState.putString(PROGRESSBAR_TEXT, progressbarDescription.getText().toString());
+        //if (progressbarDescription != null)
+        //    outState.putString(PROGRESSBAR_TEXT, progressbarDescription.getText().toString());
         outState.putString(ACTIVITY_STATE, mConfigState.getAction());
         outState.putParcelable(Provider.KEY, selectedProvider);
 
@@ -154,7 +133,6 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
         providerManager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
 
@@ -180,7 +158,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
                          PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())
                 ) {
-            onItemSelectedUi();
+            showProgressBar();
         }
     }
 
@@ -203,20 +181,8 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
     private void setUpInitialUI() {
         setContentView(R.layout.configuration_wizard_activity);
+        setProviderHeaderText(R.string.setup_provider);
         hideProgressBar();
-    }
-
-    private void hideProgressBar() {
-        //needs to be "INVISIBLE" instead of GONE b/c the progressbarDescription gets translated
-        // by the height of mProgressbar (and the height of the first list item)
-        mProgressBar.setVisibility(INVISIBLE);
-        progressbarDescription.setVisibility(INVISIBLE);
-        mProgressBar.setProgress(0);
-    }
-
-    protected void showProgressBar() {
-        mProgressBar.setVisibility(VISIBLE);
-        progressbarDescription.setVisibility(VISIBLE);
     }
 
     @Override
@@ -237,8 +203,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         providerAPIResultReceiver = new ProviderAPIResultReceiver(new Handler(), this);
         providerAPIBroadcastReceiver = new ProviderAPIBroadcastReceiver();
 
-        IntentFilter updateIntentFilter = new IntentFilter(UPDATE_PROGRESSBAR);
-        updateIntentFilter.addAction(PROVIDER_API_EVENT);
+        IntentFilter updateIntentFilter = new IntentFilter(PROVIDER_API_EVENT);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
     }
@@ -259,9 +224,6 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
             downloadVpnCertificate();
         } else {
-            mProgressBar.incrementProgressBy(1);
-            hideProgressBar();
-
             showProviderDetails();
         }
     }
@@ -277,8 +239,6 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
     }
 
     void handleCorrectlyDownloadedCertificate() {
-        mProgressBar.incrementProgressBy(1);
-        hideProgressBar();
         showProviderDetails();
     }
 
@@ -308,13 +268,8 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         //TODO Code 2 pane view
         mConfigState.setAction(SETTING_UP_PROVIDER);
         selectedProvider = adapter.getItem(position);
-        onItemSelectedUi();
+        showProgressBar();
         onItemSelectedLogic();
-    }
-
-    protected void onItemSelectedUi() {
-        adapter.hideAllBut(adapter.indexOf(selectedProvider));
-        startProgressBar();
     }
 
     @Override
@@ -330,9 +285,7 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
 
     private void stopSettingUpProvider() {
         ProviderAPI.stop();
-        mProgressBar.setVisibility(GONE);
-        mProgressBar.setProgress(0);
-        progressbarDescription.setVisibility(GONE);
+        loadingScreen.setVisibility(GONE);
 
         cancelSettingUpProvider();
     }
@@ -369,34 +322,6 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
         Intent askQuit = new Intent();
         askQuit.putExtra(APP_ACTION_QUIT, APP_ACTION_QUIT);
         setResult(RESULT_CANCELED, askQuit);
-    }
-
-    private void startProgressBar() {
-        showProgressBar();
-        mProgressBar.setProgress(0);
-        mProgressBar.setMax(3);
-
-        int measured_height = listItemHeight();
-        mProgressBar.setTranslationY(measured_height);
-        progressbarDescription.setTranslationY(measured_height + mProgressBar.getHeight());
-    }
-
-    private int listItemHeight() {
-        View listItem = adapter.getView(0, null, providerListView);
-        listItem.setLayoutParams(new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT));
-        WindowManager wm = (WindowManager) getApplicationContext()
-                .getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
-        int screenWidth = display.getWidth(); // deprecated
-
-        int listViewWidth = screenWidth - 10 - 10;
-        int widthSpec = View.MeasureSpec.makeMeasureSpec(listViewWidth,
-                View.MeasureSpec.AT_MOST);
-        listItem.measure(widthSpec, 0);
-
-        return listItem.getMeasuredHeight();
     }
 
     /**
@@ -461,7 +386,8 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
      */
     public void showProviderDetails() {
         // show only if current activity is shown
-        if (isActivityShowing && !mConfigState.getAction().equalsIgnoreCase(SHOWING_PROVIDER_DETAILS)) {
+        if (isActivityShowing && mConfigState.getAction() != null &&
+                !mConfigState.getAction().equalsIgnoreCase(SHOWING_PROVIDER_DETAILS)) {
             mConfigState.setAction(SHOWING_PROVIDER_DETAILS);
             Intent intent = new Intent(this, ProviderDetailActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -504,10 +430,9 @@ public abstract class BaseConfigurationWizard extends ButterKnifeActivity
                 return;
             }
 
-            if (action.equalsIgnoreCase(UPDATE_PROGRESSBAR)) {
-                int update = intent.getIntExtra(ProviderAPI.CURRENT_PROGRESS, 0);
-                mProgressBar.setProgress(update);
-            } else if (action.equalsIgnoreCase(PROVIDER_API_EVENT)) {
+            // TODO check if correct provider given
+            if (action.equalsIgnoreCase(PROVIDER_API_EVENT) && mConfigState.getAction() != null &&
+                    mConfigState.getAction().equalsIgnoreCase(SETTING_UP_PROVIDER)) {
                 int resultCode = intent.getIntExtra(RESULT_CODE, -1);
 
                 switch (resultCode) {

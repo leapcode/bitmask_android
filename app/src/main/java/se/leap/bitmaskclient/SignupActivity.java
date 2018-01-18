@@ -27,9 +27,10 @@ public class SignupActivity extends ProviderCredentialsBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_signup);
 
-        setProviderHeaderText("providerNAME");
         setProviderHeaderLogo(R.drawable.mask);
+        setProviderHeaderText(R.string.create_profile);
 
+        setProgressbarText(R.string.signing_up);
         setButtonText(R.string.signup_button);
 
         providerCredentialsPasswordVerification.addTextChangedListener(new TextWatcher() {

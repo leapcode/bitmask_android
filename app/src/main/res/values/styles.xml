@@ -62,6 +62,9 @@
 
     <style name="BitmaskButton" parent="android:Widget.Button">
         <item name="android:textAllCaps">true</item>
-        <item name="android:color">@color/colorPrimary</item>
+    </style>
+
+    <style name="BitmaskActivity">
+        <item name="android:padding">@dimen/activity_margin</item>
     </style>
 </resources>

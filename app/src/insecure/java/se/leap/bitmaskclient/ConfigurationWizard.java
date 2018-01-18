@@ -77,7 +77,7 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
         preferences.edit().putBoolean(ProviderItem.DANGER_ON, danger_on).apply();
         selectedProvider = provider;
         onItemSelectedLogic();
-        onItemSelectedUi();
+        showProgressBar();
     }
 
     /**
