@@ -80,9 +80,10 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
 
     private ProviderManager providerManager;
     protected Intent mConfigState = new Intent(PROVIDER_NOT_SET);
-    protected Provider selectedProvider;
 
     final public static String TAG = ConfigurationWizard.class.getSimpleName();
+
+    final private static String ACTIVITY_STATE = "ACTIVITY STATE";
 
     final protected static String PROVIDER_NOT_SET = "PROVIDER NOT SET";
     final protected static String SETTING_UP_PROVIDER = "PROVIDER GETS SET";
@@ -90,8 +91,6 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
     final private static String PENDING_SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG";
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
     final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
-
-    final private static String ACTIVITY_STATE = "ACTIVITY STATE";
 
     public ProviderAPIResultReceiver providerAPIResultReceiver;
     private ProviderAPIBroadcastReceiver providerAPIBroadcastReceiver;
@@ -119,7 +118,7 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
         //if (progressbarDescription != null)
         //    outState.putString(PROGRESSBAR_TEXT, progressbarDescription.getText().toString());
         outState.putString(ACTIVITY_STATE, mConfigState.getAction());
-        outState.putParcelable(Provider.KEY, selectedProvider);
+        outState.putParcelable(Provider.KEY, provider);
 
         DialogFragment dialogFragment = (DialogFragment) fragmentManager.findFragmentByTag(DownloadFailedDialog.TAG);
         if (dialogFragment != null) {
@@ -147,7 +146,7 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
 
     private void restoreState(Bundle savedInstanceState) {
 
-        selectedProvider = savedInstanceState.getParcelable(Provider.KEY);
+        provider = savedInstanceState.getParcelable(Provider.KEY);
         mConfigState.setAction(savedInstanceState.getString(ACTIVITY_STATE, PROVIDER_NOT_SET));
 
         reasonToFail = savedInstanceState.getString(REASON_TO_FAIL);
@@ -170,7 +169,7 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
         isActivityShowing = true;
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
             showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(selectedProvider));
+            adapter.hideAllBut(adapter.indexOf(provider));
             checkProviderSetUp();
         } else if (PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             showDownloadFailedDialog();
@@ -212,9 +211,9 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
         try {
             String providerJsonString = preferences.getString(Provider.KEY, "");
             if (!providerJsonString.isEmpty())
-                selectedProvider.define(new JSONObject(providerJsonString));
+                provider.define(new JSONObject(providerJsonString));
             String caCert = preferences.getString(Provider.CA_CERT, "");
-            selectedProvider.setCACert(caCert);
+            provider.setCACert(caCert);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -267,7 +266,7 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
 
         //TODO Code 2 pane view
         mConfigState.setAction(SETTING_UP_PROVIDER);
-        selectedProvider = adapter.getItem(position);
+        provider = adapter.getItem(position);
         showProgressBar();
         onItemSelectedLogic();
     }
@@ -305,7 +304,7 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
 
         providerAPICommand.setAction(ProviderAPI.UPDATE_PROVIDER_DETAILS);
         Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, selectedProvider.getMainUrl().toString());
+        parameters.putString(Provider.MAIN_URL, provider.getMainUrl().toString());
         providerAPICommand.putExtra(ProviderAPI.PARAMETERS, parameters);
 
         startService(providerAPICommand);
@@ -391,6 +390,7 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
             mConfigState.setAction(SHOWING_PROVIDER_DETAILS);
             Intent intent = new Intent(this, ProviderDetailActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            intent.putExtra(PROVIDER_KEY, provider);
             startActivity(intent);
         }
     }
@@ -417,38 +417,42 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
 
     public void cancelAndShowAllProviders() {
         mConfigState.setAction(PROVIDER_NOT_SET);
-        selectedProvider = null;
+        provider = null;
         adapter.showAllProviders();
     }
 
     public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
+            Log.d(TAG, "received Broadcast");
 
-            if (action == null) {
+            String action = intent.getAction();
+            if (action == null || !action.equalsIgnoreCase(PROVIDER_API_EVENT)) {
                 return;
             }
 
-            // TODO check if correct provider given
-            if (action.equalsIgnoreCase(PROVIDER_API_EVENT) && mConfigState.getAction() != null &&
+            if (mConfigState.getAction() != null &&
                     mConfigState.getAction().equalsIgnoreCase(SETTING_UP_PROVIDER)) {
                 int resultCode = intent.getIntExtra(RESULT_CODE, -1);
+                Log.d(TAG, "Broadcast resultCode: " + Integer.toString(resultCode));
 
-                switch (resultCode) {
-                    case PROVIDER_OK:
-                        handleProviderSetUp();
-                        break;
-                    case PROVIDER_NOK:
-                        handleProviderSetupFailed((Bundle) intent.getParcelableExtra(RESULT_KEY));
-                        break;
-                    case CORRECTLY_DOWNLOADED_CERTIFICATE:
-                        handleCorrectlyDownloadedCertificate();
-                        break;
-                    case INCORRECTLY_DOWNLOADED_CERTIFICATE:
-                        handleIncorrectlyDownloadedCertificate();
-                        break;
 
+                if (getProviderName().equalsIgnoreCase(provider.getName()) &&
+                        getProviderDomain().equalsIgnoreCase(provider.getDomain())) {
+                    switch (resultCode) {
+                        case PROVIDER_OK:
+                            handleProviderSetUp();
+                            break;
+                        case PROVIDER_NOK:
+                            handleProviderSetupFailed((Bundle) intent.getParcelableExtra(RESULT_KEY));
+                            break;
+                        case CORRECTLY_DOWNLOADED_CERTIFICATE:
+                            handleCorrectlyDownloadedCertificate();
+                            break;
+                        case INCORRECTLY_DOWNLOADED_CERTIFICATE:
+                            handleIncorrectlyDownloadedCertificate();
+                            break;
+                    }
                 }
             }
         }

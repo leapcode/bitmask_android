@@ -28,7 +28,7 @@
 
     <style name="BitmaskButton" parent="android:Widget.Button">
         <item name="android:textAllCaps">true</item>
-        <item name="android:backgroundTint">@color/colorPrimaryDark</item>
+        <item name="android:backgroundTint">@color/colorPrimary</item>
     </style>
 
 </resources>

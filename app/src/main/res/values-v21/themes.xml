@@ -11,7 +11,7 @@
 
         <!-- button and controls -->
         <item name="android:buttonStyle">@style/BitmaskButton</item>
-        <item name="android:colorButtonNormal">@color/colorPrimaryDark</item>
+        <item name="android:colorButtonNormal">@color/colorPrimary</item>
         <item name="android:colorControlHighlight">@color/colorPrimaryDark</item>
     </style>
 

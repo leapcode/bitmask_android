@@ -40,18 +40,17 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
 
     public void showAndSelectProvider(String provider_main_url) {
         try {
-            selectedProvider = new Provider(new URL((provider_main_url)));
-            adapter.add(selectedProvider);
+            provider = new Provider(new URL((provider_main_url)));
+            adapter.add(provider);
             adapter.saveProviders();
-            autoSelectProvider(selectedProvider);
+            autoSelectProvider(provider);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
     }
 
     private void autoSelectProvider(Provider provider) {
-        selectedProvider = provider;
-        onItemSelectedUi();
+        this.provider = provider;
         onItemSelectedLogic();
     }
 
@@ -63,15 +62,15 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
         mConfigState.setAction(SETTING_UP_PROVIDER);
         Intent providerApiCommand = new Intent(this, ProviderAPI.class);
         Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, selectedProvider.getMainUrl().toString());
-        if (selectedProvider.hasCertificatePin()){
-            parameters.putString(Provider.CA_CERT_FINGERPRINT, selectedProvider.certificatePin());
+        parameters.putString(Provider.MAIN_URL, provider.getMainUrl().toString());
+        if (provider.hasCertificatePin()){
+            parameters.putString(Provider.CA_CERT_FINGERPRINT, provider.certificatePin());
         }
-        if (selectedProvider.hasCaCert()) {
-            parameters.putString(Provider.CA_CERT, selectedProvider.getCaCert());
+        if (provider.hasCaCert()) {
+            parameters.putString(Provider.CA_CERT, provider.getCaCert());
         }
-        if (selectedProvider.hasDefinition()) {
-            parameters.putString(Provider.KEY, selectedProvider.getDefinition().toString());
+        if (provider.hasDefinition()) {
+            parameters.putString(Provider.KEY, provider.getDefinition().toString());
         }
 
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
@@ -87,14 +86,14 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
             addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl());
         } else {
             showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(selectedProvider));
+            adapter.hideAllBut(adapter.indexOf(provider));
 
 
             Intent providerApiCommand = new Intent(this, ProviderAPI.class);
             providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
             providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
             Bundle parameters = new Bundle();
-            parameters.putString(Provider.MAIN_URL, selectedProvider.getMainUrl().toString());
+            parameters.putString(Provider.MAIN_URL, provider.getMainUrl().toString());
             providerApiCommand.putExtra(ProviderAPI.PARAMETERS, parameters);
 
             startService(providerApiCommand);

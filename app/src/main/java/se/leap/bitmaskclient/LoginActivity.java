@@ -16,7 +16,6 @@ public class LoginActivity extends ProviderCredentialsBaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.a_login);
         setProgressbarText(R.string.logging_in);
         setProviderHeaderLogo(R.drawable.mask);
         setProviderHeaderText(R.string.login_to_profile);
@@ -30,6 +29,7 @@ public class LoginActivity extends ProviderCredentialsBaseActivity {
     @Override
     @OnClick(R.id.button)
     void handleButton() {
+        super.handleButton();
         login(getUsername(), getPassword());
     }
 

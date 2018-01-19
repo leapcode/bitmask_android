@@ -158,9 +158,13 @@ public final class Provider implements Parcelable {
                 name = definition.getJSONObject(API_TERM_NAME).getString(lang);
             else throw new JSONException("Provider not defined");
         } catch (JSONException e) {
-            if (mainUrl != null) {
-                String host = mainUrl.getDomain();
-                name = host.substring(0, host.indexOf("."));
+            try {
+                name = definition.getJSONObject(API_TERM_NAME).getString("en");
+            } catch (JSONException e2) {
+                if (mainUrl != null) {
+                    String host = mainUrl.getDomain();
+                    name = host.substring(0, host.indexOf("."));
+                }
             }
         }
 

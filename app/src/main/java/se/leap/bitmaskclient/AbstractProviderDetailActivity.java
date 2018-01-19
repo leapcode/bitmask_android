@@ -35,7 +35,7 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.provider_detail_fragment);
+        setContentView(R.layout.a_provider_detail);
 
         try {
             JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
@@ -73,6 +73,7 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
                         Log.d(TAG, "use anonymously selected");
                         intent = new Intent(getApplicationContext(), MainActivity.class);
                     }
+                    intent.putExtra(PROVIDER_KEY, provider);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     startActivity(intent);
                 }
@@ -80,6 +81,12 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
         } catch (JSONException e) {
             // TODO show error and return
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        provider = intent.getParcelableExtra(PROVIDER_KEY);
     }
 
     private boolean anonAllowed(JSONObject providerJson) {
