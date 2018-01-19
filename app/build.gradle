@@ -79,6 +79,7 @@ dependencies {
   testCompile 'org.json:json:20170516'
   debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
   releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+  betaCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
   compile 'com.jakewharton:butterknife:6.1.0'
   provided 'com.squareup.dagger:dagger-compiler:1.2.2'
   compile 'com.github.pedrovgs:renderers:1.5'
