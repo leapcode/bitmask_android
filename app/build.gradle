@@ -77,6 +77,8 @@ dependencies {
   androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.6.3'
   testCompile 'junit:junit:4.12'
   testCompile 'org.json:json:20170516'
+  debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+  releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
   compile 'com.jakewharton:butterknife:6.1.0'
   provided 'com.squareup.dagger:dagger-compiler:1.2.2'
   compile 'com.github.pedrovgs:renderers:1.5'
@@ -90,6 +92,17 @@ dependencies {
   compile 'com.android.support:appcompat-v7:26.1.0'
   compile 'com.android.support:design:26.1.0'
   compile 'com.android.support:support-fragment:26.1.0'
+}
+
+// Ensure the no-op dependency is always used in JVM tests.
+configurations.all { config ->
+  if (config.name.contains('UnitTest')) {
+    config.resolutionStrategy.eachDependency { details ->
+      if (details.requested.group == 'com.squareup.leakcanary' && details.requested.name == 'leakcanary-android') {
+        details.useTarget(group: details.requested.group, name: 'leakcanary-android-no-op', version: details.requested.version)
+      }
+    }
+  }
 }
 
 def processFileInplace(file, Closure processText) {
