@@ -34,6 +34,7 @@ import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
 
 import static android.content.Context.MODE_PRIVATE;
+import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
@@ -266,6 +267,12 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getRefWatcher(getActivity()).watch(this);
     }
 
     /**
