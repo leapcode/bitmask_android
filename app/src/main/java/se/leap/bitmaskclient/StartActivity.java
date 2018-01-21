@@ -15,7 +15,9 @@ import java.lang.annotation.RetentionPolicy;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.userstatus.User;
 
+import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
+import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 /**
@@ -71,9 +73,8 @@ public class StartActivity extends Activity {
         VpnStatus.initLogCache(getApplicationContext().getCacheDir());
         User.init(getString(R.string.default_username));
 
-        // go to Dashboard
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        prepareEIP();
+
     }
 
     /**
@@ -139,6 +140,33 @@ public class StartActivity extends Activity {
 
     private void storeAppVersion() {
         preferences.edit().putInt(PREFERENCES_APP_VERSION, versionCode).apply();
+    }
+
+    private void prepareEIP() {
+        boolean provider_exists = ConfigHelper.providerInSharedPreferences(preferences);
+        if (provider_exists) {
+            Provider provider = ConfigHelper.getSavedProviderFromSharedPreferences(preferences);
+            if(!provider.isConfigured()) {
+                configureLeapProvider();
+            } else {
+                Log.d(TAG, "vpn provider is configured");
+
+                //buildDashboard(getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false));
+//                user_status_fragment.restoreSessionStatus(savedInstanceState);
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setAction(MainActivity.ACTION_SHOW_VPN_FRAGMENT);
+                startActivity(intent);
+            }
+        } else {
+            configureLeapProvider();
+        }
+    }
+
+    private void configureLeapProvider() {
+        if (getIntent().hasExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+            getIntent().removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
+        }
+        startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
     }
 
 }
