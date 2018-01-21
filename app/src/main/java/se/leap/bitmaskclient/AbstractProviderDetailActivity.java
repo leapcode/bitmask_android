@@ -21,6 +21,7 @@ import butterknife.InjectView;
 
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 
@@ -73,12 +74,13 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
                         intent = new Intent(getApplicationContext(), SignupActivity.class);
                     } else {
                         Log.d(TAG, "use anonymously selected");
-                        intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
+                        setResult(RESULT_OK);
+                        finish();
+                        return;
                     }
                     intent.putExtra(PROVIDER_KEY, provider);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    startActivity(intent);
+                    startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
                 }
             });
         } catch (JSONException e) {
@@ -90,6 +92,16 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         provider = intent.getParcelableExtra(PROVIDER_KEY);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
+            if (resultCode == RESULT_OK) {
+                setResult(resultCode, data);
+                finish();
+            }
+        }
     }
 
     private boolean anonAllowed(JSONObject providerJson) {

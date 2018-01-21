@@ -15,6 +15,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import butterknife.InjectView;
@@ -151,6 +152,8 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     @OnClick(R.id.button)
     void handleButton() {
         mConfigState.setAction(PERFORMING_ACTION);
+        hideKeyboard();
+        showProgressBar();
     }
 
     protected void setButtonText(@StringRes int buttonText) {
@@ -175,8 +178,6 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     }
 
     void login(String username, String password) {
-        showProgressBar();
-
         User.setUserName(username);
 
         Intent providerAPICommand = new Intent(this, ProviderAPI.class);
@@ -187,8 +188,6 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     }
 
     public void signUp(String username, String password) {
-        showProgressBar();
-
         User.setUserName(username);
 
         Intent providerAPICommand = new Intent(this, ProviderAPI.class);
@@ -311,6 +310,13 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         });
     }
 
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(passwordField.getWindowToken(), 0);
+        }
+    }
+
     private void handleReceivedErrors(Bundle arguments) {
         if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
             passwordError.setError(getString(R.string.error_not_valid_password_user_message));
@@ -335,7 +341,15 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         if (!usernameField.getText().toString().isEmpty() && passwordField.isFocusable())
             passwordField.requestFocus();
 
+        mConfigState.setAction(SHOWING_FORM);
         hideProgressBar();
+    }
+
+    private void successfullyFinished() {
+        Intent resultData = new Intent();
+        resultData.putExtra(Provider.KEY, provider);
+        setResult(RESULT_OK, resultData);
+        finish();
     }
 
     public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {
@@ -360,9 +374,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
                     break;
 
                 case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE:
-                    intent = new Intent(ProviderCredentialsBaseActivity.this, MainActivity.class);
-                    intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
-                    startActivity(intent);
+                    successfullyFinished();
                     //activity.eip_fragment.updateEipService();
                     break;
                 case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE:

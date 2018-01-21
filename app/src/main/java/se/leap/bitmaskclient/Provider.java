@@ -16,6 +16,7 @@
  */
 package se.leap.bitmaskclient;
 
+import android.content.SharedPreferences;
 import android.os.*;
 
 import com.google.gson.Gson;
@@ -25,6 +26,8 @@ import org.json.*;
 import java.io.Serializable;
 import java.net.*;
 import java.util.*;
+
+import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 
 /**
  * @author Sean Leonard <meanderingcode@aetherislands.net>
@@ -298,4 +301,9 @@ public final class Provider implements Parcelable {
         this.caCert = cert;
     }
 
+    public void storeInPreferences(SharedPreferences preferences) {
+        preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
+                putString(Provider.MAIN_URL, getMainUrl().toString()).
+                putString(Provider.KEY, getDefinition().toString()).apply();
+    }
 }

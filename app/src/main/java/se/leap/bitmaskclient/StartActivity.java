@@ -17,6 +17,7 @@ import se.leap.bitmaskclient.userstatus.User;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
+import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
@@ -153,9 +154,7 @@ public class StartActivity extends Activity {
 
                 //buildDashboard(getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false));
 //                user_status_fragment.restoreSessionStatus(savedInstanceState);
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.setAction(MainActivity.ACTION_SHOW_VPN_FRAGMENT);
-                startActivity(intent);
+                showMainActivity();
             }
         } else {
             configureLeapProvider();
@@ -167,6 +166,27 @@ public class StartActivity extends Activity {
             getIntent().removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
         }
         startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
+            if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
+                Provider provider = data.getParcelableExtra(Provider.KEY);
+                provider.storeInPreferences(preferences);
+
+                showMainActivity();
+            } else if (resultCode == RESULT_CANCELED) {
+                finish();
+            }
+        }
+    }
+
+    private void showMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(MainActivity.ACTION_SHOW_VPN_FRAGMENT);
+        startActivity(intent);
+        finish();
     }
 
 }

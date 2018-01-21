@@ -49,6 +49,7 @@ import static android.view.View.GONE;
 import static se.leap.bitmaskclient.Constants.APP_ACTION_QUIT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE;
@@ -196,6 +197,16 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
         if (providerAPIBroadcastReceiver != null)
             unregisterReceiver(providerAPIBroadcastReceiver);
         providerAPIResultReceiver = null;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
+            if (resultCode == RESULT_OK) {
+                setResult(resultCode, data);
+                finish();
+            }
+        }
     }
 
     private void setUpProviderAPIResultReceiver() {
@@ -391,7 +402,7 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
             Intent intent = new Intent(this, ProviderDetailActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             intent.putExtra(PROVIDER_KEY, provider);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
         }
     }
 
