@@ -2,8 +2,11 @@ package se.leap.bitmaskclient;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.View;
 
 import butterknife.OnClick;
+
+import static android.view.View.VISIBLE;
 
 /**
  * Create an account with a provider
@@ -20,6 +23,9 @@ public class SignupActivity extends ProviderCredentialsBaseActivity {
 
         setProgressbarText(R.string.signing_up);
         setButtonText(R.string.signup_button);
+
+        passwordVerificationField.setVisibility(VISIBLE);
+        passwordVerificationError.setVisibility(VISIBLE);
     }
 
     @Override
