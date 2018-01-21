@@ -21,6 +21,7 @@ import butterknife.InjectView;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 
 public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity {
 
@@ -83,6 +84,7 @@ public abstract class AbstractProviderDetailActivity extends ButterKnifeActivity
                     } else {
                         Log.d(TAG, "use anonymously selected");
                         intent = new Intent(getApplicationContext(), MainActivity.class);
+                        intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
                     }
                     intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     startActivity(intent);

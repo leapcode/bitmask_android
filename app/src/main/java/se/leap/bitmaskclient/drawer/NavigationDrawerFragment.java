@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -27,15 +26,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import se.leap.bitmaskclient.ConfigHelper;
 import se.leap.bitmaskclient.ConfigurationWizard;
-import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnFragment;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
-import se.leap.bitmaskclient.userstatus.User;
-import se.leap.bitmaskclient.userstatus.UserStatusFragment;
 
+import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
@@ -46,11 +44,6 @@ import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
 public class NavigationDrawerFragment extends Fragment {
-
-    /**
-     * Remember the position of the selected item.
-     */
-    private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
 
     /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
@@ -68,8 +61,8 @@ public class NavigationDrawerFragment extends Fragment {
     private ListView mDrawerSettingsListView;
     private ListView mDrawerAccountsListView;
     private View mFragmentContainerView;
+    private ArrayAdapter<String> accountListAdapter;
 
-    private int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
@@ -86,20 +79,8 @@ public class NavigationDrawerFragment extends Fragment {
 
         // Read in the flag indicating whether or not the user has demonstrated awareness of the
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-
-        preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
-
-        if (savedInstanceState != null) {
-            mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
-            mFromSavedInstanceState = true;
-        }
-
-        // Select either the default item (0) or the last selected item.
-        if (mDrawerSettingsListView != null) {
-            selectItem(mDrawerSettingsListView, mCurrentSelectedPosition);
-        }
+        preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        mUserLearnedDrawer = preferences.getBoolean(PREF_USER_LEARNED_DRAWER, false);
     }
 
     @Override
@@ -143,12 +124,10 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 new String[]{
-                        getString(R.string.vpn_fragment_title),
                         getString(R.string.switch_provider_menu_option),
                         getString(R.string.log_fragment_title),
                         getString(R.string.about_fragment_title),
                 }));
-        mDrawerSettingsListView.setItemChecked(mCurrentSelectedPosition, true);
 
         mDrawerAccountsListView = mDrawerView.findViewById(R.id.accountList);
         mDrawerAccountsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -158,14 +137,21 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
-        mDrawerAccountsListView.setAdapter(new ArrayAdapter<String>(
-                actionBar.getThemedContext(),
+
+
+        accountListAdapter = new ArrayAdapter<>(actionBar.getThemedContext(),
                 android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                new String[]{
-                        User.userName(),
-                }));
-        mDrawerAccountsListView.setItemChecked(mCurrentSelectedPosition, true);
+                android.R.id.text1);
+
+        String providerName = ConfigHelper.getCurrentProviderName(preferences);
+        if (providerName == null) {
+            //TODO: ADD A header to the ListView containing a useful message.
+            //TODO 2: disable switchProvider
+        } else {
+            accountListAdapter.add(providerName);
+        }
+
+        mDrawerAccountsListView.setAdapter(accountListAdapter);
 
         mFragmentContainerView = activity.findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
@@ -205,9 +191,7 @@ public class NavigationDrawerFragment extends Fragment {
                     // The user manually opened the drawer; store this flag to prevent auto-showing
                     // the navigation drawer automatically in the future.
                     mUserLearnedDrawer = true;
-                    SharedPreferences sp = PreferenceManager
-                            .getDefaultSharedPreferences(getActivity());
-                    sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
+                    preferences.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
                 }
 
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
@@ -229,11 +213,9 @@ public class NavigationDrawerFragment extends Fragment {
         });
         mDrawerLayout.addDrawerListener(mDrawerToggle);
 
-        selectItem(mDrawerSettingsListView, 0);
     }
 
     private void selectItem(AdapterView<?> list, int position) {
-        mCurrentSelectedPosition = position;
         if (list != null) {
             ((ListView) list).setItemChecked(position, true);
         }
@@ -256,7 +238,6 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
     }
 
     @Override
@@ -314,31 +295,26 @@ public class NavigationDrawerFragment extends Fragment {
         Fragment fragment = null;
 
         if (parent == mDrawerAccountsListView) {
-            mTitle = User.userName();
-            fragment = new UserStatusFragment();
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(Provider.ALLOW_REGISTRATION, new Provider().allowsRegistration());
-            fragment.setArguments(bundle);
+            mTitle = getString(R.string.vpn_fragment_title);
+            fragment = new VpnFragment();
         } else {
             Log.d("Drawer", String.format("Selected position %d", position));
             switch (position) {
-                case 1:
+                case 0:
                     // TODO STOP VPN
                     // if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
                     preferences.edit().clear().apply();
                     startActivityForResult(new Intent(getActivity(), ConfigurationWizard.class), REQUEST_CODE_SWITCH_PROVIDER);
                     break;
-                case 2:
+                case 1:
                     mTitle = getString(R.string.log_fragment_title);
                     fragment = new LogFragment();
                     break;
-                case 3:
+                case 2:
                     mTitle = getString(R.string.about_fragment_title);
                     fragment = new AboutFragment();
                     break;
                 default:
-                    mTitle = getString(R.string.vpn_fragment_title);
-                    fragment = new VpnFragment();
                     break;
             }
         }

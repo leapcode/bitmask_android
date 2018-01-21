@@ -18,7 +18,6 @@ package se.leap.bitmaskclient;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,8 +41,8 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.InjectView;
-import se.leap.bitmaskclient.fragments.AboutFragment;
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
