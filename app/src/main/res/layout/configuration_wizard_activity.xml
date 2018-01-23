@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ConfigurationWizard"
+    android:padding="@dimen/stdpadding"
     style="@style/BitmaskActivity" >
 
     <include layout="@layout/loading_screen" />

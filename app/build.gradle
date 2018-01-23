@@ -93,6 +93,7 @@ dependencies {
   compile 'com.android.support:appcompat-v7:26.1.0'
   compile 'com.android.support:design:26.1.0'
   compile 'com.android.support:support-fragment:26.1.0'
+  compile 'com.android.support.constraint:constraint-layout:1.0.2'
 }
 
 // Ensure the no-op dependency is always used in JVM tests.
