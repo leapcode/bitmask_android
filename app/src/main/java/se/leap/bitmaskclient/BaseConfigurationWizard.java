@@ -432,15 +432,21 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
                 int resultCode = intent.getIntExtra(RESULT_CODE, -1);
                 Log.d(TAG, "Broadcast resultCode: " + Integer.toString(resultCode));
 
+                Bundle resultData = intent.getParcelableExtra(RESULT_KEY);
+                String handledProvider = resultData.getString(Provider.KEY);
 
-                if (getProviderName().equalsIgnoreCase(provider.getName()) &&
-                        getProviderDomain().equalsIgnoreCase(provider.getDomain())) {
+                String providerName = getProviderName(handledProvider);
+                String providerDomain = getProviderDomain(handledProvider);
+
+                if (providerName != null && providerName.equalsIgnoreCase(provider.getName()) &&
+                        providerDomain != null &&
+                        providerDomain.equalsIgnoreCase(provider.getDomain())) {
                     switch (resultCode) {
                         case PROVIDER_OK:
                             handleProviderSetUp();
                             break;
                         case PROVIDER_NOK:
-                            handleProviderSetupFailed((Bundle) intent.getParcelableExtra(RESULT_KEY));
+                            handleProviderSetupFailed(resultData);
                             break;
                         case CORRECTLY_DOWNLOADED_CERTIFICATE:
                             handleCorrectlyDownloadedCertificate();
