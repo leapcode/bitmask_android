@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
@@ -18,7 +17,6 @@ import org.json.JSONObject;
 import java.util.Locale;
 
 import butterknife.InjectView;
-import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -91,13 +89,20 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     }
 
     protected String getProviderName() {
+        return getProviderName(null);
+    }
+
+    protected String getProviderName(@Nullable String provider) {
+        if (provider == null) {
+            provider = preferences.getString(Provider.KEY, "");
+        }
         try {
-            JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
+            JSONObject providerJson = new JSONObject(provider);
             String lang = Locale.getDefault().getLanguage();
             return providerJson.getJSONObject(Provider.NAME).getString(lang);
         } catch (JSONException e) {
             try {
-                JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
+                JSONObject providerJson = new JSONObject(provider);
                 return providerJson.getJSONObject(Provider.NAME).getString("en");
             } catch (JSONException e2) {
                 return null;
@@ -106,8 +111,15 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     }
 
     protected String getProviderDomain() {
+        return getProviderDomain(null);
+    }
+
+    protected String getProviderDomain(@Nullable String provider) {
+        if (provider == null) {
+            provider = preferences.getString(Provider.KEY, "");
+        }
         try {
-            JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
+            JSONObject providerJson = new JSONObject(provider);
             return providerJson.getString(Provider.DOMAIN);
         } catch (JSONException e) {
             return null;
