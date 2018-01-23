@@ -86,8 +86,6 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
             addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl());
         } else {
             showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(provider));
-
 
             Intent providerApiCommand = new Intent(this, ProviderAPI.class);
             providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);

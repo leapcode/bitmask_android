@@ -17,7 +17,7 @@
     <string name="status_unknown">Status unknown.</string>
     <string name="eip_service_label">Encrypted VPN Internet Access</string>
     <string name="configuration_wizard_title">Select a service provider</string>
-    <string name="new_provider_button">Add new Provider</string>
+    <string name="add_provider">Add new Provider</string>
     <string name="introduce_new_provider">Add a new service provider</string>
     <string name="save">Save</string>
     <string name="new_provider_uri">Domain name</string>
@@ -102,4 +102,5 @@
     <string name="warning_corrupted_provider_details">Stored provider details are corrupted. You can either update Bitmask (recommended) or update the provider details using a commercial CA certificate.</string>
     <string name="warning_corrupted_provider_cert">Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.</string>
     <string name="warning_expired_provider_cert">Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.</string>
+
 </resources>

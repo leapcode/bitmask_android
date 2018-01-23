@@ -306,4 +306,14 @@ public final class Provider implements Parcelable {
                 putString(Provider.MAIN_URL, getMainUrl().toString()).
                 putString(Provider.KEY, getDefinition().toString()).apply();
     }
+
+    public boolean isDefault() {
+        return getMainUrl().isDefault() &&
+                getApiUrl().isDefault() &&
+                certificatePin.isEmpty() &&
+                certificatePinEncoding.isEmpty() &&
+                caCert.isEmpty();
+
+    }
+
 }
