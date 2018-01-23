@@ -18,7 +18,6 @@ package se.leap.bitmaskclient.eip;
 
 import android.app.Activity;
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -30,7 +29,6 @@ import org.json.JSONObject;
 
 import de.blinkt.openvpn.LaunchVPN;
 import se.leap.bitmaskclient.OnBootReceiver;
-import se.leap.bitmaskclient.VpnFragment;
 
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;
@@ -59,12 +57,11 @@ public final class EIP extends IntentService {
     public final static String TAG = EIP.class.getSimpleName();
     public final static String SERVICE_API_PATH = "config/eip-service.json";
 
-    private static Context context;
     private static ResultReceiver mReceiver;
     private static SharedPreferences preferences;
 
     private static JSONObject eipDefinition;
-    private static GatewaysManager gatewaysManager = new GatewaysManager();
+    private GatewaysManager gatewaysManager = new GatewaysManager();
     private static Gateway gateway;
 
     public EIP() {
@@ -74,7 +71,6 @@ public final class EIP extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        context = getApplicationContext();
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         eipDefinition = eipDefinitionFromPreferences();
         if (gatewaysManager.isEmpty())
@@ -86,18 +82,30 @@ public final class EIP extends IntentService {
         String action = intent.getAction();
         mReceiver = intent.getParcelableExtra(EIP_RECEIVER);
 
-        if (action.equals(EIP_ACTION_START))
-            startEIP();
-        else if (action.equals(EIP_ACTION_START_ALWAYS_ON_EIP))
-            startAlwaysOnEIP();
-        else if (action.equals(EIP_ACTION_STOP))
-            stopEIP();
-        else if (action.equals(EIP_ACTION_IS_RUNNING))
-            isRunning();
-        else if (action.equals(EIP_ACTION_UPDATE))
-            updateEIPService();
-        else if (action.equals(EIP_ACTION_CHECK_CERT_VALIDITY))
-            checkCertValidity();
+        if (action == null) {
+            return;
+        }
+
+        switch (action) {
+            case EIP_ACTION_START:
+                startEIP();
+                break;
+            case EIP_ACTION_START_ALWAYS_ON_EIP:
+                startAlwaysOnEIP();
+                break;
+            case EIP_ACTION_STOP:
+                stopEIP();
+                break;
+            case EIP_ACTION_IS_RUNNING:
+                isRunning();
+                break;
+            case EIP_ACTION_UPDATE:
+                updateEIPService();
+                break;
+            case EIP_ACTION_CHECK_CERT_VALIDITY:
+                checkCertValidity();
+                break;
+        }
     }
 
     /**
@@ -114,7 +122,8 @@ public final class EIP extends IntentService {
 
         gateway = gatewaysManager.select();
         if (gateway != null && gateway.getProfile() != null) {
-            mReceiver = VpnFragment.getReceiver();
+            // TODO  why is this needed?
+            // mReceiver = EipFragment.getReceiver();
             launchActiveGateway();
             tellToReceiver(EIP_ACTION_START, Activity.RESULT_OK);
         } else
@@ -134,7 +143,7 @@ public final class EIP extends IntentService {
         gateway = gatewaysManager.select();
 
         if (gateway != null && gateway.getProfile() != null) {
-            //mReceiver = VpnFragment.getReceiver();
+            //mReceiver = EipFragment.getReceiver();
             Log.d(TAG, "startAlwaysOnEIP eip launch avtive gateway vpn");
             launchActiveGateway();
         } else {
@@ -147,7 +156,7 @@ public final class EIP extends IntentService {
      * VpnService is started properly.
      */
     private void earlyRoutes() {
-        Intent voidVpnLauncher = new Intent(context, VoidVpnLauncher.class);
+        Intent voidVpnLauncher = new Intent(getApplicationContext(), VoidVpnLauncher.class);
         voidVpnLauncher.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(voidVpnLauncher);
     }
@@ -216,14 +225,14 @@ public final class EIP extends IntentService {
 
     private void gatewaysFromPreferences() {
         String gatewaysString = preferences.getString(Gateway.TAG, "");
-        gatewaysManager = new GatewaysManager(context, preferences);
+        gatewaysManager = new GatewaysManager(getApplicationContext(), preferences);
         gatewaysManager.addFromString(gatewaysString);
         preferences.edit().remove(Gateway.TAG).apply();
     }
 
     private void gatewaysToPreferences() {
         String gateways_string = gatewaysManager.toString();
-        preferences.edit().putString(Gateway.TAG, gateways_string).commit();
+        preferences.edit().putString(Gateway.TAG, gateways_string).apply();
     }
 
     private void checkCertValidity() {

@@ -6,6 +6,8 @@
     <color name="colorError">#ef9a9a</color>
     <color name="colorSuccess">#a5d6a7</color>
 
+    <color name="black800">#424242</color>
+
     <color name="red200">#ef9a9a</color>
     <color name="pink200">#f48fb1</color>
     <color name="purple200">#ce93d8</color>
@@ -22,5 +24,7 @@
     <color name="amber200">#ffe082</color>
     <color name="orange200">#ffcc80</color>
     <color name="deepOrange200">#ffab91</color>
+
+    <color name="white">#ffffff</color>
 
 </resources>
