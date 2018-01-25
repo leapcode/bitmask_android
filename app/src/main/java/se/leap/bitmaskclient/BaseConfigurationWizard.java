@@ -208,7 +208,6 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
     private void setUpProviderAPIResultReceiver() {
         providerAPIResultReceiver = new ProviderAPIResultReceiver(new Handler(), this);
         providerAPIBroadcastReceiver = new ProviderAPIBroadcastReceiver();
-
         IntentFilter updateIntentFilter = new IntentFilter(PROVIDER_API_EVENT);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
@@ -434,19 +433,13 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
 
                 Bundle resultData = intent.getParcelableExtra(RESULT_KEY);
                 String handledProvider = resultData.getString(Provider.KEY);
-
-                String providerName = getProviderName(handledProvider);
                 String providerDomain = getProviderDomain(handledProvider);
 
-                if (providerName != null && providerName.equalsIgnoreCase(provider.getName()) &&
-                        providerDomain != null &&
+                if (providerDomain != null &&
                         providerDomain.equalsIgnoreCase(provider.getDomain())) {
                     switch (resultCode) {
                         case PROVIDER_OK:
                             handleProviderSetUp();
-                            break;
-                        case PROVIDER_NOK:
-                            handleProviderSetupFailed(resultData);
                             break;
                         case CORRECTLY_DOWNLOADED_CERTIFICATE:
                             handleCorrectlyDownloadedCertificate();
@@ -455,6 +448,11 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
                             handleIncorrectlyDownloadedCertificate();
                             break;
                     }
+                }
+
+                // providerDomain can be null
+                if (resultCode == PROVIDER_NOK) {
+                    handleProviderSetupFailed(resultData);
                 }
             }
         }

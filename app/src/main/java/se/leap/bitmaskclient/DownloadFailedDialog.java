@@ -16,12 +16,12 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.support.v4.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 
 import org.json.JSONObject;
 
@@ -134,12 +134,12 @@ public class DownloadFailedDialog extends DialogFragment {
     DownloadFailedDialogInterface interface_with_ConfigurationWizard;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            interface_with_ConfigurationWizard = (DownloadFailedDialogInterface) activity;
+            interface_with_ConfigurationWizard = (DownloadFailedDialogInterface) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement NoticeDialogListener");
         }
     }
