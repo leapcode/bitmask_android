@@ -24,8 +24,6 @@ import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.SessionDialog.ERRORS;
 import se.leap.bitmaskclient.userstatus.User;
 
-import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
-
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
