@@ -75,7 +75,7 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
 
     private void autoSelectProvider(Provider provider, boolean danger_on) {
         preferences.edit().putBoolean(ProviderItem.DANGER_ON, danger_on).apply();
-        provider = provider;
+        this.provider = provider;
         onItemSelectedLogic();
         showProgressBar();
     }
@@ -117,7 +117,6 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
             addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl(), ProviderAPI.lastDangerOn());
         } else {
             showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(provider));
 
             Intent providerAPICommand = new Intent(this, ProviderAPI.class);
 
