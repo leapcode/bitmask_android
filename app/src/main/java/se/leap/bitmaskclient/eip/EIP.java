@@ -122,8 +122,6 @@ public final class EIP extends IntentService {
 
         gateway = gatewaysManager.select();
         if (gateway != null && gateway.getProfile() != null) {
-            // TODO  why is this needed?
-            // mReceiver = EipFragment.getReceiver();
             launchActiveGateway();
             tellToReceiver(EIP_ACTION_START, Activity.RESULT_OK);
         } else
@@ -143,7 +141,6 @@ public final class EIP extends IntentService {
         gateway = gatewaysManager.select();
 
         if (gateway != null && gateway.getProfile() != null) {
-            //mReceiver = EipFragment.getReceiver();
             Log.d(TAG, "startAlwaysOnEIP eip launch avtive gateway vpn");
             launchActiveGateway();
         } else {
@@ -225,14 +222,14 @@ public final class EIP extends IntentService {
 
     private void gatewaysFromPreferences() {
         String gatewaysString = preferences.getString(Gateway.TAG, "");
-        gatewaysManager = new GatewaysManager(getApplicationContext(), preferences);
+        gatewaysManager = new GatewaysManager(this, preferences);
         gatewaysManager.addFromString(gatewaysString);
         preferences.edit().remove(Gateway.TAG).apply();
     }
 
     private void gatewaysToPreferences() {
         String gateways_string = gatewaysManager.toString();
-        preferences.edit().putString(Gateway.TAG, gateways_string).apply();
+        preferences.edit().putString(Gateway.TAG, gateways_string).commit();
     }
 
     private void checkCertValidity() {
