@@ -170,10 +170,14 @@ public class StartActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {
+            return;
+        }
+
         if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
             if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
-                provider.storeInPreferences(preferences);
+                ConfigHelper.storeProviderInPreferences(preferences, provider);
 
                 showMainActivity();
             } else if (resultCode == RESULT_CANCELED) {

@@ -143,7 +143,7 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1);
 
-        String providerName = ConfigHelper.getCurrentProviderName(preferences);
+        String providerName = ConfigHelper.getProviderName(preferences);
         if (providerName == null) {
             //TODO: ADD A header to the ListView containing a useful message.
             //TODO 2: disable switchProvider

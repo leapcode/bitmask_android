@@ -52,6 +52,7 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
     private void autoSelectProvider(Provider provider) {
         this.provider = provider;
         onItemSelectedLogic();
+        showProgressBar();
     }
 
     /**

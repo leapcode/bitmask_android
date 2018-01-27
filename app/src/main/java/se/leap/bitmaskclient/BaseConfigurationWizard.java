@@ -448,8 +448,8 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
                 Bundle resultData = intent.getParcelableExtra(RESULT_KEY);
                 String handledProvider = resultData.getString(Provider.KEY);
 
-                String providerName = getProviderName(handledProvider);
-                String providerDomain = getProviderDomain(handledProvider);
+                String providerName = ConfigHelper.getProviderName(handledProvider);
+                String providerDomain = ConfigHelper.getProviderDomain(handledProvider);
 
                 if (providerName != null && providerName.equalsIgnoreCase(provider.getName()) &&
                         providerDomain != null &&

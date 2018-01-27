@@ -40,8 +40,8 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
 
         try {
             JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
-            setProviderHeaderText(getProviderName());
-            description.setText(providerJson.getJSONObject(Provider.DESCRIPTION).getString("en"));
+            setProviderHeaderText(ConfigHelper.getProviderName(preferences));
+            description.setText(ConfigHelper.getDescription(preferences));
 
             // Show only the options allowed by the provider
             ArrayList<String> optionsList = new ArrayList<>();
