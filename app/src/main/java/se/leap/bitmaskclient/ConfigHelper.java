@@ -285,12 +285,12 @@ public class ConfigHelper {
         return getProviderName(null, provider);
     }
 
-    public static String getProviderName(SharedPreferences preferences) {
+    public static String getProviderName(@Nullable SharedPreferences preferences) {
         return getProviderName(preferences,null);
     }
 
-    public static String getProviderName(SharedPreferences preferences, @Nullable String provider) {
-        if (provider == null) {
+    public static String getProviderName(@Nullable SharedPreferences preferences, @Nullable String provider) {
+        if (provider == null && preferences != null) {
             provider = preferences.getString(Provider.KEY, "");
         }
         try {
@@ -315,8 +315,8 @@ public class ConfigHelper {
         return getProviderDomain(null, provider);
     }
 
-    public static String getProviderDomain(SharedPreferences preferences, @Nullable String provider) {
-        if (provider == null) {
+    public static String getProviderDomain(@Nullable SharedPreferences preferences, @Nullable String provider) {
+        if (provider == null && preferences != null) {
             provider = preferences.getString(Provider.KEY, "");
         }
         try {

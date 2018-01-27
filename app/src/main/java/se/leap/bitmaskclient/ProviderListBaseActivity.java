@@ -62,7 +62,7 @@ import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
 
 /**
  * abstract base Activity that builds and shows the list of known available providers.
- * The implementation of BaseConfigurationWizard differ in that they may or may not allow to bypass
+ * The implementation of ProviderListBaseActivity differ in that they may or may not allow to bypass
  * secure download mechanisms including certificate validation.
  * <p/>
  * It also allows the user to enter custom providers with a button.
@@ -71,7 +71,7 @@ import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
  * @author cyberta
  */
 
-public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
+public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         implements NewProviderDialog.NewProviderDialogInterface, DownloadFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
 
     @InjectView(R.id.provider_list)
@@ -82,7 +82,7 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
     private ProviderManager providerManager;
     protected Intent mConfigState = new Intent(PROVIDER_NOT_SET);
 
-    final public static String TAG = ConfigurationWizard.class.getSimpleName();
+    final public static String TAG = ProviderListActivity.class.getSimpleName();
 
     final private static String ACTIVITY_STATE = "ACTIVITY STATE";
 
@@ -461,6 +461,9 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
                         case PROVIDER_NOK:
                             handleProviderSetupFailed(resultData);
                             break;
+                    }
+                } else {
+                    switch (resultCode) {
                         case CORRECTLY_DOWNLOADED_CERTIFICATE:
                             handleCorrectlyDownloadedCertificate();
                             break;

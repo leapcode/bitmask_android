@@ -27,7 +27,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import se.leap.bitmaskclient.ConfigHelper;
-import se.leap.bitmaskclient.ConfigurationWizard;
+import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnFragment;
 import se.leap.bitmaskclient.fragments.AboutFragment;
@@ -304,7 +304,7 @@ public class NavigationDrawerFragment extends Fragment {
                     // TODO STOP VPN
                     // if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
                     preferences.edit().clear().apply();
-                    startActivityForResult(new Intent(getActivity(), ConfigurationWizard.class), REQUEST_CODE_SWITCH_PROVIDER);
+                    startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
                     break;
                 case 1:
                     mTitle = getString(R.string.log_fragment_title);

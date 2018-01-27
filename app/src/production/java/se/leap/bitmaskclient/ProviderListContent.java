@@ -20,7 +20,7 @@ import java.util.*;
 import java.net.*;
 
 /**
- * Models the provider list shown in the ConfigurationWizard.
+ * Models the provider list shown in the ProviderListActivity.
  *
  * @author parmegv
  */

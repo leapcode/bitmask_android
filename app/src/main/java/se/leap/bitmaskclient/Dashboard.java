@@ -232,7 +232,7 @@ public class Dashboard extends ButterKnifeActivity {
     private void handleConfigureAlwaysOn(Intent intent) {
             intent.removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
             Log.d(TAG, "start Configuration wizard!");
-            startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
+            startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
     }
 
     private void prepareEIP(Bundle savedInstanceState) {
@@ -255,7 +255,7 @@ public class Dashboard extends ButterKnifeActivity {
         if (getIntent().hasExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
             getIntent().removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
         }
-        startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
+        startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
     }
     @SuppressLint("CommitPrefEdits")
     private void providerToPreferences(Provider provider) {
@@ -273,7 +273,7 @@ public class Dashboard extends ButterKnifeActivity {
                 .setPositiveButton(getResources().getString(R.string.setup_error_configure_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivityForResult(new Intent(Dashboard.this, ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
+                        startActivityForResult(new Intent(Dashboard.this, ProviderListActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
                     }
                 })
                 .setNegativeButton(getResources().getString(R.string.setup_error_close_button), new DialogInterface.OnClickListener() {
@@ -416,7 +416,7 @@ public class Dashboard extends ButterKnifeActivity {
         clearDataOfLastProvider();
 
         switching_provider = false;
-        startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_SWITCH_PROVIDER);
+        startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
     }
 
     private void clearDataOfLastProvider() {
@@ -441,7 +441,7 @@ public class Dashboard extends ButterKnifeActivity {
         preferenceEditor.apply();
 
         switching_provider = false;
-        startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_SWITCH_PROVIDER);
+        startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
     }
 
     private static class DashboardReceiver implements ProviderAPIResultReceiver.Receiver{

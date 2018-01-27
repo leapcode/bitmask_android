@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013 LEAP Encryption Access Project and contributors
+ * Copyright (c) 2013 LEAP Encryption Access Project and contributers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,9 @@ package se.leap.bitmaskclient;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentTransaction;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -34,47 +30,26 @@ import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
  * @author parmegv
  * @author cyberta
  */
-public class ConfigurationWizard extends BaseConfigurationWizard {
+public class ProviderListActivity extends ProviderListBaseActivity {
+
 
     @Override
     protected void onItemSelectedLogic() {
-        boolean danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, true);
-        setUpProvider(danger_on);
+        setUpProvider();
     }
 
-    @Override
-    public void cancelSettingUpProvider() {
-        super.cancelSettingUpProvider();
-        preferences.edit().remove(ProviderItem.DANGER_ON).apply();
-    }
-
-    /**
-     * Open the new provider dialog with data
-     */
-    public void addAndSelectNewProvider(String main_url, boolean danger_on) {
-        FragmentTransaction fragment_transaction = fragmentManager.removePreviousFragment(NewProviderDialog.TAG);
-
-        DialogFragment newFragment = new NewProviderDialog();
-        Bundle data = new Bundle();
-        data.putString(Provider.MAIN_URL, main_url);
-        data.putBoolean(ProviderItem.DANGER_ON, danger_on);
-        newFragment.setArguments(data);
-        newFragment.show(fragment_transaction, NewProviderDialog.TAG);
-    }
-
-    public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
+    public void showAndSelectProvider(String provider_main_url) {
         try {
             provider = new Provider(new URL((provider_main_url)));
             adapter.add(provider);
             adapter.saveProviders();
-            autoSelectProvider(provider, danger_on);
+            autoSelectProvider(provider);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
     }
 
-    private void autoSelectProvider(Provider provider, boolean danger_on) {
-        preferences.edit().putBoolean(ProviderItem.DANGER_ON, danger_on).apply();
+    private void autoSelectProvider(Provider provider) {
         this.provider = provider;
         onItemSelectedLogic();
         showProgressBar();
@@ -83,14 +58,12 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
     /**
      * Asks ProviderAPI to download a new provider.json file
      *
-     * @param danger_on tells if HTTPS client should bypass certificate errors
      */
-    public void setUpProvider(boolean danger_on) {
+    public void setUpProvider() {
         mConfigState.setAction(SETTING_UP_PROVIDER);
-        Intent providerAPICommand = new Intent(this, ProviderAPI.class);
+        Intent providerApiCommand = new Intent(this, ProviderAPI.class);
         Bundle parameters = new Bundle();
         parameters.putString(Provider.MAIN_URL, provider.getMainUrl().toString());
-        parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
         if (provider.hasCertificatePin()){
             parameters.putString(Provider.CA_CERT_FINGERPRINT, provider.certificatePin());
         }
@@ -101,32 +74,30 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
             parameters.putString(Provider.KEY, provider.getDefinition().toString());
         }
 
-        providerAPICommand.setAction(ProviderAPI.SET_UP_PROVIDER);
-        providerAPICommand.putExtra(ProviderAPI.PARAMETERS, parameters);
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.PARAMETERS, parameters);
 
-        startService(providerAPICommand);
+        startService(providerApiCommand);
     }
 
-    /**
-     * Retrys setup of last used provider, allows bypassing ca certificate validation.
-     */
     @Override
     public void retrySetUpProvider() {
         cancelSettingUpProvider();
         if (!ProviderAPI.caCertDownloaded()) {
-            addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl(), ProviderAPI.lastDangerOn());
+            addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl());
         } else {
             showProgressBar();
             adapter.hideAllBut(adapter.indexOf(provider));
 
-            Intent providerAPICommand = new Intent(this, ProviderAPI.class);
 
-            providerAPICommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+            Intent providerApiCommand = new Intent(this, ProviderAPI.class);
+            providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+            providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
             Bundle parameters = new Bundle();
             parameters.putString(Provider.MAIN_URL, provider.getMainUrl().toString());
-            providerAPICommand.putExtra(ProviderAPI.PARAMETERS, parameters);
+            providerApiCommand.putExtra(ProviderAPI.PARAMETERS, parameters);
 
-            startService(providerAPICommand);
+            startService(providerApiCommand);
         }
     }
 

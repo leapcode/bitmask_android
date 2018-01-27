@@ -93,7 +93,7 @@
             android:label="@string/title_activity_main" />
 
         <activity
-            android:name=".ConfigurationWizard"
+            android:name=".ProviderListActivity"
             android:label="@string/configuration_wizard_title" />
 
         <activity
