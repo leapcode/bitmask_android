@@ -30,7 +30,7 @@ import java.net.URL;
  * @author parmegv
  * @author cyberta
  */
-public class ConfigurationWizard extends BaseConfigurationWizard {
+public class ProviderListActivity extends ProviderListBaseActivity {
 
 
     @Override
@@ -52,6 +52,7 @@ public class ConfigurationWizard extends BaseConfigurationWizard {
     private void autoSelectProvider(Provider provider) {
         this.provider = provider;
         onItemSelectedLogic();
+        showProgressBar();
     }
 
     /**

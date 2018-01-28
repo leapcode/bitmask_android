@@ -34,7 +34,7 @@ import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
  * @author parmegv
  * @author cyberta
  */
-public class ConfigurationWizard extends BaseConfigurationWizard {
+public class ProviderListActivity extends ProviderListBaseActivity {
 
     @Override
     protected void onItemSelectedLogic() {

@@ -121,8 +121,16 @@ public final class Provider implements Parcelable {
         return definition;
     }
 
+    String getDefinitionString() {
+        return getDefinition().toString();
+    }
+
     protected String getDomain() {
         return mainUrl.getDomain();
+    }
+
+    String getMainUrlString() {
+        return getMainUrl().toString();
     }
 
     protected DefaultedURL getMainUrl() {
@@ -301,19 +309,12 @@ public final class Provider implements Parcelable {
         this.caCert = cert;
     }
 
-    public void storeInPreferences(SharedPreferences preferences) {
-        preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
-                putString(Provider.MAIN_URL, getMainUrl().toString()).
-                putString(Provider.KEY, getDefinition().toString()).apply();
-    }
-
     public boolean isDefault() {
         return getMainUrl().isDefault() &&
                 getApiUrl().isDefault() &&
                 certificatePin.isEmpty() &&
                 certificatePinEncoding.isEmpty() &&
                 caCert.isEmpty();
-
     }
 
 }

@@ -22,11 +22,6 @@ public class LoginActivity extends ProviderCredentialsBaseActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
     @OnClick(R.id.button)
     void handleButton() {
         super.handleButton();

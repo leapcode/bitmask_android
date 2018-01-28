@@ -17,7 +17,6 @@ import se.leap.bitmaskclient.userstatus.User;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
-import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
@@ -56,7 +55,7 @@ public class StartActivity extends Activity {
             case FIRST:
                 storeAppVersion();
                 // TODO start ProfileCreation & replace below code
-                // (new Intent(getActivity(), ConfigurationWizard.class), Constants.REQUEST_CODE_SWITCH_PROVIDER);
+                // (new Intent(getActivity(), ProviderListActivity.class), Constants.REQUEST_CODE_SWITCH_PROVIDER);
                 break;
 
             case UPGRADE:
@@ -165,15 +164,19 @@ public class StartActivity extends Activity {
         if (getIntent().hasExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
             getIntent().removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
         }
-        startActivityForResult(new Intent(this, ConfigurationWizard.class), REQUEST_CODE_CONFIGURE_LEAP);
+        startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {
+            return;
+        }
+
         if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
             if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
-                provider.storeInPreferences(preferences);
+                ConfigHelper.storeProviderInPreferences(preferences, provider);
 
                 showMainActivity();
             } else if (resultCode == RESULT_CANCELED) {

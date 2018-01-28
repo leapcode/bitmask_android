@@ -7,7 +7,7 @@ import android.view.View;
 
 import com.robotium.solo.Solo;
 
-import se.leap.bitmaskclient.ConfigurationWizard;
+import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
 
@@ -43,7 +43,7 @@ public abstract class BaseTestDashboardFragment extends ActivityInstrumentationT
 
     void tapSwitchProvider() {
         solo.clickOnMenuItem(solo.getString(R.string.switch_provider_menu_option));
-        solo.waitForActivity(ConfigurationWizard.class);
+        solo.waitForActivity(ProviderListActivity.class);
     }
 
     private void useRegistered() {

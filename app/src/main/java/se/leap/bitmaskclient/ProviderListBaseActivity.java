@@ -61,7 +61,7 @@ import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
 
 /**
  * abstract base Activity that builds and shows the list of known available providers.
- * The implementation of BaseConfigurationWizard differ in that they may or may not allow to bypass
+ * The implementation of ProviderListBaseActivity differ in that they may or may not allow to bypass
  * secure download mechanisms including certificate validation.
  * <p/>
  * It also allows the user to enter custom providers with a button.
@@ -70,7 +70,7 @@ import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
  * @author cyberta
  */
 
-public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
+public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         implements NewProviderDialog.NewProviderDialogInterface, DownloadFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
 
     @InjectView(R.id.provider_list)
@@ -81,7 +81,7 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
     private ProviderManager providerManager;
     protected Intent mConfigState = new Intent(PROVIDER_NOT_SET);
 
-    final public static String TAG = ConfigurationWizard.class.getSimpleName();
+    final public static String TAG = ProviderListActivity.class.getSimpleName();
 
     final private static String ACTIVITY_STATE = "ACTIVITY STATE";
 
@@ -433,26 +433,40 @@ public abstract class BaseConfigurationWizard extends ConfigWizardBaseActivity
 
                 Bundle resultData = intent.getParcelableExtra(RESULT_KEY);
                 String handledProvider = resultData.getString(Provider.KEY);
-                String providerDomain = getProviderDomain(handledProvider);
 
-                if (providerDomain != null &&
-                        providerDomain.equalsIgnoreCase(provider.getDomain())) {
-                    switch (resultCode) {
-                        case PROVIDER_OK:
-                            handleProviderSetUp();
-                            break;
-                        case CORRECTLY_DOWNLOADED_CERTIFICATE:
-                            handleCorrectlyDownloadedCertificate();
-                            break;
-                        case INCORRECTLY_DOWNLOADED_CERTIFICATE:
-                            handleIncorrectlyDownloadedCertificate();
-                            break;
-                    }
+                String providerName = ConfigHelper.getProviderName(handledProvider);
+                String providerDomain = ConfigHelper.getProviderDomain(handledProvider);
+
+                //FIXME: remove that lines as soon as Provider gets sent via broadcast
+                // and make sure providers are the same - remove providersMatch
+                if (resultCode == PROVIDER_OK && handledProvider == null) {
+                    providerName = ConfigHelper.getProviderName(preferences);
+                    providerDomain = ConfigHelper.getProviderDomain(preferences);
+                }
+                boolean providersMatch = true;
+                if (providerDomain != null) {
+                    providersMatch = providerDomain.equalsIgnoreCase(provider.getDomain());
+                }
+                if (providerName != null && !providersMatch) {
+                    providersMatch = providerName.equalsIgnoreCase(provider.getName());
                 }
 
-                // providerDomain can be null
-                if (resultCode == PROVIDER_NOK) {
-                    handleProviderSetupFailed(resultData);
+
+                switch (resultCode) {
+                    case PROVIDER_OK:
+                        if (providersMatch)
+                            handleProviderSetUp();
+                        break;
+                    case PROVIDER_NOK:
+                        if(providersMatch)
+                            handleProviderSetupFailed(resultData);
+                        break;
+                    case CORRECTLY_DOWNLOADED_CERTIFICATE:
+                        handleCorrectlyDownloadedCertificate();
+                        break;
+                    case INCORRECTLY_DOWNLOADED_CERTIFICATE:
+                        handleIncorrectlyDownloadedCertificate();
+                        break;
                 }
             }
         }

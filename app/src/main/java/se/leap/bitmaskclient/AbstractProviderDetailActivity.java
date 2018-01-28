@@ -22,8 +22,6 @@ import butterknife.InjectView;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
-import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 
 public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseActivity {
 
@@ -42,8 +40,8 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
 
         try {
             JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
-            setProviderHeaderText(getProviderName());
-            description.setText(providerJson.getJSONObject(Provider.DESCRIPTION).getString("en"));
+            setProviderHeaderText(ConfigHelper.getProviderName(preferences));
+            description.setText(ConfigHelper.getDescription(preferences));
 
             // Show only the options allowed by the provider
             ArrayList<String> optionsList = new ArrayList<>();
@@ -74,7 +72,9 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
                         intent = new Intent(getApplicationContext(), SignupActivity.class);
                     } else {
                         Log.d(TAG, "use anonymously selected");
-                        setResult(RESULT_OK);
+                        intent = new Intent();
+                        intent.putExtra(Provider.KEY, provider);
+                        setResult(RESULT_OK, intent);
                         finish();
                         return;
                     }

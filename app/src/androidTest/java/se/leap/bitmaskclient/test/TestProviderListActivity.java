@@ -7,15 +7,15 @@ import com.robotium.solo.Solo;
 
 import java.io.IOException;
 
-import se.leap.bitmaskclient.ConfigurationWizard;
+import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.R;
 
-public class TestConfigurationWizard extends ActivityInstrumentationTestCase2<ConfigurationWizard> {
+public class TestProviderListActivity extends ActivityInstrumentationTestCase2<ProviderListActivity> {
 
     private Solo solo;
 
-    public TestConfigurationWizard() {
-        super(ConfigurationWizard.class);
+    public TestProviderListActivity() {
+        super(ProviderListActivity.class);
     }
 
 
