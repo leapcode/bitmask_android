@@ -1,6 +1,6 @@
 package se.leap.bitmaskclient.test;
 
-public class TestVpnFragment extends BaseTestDashboardFragment {
+public class TestEipFragment extends BaseTestDashboardFragment {
 
     /**
      * This test will fail if Android does not trust VPN connection.

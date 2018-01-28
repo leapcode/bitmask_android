@@ -24,17 +24,21 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -46,11 +50,12 @@ import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
-import mbanje.kurt.fabbutton.FabButton;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VoidVpnService;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
@@ -66,23 +71,35 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
-public class VpnFragment extends Fragment implements Observer {
+public class EipFragment extends Fragment implements Observer {
 
-    public static String TAG = VpnFragment.class.getSimpleName();
+    public static String TAG = EipFragment.class.getSimpleName();
 
-    public static final String IS_PENDING = TAG + ".is_pending";
     protected static final String IS_CONNECTED = TAG + ".is_connected";
     public static final String START_EIP_ON_BOOT = "start on boot";
 
     private SharedPreferences preferences;
 
-    @InjectView(R.id.vpn_status_image)
-    FabButton vpnStatusImage;
+    @InjectView(R.id.background)
+    AppCompatImageView background;
+
+    @InjectView(R.id.key)
+    AppCompatImageView key;
+
+    @InjectView(R.id.cirle)
+    AppCompatImageView circle;
+
     @InjectView(R.id.vpn_main_button)
     Button mainButton;
 
-    private static EIPReceiver eipReceiver;
-    private static EipStatus eipStatus;
+    @InjectView(R.id.routed_text)
+    TextView routedText;
+
+    @InjectView(R.id.vpn_route)
+    TextView vpnRoute;
+
+    private EIPReceiver eipReceiver;
+    private EipStatus eipStatus;
     private boolean wantsToConnect;
 
     private IOpenVPNServiceInternal mService;
@@ -156,6 +173,20 @@ public class VpnFragment extends Fragment implements Observer {
     }
 
     @OnClick(R.id.vpn_main_button)
+    void onButtonClick() {
+        handleIcon();
+    }
+
+    @OnClick(R.id.key)
+    void onKeyClick() {
+        handleIcon();
+    }
+
+    @OnClick(R.id.cirle)
+    void onCircleClick() {
+        handleIcon();
+    }
+
     void handleIcon() {
         if (eipStatus.isConnected() || eipStatus.isConnecting())
             handleSwitchOff();
@@ -194,8 +225,6 @@ public class VpnFragment extends Fragment implements Observer {
             askPendingStartCancellation();
         } else if (eipStatus.isConnected()) {
             askToStopEIP();
-        } else {
-            updateIcon();
         }
     }
 
@@ -313,44 +342,32 @@ public class VpnFragment extends Fragment implements Observer {
                     }
                 });
             } else {
-                Log.e("VpnFragment", "activity is null");
+                Log.e("EipFragment", "activity is null");
             }
         }
     }
 
     private void handleNewState() {
-        updateIcon();
-        updateButton();
-    }
-
-    private void updateIcon() {
-        if (eipStatus.isBlocking()) {
-            vpnStatusImage.showProgress(false);
-            vpnStatusImage.setIcon(R.drawable.ic_stat_vpn_blocking, R.drawable.ic_stat_vpn_blocking);
-            vpnStatusImage.setTag(R.drawable.ic_stat_vpn_blocking);
-        } else if (eipStatus.isConnecting()) {
-            vpnStatusImage.showProgress(true);
-            vpnStatusImage.setIcon(R.drawable.ic_stat_vpn_empty_halo, R.drawable.ic_stat_vpn_empty_halo);
-            vpnStatusImage.setTag(R.drawable.ic_stat_vpn_empty_halo);
-        } else  if (eipStatus.isConnected()){
-            vpnStatusImage.showProgress(false);
-            vpnStatusImage.setIcon(R.drawable.ic_stat_vpn, R.drawable.ic_stat_vpn);
-            vpnStatusImage.setTag(R.drawable.ic_stat_vpn);
-        } else {
-            vpnStatusImage.setIcon(R.drawable.ic_stat_vpn_offline, R.drawable.ic_stat_vpn_offline);
-            vpnStatusImage.setTag(R.drawable.ic_stat_vpn_offline);
-            vpnStatusImage.showProgress(false);
-        }
-    }
-
-    private void updateButton() {
         Activity activity = getActivity();
         if (eipStatus.isConnecting()) {
             mainButton.setText(activity.getString(android.R.string.cancel));
+            key.setImageResource(R.drawable.vpn_connecting);
+            routedText.setVisibility(GONE);
+            vpnRoute.setVisibility(GONE);
+            colorBackgroundALittle();
         } else if (eipStatus.isConnected() || isOpenVpnRunningWithoutNetwork()) {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
+            key.setImageResource(R.drawable.vpn_connected);
+            routedText.setVisibility(VISIBLE);
+            vpnRoute.setVisibility(VISIBLE);
+            vpnRoute.setText(ConfigHelper.getCurrentProviderName(preferences));
+            colorBackground();
         } else {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
+            key.setImageResource(R.drawable.vpn_disconnected);
+            routedText.setVisibility(GONE);
+            vpnRoute.setVisibility(GONE);
+            greyscaleBackground();
         }
     }
 
@@ -439,8 +456,22 @@ public class VpnFragment extends Fragment implements Observer {
         }
     }
 
-
-    public static EIPReceiver getReceiver() {
-        return eipReceiver;
+    private void greyscaleBackground() {
+        ColorMatrix matrix = new ColorMatrix();
+        matrix.setSaturation(0);
+        ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
+        background.setColorFilter(cf);
+        background.setImageAlpha(255);
     }
+
+    private void colorBackgroundALittle() {
+        background.setColorFilter(null);
+        background.setImageAlpha(144);
+    }
+
+    private void colorBackground() {
+        background.setColorFilter(null);
+        background.setImageAlpha(255);
+    }
+
 }

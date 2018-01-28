@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (intent.getAction()) {
             case ACTION_SHOW_VPN_FRAGMENT:
-                fragment = new VpnFragment();
+                fragment = new EipFragment();
                 break;
             default:
                 break;
