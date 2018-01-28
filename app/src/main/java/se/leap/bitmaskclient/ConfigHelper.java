@@ -304,6 +304,8 @@ public class ConfigHelper {
             } catch (JSONException e2) {
                 return null;
             }
+        } catch (NullPointerException npe) {
+            return null;
         }
     }
 
@@ -322,7 +324,7 @@ public class ConfigHelper {
         try {
             JSONObject providerJson = new JSONObject(provider);
             return providerJson.getString(Provider.DOMAIN);
-        } catch (JSONException e) {
+        } catch (JSONException | NullPointerException e) {
             return null;
         }
     }

@@ -87,7 +87,7 @@ public class Dashboard extends ButterKnifeActivity {
     @InjectView(R.id.providerName)
     TextView provider_name;
 
-    private VpnFragment eip_fragment;
+    private EipFragment eip_fragment;
     private UserStatusFragment user_status_fragment;
 
     private static Provider provider = new Provider();
@@ -290,8 +290,8 @@ public class Dashboard extends ButterKnifeActivity {
      * Inflates permanent UI elements of the View and contains logic for what
      * service dependent UI elements to include.
      */
-    //TODO: REFACTOR ME! Consider implementing a manager that handles most of VpnFragment's logic about handling EIP commands.
-    //This way, we could avoid to create UI elements (like fragmentManager.replace(R.id.servicesCollection, eip_fragment, VpnFragment.TAG); )
+    //TODO: REFACTOR ME! Consider implementing a manager that handles most of EipFragment's logic about handling EIP commands.
+    //This way, we could avoid to create UI elements (like fragmentManager.replace(R.id.servicesCollection, eip_fragment, EipFragment.TAG); )
     // just to start services and destroy them afterwards
     private void buildDashboard(boolean hideAndTurnOnEipOnBoot) {
         setContentView(R.layout.dashboard);
@@ -305,9 +305,9 @@ public class Dashboard extends ButterKnifeActivity {
         fragment_manager.replace(R.id.user_status_fragment, user_status_fragment, UserStatusFragment.TAG);
 
         if (provider.hasEIP()) {
-            fragment_manager.removePreviousFragment(VpnFragment.TAG);
+            fragment_manager.removePreviousFragment(EipFragment.TAG);
             eip_fragment = prepareEipFragment(hideAndTurnOnEipOnBoot);
-            fragment_manager.replace(R.id.servicesCollection, eip_fragment, VpnFragment.TAG);
+            fragment_manager.replace(R.id.servicesCollection, eip_fragment, EipFragment.TAG);
             if (hideAndTurnOnEipOnBoot) {
                 onBackPressed();
             }
@@ -320,13 +320,13 @@ public class Dashboard extends ButterKnifeActivity {
      *                               has caused to start Dashboard
      * @return the created VPNFragment
      */
-    public VpnFragment prepareEipFragment(boolean hideAndTurnOnEipOnBoot) {
-        VpnFragment eip_fragment = new VpnFragment();
+    public EipFragment prepareEipFragment(boolean hideAndTurnOnEipOnBoot) {
+        EipFragment eip_fragment = new EipFragment();
 
         if (hideAndTurnOnEipOnBoot && !isAlwaysOn()) {
             preferences.edit().remove(EIP_RESTART_ON_BOOT).apply();
             Bundle arguments = new Bundle();
-            arguments.putBoolean(VpnFragment.START_EIP_ON_BOOT, true);
+            arguments.putBoolean(EipFragment.START_EIP_ON_BOOT, true);
             Log.d(TAG, "set START_EIP_ON_BOOT argument for eip_fragment");
             eip_fragment.setArguments(arguments);
 

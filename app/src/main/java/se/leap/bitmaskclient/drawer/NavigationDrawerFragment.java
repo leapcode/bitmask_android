@@ -28,8 +28,8 @@ import android.widget.Toast;
 
 import se.leap.bitmaskclient.ConfigHelper;
 import se.leap.bitmaskclient.ProviderListActivity;
+import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.VpnFragment;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
 
@@ -296,7 +296,7 @@ public class NavigationDrawerFragment extends Fragment {
 
         if (parent == mDrawerAccountsListView) {
             mTitle = getString(R.string.vpn_fragment_title);
-            fragment = new VpnFragment();
+            fragment = new EipFragment();
         } else {
             Log.d("Drawer", String.format("Selected position %d", position));
             switch (position) {

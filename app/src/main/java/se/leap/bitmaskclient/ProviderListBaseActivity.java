@@ -451,6 +451,12 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
                 String providerName = ConfigHelper.getProviderName(handledProvider);
                 String providerDomain = ConfigHelper.getProviderDomain(handledProvider);
 
+                //FIXME: remove that lines as soon as Provider gets sent via broadcast
+                if (resultCode == PROVIDER_OK && handledProvider == null) {
+                    providerName = ConfigHelper.getProviderName(preferences);
+                    providerDomain = ConfigHelper.getProviderDomain(preferences);
+                }
+
                 if (providerName != null && providerName.equalsIgnoreCase(provider.getName()) &&
                         providerDomain != null &&
                         providerDomain.equalsIgnoreCase(provider.getDomain())) {
