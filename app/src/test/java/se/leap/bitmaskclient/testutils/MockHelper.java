@@ -1,20 +1,3 @@
-/**
- * Copyright (c) 2018 LEAP Encryption Access Project and contributers
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 package se.leap.bitmaskclient.testutils;
 
 import android.content.Intent;
@@ -30,10 +13,8 @@ import org.json.JSONObject;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -65,25 +46,10 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
- * Created by cyberta on 08.10.17.
+ * Created by cyberta on 29.01.18.
  */
 
-public class TestSetupHelper {
-
-
-
-    public static String getInputAsString(InputStream fileAsInputStream) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(fileAsInputStream));
-        StringBuilder sb = new StringBuilder();
-        String line = br.readLine();
-        while (line != null) {
-            sb.append(line);
-            line = br.readLine();
-        }
-
-        return sb.toString();
-    }
-
+public class MockHelper {
     @NonNull
     public static Bundle mockBundle() {
         final Map<String, Boolean> fakeBooleanBundle = new HashMap<>();
@@ -335,7 +301,6 @@ public class TestSetupHelper {
         });
     }
 
-
     public static ResultReceiver mockResultReceiver(final int expectedResultCode, final Bundle expectedBundle) {
         ResultReceiver resultReceiver = mock(ResultReceiver.class);
 
@@ -395,7 +360,7 @@ public class TestSetupHelper {
 
     public static Resources mockResources(InputStream inputStream) throws IOException, JSONException {
         Resources mockedResources = mock(Resources.class, RETURNS_DEEP_STUBS);
-        JSONObject errorMessages = new JSONObject(getInputAsString(inputStream));
+        JSONObject errorMessages = new JSONObject(TestSetupHelper.getInputAsString(inputStream));
 
 
         when(mockedResources.getString(R.string.warning_corrupted_provider_details)).
@@ -430,5 +395,4 @@ public class TestSetupHelper {
                 thenReturn(errorMessages.getString("warning_expired_provider_cert"));
         return mockedResources;
     }
-
 }

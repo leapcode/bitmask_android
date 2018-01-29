@@ -6,9 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
-import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
 
