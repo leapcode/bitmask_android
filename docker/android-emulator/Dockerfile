@@ -35,4 +35,4 @@ RUN echo y | sdkmanager "system-images;android-27;google_apis;x86"
 RUN echo y | sdkmanager "system-images;android-25;google_apis;x86_64"
 RUN echo y | sdkmanager "system-images;android-23;google_apis;x86_64"
 
-RUN avdmanager create avd -n testApi27 -k "system-images;android-27;google_apis;x86"
+RUN echo no | avdmanager create avd -n testApi27 -k "system-images;android-27;google_apis;x86"
