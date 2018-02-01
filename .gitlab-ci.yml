@@ -28,8 +28,7 @@ variables:
     - if ! .gitlab/build.sh ${DOCKER_IMAGE} >> dockerbuild.log 2>&1; then echo "Image build failed. Please check dockerbuild.log."; exit 1; fi;
   allow_failure: false
   artifacts:
-    when: on_failure
-    expire_in: 31d
+    expire_in: 3d
     paths:
     - dockerbuild.log
 
