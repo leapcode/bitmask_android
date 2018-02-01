@@ -37,6 +37,8 @@
             android:id="@+id/edit_vpn"
             android:alphabeticShortcut="e"
             android:icon="@drawable/ic_menu_edit"
-            android:showAsAction="ifRoom"
-            android:title="@string/edit_vpn"/>
+            android:showAsAction="withText|ifRoom"
+            android:title="@string/edit_vpn"
+	    android:visible="false"/>
+
 </menu>
