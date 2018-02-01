@@ -67,3 +67,6 @@ RUN sdkmanager "build-tools;23.0.3"
 RUN sdkmanager "platforms;android-27"
 RUN sdkmanager "platforms;android-25"
 RUN sdkmanager "platforms;android-23"
+
+# Accept all licenses
+RUN yes | sdkmanager --licenses
