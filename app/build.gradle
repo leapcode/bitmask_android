@@ -22,13 +22,23 @@ android {
     }
   }
 
+  flavorDimensions "implementation"
   productFlavors {
     production {
-
+      dimension "implementation"
     }
     insecure {
-
+      dimension "implementation"
     }
+/*
+    noovpn3 {
+      //dimension "implementation"
+    }
+
+    normal {
+      //dimension "implementation"
+    }
+*/
   }
 
   buildTypes {
@@ -50,7 +60,7 @@ android {
 
   sourceSets {
     main {
-      assets.srcDirs = ['assets', 'ovpnlibs/assets']
+      assets.srcDirs = ['assets'/*, 'ovpnlibs/assets'*/]
       jniLibs.srcDirs = ['ovpnlibs/jniLibs']
       jni.srcDirs = [] //disable automatic ndk-build
     }
@@ -80,6 +90,8 @@ dependencies {
   debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
   releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
   betaCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+  annotationProcessor 'com.jakewharton:butterknife:6.1.0'
+  annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.2'
   compile 'com.jakewharton:butterknife:6.1.0'
   provided 'com.squareup.dagger:dagger-compiler:1.2.2'
   compile 'com.github.pedrovgs:renderers:1.5'
@@ -179,6 +191,20 @@ task copyIcsOpenVPNImages( type: Copy ) {
     include '**/ic_check*.png'
     include '**/ic_pause*.png'
     include '**/ic_play*.png'
+    include '**/ic_content_copy_white_*.png'
+    include '**/ic_add_circle_outline_white_*.png'
+    include '**/ic_warning_black_*.png'
+    include '**/ic_add_circle_outline_grey600_*.png'
+    include '**/ic_archive_grey600_*.png'
+    include '**/ic_receipt_white_*.png'
+    include '**/ic_sort_white_*.png'
+    include '**/ic_content_copy_white_*.png'
+    include '**/ic_archive_white_*.png'
+    include '**/ic_menu_archive*.png'
+    include '**/vpn_item_settings*.png'
+    include '**/ic_menu_log*.png'
+    include '**/ic_menu_copy_holo_light*.png'
+
     includeEmptyDirs = false
   } into '.'
 }
@@ -242,7 +268,7 @@ task mergeUntranslatable( type: Copy ) {
 
 task copyIcsOpenVPNFiles( type: Copy ) {
   println "copyIcsOpenVPNFiles"
-  copyIcsOpenVPNClasses.execute()
+  //copyIcsOpenVPNClasses.execute()
   copyIcsOpenVPNXml.execute()
   copyIcsOpenVPNImages.execute()
   //mergeUntranslatable.execute()
@@ -250,14 +276,17 @@ task copyIcsOpenVPNFiles( type: Copy ) {
 }
 
 task updateIcsOpenVpn( type: Exec ) {
+  commandLine 'git', 'submodule', 'sync'
   commandLine 'git', 'submodule', 'update', '--init', '--recursive'
   copyIcsOpenVPNFiles.execute()
 }
 
+/*
 task buildNative ( type: Exec ) {
   println "buildNative"
-  commandLine 'sh', 'misc/build-native.sh', 'USE_BREAKPAD=0', '-j 8'
+  //commandLine 'sh', 'misc/build-native.sh', 'USE_BREAKPAD=0', '-j 8'
 }
+*/
 
 task cleanNative( type: Delete ) {
   def shouldClean = getCurrentFlavorForBetaOrRelease() == "production"
@@ -292,4 +321,4 @@ def getCurrentFlavorForBetaOrRelease() {
   }
 }
 
-preBuild.dependsOn buildNative
+//preBuild.dependsOn buildNative
