@@ -4,13 +4,18 @@ import java.util.regex.Pattern
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 26
-  buildToolsVersion '26.0.0'
+  compileSdkVersion 27
+  buildToolsVersion '27.0.3'
 
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
     resValue "string", "app_name", "Bitmask"
     vectorDrawables.useSupportLibrary = true
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    dexOptions {
+      jumboMode true
+      multiDexEnabled true
+    }
   }
 
   signingConfigs {
@@ -52,6 +57,9 @@ android {
       applicationIdSuffix ".beta"
       resValue "string", "app_name", "Bitmask Beta"
     }
+    debug {
+      testCoverageEnabled = true
+    }
   }
 
   lintOptions {
@@ -67,23 +75,32 @@ android {
     debug {
       assets.srcDirs = ['src/debug/assets']
     }
+
     test {
       resources.srcDirs += ['src/test/resources']
+      java.srcDirs += ['src/sharedTest/java']
+    }
+
+    androidTest {
+      java.srcDirs += ['src/sharedTest/java']
     }
   }
 }
 
 dependencies {
   testCompile 'junit:junit:4.12'
-  testCompile 'org.mockito:mockito-core:2.8.0'
-  testCompile 'org.powermock:powermock-api-mockito2:1.7.3'
+  testCompile 'org.mockito:mockito-core:2.8.9'
+  testCompile('org.powermock:powermock-api-mockito2:1.7.3')
+          { exclude group: 'junit' exclude group: 'org.mockito' }
   testCompile 'org.powermock:powermock-module-junit4:1.7.3'
   testCompile 'org.powermock:powermock-core:1.7.3'
   testCompile 'org.powermock:powermock-module-junit4-rule:1.7.3'
-  //testCompile 'com.madgag.spongycastle:bctls-jdk15on:1.58.0.0'
-  //testCompile 'com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0'
-  //testCompile 'com.madgag.spongycastle:bcpg-jdk15on:1.58.0.0'
 
+  androidTestCompile 'org.mockito:mockito-core:2.8.9'
+  androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.1'
+  androidTestCompile 'com.android.support.test.espresso:espresso-contrib:3.0.1'
+  androidTestCompile 'com.android.support.test.espresso:espresso-intents:3.0.1'
+  //TODO: remove that library
   androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.6.3'
   testCompile 'junit:junit:4.12'
   testCompile 'org.json:json:20170516'
@@ -93,19 +110,22 @@ dependencies {
   annotationProcessor 'com.jakewharton:butterknife:6.1.0'
   annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.2'
   compile 'com.jakewharton:butterknife:6.1.0'
+  //TODO: replace that library
   provided 'com.squareup.dagger:dagger-compiler:1.2.2'
+  //TODO: remove that library?
   compile 'com.github.pedrovgs:renderers:1.5'
   compile 'com.intellij:annotations:12.0'
   compile 'com.google.code.gson:gson:2.8.2'
   compile 'com.squareup.okhttp3:okhttp:3.9.0'
+  //TODO: remove that library
   compile 'mbanje.kurt:fabbutton:1.1.4'
-  compile "com.android.support:support-core-utils:26.1.0"
+  compile "com.android.support:support-core-utils:27.0.2"
   compile 'com.android.support:support-annotations:27.0.2'
-  compile 'com.android.support:support-v4:26.1.0'
-  compile 'com.android.support:appcompat-v7:26.1.0'
-  compile 'com.android.support:design:26.1.0'
-  compile 'com.android.support:support-fragment:26.1.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+  compile 'com.android.support:support-v4:27.0.2'
+  compile 'com.android.support:appcompat-v7:27.0.2'
+  compile 'com.android.support:design:27.0.2'
+  compile 'com.android.support:support-fragment:27.0.2'
+  compile 'com.android.support.constraint:constraint-layout:1.0.2'
 }
 
 // Ensure the no-op dependency is always used in JVM tests.
@@ -117,6 +137,12 @@ configurations.all { config ->
       }
     }
   }
+  resolutionStrategy.force "com.android.support:support-annotations:27.0.2"
+  resolutionStrategy.force "com.android.support:support-v4:27.0.2"
+  resolutionStrategy.force "ccom.android.support:support-core-utils:27.0.2"
+  resolutionStrategy.force "com.android.support:appcompat-v7:27.0.2"
+  resolutionStrategy.force "com.android.support:design:27.0.2"
+  resolutionStrategy.force "com.android.support:support-fragment:27.0.2"
 }
 
 def processFileInplace(file, Closure processText) {
