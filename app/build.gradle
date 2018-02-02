@@ -326,6 +326,11 @@ task cleanNative( type: Delete ) {
   }
 }
 
+task updateSdkLicences ( type: Exec ) {
+  println "say yes to licenses"
+  commandLine 'sh', 'yes', '|', 'sdkmanager', '--licenses'
+}
+
 def getCurrentFlavorForBetaOrRelease() {
   Gradle gradle = getGradle()
   String  tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
