@@ -35,15 +35,6 @@ android {
     insecure {
       dimension "implementation"
     }
-/*
-    noovpn3 {
-      //dimension "implementation"
-    }
-
-    normal {
-      //dimension "implementation"
-    }
-*/
   }
 
   buildTypes {
@@ -56,6 +47,7 @@ android {
       initWith release
       applicationIdSuffix ".beta"
       resValue "string", "app_name", "Bitmask Beta"
+      matchingFallbacks = ['release']
     }
     debug {
       testCoverageEnabled = true
@@ -68,8 +60,8 @@ android {
 
   sourceSets {
     main {
-      assets.srcDirs = ['assets', 'ovpnlibs/assets']
-      jniLibs.srcDirs = ['ovpnlibs/jniLibs']
+      assets.srcDirs = ['assets', 'ovpnlibs/assets', '../ics-openvpn/main/build/ovpnassets']
+      jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/noovpn3/release/obj']
       jni.srcDirs = [] //disable automatic ndk-build
     }
     debug {
@@ -292,11 +284,9 @@ task mergeUntranslatable( type: Copy ) {
   delete ics_openvpn_untranslatable
 }
 
-task copyIcsOpenVPNFiles( type: Exec ) {
+task copyIcsOpenVPNFiles( type: Copy ) {
   println "copyIcsOpenVPNFiles"
-  def currentPath = System.getProperty("user.dir")
-  commandLine 'bash', currentPath+'/managePatches.sh'
-  copyIcsOpenVPNClasses.execute()
+  //copyIcsOpenVPNClasses.execute()
   copyIcsOpenVPNXml.execute()
   copyIcsOpenVPNImages.execute()
   //mergeUntranslatable.execute()
@@ -309,12 +299,6 @@ task updateIcsOpenVpn( type: Exec ) {
   copyIcsOpenVPNFiles.execute()
 }
 
-/*
-task buildNative ( type: Exec ) {
-  println "buildNative"
-  //commandLine 'sh', 'misc/build-native.sh', 'USE_BREAKPAD=0', '-j 8'
-}
-*/
 
 task cleanNative( type: Delete ) {
   def shouldClean = getCurrentFlavorForBetaOrRelease() == "production"
@@ -353,5 +337,3 @@ def getCurrentFlavorForBetaOrRelease() {
     return "";
   }
 }
-
-//preBuild.dependsOn buildNative

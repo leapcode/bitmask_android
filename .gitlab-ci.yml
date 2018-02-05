@@ -97,9 +97,8 @@ build:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
-    - ./gradlew clean assembleDebug
+    - ./cleanProject.sh
+    - ./build.sh
   artifacts:
     paths:
     - app/build/outputs/
@@ -108,9 +107,10 @@ build_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
-    - ./gradlew clean
+    - ./cleanProject.sh
+    - cd ./ics-openvpn
+    - ./gradlew clean main:externalNativeBuildCleanNoovpn3Release main:externalNativeBuildNoovpn3Release
+    - cd ..
     - ./gradlew assembleProductionRelease
     - ./gradlew assembleProductionBeta
   artifacts:
