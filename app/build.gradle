@@ -88,44 +88,44 @@ android {
 }
 
 dependencies {
-  testCompile 'junit:junit:4.12'
-  testCompile 'org.mockito:mockito-core:2.8.9'
-  testCompile('org.powermock:powermock-api-mockito2:1.7.3')
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'org.mockito:mockito-core:2.8.9'
+  testImplementation('org.powermock:powermock-api-mockito2:1.7.3')
           { exclude group: 'junit' exclude group: 'org.mockito' }
-  testCompile 'org.powermock:powermock-module-junit4:1.7.3'
-  testCompile 'org.powermock:powermock-core:1.7.3'
-  testCompile 'org.powermock:powermock-module-junit4-rule:1.7.3'
+  testImplementation 'org.powermock:powermock-module-junit4:1.7.3'
+  testImplementation 'org.powermock:powermock-core:1.7.3'
+  testImplementation 'org.powermock:powermock-module-junit4-rule:1.7.3'
 
-  androidTestCompile 'org.mockito:mockito-core:2.8.9'
-  androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.1'
-  androidTestCompile 'com.android.support.test.espresso:espresso-contrib:3.0.1'
-  androidTestCompile 'com.android.support.test.espresso:espresso-intents:3.0.1'
+  androidTestImplementation 'org.mockito:mockito-core:2.8.9'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.1'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-intents:3.0.1'
   //TODO: remove that library
-  androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.6.3'
-  testCompile 'junit:junit:4.12'
-  testCompile 'org.json:json:20170516'
-  debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
-  releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
-  betaCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+  androidTestImplementation 'com.jayway.android.robotium:robotium-solo:5.6.3'
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'org.json:json:20170516'
+  debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+  releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+  betaImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
   annotationProcessor 'com.jakewharton:butterknife:6.1.0'
   annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.2'
-  compile 'com.jakewharton:butterknife:6.1.0'
+  implementation 'com.jakewharton:butterknife:6.1.0'
   //TODO: replace that library
-  provided 'com.squareup.dagger:dagger-compiler:1.2.2'
+  compileOnly 'com.squareup.dagger:dagger-compiler:1.2.2'
   //TODO: remove that library?
-  compile 'com.github.pedrovgs:renderers:1.5'
-  compile 'com.intellij:annotations:12.0'
-  compile 'com.google.code.gson:gson:2.8.2'
-  compile 'com.squareup.okhttp3:okhttp:3.9.0'
+  implementation 'com.github.pedrovgs:renderers:1.5'
+  implementation 'com.intellij:annotations:12.0'
+  implementation 'com.google.code.gson:gson:2.8.2'
+  implementation 'com.squareup.okhttp3:okhttp:3.9.0'
   //TODO: remove that library
-  compile 'mbanje.kurt:fabbutton:1.1.4'
-  compile "com.android.support:support-core-utils:27.0.2"
-  compile 'com.android.support:support-annotations:27.0.2'
-  compile 'com.android.support:support-v4:27.0.2'
-  compile 'com.android.support:appcompat-v7:27.0.2'
-  compile 'com.android.support:design:27.0.2'
-  compile 'com.android.support:support-fragment:27.0.2'
-  compile 'com.android.support.constraint:constraint-layout:1.0.2'
+  implementation 'mbanje.kurt:fabbutton:1.1.4'
+  implementation "com.android.support:support-core-utils:27.0.2"
+  implementation 'com.android.support:support-annotations:27.0.2'
+  implementation 'com.android.support:support-v4:27.0.2'
+  implementation 'com.android.support:appcompat-v7:27.0.2'
+  implementation 'com.android.support:design:27.0.2'
+  implementation 'com.android.support:support-fragment:27.0.2'
+  implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 }
 
 // Ensure the no-op dependency is always used in JVM tests.
@@ -292,9 +292,11 @@ task mergeUntranslatable( type: Copy ) {
   delete ics_openvpn_untranslatable
 }
 
-task copyIcsOpenVPNFiles( type: Copy ) {
+task copyIcsOpenVPNFiles( type: Exec ) {
   println "copyIcsOpenVPNFiles"
-  //copyIcsOpenVPNClasses.execute()
+  def currentPath = System.getProperty("user.dir")
+  commandLine 'bash', currentPath+'/managePatches.sh'
+  copyIcsOpenVPNClasses.execute()
   copyIcsOpenVPNXml.execute()
   copyIcsOpenVPNImages.execute()
   //mergeUntranslatable.execute()
