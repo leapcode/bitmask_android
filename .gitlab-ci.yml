@@ -98,7 +98,8 @@ build:
   stage: build
   script:
     - ./cleanProject.sh
-    - ./build.sh
+    - ./build_deps.sh
+    - ./gradlew clean assembleDebug --stacktrace
   artifacts:
     paths:
     - app/build/outputs/
@@ -108,11 +109,9 @@ build_release:
   stage: build
   script:
     - ./cleanProject.sh
-    - cd ./ics-openvpn
-    - ./gradlew clean main:externalNativeBuildCleanNoovpn3Release main:externalNativeBuildNoovpn3Release
-    - cd ..
-    - ./gradlew assembleProductionRelease
-    - ./gradlew assembleProductionBeta
+    - ./build_deps.sh
+    - ./gradlew assembleProductionRelease --stacktrace
+    - ./gradlew assembleProductionBeta --stacktrace
   artifacts:
     paths:
     - app/build/outputs/
