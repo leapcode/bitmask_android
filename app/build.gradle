@@ -11,6 +11,7 @@ android {
     applicationId "se.leap.bitmaskclient"
     resValue "string", "app_name", "Bitmask"
     vectorDrawables.useSupportLibrary = true
+    buildConfigField 'boolean', 'openvpn3', 'false'
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     dexOptions {
       jumboMode true
