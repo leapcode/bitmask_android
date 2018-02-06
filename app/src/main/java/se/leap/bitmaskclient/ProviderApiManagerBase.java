@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 
 import org.json.JSONException;
@@ -49,19 +50,22 @@ import java.util.List;
 import javax.net.ssl.SSLHandshakeException;
 
 import okhttp3.OkHttpClient;
-import se.leap.bitmaskclient.userstatus.SessionDialog;
-import se.leap.bitmaskclient.userstatus.User;
+import se.leap.bitmaskclient.Constants.CREDENTIAL_ERRORS;
 import se.leap.bitmaskclient.userstatus.UserStatus;
 
 import static se.leap.bitmaskclient.ConfigHelper.getFingerprintFromCertificate;
-import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
-import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
+import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.CREDENTIALS_PASSWORD;
+import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
-import static se.leap.bitmaskclient.Provider.MAIN_URL;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.CURRENT_PROGRESS;
@@ -73,17 +77,14 @@ import static se.leap.bitmaskclient.ProviderAPI.FAILED_LOGIN;
 import static se.leap.bitmaskclient.ProviderAPI.FAILED_SIGNUP;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
-import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_API_EVENT;
-import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
 import static se.leap.bitmaskclient.ProviderAPI.LOGOUT_FAILED;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_OUT;
 import static se.leap.bitmaskclient.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
+import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
 import static se.leap.bitmaskclient.ProviderAPI.RECEIVER_KEY;
-import static se.leap.bitmaskclient.ProviderAPI.RESULT_CODE;
-import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.ProviderAPI.SIGN_UP;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_LOGIN;
@@ -109,36 +110,24 @@ import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
 
 public abstract class ProviderApiManagerBase {
 
+    private final static String TAG = ProviderApiManagerBase.class.getName();
+
     public interface ProviderApiServiceCallback {
         void broadcastEvent(Intent intent);
     }
 
     private ProviderApiServiceCallback serviceCallback;
 
-    protected static volatile boolean
-            CA_CERT_DOWNLOADED = false,
-            PROVIDER_JSON_DOWNLOADED = false,
-            EIP_SERVICE_JSON_DOWNLOADED = false;
-
-    protected static String lastProviderMainUrl;
-    protected static boolean go_ahead = true;
-    protected static SharedPreferences preferences;
-    protected static String providerApiUrl;
-    protected static String providerCaCertFingerprint;
-    protected static String providerCaCert;
-    protected static JSONObject providerDefinition;
+    static boolean go_ahead = true;
+    protected SharedPreferences preferences;
     protected Resources resources;
-    protected OkHttpClientGenerator clientGenerator;
+    OkHttpClientGenerator clientGenerator;
 
     public static void stop() {
         go_ahead = false;
     }
 
-    public static String lastProviderMainUrl() {
-        return lastProviderMainUrl;
-    }
-
-    public ProviderApiManagerBase(SharedPreferences preferences, Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
+    ProviderApiManagerBase(SharedPreferences preferences, Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
         this.preferences = preferences;
         this.resources = resources;
         this.serviceCallback = callback;
@@ -150,92 +139,94 @@ public abstract class ProviderApiManagerBase {
         String action = command.getAction();
         Bundle parameters = command.getBundleExtra(PARAMETERS);
 
-        if (providerApiUrl == null && preferences.contains(Provider.KEY)) {
-            try {
-                JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
-                providerApiUrl = provider_json.getString(Provider.API_URL) + "/" + provider_json.getString(Provider.API_VERSION);
-                go_ahead = true;
-            } catch (JSONException e) {
-                go_ahead = false;
-            }
+        Provider provider = command.getParcelableExtra(PROVIDER_KEY);
+
+        if (provider == null) {
+            Log.e(TAG, action +" called without provider!");
+            return;
+        }
+        if (action == null) {
+            Log.e(TAG, "Intent without action sent!");
+            return;
         }
 
         if (action.equals(UPDATE_PROVIDER_DETAILS)) {
-            resetProviderDetails();
+            resetProviderDetails(provider);
             Bundle task = new Bundle();
-            task.putString(MAIN_URL, lastProviderMainUrl);
-            Bundle result = setUpProvider(task);
-            if (result.getBoolean(RESULT_KEY)) {
-                receiver.send(PROVIDER_OK, result);
+            Bundle result = setUpProvider(provider, task);
+            if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
             } else {
-                receiver.send(PROVIDER_NOK, result);
+                sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
             }
         } else if (action.equalsIgnoreCase(SET_UP_PROVIDER)) {
-            Bundle result = setUpProvider(parameters);
+            Bundle result = setUpProvider(provider, parameters);
             if (go_ahead) {
-                if (result.getBoolean(RESULT_KEY)) {
-                    sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
                 } else {
-                    sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result);
+                    sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
                 }
             }
         } else if (action.equalsIgnoreCase(SIGN_UP)) {
-            UserStatus.updateStatus(UserStatus.SessionStatus.SIGNING_UP, resources);
             Bundle result = tryToRegister(parameters);
-            if (result.getBoolean(RESULT_KEY)) {
-                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_SIGNUP, result);
+            if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_SIGNUP, result, provider);
             } else {
-                sendToReceiverOrBroadcast(receiver, FAILED_SIGNUP, result);
+                sendToReceiverOrBroadcast(receiver, FAILED_SIGNUP, result, provider);
             }
         } else if (action.equalsIgnoreCase(LOG_IN)) {
             UserStatus.updateStatus(UserStatus.SessionStatus.LOGGING_IN, resources);
-            Bundle result = tryToAuthenticate(parameters);
-            if (result.getBoolean(RESULT_KEY)) {
-                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGIN, result);
+            Bundle result = tryToAuthenticate(provider, parameters);
+            if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGIN, result, provider);
                 UserStatus.updateStatus(UserStatus.SessionStatus.LOGGED_IN, resources);
             } else {
-                sendToReceiverOrBroadcast(receiver, FAILED_LOGIN, result);
+                sendToReceiverOrBroadcast(receiver, FAILED_LOGIN, result, provider);
                 UserStatus.updateStatus(UserStatus.SessionStatus.NOT_LOGGED_IN, resources);
             }
         } else if (action.equalsIgnoreCase(LOG_OUT)) {
             UserStatus.updateStatus(UserStatus.SessionStatus.LOGGING_OUT, resources);
-            if (logOut()) {
-                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGOUT, Bundle.EMPTY);
+            if (logOut(provider)) {
+                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGOUT, Bundle.EMPTY, provider);
                 UserStatus.updateStatus(UserStatus.SessionStatus.LOGGED_OUT, resources);
             } else {
-                sendToReceiverOrBroadcast(receiver, LOGOUT_FAILED, Bundle.EMPTY);
+                sendToReceiverOrBroadcast(receiver, LOGOUT_FAILED, Bundle.EMPTY, provider);
                 UserStatus.updateStatus(UserStatus.SessionStatus.DIDNT_LOG_OUT, resources);
             }
         } else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
-            if (updateVpnCertificate()) {
-                sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+            if (updateVpnCertificate(provider)) {
+                sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY, provider);
             } else {
-                sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY);
+                sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY, provider);
             }
         } else if (action.equalsIgnoreCase(DOWNLOAD_EIP_SERVICE)) {
-            Bundle result = getAndSetEipServiceJson();
-            if (result.getBoolean(RESULT_KEY)) {
-                sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_EIP_SERVICE, result);
+            Bundle result = getAndSetEipServiceJson(provider);
+            if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
             } else {
-                sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_EIP_SERVICE, result);
+                sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
             }
         } else if (action.equalsIgnoreCase(PROVIDER_SET_UP)) {
-            if(EIP_SERVICE_JSON_DOWNLOADED && CA_CERT_DOWNLOADED && PROVIDER_JSON_DOWNLOADED ) {
+            if(provider.hasEIP() && provider.hasCaCert() && provider.hasDefinition()) {
                 if(receiver!= null) {
-                    receiver.send(PROVIDER_OK, Bundle.EMPTY);
+                    Bundle result = new Bundle();
+                    result.putParcelable(PROVIDER_KEY, provider);
+                    receiver.send(PROVIDER_OK, result);
                 }
             }
         }
     }
 
-    protected void resetProviderDetails() {
-        CA_CERT_DOWNLOADED = PROVIDER_JSON_DOWNLOADED = false;
-        deleteProviderDetailsFromPreferences(providerDefinition);
-        providerCaCert = "";
-        providerDefinition = new JSONObject();
+    void resetProviderDetails(Provider provider) {
+        provider.setCaCert("");
+        provider.define(new JSONObject());
+        provider.setEipServiceJson(new JSONObject());
+
+        deleteProviderDetailsFromPreferences(provider.getDomain());
     }
 
-    protected String formatErrorMessage(final int toastStringId) {
+    String formatErrorMessage(final int toastStringId) {
         return formatErrorMessage(resources.getString(toastStringId));
     }
 
@@ -252,7 +243,7 @@ public abstract class ProviderApiManagerBase {
         }
     }
 
-    protected void addErrorMessageToJson(JSONObject jsonObject, String errorMessage) {
+    private void addErrorMessageToJson(JSONObject jsonObject, String errorMessage) {
         try {
             jsonObject.put(ERRORS, errorMessage);
         } catch (JSONException e) {
@@ -260,7 +251,7 @@ public abstract class ProviderApiManagerBase {
         }
     }
 
-    protected void addErrorMessageToJson(JSONObject jsonObject, String errorMessage, String errorId) {
+    private void addErrorMessageToJson(JSONObject jsonObject, String errorMessage, String errorId) {
         try {
             jsonObject.put(ERRORS, errorMessage);
             jsonObject.put(ERRORID, errorId);
@@ -274,32 +265,37 @@ public abstract class ProviderApiManagerBase {
 
     private Bundle tryToRegister(Bundle task) {
         Bundle result = new Bundle();
-        int progress = 0;
 
-        String username = User.userName();
-        String password = task.getString(SessionDialog.PASSWORD);
+        String username = task.getString(CREDENTIALS_USERNAME);
+        String password = task.getString(CREDENTIALS_PASSWORD);
+        Provider provider = task.getParcelable(PROVIDER_KEY);
+
+        if(provider == null) {
+            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            Log.e(TAG, "no provider when trying to register");
+            return result;
+        }
 
         if (validUserLoginData(username, password)) {
-            result = register(username, password);
-            broadcastProgress(progress++);
+            result = register(provider, username, password);
         } else {
             if (!wellFormedPassword(password)) {
-                result.putBoolean(RESULT_KEY, false);
-                result.putString(SessionDialog.USERNAME, username);
-                result.putBoolean(SessionDialog.ERRORS.PASSWORD_INVALID_LENGTH.toString(), true);
+                result.putBoolean(BROADCAST_RESULT_KEY, false);
+                result.putString(CREDENTIALS_USERNAME, username);
+                result.putBoolean(CREDENTIAL_ERRORS.PASSWORD_INVALID_LENGTH.toString(), true);
             }
             if (!validUsername(username)) {
-                result.putBoolean(RESULT_KEY, false);
-                result.putBoolean(SessionDialog.ERRORS.USERNAME_MISSING.toString(), true);
+                result.putBoolean(BROADCAST_RESULT_KEY, false);
+                result.putBoolean(CREDENTIAL_ERRORS.USERNAME_MISSING.toString(), true);
             }
         }
 
         return result;
     }
 
-    private Bundle register(String username, String password) {
+    private Bundle register(Provider provider, String username, String password) {
         JSONObject stepResult = null;
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(stepResult);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), stepResult);
         if (okHttpClient == null) {
             return authFailedNotification(stepResult, username);
         }
@@ -309,15 +305,15 @@ public abstract class ProviderApiManagerBase {
 
         BigInteger password_verifier = client.calculateV(username, password, salt);
 
-        JSONObject api_result = sendNewUserDataToSRPServer(providerApiUrl, username, new BigInteger(1, salt).toString(16), password_verifier.toString(16), okHttpClient);
+        JSONObject api_result = sendNewUserDataToSRPServer(provider.getApiUrlString(), username, new BigInteger(1, salt).toString(16), password_verifier.toString(16), okHttpClient);
 
         Bundle result = new Bundle();
         if (api_result.has(ERRORS))
             result = authFailedNotification(api_result, username);
         else {
-            result.putString(SessionDialog.USERNAME, username);
-            result.putString(SessionDialog.PASSWORD, password);
-            result.putBoolean(RESULT_KEY, true);
+            result.putString(CREDENTIALS_USERNAME, username);
+            result.putString(CREDENTIALS_PASSWORD, password);
+            result.putBoolean(BROADCAST_RESULT_KEY, true);
         }
 
         return result;
@@ -326,37 +322,39 @@ public abstract class ProviderApiManagerBase {
     /**
      * Starts the authentication process using SRP protocol.
      *
-     * @param task containing: username, password and api url.
-     * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if authentication was successful.
+     * @param task containing: username, password and provider
+     * @return a bundle with a boolean value mapped to a key named BROADCAST_RESULT_KEY, and which is true if authentication was successful.
      */
-    private Bundle tryToAuthenticate(Bundle task) {
+    private Bundle tryToAuthenticate(Provider provider, Bundle task) {
         Bundle result = new Bundle();
-        int progress = 0;
 
-        String username = User.userName();
-        String password = task.getString(SessionDialog.PASSWORD);
+        String username = task.getString(CREDENTIALS_USERNAME);
+        String password = task.getString(CREDENTIALS_PASSWORD);
+
         if (validUserLoginData(username, password)) {
-            result = authenticate(username, password);
-            broadcastProgress(progress++);
+            result = authenticate(provider, username, password);
         } else {
             if (!wellFormedPassword(password)) {
-                result.putBoolean(RESULT_KEY, false);
-                result.putString(SessionDialog.USERNAME, username);
-                result.putBoolean(SessionDialog.ERRORS.PASSWORD_INVALID_LENGTH.toString(), true);
+                result.putBoolean(BROADCAST_RESULT_KEY, false);
+                result.putString(CREDENTIALS_USERNAME, username);
+                result.putBoolean(CREDENTIAL_ERRORS.PASSWORD_INVALID_LENGTH.toString(), true);
             }
             if (!validUsername(username)) {
-                result.putBoolean(RESULT_KEY, false);
-                result.putBoolean(SessionDialog.ERRORS.USERNAME_MISSING.toString(), true);
+                result.putBoolean(BROADCAST_RESULT_KEY, false);
+                result.putBoolean(CREDENTIAL_ERRORS.USERNAME_MISSING.toString(), true);
             }
         }
 
         return result;
     }
 
-    private Bundle authenticate(String username, String password) {
+    private Bundle authenticate(Provider provider, String username, String password) {
         Bundle result = new Bundle();
         JSONObject stepResult = new JSONObject();
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(stepResult);
+
+        String providerApiUrl = provider.getApiUrlWithVersion();
+
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), stepResult);
         if (okHttpClient == null) {
             return authFailedNotification(stepResult, username);
         }
@@ -374,13 +372,13 @@ public abstract class ProviderApiManagerBase {
                 setTokenIfAvailable(step_result);
                 byte[] M2 = new BigInteger(step_result.getString(LeapSRPSession.M2), 16).toByteArray();
                 if (client.verify(M2)) {
-                    result.putBoolean(RESULT_KEY, true);
+                    result.putBoolean(BROADCAST_RESULT_KEY, true);
                 } else {
                     authFailedNotification(step_result, username);
                 }
             } else {
-                result.putBoolean(RESULT_KEY, false);
-                result.putString(SessionDialog.USERNAME, username);
+                result.putBoolean(BROADCAST_RESULT_KEY, false);
+                result.putString(CREDENTIALS_USERNAME, username);
                 result.putString(resources.getString(R.string.user_message), resources.getString(R.string.error_srp_math_error_user_message));
             }
         } catch (JSONException e) {
@@ -424,17 +422,21 @@ public abstract class ProviderApiManagerBase {
         }
 
         if (!username.isEmpty())
-            userNotificationBundle.putString(SessionDialog.USERNAME, username);
-        userNotificationBundle.putBoolean(RESULT_KEY, false);
+            userNotificationBundle.putString(CREDENTIALS_USERNAME, username);
+        userNotificationBundle.putBoolean(BROADCAST_RESULT_KEY, false);
 
         return userNotificationBundle;
     }
 
-    void sendToReceiverOrBroadcast(ResultReceiver receiver, int resultCode, Bundle resultData) {
+    void sendToReceiverOrBroadcast(ResultReceiver receiver, int resultCode, Bundle resultData, Provider provider) {
+        if (resultData == null || resultData == Bundle.EMPTY) {
+            resultData = new Bundle();
+        }
+        resultData.putParcelable(PROVIDER_KEY, provider);
         if (receiver != null) {
             receiver.send(resultCode, resultData);
         } else {
-            broadcastEvent(PROVIDER_API_EVENT, resultCode, resultData);
+            broadcastEvent(resultCode, resultData);
         }
     }
 
@@ -451,11 +453,11 @@ public abstract class ProviderApiManagerBase {
         serviceCallback.broadcastEvent(intentUpdate);
     }
 
-    void broadcastEvent(String action, int resultCode , Bundle resultData) {
-        Intent intentUpdate = new Intent(action);
+    private void broadcastEvent(int resultCode , Bundle resultData) {
+        Intent intentUpdate = new Intent(BROADCAST_PROVIDER_API_EVENT);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
-        intentUpdate.putExtra(RESULT_CODE, resultCode);
-        intentUpdate.putExtra(RESULT_KEY, resultData);
+        intentUpdate.putExtra(BROADCAST_RESULT_CODE, resultCode);
+        intentUpdate.putExtra(BROADCAST_RESULT_KEY, resultData);
         serviceCallback.broadcastEvent(intentUpdate);
     }
 
@@ -624,27 +626,23 @@ public abstract class ProviderApiManagerBase {
      * Downloads a provider.json from a given URL, adding a new provider using the given name.
      *
      * @param task containing a boolean meaning if the provider is custom or not, another boolean meaning if the user completely trusts this provider, the provider name and its provider.json url.
-     * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if the update was successful.
+     * @return a bundle with a boolean value mapped to a key named BROADCAST_RESULT_KEY, and which is true if the update was successful.
      */
-    protected abstract Bundle setUpProvider(Bundle task);
+    protected abstract Bundle setUpProvider(Provider provider, Bundle task);
 
     /**
      * Downloads the eip-service.json from a given URL, and saves eip service capabilities including the offered gateways
-     * @return a bundle with a boolean value mapped to a key named RESULT_KEY, and which is true if the download was successful.
+     * @return a bundle with a boolean value mapped to a key named BROADCAST_RESULT_KEY, and which is true if the download was successful.
      */
-    protected abstract Bundle getAndSetEipServiceJson();
+    protected abstract Bundle getAndSetEipServiceJson(Provider provider);
 
     /**
      * Downloads a new OpenVPN certificate, attaching authenticated cookie for authenticated certificate.
      *
      * @return true if certificate was downloaded correctly, false if provider.json is not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error.
      */
-    protected abstract boolean updateVpnCertificate();
+    protected abstract boolean updateVpnCertificate(Provider provider);
 
-
-    protected static boolean caCertDownloaded() {
-        return CA_CERT_DOWNLOADED;
-    }
 
     protected boolean isValidJson(String jsonString) {
         try {
@@ -658,19 +656,19 @@ public abstract class ProviderApiManagerBase {
         }
     }
 
-    protected boolean validCertificate(String cert_string) {
+    protected boolean validCertificate(Provider provider, String certString) {
         boolean result = false;
-        if (!ConfigHelper.checkErroneousDownload(cert_string)) {
-            X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
+        if (!ConfigHelper.checkErroneousDownload(certString)) {
+            X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certString);
             try {
                 if (certificate != null) {
-                    JSONObject provider_json = new JSONObject(preferences.getString(Provider.KEY, ""));
-                    String fingerprint = provider_json.getString(Provider.CA_CERT_FINGERPRINT);
+                    JSONObject providerJson = provider.getDefinition();
+                    String fingerprint = providerJson.getString(Provider.CA_CERT_FINGERPRINT);
                     String encoding = fingerprint.split(":")[0];
-                    String expected_fingerprint = fingerprint.split(":")[1];
-                    String real_fingerprint = getFingerprintFromCertificate(certificate, encoding);
+                    String expectedFingerprint = fingerprint.split(":")[1];
+                    String realFingerprint = getFingerprintFromCertificate(certificate, encoding);
 
-                    result = real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim());
+                    result = realFingerprint.trim().equalsIgnoreCase(expectedFingerprint.trim());
                 } else
                     result = false;
             } catch (JSONException | NoSuchAlgorithmException | CertificateEncodingException e) {
@@ -681,50 +679,41 @@ public abstract class ProviderApiManagerBase {
         return result;
     }
 
-    protected void checkPersistedProviderUpdates() {
-        String providerDomain = getDomainFromMainURL(lastProviderMainUrl);
+    protected void getPersistedProviderUpdates(Provider provider) {
+        String providerDomain = getDomainFromMainURL(provider.getMainUrlString());
         if (hasUpdatedProviderDetails(providerDomain)) {
-            providerCaCert = getPersistedProviderCA(providerDomain);
-            providerDefinition = getPersistedProviderDefinition(providerDomain);
-            providerCaCertFingerprint = getPersistedCaCertFingerprint(providerDomain);
-            providerApiUrl = getApiUrlWithVersion(providerDefinition);
+            provider.setCaCert(getPersistedProviderCA(providerDomain));
+            provider.define(getPersistedProviderDefinition(providerDomain));
+            provider.setCaCertFingerprint(getPersistedCaCertFingerprint(providerDomain));
         }
     }
 
-    protected Bundle validateProviderDetails() {
-        Bundle result = validateCertificateForProvider(providerCaCert, providerDefinition, lastProviderMainUrl);
+    Bundle validateProviderDetails(Provider provider) {
+        Bundle result = validateCertificateForProvider(provider);
 
         //invalid certificate or no certificate
-        if (result.containsKey(ERRORS) || (result.containsKey(RESULT_KEY) && !result.getBoolean(RESULT_KEY)) ) {
+        if (result.containsKey(ERRORS) || (result.containsKey(BROADCAST_RESULT_KEY) && !result.getBoolean(BROADCAST_RESULT_KEY)) ) {
             return result;
         }
 
-        //valid certificate: skip download, save loaded provider CA cert and provider definition directly
-        try {
-            preferences.edit().putString(Provider.KEY, providerDefinition.toString()).
-                    putBoolean(PROVIDER_ALLOW_ANONYMOUS, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS)).
-                    putBoolean(PROVIDER_ALLOWED_REGISTERED, providerDefinition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED)).
-                    putString(Provider.CA_CERT, providerCaCert).commit();
-            CA_CERT_DOWNLOADED = true;
-            PROVIDER_JSON_DOWNLOADED = true;
-            result.putBoolean(RESULT_KEY, true);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            setErrorResult(result, warning_corrupted_provider_details, ERROR_CORRUPTED_PROVIDER_JSON.toString());
-        }
+        result.putBoolean(BROADCAST_RESULT_KEY, true);
 
         return result;
     }
 
-    protected Bundle validateCertificateForProvider(String cert_string, JSONObject providerDefinition, String mainUrl) {
+    protected Bundle validateCertificateForProvider(Provider provider) {
         Bundle result = new Bundle();
-        result.putBoolean(RESULT_KEY, false);
+        result.putBoolean(BROADCAST_RESULT_KEY, false);
 
-        if (ConfigHelper.checkErroneousDownload(cert_string)) {
+        String caCert = provider.getCaCert();
+        JSONObject providerDefinition = provider.getDefinition();
+        String mainUrl = provider.getMainUrlString();
+
+        if (ConfigHelper.checkErroneousDownload(caCert)) {
             return result;
         }
 
-        X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(cert_string);
+        X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(caCert);
         if (certificate == null) {
             return setErrorResult(result, warning_corrupted_provider_cert, ERROR_INVALID_CERTIFICATE.toString());
         }
@@ -732,9 +721,9 @@ public abstract class ProviderApiManagerBase {
             certificate.checkValidity();
             String fingerprint = getCaCertFingerprint(providerDefinition);
             String encoding = fingerprint.split(":")[0];
-            String expected_fingerprint = fingerprint.split(":")[1];
-            String real_fingerprint = getFingerprintFromCertificate(certificate, encoding);
-            if (!real_fingerprint.trim().equalsIgnoreCase(expected_fingerprint.trim())) {
+            String expectedFingerprint = fingerprint.split(":")[1];
+            String realFingerprint = getFingerprintFromCertificate(certificate, encoding);
+            if (!realFingerprint.trim().equalsIgnoreCase(expectedFingerprint.trim())) {
                 return setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
             }
 
@@ -743,7 +732,7 @@ public abstract class ProviderApiManagerBase {
                 return setErrorResult(result, warning_corrupted_provider_details, ERROR_CORRUPTED_PROVIDER_JSON.toString());
             }
 
-            if (!canConnect(cert_string, providerDefinition, result)) {
+            if (!canConnect(caCert, providerDefinition, result)) {
                 return result;
             }
         } catch (NoSuchAlgorithmException e ) {
@@ -754,11 +743,11 @@ public abstract class ProviderApiManagerBase {
             return setErrorResult(result, warning_expired_provider_cert, ERROR_INVALID_CERTIFICATE.toString());
         }
 
-        result.putBoolean(RESULT_KEY, true);
+        result.putBoolean(BROADCAST_RESULT_KEY, true);
         return result;
     }
 
-    protected Bundle setErrorResult(Bundle result, int errorMessageId, String errorId) {
+    Bundle setErrorResult(Bundle result, int errorMessageId, String errorId) {
         JSONObject errorJson = new JSONObject();
         if (errorId != null) {
             addErrorMessageToJson(errorJson, resources.getString(errorMessageId), errorId);
@@ -766,7 +755,7 @@ public abstract class ProviderApiManagerBase {
             addErrorMessageToJson(errorJson, resources.getString(errorMessageId));
         }
         result.putString(ERRORS, errorJson.toString());
-        result.putBoolean(RESULT_KEY, false);
+        result.putBoolean(BROADCAST_RESULT_KEY, false);
         return result;
     }
 
@@ -807,17 +796,7 @@ public abstract class ProviderApiManagerBase {
         return "";
     }
 
-    protected String getApiUrlWithVersion(JSONObject providerDefinition) {
-        try {
-            return providerDefinition.getString(Provider.API_URL) + "/" + providerDefinition.getString(Provider.API_VERSION);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    protected void deleteProviderDetailsFromPreferences(JSONObject providerDefinition) {
-        String providerDomain = getProviderDomain(providerDefinition);
+    protected void deleteProviderDetailsFromPreferences(String providerDomain) {
 
         if (preferences.contains(Provider.KEY + "." + providerDomain)) {
             preferences.edit().remove(Provider.KEY + "." + providerDomain).apply();
@@ -903,17 +882,15 @@ public abstract class ProviderApiManagerBase {
         return headerArgs;
     }
 
-    private boolean logOut() {
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(new JSONObject());
+    private boolean logOut(Provider provider) {
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), new JSONObject());
         if (okHttpClient == null) {
             return false;
         }
 
-        String deleteUrl = providerApiUrl + "/logout";
-        int progress = 0;
+        String deleteUrl = provider.getApiUrlString() + "/logout";
 
         if (ProviderApiConnector.delete(okHttpClient, deleteUrl)) {
-            broadcastProgress(progress++);
             LeapSRPSession.setToken("");
             return true;
         }

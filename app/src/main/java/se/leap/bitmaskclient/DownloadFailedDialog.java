@@ -89,7 +89,7 @@ public class DownloadFailedDialog extends DialogFragment {
                 dialog.dismiss();
             }
         });
-        switch (downloadError) {
+switch (downloadError) {
             case ERROR_CORRUPTED_PROVIDER_JSON:
                 builder.setPositiveButton(R.string.update_provider_details, new DialogInterface.OnClickListener() {
                     @Override
@@ -113,7 +113,7 @@ public class DownloadFailedDialog extends DialogFragment {
                 builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dismiss();
-                                interface_with_ConfigurationWizard.retrySetUpProvider();
+                                interface_with_ConfigurationWizard.retrySetUpProvider(null);
                             }
                         });
                 break;
@@ -124,7 +124,7 @@ public class DownloadFailedDialog extends DialogFragment {
     }
 
     public interface DownloadFailedDialogInterface {
-        void retrySetUpProvider();
+        void retrySetUpProvider(Provider provider);
 
         void cancelSettingUpProvider();
 

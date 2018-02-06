@@ -23,8 +23,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,14 +34,11 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import butterknife.InjectView;
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.fragments.AboutFragment;
-import se.leap.bitmaskclient.userstatus.SessionDialog;
 import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.userstatus.UserStatusFragment;
 
@@ -51,8 +46,6 @@ import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PRO
 import static se.leap.bitmaskclient.Constants.APP_ACTION_QUIT;
 import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
-import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
-import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
@@ -91,20 +84,15 @@ public class Dashboard extends ButterKnifeActivity {
     private UserStatusFragment user_status_fragment;
 
     private static Provider provider = new Provider();
-    public static ProviderAPIResultReceiver providerAPI_result_receiver;
-    private static boolean switching_provider;
     private boolean handledVersion;
 
-    public static DashboardReceiver dashboardReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dashboardReceiver = new DashboardReceiver(this);
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         fragment_manager = new FragmentManagerEnhanced(getSupportFragmentManager());
 
-        providerAPI_result_receiver = new ProviderAPIResultReceiver(new Handler(), dashboardReceiver);
 
         if (!handledVersion) {
             handleVersion();
@@ -112,7 +100,6 @@ public class Dashboard extends ButterKnifeActivity {
         }
 
         // initialize app necessities
-        ProviderAPICommand.initialize(this);
         VpnStatus.initLogCache(getApplicationContext().getCacheDir());
         User.init(getString(R.string.default_username));
 
@@ -159,7 +146,7 @@ public class Dashboard extends ButterKnifeActivity {
         try {
             provider.setUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
-            provider.setCACert(preferences.getString(Provider.CA_CERT, ""));
+            provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -175,7 +162,7 @@ public class Dashboard extends ButterKnifeActivity {
                 case 91: // 0.6.0 without Bug #5999
                 case 101: // 0.8.0
                     if (!preferences.getString(PROVIDER_KEY, "").isEmpty())
-                        eip_fragment.updateEipService();
+                        EipCommand.updateEipService(this);
                     break;
             }
         } catch (NameNotFoundException e) {
@@ -211,9 +198,9 @@ public class Dashboard extends ButterKnifeActivity {
 
                 buildDashboard(false);
                 invalidateOptionsMenuOnUiThread();
-                if (data.hasExtra(SessionDialog.TAG)) {
-                    sessionDialog(Bundle.EMPTY);
-                }
+                //if (data.hasExtra(SessionDialog.TAG)) {
+                //    sessionDialog(Bundle.EMPTY);
+                //}
 
             } else if (resultCode == RESULT_CANCELED && data != null && data.hasExtra(APP_ACTION_QUIT)) {
                 finish();
@@ -304,14 +291,14 @@ public class Dashboard extends ButterKnifeActivity {
         user_status_fragment.setArguments(bundle);
         fragment_manager.replace(R.id.user_status_fragment, user_status_fragment, UserStatusFragment.TAG);
 
-        if (provider.hasEIP()) {
-            fragment_manager.removePreviousFragment(EipFragment.TAG);
-            eip_fragment = prepareEipFragment(hideAndTurnOnEipOnBoot);
-            fragment_manager.replace(R.id.servicesCollection, eip_fragment, EipFragment.TAG);
-            if (hideAndTurnOnEipOnBoot) {
-                onBackPressed();
-            }
-        }
+//        if (provider.hasEIP()) {
+//            fragment_manager.removePreviousFragment(EipFragment.TAG);
+//            eip_fragment = prepareEipFragment(hideAndTurnOnEipOnBoot);
+//            fragment_manager.replace(R.id.servicesCollection, eip_fragment, EipFragment.TAG);
+//            if (hideAndTurnOnEipOnBoot) {
+//                onBackPressed();
+//            }
+//        }
     }
 
     /**
@@ -367,12 +354,11 @@ public class Dashboard extends ButterKnifeActivity {
                 showLog();
                 return true;
             case R.id.switch_provider:
-                switching_provider = true;
                 if (User.loggedIn()) user_status_fragment.logOut();
                 else switchProvider();
                 return true;
             case R.id.signup_button:
-                sessionDialog(Bundle.EMPTY);
+                //sessionDialog(Bundle.EMPTY);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -389,97 +375,12 @@ public class Dashboard extends ButterKnifeActivity {
         log_window_wrapper.showLog();
     }
 
-
-    // TODO MOVE TO VPNManager(?)
-    public static void downloadVpnCertificate() {
-        boolean is_authenticated = User.loggedIn();
-        boolean allowed_anon = preferences.getBoolean(PROVIDER_ALLOW_ANONYMOUS, false);
-        if (allowed_anon || is_authenticated)
-            ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.DOWNLOAD_CERTIFICATE, providerAPI_result_receiver);
-        else
-            sessionDialog(Bundle.EMPTY);
-    }
-
-    // TODO how can we replace this
-    public static void sessionDialog(Bundle resultData) {
-        try {
-            FragmentTransaction transaction = fragment_manager.removePreviousFragment(SessionDialog.TAG);
-            SessionDialog.getInstance(provider, resultData).show(transaction, SessionDialog.TAG);
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void switchProvider() {
-        if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
+//        if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
 
-        clearDataOfLastProvider();
+        ConfigHelper.clearDataOfLastProvider(preferences);
 
-        switching_provider = false;
         startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
-    }
-
-    private void clearDataOfLastProvider() {
-        Map<String, ?> allEntries = preferences.getAll();
-        List<String> lastProvidersKeys = new ArrayList<>();
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            //sort out all preferences that don't belong to the last provider
-            if (entry.getKey().startsWith(Provider.KEY + ".") ||
-                    entry.getKey().startsWith(Provider.CA_CERT + ".") ||
-                    entry.getKey().startsWith(Provider.CA_CERT_FINGERPRINT + "." )||
-                    entry.getKey().equals(PREFERENCES_APP_VERSION)
-                    ) {
-                continue;
-            }
-            lastProvidersKeys.add(entry.getKey());
-        }
-
-        SharedPreferences.Editor preferenceEditor = preferences.edit();
-        for (String key : lastProvidersKeys) {
-            preferenceEditor.remove(key);
-        }
-        preferenceEditor.apply();
-
-        switching_provider = false;
-        startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
-    }
-
-    private static class DashboardReceiver implements ProviderAPIResultReceiver.Receiver{
-
-        private Dashboard dashboard;
-
-        DashboardReceiver(Dashboard dashboard) {
-            this.dashboard = dashboard;
-        }
-
-        @Override
-        public void onReceiveResult(int resultCode, Bundle resultData) {
-            if (resultCode == ProviderAPI.SUCCESSFUL_SIGNUP) {
-                String username = resultData.getString(SessionDialog.USERNAME);
-                String password = resultData.getString(SessionDialog.PASSWORD);
-                dashboard.user_status_fragment.logIn(username, password);
-            } else if (resultCode == ProviderAPI.FAILED_SIGNUP) {
-                MainActivity.sessionDialog(resultData);
-            } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
-                Dashboard.downloadVpnCertificate();
-            } else if (resultCode == ProviderAPI.FAILED_LOGIN) {
-                MainActivity.sessionDialog(resultData);
-            } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGOUT) {
-                if (switching_provider) dashboard.switchProvider();
-            } else if (resultCode == ProviderAPI.LOGOUT_FAILED) {
-                dashboard.setResult(RESULT_CANCELED);
-            } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE) {
-                dashboard.eip_fragment.updateEipService();
-                dashboard.setResult(RESULT_OK);
-            } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE) {
-                dashboard.setResult(RESULT_CANCELED);
-            } else if (resultCode == ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE) {
-                dashboard.eip_fragment.updateEipService();
-                dashboard.setResult(RESULT_OK);
-            } else if (resultCode == ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE) {
-                dashboard.setResult(RESULT_CANCELED);
-            }
-        }
     }
 
     public static Provider getProvider() { return provider; }

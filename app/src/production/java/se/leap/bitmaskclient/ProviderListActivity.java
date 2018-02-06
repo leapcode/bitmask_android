@@ -22,6 +22,8 @@ import android.os.Bundle;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
+
 /**
  * Activity that builds and shows the list of known available providers.
  * <p/>
@@ -61,43 +63,19 @@ public class ProviderListActivity extends ProviderListBaseActivity {
      */
     public void setUpProvider() {
         mConfigState.setAction(SETTING_UP_PROVIDER);
-        Intent providerApiCommand = new Intent(this, ProviderAPI.class);
-        Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, provider.getMainUrl().toString());
-        if (provider.hasCertificatePin()){
-            parameters.putString(Provider.CA_CERT_FINGERPRINT, provider.certificatePin());
-        }
-        if (provider.hasCaCert()) {
-            parameters.putString(Provider.CA_CERT, provider.getCaCert());
-        }
-        if (provider.hasDefinition()) {
-            parameters.putString(Provider.KEY, provider.getDefinition().toString());
-        }
-
-        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
-        providerApiCommand.putExtra(ProviderAPI.PARAMETERS, parameters);
-
-        startService(providerApiCommand);
+        ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
     }
 
     @Override
-    public void retrySetUpProvider() {
+    public void retrySetUpProvider(Provider provider) {
         cancelSettingUpProvider();
-        if (!ProviderAPI.caCertDownloaded()) {
-            addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl());
+        if (!provider.hasCaCert()) {
+            addAndSelectNewProvider(provider.getMainUrlString());
         } else {
             showProgressBar();
             adapter.hideAllBut(adapter.indexOf(provider));
 
-
-            Intent providerApiCommand = new Intent(this, ProviderAPI.class);
-            providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
-            providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, providerAPIResultReceiver);
-            Bundle parameters = new Bundle();
-            parameters.putString(Provider.MAIN_URL, provider.getMainUrl().toString());
-            providerApiCommand.putExtra(ProviderAPI.PARAMETERS, parameters);
-
-            startService(providerApiCommand);
+            ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
         }
     }
 

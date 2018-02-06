@@ -69,7 +69,6 @@ public class StartActivity extends Activity {
         }
 
         // initialize app necessities
-        ProviderAPICommand.initialize(getApplicationContext());
         VpnStatus.initLogCache(getApplicationContext().getCacheDir());
         User.init(getString(R.string.default_username));
 

@@ -17,17 +17,18 @@ import java.util.Observer;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import se.leap.bitmaskclient.MainActivity;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.ProviderAPICommand;
 import se.leap.bitmaskclient.ProviderAPIResultReceiver;
 import se.leap.bitmaskclient.R;
 
-public class UserStatusFragment extends Fragment implements Observer, SessionDialog.SessionDialogInterface {
+public class UserStatusFragment extends Fragment implements Observer {
 
     public static String TAG = UserStatusFragment.class.getSimpleName();
     private ProviderAPIResultReceiver providerAPI_result_receiver;
+
+    private Provider provider;
 
     @InjectView(R.id.user_status_username)
     TextView username;
@@ -87,8 +88,8 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
         android.util.Log.d(TAG, status.toString());
         if(status.isLoggedIn())
             logOut();
-        else if(status.isLoggedOut())
-            MainActivity.sessionDialog(Bundle.EMPTY);
+        //else if(status.isLoggedOut())
+            //MainActivity.sessionDialog(Bundle.EMPTY);
         else if(status.inProgress())
             cancelLoginOrSignup();
     }
@@ -143,33 +144,13 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
     }
 
 
-    @Override
-    public void signUp(String username, String password) {
-        User.setUserName(username);
-        Bundle parameters = bundlePassword(password);
-        ProviderAPICommand.execute(parameters, ProviderAPI.SIGN_UP, providerAPI_result_receiver);
-    }
-
-    @Override
-    public void logIn(String username, String password) {
-        User.setUserName(username);
-        Bundle parameters = bundlePassword(password);
-        ProviderAPICommand.execute(parameters, ProviderAPI.LOG_IN, providerAPI_result_receiver);
-    }
-
     public void logOut() {
         android.util.Log.d(TAG, "Log out");
-        ProviderAPICommand.execute(Bundle.EMPTY, ProviderAPI.LOG_OUT, providerAPI_result_receiver);
+        ProviderAPICommand.execute(getActivity(), ProviderAPI.LOG_OUT, provider, providerAPI_result_receiver);
     }
 
     public void cancelLoginOrSignup() {
         //EipStatus.getInstance().setConnectedOrDisconnected();
     }
 
-    private Bundle bundlePassword(String password) {
-        Bundle parameters = new Bundle();
-        if (!password.isEmpty())
-            parameters.putString(SessionDialog.PASSWORD, password);
-        return parameters;
-    }
 }

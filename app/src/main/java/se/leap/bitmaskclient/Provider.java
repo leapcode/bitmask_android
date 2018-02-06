@@ -16,18 +16,22 @@
  */
 package se.leap.bitmaskclient;
 
-import android.content.SharedPreferences;
-import android.os.*;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.gson.Gson;
 
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.Serializable;
-import java.net.*;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Locale;
 
-import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
+import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 
 /**
  * @author Sean Leonard <meanderingcode@aetherislands.net>
@@ -36,11 +40,17 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 public final class Provider implements Parcelable {
 
     private JSONObject definition = new JSONObject(); // Represents our Provider's provider.json
+    private JSONObject eipServiceJson = new JSONObject(); // Represents our Provider's provider.json
     private DefaultedURL mainUrl = new DefaultedURL();
     private DefaultedURL apiUrl = new DefaultedURL();
     private String certificatePin = "";
     private String certificatePinEncoding = "";
     private String caCert = "";
+    private String caCertFingerprint = "";
+    private String apiVerson = "";
+
+    private boolean allowAnonymous;
+    private boolean allowRegistered;
 
     final public static String
             API_URL = "api_uri",
@@ -141,6 +151,19 @@ public final class Provider implements Parcelable {
         return apiUrl;
     }
 
+    protected String getApiUrlWithVersion() {
+        return getApiUrlString() + "/" + getApiVersion();
+    }
+
+
+    protected String getApiUrlString() {
+        return getApiUrl().toString();
+    }
+
+    public String getApiVersion() {
+        return apiVerson;
+    }
+
     protected String certificatePin() { return certificatePin; }
 
     protected boolean hasCertificatePin() {
@@ -158,6 +181,10 @@ public final class Provider implements Parcelable {
 
     public String getCaCert() {
         return caCert;
+    }
+
+    public String getCaCertFingerprint() {
+        return caCertFingerprint;
     }
 
     public String getName() {
@@ -200,26 +227,7 @@ public final class Provider implements Parcelable {
     }
 
     protected boolean hasEIP() {
-        try {
-            JSONArray services = definition.getJSONArray(API_TERM_SERVICES); // returns ["openvpn"]
-            for (int i = 0; i < API_EIP_TYPES.length + 1; i++) {
-                try {
-                    // Walk the EIP types array looking for matches in provider's service definitions
-                    if (Arrays.asList(API_EIP_TYPES).contains(services.getString(i)))
-                        return true;
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                    return false;
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    return false;
-                }
-            }
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
-        return false;
+        return getEipServiceJson() != null && getEipServiceJson().length() > 0;
     }
 
     public boolean allowsRegistration() {
@@ -237,12 +245,11 @@ public final class Provider implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        if(mainUrl != null)
-            parcel.writeString(mainUrl.toString());
-        if (definition != null)
-            parcel.writeString(definition.toString());
-        if (caCert != null)
-            parcel.writeString(caCert);
+        parcel.writeString(getMainUrlString());
+        parcel.writeString(getDefinitionString());
+        parcel.writeString(getCaCert());
+        parcel.writeString(getCaCertFingerprint());
+        parcel.writeString(getEipServiceJsonString());
     }
 
     @Override
@@ -289,6 +296,14 @@ public final class Provider implements Parcelable {
             if (!caCert.isEmpty()) {
                 this.caCert = caCert;
             }
+            String caCertFingerprint = in.readString();
+            if (!caCertFingerprint.isEmpty()) {
+               this.caCertFingerprint = caCertFingerprint;
+            }
+            String eipServiceJson = in.readString();
+            if (!eipServiceJson.isEmpty()) {
+                this.setEipServiceJson(new JSONObject(eipServiceJson));
+            }
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -300,13 +315,39 @@ public final class Provider implements Parcelable {
             this.certificatePin = pin.split(":")[1].trim();
             this.certificatePinEncoding = pin.split(":")[0].trim();
             this.apiUrl.setUrl(new URL(definition.getString(API_URL)));
+            this.allowAnonymous = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS);
+            this.allowRegistered = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED);
+            this.apiVerson = getDefinition().getString(Provider.API_VERSION);
         } catch (JSONException | ArrayIndexOutOfBoundsException | MalformedURLException e) {
             e.printStackTrace();
         }
     }
 
-    public void setCACert(String cert) {
+    public void setCaCert(String cert) {
         this.caCert = cert;
     }
 
+    public void setCaCertFingerprint(String certFingerprint) {
+        this.caCertFingerprint = certFingerprint;
+    }
+
+    public boolean allowsAnonymous() {
+        return allowAnonymous;
+    }
+
+    public boolean allowsRegistered() {
+        return allowRegistered;
+    }
+
+    public void setEipServiceJson(JSONObject eipServiceJson) {
+        this.eipServiceJson = eipServiceJson;
+    }
+
+    public JSONObject getEipServiceJson() {
+        return eipServiceJson;
+    }
+
+    public String getEipServiceJsonString() {
+        return getEipServiceJson().toString();
+    }
 }

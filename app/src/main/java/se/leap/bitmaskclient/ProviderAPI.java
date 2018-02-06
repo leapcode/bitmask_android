@@ -40,22 +40,18 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
             TAG = ProviderAPI.class.getSimpleName(),
             SET_UP_PROVIDER = "setUpProvider",
             UPDATE_PROVIDER_DETAILS = "updateProviderDetails",
-            DOWNLOAD_NEW_PROVIDER_DOTJSON = "downloadNewProviderDotJSON",
             SIGN_UP = "srpRegister",
             LOG_IN = "srpAuth",
             LOG_OUT = "logOut",
             DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
             PARAMETERS = "parameters",
-            RESULT_KEY = "result",
-            RESULT_CODE = "RESULT CODE",
             RECEIVER_KEY = "receiver",
             ERRORS = "errors",
             ERRORID = "errorId",
             UPDATE_PROGRESSBAR = "update_progressbar",
             CURRENT_PROGRESS = "current_progress",
             DOWNLOAD_EIP_SERVICE = TAG + ".DOWNLOAD_EIP_SERVICE",
-            PROVIDER_SET_UP = TAG + ".PROVIDER_SET_UP",
-            PROVIDER_API_EVENT = "PROVIDER_API_EVENT";
+            PROVIDER_SET_UP = TAG + ".PROVIDER_SET_UP";
 
     final public static int
             SUCCESSFUL_LOGIN = 3,
@@ -82,16 +78,6 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
     //TODO: refactor me, please!
     public static void stop() {
         ProviderApiManager.stop();
-    }
-
-    //TODO: refactor me, please!
-    public static boolean caCertDownloaded() {
-        return ProviderApiManager.caCertDownloaded();
-    }
-
-    //TODO: refactor me, please!
-    public static String lastProviderMainUrl() {
-        return ProviderApiManager.lastProviderMainUrl();
     }
 
     //TODO: refactor me, please!

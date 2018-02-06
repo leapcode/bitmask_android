@@ -21,7 +21,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.spongycastle.util.encoders.Base64;
@@ -47,10 +46,15 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static android.R.attr.name;
+import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 
 /**
  * Stores constants, and implements auxiliary methods used across all Bitmask Android classes.
@@ -273,7 +277,7 @@ public class ConfigHelper {
         try {
             provider.setUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
-            provider.setCACert(preferences.getString(Provider.CA_CERT, ""));
+            provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -349,6 +353,40 @@ public class ConfigHelper {
                 putString(Provider.MAIN_URL, provider.getMainUrlString()).
                 putString(Provider.KEY, provider.getDefinitionString()).
                 putString(Provider.CA_CERT, provider.getCaCert()).
-                apply();
+                putString(PROVIDER_KEY, provider.getEipServiceJsonString()).
+                commit();
     }
+
+
+    public static void clearDataOfLastProvider(SharedPreferences preferences) {
+        clearDataOfLastProvider(preferences, false);
+    }
+
+    public static void clearDataOfLastProvider(SharedPreferences preferences, boolean commit) {
+        Map<String, ?> allEntries = preferences.getAll();
+        List<String> lastProvidersKeys = new ArrayList<>();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            //sort out all preferences that don't belong to the last provider
+            if (entry.getKey().startsWith(Provider.KEY + ".") ||
+                    entry.getKey().startsWith(Provider.CA_CERT + ".") ||
+                    entry.getKey().startsWith(Provider.CA_CERT_FINGERPRINT + "." )||
+                    entry.getKey().equals(PREFERENCES_APP_VERSION)
+                    ) {
+                continue;
+            }
+            lastProvidersKeys.add(entry.getKey());
+        }
+
+        SharedPreferences.Editor preferenceEditor = preferences.edit();
+        for (String key : lastProvidersKeys) {
+            preferenceEditor.remove(key);
+        }
+        if (commit) {
+            preferenceEditor.commit();
+        } else {
+            preferenceEditor.apply();
+        }
+    }
+
+
 }
