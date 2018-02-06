@@ -54,7 +54,7 @@ The Bitmask Android Client has the following system-level dependencies:
   * Platforms 23-27
   * Android Support Repository
   * Google Support Repository
-  * NDK v. r15c (enables C code in Android)
+  * NDK v. r16b (enables C code in Android)
 * For running the app in an emulator, you will also need these packages:
   * Android Emulator
   * System Images for Android APIs 23-27
@@ -103,8 +103,8 @@ curl -L https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip -o 
 To download the NDK (for cross-compiling and running the C code used in `ics-openvpn`), use:
 
 ```
-curl -L http://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip -o ndk.zip  \
-    && unzip ndk.zip -d /opt/android-sdk-linux/android-ndk-r15c \
+curl -L http://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip -o ndk.zip  \
+    && unzip ndk.zip -d /opt/android-sdk-linux/android-ndk-r16b \
     && rm -rf ndk.zip
 ```
 
@@ -194,7 +194,20 @@ You have lots of options for compiling, all of which will output Android-executa
 
 ### Just Build It! <a name="just-build-it"></a>
 
-You are welcome to run:
+If you compile the project for the first time you'll have to compile the dependencies. This can be done with:
+
+```
+./build_deps.sh
+```
+This command will create all libs we need for Bitmask.
+ 
+If you want to to have a clean build of all submodules run
+```
+./cleanProject.sh
+```
+before you call `./build_deps.sh`. That script removes all build files and does the git submodule init and update job for you.  
+
+You are then welcome to run:
 
 ```
 ./gradlew build
@@ -207,6 +220,7 @@ This will compile the code and run the tests, but not output any `apk` packages.
 To assemble debug packages for running locally or testing in CI, run:
 
 ```bash
+./build_deps.sh
 ./gradlew assembleDebug
 ```
 
@@ -217,6 +231,7 @@ This will output `app-insecure-debug.apk` and `app-production-debug.apk` to `/bi
 To assemble release packages, run:
 
 ```bash
+./build_deps.sh
 ./gradlew assembleRelease
 ```
 
@@ -241,6 +256,8 @@ If you want to make sure the environment you use to build APKs matches exactly t
 $ cd <path/to/bitmask_android>
 $ sudo docker run --rm -it -v `pwd`:/bitmask_android 0xacab.org:4567/leap/bitmask_android/android-ndk:latest
 # cd /bitmask_android
+# ./cleanProject.sh
+# ./build_deps.sh
 # ./gradlew assembleRelease
 ```
 
