@@ -4,7 +4,9 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
     android:layout_marginLeft="20dp"
-    android:layout_marginStart="20dp">
+    android:layout_marginStart="20dp"
+    android:id="@+id/eipServiceFragment"
+    >
 
     <TextView
         android:id="@+id/eipLabel"
