@@ -48,16 +48,16 @@ The Bitmask Android Client has the following system-level dependencies:
 
 * JDK v. 1.8
 * Assorted 32-bit C libraries
-* Android SDK Tools, v. 26.0.0, with these packages:
-  * Platform-Tools, v. 26.0.0
-  * Build-Tools, API v. 23-26
-  * Platforms 23-26
+* Android SDK Tools, v. 27.0.3, with these packages:
+  * Platform-Tools, v. 27.0.3
+  * Build-Tools, API v. 23-27
+  * Platforms 23-27
   * Android Support Repository
   * Google Support Repository
-  * NDK v. r15c (enables C code in Android)
+  * NDK v. r16b (enables C code in Android)
 * For running the app in an emulator, you will also need these packages:
   * Android Emulator
-  * System Images for Android APIs 23-26
+  * System Images for Android APIs 23-27
 * The ICS-OpenVpn submodule
 
 You can install them as follows:
@@ -92,7 +92,7 @@ Once you've got it installed, use the `SDK Manager` tool (Android figure Icon wi
 
 #### With Bash <a name="with-bash"></a>
 
-Alternatley (eg: for build machines), you may download and unzip the `android-sdk` bundle from Google as follows (assuming an install location of `/opt/android-sdk-linux`:
+Alternatively (eg: for build machines), you may download and unzip the `android-sdk` bundle from Google as follows (assuming an install location of `/opt/android-sdk-linux`:
 
 ```
 curl -L https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip -o sdk-tools.zip  \
@@ -103,8 +103,8 @@ curl -L https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip -o 
 To download the NDK (for cross-compiling and running the C code used in `ics-openvpn`), use:
 
 ```
-curl -L http://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip -o ndk.zip  \
-    && unzip ndk.zip -d /opt/android-sdk-linux/android-ndk-r15c \
+curl -L http://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip -o ndk.zip  \
+    && unzip ndk.zip -d /opt/android-sdk-linux/android-ndk-r16b \
     && rm -rf ndk.zip
 ```
 
@@ -129,13 +129,11 @@ sdkmanager tools
 sdkmanager platform-tools
 sdkmanager extras;android;m2repository
 sdkmanager extras;google;m2repository
-sdkmanager build-tools;26.0.0
+sdkmanager build-tools;27.0.3
 sdkmanager build-tools;25.0.2
-sdkmanager build-tools;24.0.3
 sdkmanager build-tools;23.0.3
-sdkmanager platforms;android-26
+sdkmanager platforms;android-27
 sdkmanager platforms;android-25
-sdkmanager platforms;android-24
 sdkmanager platforms;android-23
 ```
 
@@ -196,7 +194,20 @@ You have lots of options for compiling, all of which will output Android-executa
 
 ### Just Build It! <a name="just-build-it"></a>
 
-You are welcome to run:
+If you compile the project for the first time you'll have to compile the dependencies. This can be done with:
+
+```
+./build_deps.sh
+```
+This command will create all libs we need for Bitmask.
+ 
+If you want to to have a clean build of all submodules run
+```
+./cleanProject.sh
+```
+before you call `./build_deps.sh`. That script removes all build files and does the git submodule init and update job for you.  
+
+You are then welcome to run:
 
 ```
 ./gradlew build
@@ -209,6 +220,7 @@ This will compile the code and run the tests, but not output any `apk` packages.
 To assemble debug packages for running locally or testing in CI, run:
 
 ```bash
+./build_deps.sh
 ./gradlew assembleDebug
 ```
 
@@ -219,6 +231,7 @@ This will output `app-insecure-debug.apk` and `app-production-debug.apk` to `/bi
 To assemble release packages, run:
 
 ```bash
+./build_deps.sh
 ./gradlew assembleRelease
 ```
 
@@ -243,6 +256,8 @@ If you want to make sure the environment you use to build APKs matches exactly t
 $ cd <path/to/bitmask_android>
 $ sudo docker run --rm -it -v `pwd`:/bitmask_android 0xacab.org:4567/leap/bitmask_android/android-ndk:latest
 # cd /bitmask_android
+# ./cleanProject.sh
+# ./build_deps.sh
 # ./gradlew assembleRelease
 ```
 
@@ -250,18 +265,11 @@ $ sudo docker run --rm -it -v `pwd`:/bitmask_android 0xacab.org:4567/leap/bitmas
 
 To run the automated tests:
 
-   1. Run an emulator (device doesn't necesarily has root, so testVpnCertificateValidator.testIsValid may fail).
+   1. Run an emulator
    2. Unlock Android
    3. Issue the command ./gradlew connectedCheck
    4. Pay attention and check the "Trust this app" checkbox, if you don't do so tests won't run.
 
-Due to the nature of some tests, adb will lose its connectivity and you won't receive any tests results. To look for failed tests, do the following:
-
-   1. adb kill-server
-   2. adb logcat | less
-   3. Look for: "failed: test"
-
-We'll polish this process soon, but right now that's what we're doing.
 
 ## Debugging in an Emulator <a name="debugging-in-an-emulator"></a>
 
@@ -285,9 +293,9 @@ To run the app:
 
 * Ensure you have an emulator running
 * Open the left-hand project pane (Meta-1 or Cmd-1, depending on your keybindings)
-* Navigate to `bitmask_android/app/src/main/java/se/leap/bitmaskclient/Dashboard`
-* Right-click over the `Dashboard` filename and click the `Run 'Dashboard'` option (or use Shift-Ctl-F10 or Shift-Ctl-R, depending on your keybindings)
-* After you have done this once, you should be able to simply select `Dashboard` from the dropdown menu next to the big green arrow in the toolbar, then click the green arrow to run the app.
+* Navigate to `bitmask_android/app/src/main/java/se/leap/bitmaskclient/StartActivity`
+* Right-click over the `StartActivity` filename and click the `Run 'StartActivity'` option (or use Shift-Ctl-F10 or Shift-Ctl-R, depending on your keybindings)
+* After you have done this once, you should be able to simply select `StartActivity` from the dropdown menu next to the big green arrow in the toolbar, then click the green arrow to run the app.
 
 ### From the Shell <a name="from-the-shell"></a>
 

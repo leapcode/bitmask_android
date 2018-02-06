@@ -13,7 +13,6 @@
     <string name="cert_from_keystore">Certificado de \'%s\' obtenido de almacén de claves</string>
     <string name="repository_url_text">Código fuente disponible en https://0xacab.org/leap/bitmask_android</string>
     <string name="leap_tracker">Tracker disponible en  https://0xacab.org/leap/bitmask_android/issues</string>
-    <string name="title_activity_dashboard">Bitmask</string>
     <string name="provider_label">Proveedor:</string>
     <string name="provider_label_none">Ningún proveedor configurado</string>
     <string name="status_unknown">Estado no definido.</string>
@@ -56,7 +55,6 @@
     <string name="incorrectly_downloaded_certificate_message">Tu certificado VPN no pudo ser descargado. Intenta iniciar sesión si es posible.</string>
     <string name="downloading_certificate_message">Descargando certificado VPN</string>
     <string name="updating_certificate_message">Actualizando certificado VPN</string>
-    <string name="log_out_failed_message">No pudo cerrarse la sesión. Inténtalo más tarde, quizás sea un problema de la red o del proveedor. Si el problema persiste, borra los datos locales de Bitmask desde la configuración de Android.</string>
     <string name="login.riseup.warning">"Usuarios de Riseup: es necesario crear una cuenta aparte para utilizar el servicio de VPN."</string>
     <string name="succesful_authentication_message">Sesión iniciada.</string>
     <string name="authentication_failed_message">Inicio de sesión fallido.</string>

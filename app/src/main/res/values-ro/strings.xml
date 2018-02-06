@@ -5,7 +5,6 @@
   <string name="show_connection_details">Arată detaliile conexiunii</string>
   <string name="routes_info">Rute: %s</string>
   <string name="routes_info6">Rute IPv6: %s</string>
-  <string name="bitmask_openvpn_log_file">Fişier jurnal LEAP Android</string>
   <string name="cert_from_keystore">Am primit certificatul \'%s\' din Keystore</string>
   <string name="bitmask_log">Jurnal Bitmask</string>
 
