@@ -1,7 +1,7 @@
 FROM 0xacab.org:4567/leap/bitmask_android/android-sdk:latest
 
 MAINTAINER LEAP Encryption Access Project <info@leap.se>
-LABEL Description="Android NDK image based on android-sdk baseimage" Vendor="LEAP" Version="r15c"
+LABEL Description="Android NDK image based on android-sdk baseimage" Vendor="LEAP" Version="r16b"
 
 # Make sure debconf doesn't complain about lack of interactivity
 ENV DEBIAN_FRONTEND noninteractive
@@ -24,7 +24,7 @@ RUN apt-get update -qq && \
 # ------------------------------------------------------
 # --- Install Android NDK (for running C code)
 
-ENV ANDROID_NDK_VERSION "r15c"
+ENV ANDROID_NDK_VERSION "r16b"
 ENV ANDROID_NDK_HOME ${ANDROID_HOME}/android-ndk-${ANDROID_NDK_VERSION}
 ENV ANDROID_NDK_URL http://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip
 
