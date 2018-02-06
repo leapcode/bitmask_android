@@ -5,7 +5,6 @@
 
 package de.blinkt.openvpn;
 
-import de.blinkt.openvpn.core.Preferences;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 
@@ -23,6 +22,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import de.blinkt.openvpn.core.*;
 import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
 
@@ -35,11 +35,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.SignatureException;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -53,14 +49,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-
-import de.blinkt.openvpn.core.Connection;
-import de.blinkt.openvpn.core.NativeUtils;
-import de.blinkt.openvpn.core.OpenVPNService;
-import de.blinkt.openvpn.core.PasswordCache;
-import de.blinkt.openvpn.core.VPNLaunchHelper;
-import de.blinkt.openvpn.core.VpnStatus;
-import de.blinkt.openvpn.core.X509Utils;
 
 public class VpnProfile implements Serializable, Cloneable {
     // Note that this class cannot be moved to core where it belongs since
@@ -289,7 +277,7 @@ public class VpnProfile implements Serializable, Cloneable {
     public static boolean doUseOpenVPN3(Context c) {
         SharedPreferences prefs = Preferences.getDefaultSharedPreferences(c);
         boolean useOpenVPN3 = prefs.getBoolean("ovpn3", false);
-        if ("noovpn3".equals(BuildConfig.FLAVOR))
+        if (!BuildConfig.openvpn3)
             useOpenVPN3 = false;
         return useOpenVPN3;
     }
@@ -1091,7 +1079,7 @@ public class VpnProfile implements Serializable, Cloneable {
         return mPrivateKey;
     }
 
-    public String getSignedData(String b64data, boolean ecdsa) {
+    public String getSignedData(String b64data) {
         PrivateKey privkey = getKeystoreKey();
 
         byte[] data = Base64.decode(b64data, Base64.DEFAULT);
