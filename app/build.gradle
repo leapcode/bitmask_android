@@ -47,7 +47,6 @@ android {
       initWith release
       applicationIdSuffix ".beta"
       resValue "string", "app_name", "Bitmask Beta"
-      matchingFallbacks = ['release']
     }
     debug {
       testCoverageEnabled = true
@@ -131,7 +130,7 @@ configurations.all { config ->
   }
   resolutionStrategy.force "com.android.support:support-annotations:27.0.2"
   resolutionStrategy.force "com.android.support:support-v4:27.0.2"
-  resolutionStrategy.force "ccom.android.support:support-core-utils:27.0.2"
+  resolutionStrategy.force "com.android.support:support-core-utils:27.0.2"
   resolutionStrategy.force "com.android.support:appcompat-v7:27.0.2"
   resolutionStrategy.force "com.android.support:design:27.0.2"
   resolutionStrategy.force "com.android.support:support-fragment:27.0.2"
@@ -286,7 +285,7 @@ task mergeUntranslatable( type: Copy ) {
 
 task copyIcsOpenVPNFiles( type: Copy ) {
   println "copyIcsOpenVPNFiles"
-  //copyIcsOpenVPNClasses.execute()
+  copyIcsOpenVPNClasses.execute()
   copyIcsOpenVPNXml.execute()
   copyIcsOpenVPNImages.execute()
   //mergeUntranslatable.execute()
