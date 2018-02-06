@@ -28,8 +28,7 @@ variables:
     - if ! .gitlab/build.sh ${DOCKER_IMAGE} >> dockerbuild.log 2>&1; then echo "Image build failed. Please check dockerbuild.log."; exit 1; fi;
   allow_failure: false
   artifacts:
-    when: on_failure
-    expire_in: 31d
+    expire_in: 3d
     paths:
     - dockerbuild.log
 
@@ -57,13 +56,50 @@ unit_test:
   script:
     - ./gradlew test
 
+#ui_test:
+#  image: "0xacab.org:4567/leap/bitmask_android/android-emulator:latest"
+#  stage: test
+#  script:
+#    - emulator -avd testApi27 -no-audio -no-window &
+#    - .gitlab/wait-for-emulator.sh
+#    - adb devices
+#    - adb shell settings put global window_animation_scale 0 &
+#    - adb shell settings put global transition_animation_scale 0 &
+#    - adb shell settings put global animator_duration_scale 0 &
+#    - adb shell input keyevent 82 &
+#    - ./gradlew connectedAndroidTest
+#    - adb -s testApi27 emu kill
+
+#expanded_test:
+#  image: "0xacab.org:4567/leap/bitmask_android/android-emulator:latest"
+#  stage: test
+#  script:
+#    - emulator -avd testApi27 -no-audio -no-window &
+#    - .gitlab/wait-for-emulator.sh
+#    - adb devices
+#    - adb shell settings put global window_animation_scale 0 &
+#    - adb shell settings put global transition_animation_scale 0 &
+#    - adb shell settings put global animator_duration_scale 0 &
+#    - adb shell input keyevent 82 &
+#    - ./gradlew connectedAndroidTest
+#    - ./gradlew createProductionDebugCoverageReport
+#    - adb -s testApi27 emu kill
+#    - ./gradlew test
+#  artifacts:
+#    expire_in: 3 days
+#    paths:
+#      - app/build/reports/androidTests/connected/
+#      - app/build/reports/coverage/production/
+#      - app/build/tests/
+#  when: manual
+
 build:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
-    - ./gradlew clean assembleDebug
+    - ./cleanProject.sh
+    - ./build_deps.sh
+    - ./gradlew clean assembleDebug --stacktrace
   artifacts:
     paths:
     - app/build/outputs/
@@ -72,11 +108,10 @@ build_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
-    - ./gradlew clean
-    - ./gradlew assembleProductionRelease
-    - ./gradlew assembleProductionBeta
+    - ./cleanProject.sh
+    - ./build_deps.sh
+    - ./gradlew assembleProductionRelease --stacktrace
+    - ./gradlew assembleProductionBeta --stacktrace
   artifacts:
     paths:
     - app/build/outputs/

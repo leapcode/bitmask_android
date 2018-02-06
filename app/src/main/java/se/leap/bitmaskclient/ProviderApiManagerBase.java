@@ -51,12 +51,10 @@ import javax.net.ssl.SSLHandshakeException;
 
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.Constants.CREDENTIAL_ERRORS;
-import se.leap.bitmaskclient.userstatus.UserStatus;
 
 import static se.leap.bitmaskclient.ConfigHelper.getFingerprintFromCertificate;
 import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_PASSWORD;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
@@ -176,23 +174,17 @@ public abstract class ProviderApiManagerBase {
                 sendToReceiverOrBroadcast(receiver, FAILED_SIGNUP, result, provider);
             }
         } else if (action.equalsIgnoreCase(LOG_IN)) {
-            UserStatus.updateStatus(UserStatus.SessionStatus.LOGGING_IN, resources);
             Bundle result = tryToAuthenticate(provider, parameters);
             if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                 sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGIN, result, provider);
-                UserStatus.updateStatus(UserStatus.SessionStatus.LOGGED_IN, resources);
             } else {
                 sendToReceiverOrBroadcast(receiver, FAILED_LOGIN, result, provider);
-                UserStatus.updateStatus(UserStatus.SessionStatus.NOT_LOGGED_IN, resources);
             }
         } else if (action.equalsIgnoreCase(LOG_OUT)) {
-            UserStatus.updateStatus(UserStatus.SessionStatus.LOGGING_OUT, resources);
             if (logOut(provider)) {
                 sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGOUT, Bundle.EMPTY, provider);
-                UserStatus.updateStatus(UserStatus.SessionStatus.LOGGED_OUT, resources);
             } else {
                 sendToReceiverOrBroadcast(receiver, LOGOUT_FAILED, Bundle.EMPTY, provider);
-                UserStatus.updateStatus(UserStatus.SessionStatus.DIDNT_LOG_OUT, resources);
             }
         } else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
             if (updateVpnCertificate(provider)) {

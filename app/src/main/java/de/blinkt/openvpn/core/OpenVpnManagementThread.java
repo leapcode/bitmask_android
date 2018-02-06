@@ -148,6 +148,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
             // Closing one of the two sockets also closes the other
             //mServerSocketLocal.close();
+            managmentCommand("version 2\n");
 
             while (true) {
 
@@ -259,7 +260,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
                 case "LOG":
                     processLogMessage(argument);
                     break;
-                case "RSA_SIGN":
+                case "PK_SIGN":
                     processSignCommand(argument);
                     break;
                 default:
@@ -606,7 +607,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
         if (mWaitingForRelease)
             releaseHold();
         else if (samenetwork)
-            managmentCommand("network-change\n");
+            managmentCommand("network-change samenetwork\n");
         else
             managmentCommand("network-change\n");
     }
@@ -634,13 +635,14 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
     private void processSignCommand(String b64data) {
 
         String signed_string = mProfile.getSignedData(b64data);
+
         if (signed_string == null) {
-            managmentCommand("rsa-sig\n");
+            managmentCommand("pk-sig\n");
             managmentCommand("\nEND\n");
             stopOpenVPN();
             return;
         }
-        managmentCommand("rsa-sig\n");
+        managmentCommand("pk-sig\n");
         managmentCommand(signed_string);
         managmentCommand("\nEND\n");
     }

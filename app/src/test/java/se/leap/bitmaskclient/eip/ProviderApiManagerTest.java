@@ -53,14 +53,14 @@ import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_UPDATED_CERTIFICATE;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.mockBundle;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.mockClientGenerator;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.mockFingerprintForCertificate;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.mockIntent;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.mockProviderApiConnector;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.mockResources;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.mockResultReceiver;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.mockTextUtils;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockBundle;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockFingerprintForCertificate;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockIntent;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnector;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockResources;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockResultReceiver;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
 
 
 /**
