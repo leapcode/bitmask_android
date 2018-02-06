@@ -5,6 +5,8 @@
 
 package de.blinkt.openvpn;
 
+import se.leap.bitmaskclient.R;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
