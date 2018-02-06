@@ -66,4 +66,11 @@
 
     <style name="BitmaskActivity">
     </style>
+
+    <style name="BitmaskButtonBlack" parent="android:Widget.Button">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:background">@color/black800</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
 </resources>

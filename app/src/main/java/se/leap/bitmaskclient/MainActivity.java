@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (intent.getAction()) {
             case ACTION_SHOW_VPN_FRAGMENT:
-                fragment = new VpnFragment();
+                fragment = new EipFragment();
                 break;
             default:
                 break;
@@ -89,10 +89,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {
+            return;
+        }
+
         if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
             if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
-                provider.storeInPreferences(preferences);
+                ConfigHelper.storeProviderInPreferences(preferences, provider);
             }
         }
     }

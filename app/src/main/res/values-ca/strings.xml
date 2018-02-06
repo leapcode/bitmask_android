@@ -3,10 +3,8 @@
   <string name="info">info</string>
   <string name="show_connection_details">Mostra els detalls de conexió</string>
   <string name="dns_server_info">Servidor DNS: %s</string>
-  <string name="dns_domain_info">Domini DNS: %s</string>
   <string name="routes_info">Rutes: %s</string>
   <string name="routes_info6">Rutes IPv6: %s</string>
-  <string name="bitmask_openvpn_log_file">Fitxer de registre de LEAP Android</string>
   <string name="bitmask_log">Registre Bitmask</string>
 
 </resources>

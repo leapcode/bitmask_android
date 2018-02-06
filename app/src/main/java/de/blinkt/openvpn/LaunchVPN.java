@@ -7,45 +7,27 @@ package de.blinkt.openvpn;
 
 import se.leap.bitmaskclient.R;
 
-import se.leap.bitmaskclient.R;
-
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.preference.PreferenceManager;
-import android.text.InputType;
-import android.text.TextUtils;
-import android.text.method.PasswordTransformationMethod;
-import android.view.View;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 
 import java.io.IOException;
 
 import de.blinkt.openvpn.activities.LogWindow;
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.IServiceStatus;
-import de.blinkt.openvpn.core.OpenVPNStatusService;
-import de.blinkt.openvpn.core.PasswordCache;
 import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.R;
 
 /**
  * This Activity actually handles two stages of a launcher shortcut's life cycle.
@@ -134,7 +116,7 @@ public class LaunchVPN extends Activity {
     }
 
     @Override
-    protected void onActivityResult (int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode==START_VPN_PROFILE) {

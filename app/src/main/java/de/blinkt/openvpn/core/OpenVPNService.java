@@ -11,7 +11,6 @@ import android.app.Notification;
 import android.app.UiModeManager;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
@@ -43,7 +42,6 @@ import java.util.Vector;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
-import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnNotificationManager;
 
@@ -61,6 +59,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private static final String RESUME_VPN = "se.leap.bitmaskclient.RESUME_VPN";
     public static final String NOTIFICATION_CHANNEL_BG_ID = "openvpn_bg";
     public static final String NOTIFICATION_CHANNEL_NEWSTATUS_ID = "openvpn_newstat";
+    public static final String VPNSERVICE_TUN = "vpnservice-tun";
 
     private static boolean mNotificationAlwaysVisible = false;
     private final Vector<String> mDnslist = new Vector<>();
@@ -76,7 +75,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private boolean mDisplayBytecount = false;
     private boolean mStarting = false;
     private long mConnecttime;
-    private boolean mOvpn3 = false;
     private OpenVPNManagement mManagement;
     private String mLastTunCfg;
     private String mRemoteGW;
@@ -169,7 +167,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     // Similar to revoke but do not try to stop process
-    public void processDied() {
+    public void openvpnStopped() {
         endVpnService();
     }
 
@@ -291,6 +289,18 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return START_REDELIVER_INTENT;
         }
 
+       /* TODO: check that for Bitmask */
+        // Always show notification here to avoid problem with startForeground timeout
+        VpnStatus.logInfo(R.string.building_configration);
+        VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);
+        notificationManager.buildOpenVpnNotification(
+                mProfile != null ? mProfile.mName : "",
+                VpnStatus.getLastCleanLogMessage(this),
+                VpnStatus.getLastCleanLogMessage(this),
+                ConnectionStatus.LEVEL_START,
+                0,
+                NOTIFICATION_CHANNEL_NEWSTATUS_ID);
+
         if (intent != null && intent.hasExtra(getPackageName() + ".profileUUID")) {
             String profileUUID = intent.getStringExtra(getPackageName() + ".profileUUID");
             int profileVersion = intent.getIntExtra(getPackageName() + ".profileVersion", 0);
@@ -319,6 +329,12 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             mProfile.checkForRestart(this);
         }
 
+        if (mProfile == null) {
+            stopSelf(startId);
+            return START_NOT_STICKY;
+        }
+
+
         /* start the OpenVPN process itself in a background thread */
         new Thread(new Runnable() {
             @Override
@@ -343,6 +359,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     private void startOpenVPN() {
+        /**
+         * see change above (l. 292 ff)
+         */
         VpnStatus.logInfo(R.string.building_configration);
         VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);
 
@@ -369,14 +388,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         mStarting = false;
 
         // Start a new session by creating a new thread.
-        SharedPreferences prefs = Preferences.getDefaultSharedPreferences(this);
-
-        mOvpn3 = prefs.getBoolean("ovpn3", false);
-        if (!"ovpn3".equals(BuildConfig.FLAVOR))
-            mOvpn3 = false;
+        boolean useOpenVPN3 = VpnProfile.doUseOpenVPN3(this);
 
         // Open the Management Interface
-        if (!mOvpn3) {
+        if (!useOpenVPN3) {
             // start a Thread that handles incoming messages of the managment socket
             OpenVpnManagementThread ovpnManagementThread = new OpenVpnManagementThread(mProfile, this);
             if (ovpnManagementThread.openManagementInterface(this)) {
@@ -392,15 +407,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         }
 
         Runnable processThread;
-        if (mOvpn3)
-
+        if (useOpenVPN3)
         {
-
             OpenVPNManagement mOpenVPN3 = instantiateOpenVPN3Core();
             processThread = (Runnable) mOpenVPN3;
             mManagement = mOpenVPN3;
-
-
         } else {
             processThread = new OpenVPNThread(this, argv, nativeLibraryDirectory);
             mOpenVPNThread = processThread;
@@ -757,8 +768,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     /**
      * Route that is always included, used by the v3 core
      */
-    public void addRoute(CIDRIP route) {
-        mRoutes.addIP(route, true);
+    public void addRoute(CIDRIP route, boolean include) {
+        mRoutes.addIP(route, include);
     }
 
     public void addRoute(String dest, String mask, String gateway, String device) {
@@ -810,7 +821,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     private boolean isAndroidTunDevice(String device) {
         return device != null &&
-                (device.startsWith("tun") || "(null)".equals(device) || "vpnservice-tun".equals(device));
+                (device.startsWith("tun") || "(null)".equals(device) || VPNSERVICE_TUN.equals(device));
     }
 
     public void setMtu(int mtu) {
@@ -859,7 +870,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if (mLocalIP.len <= 31 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             CIDRIP interfaceRoute = new CIDRIP(mLocalIP.mIp, mLocalIP.len);
             interfaceRoute.normalise();
-            addRoute(interfaceRoute);
+            addRoute(interfaceRoute ,true);
         }
 
 

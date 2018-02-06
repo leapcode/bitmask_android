@@ -4,13 +4,19 @@ import java.util.regex.Pattern
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 26
-  buildToolsVersion '26.0.0'
+  compileSdkVersion 27
+  buildToolsVersion '27.0.3'
 
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
     resValue "string", "app_name", "Bitmask"
     vectorDrawables.useSupportLibrary = true
+    buildConfigField 'boolean', 'openvpn3', 'false'
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    dexOptions {
+      jumboMode true
+      multiDexEnabled true
+    }
   }
 
   signingConfigs {
@@ -22,12 +28,13 @@ android {
     }
   }
 
+  flavorDimensions "implementation"
   productFlavors {
     production {
-
+      dimension "implementation"
     }
     insecure {
-
+      dimension "implementation"
     }
   }
 
@@ -42,6 +49,9 @@ android {
       applicationIdSuffix ".beta"
       resValue "string", "app_name", "Bitmask Beta"
     }
+    debug {
+      testCoverageEnabled = true
+    }
   }
 
   lintOptions {
@@ -50,50 +60,64 @@ android {
 
   sourceSets {
     main {
-      assets.srcDirs = ['assets', 'ovpnlibs/assets']
-      jniLibs.srcDirs = ['ovpnlibs/jniLibs']
+      assets.srcDirs = ['assets', 'ovpnlibs/assets', '../ics-openvpn/main/build/ovpnassets']
+      jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/noovpn3/release/obj']
       jni.srcDirs = [] //disable automatic ndk-build
     }
     debug {
       assets.srcDirs = ['src/debug/assets']
     }
+
     test {
       resources.srcDirs += ['src/test/resources']
+      java.srcDirs += ['src/sharedTest/java']
+    }
+
+    androidTest {
+      java.srcDirs += ['src/sharedTest/java']
     }
   }
 }
 
 dependencies {
-  testCompile 'junit:junit:4.12'
-  testCompile 'org.mockito:mockito-core:2.8.0'
-  testCompile 'org.powermock:powermock-api-mockito2:1.7.3'
-  testCompile 'org.powermock:powermock-module-junit4:1.7.3'
-  testCompile 'org.powermock:powermock-core:1.7.3'
-  testCompile 'org.powermock:powermock-module-junit4-rule:1.7.3'
-  //testCompile 'com.madgag.spongycastle:bctls-jdk15on:1.58.0.0'
-  //testCompile 'com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0'
-  //testCompile 'com.madgag.spongycastle:bcpg-jdk15on:1.58.0.0'
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'org.mockito:mockito-core:2.8.9'
+  testImplementation('org.powermock:powermock-api-mockito2:1.7.3')
+          { exclude group: 'junit' exclude group: 'org.mockito' }
+  testImplementation 'org.powermock:powermock-module-junit4:1.7.3'
+  testImplementation 'org.powermock:powermock-core:1.7.3'
+  testImplementation 'org.powermock:powermock-module-junit4-rule:1.7.3'
 
-  androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.6.3'
-  testCompile 'junit:junit:4.12'
-  testCompile 'org.json:json:20170516'
-  debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
-  releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
-  betaCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
-  compile 'com.jakewharton:butterknife:6.1.0'
-  provided 'com.squareup.dagger:dagger-compiler:1.2.2'
-  compile 'com.github.pedrovgs:renderers:1.5'
-  compile 'com.intellij:annotations:12.0'
-  compile 'com.google.code.gson:gson:2.8.2'
-  compile 'com.squareup.okhttp3:okhttp:3.9.0'
-  compile 'mbanje.kurt:fabbutton:1.1.4'
-  compile "com.android.support:support-core-utils:26.1.0"
-  compile 'com.android.support:support-annotations:27.0.2'
-  compile 'com.android.support:support-v4:26.1.0'
-  compile 'com.android.support:appcompat-v7:26.1.0'
-  compile 'com.android.support:design:26.1.0'
-  compile 'com.android.support:support-fragment:26.1.0'
-  compile 'com.android.support.constraint:constraint-layout:1.0.2'
+  androidTestImplementation 'org.mockito:mockito-core:2.8.9'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.1'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-intents:3.0.1'
+  //TODO: remove that library
+  androidTestImplementation 'com.jayway.android.robotium:robotium-solo:5.6.3'
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'org.json:json:20170516'
+  debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+  releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+  betaImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+  annotationProcessor 'com.jakewharton:butterknife:6.1.0'
+  annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.2'
+  implementation 'com.jakewharton:butterknife:6.1.0'
+  //TODO: replace that library
+  compileOnly 'com.squareup.dagger:dagger-compiler:1.2.2'
+  //TODO: remove that library?
+  implementation 'com.github.pedrovgs:renderers:1.5'
+  implementation 'com.intellij:annotations:12.0'
+  implementation 'com.google.code.gson:gson:2.8.2'
+  implementation 'com.squareup.okhttp3:okhttp:3.9.0'
+  //TODO: remove that library
+  implementation 'mbanje.kurt:fabbutton:1.1.4'
+  implementation "com.android.support:support-core-utils:27.0.2"
+  implementation 'com.android.support:support-annotations:27.0.2'
+  implementation 'com.android.support:support-v4:27.0.2'
+  implementation 'com.android.support:appcompat-v7:27.0.2'
+  implementation 'com.android.support:design:27.0.2'
+  implementation 'com.android.support:support-fragment:27.0.2'
+  implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 }
 
 // Ensure the no-op dependency is always used in JVM tests.
@@ -105,6 +129,12 @@ configurations.all { config ->
       }
     }
   }
+  resolutionStrategy.force "com.android.support:support-annotations:27.0.2"
+  resolutionStrategy.force "com.android.support:support-v4:27.0.2"
+  resolutionStrategy.force "com.android.support:support-core-utils:27.0.2"
+  resolutionStrategy.force "com.android.support:appcompat-v7:27.0.2"
+  resolutionStrategy.force "com.android.support:design:27.0.2"
+  resolutionStrategy.force "com.android.support:support-fragment:27.0.2"
 }
 
 def processFileInplace(file, Closure processText) {
@@ -179,6 +209,20 @@ task copyIcsOpenVPNImages( type: Copy ) {
     include '**/ic_check*.png'
     include '**/ic_pause*.png'
     include '**/ic_play*.png'
+    include '**/ic_content_copy_white_*.png'
+    include '**/ic_add_circle_outline_white_*.png'
+    include '**/ic_warning_black_*.png'
+    include '**/ic_add_circle_outline_grey600_*.png'
+    include '**/ic_archive_grey600_*.png'
+    include '**/ic_receipt_white_*.png'
+    include '**/ic_sort_white_*.png'
+    include '**/ic_content_copy_white_*.png'
+    include '**/ic_archive_white_*.png'
+    include '**/ic_menu_archive*.png'
+    include '**/vpn_item_settings*.png'
+    include '**/ic_menu_log*.png'
+    include '**/ic_menu_copy_holo_light*.png'
+
     includeEmptyDirs = false
   } into '.'
 }
@@ -250,14 +294,11 @@ task copyIcsOpenVPNFiles( type: Copy ) {
 }
 
 task updateIcsOpenVpn( type: Exec ) {
+  commandLine 'git', 'submodule', 'sync'
   commandLine 'git', 'submodule', 'update', '--init', '--recursive'
   copyIcsOpenVPNFiles.execute()
 }
 
-task buildNative ( type: Exec ) {
-  println "buildNative"
-  commandLine 'sh', 'misc/build-native.sh', 'USE_BREAKPAD=0', '-j 8'
-}
 
 task cleanNative( type: Delete ) {
   def shouldClean = getCurrentFlavorForBetaOrRelease() == "production"
@@ -269,6 +310,11 @@ task cleanNative( type: Delete ) {
       f -> delete "${dirName}/${f}"
     }
   }
+}
+
+task updateSdkLicences ( type: Exec ) {
+  println "say yes to licenses"
+  commandLine 'sh', 'yes', '|', 'sdkmanager', '--licenses'
 }
 
 def getCurrentFlavorForBetaOrRelease() {
@@ -291,5 +337,3 @@ def getCurrentFlavorForBetaOrRelease() {
     return "";
   }
 }
-
-preBuild.dependsOn buildNative

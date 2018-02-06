@@ -5,20 +5,13 @@ import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Locale;
-
 import butterknife.InjectView;
-import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -63,19 +56,19 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     @Override
     public void setContentView(View view) {
         super.setContentView(view);
-        setProviderHeaderText(getProviderName());
+        setProviderHeaderText(ConfigHelper.getProviderName(preferences));
     }
 
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
-        setProviderHeaderText(getProviderName());
+        setProviderHeaderText(ConfigHelper.getProviderName(preferences));
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
         super.setContentView(view, params);
-        setProviderHeaderText(getProviderName());
+        setProviderHeaderText(ConfigHelper.getProviderName(preferences));
     }
 
     protected void setProviderHeaderLogo(@DrawableRes int providerHeaderLogo) {
@@ -90,29 +83,6 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
         this.providerHeaderText.setText(providerHeaderText);
     }
 
-    protected String getProviderName() {
-        try {
-            JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
-            String lang = Locale.getDefault().getLanguage();
-            return providerJson.getJSONObject(Provider.NAME).getString(lang);
-        } catch (JSONException e) {
-            try {
-                JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
-                return providerJson.getJSONObject(Provider.NAME).getString("en");
-            } catch (JSONException e2) {
-                return null;
-            }
-        }
-    }
-
-    protected String getProviderDomain() {
-        try {
-            JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
-            return providerJson.getString(Provider.DOMAIN);
-        } catch (JSONException e) {
-            return null;
-        }
-    }
     protected void hideProgressBar() {
         loadingScreen.setVisibility(GONE);
         content.setVisibility(VISIBLE);

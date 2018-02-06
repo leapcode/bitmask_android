@@ -27,9 +27,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import se.leap.bitmaskclient.ConfigHelper;
-import se.leap.bitmaskclient.ConfigurationWizard;
+import se.leap.bitmaskclient.ProviderListActivity;
+import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.VpnFragment;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
 
@@ -143,7 +143,7 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1);
 
-        String providerName = ConfigHelper.getCurrentProviderName(preferences);
+        String providerName = ConfigHelper.getProviderName(preferences);
         if (providerName == null) {
             //TODO: ADD A header to the ListView containing a useful message.
             //TODO 2: disable switchProvider
@@ -296,7 +296,7 @@ public class NavigationDrawerFragment extends Fragment {
 
         if (parent == mDrawerAccountsListView) {
             mTitle = getString(R.string.vpn_fragment_title);
-            fragment = new VpnFragment();
+            fragment = new EipFragment();
         } else {
             Log.d("Drawer", String.format("Selected position %d", position));
             switch (position) {
@@ -304,7 +304,7 @@ public class NavigationDrawerFragment extends Fragment {
                     // TODO STOP VPN
                     // if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
                     preferences.edit().clear().apply();
-                    startActivityForResult(new Intent(getActivity(), ConfigurationWizard.class), REQUEST_CODE_SWITCH_PROVIDER);
+                    startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
                     break;
                 case 1:
                     mTitle = getString(R.string.log_fragment_title);

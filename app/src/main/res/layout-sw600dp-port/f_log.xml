@@ -5,9 +5,30 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:padding="@dimen/activity_margin">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_margin"
+    android:id="@+id/log_layout">
+
+    <LinearLayout
+        android:background="@drawable/white_rect"
+        android:elevation="1dp"
+        android:minWidth="300dp"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <include layout="@layout/log_silders"/>
+
+        <include layout="@layout/vpnstatus"/>
+    </LinearLayout>
+
+    <ListView
+        android:id="@android:id/list"
+        android:transcriptMode="normal"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"/>
 
 </LinearLayout>
