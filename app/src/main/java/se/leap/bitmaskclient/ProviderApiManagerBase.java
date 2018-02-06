@@ -163,12 +163,16 @@ public abstract class ProviderApiManagerBase {
         if (action.equals(UPDATE_PROVIDER_DETAILS)) {
             resetProviderDetails();
             Bundle task = new Bundle();
-            task.putString(MAIN_URL, lastProviderMainUrl);
+            String mainUrl = parameters.getString(Provider.MAIN_URL);
+            if (mainUrl == null) {
+                mainUrl = lastProviderMainUrl;
+            }
+            task.putString(MAIN_URL, mainUrl);
             Bundle result = setUpProvider(task);
             if (result.getBoolean(RESULT_KEY)) {
-                receiver.send(PROVIDER_OK, result);
+                sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result);
             } else {
-                receiver.send(PROVIDER_NOK, result);
+                sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result);
             }
         } else if (action.equalsIgnoreCase(SET_UP_PROVIDER)) {
             Bundle result = setUpProvider(parameters);
@@ -222,7 +226,7 @@ public abstract class ProviderApiManagerBase {
         } else if (action.equalsIgnoreCase(PROVIDER_SET_UP)) {
             if(EIP_SERVICE_JSON_DOWNLOADED && CA_CERT_DOWNLOADED && PROVIDER_JSON_DOWNLOADED ) {
                 if(receiver!= null) {
-                    receiver.send(PROVIDER_OK, Bundle.EMPTY);
+                    sendToReceiverOrBroadcast(receiver, PROVIDER_OK, Bundle.EMPTY);
                 }
             }
         }

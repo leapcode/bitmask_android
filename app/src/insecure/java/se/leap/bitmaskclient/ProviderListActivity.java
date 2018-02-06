@@ -117,7 +117,6 @@ public class ProviderListActivity extends ProviderListBaseActivity {
             addAndSelectNewProvider(ProviderAPI.lastProviderMainUrl(), ProviderAPI.lastDangerOn());
         } else {
             showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(provider));
 
             Intent providerAPICommand = new Intent(this, ProviderAPI.class);
 

@@ -27,7 +27,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.pedrogomez.renderers.Renderer;
@@ -168,7 +167,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         isActivityShowing = true;
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
             showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(provider));
             checkProviderSetUp();
         } else if (PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             showDownloadFailedDialog();
@@ -210,7 +208,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     private void setUpProviderAPIResultReceiver() {
         providerAPIResultReceiver = new ProviderAPIResultReceiver(new Handler(), this);
         providerAPIBroadcastReceiver = new ProviderAPIBroadcastReceiver();
-
         IntentFilter updateIntentFilter = new IntentFilter(PROVIDER_API_EVENT);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
@@ -274,10 +271,15 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         }
 
         //TODO Code 2 pane view
-        mConfigState.setAction(SETTING_UP_PROVIDER);
         provider = adapter.getItem(position);
-        showProgressBar();
-        onItemSelectedLogic();
+        if (provider != null && !provider.isDefault()) {
+            //TODO Code 2 pane view
+            mConfigState.setAction(SETTING_UP_PROVIDER);
+            showProgressBar();
+            onItemSelectedLogic();
+        } else {
+            addAndSelectNewProvider();
+        }
     }
 
     @Override
@@ -302,7 +304,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     public void cancelSettingUpProvider() {
         hideProgressBar();
         mConfigState.setAction(PROVIDER_NOT_SET);
-        adapter.showAllProviders();
         preferences.edit().remove(Provider.KEY).remove(PROVIDER_ALLOW_ANONYMOUS).remove(PROVIDER_KEY).apply();
     }
 
@@ -410,24 +411,9 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.about_leap:
-                startActivityForResult(new Intent(this, AboutFragment.class), 0);
-                return true;
-            case R.id.new_provider:
-                addAndSelectNewProvider();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     public void cancelAndShowAllProviders() {
         mConfigState.setAction(PROVIDER_NOT_SET);
         provider = null;
-        adapter.showAllProviders();
     }
 
     public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {
@@ -452,31 +438,35 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
                 String providerDomain = ConfigHelper.getProviderDomain(handledProvider);
 
                 //FIXME: remove that lines as soon as Provider gets sent via broadcast
+                // and make sure providers are the same - remove providersMatch
                 if (resultCode == PROVIDER_OK && handledProvider == null) {
                     providerName = ConfigHelper.getProviderName(preferences);
                     providerDomain = ConfigHelper.getProviderDomain(preferences);
                 }
+                boolean providersMatch = true;
+                if (providerDomain != null) {
+                    providersMatch = providerDomain.equalsIgnoreCase(provider.getDomain());
+                }
+                if (providerName != null && !providersMatch) {
+                    providersMatch = providerName.equalsIgnoreCase(provider.getName());
+                }
 
-                if (providerName != null && providerName.equalsIgnoreCase(provider.getName()) &&
-                        providerDomain != null &&
-                        providerDomain.equalsIgnoreCase(provider.getDomain())) {
-                    switch (resultCode) {
-                        case PROVIDER_OK:
+
+                switch (resultCode) {
+                    case PROVIDER_OK:
+                        if (providersMatch)
                             handleProviderSetUp();
-                            break;
-                        case PROVIDER_NOK:
+                        break;
+                    case PROVIDER_NOK:
+                        if(providersMatch)
                             handleProviderSetupFailed(resultData);
-                            break;
-                    }
-                } else {
-                    switch (resultCode) {
-                        case CORRECTLY_DOWNLOADED_CERTIFICATE:
-                            handleCorrectlyDownloadedCertificate();
-                            break;
-                        case INCORRECTLY_DOWNLOADED_CERTIFICATE:
-                            handleIncorrectlyDownloadedCertificate();
-                            break;
-                    }
+                        break;
+                    case CORRECTLY_DOWNLOADED_CERTIFICATE:
+                        handleCorrectlyDownloadedCertificate();
+                        break;
+                    case INCORRECTLY_DOWNLOADED_CERTIFICATE:
+                        handleIncorrectlyDownloadedCertificate();
+                        break;
                 }
             }
         }

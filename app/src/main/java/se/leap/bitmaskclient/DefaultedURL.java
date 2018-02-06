@@ -1,6 +1,7 @@
 package se.leap.bitmaskclient;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class DefaultedURL {
     private URL DEFAULT_URL;
@@ -8,7 +9,7 @@ public class DefaultedURL {
 
     private URL url;
 
-    public DefaultedURL() {
+    DefaultedURL() {
         try {
             DEFAULT_URL = new URL(default_url);
             url = DEFAULT_URL;

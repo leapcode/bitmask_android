@@ -309,4 +309,12 @@ public final class Provider implements Parcelable {
         this.caCert = cert;
     }
 
+    public boolean isDefault() {
+        return getMainUrl().isDefault() &&
+                getApiUrl().isDefault() &&
+                certificatePin.isEmpty() &&
+                certificatePinEncoding.isEmpty() &&
+                caCert.isEmpty();
+    }
+
 }
