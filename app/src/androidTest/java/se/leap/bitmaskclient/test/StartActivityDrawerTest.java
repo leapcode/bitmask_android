@@ -33,7 +33,7 @@ import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.R.id.aboutLayout;
 import static se.leap.bitmaskclient.R.id.accountList;
-import static se.leap.bitmaskclient.R.id.configuration_wizard_layout;
+import static se.leap.bitmaskclient.R.id.provider_list_layout;
 import static se.leap.bitmaskclient.R.id.drawer_layout;
 import static se.leap.bitmaskclient.R.id.eipServiceFragment;
 import static se.leap.bitmaskclient.R.id.log_layout;
@@ -104,7 +104,7 @@ public class StartActivityDrawerTest {
         mActivityRule.launchActivity(intent);
 
         onData(anything()).inAdapterView(withId(settingsList)).atPosition(0).perform(click());
-        onView(withId(configuration_wizard_layout)).check(matches(isDisplayed()));
+        onView(withId(provider_list_layout)).check(matches(isDisplayed()));
     }
 
     @Test

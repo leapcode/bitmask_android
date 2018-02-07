@@ -178,7 +178,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     }
 
     private void setUpInitialUI() {
-        setContentView(R.layout.configuration_wizard_activity);
+        setContentView(R.layout.provider_list_activity);
         setProviderHeaderText(R.string.setup_provider);
         hideProgressBar();
     }
