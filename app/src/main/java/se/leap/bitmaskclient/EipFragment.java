@@ -53,7 +53,6 @@ import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VoidVpnService;
-import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -145,12 +144,8 @@ public class EipFragment extends Fragment implements Observer {
         ButterKnife.inject(this, view);
 
         Bundle arguments = getArguments();
-        if (arguments != null) {
-            if (arguments.containsKey(START_EIP_ON_BOOT) && arguments.getBoolean(START_EIP_ON_BOOT)) {
-                startEipFromScratch();
-            } else if (arguments.containsKey(ASK_TO_CANCEL_VPN) && arguments.getBoolean(ASK_TO_CANCEL_VPN)) {
-                askToStopEIP();
-            }
+        if (arguments != null && arguments.containsKey(ASK_TO_CANCEL_VPN) && arguments.getBoolean(ASK_TO_CANCEL_VPN)) {
+            askToStopEIP();
         }
         return view;
     }
