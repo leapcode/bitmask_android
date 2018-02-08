@@ -55,7 +55,7 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
 
             options.setAdapter(new ArrayAdapter<>(
                     this,
-                    android.R.layout.simple_list_item_activated_1,
+                    R.layout.single_list_item,
                     android.R.id.text1,
                     optionsList.toArray(new String[optionsList.size()])
             ));

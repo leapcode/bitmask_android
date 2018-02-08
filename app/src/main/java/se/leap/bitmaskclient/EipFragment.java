@@ -73,10 +73,12 @@ import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 public class EipFragment extends Fragment implements Observer {
 
-    public static String TAG = EipFragment.class.getSimpleName();
+    public final static String TAG = EipFragment.class.getSimpleName();
 
     protected static final String IS_CONNECTED = TAG + ".is_connected";
     public static final String START_EIP_ON_BOOT = "start on boot";
+    public static final String ASK_TO_CANCEL_VPN = "ask_to_cancel_vpn";
+
 
     private SharedPreferences preferences;
 
@@ -121,6 +123,7 @@ public class EipFragment extends Fragment implements Observer {
 
     };
 
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         downloadEIPServiceConfig();
@@ -139,6 +142,11 @@ public class EipFragment extends Fragment implements Observer {
         eipStatus.addObserver(this);
         View view = inflater.inflate(R.layout.eip_service_fragment, container, false);
         ButterKnife.inject(this, view);
+
+        Bundle arguments = getArguments();
+        if (arguments != null && arguments.containsKey(ASK_TO_CANCEL_VPN) && arguments.getBoolean(ASK_TO_CANCEL_VPN)) {
+            askToStopEIP();
+        }
         return view;
     }
 
@@ -200,8 +208,10 @@ public class EipFragment extends Fragment implements Observer {
             startEipFromScratch();
         else if (canLogInToStartEIP()) {
             wantsToConnect = true;
-            Bundle bundle = new Bundle();
-            MainActivity.sessionDialog(bundle);
+            /*Bundle bundle = new Bundle();
+            seionDialogCallback.onSessionDialog(bundle);*/
+            Log.w(TAG, "TODO: implement login from here");
+            //FIXME: implement login from here
         } else {
             Log.d(TAG, "WHAT IS GOING ON HERE?!");
             // TODO: implement a fallback: check if vpncertificate was not downloaded properly or give

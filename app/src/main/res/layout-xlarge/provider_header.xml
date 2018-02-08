@@ -4,8 +4,8 @@
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/provider_header_logo"
-        android:layout_width="@dimen/bitmask_logo"
-        android:layout_height="@dimen/bitmask_logo"
+        android:layout_width="@dimen/bitmask_logo_tablet"
+        android:layout_height="@dimen/bitmask_logo_tablet"
         android:adjustViewBounds="true"
         app:srcCompat="@drawable/mask" />
 

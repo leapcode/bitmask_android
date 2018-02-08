@@ -18,7 +18,6 @@ import se.leap.bitmaskclient.userstatus.User;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
-import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
@@ -155,14 +154,11 @@ public class StartActivity extends Activity {
                 configureLeapProvider();
             } else {
                 Log.d(TAG, "vpn provider is configured");
-
                 if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
-                    Log.d(TAG, "start VPN in background");
                     eipCommand(EIP_ACTION_START);
                     finish();
                     return;
                 }
-                Log.d(TAG, "show MainActivity!");
                 showMainActivity();
             }
         } else {
@@ -197,6 +193,7 @@ public class StartActivity extends Activity {
 
     private void showMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
         startActivity(intent);
         finish();

@@ -1,7 +1,7 @@
 package se.leap.bitmaskclient;
 
-import android.app.Application;
 import android.content.Context;
+import android.support.multidex.MultiDexApplication;
 
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
@@ -10,7 +10,7 @@ import com.squareup.leakcanary.RefWatcher;
  * Created by cyberta on 24.10.17.
  */
 
-public class BitmaskApp extends Application {
+public class BitmaskApp extends MultiDexApplication {
 
     private RefWatcher refWatcher;
 

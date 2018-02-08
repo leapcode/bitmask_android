@@ -459,11 +459,11 @@ public class Dashboard extends ButterKnifeActivity {
                 String password = resultData.getString(SessionDialog.PASSWORD);
                 dashboard.user_status_fragment.logIn(username, password);
             } else if (resultCode == ProviderAPI.FAILED_SIGNUP) {
-                MainActivity.sessionDialog(resultData);
+                //MainActivity.sessionDialog(resultData);
             } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGIN) {
                 Dashboard.downloadVpnCertificate();
             } else if (resultCode == ProviderAPI.FAILED_LOGIN) {
-                MainActivity.sessionDialog(resultData);
+                //MainActivity.sessionDialog(resultData);
             } else if (resultCode == ProviderAPI.SUCCESSFUL_LOGOUT) {
                 if (switching_provider) dashboard.switchProvider();
             } else if (resultCode == ProviderAPI.LOGOUT_FAILED) {

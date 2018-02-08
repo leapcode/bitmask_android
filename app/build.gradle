@@ -118,6 +118,7 @@ dependencies {
   implementation 'com.android.support:design:27.0.2'
   implementation 'com.android.support:support-fragment:27.0.2'
   implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+  implementation 'com.android.support:multidex:1.0.2'
 }
 
 // Ensure the no-op dependency is always used in JVM tests.
@@ -153,11 +154,6 @@ task copyIcsOpenVPNClasses( type: Copy ) {
     include '**/LogWindow.java'
     include '**/LogFragment.java'
     include '**/SeekBarTicks.java'
-    include '**/log_window.xml'
-    include '**/log_fragment.xml'
-    include '**/log_silders.xml'
-    include '**/vpnstatus.xml'
-    include '**/logmenu.xml'
     include '**/core/**.java'
     include '**/activities/BaseActivity.java'
     include '**/APIVpnProfile.java'
@@ -181,6 +177,11 @@ task copyIcsOpenVPNClasses( type: Copy ) {
 task copyIcsOpenVPNXml( type: Copy )  {
   println "copyIcsOpenVPNXml"
   from ('../ics-openvpn/main/') {
+    include '**/log_window.xml'
+    include '**/log_fragment.xml'
+    include '**/log_silders.xml'
+    include '**/vpnstatus.xml'
+    include '**/logmenu.xml'
     include '**/strings.xml'
     include '**/log_*.xml'
     include '**/vpnstatus.xml'

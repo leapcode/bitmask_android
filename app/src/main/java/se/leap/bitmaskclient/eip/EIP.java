@@ -27,6 +27,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
+
 import de.blinkt.openvpn.LaunchVPN;
 import se.leap.bitmaskclient.OnBootReceiver;
 
@@ -58,12 +60,12 @@ public final class EIP extends IntentService {
     public final static String TAG = EIP.class.getSimpleName();
     public final static String SERVICE_API_PATH = "config/eip-service.json";
 
-    private static ResultReceiver mReceiver;
-    private static SharedPreferences preferences;
+    private WeakReference<ResultReceiver> mReceiverRef = new WeakReference<>(null);
+    private SharedPreferences preferences;
 
-    private static JSONObject eipDefinition;
+    private JSONObject eipDefinition;
     private GatewaysManager gatewaysManager = new GatewaysManager();
-    private static Gateway gateway;
+    private Gateway gateway;
 
     public EIP() {
         super(TAG);
@@ -81,7 +83,9 @@ public final class EIP extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         String action = intent.getAction();
-        mReceiver = intent.getParcelableExtra(EIP_RECEIVER);
+        if (intent.getParcelableExtra(EIP_RECEIVER) != null) {
+            mReceiverRef = new WeakReference<>((ResultReceiver) intent.getParcelableExtra(EIP_RECEIVER));
+        }
 
         if (action == null) {
             return;
@@ -245,10 +249,10 @@ public final class EIP extends IntentService {
     }
 
     private void tellToReceiver(String action, int resultCode) {
-        if (mReceiver != null) {
-            Bundle resultData = new Bundle();
-            resultData.putString(EIP_REQUEST, action);
-            mReceiver.send(resultCode, resultData);
+        Bundle resultData = new Bundle();
+        resultData.putString(EIP_REQUEST, action);
+        if (mReceiverRef.get() != null) {
+            mReceiverRef.get().send(resultCode, resultData);
         }
     }
 }
