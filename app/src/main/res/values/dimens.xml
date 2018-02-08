@@ -29,4 +29,7 @@
     <dimen name="navigation_drawer_width">300dp</dimen>
 
     <dimen name="loading_screen_icon_vertical_margin">16dp</dimen>
+
+    <dimen name="bitmask_logo">56dp</dimen>
+    <dimen name="bitmask_logo_tablet">72dp</dimen>
 </resources>
