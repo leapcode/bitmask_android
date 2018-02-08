@@ -160,6 +160,7 @@ public class StartActivity extends Activity {
                     Log.d(TAG, "start VPN in background");
                     eipCommand(EIP_ACTION_START);
                     finish();
+                    return;
                 }
                 Log.d(TAG, "show MainActivity!");
                 showMainActivity();
@@ -186,6 +187,7 @@ public class StartActivity extends Activity {
             if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
                 ConfigHelper.storeProviderInPreferences(preferences, provider);
+                eipCommand(EIP_ACTION_START);
                 showMainActivity();
             } else if (resultCode == RESULT_CANCELED) {
                 finish();
