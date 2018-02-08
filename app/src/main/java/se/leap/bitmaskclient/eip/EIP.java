@@ -38,11 +38,12 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_EIP;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_UPDATE;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
+import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
@@ -97,8 +98,8 @@ public final class EIP extends IntentService {
             case EIP_ACTION_START:
                 startEIP();
                 break;
-            case EIP_ACTION_START_ALWAYS_ON_EIP:
-                startAlwaysOnEIP();
+            case EIP_ACTION_START_ALWAYS_ON_VPN:
+                startEIPAlwaysOnVpn();
                 break;
             case EIP_ACTION_STOP:
                 stopEIP();
@@ -121,6 +122,9 @@ public final class EIP extends IntentService {
      * It also sets up early routes.
      */
     private void startEIP() {
+        if (!preferences.getBoolean(EIP_RESTART_ON_BOOT, false)){
+            preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, true).commit();
+        }
         if (gatewaysManager.isEmpty())
             updateEIPService();
         if (!EipStatus.getInstance().isBlockingVpnEstablished())  {
@@ -139,8 +143,8 @@ public final class EIP extends IntentService {
      * Tries to start the last used vpn profile when the OS was rebooted and always-on-VPN is enabled.
      * The {@link OnBootReceiver} will care if there is no profile.
      */
-    private void startAlwaysOnEIP() {
-        Log.d(TAG, "startAlwaysOnEIP vpn");
+    private void startEIPAlwaysOnVpn() {
+        Log.d(TAG, "startEIPAlwaysOnVpn vpn");
 
         if (gatewaysManager.isEmpty())
             updateEIPService();
@@ -148,10 +152,10 @@ public final class EIP extends IntentService {
         gateway = gatewaysManager.select();
 
         if (gateway != null && gateway.getProfile() != null) {
-            Log.d(TAG, "startAlwaysOnEIP eip launch avtive gateway vpn");
+            Log.d(TAG, "startEIPAlwaysOnVpn eip launch avtive gateway vpn");
             launchActiveGateway();
         } else {
-            Log.d(TAG, "startAlwaysOnEIP no active profile available!");
+            Log.d(TAG, "startEIPAlwaysOnVpn no active profile available!");
         }
     }
 

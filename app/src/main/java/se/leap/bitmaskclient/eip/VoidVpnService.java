@@ -33,7 +33,7 @@ import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnNotificationManager;
 
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_EIP;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
@@ -150,7 +150,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
 
     private void requestVpnWithLastSelectedProfile() {
         Intent startEIP = new Intent(getApplicationContext(), EIP.class);
-        startEIP.setAction(EIP_ACTION_START_ALWAYS_ON_EIP);
+        startEIP.setAction(EIP_ACTION_START_ALWAYS_ON_VPN);
         getApplicationContext().startService(startEIP);
     }
 
