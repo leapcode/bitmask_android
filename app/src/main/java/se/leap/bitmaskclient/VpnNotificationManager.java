@@ -44,6 +44,8 @@ import static android.text.TextUtils.isEmpty;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
+import static se.leap.bitmaskclient.EipFragment.ASK_TO_CANCEL_VPN;
+import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 
 /**
  * Created by cyberta on 14.01.18.
@@ -86,7 +88,7 @@ public class VpnNotificationManager {
                 VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
                 PRIORITY_MAX,
                 0,
-                getDashboardIntent(),
+                getMainActivityIntent(),
                 actionBuilder.build());
     }
 
@@ -122,7 +124,7 @@ public class VpnNotificationManager {
         if (status == LEVEL_WAITING_FOR_USER_INPUT)
             contentIntent = getUserInputIntent(msg);
         else
-            contentIntent = getDashboardIntent();
+            contentIntent = getMainActivityIntent();
 
         int priority;
         if (OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID.equals(notificationChannelNewstatusId)) {
@@ -254,11 +256,9 @@ public class VpnNotificationManager {
         lastNotificationChannel = notificationChannelNewstatusId;
     }
 
-    private PendingIntent getDashboardIntent() {
-        Intent startDashboard = new Intent(context, Dashboard.class);
-        startDashboard.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        return PendingIntent.getActivity(context, 0, startDashboard, PendingIntent.FLAG_CANCEL_CURRENT);
+    private PendingIntent getMainActivityIntent() {
+        Intent startActivity = new Intent(context, StartActivity.class);
+        return PendingIntent.getActivity(context, 0, startActivity, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     private PendingIntent getStopVoidVpnIntent() {
@@ -268,10 +268,10 @@ public class VpnNotificationManager {
     }
 
     private PendingIntent getDisconnectIntent() {
-        Intent disconnectVPN = new Intent(context, Dashboard.class);
-        disconnectVPN.setAction(Intent.ACTION_MAIN); //needs to be set that actual action can get triggered
-        disconnectVPN.putExtra(Dashboard.ACTION_ASK_TO_CANCEL_VPN, true);
-        disconnectVPN.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Intent disconnectVPN = new Intent(context, MainActivity.class);
+        disconnectVPN.setAction(ACTION_SHOW_VPN_FRAGMENT);
+        disconnectVPN.putExtra(ASK_TO_CANCEL_VPN, true);
+        disconnectVPN.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return PendingIntent.getActivity(context, 0, disconnectVPN, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 

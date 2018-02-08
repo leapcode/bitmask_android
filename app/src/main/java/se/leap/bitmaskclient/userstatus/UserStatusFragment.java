@@ -3,6 +3,7 @@ package se.leap.bitmaskclient.userstatus;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,7 @@ import se.leap.bitmaskclient.R;
 
 public class UserStatusFragment extends Fragment implements Observer, SessionDialog.SessionDialogInterface {
 
-    public static String TAG = UserStatusFragment.class.getSimpleName();
+    public final static String TAG = UserStatusFragment.class.getSimpleName();
     private ProviderAPIResultReceiver providerAPI_result_receiver;
 
     @InjectView(R.id.user_status_username)
@@ -88,7 +89,8 @@ public class UserStatusFragment extends Fragment implements Observer, SessionDia
         if(status.isLoggedIn())
             logOut();
         else if(status.isLoggedOut())
-            MainActivity.sessionDialog(Bundle.EMPTY);
+            Log.w(TAG, "implement login from here?");
+            //MainActivity.sessionDialog(Bundle.EMPTY);
         else if(status.inProgress())
             cancelLoginOrSignup();
     }

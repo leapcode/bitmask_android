@@ -15,6 +15,7 @@ import java.lang.annotation.RetentionPolicy;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.userstatus.User;
 
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
@@ -187,6 +188,7 @@ public class StartActivity extends Activity {
 
     private void showMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setAction(MainActivity.ACTION_SHOW_VPN_FRAGMENT);
         startActivity(intent);
         finish();

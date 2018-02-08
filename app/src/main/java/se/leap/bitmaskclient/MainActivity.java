@@ -15,12 +15,11 @@ import se.leap.bitmaskclient.userstatus.SessionDialog;
 
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.EipFragment.ASK_TO_CANCEL_VPN;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private static Provider provider = new Provider();
-    private static FragmentManagerEnhanced fragmentManager;
     private SharedPreferences preferences;
 
     public final static String ACTION_SHOW_VPN_FRAGMENT = "action_show_vpn_fragment";
@@ -40,22 +39,12 @@ public class MainActivity extends AppCompatActivity {
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
         // Set up the drawer.
         navigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         handleIntentAction(getIntent());
-    }
-
-    public static void sessionDialog(Bundle resultData) {
-        try {
-            FragmentTransaction transaction = fragmentManager.removePreviousFragment(SessionDialog.TAG);
-            SessionDialog.getInstance(provider, resultData).show(transaction, SessionDialog.TAG);
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -71,17 +60,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Fragment fragment = null;
-
         switch (intent.getAction()) {
             case ACTION_SHOW_VPN_FRAGMENT:
                 fragment = new EipFragment();
+                if (intent.hasExtra(ASK_TO_CANCEL_VPN)) {
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean(ASK_TO_CANCEL_VPN, true);
+                    fragment.setArguments(bundle);
+                }
                 break;
             default:
                 break;
         }
 
         if (fragment != null) {
-            fragmentManager.beginTransaction()
+            new FragmentManagerEnhanced(getSupportFragmentManager()).beginTransaction()
                     .replace(R.id.container, fragment)
                     .commit();
         }
@@ -100,5 +93,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
 }
