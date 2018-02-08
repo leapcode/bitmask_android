@@ -15,9 +15,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,15 +27,14 @@ import java.util.Set;
  */
 public class ProviderManager implements AdapteeCollection<Provider> {
 
-    private static final String TAG = ProviderManager.class.getName();
-    private AssetManager assets_manager;
+    private AssetManager assetsManager;
     private File externalFilesDir;
     private Set<Provider> defaultProviders;
     private Set<Provider> customProviders;
 
     private static ProviderManager instance;
 
-    final protected static String URLS = "urls";
+    final private static String URLS = "urls";
 
     public static ProviderManager getInstance(AssetManager assetsManager, File externalFilesDir) {
         if (instance == null)
@@ -42,8 +43,8 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         return instance;
     }
 
-    public ProviderManager(AssetManager assetManager, File externalFilesDir) {
-        this.assets_manager = assetManager;
+    private ProviderManager(AssetManager assetManager, File externalFilesDir) {
+        this.assetsManager = assetManager;
         addDefaultProviders(assetManager);
         addCustomProviders(externalFilesDir);
     }
@@ -57,7 +58,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     }
 
     private Set<Provider> providersFromAssets(String directory, String[] relativeFilePaths) {
-        Set<Provider> providers = new HashSet<Provider>();
+        Set<Provider> providers = new HashSet<>();
 
             for (String file : relativeFilePaths) {
                 String mainUrl = null;
@@ -65,10 +66,10 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                 String providerDefinition = null;
                 try {
                     String provider = file.substring(0, file.length() - ".url".length());
-                    InputStream provider_file = assets_manager.open(directory + "/" + file);
+                    InputStream provider_file = assetsManager.open(directory + "/" + file);
                     mainUrl = extractMainUrlFromInputStream(provider_file);
-                    certificate = ConfigHelper.loadInputStreamAsString(assets_manager.open(provider + ".pem"));
-                    providerDefinition = ConfigHelper.loadInputStreamAsString(assets_manager.open(provider + ".json"));
+                    certificate = ConfigHelper.loadInputStreamAsString(assetsManager.open(provider + ".pem"));
+                    providerDefinition = ConfigHelper.loadInputStreamAsString(assetsManager.open(provider + ".json"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -91,11 +92,11 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     }
 
     private Set<Provider> providersFromFiles(String[] files) {
-        Set<Provider> providers = new HashSet<Provider>();
+        Set<Provider> providers = new HashSet<>();
         try {
             for (String file : files) {
-                String main_url = extractMainUrlFromInputStream(new FileInputStream(externalFilesDir.getAbsolutePath() + "/" + file));
-                providers.add(new Provider(new URL(main_url)));
+                String mainUrl = extractMainUrlFromInputStream(new FileInputStream(externalFilesDir.getAbsolutePath() + "/" + file));
+                providers.add(new Provider(new URL(mainUrl)));
             }
         } catch (MalformedURLException | FileNotFoundException e) {
             e.printStackTrace();
@@ -104,12 +105,12 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         return providers;
     }
 
-    private String extractMainUrlFromInputStream(InputStream input_stream) {
+    private String extractMainUrlFromInputStream(InputStream inputStream) {
         String mainUrl = "";
 
-        JSONObject file_contents = inputStreamToJson(input_stream);
-        if (file_contents != null)
-            mainUrl = file_contents.optString(Provider.MAIN_URL);
+        JSONObject fileContents = inputStreamToJson(inputStream);
+        if (fileContents != null)
+            mainUrl = fileContents.optString(Provider.MAIN_URL);
         return mainUrl;
     }
 
@@ -126,12 +127,13 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         return json;
     }
 
-    public Set<Provider> providers() {
-        Set<Provider> all_providers = new HashSet<Provider>();
-        all_providers.addAll(defaultProviders);
+    public List<Provider> providers() {
+        List<Provider> allProviders = new ArrayList<>();
+        allProviders.addAll(defaultProviders);
         if(customProviders != null)
-            all_providers.addAll(customProviders);
-        return all_providers;
+            allProviders.addAll(customProviders);
+        allProviders.add(new Provider());
+        return allProviders;
     }
 
     @Override
@@ -151,9 +153,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     @Override
     public boolean add(Provider element) {
-        if (!defaultProviders.contains(element))
-            return customProviders.add(element);
-        else return true;
+        return !defaultProviders.contains(element) || customProviders.add(element);
     }
 
     @Override
@@ -179,7 +179,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         customProviders.clear();
     }
 
-    protected void saveCustomProvidersToFile() {
+    void saveCustomProvidersToFile() {
         try {
             for (Provider provider : customProviders) {
                 File providerFile = new File(externalFilesDir, provider.getName() + ".json");

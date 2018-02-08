@@ -27,7 +27,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.pedrogomez.renderers.Renderer;
@@ -170,7 +169,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         isActivityShowing = true;
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
             showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(provider));
             checkProviderSetUp();
         } else if (PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             showDownloadFailedDialog();
@@ -267,10 +265,15 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         }
 
         //TODO Code 2 pane view
-        mConfigState.setAction(SETTING_UP_PROVIDER);
         provider = adapter.getItem(position);
-        showProgressBar();
-        onItemSelectedLogic();
+        if (provider != null && !provider.isDefault()) {
+            //TODO Code 2 pane view
+            mConfigState.setAction(SETTING_UP_PROVIDER);
+            showProgressBar();
+            onItemSelectedLogic();
+        } else {
+            addAndSelectNewProvider();
+        }
     }
 
     @Override
@@ -295,7 +298,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     public void cancelSettingUpProvider() {
         hideProgressBar();
         mConfigState.setAction(PROVIDER_NOT_SET);
-        adapter.showAllProviders();
     }
 
     @Override
@@ -397,24 +399,9 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.about_leap:
-                startActivityForResult(new Intent(this, AboutFragment.class), 0);
-                return true;
-            case R.id.new_provider:
-                addAndSelectNewProvider();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     public void cancelAndShowAllProviders() {
         mConfigState.setAction(PROVIDER_NOT_SET);
         provider = null;
-        adapter.showAllProviders();
     }
 
     public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {

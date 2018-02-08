@@ -154,7 +154,6 @@ public class EipFragment extends Fragment implements Observer {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         eipStatus = EipStatus.getInstance();
-        eipStatus.addObserver(this);
         eipReceiver = new EIPReceiver(new Handler());
         eipBroadcastReceiver = new EIPBroadcastReceiver();
         providerAPIResultReceiver = new ProviderAPIResultReceiver(new Handler(), new EipFragmentReceiver());
@@ -163,6 +162,7 @@ public class EipFragment extends Fragment implements Observer {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        eipStatus.addObserver(this);
         View view = inflater.inflate(R.layout.eip_service_fragment, container, false);
         ButterKnife.inject(this, view);
 
@@ -189,6 +189,12 @@ public class EipFragment extends Fragment implements Observer {
         getActivity().unbindService(openVpnConnection);
         getActivity().unregisterReceiver(eipBroadcastReceiver);
         Log.d(TAG, "broadcast unregistered");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        eipStatus.deleteObserver(this);
     }
 
     @Override

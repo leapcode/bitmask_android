@@ -105,7 +105,6 @@ public class ProviderListActivity extends ProviderListBaseActivity {
             addAndSelectNewProvider(provider.getMainUrlString(), ProviderAPI.lastDangerOn());
         } else {
             showProgressBar();
-            adapter.hideAllBut(adapter.indexOf(provider));
 
             ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
         }

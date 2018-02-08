@@ -45,7 +45,11 @@ public class ProviderRenderer extends Renderer<Provider> {
     @Override
     public void render() {
         Provider provider = getContent();
-        name.setText(provider.getName());
-        domain.setText(provider.getDomain());
+        if (!provider.isDefault()) {
+            name.setText(provider.getName());
+            domain.setText(provider.getDomain());
+        } else {
+            domain.setText(R.string.add_provider);
+        }
     }
 }

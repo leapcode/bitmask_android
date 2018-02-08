@@ -366,4 +366,12 @@ public final class Provider implements Parcelable {
     public String getEipServiceJsonString() {
         return getEipServiceJson().toString();
     }
+    public boolean isDefault() {
+        return getMainUrl().isDefault() &&
+                getApiUrl().isDefault() &&
+                certificatePin.isEmpty() &&
+                certificatePinEncoding.isEmpty() &&
+                caCert.isEmpty();
+    }
+
 }
