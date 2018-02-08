@@ -139,11 +139,6 @@ public class EipFragment extends Fragment implements Observer {
         eipStatus.addObserver(this);
         View view = inflater.inflate(R.layout.eip_service_fragment, container, false);
         ButterKnife.inject(this, view);
-
-        Bundle arguments = getArguments();
-        if (arguments != null && arguments.containsKey(START_EIP_ON_BOOT) && arguments.getBoolean(START_EIP_ON_BOOT)) {
-            startEipFromScratch();
-        }
         return view;
     }
 

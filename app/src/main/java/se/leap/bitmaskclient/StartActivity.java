@@ -13,12 +13,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.userstatus.User;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
+import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
+import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 
 /**
  * Activity shown at startup. Evaluates if App is started for the first time or has been upgraded
@@ -26,7 +31,7 @@ import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
  *
  */
 public class StartActivity extends Activity {
-    public static final String TAG = Dashboard.class.getSimpleName();
+    public static final String TAG = StartActivity.class.getSimpleName();
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({FIRST, NORMAL, UPGRADE, DOWNGRADE})
@@ -151,8 +156,12 @@ public class StartActivity extends Activity {
             } else {
                 Log.d(TAG, "vpn provider is configured");
 
-                //buildDashboard(getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false));
-//                user_status_fragment.restoreSessionStatus(savedInstanceState);
+                if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
+                    Log.d(TAG, "start VPN in background");
+                    eipCommand(EIP_ACTION_START);
+                    finish();
+                }
+                Log.d(TAG, "show MainActivity!");
                 showMainActivity();
             }
         } else {
@@ -177,7 +186,6 @@ public class StartActivity extends Activity {
             if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
                 ConfigHelper.storeProviderInPreferences(preferences, provider);
-
                 showMainActivity();
             } else if (resultCode == RESULT_CANCELED) {
                 finish();
@@ -187,9 +195,21 @@ public class StartActivity extends Activity {
 
     private void showMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.setAction(MainActivity.ACTION_SHOW_VPN_FRAGMENT);
+        intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
         startActivity(intent);
         finish();
     }
 
+
+    /**
+     * Send a command to EIP
+     *
+     * @param action A valid String constant from EIP class representing an Intent
+     *               filter for the EIP class
+     */
+    private void eipCommand(String action) {
+        Intent vpn_intent = new Intent(this.getApplicationContext(), EIP.class);
+        vpn_intent.setAction(action);
+        this.startService(vpn_intent);
+    }
 }
