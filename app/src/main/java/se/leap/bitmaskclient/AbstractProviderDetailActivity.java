@@ -35,6 +35,10 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
         provider = getIntent().getParcelableExtra(PROVIDER_KEY);
         setContentView(R.layout.a_provider_detail);
 
+        if (provider == null) {
+            return;
+        }
+
 
         setProviderHeaderText(provider.getName());
         description.setText(provider.getDescription());
