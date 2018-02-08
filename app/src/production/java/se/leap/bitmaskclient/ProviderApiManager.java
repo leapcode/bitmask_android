@@ -70,44 +70,35 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         int progress = 0;
         Bundle currentDownload = new Bundle();
 
-        if (task != null) {
-            String mainUrlString = provider.getMainUrlString();
-            if (isEmpty(mainUrlString)) {
-                currentDownload.putBoolean(BROADCAST_RESULT_KEY, false);
-                setErrorResult(currentDownload, malformed_url, null);
-                return currentDownload;
-            }
-
-            getPersistedProviderUpdates(provider);
-            currentDownload = validateProviderDetails(provider);
-
-            //provider details invalid
-            if (currentDownload.containsKey(ERRORS)) {
-                return currentDownload;
-            }
-
-            //no provider certificate available
-            if (currentDownload.containsKey(BROADCAST_RESULT_KEY) && !currentDownload.getBoolean(BROADCAST_RESULT_KEY)) {
-                resetProviderDetails(provider);
-            }
-
-            go_ahead = true;
+        if (isEmpty(provider.getMainUrlString()) || provider.getMainUrl().isDefault()) {
+            currentDownload.putBoolean(BROADCAST_RESULT_KEY, false);
+            setErrorResult(currentDownload, malformed_url, null);
+            return currentDownload;
         }
+
+        getPersistedProviderUpdates(provider);
+        currentDownload = validateProviderDetails(provider);
+
+        //provider details invalid
+        if (currentDownload.containsKey(ERRORS)) {
+            return currentDownload;
+        }
+
+        //no provider certificate available
+        if (currentDownload.containsKey(BROADCAST_RESULT_KEY) && !currentDownload.getBoolean(BROADCAST_RESULT_KEY)) {
+            resetProviderDetails(provider);
+        }
+
+        go_ahead = true;
 
         if (!provider.hasDefinition()) {
             currentDownload = getAndSetProviderJson(provider);
         }
         if (provider.hasDefinition() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
-            broadcastProgress(++progress);
-
             if (!provider.hasCaCert())
                 currentDownload = downloadCACert(provider);
             if (provider.hasCaCert() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
-                broadcastProgress(++progress);
                 currentDownload = getAndSetEipServiceJson(provider);
-                if (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY)) {
-                    broadcastProgress(++progress);
-                }
             }
         }
 
@@ -123,9 +114,10 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
         if (go_ahead) {
             String providerDotJsonString;
-            if(providerDefinition.length() == 0 || caCert.isEmpty())
-                providerDotJsonString = downloadWithCommercialCA(provider);
-            else {
+            if(providerDefinition.length() == 0 || caCert.isEmpty()) {
+                String providerJsonUrl = provider.getMainUrlString() + "/provider.json";
+                providerDotJsonString = downloadWithCommercialCA(providerJsonUrl, provider);
+            } else {
                 providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, providerDefinition);
             }
 
@@ -207,15 +199,20 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
     private Bundle downloadCACert(Provider provider) {
         Bundle result = new Bundle();
-        String providerDomain = getDomainFromMainURL(provider.getMainUrlString());
-        String certString = downloadWithCommercialCA(provider);
+        try {
+            String caCertUrl = provider.getDefinition().getString(Provider.CA_CERT_URI);
+            String providerDomain = getDomainFromMainURL(provider.getMainUrlString());
+            String certString = downloadWithCommercialCA(caCertUrl, provider);
 
-        if (validCertificate(provider, certString) && go_ahead) {
-            provider.setCaCert(certString);
-            preferences.edit().putString(Provider.CA_CERT + "." + providerDomain, certString).apply();
-            result.putBoolean(BROADCAST_RESULT_KEY, true);
-        } else {
-            setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
+            if (validCertificate(provider, certString) && go_ahead) {
+                provider.setCaCert(certString);
+                preferences.edit().putString(Provider.CA_CERT + "." + providerDomain, certString).apply();
+                result.putBoolean(BROADCAST_RESULT_KEY, true);
+            } else {
+                setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         return result;
@@ -225,8 +222,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
      * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
      *
      */
-    private String downloadWithCommercialCA(Provider provider) {
-        String stringUrl = provider.getMainUrlString() + "/provider.json";
+    private String downloadWithCommercialCA(String stringUrl, Provider provider) {
         String responseString;
         JSONObject errorJson = new JSONObject();
 

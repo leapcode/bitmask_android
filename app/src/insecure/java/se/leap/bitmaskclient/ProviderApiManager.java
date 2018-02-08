@@ -88,29 +88,29 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
         if (task != null) {
             lastDangerOn = task.containsKey(ProviderListContent.ProviderItem.DANGER_ON) && task.getBoolean(ProviderListContent.ProviderItem.DANGER_ON);
-
-            if (isEmpty(provider.getMainUrlString())) {
-                setErrorResult(currentDownload, malformed_url, null);
-                currentDownload.putParcelable(PROVIDER_KEY, provider);
-                return currentDownload;
-            }
-
-            getPersistedProviderUpdates(provider);
-            currentDownload = validateProviderDetails(provider);
-
-            //provider details invalid
-            if (currentDownload.containsKey(ERRORS)) {
-                currentDownload.putParcelable(PROVIDER_KEY, provider);
-                return currentDownload;
-            }
-
-            //no provider certificate available
-            if (currentDownload.containsKey(BROADCAST_RESULT_KEY) && !currentDownload.getBoolean(BROADCAST_RESULT_KEY)) {
-                resetProviderDetails(provider);
-            }
-
-            go_ahead = true;
         }
+
+        if (isEmpty(provider.getMainUrlString()) || provider.getMainUrl().isDefault()) {
+            setErrorResult(currentDownload, malformed_url, null);
+            currentDownload.putParcelable(PROVIDER_KEY, provider);
+            return currentDownload;
+        }
+
+        getPersistedProviderUpdates(provider);
+        currentDownload = validateProviderDetails(provider);
+
+        //provider details invalid
+        if (currentDownload.containsKey(ERRORS)) {
+            currentDownload.putParcelable(PROVIDER_KEY, provider);
+            return currentDownload;
+        }
+
+        //no provider certificate available
+        if (currentDownload.containsKey(BROADCAST_RESULT_KEY) && !currentDownload.getBoolean(BROADCAST_RESULT_KEY)) {
+            resetProviderDetails(provider);
+        }
+
+        go_ahead = true;
 
         if (!provider.hasDefinition())
             currentDownload = getAndSetProviderJson(provider, lastDangerOn);
@@ -150,10 +150,6 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
                 provider.define(providerJson);
 
-//                preferences.edit().putString(Provider.KEY, providerJson.toString()).
-//                        putBoolean(PROVIDER_ALLOW_ANONYMOUS, providerJson.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS)).
-//                        putBoolean(PROVIDER_ALLOWED_REGISTERED, providerJson.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED)).
-//                        putString(Provider.KEY + "." + providerDomain, providerJson.toString()).commit();
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             } catch (JSONException e) {
                 String reason_to_fail = pickErrorMessage(providerDotJsonString);
@@ -251,13 +247,13 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     /**
      * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
      * <p/>
-     * If danger_on flag is true, SSL exceptions will be managed by futher methods that will try to use some bypass methods.
+     * If dangerOn flag is true, SSL exceptions will be managed by futher methods that will try to use some bypass methods.
      *
-     * @param string_url
-     * @param danger_on  if the user completely trusts this provider
+     * @param stringUrl
+     * @param dangerOn  if the user completely trusts this provider
      * @return
      */
-    private String downloadWithCommercialCA(String string_url, boolean danger_on) {
+    private String downloadWithCommercialCA(String stringUrl, boolean dangerOn) {
         String responseString;
         JSONObject errorJson = new JSONObject();
 
@@ -268,14 +264,14 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
         List<Pair<String, String>> headerArgs = getAuthorizationHeader();
 
-        responseString = sendGetStringToServer(string_url, headerArgs, okHttpClient);
+        responseString = sendGetStringToServer(stringUrl, headerArgs, okHttpClient);
 
         if (responseString != null && responseString.contains(ERRORS)) {
             try {
                 // try to download with provider CA on certificate error
                 JSONObject responseErrorJson = new JSONObject(responseString);
-                if (danger_on && responseErrorJson.getString(ERRORS).equals(resources.getString(R.string.certificate_error))) {
-                    responseString = downloadWithoutCA(string_url);
+                if (dangerOn && responseErrorJson.getString(ERRORS).equals(resources.getString(R.string.certificate_error))) {
+                    responseString = downloadWithoutCA(stringUrl);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -352,7 +348,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
      * Downloads the string that's in the url with any certificate.
      */
     // This method is totally insecure anyways. So no need to refactor that in order to use okHttpClient, force modern TLS etc.. DO NOT USE IN PRODUCTION!
-    private String downloadWithoutCA(String url_string) {
+    private String downloadWithoutCA(String urlString) {
         String string = "";
         try {
 
@@ -382,7 +378,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             SSLContext context = SSLContext.getInstance("TLS");
             context.init(new KeyManager[0], new TrustManager[]{new DefaultTrustManager()}, new SecureRandom());
 
-            URL url = new URL(url_string);
+            URL url = new URL(urlString);
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setHostnameVerifier(hostnameVerifier);

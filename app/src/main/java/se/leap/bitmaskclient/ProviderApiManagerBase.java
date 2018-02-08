@@ -432,19 +432,6 @@ public abstract class ProviderApiManagerBase {
         }
     }
 
-    /**
-     * Sets up an intent with the progress value passed as a parameter
-     * and sends it as a broadcast.
-     *
-     * @param progress
-     */
-    void broadcastProgress(int progress) {
-        Intent intentUpdate = new Intent(UPDATE_PROGRESSBAR);
-        intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
-        intentUpdate.putExtra(CURRENT_PROGRESS, progress);
-        serviceCallback.broadcastEvent(intentUpdate);
-    }
-
     private void broadcastEvent(int resultCode , Bundle resultData) {
         Intent intentUpdate = new Intent(BROADCAST_PROVIDER_API_EVENT);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
@@ -617,7 +604,7 @@ public abstract class ProviderApiManagerBase {
     /**
      * Downloads a provider.json from a given URL, adding a new provider using the given name.
      *
-     * @param task containing a boolean meaning if the provider is custom or not, another boolean meaning if the user completely trusts this provider, the provider name and its provider.json url.
+     * @param task containing a boolean meaning if the provider is custom or not, another boolean meaning if the user completely trusts this provider
      * @return a bundle with a boolean value mapped to a key named BROADCAST_RESULT_KEY, and which is true if the update was successful.
      */
     protected abstract Bundle setUpProvider(Provider provider, Bundle task);

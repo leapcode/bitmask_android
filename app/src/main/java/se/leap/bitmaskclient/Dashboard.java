@@ -144,7 +144,7 @@ public class Dashboard extends ButterKnifeActivity {
     private Provider getSavedProviderFromSharedPreferences() {
         Provider provider = new Provider();
         try {
-            provider.setUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
+            provider.setMainUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
             provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
         } catch (MalformedURLException | JSONException e) {

@@ -79,6 +79,14 @@ public final class Provider implements Parcelable {
 
     public Provider() { }
 
+    public Provider(String mainUrl) {
+        try {
+            this.mainUrl.setUrl(new URL(mainUrl));
+        } catch (MalformedURLException e) {
+            this.mainUrl = new DefaultedURL();
+        }
+    }
+
     public Provider(URL mainUrl) {
         this.mainUrl.setUrl(mainUrl);
     }
@@ -118,12 +126,20 @@ public final class Provider implements Parcelable {
                 !caCert.isEmpty();
     }
 
-    protected void setUrl(URL url) {
+    public void setMainUrl(URL url) {
         mainUrl.setUrl(url);
     }
 
-    protected void define(JSONObject provider_json) {
-        definition = provider_json;
+    public void setMainUrl(String url) {
+        try {
+            mainUrl.setUrl(new URL(url));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void define(JSONObject providerJson) {
+        definition = providerJson;
         parseDefinition(definition);
     }
 

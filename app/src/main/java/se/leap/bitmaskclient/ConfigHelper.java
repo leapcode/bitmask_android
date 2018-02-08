@@ -102,14 +102,14 @@ public class ConfigHelper {
         return ret;
     }
 
-    public static X509Certificate parseX509CertificateFromString(String certificate_string) {
+    public static X509Certificate parseX509CertificateFromString(String certificateString) {
         java.security.cert.Certificate certificate = null;
         CertificateFactory cf;
         try {
             cf = CertificateFactory.getInstance("X.509");
 
-            certificate_string = certificate_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
-            byte[] cert_bytes = Base64.decode(certificate_string);
+            certificateString = certificateString.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
+            byte[] cert_bytes = Base64.decode(certificateString);
             InputStream caInput = new ByteArrayInputStream(cert_bytes);
             try {
                 certificate = cf.generateCertificate(caInput);
@@ -275,7 +275,7 @@ public class ConfigHelper {
     public static Provider getSavedProviderFromSharedPreferences(@NonNull SharedPreferences preferences) {
         Provider provider = new Provider();
         try {
-            provider.setUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
+            provider.setMainUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
             provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
         } catch (MalformedURLException | JSONException e) {
