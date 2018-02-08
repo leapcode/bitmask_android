@@ -82,10 +82,12 @@ import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_CERTIFICATE;
 
 public class EipFragment extends Fragment implements Observer {
 
-    public static String TAG = EipFragment.class.getSimpleName();
+    public final static String TAG = EipFragment.class.getSimpleName();
 
     protected static final String IS_CONNECTED = TAG + ".is_connected";
     public static final String START_EIP_ON_BOOT = "start on boot";
+    public static final String ASK_TO_CANCEL_VPN = "ask_to_cancel_vpn";
+
 
     private SharedPreferences preferences;
     private Provider provider;
@@ -134,6 +136,7 @@ public class EipFragment extends Fragment implements Observer {
 
     };
 
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         Bundle arguments = getArguments();
@@ -167,8 +170,12 @@ public class EipFragment extends Fragment implements Observer {
         ButterKnife.inject(this, view);
 
         Bundle arguments = getArguments();
-        if (arguments != null && arguments.containsKey(START_EIP_ON_BOOT) && arguments.getBoolean(START_EIP_ON_BOOT)) {
-            startEipFromScratch();
+        if (arguments != null) {
+            if (arguments.containsKey(START_EIP_ON_BOOT) && arguments.getBoolean(START_EIP_ON_BOOT)) {
+                startEipFromScratch();
+            } else if (arguments.containsKey(ASK_TO_CANCEL_VPN) && arguments.getBoolean(ASK_TO_CANCEL_VPN)) {
+                askToStopEIP();
+            }
         }
         return view;
     }

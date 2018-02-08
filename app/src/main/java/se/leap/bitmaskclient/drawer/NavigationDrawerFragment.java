@@ -120,7 +120,7 @@ public class NavigationDrawerFragment extends Fragment {
 
         mDrawerSettingsListView.setAdapter(new ArrayAdapter<String>(
                 actionBar.getThemedContext(),
-                android.R.layout.simple_list_item_activated_1,
+                R.layout.single_list_item,
                 android.R.id.text1,
                 new String[]{
                         getString(R.string.switch_provider_menu_option),
@@ -137,7 +137,7 @@ public class NavigationDrawerFragment extends Fragment {
         });
 
         accountListAdapter = new ArrayAdapter<>(actionBar.getThemedContext(),
-                android.R.layout.simple_list_item_activated_1,
+                R.layout.single_list_item,
                 android.R.id.text1);
 
         createListAdapterData();

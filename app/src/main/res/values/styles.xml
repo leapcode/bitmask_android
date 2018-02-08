@@ -65,7 +65,6 @@
     </style>
 
     <style name="BitmaskActivity">
-        <item name="android:padding">@dimen/activity_margin</item>
     </style>
 
     <style name="BitmaskButtonBlack" parent="android:Widget.Button">

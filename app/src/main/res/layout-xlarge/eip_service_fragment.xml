@@ -1,58 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
-    android:layout_marginLeft="20dp"
-    android:layout_marginStart="20dp"
+    android:layout_height="match_parent"
     android:id="@+id/eipServiceFragment"
     >
 
-    <TextView
-        android:id="@+id/eipLabel"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="30dp"
-        android:text="@string/eip_service_label"
-        android:textSize="46sp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_horizontal_top"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintGuide_percent="0.3"
+        />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_vertical_left"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintGuide_percent="0.3"
         />
 
 
-    <LinearLayout
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_horizontal_bottom"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintGuide_percent="0.7"
+        />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_vertical_right"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintGuide_percent="0.7"
+        />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/ic_colorsquare" />
+
+
+    <TextView
+        android:id="@+id/eipLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@+id/eipLabel"
-        android:layout_centerInParent="true">
+        android:layout_marginEnd="@dimen/stdpadding"
+        android:layout_marginStart="@dimen/stdpadding"
+        android:layout_marginTop="@dimen/stdpadding"
+        android:layout_marginLeft="@dimen/stdpadding"
+        android:layout_marginRight="@dimen/stdpadding"
+        android:text="@string/eip_service_label"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/vpn_main_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginLeft="24dp"
-            android:textSize="32sp"
-            />
 
-        <se.leap.bitmaskclient.userstatus.FabButton
-            android:id="@+id/vpn_status_image"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:color="@android:color/holo_blue_dark"
-            android:layout_gravity="center"
-            android:visibility="visible"
-            android:indeterminate="true"
-            android:max="100"
-            fbb_autoStart="true"
-            fbb_progressColor="#ff170aff"
-            fbb_progressWidthRatio="0.2"
-            android:layout_marginStart="24dp"
-            android:layout_marginLeft="24dp"
-            />
-    </LinearLayout>
-</RelativeLayout>
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/cirle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/stdpadding"
+        android:layout_marginEnd="@dimen/stdpadding"
+        android:layout_marginStart="@dimen/stdpadding"
+        android:layout_marginTop="@dimen/stdpadding"
+        android:layout_marginLeft="@dimen/stdpadding"
+        android:layout_marginRight="@dimen/stdpadding"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal_bottom"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_right"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline_vertical_left"
+        app:layout_constraintTop_toTopOf="@+id/guideline_horizontal_top"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/black_circle" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/key"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/stdpadding"
+        android:layout_marginEnd="@dimen/stdpadding"
+        android:layout_marginStart="@dimen/stdpadding"
+        android:layout_marginTop="@dimen/stdpadding"
+        android:layout_marginLeft="@dimen/stdpadding"
+        android:layout_marginRight="@dimen/stdpadding"
+        app:layout_constraintBottom_toBottomOf="@+id/cirle"
+        app:layout_constraintEnd_toEndOf="@+id/cirle"
+        app:layout_constraintStart_toStartOf="@+id/cirle"
+        app:layout_constraintTop_toTopOf="@+id/cirle"
+        app:srcCompat="@drawable/vpn_connected" />
+
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/vpn_main_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/stdpadding"
+        android:layout_marginEnd="@dimen/stdpadding"
+        android:layout_marginStart="@dimen/stdpadding"
+        android:layout_marginTop="@dimen/stdpadding"
+        android:layout_marginLeft="@dimen/stdpadding"
+        android:layout_marginRight="@dimen/stdpadding"
+        app:layout_constraintBottom_toBottomOf="@+id/background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/vpn.button.turn.on"
+        style="@style/BitmaskButtonBlack"
+        />
+
+    <TextView
+        android:id="@+id/routed_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/stdpadding"
+        android:layout_marginStart="@dimen/stdpadding"
+        android:layout_marginTop="@dimen/stdpadding"
+        android:layout_marginLeft="@dimen/stdpadding"
+        android:layout_marginRight="@dimen/stdpadding"
+        android:text="@string/vpn_securely_routed"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eipLabel" />
+
+    <TextView
+        android:id="@+id/vpn_route"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/stdpadding"
+        android:layout_marginStart="@dimen/stdpadding"
+        android:layout_marginLeft="@dimen/stdpadding"
+        android:layout_marginRight="@dimen/stdpadding"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/routed_text" />
+
+</android.support.constraint.ConstraintLayout>

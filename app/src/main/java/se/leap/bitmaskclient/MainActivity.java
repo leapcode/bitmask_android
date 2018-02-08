@@ -17,6 +17,7 @@ import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.EipFragment.ASK_TO_CANCEL_VPN;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -66,12 +67,24 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        Fragment fragment = null;
         switch (intent.getAction()) {
             case ACTION_SHOW_VPN_FRAGMENT:
-                showEipFragment();
+                fragment = new EipFragment();
+                if (intent.hasExtra(ASK_TO_CANCEL_VPN)) {
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean(ASK_TO_CANCEL_VPN, true);
+                    fragment.setArguments(bundle);
+                }
                 break;
             default:
                 break;
+        }
+
+        if (fragment != null) {
+            new FragmentManagerEnhanced(getSupportFragmentManager()).beginTransaction()
+                    .replace(R.id.container, fragment)
+                    .commit();
         }
     }
 
@@ -91,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
             ConfigHelper.storeProviderInPreferences(preferences, provider);
             navigationDrawerFragment.refresh();
+
             switch (requestCode) {
                 case REQUEST_CODE_SWITCH_PROVIDER:
                     EipCommand.stopVPN(this);
@@ -100,13 +114,9 @@ public class MainActivity extends AppCompatActivity {
                 case REQUEST_CODE_LOG_IN:
                     EipCommand.startVPN(this);
                     break;
-
             }
-            showEipFragment();
         }
-    }
 
-    private void showEipFragment() {
         Fragment fragment = new EipFragment();
         Bundle arguments = new Bundle();
         arguments.putParcelable(PROVIDER_KEY, provider);
@@ -115,5 +125,4 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.container, fragment)
                 .commit();
     }
-
 }
