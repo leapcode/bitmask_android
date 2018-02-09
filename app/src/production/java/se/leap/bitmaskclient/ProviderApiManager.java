@@ -178,7 +178,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             if (ConfigHelper.checkErroneousDownload(certString))
                 return false;
             else
-                return loadCertificate(certString);
+                return loadCertificate(provider, certString);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
