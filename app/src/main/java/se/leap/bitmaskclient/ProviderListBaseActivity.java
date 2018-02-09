@@ -233,7 +233,8 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         showDownloadFailedDialog();
     }
 
-    void handleCorrectlyDownloadedCertificate() {
+    void handleCorrectlyDownloadedCertificate(Provider handledProvider) {
+        this.provider = handledProvider;
         showProviderDetails();
     }
 
@@ -419,7 +420,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
                             handleProviderSetupFailed(resultData);
                             break;
                         case CORRECTLY_DOWNLOADED_CERTIFICATE:
-                            handleCorrectlyDownloadedCertificate();
+                            handleCorrectlyDownloadedCertificate(handledProvider);
                             break;
                         case INCORRECTLY_DOWNLOADED_CERTIFICATE:
                             handleIncorrectlyDownloadedCertificate();
