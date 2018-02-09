@@ -16,6 +16,7 @@
  */
 package se.leap.bitmaskclient;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -348,6 +349,7 @@ public class ConfigHelper {
         }
     }
 
+    // TODO: replace commit with apply after refactoring EIP
     public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider) {
         preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
                 putString(Provider.MAIN_URL, provider.getMainUrlString()).
@@ -355,6 +357,14 @@ public class ConfigHelper {
                 putString(Provider.CA_CERT, provider.getCaCert()).
                 putString(PROVIDER_KEY, provider.getEipServiceJsonString()).
                 commit();
+
+        String providerDomain = provider.getDomain();
+        preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
+                putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString()).
+                putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
+                putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
+                putString(PROVIDER_KEY + "." + providerDomain, provider.getEipServiceJsonString()).
+                apply();
     }
 
 

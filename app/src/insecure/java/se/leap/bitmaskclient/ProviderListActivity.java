@@ -17,6 +17,7 @@
 package se.leap.bitmaskclient;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 
@@ -99,7 +100,7 @@ public class ProviderListActivity extends ProviderListBaseActivity {
      * Retrys setup of last used provider, allows bypassing ca certificate validation.
      */
     @Override
-    public void retrySetUpProvider(Provider provider) {
+    public void retrySetUpProvider(@NonNull Provider provider) {
         cancelSettingUpProvider();
         if (!provider.hasCaCert()) {
             addAndSelectNewProvider(provider.getMainUrlString(), ProviderAPI.lastDangerOn());

@@ -174,10 +174,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 JSONObject providerDefinition = provider.getDefinition();
                 String eipServiceUrl = providerDefinition.getString(Provider.API_URL) + "/" + providerDefinition.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
                 eipServiceJsonString = downloadWithProviderCA(provider.getCaCert(), eipServiceUrl, lastDangerOn);
-                JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
-                eipServiceJson.getInt(Provider.API_RETURN_SERIAL);
 
-                //preferences.edit().putString(PROVIDER_KEY, eipServiceJson.toString()).commit();
+                JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
                 provider.setEipServiceJson(eipServiceJson);
 
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
@@ -285,7 +283,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         String responseString;
         JSONObject errorJson = new JSONObject();
         String baseUrl = getApiUrl(providerDefinition);
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(errorJson, caCert);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, errorJson);
         if (okHttpClient == null) {
             return errorJson.toString();
         }

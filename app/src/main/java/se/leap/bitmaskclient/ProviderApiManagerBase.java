@@ -66,7 +66,6 @@ import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_C
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
-import static se.leap.bitmaskclient.ProviderAPI.CURRENT_PROGRESS;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORID;
@@ -572,7 +571,7 @@ public abstract class ProviderApiManagerBase {
         JSONObject errorJson = new JSONObject();
         String baseUrl = getApiUrl(providerDefinition);
 
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(errorJson, caCert);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, errorJson);
         if (okHttpClient == null) {
             result.putString(ERRORS, errorJson.toString());
             return false;
@@ -705,7 +704,6 @@ public abstract class ProviderApiManagerBase {
             if (!realFingerprint.trim().equalsIgnoreCase(expectedFingerprint.trim())) {
                 return setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
             }
-
 
             if (!hasApiUrlExpectedDomain(providerDefinition, mainUrl)){
                 return setErrorResult(result, warning_corrupted_provider_details, ERROR_CORRUPTED_PROVIDER_JSON.toString());

@@ -67,7 +67,6 @@ public class ProviderApiManager extends ProviderApiManagerBase {
      */
     @Override
     protected Bundle setUpProvider(Provider provider, Bundle task) {
-        int progress = 0;
         Bundle currentDownload = new Bundle();
 
         if (isEmpty(provider.getMainUrlString()) || provider.getMainUrl().isDefault()) {
@@ -260,7 +259,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         String responseString;
         JSONObject errorJson = new JSONObject();
         String baseUrl = getApiUrl(providerDefinition);
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(errorJson, caCert);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, errorJson);
         if (okHttpClient == null) {
             return errorJson.toString();
         }

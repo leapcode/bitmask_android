@@ -73,11 +73,6 @@ public class OkHttpClientGenerator {
         return initHttpClient(initError, caCert);
     }
 
-    public OkHttpClient initSelfSignedCAHttpClient(JSONObject initError, String certificate) {
-        return initHttpClient(initError, certificate);
-    }
-
-
     private OkHttpClient initHttpClient(JSONObject initError, String certificate) {
         try {
             TLSCompatSocketFactory sslCompatFactory;

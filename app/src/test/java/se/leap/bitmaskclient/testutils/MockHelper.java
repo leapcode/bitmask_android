@@ -354,7 +354,6 @@ public class MockHelper {
         OkHttpClient mockedOkHttpClient = mock(OkHttpClient.class);
         when(mockClientGenerator.initCommercialCAHttpClient(any(JSONObject.class))).thenReturn(mockedOkHttpClient);
         when(mockClientGenerator.initSelfSignedCAHttpClient(anyString(), any(JSONObject.class))).thenReturn(mockedOkHttpClient);
-        when(mockClientGenerator.initSelfSignedCAHttpClient(any(JSONObject.class), anyString())).thenReturn(mockedOkHttpClient);
         return mockClientGenerator;
     }
 

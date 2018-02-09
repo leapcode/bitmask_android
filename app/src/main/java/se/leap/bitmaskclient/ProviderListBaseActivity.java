@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -102,7 +103,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     private boolean isActivityShowing;
     private String reasonToFail;
 
-    public abstract void retrySetUpProvider(Provider provider);
+    public abstract void retrySetUpProvider(@NonNull Provider provider);
 
     protected abstract void onItemSelectedLogic();
 
@@ -360,10 +361,10 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
             DialogFragment newFragment;
             try {
                 JSONObject errorJson = new JSONObject(reasonToFail);
-                newFragment = DownloadFailedDialog.newInstance(errorJson);
+                newFragment = DownloadFailedDialog.newInstance(provider, errorJson);
             } catch (JSONException e) {
                 e.printStackTrace();
-                newFragment = DownloadFailedDialog.newInstance(reasonToFail);
+                newFragment = DownloadFailedDialog.newInstance(provider, reasonToFail);
             }
             newFragment.show(fragmentTransaction, DownloadFailedDialog.TAG);
         } catch (IllegalStateException e) {
