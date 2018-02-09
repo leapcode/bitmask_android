@@ -86,12 +86,13 @@ public class DownloadFailedDialog extends DialogFragment {
     }
 
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(reasonToFail)
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                interface_with_ConfigurationWizard.cancelSettingUpProvider();
+                interfaceWithConfigurationWizard.cancelSettingUpProvider();
                 dialog.dismiss();
             }
         });
@@ -101,7 +102,7 @@ switch (downloadError) {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dismiss();
-                        interface_with_ConfigurationWizard.updateProviderDetails();
+                        interfaceWithConfigurationWizard.updateProviderDetails();
                     }
                 });
                 break;
@@ -111,7 +112,7 @@ switch (downloadError) {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dismiss();
-                        interface_with_ConfigurationWizard.updateProviderDetails();
+                        interfaceWithConfigurationWizard.updateProviderDetails();
                     }
                 });
                 break;
@@ -119,7 +120,7 @@ switch (downloadError) {
                 builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dismiss();
-                                interface_with_ConfigurationWizard.retrySetUpProvider(provider);
+                                interfaceWithConfigurationWizard.retrySetUpProvider(provider);
                             }
                         });
                 break;
@@ -137,13 +138,13 @@ switch (downloadError) {
         void updateProviderDetails();
     }
 
-    DownloadFailedDialogInterface interface_with_ConfigurationWizard;
+    DownloadFailedDialogInterface interfaceWithConfigurationWizard;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            interface_with_ConfigurationWizard = (DownloadFailedDialogInterface) context;
+            interfaceWithConfigurationWizard = (DownloadFailedDialogInterface) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " must implement NoticeDialogListener");
@@ -152,7 +153,7 @@ switch (downloadError) {
 
     @Override
     public void onCancel(DialogInterface dialog) {
-        interface_with_ConfigurationWizard.cancelSettingUpProvider();
+        interfaceWithConfigurationWizard.cancelSettingUpProvider();
         dialog.dismiss();
     }
 

@@ -110,8 +110,6 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             resetProviderDetails(provider);
         }
 
-        go_ahead = true;
-
         if (!provider.hasDefinition())
             currentDownload = getAndSetProviderJson(provider, lastDangerOn);
         if (provider.hasDefinition() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
@@ -132,30 +130,28 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         String caCert = provider.getCaCert();
         String providerMainUrl = provider.getMainUrlString();
 
-        if (go_ahead) {
-            String providerDotJsonString;
-            if(providerDefinition.length() == 0 || caCert.isEmpty())
-                providerDotJsonString = downloadWithCommercialCA(providerMainUrl + "/provider.json", dangerOn);
-            else
-                providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, providerDefinition, dangerOn);
+        String providerDotJsonString;
+        if(providerDefinition.length() == 0 || caCert.isEmpty())
+            providerDotJsonString = downloadWithCommercialCA(providerMainUrl + "/provider.json", dangerOn);
+        else
+            providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, providerDefinition, dangerOn);
 
-            if (!isValidJson(providerDotJsonString)) {
-                result.putString(ERRORS, resources.getString(malformed_url));
-                result.putBoolean(BROADCAST_RESULT_KEY, false);
-                return result;
-            }
+        if (!isValidJson(providerDotJsonString)) {
+            result.putString(ERRORS, resources.getString(malformed_url));
+            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            return result;
+        }
 
-            try {
-                JSONObject providerJson = new JSONObject(providerDotJsonString);
+        try {
+            JSONObject providerJson = new JSONObject(providerDotJsonString);
 
-                provider.define(providerJson);
+            provider.define(providerJson);
 
-                result.putBoolean(BROADCAST_RESULT_KEY, true);
-            } catch (JSONException e) {
-                String reason_to_fail = pickErrorMessage(providerDotJsonString);
-                result.putString(ERRORS, reason_to_fail);
-                result.putBoolean(BROADCAST_RESULT_KEY, false);
-            }
+            result.putBoolean(BROADCAST_RESULT_KEY, true);
+        } catch (JSONException e) {
+            String reason_to_fail = pickErrorMessage(providerDotJsonString);
+            result.putString(ERRORS, reason_to_fail);
+            result.putBoolean(BROADCAST_RESULT_KEY, false);
         }
         result.putParcelable(PROVIDER_KEY, provider);
         return result;
@@ -169,21 +165,19 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     protected Bundle getAndSetEipServiceJson(Provider provider) {
         Bundle result = new Bundle();
         String eipServiceJsonString = "";
-        if (go_ahead) {
-            try {
-                JSONObject providerDefinition = provider.getDefinition();
-                String eipServiceUrl = providerDefinition.getString(Provider.API_URL) + "/" + providerDefinition.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
-                eipServiceJsonString = downloadWithProviderCA(provider.getCaCert(), eipServiceUrl, lastDangerOn);
+        try {
+            JSONObject providerDefinition = provider.getDefinition();
+            String eipServiceUrl = providerDefinition.getString(Provider.API_URL) + "/" + providerDefinition.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
+            eipServiceJsonString = downloadWithProviderCA(provider.getCaCert(), eipServiceUrl, lastDangerOn);
 
-                JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
-                provider.setEipServiceJson(eipServiceJson);
+            JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
+            provider.setEipServiceJson(eipServiceJson);
 
-                result.putBoolean(BROADCAST_RESULT_KEY, true);
-            } catch (NullPointerException | JSONException e) {
-                String reasonToFail = pickErrorMessage(eipServiceJsonString);
-                result.putString(ERRORS, reasonToFail);
-                result.putBoolean(BROADCAST_RESULT_KEY, false);
-            }
+            result.putBoolean(BROADCAST_RESULT_KEY, true);
+        } catch (NullPointerException | JSONException e) {
+            String reasonToFail = pickErrorMessage(eipServiceJsonString);
+            result.putString(ERRORS, reasonToFail);
+            result.putBoolean(BROADCAST_RESULT_KEY, false);
         }
         result.putParcelable(PROVIDER_KEY, provider);
         return result;
@@ -228,7 +222,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
             String certString = downloadWithCommercialCA(caCertUrl, dangerOn);
 
-            if (validCertificate(provider, certString) && go_ahead) {
+            if (validCertificate(provider, certString)) {
                 provider.setCaCert(certString);
                 preferences.edit().putString(Provider.CA_CERT + "." + providerDomain, certString).apply();
                 result.putBoolean(BROADCAST_RESULT_KEY, true);

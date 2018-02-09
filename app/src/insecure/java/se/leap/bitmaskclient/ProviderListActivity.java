@@ -101,14 +101,7 @@ public class ProviderListActivity extends ProviderListBaseActivity {
      */
     @Override
     public void retrySetUpProvider(@NonNull Provider provider) {
-        cancelSettingUpProvider();
-        if (!provider.hasCaCert()) {
-            addAndSelectNewProvider(provider.getMainUrlString(), ProviderAPI.lastDangerOn());
-        } else {
-            showProgressBar();
-
-            ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
-        }
+        ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
     }
 
 }

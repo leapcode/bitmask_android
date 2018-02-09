@@ -115,14 +115,9 @@ public abstract class ProviderApiManagerBase {
 
     private ProviderApiServiceCallback serviceCallback;
 
-    static boolean go_ahead = true;
     protected SharedPreferences preferences;
     protected Resources resources;
     OkHttpClientGenerator clientGenerator;
-
-    public static void stop() {
-        go_ahead = false;
-    }
 
     ProviderApiManagerBase(SharedPreferences preferences, Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
         this.preferences = preferences;
@@ -158,12 +153,10 @@ public abstract class ProviderApiManagerBase {
             }
         } else if (action.equalsIgnoreCase(SET_UP_PROVIDER)) {
             Bundle result = setUpProvider(provider, parameters);
-            if (go_ahead) {
-                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
-                    sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
-                } else {
-                    sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
-                }
+            if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
+            } else {
+                sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
             }
         } else if (action.equalsIgnoreCase(SIGN_UP)) {
             Bundle result = tryToRegister(parameters);

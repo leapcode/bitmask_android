@@ -20,6 +20,8 @@ import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PRO
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
+import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
@@ -126,6 +128,13 @@ public class StartActivity extends Activity {
     private void executeUpgrade() {
         if (hasNewFeature(FeatureVersionCode.MULTIPLE_PROFILES)) {
             // TODO prepare usage of multiple profiles
+        }
+        if (hasNewFeature(FeatureVersionCode.RENAMED_EIP_IN_PREFERENCES)) {
+            String eipJson = preferences.getString(PROVIDER_KEY, null);
+            if (eipJson != null) {
+                preferences.edit().putString(PROVIDER_EIP_DEFINITION, eipJson).
+                        remove(PROVIDER_KEY).apply();
+            }
         }
 
         // ensure all upgrades have passed before storing new information

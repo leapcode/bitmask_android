@@ -44,7 +44,7 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_UPDATE;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
-import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
@@ -214,7 +214,7 @@ public final class EIP extends IntentService {
     private JSONObject eipDefinitionFromPreferences() {
         JSONObject result = new JSONObject();
         try {
-            String eipDefinitionString = preferences.getString(PROVIDER_KEY, "");
+            String eipDefinitionString = preferences.getString(PROVIDER_EIP_DEFINITION, "");
             if (!eipDefinitionString.isEmpty()) {
                 result = new JSONObject(eipDefinitionString);
             }

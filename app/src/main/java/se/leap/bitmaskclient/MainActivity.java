@@ -71,11 +71,12 @@ public class MainActivity extends AppCompatActivity {
         switch (intent.getAction()) {
             case ACTION_SHOW_VPN_FRAGMENT:
                 fragment = new EipFragment();
+                Bundle bundle = new Bundle();
                 if (intent.hasExtra(ASK_TO_CANCEL_VPN)) {
-                    Bundle bundle = new Bundle();
                     bundle.putBoolean(ASK_TO_CANCEL_VPN, true);
-                    fragment.setArguments(bundle);
                 }
+                bundle.putParcelable(PROVIDER_KEY, provider);
+                fragment.setArguments(bundle);
                 break;
             default:
                 break;

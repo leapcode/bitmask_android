@@ -47,7 +47,7 @@ import static se.leap.bitmaskclient.Constants.APP_ACTION_QUIT;
 import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
-import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
@@ -161,7 +161,7 @@ public class Dashboard extends ButterKnifeActivity {
             switch (versionCode) {
                 case 91: // 0.6.0 without Bug #5999
                 case 101: // 0.8.0
-                    if (!preferences.getString(PROVIDER_KEY, "").isEmpty())
+                    if (!preferences.getString(PROVIDER_EIP_DEFINITION, "").isEmpty())
                         EipCommand.updateEipService(this);
                     break;
             }

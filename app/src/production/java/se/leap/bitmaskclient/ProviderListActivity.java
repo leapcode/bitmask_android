@@ -16,8 +16,6 @@
  */
 package se.leap.bitmaskclient;
 
-import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import java.net.MalformedURLException;
@@ -69,14 +67,7 @@ public class ProviderListActivity extends ProviderListBaseActivity {
 
     @Override
     public void retrySetUpProvider(@NonNull Provider provider) {
-        cancelSettingUpProvider();
-        if (!provider.hasCaCert()) {
-            addAndSelectNewProvider(provider.getMainUrlString());
-        } else {
-            showProgressBar();
-
-            ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
-        }
+        ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
     }
 
 }

@@ -46,7 +46,6 @@ import butterknife.InjectView;
 import butterknife.OnItemClick;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 
-import static android.view.View.GONE;
 import static se.leap.bitmaskclient.Constants.APP_ACTION_QUIT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
@@ -229,10 +228,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     }
 
     void handleProviderSetupFailed(Bundle resultData) {
-        mConfigState.setAction(PROVIDER_NOT_SET);
-
-        setResult(RESULT_CANCELED, mConfigState);
-
         reasonToFail = resultData.getString(ERRORS);
         showDownloadFailedDialog();
     }
@@ -242,8 +237,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     }
 
     void handleIncorrectlyDownloadedCertificate() {
-        mConfigState.setAction(PROVIDER_NOT_SET);
-        hideProgressBar();
+        cancelSettingUpProvider();
         setResult(RESULT_CANCELED, mConfigState);
     }
 
@@ -289,26 +283,18 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     }
 
     private void stopSettingUpProvider() {
-        ProviderAPI.stop();
-        loadingScreen.setVisibility(GONE);
-
         cancelSettingUpProvider();
     }
 
     @Override
     public void cancelSettingUpProvider() {
-        hideProgressBar();
         mConfigState.setAction(PROVIDER_NOT_SET);
+        hideProgressBar();
     }
 
     @Override
     public void updateProviderDetails() {
-        mConfigState.setAction(SETTING_UP_PROVIDER);
-
-        Bundle parameters = new Bundle();
-        parameters.putString(Provider.MAIN_URL, provider.getMainUrl().toString());
-
-        ProviderAPICommand.execute(this, UPDATE_PROVIDER_DETAILS, parameters, provider);
+        ProviderAPICommand.execute(this, UPDATE_PROVIDER_DETAILS, provider);
     }
 
     public void checkProviderSetUp() {

@@ -76,11 +76,6 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
     }
 
     //TODO: refactor me, please!
-    public static void stop() {
-        ProviderApiManager.stop();
-    }
-
-    //TODO: refactor me, please!
     //used in insecure flavor only
     @SuppressLint("unused")
     public static boolean lastDangerOn() {

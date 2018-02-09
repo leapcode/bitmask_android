@@ -58,6 +58,7 @@ public interface Constants {
     String PROVIDER_PRIVATE_KEY = "Constants.PROVIDER_PRIVATE_KEY";
     String PROVIDER_KEY = "Constants.PROVIDER_KEY";
     String PROVIDER_CONFIGURED = "Constants.PROVIDER_CONFIGURED";
+    String PROVIDER_EIP_DEFINITION = "Constants.EIP_DEFINITION";
 
     //////////////////////////////////////////////
     // CREDENTIAL CONSTANTS

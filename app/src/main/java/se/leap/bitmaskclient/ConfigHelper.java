@@ -55,7 +55,7 @@ import java.util.Map;
 import static android.R.attr.name;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
-import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 
 /**
  * Stores constants, and implements auxiliary methods used across all Bitmask Android classes.
@@ -355,7 +355,7 @@ public class ConfigHelper {
                 putString(Provider.MAIN_URL, provider.getMainUrlString()).
                 putString(Provider.KEY, provider.getDefinitionString()).
                 putString(Provider.CA_CERT, provider.getCaCert()).
-                putString(PROVIDER_KEY, provider.getEipServiceJsonString()).
+                putString(PROVIDER_EIP_DEFINITION, provider.getEipServiceJsonString()).
                 commit();
 
         String providerDomain = provider.getDomain();
@@ -363,7 +363,7 @@ public class ConfigHelper {
                 putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString()).
                 putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
                 putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
-                putString(PROVIDER_KEY + "." + providerDomain, provider.getEipServiceJsonString()).
+                putString(PROVIDER_EIP_DEFINITION + "." + providerDomain, provider.getEipServiceJsonString()).
                 apply();
     }
 
