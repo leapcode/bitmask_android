@@ -171,9 +171,15 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             eipServiceJsonString = downloadWithProviderCA(provider.getCaCert(), eipServiceUrl, lastDangerOn);
 
             JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
-            provider.setEipServiceJson(eipServiceJson);
 
-            result.putBoolean(BROADCAST_RESULT_KEY, true);
+            if (eipServiceJson.has(ERRORS)) {
+                String reasonToFail = pickErrorMessage(eipServiceJsonString);
+                result.putString(ERRORS, reasonToFail);
+                result.putBoolean(BROADCAST_RESULT_KEY, false);
+            } else{
+                provider.setEipServiceJson(eipServiceJson);
+                result.putBoolean(BROADCAST_RESULT_KEY, true);
+            }
         } catch (NullPointerException | JSONException e) {
             String reasonToFail = pickErrorMessage(eipServiceJsonString);
             result.putString(ERRORS, reasonToFail);
@@ -201,7 +207,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             if (certString == null || certString.isEmpty() || ConfigHelper.checkErroneousDownload(certString))
                 return false;
             else
-                return loadCertificate(certString);
+                return loadCertificate(provider, certString);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

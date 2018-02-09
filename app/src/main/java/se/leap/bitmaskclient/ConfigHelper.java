@@ -56,6 +56,8 @@ import static android.R.attr.name;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
+import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 
 /**
  * Stores constants, and implements auxiliary methods used across all Bitmask Android classes.
@@ -279,6 +281,8 @@ public class ConfigHelper {
             provider.setMainUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
             provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
+            provider.setVpnCertificate(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
+            provider.setPrivateKey(preferences.getString(PROVIDER_PRIVATE_KEY, ""));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -350,12 +354,15 @@ public class ConfigHelper {
     }
 
     // TODO: replace commit with apply after refactoring EIP
+    //FIXME: don't save private keys in shared preferences! use the keystore
     public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider) {
         preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
                 putString(Provider.MAIN_URL, provider.getMainUrlString()).
                 putString(Provider.KEY, provider.getDefinitionString()).
                 putString(Provider.CA_CERT, provider.getCaCert()).
                 putString(PROVIDER_EIP_DEFINITION, provider.getEipServiceJsonString()).
+                putString(PROVIDER_PRIVATE_KEY, provider.getPrivateKey()).
+                putString(PROVIDER_VPN_CERTIFICATE, provider.getVpnCertificate()).
                 commit();
 
         String providerDomain = provider.getDomain();
@@ -364,6 +371,8 @@ public class ConfigHelper {
                 putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
                 putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
                 putString(PROVIDER_EIP_DEFINITION + "." + providerDomain, provider.getEipServiceJsonString()).
+                putString(PROVIDER_PRIVATE_KEY + "." + providerDomain, provider.getPrivateKey()).
+                putString(PROVIDER_VPN_CERTIFICATE + "." + providerDomain, provider.getVpnCertificate()).
                 apply();
     }
 

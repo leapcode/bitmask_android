@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.content.LocalBroadcastManager;
 
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
@@ -49,9 +50,8 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
             ERRORS = "errors",
             ERRORID = "errorId",
             UPDATE_PROGRESSBAR = "update_progressbar",
-            CURRENT_PROGRESS = "current_progress",
-            DOWNLOAD_EIP_SERVICE = TAG + ".DOWNLOAD_EIP_SERVICE",
-            PROVIDER_SET_UP = TAG + ".PROVIDER_SET_UP";
+            DOWNLOAD_EIP_SERVICE = "ProviderAPI.DOWNLOAD_EIP_SERVICE",
+            PROVIDER_SET_UP = "ProviderAPI.PROVIDER_SET_UP";
 
     final public static int
             SUCCESSFUL_LOGIN = 3,
@@ -91,7 +91,7 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
 
     @Override
     public void broadcastEvent(Intent intent) {
-        sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override

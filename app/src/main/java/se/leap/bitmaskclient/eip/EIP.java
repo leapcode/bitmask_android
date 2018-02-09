@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -267,7 +268,7 @@ public final class EIP extends IntentService {
         intentUpdate.putExtra(BROADCAST_RESULT_CODE, resultCode);
         intentUpdate.putExtra(BROADCAST_RESULT_KEY, resultData);
         Log.d(TAG, "sending broadcast");
-        sendBroadcast(intentUpdate);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intentUpdate);
     }
 
 }

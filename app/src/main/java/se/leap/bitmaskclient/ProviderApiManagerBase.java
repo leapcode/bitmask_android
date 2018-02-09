@@ -142,63 +142,72 @@ public abstract class ProviderApiManagerBase {
             return;
         }
 
-        if (action.equals(UPDATE_PROVIDER_DETAILS)) {
-            resetProviderDetails(provider);
-            Bundle task = new Bundle();
-            Bundle result = setUpProvider(provider, task);
-            if (result.getBoolean(BROADCAST_RESULT_KEY)) {
-                sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
-            } else {
-                sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
-            }
-        } else if (action.equalsIgnoreCase(SET_UP_PROVIDER)) {
-            Bundle result = setUpProvider(provider, parameters);
-            if (result.getBoolean(BROADCAST_RESULT_KEY)) {
-                sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
-            } else {
-                sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
-            }
-        } else if (action.equalsIgnoreCase(SIGN_UP)) {
-            Bundle result = tryToRegister(parameters);
-            if (result.getBoolean(BROADCAST_RESULT_KEY)) {
-                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_SIGNUP, result, provider);
-            } else {
-                sendToReceiverOrBroadcast(receiver, FAILED_SIGNUP, result, provider);
-            }
-        } else if (action.equalsIgnoreCase(LOG_IN)) {
-            Bundle result = tryToAuthenticate(provider, parameters);
-            if (result.getBoolean(BROADCAST_RESULT_KEY)) {
-                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGIN, result, provider);
-            } else {
-                sendToReceiverOrBroadcast(receiver, FAILED_LOGIN, result, provider);
-            }
-        } else if (action.equalsIgnoreCase(LOG_OUT)) {
-            if (logOut(provider)) {
-                sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGOUT, Bundle.EMPTY, provider);
-            } else {
-                sendToReceiverOrBroadcast(receiver, LOGOUT_FAILED, Bundle.EMPTY, provider);
-            }
-        } else if (action.equalsIgnoreCase(DOWNLOAD_CERTIFICATE)) {
-            if (updateVpnCertificate(provider)) {
-                sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY, provider);
-            } else {
-                sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY, provider);
-            }
-        } else if (action.equalsIgnoreCase(DOWNLOAD_EIP_SERVICE)) {
-            Bundle result = getAndSetEipServiceJson(provider);
-            if (result.getBoolean(BROADCAST_RESULT_KEY)) {
-                sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
-            } else {
-                sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
-            }
-        } else if (action.equalsIgnoreCase(PROVIDER_SET_UP)) {
-            if(provider.hasEIP() && provider.hasCaCert() && provider.hasDefinition()) {
-                if(receiver!= null) {
-                    Bundle result = new Bundle();
-                    result.putParcelable(PROVIDER_KEY, provider);
-                    receiver.send(PROVIDER_OK, result);
+        Bundle result = new Bundle();
+        switch (action) {
+            case UPDATE_PROVIDER_DETAILS:
+                resetProviderDetails(provider);
+                Bundle task = new Bundle();
+                result = setUpProvider(provider, task);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
+                } else {
+                    sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
                 }
-            }
+                break;
+            case SET_UP_PROVIDER:
+                result = setUpProvider(provider, parameters);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
+                } else {
+                    sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
+                }
+                break;
+            case SIGN_UP:
+                result = tryToRegister(parameters);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    sendToReceiverOrBroadcast(receiver, SUCCESSFUL_SIGNUP, result, provider);
+                } else {
+                    sendToReceiverOrBroadcast(receiver, FAILED_SIGNUP, result, provider);
+                }
+                break;
+            case LOG_IN:
+                result = tryToAuthenticate(provider, parameters);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGIN, result, provider);
+                } else {
+                    sendToReceiverOrBroadcast(receiver, FAILED_LOGIN, result, provider);
+                }
+                break;
+            case LOG_OUT:
+                if (logOut(provider)) {
+                    sendToReceiverOrBroadcast(receiver, SUCCESSFUL_LOGOUT, Bundle.EMPTY, provider);
+                } else {
+                    sendToReceiverOrBroadcast(receiver, LOGOUT_FAILED, Bundle.EMPTY, provider);
+                }
+                break;
+            case DOWNLOAD_CERTIFICATE:
+                if (updateVpnCertificate(provider)) {
+                    sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY, provider);
+                } else {
+                    sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY, provider);
+                }
+                break;
+            case DOWNLOAD_EIP_SERVICE:
+                result = getAndSetEipServiceJson(provider);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
+                } else {
+                    sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
+                }
+                break;
+            case PROVIDER_SET_UP:
+                if(provider.hasEIP() && provider.hasCaCert() && provider.hasDefinition()) {
+                    if(receiver!= null) {
+                        result.putParcelable(PROVIDER_KEY, provider);
+                        receiver.send(PROVIDER_OK, result);
+                    }
+                }
+                break;
         }
     }
 
@@ -824,22 +833,22 @@ public abstract class ProviderApiManagerBase {
      * Interprets the error message as a JSON object and extract the "errors" keyword pair.
      * If the error message is not a JSON object, then it is returned untouched.
      *
-     * @param string_json_error_message
+     * @param stringJsonErrorMessage
      * @return final error message
      */
-    protected String pickErrorMessage(String string_json_error_message) {
-        String error_message = "";
+    protected String pickErrorMessage(String stringJsonErrorMessage) {
+        String errorMessage = "";
         try {
-            JSONObject json_error_message = new JSONObject(string_json_error_message);
-            error_message = json_error_message.getString(ERRORS);
+            JSONObject jsonErrorMessage = new JSONObject(stringJsonErrorMessage);
+            errorMessage = jsonErrorMessage.getString(ERRORS);
         } catch (JSONException e) {
             // TODO Auto-generated catch block
-            error_message = string_json_error_message;
+            errorMessage = stringJsonErrorMessage;
         } catch (NullPointerException e) {
             //do nothing
         }
 
-        return error_message;
+        return errorMessage;
     }
 
     @NonNull
@@ -867,8 +876,7 @@ public abstract class ProviderApiManagerBase {
         return false;
     }
 
-    //FIXME: don't save private keys in shared preferences! use the keystore
-    protected boolean loadCertificate(String cert_string) {
+    protected boolean loadCertificate(Provider provider, String cert_string) {
         if (cert_string == null) {
             return false;
         }
@@ -887,13 +895,13 @@ public abstract class ProviderApiManagerBase {
 
             RSAPrivateKey key = ConfigHelper.parseRsaKeyFromString(keyString);
             keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
-            preferences.edit().putString(PROVIDER_PRIVATE_KEY, "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----").commit();
+            provider.setPrivateKey( "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----");
 
             X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
             certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
-            preferences.edit().putString(PROVIDER_VPN_CERTIFICATE, "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----").commit();
+            provider.setVpnCertificate( "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----");
             return true;
-        } catch (CertificateException e) {
+        } catch (CertificateException | NullPointerException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;

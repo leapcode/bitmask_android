@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.ListView;
@@ -188,7 +189,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         super.onPause();
         isActivityShowing = false;
         if (providerAPIBroadcastReceiver != null)
-            unregisterReceiver(providerAPIBroadcastReceiver);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(providerAPIBroadcastReceiver);
     }
 
     @Override
@@ -213,7 +214,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
         IntentFilter updateIntentFilter = new IntentFilter(BROADCAST_PROVIDER_API_EVENT);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
     }
 
     void handleProviderSetUp(Provider handledProvider) {

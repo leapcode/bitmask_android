@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
@@ -89,7 +90,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
 
         IntentFilter updateIntentFilter = new IntentFilter(BROADCAST_PROVIDER_API_EVENT);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
 
         setUpListeners();
         if(savedInstanceState != null) {
@@ -147,7 +148,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     protected void onDestroy() {
         super.onDestroy();
         if (providerAPIBroadcastReceiver != null)
-            unregisterReceiver(providerAPIBroadcastReceiver);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(providerAPIBroadcastReceiver);
     }
 
     @OnClick(R.id.button)

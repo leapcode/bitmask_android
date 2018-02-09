@@ -32,6 +32,7 @@ import java.util.Locale;
 
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 
 /**
  * @author Sean Leonard <meanderingcode@aetherislands.net>
@@ -48,6 +49,8 @@ public final class Provider implements Parcelable {
     private String caCert = "";
     private String caCertFingerprint = "";
     private String apiVerson = "";
+    private String privateKey = "";
+    private String vpnCertificate = "";
 
     private boolean allowAnonymous;
     private boolean allowRegistered;
@@ -243,7 +246,8 @@ public final class Provider implements Parcelable {
     }
 
     protected boolean hasEIP() {
-        return getEipServiceJson() != null && getEipServiceJson().length() > 0;
+        return getEipServiceJson() != null && getEipServiceJson().length() > 0
+                && !getEipServiceJson().has(ERRORS);
     }
 
     public boolean allowsRegistration() {
@@ -266,6 +270,8 @@ public final class Provider implements Parcelable {
         parcel.writeString(getCaCert());
         parcel.writeString(getCaCertFingerprint());
         parcel.writeString(getEipServiceJsonString());
+        parcel.writeString(getPrivateKey());
+        parcel.writeString(getVpnCertificate());
     }
 
     @Override
@@ -303,22 +309,30 @@ public final class Provider implements Parcelable {
     private Provider(Parcel in) {
         try {
             mainUrl.setUrl(new URL(in.readString()));
-            String definitionString = in.readString();
-            if (!definitionString.isEmpty()) {
-                definition = new JSONObject((definitionString));
+            String tmpString = in.readString();
+            if (!tmpString.isEmpty()) {
+                definition = new JSONObject((tmpString));
                 parseDefinition(definition);
             }
-            String caCert = in.readString();
-            if (!caCert.isEmpty()) {
-                this.caCert = caCert;
+            tmpString = in.readString();
+            if (!tmpString.isEmpty()) {
+                this.caCert = tmpString;
             }
-            String caCertFingerprint = in.readString();
-            if (!caCertFingerprint.isEmpty()) {
-               this.caCertFingerprint = caCertFingerprint;
+            tmpString = in.readString();
+            if (!tmpString.isEmpty()) {
+               this.caCertFingerprint = tmpString;
             }
-            String eipServiceJson = in.readString();
-            if (!eipServiceJson.isEmpty()) {
-                this.setEipServiceJson(new JSONObject(eipServiceJson));
+            tmpString = in.readString();
+            if (!tmpString.isEmpty()) {
+                this.setEipServiceJson(new JSONObject(tmpString));
+            }
+            tmpString = in.readString();
+            if (!tmpString.isEmpty()) {
+                this.setPrivateKey(tmpString);
+            }
+            tmpString = in.readString();
+            if (!tmpString.isEmpty()) {
+                this.setVpnCertificate(tmpString);
             }
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
@@ -355,8 +369,12 @@ public final class Provider implements Parcelable {
         return allowRegistered;
     }
 
-    public void setEipServiceJson(JSONObject eipServiceJson) {
+    public boolean setEipServiceJson(JSONObject eipServiceJson) {
+        if (eipServiceJson.has(ERRORS)) {
+            return false;
+        }
         this.eipServiceJson = eipServiceJson;
+        return true;
     }
 
     public JSONObject getEipServiceJson() {
@@ -374,4 +392,23 @@ public final class Provider implements Parcelable {
                 caCert.isEmpty();
     }
 
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    public String getVpnCertificate() {
+        return vpnCertificate;
+    }
+
+    public void setVpnCertificate(String vpnCertificate) {
+        this.vpnCertificate = vpnCertificate;
+    }
+
+    public boolean hasVpnCertificate() {
+        return getVpnCertificate() != null && getVpnCertificate().length() >0 ;
+    }
 }

@@ -3,10 +3,12 @@ package se.leap.bitmaskclient.eip;
 import android.content.Context;
 import android.content.Intent;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_UPDATE;
@@ -38,29 +40,36 @@ public class EipCommand {
         context.startService(vpnIntent);
     }
 
-    public static void updateEipService(Context context, ResultReceiver resultReceiver) {
+    public static void updateEipService(@NonNull Context context, ResultReceiver resultReceiver) {
         execute(context, EIP_ACTION_UPDATE, resultReceiver);
     }
 
-    public static void updateEipService(Context context) {
+    public static void updateEipService(@NonNull Context context) {
         execute(context, EIP_ACTION_UPDATE);
     }
 
-    public static void startVPN(Context context) {
+    public static void startVPN(@NonNull Context context) {
         execute(context, EIP_ACTION_START);
     }
 
-    public static void startVPN(Context context, ResultReceiver resultReceiver) {
+    public static void startVPN(@NonNull Context context, ResultReceiver resultReceiver) {
         execute(context, EIP_ACTION_START, resultReceiver);
     }
 
-
-    public static void stopVPN(Context context) {
+    public static void stopVPN(@NonNull Context context) {
         execute(context, EIP_ACTION_STOP);
     }
 
-    public static void stopVPN(Context context, ResultReceiver resultReceiver) {
+    public static void stopVPN(@NonNull Context context, ResultReceiver resultReceiver) {
         execute(context, EIP_ACTION_STOP, resultReceiver);
+    }
+
+    public static void checkVpnCertificate(@NonNull Context context) {
+        execute(context, EIP_ACTION_CHECK_CERT_VALIDITY);
+    }
+
+    public static void checkVpnCertificate(@NonNull Context context, ResultReceiver resultReceiver) {
+        execute(context, EIP_ACTION_CHECK_CERT_VALIDITY, resultReceiver);
     }
 
 }
