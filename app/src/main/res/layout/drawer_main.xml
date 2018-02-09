@@ -5,7 +5,9 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@color/colorBackground"
-        tools:context="se.leap.bitmaskclient.drawer.NavigationDrawerFragment">
+        tools:context="se.leap.bitmaskclient.drawer.NavigationDrawerFragment"
+        android:clickable="true"
+        android:focusable="true">
 
     <FrameLayout
         android:layout_width="match_parent"
