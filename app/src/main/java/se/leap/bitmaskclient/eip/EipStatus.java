@@ -24,6 +24,7 @@ import java.util.Observable;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
+import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 
 /**
@@ -92,7 +93,13 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
                 currentEipLevel = EipLevel.CONNECTED;
                 break;
             case LEVEL_VPNPAUSED:
-                throw new IllegalStateException("Ics-Openvpn's VPNPAUSED state is not supported by Bitmask");
+                if (ProfileManager.getLastConnectedVpn().mPersistTun) {
+                    //if persistTun is enabled, treat EipLevel as connecting as it *shouldn't* allow passing traffic in the clear...
+                    currentEipLevel = EipLevel.CONNECTING;
+                } else {
+                    //... if persistTun is not enabled, background network traffic will pass in the clear
+                    currentEipLevel = EipLevel.DISCONNECTED;
+                }
             case LEVEL_CONNECTING_SERVER_REPLIED:
             case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
             case LEVEL_WAITING_FOR_USER_INPUT:
