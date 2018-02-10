@@ -102,10 +102,8 @@
             android:label="@string/provider_details_title"
             android:launchMode="singleTop" />
 
-        <activity android:name=".LoginActivity"
-            android:noHistory="true" />
-        <activity android:name=".SignupActivity"
-            android:noHistory="true" />
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".SignupActivity" />
 
         <service
             android:name=".eip.EIP"

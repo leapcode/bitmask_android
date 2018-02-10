@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -12,11 +14,17 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -316,9 +324,9 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     }
 
     private void handleReceivedErrors(Bundle arguments) {
-        if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString()))
+        if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString())) {
             passwordError.setError(getString(R.string.error_not_valid_password_user_message));
-        else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
+        } else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
             userMessage.setVisibility(VISIBLE);
             userMessage.setText(R.string.login_riseup_warning);
         }
@@ -330,7 +338,20 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             usernameError.setError(getString(R.string.username_ask));
         }
         if (arguments.containsKey(getString(R.string.user_message))) {
-            userMessage.setText(arguments.getString(getString(R.string.user_message)));
+            String userMessageString = arguments.getString(getString(R.string.user_message));
+            try {
+                 userMessageString = new JSONArray(userMessageString).getString(0);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            if (Build.VERSION.SDK_INT >= VERSION_CODES.N) {
+                userMessage.setText(Html.fromHtml(userMessageString, Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                userMessage.setText(Html.fromHtml(userMessageString));
+            }
+            Linkify.addLinks(userMessage, Linkify.ALL);
+            userMessage.setMovementMethod(LinkMovementMethod.getInstance());
             userMessage.setVisibility(VISIBLE);
         } else if (userMessage.getVisibility() != VISIBLE) {
             userMessage.setVisibility(GONE);
