@@ -141,9 +141,27 @@ public final class Provider implements Parcelable {
         }
     }
 
-    public void define(JSONObject providerJson) {
-        definition = providerJson;
-        parseDefinition(definition);
+    public boolean define(JSONObject providerJson) {
+       /*
+        * fix against "api_uri": "https://calyx.net.malicious.url.net:4430",
+        * This method aims to prevent attacks where the provider.json file got manipulated by a third party.
+        * The main url should not change.
+        */
+
+        try {
+            String providerApiUrl = providerJson.getString(Provider.API_URL);
+            String providerDomain = providerJson.getString(Provider.DOMAIN);
+            if (getMainUrlString().contains(providerDomain) && providerApiUrl.contains(providerDomain  + ":")) {
+                definition = providerJson;
+                parseDefinition(definition);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     protected JSONObject getDefinition() {

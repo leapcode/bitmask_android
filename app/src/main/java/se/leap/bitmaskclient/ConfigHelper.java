@@ -281,6 +281,7 @@ public class ConfigHelper {
             provider.setMainUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
             provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
+            provider.setCaCertFingerprint(preferences.getString(Provider.CA_CERT_FINGERPRINT, ""));
             provider.setVpnCertificate(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
             provider.setPrivateKey(preferences.getString(PROVIDER_PRIVATE_KEY, ""));
         } catch (MalformedURLException | JSONException e) {
@@ -288,6 +289,10 @@ public class ConfigHelper {
         }
 
         return provider;
+    }
+
+    public String getFromPersistedProvider(String toFetch, String providerDomain, SharedPreferences preferences) {
+        return preferences.getString(toFetch + "." + providerDomain, "");
     }
 
     public static String getProviderName(String provider) {

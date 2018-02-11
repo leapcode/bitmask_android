@@ -87,7 +87,6 @@ import static se.leap.bitmaskclient.ProviderAPI.SIGN_UP;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_LOGIN;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_LOGOUT;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_SIGNUP;
-import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROGRESSBAR;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.R.string.certificate_error;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
@@ -665,6 +664,8 @@ public abstract class ProviderApiManagerBase {
             provider.setCaCert(getPersistedProviderCA(providerDomain));
             provider.define(getPersistedProviderDefinition(providerDomain));
             provider.setCaCertFingerprint(getPersistedCaCertFingerprint(providerDomain));
+            provider.setPrivateKey(getPersistedPrivateKey(providerDomain));
+            provider.setVpnCertificate(getPersistedVPNCertificate(providerDomain));
         }
     }
 
@@ -705,10 +706,6 @@ public abstract class ProviderApiManagerBase {
             String realFingerprint = getFingerprintFromCertificate(certificate, encoding);
             if (!realFingerprint.trim().equalsIgnoreCase(expectedFingerprint.trim())) {
                 return setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
-            }
-
-            if (!hasApiUrlExpectedDomain(providerDefinition, mainUrl)){
-                return setErrorResult(result, warning_corrupted_provider_details, ERROR_CORRUPTED_PROVIDER_JSON.toString());
             }
 
             if (!canConnect(caCert, providerDefinition, result)) {
@@ -797,6 +794,24 @@ public abstract class ProviderApiManagerBase {
         return "";
     }
 
+    protected String getPersistedPrivateKey(String providerDomain) {
+        try {
+            return getPersistedProviderDefinition(providerDomain).getString(PROVIDER_PRIVATE_KEY);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    protected String getPersistedVPNCertificate(String providerDomain) {
+        try {
+            return getPersistedProviderDefinition(providerDomain).getString(PROVIDER_VPN_CERTIFICATE);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
     protected JSONObject getPersistedProviderDefinition(String providerDomain) {
         try {
             return new JSONObject(preferences.getString(Provider.KEY + "." + providerDomain, ""));
@@ -804,6 +819,10 @@ public abstract class ProviderApiManagerBase {
             e.printStackTrace();
             return new JSONObject();
         }
+    }
+
+    protected String getFromPersistedProvider(String toFetch, String providerDomain) {
+        return preferences.getString(toFetch + "." + providerDomain, "");
     }
 
     protected String getPersistedProviderCA(String providerDomain) {

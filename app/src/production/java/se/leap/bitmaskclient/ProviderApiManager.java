@@ -36,9 +36,11 @@ import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
+import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.R.string.malformed_url;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
+import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
 
 /**
  * Implements the logic of the provider api http requests. The methods of this class need to be called from
@@ -124,9 +126,12 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
         try {
             JSONObject providerJson = new JSONObject(providerDotJsonString);
-            provider.define(providerJson);
+            if (provider.define(providerJson)) {
+                result.putBoolean(BROADCAST_RESULT_KEY, true);
+            } else {
+                return setErrorResult(result, warning_corrupted_provider_details, ERROR_CORRUPTED_PROVIDER_JSON.toString());
+            }
 
-            result.putBoolean(BROADCAST_RESULT_KEY, true);
         } catch (JSONException e) {
             String reason_to_fail = pickErrorMessage(providerDotJsonString);
             result.putString(ERRORS, reason_to_fail);

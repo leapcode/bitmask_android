@@ -40,6 +40,7 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_PASSWORD;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.ProviderAPI.SIGN_UP;
@@ -201,7 +202,8 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         ProviderAPICommand.execute(this, SIGN_UP, parameters, provider);
     }
 
-    void downloadVpnCertificate() {
+    void downloadVpnCertificate(Provider handledProvider) {
+        provider = handledProvider;
         ProviderAPICommand.execute(this, DOWNLOAD_CERTIFICATE, provider);
     }
 
@@ -361,7 +363,8 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         hideProgressBar();
     }
 
-    private void successfullyFinished() {
+    private void successfullyFinished(Provider handledProvider) {
+        provider = handledProvider;
         Intent resultData = new Intent();
         resultData.putExtra(Provider.KEY, provider);
         setResult(RESULT_OK, resultData);
@@ -379,10 +382,13 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             }
 
             int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, -1);
+            Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
+            Provider handledProvider = resultData.getParcelable(PROVIDER_KEY);
+
             switch (resultCode) {
                 case ProviderAPI.SUCCESSFUL_SIGNUP:
                 case ProviderAPI.SUCCESSFUL_LOGIN:
-                    downloadVpnCertificate();
+                    downloadVpnCertificate(handledProvider);
                     break;
                 case ProviderAPI.FAILED_LOGIN:
                 case ProviderAPI.FAILED_SIGNUP:
@@ -390,7 +396,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
                     break;
 
                 case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE:
-                    successfullyFinished();
+                    successfullyFinished(handledProvider);
                     //activity.eip_fragment.updateEipService();
                     break;
                 case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE:

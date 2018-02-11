@@ -63,6 +63,7 @@ import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
@@ -266,7 +267,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private boolean canStartEIP() {
-        boolean certificateExists = !provider.hasVpnCertificate();
+        boolean certificateExists = provider.hasVpnCertificate();
         boolean isAllowedAnon = provider.allowsAnonymous();
         return (isAllowedAnon || certificateExists) && !eipStatus.isConnected() && !eipStatus.isConnecting();
     }
@@ -463,7 +464,7 @@ public class EipFragment extends Fragment implements Observer {
                 return;
             }
 
-            int resultCode = intent.getIntExtra(BROADCAST_RESULT_KEY, -1);
+            int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, -1);
             Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
             switch (action) {
                 case BROADCAST_EIP_EVENT:
