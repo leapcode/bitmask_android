@@ -211,11 +211,8 @@ public abstract class ProviderApiManagerBase {
     }
 
     void resetProviderDetails(Provider provider) {
-        provider.setCaCert("");
-        provider.define(new JSONObject());
-        provider.setEipServiceJson(new JSONObject());
-
-        deleteProviderDetailsFromPreferences(provider.getDomain());
+        provider.reset();
+        ConfigHelper.deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
     }
 
     String formatErrorMessage(final int toastStringId) {
@@ -770,19 +767,6 @@ public abstract class ProviderApiManagerBase {
             e.printStackTrace();
         }
         return "";
-    }
-
-    protected void deleteProviderDetailsFromPreferences(String providerDomain) {
-
-        if (preferences.contains(Provider.KEY + "." + providerDomain)) {
-            preferences.edit().remove(Provider.KEY + "." + providerDomain).apply();
-        }
-        if (preferences.contains(Provider.CA_CERT + "." + providerDomain)) {
-            preferences.edit().remove(Provider.CA_CERT + "." + providerDomain).apply();
-        }
-        if (preferences.contains(Provider.CA_CERT_FINGERPRINT + "." + providerDomain)) {
-            preferences.edit().remove(Provider.CA_CERT_FINGERPRINT + "." + providerDomain).apply();
-        }
     }
 
     protected String getPersistedCaCertFingerprint(String providerDomain) {

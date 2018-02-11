@@ -16,7 +16,6 @@
  */
 package se.leap.bitmaskclient;
 
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -410,6 +409,20 @@ public class ConfigHelper {
         } else {
             preferenceEditor.apply();
         }
+    }
+
+    public static void deleteProviderDetailsFromPreferences(@NonNull SharedPreferences preferences, String providerDomain) {
+            preferences.edit().
+                    remove(Provider.KEY + "." + providerDomain).
+                    remove(Provider.CA_CERT + "." + providerDomain).
+                    remove(Provider.CA_CERT_FINGERPRINT + "." + providerDomain).
+                    remove(Provider.MAIN_URL + "." + providerDomain).
+                    remove(Provider.KEY + "." + providerDomain).
+                    remove(Provider.CA_CERT + "." + providerDomain).
+                    remove(PROVIDER_EIP_DEFINITION + "." + providerDomain).
+                    remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
+                    remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
+                    apply();
     }
 
 

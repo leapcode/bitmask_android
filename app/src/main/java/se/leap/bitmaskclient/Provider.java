@@ -21,13 +21,11 @@ import android.os.Parcelable;
 
 import com.google.gson.Gson;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Locale;
 
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
@@ -41,14 +39,14 @@ import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 public final class Provider implements Parcelable {
 
     private JSONObject definition = new JSONObject(); // Represents our Provider's provider.json
-    private JSONObject eipServiceJson = new JSONObject(); // Represents our Provider's provider.json
+    private JSONObject eipServiceJson = new JSONObject();
     private DefaultedURL mainUrl = new DefaultedURL();
     private DefaultedURL apiUrl = new DefaultedURL();
     private String certificatePin = "";
     private String certificatePinEncoding = "";
     private String caCert = "";
     private String caCertFingerprint = "";
-    private String apiVerson = "";
+    private String apiVersion = "";
     private String privateKey = "";
     private String vpnCertificate = "";
 
@@ -68,17 +66,9 @@ public final class Provider implements Parcelable {
             NAME = "name",
             DESCRIPTION = "description",
             DOMAIN = "domain",
-            MAIN_URL = "main_url",
-            DOT_JSON_URL = "provider_json_url";
+            MAIN_URL = "main_url";
 
-    // Array of what API versions we understand
-    protected static final String[] API_VERSIONS = {"1"};  // I assume we might encounter arbitrary version "numbers"
-    // Some API pieces we want to know about
-    private static final String API_TERM_SERVICES = "services";
     private static final String API_TERM_NAME = "name";
-    private static final String API_TERM_DOMAIN = "domain";
-    private static final String API_TERM_DEFAULT_LANGUAGE = "default_language";
-    protected static final String[] API_EIP_TYPES = {"openvpn"};
 
     public Provider() { }
 
@@ -164,7 +154,7 @@ public final class Provider implements Parcelable {
         }
     }
 
-    protected JSONObject getDefinition() {
+    public JSONObject getDefinition() {
         return definition;
     }
 
@@ -198,7 +188,7 @@ public final class Provider implements Parcelable {
     }
 
     public String getApiVersion() {
-        return apiVerson;
+        return apiVersion;
     }
 
     protected String certificatePin() { return certificatePin; }
@@ -296,7 +286,20 @@ public final class Provider implements Parcelable {
     public boolean equals(Object o) {
         if (o instanceof Provider) {
             Provider p = (Provider) o;
-            return p.getDomain().equals(getDomain());
+            return p.getDomain().equals(getDomain()) &&
+            definition.equals(p.getDefinition()) &&
+            eipServiceJson.equals(p.getEipServiceJson())&&
+            mainUrl.equals(p.getMainUrl()) &&
+            apiUrl.equals(p.getApiUrl()) &&
+            certificatePin.equals(p.getCertificatePin()) &&
+            certificatePinEncoding.equals(p.getCertificatePinEncoding()) &&
+            caCert.equals(p.getCaCert()) &&
+            caCertFingerprint.equals(p.getCaCertFingerprint()) &&
+            apiVersion.equals(p.getApiVersion()) &&
+            privateKey.equals(p.getPrivateKey()) &&
+            vpnCertificate.equals(p.getVpnCertificate()) &&
+            allowAnonymous == p.allowsAnonymous() &&
+            allowRegistered == p.allowsRegistered();
         } else return false;
     }
 
@@ -365,7 +368,7 @@ public final class Provider implements Parcelable {
             this.apiUrl.setUrl(new URL(definition.getString(API_URL)));
             this.allowAnonymous = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS);
             this.allowRegistered = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED);
-            this.apiVerson = getDefinition().getString(Provider.API_VERSION);
+            this.apiVersion = getDefinition().getString(Provider.API_VERSION);
         } catch (JSONException | ArrayIndexOutOfBoundsException | MalformedURLException e) {
             e.printStackTrace();
         }
@@ -429,4 +432,31 @@ public final class Provider implements Parcelable {
     public boolean hasVpnCertificate() {
         return getVpnCertificate() != null && getVpnCertificate().length() >0 ;
     }
+
+    public String getCertificatePin() {
+        return certificatePin;
+    }
+
+    public String getCertificatePinEncoding() {
+        return certificatePinEncoding;
+    }
+
+    /**
+     * resets everything except the main url
+     */
+    public void reset() {
+        definition = new JSONObject();
+        eipServiceJson = new JSONObject();
+        apiUrl = new DefaultedURL();
+        certificatePin = "";
+        certificatePinEncoding = "";
+        caCert = "";
+        caCertFingerprint = "";
+        apiVersion = "";
+        privateKey = "";
+        vpnCertificate = "";
+        allowRegistered = false;
+        allowAnonymous = false;
+    }
+
 }
