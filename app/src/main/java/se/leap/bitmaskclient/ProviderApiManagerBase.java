@@ -685,7 +685,6 @@ public abstract class ProviderApiManagerBase {
 
         String caCert = provider.getCaCert();
         JSONObject providerDefinition = provider.getDefinition();
-        String mainUrl = provider.getMainUrlString();
 
         if (ConfigHelper.checkErroneousDownload(caCert)) {
             return result;
@@ -732,25 +731,6 @@ public abstract class ProviderApiManagerBase {
         return result;
     }
 
-    /**
-     * This method aims to prevent attacks where the provider.json file got manipulated by a third party.
-     * The main url is visible to the provider when setting up a new provider.
-     * The user is responsible to check that this is the provider main url he intends to connect to.
-     *
-     * @param providerDefinition
-     * @param mainUrlString
-     * @return
-     */
-    private boolean hasApiUrlExpectedDomain(JSONObject providerDefinition, String mainUrlString) {
-        //  fix against "api_uri": "https://calyx.net.malicious.url.net:4430",
-        String apiUrlString = getApiUrl(providerDefinition);
-        String providerDomain = getProviderDomain(providerDefinition);
-        if (mainUrlString.contains(providerDomain) && apiUrlString.contains(providerDomain  + ":")) {
-            return true;
-        }
-        return false;
-    }
-
     protected String getCaCertFingerprint(JSONObject providerDefinition) {
         try {
             return providerDefinition.getString(Provider.CA_CERT_FINGERPRINT);
@@ -770,57 +750,28 @@ public abstract class ProviderApiManagerBase {
     }
 
     protected String getPersistedCaCertFingerprint(String providerDomain) {
-        try {
-            return getPersistedProviderDefinition(providerDomain).getString(Provider.CA_CERT_FINGERPRINT);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return "";
+         return ConfigHelper.getFromPersistedProvider(Provider.CA_CERT_FINGERPRINT, providerDomain, preferences);
     }
 
     protected String getPersistedPrivateKey(String providerDomain) {
-        try {
-            return getPersistedProviderDefinition(providerDomain).getString(PROVIDER_PRIVATE_KEY);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return "";
+        return ConfigHelper.getFromPersistedProvider(PROVIDER_PRIVATE_KEY, providerDomain, preferences);
     }
 
     protected String getPersistedVPNCertificate(String providerDomain) {
-        try {
-            return getPersistedProviderDefinition(providerDomain).getString(PROVIDER_VPN_CERTIFICATE);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return "";
+        return ConfigHelper.getFromPersistedProvider(PROVIDER_VPN_CERTIFICATE, providerDomain, preferences);
     }
 
     protected JSONObject getPersistedProviderDefinition(String providerDomain) {
         try {
-            return new JSONObject(preferences.getString(Provider.KEY + "." + providerDomain, ""));
+            return new JSONObject(ConfigHelper.getFromPersistedProvider(Provider.KEY, providerDomain, preferences));
         } catch (JSONException e) {
             e.printStackTrace();
             return new JSONObject();
         }
     }
 
-    protected String getFromPersistedProvider(String toFetch, String providerDomain) {
-        return preferences.getString(toFetch + "." + providerDomain, "");
-    }
-
     protected String getPersistedProviderCA(String providerDomain) {
         return preferences.getString(Provider.CA_CERT + "." + providerDomain, "");
-    }
-
-    protected String getProviderDomain(JSONObject providerDefinition) {
-        try {
-            return providerDefinition.getString(Provider.DOMAIN);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return "";
     }
 
     protected boolean hasUpdatedProviderDetails(String domain) {

@@ -290,7 +290,7 @@ public class ConfigHelper {
         return provider;
     }
 
-    public String getFromPersistedProvider(String toFetch, String providerDomain, SharedPreferences preferences) {
+    public static String getFromPersistedProvider(String toFetch, String providerDomain, SharedPreferences preferences) {
         return preferences.getString(toFetch + "." + providerDomain, "");
     }
 
