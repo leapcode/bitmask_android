@@ -93,13 +93,14 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
                 currentEipLevel = EipLevel.CONNECTED;
                 break;
             case LEVEL_VPNPAUSED:
-                if (ProfileManager.getLastConnectedVpn().mPersistTun) {
+                if (ProfileManager.getLastConnectedVpn() != null && ProfileManager.getLastConnectedVpn().mPersistTun) {
                     //if persistTun is enabled, treat EipLevel as connecting as it *shouldn't* allow passing traffic in the clear...
                     currentEipLevel = EipLevel.CONNECTING;
                 } else {
                     //... if persistTun is not enabled, background network traffic will pass in the clear
                     currentEipLevel = EipLevel.DISCONNECTED;
                 }
+                break;
             case LEVEL_CONNECTING_SERVER_REPLIED:
             case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
             case LEVEL_WAITING_FOR_USER_INPUT:
