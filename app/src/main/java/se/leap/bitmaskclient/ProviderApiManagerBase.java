@@ -683,7 +683,6 @@ public abstract class ProviderApiManagerBase {
         result.putBoolean(BROADCAST_RESULT_KEY, false);
 
         String caCert = provider.getCaCert();
-        JSONObject providerDefinition = provider.getDefinition();
 
         if (ConfigHelper.checkErroneousDownload(caCert)) {
             return result;
@@ -695,15 +694,15 @@ public abstract class ProviderApiManagerBase {
         }
         try {
             certificate.checkValidity();
-            String fingerprint = getCaCertFingerprint(providerDefinition);
-            String encoding = fingerprint.split(":")[0];
-            String expectedFingerprint = fingerprint.split(":")[1];
+            String encoding = provider.getCertificatePinEncoding();
+            String expectedFingerprint = provider.getCertificatePin();
+
             String realFingerprint = getFingerprintFromCertificate(certificate, encoding);
             if (!realFingerprint.trim().equalsIgnoreCase(expectedFingerprint.trim())) {
                 return setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
             }
 
-            if (!canConnect(caCert, providerDefinition, result)) {
+            if (!canConnect(caCert, provider.getDefinition(), result)) {
                 return result;
             }
         } catch (NoSuchAlgorithmException e ) {
@@ -730,15 +729,6 @@ public abstract class ProviderApiManagerBase {
         return result;
     }
 
-    protected String getCaCertFingerprint(JSONObject providerDefinition) {
-        try {
-            return providerDefinition.getString(Provider.CA_CERT_FINGERPRINT);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
     protected String getApiUrl(JSONObject providerDefinition) {
         try {
             return providerDefinition.getString(Provider.API_URL);
@@ -746,10 +736,6 @@ public abstract class ProviderApiManagerBase {
             e.printStackTrace();
         }
         return "";
-    }
-
-    protected String getPersistedCaCertFingerprint(String providerDomain) {
-         return ConfigHelper.getFromPersistedProvider(Provider.CA_CERT_FINGERPRINT, providerDomain, preferences);
     }
 
     protected String getPersistedPrivateKey(String providerDomain) {

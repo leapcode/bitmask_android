@@ -45,7 +45,6 @@ public final class Provider implements Parcelable {
     private String certificatePin = "";
     private String certificatePinEncoding = "";
     private String caCert = "";
-    private String caCertFingerprint = "";
     private String apiVersion = "";
     private String privateKey = "";
     private String vpnCertificate = "";
@@ -191,12 +190,6 @@ public final class Provider implements Parcelable {
         return apiVersion;
     }
 
-    protected String certificatePin() { return certificatePin; }
-
-    protected boolean hasCertificatePin() {
-        return certificatePin != null && !certificatePin.isEmpty();
-    }
-
     boolean hasCaCert() {
         return caCert != null && !caCert.isEmpty();
     }
@@ -208,10 +201,6 @@ public final class Provider implements Parcelable {
 
     public String getCaCert() {
         return caCert;
-    }
-
-    public String getCaCertFingerprint() {
-        return caCertFingerprint;
     }
 
     public String getName() {
@@ -276,7 +265,6 @@ public final class Provider implements Parcelable {
         parcel.writeString(getMainUrlString());
         parcel.writeString(getDefinitionString());
         parcel.writeString(getCaCert());
-        parcel.writeString(getCaCertFingerprint());
         parcel.writeString(getEipServiceJsonString());
         parcel.writeString(getPrivateKey());
         parcel.writeString(getVpnCertificate());
@@ -294,7 +282,6 @@ public final class Provider implements Parcelable {
             certificatePin.equals(p.getCertificatePin()) &&
             certificatePinEncoding.equals(p.getCertificatePinEncoding()) &&
             caCert.equals(p.getCaCert()) &&
-            caCertFingerprint.equals(p.getCaCertFingerprint()) &&
             apiVersion.equals(p.getApiVersion()) &&
             privateKey.equals(p.getPrivateKey()) &&
             vpnCertificate.equals(p.getVpnCertificate()) &&
@@ -341,10 +328,6 @@ public final class Provider implements Parcelable {
             }
             tmpString = in.readString();
             if (!tmpString.isEmpty()) {
-               this.caCertFingerprint = tmpString;
-            }
-            tmpString = in.readString();
-            if (!tmpString.isEmpty()) {
                 this.setEipServiceJson(new JSONObject(tmpString));
             }
             tmpString = in.readString();
@@ -376,10 +359,6 @@ public final class Provider implements Parcelable {
 
     public void setCaCert(String cert) {
         this.caCert = cert;
-    }
-
-    public void setCaCertFingerprint(String certFingerprint) {
-        this.caCertFingerprint = certFingerprint;
     }
 
     public boolean allowsAnonymous() {
@@ -451,7 +430,6 @@ public final class Provider implements Parcelable {
         certificatePin = "";
         certificatePinEncoding = "";
         caCert = "";
-        caCertFingerprint = "";
         apiVersion = "";
         privateKey = "";
         vpnCertificate = "";
