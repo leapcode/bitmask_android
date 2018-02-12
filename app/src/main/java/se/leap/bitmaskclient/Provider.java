@@ -287,8 +287,8 @@ public final class Provider implements Parcelable {
         if (o instanceof Provider) {
             Provider p = (Provider) o;
             return p.getDomain().equals(getDomain()) &&
-            definition.equals(p.getDefinition()) &&
-            eipServiceJson.equals(p.getEipServiceJson())&&
+            definition.toString().equals(p.getDefinition().toString()) &&
+            eipServiceJson.toString().equals(p.getEipServiceJson().toString())&&
             mainUrl.equals(p.getMainUrl()) &&
             apiUrl.equals(p.getApiUrl()) &&
             certificatePin.equals(p.getCertificatePin()) &&

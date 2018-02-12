@@ -660,7 +660,6 @@ public abstract class ProviderApiManagerBase {
         if (hasUpdatedProviderDetails(providerDomain)) {
             provider.setCaCert(getPersistedProviderCA(providerDomain));
             provider.define(getPersistedProviderDefinition(providerDomain));
-            provider.setCaCertFingerprint(getPersistedCaCertFingerprint(providerDomain));
             provider.setPrivateKey(getPersistedPrivateKey(providerDomain));
             provider.setVpnCertificate(getPersistedVPNCertificate(providerDomain));
         }

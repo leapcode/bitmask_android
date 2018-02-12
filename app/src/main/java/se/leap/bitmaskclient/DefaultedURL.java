@@ -36,4 +36,13 @@ public class DefaultedURL {
     public String toString() {
         return url.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof DefaultedURL) {
+            return url.equals(((DefaultedURL) o).getUrl());
+        }
+        return false;
+    }
+
 }
