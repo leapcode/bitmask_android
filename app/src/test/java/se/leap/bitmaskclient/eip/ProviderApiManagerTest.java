@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +35,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
-import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 
@@ -64,7 +62,9 @@ import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnecto
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResources;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResultReceiver;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
+import static se.leap.bitmaskclient.testutils.TestSetupHelper.getConfiguredProvider;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
+import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
 
 
 /**
@@ -107,32 +107,6 @@ public class ProviderApiManagerTest {
         mockPreferences = new MockSharedPreferences();
         mockResources = mockResources(getClass().getClassLoader().getResourceAsStream("error_messages.json"));
     }
-
-    private Provider getConfiguredProvider() throws IOException, JSONException {
-        return getProvider(null, null, null);
-    }
-
-    private Provider getProvider(String domain, String caCertFile, String jsonFile) {
-        if (domain == null)
-            domain = "https://riseup.net";
-        if (caCertFile == null)
-            caCertFile = "riseup.net.pem";
-        if (jsonFile == null)
-            jsonFile = "riseup.net.json";
-
-        try {
-            return new Provider(
-                    new URL(domain),
-                    getInputAsString(getClass().getClassLoader().getResourceAsStream(caCertFile)),
-                    getInputAsString(getClass().getClassLoader().getResourceAsStream(jsonFile))
-
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 
     @Test
     public void test_handleIntentSetupProvider_noProviderMainURL() throws IOException, JSONException {

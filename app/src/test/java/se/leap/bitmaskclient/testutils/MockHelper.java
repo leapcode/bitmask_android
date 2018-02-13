@@ -344,6 +344,7 @@ public class MockHelper {
     }
 
     public static void mockConfigHelper(String mockedFingerprint, final Provider providerFromPrefs) throws CertificateEncodingException, NoSuchAlgorithmException {
+        // FIXME use MockSharedPreferences instead of provider
         mockStatic(ConfigHelper.class);
         when(ConfigHelper.getFromPersistedProvider(anyString(), anyString(), any(SharedPreferences.class))).thenAnswer(new Answer<String>() {
             @Override
