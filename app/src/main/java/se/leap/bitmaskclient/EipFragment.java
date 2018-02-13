@@ -53,6 +53,7 @@ import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VoidVpnService;
+import se.leap.bitmaskclient.views.VpnStateImage;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -66,6 +67,7 @@ import static se.leap.bitmaskclient.Constants.EIP_NOTIFICATION;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.Constants.EIP_TRIGGERED_FROM_UI;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
@@ -85,11 +87,8 @@ public class EipFragment extends Fragment implements Observer {
     @InjectView(R.id.background)
     AppCompatImageView background;
 
-    @InjectView(R.id.key)
-    AppCompatImageView key;
-
-    @InjectView(R.id.cirle)
-    AppCompatImageView circle;
+    @InjectView(R.id.vpn_state_image)
+    VpnStateImage vpnStateImage;
 
     @InjectView(R.id.vpn_main_button)
     Button mainButton;
@@ -186,13 +185,8 @@ public class EipFragment extends Fragment implements Observer {
         handleIcon();
     }
 
-    @OnClick(R.id.key)
-    void onKeyClick() {
-        handleIcon();
-    }
-
-    @OnClick(R.id.cirle)
-    void onCircleClick() {
+    @OnClick(R.id.vpn_state_image)
+    void onVpnStateImageClick() {
         handleIcon();
     }
 
@@ -262,6 +256,10 @@ public class EipFragment extends Fragment implements Observer {
         wantsToConnect = false;
         saveStatus(true);
         eipCommand(EIP_ACTION_START);
+        vpnStateImage.showProgress();
+        routedText.setVisibility(GONE);
+        vpnRoute.setVisibility(GONE);
+        colorBackgroundALittle();
     }
 
     private void stop() {
@@ -333,9 +331,13 @@ public class EipFragment extends Fragment implements Observer {
      */
     private void eipCommand(String action) {
         Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
         // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
         Intent vpn_intent = new Intent(activity.getApplicationContext(), EIP.class);
         vpn_intent.setAction(action);
+        vpn_intent.putExtra(EIP_TRIGGERED_FROM_UI, true);
         vpn_intent.putExtra(EIP_RECEIVER, eipReceiver);
         activity.startService(vpn_intent);
     }
@@ -360,22 +362,29 @@ public class EipFragment extends Fragment implements Observer {
 
     private void handleNewState() {
         Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+
         if (eipStatus.isConnecting()) {
             mainButton.setText(activity.getString(android.R.string.cancel));
-            key.setImageResource(R.drawable.vpn_connecting);
+            vpnStateImage.setStateIcon(R.drawable.vpn_connecting);
+            vpnStateImage.showProgress();
             routedText.setVisibility(GONE);
             vpnRoute.setVisibility(GONE);
             colorBackgroundALittle();
         } else if (eipStatus.isConnected() || isOpenVpnRunningWithoutNetwork()) {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
-            key.setImageResource(R.drawable.vpn_connected);
+            vpnStateImage.setStateIcon(R.drawable.vpn_connected);
+            vpnStateImage.stopProgress();
             routedText.setVisibility(VISIBLE);
             vpnRoute.setVisibility(VISIBLE);
             vpnRoute.setText(ConfigHelper.getProviderName(preferences));
             colorBackground();
         } else {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
-            key.setImageResource(R.drawable.vpn_disconnected);
+            vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
+            vpnStateImage.stopProgress();
             routedText.setVisibility(GONE);
             vpnRoute.setVisibility(GONE);
             greyscaleBackground();
@@ -482,7 +491,7 @@ public class EipFragment extends Fragment implements Observer {
 
     private void colorBackground() {
         background.setColorFilter(null);
-        background.setImageAlpha(255);
+        background.setImageAlpha(210);
     }
 
 }
