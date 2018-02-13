@@ -7,13 +7,13 @@
             android:fromDegrees="-90"
             android:pivotX="50%"
             android:pivotY="50%"
-            android:toDegrees="270">
+            android:toDegrees="90">
 
             <shape
                 android:shape="ring"
                 android:useLevel="true">
                 <gradient
-                    android:endColor="#c5e1a5"
+                    android:endColor="#00c5e1a5"
                     android:centerColor="#c5e1a5"
                     android:startColor="#00ffe082"
                     android:type="sweep"
@@ -27,13 +27,13 @@
             android:fromDegrees="0"
             android:pivotX="50%"
             android:pivotY="50%"
-            android:toDegrees="360">
+            android:toDegrees="180">
 
             <shape
                 android:shape="ring"
                 android:useLevel="true">
                 <gradient
-                    android:endColor="#ffcc80"
+                    android:endColor="#00ffcc80"
                     android:centerColor="#ffcc80"
                     android:startColor="#00ffcc80"
                     android:type="sweep"
@@ -47,12 +47,12 @@
             android:fromDegrees="90"
             android:pivotX="50%"
             android:pivotY="50%"
-            android:toDegrees="450">
+            android:toDegrees="270">
             <shape
                 android:shape="ring"
                 android:useLevel="true">
                 <gradient
-                    android:endColor="#ce93d8"
+                    android:endColor="#00ce93d8"
                     android:centerColor="#ce93d8"
                     android:startColor="#00ce93d8"
                     android:type="sweep"
@@ -66,12 +66,12 @@
             android:fromDegrees="180"
             android:pivotX="50%"
             android:pivotY="50%"
-            android:toDegrees="540">
+            android:toDegrees="0">
             <shape
                 android:shape="ring"
                 android:useLevel="true">
                 <gradient
-                    android:endColor="#81d4fa"
+                    android:endColor="#0081d4fa"
                     android:centerColor="#81d4fa"
                     android:startColor="#0081d4fa"
                     android:type="sweep"
