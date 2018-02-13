@@ -17,10 +17,17 @@
 
 package se.leap.bitmaskclient.testutils;
 
+import junit.framework.Test;
+
+import org.json.JSONException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+
+import se.leap.bitmaskclient.Provider;
 
 /**
  * Created by cyberta on 08.10.17.
@@ -38,6 +45,32 @@ public class TestSetupHelper {
         }
 
         return sb.toString();
+    }
+
+
+    public static Provider getConfiguredProvider() throws IOException, JSONException {
+        return getProvider(null, null, null);
+    }
+
+    public static Provider getProvider(String domain, String caCertFile, String jsonFile) {
+        if (domain == null)
+            domain = "https://riseup.net";
+        if (caCertFile == null)
+            caCertFile = "riseup.net.pem";
+        if (jsonFile == null)
+            jsonFile = "riseup.net.json";
+
+        try {
+            return new Provider(
+                    new URL(domain),
+                    getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(caCertFile)),
+                    getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(jsonFile))
+
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

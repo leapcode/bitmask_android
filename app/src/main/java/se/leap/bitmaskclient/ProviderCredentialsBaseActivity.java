@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
@@ -28,17 +29,21 @@ import org.json.JSONException;
 
 import butterknife.InjectView;
 import butterknife.OnClick;
-import se.leap.bitmaskclient.userstatus.SessionDialog;
-import se.leap.bitmaskclient.userstatus.SessionDialog.ERRORS;
+import se.leap.bitmaskclient.Constants.CREDENTIAL_ERRORS;
 import se.leap.bitmaskclient.userstatus.User;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
-import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_API_EVENT;
-import static se.leap.bitmaskclient.ProviderAPI.RESULT_CODE;
-import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
-import static se.leap.bitmaskclient.userstatus.SessionDialog.USERNAME;
+import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.CREDENTIALS_PASSWORD;
+import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.LOG_IN;
+import static se.leap.bitmaskclient.ProviderAPI.SIGN_UP;
 
 /**
  * Base Activity for activities concerning a provider interaction
@@ -92,9 +97,9 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         setContentView(R.layout.a_provider_credentials);
         providerAPIBroadcastReceiver = new ProviderAPIBroadcastReceiver();
 
-        IntentFilter updateIntentFilter = new IntentFilter(PROVIDER_API_EVENT);
+        IntentFilter updateIntentFilter = new IntentFilter(BROADCAST_PROVIDER_API_EVENT);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
 
         setUpListeners();
         if(savedInstanceState != null) {
@@ -152,7 +157,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     protected void onDestroy() {
         super.onDestroy();
         if (providerAPIBroadcastReceiver != null)
-            unregisterReceiver(providerAPIBroadcastReceiver);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(providerAPIBroadcastReceiver);
     }
 
     @OnClick(R.id.button)
@@ -186,34 +191,28 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     void login(String username, String password) {
         User.setUserName(username);
 
-        Intent providerAPICommand = new Intent(this, ProviderAPI.class);
-        Bundle parameters = bundlePassword(password);
-        providerAPICommand.setAction(ProviderAPI.LOG_IN);
-        providerAPICommand.putExtra(ProviderAPI.PARAMETERS, parameters);
-        startService(providerAPICommand);
+        Bundle parameters = bundleUsernameAndPassword(username, password);
+        ProviderAPICommand.execute(this, LOG_IN, parameters, provider);
     }
 
     public void signUp(String username, String password) {
         User.setUserName(username);
 
-        Intent providerAPICommand = new Intent(this, ProviderAPI.class);
-        Bundle parameters = bundlePassword(password);
-        providerAPICommand.setAction(ProviderAPI.SIGN_UP);
-        providerAPICommand.putExtra(ProviderAPI.PARAMETERS, parameters);
-        startService(providerAPICommand);
+        Bundle parameters = bundleUsernameAndPassword(username, password);
+        ProviderAPICommand.execute(this, SIGN_UP, parameters, provider);
     }
 
-    void downloadVpnCertificate() {
-        Intent providerAPICommand = new Intent(this, ProviderAPI.class);
-        providerAPICommand.setAction(ProviderAPI.DOWNLOAD_CERTIFICATE);
-        providerAPICommand.putExtra(ProviderAPI.PARAMETERS, Bundle.EMPTY);
-        startService(providerAPICommand);
+    void downloadVpnCertificate(Provider handledProvider) {
+        provider = handledProvider;
+        ProviderAPICommand.execute(this, DOWNLOAD_CERTIFICATE, provider);
     }
 
-    protected Bundle bundlePassword(String password) {
+    protected Bundle bundleUsernameAndPassword(String username, String password) {
         Bundle parameters = new Bundle();
+        if (!username.isEmpty())
+            parameters.putString(CREDENTIALS_USERNAME, username);
         if (!password.isEmpty())
-            parameters.putString(SessionDialog.PASSWORD, password);
+            parameters.putString(CREDENTIALS_PASSWORD, password);
         return parameters;
     }
 
@@ -324,17 +323,17 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     }
 
     private void handleReceivedErrors(Bundle arguments) {
-        if (arguments.containsKey(ERRORS.PASSWORD_INVALID_LENGTH.toString())) {
+        if (arguments.containsKey(CREDENTIAL_ERRORS.PASSWORD_INVALID_LENGTH.toString()))
             passwordError.setError(getString(R.string.error_not_valid_password_user_message));
-        } else if (arguments.containsKey(ERRORS.RISEUP_WARNING.toString())) {
+        else if (arguments.containsKey(CREDENTIAL_ERRORS.RISEUP_WARNING.toString())) {
             userMessage.setVisibility(VISIBLE);
             userMessage.setText(R.string.login_riseup_warning);
         }
-        if (arguments.containsKey(USERNAME)) {
-            String username = arguments.getString(USERNAME);
+        if (arguments.containsKey(CREDENTIALS_USERNAME)) {
+            String username = arguments.getString(CREDENTIALS_USERNAME);
             usernameField.setText(username);
         }
-        if (arguments.containsKey(ERRORS.USERNAME_MISSING.toString())) {
+        if (arguments.containsKey(CREDENTIAL_ERRORS.USERNAME_MISSING.toString())) {
             usernameError.setError(getString(R.string.username_ask));
         }
         if (arguments.containsKey(getString(R.string.user_message))) {
@@ -364,7 +363,8 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         hideProgressBar();
     }
 
-    private void successfullyFinished() {
+    private void successfullyFinished(Provider handledProvider) {
+        provider = handledProvider;
         Intent resultData = new Intent();
         resultData.putExtra(Provider.KEY, provider);
         setResult(RESULT_OK, resultData);
@@ -377,23 +377,26 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             Log.d(TAG, "received Broadcast");
 
             String action = intent.getAction();
-            if (action == null || !action.equalsIgnoreCase(PROVIDER_API_EVENT)) {
+            if (action == null || !action.equalsIgnoreCase(BROADCAST_PROVIDER_API_EVENT)) {
                 return;
             }
 
-            int resultCode = intent.getIntExtra(RESULT_CODE, -1);
+            int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, -1);
+            Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
+            Provider handledProvider = resultData.getParcelable(PROVIDER_KEY);
+
             switch (resultCode) {
                 case ProviderAPI.SUCCESSFUL_SIGNUP:
                 case ProviderAPI.SUCCESSFUL_LOGIN:
-                    downloadVpnCertificate();
+                    downloadVpnCertificate(handledProvider);
                     break;
                 case ProviderAPI.FAILED_LOGIN:
                 case ProviderAPI.FAILED_SIGNUP:
-                    handleReceivedErrors((Bundle) intent.getParcelableExtra(RESULT_KEY));
+                    handleReceivedErrors((Bundle) intent.getParcelableExtra(BROADCAST_RESULT_KEY));
                     break;
 
                 case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE:
-                    successfullyFinished();
+                    successfullyFinished(handledProvider);
                     //activity.eip_fragment.updateEipService();
                     break;
                 case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE:

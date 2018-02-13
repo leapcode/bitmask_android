@@ -59,11 +59,9 @@ import static se.leap.bitmaskclient.R.string.server_unreachable_message;
 
 public class OkHttpClientGenerator {
 
-    SharedPreferences preferences;
     Resources resources;
 
     public OkHttpClientGenerator(SharedPreferences preferences, Resources resources) {
-        this.preferences = preferences;
         this.resources = resources;
     }
 
@@ -71,15 +69,9 @@ public class OkHttpClientGenerator {
         return initHttpClient(initError, null);
     }
 
-    public OkHttpClient initSelfSignedCAHttpClient(JSONObject initError) {
-        String certificate = preferences.getString(Provider.CA_CERT, "");
-        return initHttpClient(initError, certificate);
+    public OkHttpClient initSelfSignedCAHttpClient(String caCert, JSONObject initError) {
+        return initHttpClient(initError, caCert);
     }
-
-    public OkHttpClient initSelfSignedCAHttpClient(JSONObject initError, String certificate) {
-        return initHttpClient(initError, certificate);
-    }
-
 
     private OkHttpClient initHttpClient(JSONObject initError, String certificate) {
         try {

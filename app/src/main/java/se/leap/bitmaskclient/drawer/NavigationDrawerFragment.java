@@ -1,7 +1,6 @@
 package se.leap.bitmaskclient.drawer;
 
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -137,19 +136,11 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
-
-
         accountListAdapter = new ArrayAdapter<>(actionBar.getThemedContext(),
                 R.layout.single_list_item,
                 android.R.id.text1);
 
-        String providerName = ConfigHelper.getProviderName(preferences);
-        if (providerName == null) {
-            //TODO: ADD A header to the ListView containing a useful message.
-            //TODO 2: disable switchProvider
-        } else {
-            accountListAdapter.add(providerName);
-        }
+        createListAdapterData();
 
         mDrawerAccountsListView.setAdapter(accountListAdapter);
 
@@ -226,16 +217,6 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
@@ -301,10 +282,7 @@ public class NavigationDrawerFragment extends Fragment {
             Log.d("Drawer", String.format("Selected position %d", position));
             switch (position) {
                 case 0:
-                    // TODO STOP VPN
-                    // if (provider.hasEIP()) eip_fragment.stopEipIfPossible();
-                    preferences.edit().clear().apply();
-                    startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
+                    getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
                     break;
                 case 1:
                     mTitle = getString(R.string.log_fragment_title);
@@ -336,5 +314,22 @@ public class NavigationDrawerFragment extends Fragment {
         }
     }
 
+
+    public void refresh() {
+        createListAdapterData();
+        accountListAdapter.notifyDataSetChanged();
+        mDrawerAccountsListView.setAdapter(accountListAdapter);
+    }
+
+    private void createListAdapterData() {
+        accountListAdapter.clear();
+        String providerName = ConfigHelper.getProviderName(preferences);
+        if (providerName == null) {
+            //TODO: ADD A header to the ListView containing a useful message.
+            //TODO 2: disable switchProvider
+        } else {
+            accountListAdapter.add(providerName);
+        }
+    }
 
 }

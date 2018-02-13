@@ -46,10 +46,17 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static android.R.attr.name;
+import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
+import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
+import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 
 /**
  * Stores constants, and implements auxiliary methods used across all Bitmask Android classes.
@@ -97,14 +104,14 @@ public class ConfigHelper {
         return ret;
     }
 
-    public static X509Certificate parseX509CertificateFromString(String certificate_string) {
+    public static X509Certificate parseX509CertificateFromString(String certificateString) {
         java.security.cert.Certificate certificate = null;
         CertificateFactory cf;
         try {
             cf = CertificateFactory.getInstance("X.509");
 
-            certificate_string = certificate_string.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
-            byte[] cert_bytes = Base64.decode(certificate_string);
+            certificateString = certificateString.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
+            byte[] cert_bytes = Base64.decode(certificateString);
             InputStream caInput = new ByteArrayInputStream(cert_bytes);
             try {
                 certificate = cf.generateCertificate(caInput);
@@ -270,14 +277,20 @@ public class ConfigHelper {
     public static Provider getSavedProviderFromSharedPreferences(@NonNull SharedPreferences preferences) {
         Provider provider = new Provider();
         try {
-            provider.setUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
+            provider.setMainUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
-            provider.setCACert(preferences.getString(Provider.CA_CERT, ""));
+            provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
+            provider.setVpnCertificate(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
+            provider.setPrivateKey(preferences.getString(PROVIDER_PRIVATE_KEY, ""));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
 
         return provider;
+    }
+
+    public static String getFromPersistedProvider(String toFetch, String providerDomain, SharedPreferences preferences) {
+        return preferences.getString(toFetch + "." + providerDomain, "");
     }
 
     public static String getProviderName(String provider) {
@@ -343,11 +356,73 @@ public class ConfigHelper {
         }
     }
 
+    // TODO: replace commit with apply after refactoring EIP
+    //FIXME: don't save private keys in shared preferences! use the keystore
     public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider) {
         preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
                 putString(Provider.MAIN_URL, provider.getMainUrlString()).
                 putString(Provider.KEY, provider.getDefinitionString()).
                 putString(Provider.CA_CERT, provider.getCaCert()).
+                putString(PROVIDER_EIP_DEFINITION, provider.getEipServiceJsonString()).
+                putString(PROVIDER_PRIVATE_KEY, provider.getPrivateKey()).
+                putString(PROVIDER_VPN_CERTIFICATE, provider.getVpnCertificate()).
+                commit();
+
+        String providerDomain = provider.getDomain();
+        preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
+                putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString()).
+                putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
+                putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
+                putString(PROVIDER_EIP_DEFINITION + "." + providerDomain, provider.getEipServiceJsonString()).
+                putString(PROVIDER_PRIVATE_KEY + "." + providerDomain, provider.getPrivateKey()).
+                putString(PROVIDER_VPN_CERTIFICATE + "." + providerDomain, provider.getVpnCertificate()).
                 apply();
     }
+
+
+    public static void clearDataOfLastProvider(SharedPreferences preferences) {
+        clearDataOfLastProvider(preferences, false);
+    }
+
+    public static void clearDataOfLastProvider(SharedPreferences preferences, boolean commit) {
+        Map<String, ?> allEntries = preferences.getAll();
+        List<String> lastProvidersKeys = new ArrayList<>();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            //sort out all preferences that don't belong to the last provider
+            if (entry.getKey().startsWith(Provider.KEY + ".") ||
+                    entry.getKey().startsWith(Provider.CA_CERT + ".") ||
+                    entry.getKey().startsWith(Provider.CA_CERT_FINGERPRINT + "." )||
+                    entry.getKey().equals(PREFERENCES_APP_VERSION)
+                    ) {
+                continue;
+            }
+            lastProvidersKeys.add(entry.getKey());
+        }
+
+        SharedPreferences.Editor preferenceEditor = preferences.edit();
+        for (String key : lastProvidersKeys) {
+            preferenceEditor.remove(key);
+        }
+        if (commit) {
+            preferenceEditor.commit();
+        } else {
+            preferenceEditor.apply();
+        }
+    }
+
+    public static void deleteProviderDetailsFromPreferences(@NonNull SharedPreferences preferences, String providerDomain) {
+            preferences.edit().
+                    remove(Provider.KEY + "." + providerDomain).
+                    remove(Provider.CA_CERT + "." + providerDomain).
+                    remove(Provider.CA_CERT_FINGERPRINT + "." + providerDomain).
+                    remove(Provider.MAIN_URL + "." + providerDomain).
+                    remove(Provider.KEY + "." + providerDomain).
+                    remove(Provider.CA_CERT + "." + providerDomain).
+                    remove(PROVIDER_EIP_DEFINITION + "." + providerDomain).
+                    remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
+                    remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
+                    apply();
+    }
+
+
 }

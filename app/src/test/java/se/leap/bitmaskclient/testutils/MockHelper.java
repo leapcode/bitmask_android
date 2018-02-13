@@ -1,6 +1,7 @@
 package se.leap.bitmaskclient.testutils;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -28,7 +29,9 @@ import java.util.Set;
 
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.ConfigHelper;
+import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.OkHttpClientGenerator;
+import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider;
 import se.leap.bitmaskclient.testutils.matchers.BundleMatcher;
@@ -44,6 +47,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 
 /**
  * Created by cyberta on 29.01.18.
@@ -338,6 +343,30 @@ public class MockHelper {
         return resultReceiver;
     }
 
+    public static void mockConfigHelper(String mockedFingerprint, final Provider providerFromPrefs) throws CertificateEncodingException, NoSuchAlgorithmException {
+        // FIXME use MockSharedPreferences instead of provider
+        mockStatic(ConfigHelper.class);
+        when(ConfigHelper.getFromPersistedProvider(anyString(), anyString(), any(SharedPreferences.class))).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                String key = (String) invocation.getArguments()[0];
+                switch (key) {
+                    case PROVIDER_PRIVATE_KEY:
+                        return providerFromPrefs.getPrivateKey();
+                    case PROVIDER_VPN_CERTIFICATE:
+                        return providerFromPrefs.getVpnCertificate();
+                    case Provider.KEY:
+                        return providerFromPrefs.getDefinition().toString();
+                    case Provider.CA_CERT_FINGERPRINT:
+                        return providerFromPrefs.getCaCertFingerprint();
+                }
+                return null;
+            }
+        });
+        when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
+        when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
+        when(ConfigHelper.parseX509CertificateFromString(anyString())).thenCallRealMethod();
+    }
     public static void mockFingerprintForCertificate(String mockedFingerprint) throws CertificateEncodingException, NoSuchAlgorithmException {
         mockStatic(ConfigHelper.class);
         when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
@@ -353,8 +382,7 @@ public class MockHelper {
         OkHttpClientGenerator mockClientGenerator = mock(OkHttpClientGenerator.class);
         OkHttpClient mockedOkHttpClient = mock(OkHttpClient.class);
         when(mockClientGenerator.initCommercialCAHttpClient(any(JSONObject.class))).thenReturn(mockedOkHttpClient);
-        when(mockClientGenerator.initSelfSignedCAHttpClient(any(JSONObject.class))).thenReturn(mockedOkHttpClient);
-        when(mockClientGenerator.initSelfSignedCAHttpClient(any(JSONObject.class), anyString())).thenReturn(mockedOkHttpClient);
+        when(mockClientGenerator.initSelfSignedCAHttpClient(anyString(), any(JSONObject.class))).thenReturn(mockedOkHttpClient);
         return mockClientGenerator;
     }
 

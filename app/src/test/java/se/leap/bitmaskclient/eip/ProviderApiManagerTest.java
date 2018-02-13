@@ -24,6 +24,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,21 +46,25 @@ import se.leap.bitmaskclient.ProviderApiManager;
 import se.leap.bitmaskclient.ProviderApiManagerBase;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
-import static se.leap.bitmaskclient.ProviderAPI.RESULT_KEY;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_UPDATED_CERTIFICATE;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBundle;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockConfigHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockFingerprintForCertificate;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockIntent;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnector;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResources;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResultReceiver;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
+import static se.leap.bitmaskclient.testutils.TestSetupHelper.getConfiguredProvider;
+import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
+import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
 
 
 /**
@@ -103,235 +108,248 @@ public class ProviderApiManagerTest {
         mockResources = mockResources(getClass().getClassLoader().getResourceAsStream("error_messages.json"));
     }
 
-
     @Test
-    public void test_handleIntentSetupProvider_noProviderMainURL() {
+    public void test_handleIntentSetupProvider_noProviderMainURL() throws IOException, JSONException {
+        Provider provider = new Provider("");
+
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, false);
+
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
         expectedResult.putString(ERRORS, "{\"errors\":\"It doesn't seem to be a Bitmask provider.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "");
+        Intent providerApiCommand = mockIntent();
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
-
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
     @Test
-    public void test_handleIntentSetupProvider_happyPath_preseededProviderAndCA() throws IOException, CertificateEncodingException, NoSuchAlgorithmException {
+    public void test_handleIntentSetupProvider_happyPath_preseededProviderAndCA() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = getConfiguredProvider();
+
         mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, true);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "https://riseup.net");
-        parameters.putString(Provider.CA_CERT, getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem")));
-        parameters.putString(Provider.KEY, getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json")));
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, true);
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
+        Intent providerApiCommand = mockIntent();
 
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
+
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
     @Test
-    public void test_handleIntentSetupProvider_happyPath_no_preseededProviderAndCA() throws IOException, CertificateEncodingException, NoSuchAlgorithmException {
+    public void test_handleIntentSetupProvider_happyPath_no_preseededProviderAndCA() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = new Provider("https://riseup.net");
+
         mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, true);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "https://riseup.net");
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, true);
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
+        Intent providerApiCommand = mockIntent();
 
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
     @Test
-    public void test_handleIntentSetupProvider_happyPath_storedProviderAndCAFromPreviousSetup() throws IOException, CertificateEncodingException, NoSuchAlgorithmException {
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+    public void test_handleIntentSetupProvider_happyPath_storedProviderAndCAFromPreviousSetup() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = new Provider("https://riseup.net");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494", getConfiguredProvider());
+
         mockProviderApiConnector(NO_ERROR);
         mockPreferences.edit().putString(Provider.KEY + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"))).apply();
         mockPreferences.edit().putString(Provider.CA_CERT + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"))).apply();
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, true);
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, true);
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "https://riseup.net");
+        Intent providerApiCommand = mockIntent();
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
 
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
     @Test
-    public void test_handleIntentSetupProvider_preseededProviderAndCA_failedCAPinning() throws IOException, CertificateEncodingException, NoSuchAlgorithmException {
+    public void test_handleIntentSetupProvider_preseededProviderAndCA_failedCAPinning() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = getConfiguredProvider();
         mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, false);
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
         expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_CERTIFICATE_PINNING\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "https://riseup.net");
-        parameters.putString(Provider.CA_CERT, getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem")));
-        parameters.putString(Provider.KEY, getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json")));
+        Intent providerApiCommand = mockIntent();
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
 
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
     @Test
-    public void test_handleIntentSetupProvider_no_preseededProviderAndCA_failedPinning() throws IOException, CertificateEncodingException, NoSuchAlgorithmException {
+    public void test_handleIntentSetupProvider_no_preseededProviderAndCA_failedPinning() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = new Provider("https://riseup.net");
         mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, false);
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
         expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_CERTIFICATE_PINNING\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "https://riseup.net");
+        Intent providerApiCommand = mockIntent();
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
 
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
     @Test
-    public void test_handleIntentSetupProvider_storedProviderAndCAFromPreviousSetup_failedPinning() throws IOException, CertificateEncodingException, NoSuchAlgorithmException {
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495");
+    public void test_handleIntentSetupProvider_storedProviderAndCAFromPreviousSetup_failedPinning() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = new Provider("https://riseup.net");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495", getConfiguredProvider());
+
         mockProviderApiConnector(NO_ERROR);
         mockPreferences.edit().putString(Provider.KEY + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"))).apply();
         mockPreferences.edit().putString(Provider.CA_CERT + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"))).apply();
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, false);
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
         expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_CERTIFICATE_PINNING\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "https://riseup.net");
+        Intent providerApiCommand = mockIntent();
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
 
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
 
     @Test
-    public void test_handleIntentSetupProvider_preseededProviderAndCA_outdatedCertificate() throws IOException, CertificateEncodingException, NoSuchAlgorithmException {
+    public void test_handleIntentSetupProvider_preseededProviderAndCA_outdatedCertificate() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = getProvider(null ,"outdated_cert.pem", null);
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, false);
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
         expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "https://riseup.net");
-        parameters.putString(Provider.CA_CERT, getInputAsString(getClass().getClassLoader().getResourceAsStream("outdated_cert.pem")));
-        parameters.putString(Provider.KEY, getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json")));
+        Intent providerApiCommand = mockIntent();
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
 
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
     @Test
-    public void test_handleIntentSetupProvider_storedProviderAndCAFromPreviousSetup_outdatedCertificate() throws IOException, CertificateEncodingException, NoSuchAlgorithmException {
+    public void test_handleIntentSetupProvider_storedProviderAndCAFromPreviousSetup_outdatedCertificate() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = new Provider("https://riseup.net");
         mockProviderApiConnector(NO_ERROR);
         mockPreferences.edit().putString(Provider.KEY + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"))).apply();
         mockPreferences.edit().putString(Provider.CA_CERT + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("outdated_cert.pem"))).apply();
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, false);
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
         expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "https://riseup.net");
+        Intent providerApiCommand = mockIntent();
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
 
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
     @Test
-    public void test_handleIntentSetupProvider_preseededProviderAndCA_ValidCertificateButUpdatedCertificateOnServerSide() throws IOException, CertificateEncodingException, NoSuchAlgorithmException {
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+    public void test_handleIntentSetupProvider_preseededProviderAndCA_ValidCertificateButUpdatedCertificateOnServerSide() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = getConfiguredProvider();
+
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494", getConfiguredProvider());
         mockProviderApiConnector(ERROR_CASE_UPDATED_CERTIFICATE);
 
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, false);
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
         expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "https://riseup.net");
-        parameters.putString(Provider.CA_CERT, getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem")));
-        parameters.putString(Provider.KEY, getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json")));
+        Intent providerApiCommand = mockIntent();
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
 
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
     @Test
-    public void test_handleIntentSetupProvider_storedProviderAndCAFromPreviousSetup_ValidCertificateButUpdatedCertificateOnServerSide() throws IOException, CertificateEncodingException, NoSuchAlgorithmException {
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+    public void test_handleIntentSetupProvider_storedProviderAndCAFromPreviousSetup_ValidCertificateButUpdatedCertificateOnServerSide() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = new Provider("https://riseup.net");
+
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494", getConfiguredProvider());
         mockProviderApiConnector(ERROR_CASE_UPDATED_CERTIFICATE);
         mockPreferences.edit().putString(Provider.KEY + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"))).apply();
         mockPreferences.edit().putString(Provider.CA_CERT + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"))).apply();
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
         Bundle expectedResult = mockBundle();
-        expectedResult.putBoolean(RESULT_KEY, false);
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
         expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-        Intent provider_API_command = mockIntent();
-        Bundle parameters = mockBundle();
-        parameters.putString(Provider.MAIN_URL, "https://riseup.net");
+        Intent providerApiCommand = mockIntent();
 
-        provider_API_command.setAction(ProviderAPI.SET_UP_PROVIDER);
-        provider_API_command.putExtra(ProviderAPI.PARAMETERS, parameters);
-        provider_API_command.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
 
-        providerApiManager.handleIntent(provider_API_command);
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+
+        providerApiManager.handleIntent(providerApiCommand);
     }
 }

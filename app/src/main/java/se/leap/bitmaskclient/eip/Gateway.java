@@ -16,14 +16,16 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
 
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.StringReader;
 
-import de.blinkt.openvpn.*;
-import de.blinkt.openvpn.core.*;
+import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.core.ConfigParser;
 
 /**
  * Gateway provides objects defining gateways and their metadata.
@@ -37,7 +39,7 @@ public class Gateway {
 
     public final static String TAG = Gateway.class.getSimpleName();
 
-    private JSONObject general_configuration;
+    private JSONObject generalConfiguration;
     private JSONObject secrets;
     private JSONObject gateway;
 
@@ -54,7 +56,7 @@ public class Gateway {
         this.gateway = gateway;
         this.secrets = secrets;
 
-        general_configuration = getGeneralConfiguration(eip_definition);
+        generalConfiguration = getGeneralConfiguration(eip_definition);
         timezone = getTimezone(eip_definition);
         mName = locationAsName(eip_definition);
 
@@ -80,9 +82,9 @@ public class Gateway {
         return location.optString("name");
     }
 
-    private JSONObject getLocationInfo(JSONObject eip_definition) {
+    private JSONObject getLocationInfo(JSONObject eipDefinition) {
         try {
-            JSONObject locations = eip_definition.getJSONObject("locations");
+            JSONObject locations = eipDefinition.getJSONObject("locations");
 
             return locations.getJSONObject(gateway.getString("location"));
         } catch (JSONException e) {
@@ -97,8 +99,8 @@ public class Gateway {
         try {
             ConfigParser cp = new ConfigParser();
 
-            VpnConfigGenerator vpn_configuration_generator = new VpnConfigGenerator(general_configuration, secrets, gateway);
-            String configuration = vpn_configuration_generator.generate();
+            VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway);
+            String configuration = vpnConfigurationGenerator.generate();
 
             cp.parseConfig(new StringReader(configuration));
             return cp.convertProfile();

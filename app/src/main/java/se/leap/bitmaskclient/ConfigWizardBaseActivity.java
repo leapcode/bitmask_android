@@ -56,19 +56,22 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     @Override
     public void setContentView(View view) {
         super.setContentView(view);
-        setProviderHeaderText(ConfigHelper.getProviderName(preferences));
+        if (provider != null)
+            setProviderHeaderText(provider.getName());
     }
 
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
-        setProviderHeaderText(ConfigHelper.getProviderName(preferences));
+        if (provider != null)
+            setProviderHeaderText(provider.getName());
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
         super.setContentView(view, params);
-        setProviderHeaderText(ConfigHelper.getProviderName(preferences));
+        if (provider != null)
+            setProviderHeaderText(provider.getName());
     }
 
     protected void setProviderHeaderLogo(@DrawableRes int providerHeaderLogo) {

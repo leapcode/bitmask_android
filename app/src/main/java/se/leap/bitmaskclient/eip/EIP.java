@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -32,6 +33,9 @@ import java.lang.ref.WeakReference;
 import de.blinkt.openvpn.LaunchVPN;
 import se.leap.bitmaskclient.OnBootReceiver;
 
+import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
@@ -41,7 +45,7 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_UPDATE;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
-import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
@@ -131,9 +135,9 @@ public final class EIP extends IntentService {
         gateway = gatewaysManager.select();
         if (gateway != null && gateway.getProfile() != null) {
             launchActiveGateway();
-            tellToReceiver(EIP_ACTION_START, Activity.RESULT_OK);
+            tellToReceiverOrBroadcast(EIP_ACTION_START, Activity.RESULT_OK);
         } else
-            tellToReceiver(EIP_ACTION_START, Activity.RESULT_CANCELED);
+            tellToReceiverOrBroadcast(EIP_ACTION_START, Activity.RESULT_CANCELED);
     }
 
     /**
@@ -181,7 +185,7 @@ public final class EIP extends IntentService {
         if (eipStatus.isConnected() || eipStatus.isConnecting())
             resultCode = Activity.RESULT_OK;
 
-        tellToReceiver(EIP_ACTION_STOP, resultCode);
+        tellToReceiverOrBroadcast(EIP_ACTION_STOP, resultCode);
     }
 
     /**
@@ -194,7 +198,7 @@ public final class EIP extends IntentService {
         int resultCode = (eipStatus.isConnected()) ?
                 Activity.RESULT_OK :
                 Activity.RESULT_CANCELED;
-        tellToReceiver(EIP_ACTION_IS_RUNNING, resultCode);
+        tellToReceiverOrBroadcast(EIP_ACTION_IS_RUNNING, resultCode);
     }
 
     /**
@@ -205,13 +209,13 @@ public final class EIP extends IntentService {
         eipDefinition = eipDefinitionFromPreferences();
         if (eipDefinition.length() > 0)
             updateGateways();
-        tellToReceiver(EIP_ACTION_UPDATE, Activity.RESULT_OK);
+        tellToReceiverOrBroadcast(EIP_ACTION_UPDATE, Activity.RESULT_OK);
     }
 
     private JSONObject eipDefinitionFromPreferences() {
         JSONObject result = new JSONObject();
         try {
-            String eipDefinitionString = preferences.getString(PROVIDER_KEY, "");
+            String eipDefinitionString = preferences.getString(PROVIDER_EIP_DEFINITION, "");
             if (!eipDefinitionString.isEmpty()) {
                 result = new JSONObject(eipDefinitionString);
             }
@@ -245,14 +249,26 @@ public final class EIP extends IntentService {
         int resultCode = validator.isValid() ?
                 Activity.RESULT_OK :
                 Activity.RESULT_CANCELED;
-        tellToReceiver(EIP_ACTION_CHECK_CERT_VALIDITY, resultCode);
+        tellToReceiverOrBroadcast(EIP_ACTION_CHECK_CERT_VALIDITY, resultCode);
     }
 
-    private void tellToReceiver(String action, int resultCode) {
+    private void tellToReceiverOrBroadcast(String action, int resultCode) {
         Bundle resultData = new Bundle();
         resultData.putString(EIP_REQUEST, action);
         if (mReceiverRef.get() != null) {
             mReceiverRef.get().send(resultCode, resultData);
+        } else {
+            broadcastEvent(resultCode, resultData);
         }
     }
+
+    private void broadcastEvent(int resultCode , Bundle resultData) {
+        Intent intentUpdate = new Intent(BROADCAST_EIP_EVENT);
+        intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
+        intentUpdate.putExtra(BROADCAST_RESULT_CODE, resultCode);
+        intentUpdate.putExtra(BROADCAST_RESULT_KEY, resultData);
+        Log.d(TAG, "sending broadcast");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intentUpdate);
+    }
+
 }
