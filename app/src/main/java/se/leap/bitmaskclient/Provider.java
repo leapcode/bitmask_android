@@ -420,6 +420,10 @@ public final class Provider implements Parcelable {
         return certificatePinEncoding;
     }
 
+    public String getCaCertFingerprint() {
+        return getCertificatePinEncoding() + ":" + getCertificatePin();
+    }
+
     /**
      * resets everything except the main url
      */
