@@ -21,6 +21,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
 import org.json.JSONObject;
@@ -38,8 +39,11 @@ import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 public class DownloadFailedDialog extends DialogFragment {
 
     public static String TAG = "downloaded_failed_dialog";
-    private String reason_to_fail;
+    private String reasonToFail;
     private DOWNLOAD_ERRORS downloadError = DEFAULT;
+
+    private Provider provider;
+
     public enum DOWNLOAD_ERRORS {
         DEFAULT,
         ERROR_CORRUPTED_PROVIDER_JSON,
@@ -50,52 +54,55 @@ public class DownloadFailedDialog extends DialogFragment {
     /**
      * @return a new instance of this DialogFragment.
      */
-    public static DialogFragment newInstance(String reason_to_fail) {
-        DownloadFailedDialog dialog_fragment = new DownloadFailedDialog();
-        dialog_fragment.reason_to_fail = reason_to_fail;
-        return dialog_fragment;
+    public static DialogFragment newInstance(Provider provider, String reasonToFail) {
+        DownloadFailedDialog dialogFragment = new DownloadFailedDialog();
+        dialogFragment.reasonToFail = reasonToFail;
+        dialogFragment.provider = provider;
+        return dialogFragment;
     }
 
     /**
      * @return a new instance of this DialogFragment.
      */
-    public static DialogFragment newInstance(JSONObject errorJson) {
-        DownloadFailedDialog dialog_fragment = new DownloadFailedDialog();
+    public static DialogFragment newInstance(Provider provider, JSONObject errorJson) {
+        DownloadFailedDialog dialogFragment = new DownloadFailedDialog();
+        dialogFragment.provider = provider;
         try {
             if (errorJson.has(ERRORS)) {
-                dialog_fragment.reason_to_fail = errorJson.getString(ERRORS);
+                dialogFragment.reasonToFail = errorJson.getString(ERRORS);
             } else {
                 //default error msg
-                dialog_fragment.reason_to_fail = dialog_fragment.getString(R.string.error_io_exception_user_message);
+                dialogFragment.reasonToFail = dialogFragment.getString(R.string.error_io_exception_user_message);
             }
 
             if (errorJson.has(ERRORID)) {
-                dialog_fragment.downloadError = valueOf(errorJson.getString(ERRORID));
+                dialogFragment.downloadError = valueOf(errorJson.getString(ERRORID));
             }
         } catch (Exception e) {
             e.printStackTrace();
-            dialog_fragment.reason_to_fail = dialog_fragment.getString(R.string.error_io_exception_user_message);
+            dialogFragment.reasonToFail = dialogFragment.getString(R.string.error_io_exception_user_message);
         }
-        return dialog_fragment;
+        return dialogFragment;
     }
 
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(reason_to_fail)
+        builder.setMessage(reasonToFail)
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                interface_with_ConfigurationWizard.cancelSettingUpProvider();
+                interfaceWithConfigurationWizard.cancelSettingUpProvider();
                 dialog.dismiss();
             }
         });
-        switch (downloadError) {
+switch (downloadError) {
             case ERROR_CORRUPTED_PROVIDER_JSON:
                 builder.setPositiveButton(R.string.update_provider_details, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dismiss();
-                        interface_with_ConfigurationWizard.updateProviderDetails();
+                        interfaceWithConfigurationWizard.updateProviderDetails();
                     }
                 });
                 break;
@@ -105,7 +112,7 @@ public class DownloadFailedDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dismiss();
-                        interface_with_ConfigurationWizard.updateProviderDetails();
+                        interfaceWithConfigurationWizard.updateProviderDetails();
                     }
                 });
                 break;
@@ -113,7 +120,7 @@ public class DownloadFailedDialog extends DialogFragment {
                 builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dismiss();
-                                interface_with_ConfigurationWizard.retrySetUpProvider();
+                                interfaceWithConfigurationWizard.retrySetUpProvider(provider);
                             }
                         });
                 break;
@@ -124,20 +131,20 @@ public class DownloadFailedDialog extends DialogFragment {
     }
 
     public interface DownloadFailedDialogInterface {
-        void retrySetUpProvider();
+        void retrySetUpProvider(@NonNull Provider provider);
 
         void cancelSettingUpProvider();
 
         void updateProviderDetails();
     }
 
-    DownloadFailedDialogInterface interface_with_ConfigurationWizard;
+    DownloadFailedDialogInterface interfaceWithConfigurationWizard;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            interface_with_ConfigurationWizard = (DownloadFailedDialogInterface) context;
+            interfaceWithConfigurationWizard = (DownloadFailedDialogInterface) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " must implement NoticeDialogListener");
@@ -146,7 +153,7 @@ public class DownloadFailedDialog extends DialogFragment {
 
     @Override
     public void onCancel(DialogInterface dialog) {
-        interface_with_ConfigurationWizard.cancelSettingUpProvider();
+        interfaceWithConfigurationWizard.cancelSettingUpProvider();
         dialog.dismiss();
     }
 

@@ -14,12 +14,15 @@ import java.lang.annotation.RetentionPolicy;
 
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EIP;
+import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.userstatus.User;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
+import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
@@ -73,7 +76,6 @@ public class StartActivity extends Activity {
         }
 
         // initialize app necessities
-        ProviderAPICommand.initialize(getApplicationContext());
         VpnStatus.initLogCache(getApplicationContext().getCacheDir());
         User.init(getString(R.string.default_username));
 
@@ -128,6 +130,13 @@ public class StartActivity extends Activity {
         if (hasNewFeature(FeatureVersionCode.MULTIPLE_PROFILES)) {
             // TODO prepare usage of multiple profiles
         }
+        if (hasNewFeature(FeatureVersionCode.RENAMED_EIP_IN_PREFERENCES)) {
+            String eipJson = preferences.getString(PROVIDER_KEY, null);
+            if (eipJson != null) {
+                preferences.edit().putString(PROVIDER_EIP_DEFINITION, eipJson).
+                        remove(PROVIDER_KEY).apply();
+            }
+        }
 
         // ensure all upgrades have passed before storing new information
         storeAppVersion();
@@ -155,7 +164,7 @@ public class StartActivity extends Activity {
             } else {
                 Log.d(TAG, "vpn provider is configured");
                 if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
-                    eipCommand(EIP_ACTION_START);
+                    EipCommand.startVPN(getApplicationContext(), true);
                     finish();
                     return;
                 }
@@ -183,7 +192,7 @@ public class StartActivity extends Activity {
             if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
                 ConfigHelper.storeProviderInPreferences(preferences, provider);
-                eipCommand(EIP_ACTION_START);
+                EipCommand.startVPN(this.getApplicationContext(), false);
                 showMainActivity();
             } else if (resultCode == RESULT_CANCELED) {
                 finish();
@@ -199,16 +208,4 @@ public class StartActivity extends Activity {
         finish();
     }
 
-
-    /**
-     * Send a command to EIP
-     *
-     * @param action A valid String constant from EIP class representing an Intent
-     *               filter for the EIP class
-     */
-    private void eipCommand(String action) {
-        Intent vpn_intent = new Intent(this.getApplicationContext(), EIP.class);
-        vpn_intent.setAction(action);
-        this.startService(vpn_intent);
-    }
 }

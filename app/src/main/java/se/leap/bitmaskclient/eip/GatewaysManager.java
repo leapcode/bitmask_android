@@ -94,14 +94,14 @@ public class GatewaysManager {
         return new Gson().toJson(gateways, list_type);
     }
 
-    public void fromEipServiceJson(JSONObject eip_definition) {
+    public void fromEipServiceJson(JSONObject eipDefinition) {
         try {
-            JSONArray gatewaysDefined = eip_definition.getJSONArray("gateways");
+            JSONArray gatewaysDefined = eipDefinition.getJSONArray("gateways");
             for (int i = 0; i < gatewaysDefined.length(); i++) {
                 JSONObject gw = gatewaysDefined.getJSONObject(i);
                 if (isOpenVpnGateway(gw)) {
                     JSONObject secrets = secretsConfiguration();
-                    Gateway aux = new Gateway(eip_definition, secrets, gw);
+                    Gateway aux = new Gateway(eipDefinition, secrets, gw);
                     if (!containsProfileWithSecrets(aux.getProfile())) {
                         addGateway(aux);
                     }
