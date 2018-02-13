@@ -3,9 +3,12 @@ package se.leap.bitmaskclient.eip;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
+import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
 
@@ -18,6 +21,8 @@ import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_VPNPAUSED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static de.blinkt.openvpn.core.ConnectionStatus.UNKNOWN_LEVEL;
 import static junit.framework.Assert.assertTrue;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 import static se.leap.bitmaskclient.eip.EipStatus.EipLevel.CONNECTING;
 import static se.leap.bitmaskclient.eip.EipStatus.EipLevel.DISCONNECTED;
 import static se.leap.bitmaskclient.eip.EipStatus.EipLevel.UNKNOWN;
@@ -26,7 +31,8 @@ import static se.leap.bitmaskclient.eip.EipStatus.EipLevel.UNKNOWN;
  * Created by cyberta on 06.12.17.
  * TODO: Mock AsyncTask
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ProfileManager.class})
 public class EipStatusTest {
 
     EipStatus eipStatus;
@@ -46,9 +52,28 @@ public class EipStatusTest {
         assertTrue("LEVEL_CONNECTED state", eipStatus.getState().equals("CONNECTED"));
     }
 
-    @Test(expected= IllegalStateException.class)
-    public void testUpdateState_LEVEL_VPNPAUSED() throws Exception {
-        VpnStatus.updateStateString("USERPAUSE", "", R.string.state_userpause, LEVEL_VPNPAUSED);
+    @Test
+    public void testUpdateState_LEVEL_VPNPAUSED_hasPersistentTun() throws Exception {
+
+        mockStatic(ProfileManager.class);
+        VpnProfile mockVpnProfile = new VpnProfile("mockProfile");
+        mockVpnProfile.mPersistTun = true;
+        when(ProfileManager.getLastConnectedVpn()).thenReturn(mockVpnProfile);
+        VpnStatus.updateStateString("SCREENOFF", "", R.string.state_screenoff, LEVEL_VPNPAUSED);
+        assertTrue("LEVEL_VPN_PAUSED eipLevel", eipStatus.getEipLevel() == CONNECTING);
+        assertTrue("LEVEL_VPN_PAUSED level", eipStatus.getLevel() == LEVEL_VPNPAUSED);
+    }
+
+    @Test
+    public void testUpdateState_LEVEL_VPNPAUSED_hasNotPersistentTun() throws Exception {
+
+        mockStatic(ProfileManager.class);
+        VpnProfile mockVpnProfile = new VpnProfile("mockProfile");
+        mockVpnProfile.mPersistTun = false;
+        when(ProfileManager.getLastConnectedVpn()).thenReturn(mockVpnProfile);
+        VpnStatus.updateStateString("SCREENOFF", "", R.string.state_screenoff, LEVEL_VPNPAUSED);
+        assertTrue("LEVEL_VPN_PAUSED eipLevel", eipStatus.getEipLevel() == DISCONNECTED);
+        assertTrue("LEVEL_VPN_PAUSED level", eipStatus.getLevel() == LEVEL_VPNPAUSED);
     }
 
     @Test
