@@ -6,6 +6,8 @@ import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ProgressBar;
 
 import se.leap.bitmaskclient.R;
@@ -49,8 +51,28 @@ public class VpnStateImage extends ConstraintLayout {
     }
 
 
-    public void stopProgress() {
-        progressBar.setVisibility(GONE);
+    public void stopProgress(boolean animated) {
+        if (!animated) {
+            progressBar.setVisibility(GONE);
+            return;
+        }
+
+        AlphaAnimation fadeOutAnimation = new AlphaAnimation(1.0f, 0.0f);
+        fadeOutAnimation.setDuration(1000);
+        fadeOutAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                progressBar.setVisibility(GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        
+        progressBar.startAnimation(fadeOutAnimation);
   }
 
     public void setStateIcon(int resource) {

@@ -416,7 +416,7 @@ public class EipFragment extends Fragment implements Observer {
         } else if (eipStatus.isConnected() || isOpenVpnRunningWithoutNetwork()) {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
             vpnStateImage.setStateIcon(R.drawable.vpn_connected);
-            vpnStateImage.stopProgress();
+            vpnStateImage.stopProgress(true);
             routedText.setVisibility(VISIBLE);
             vpnRoute.setVisibility(VISIBLE);
             vpnRoute.setText(ConfigHelper.getProviderName(preferences));
@@ -424,7 +424,7 @@ public class EipFragment extends Fragment implements Observer {
         } else {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
             vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
-            vpnStateImage.stopProgress();
+            vpnStateImage.stopProgress(false);
             routedText.setVisibility(GONE);
             vpnRoute.setVisibility(GONE);
             greyscaleBackground();
