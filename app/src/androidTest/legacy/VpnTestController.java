@@ -8,9 +8,7 @@ import com.robotium.solo.Solo;
 
 import de.blinkt.openvpn.activities.DisconnectVPN;
 import mbanje.kurt.fabbutton.ProgressRingView;
-import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.userstatus.FabButton;
 
 import static junit.framework.Assert.assertTrue;
 
