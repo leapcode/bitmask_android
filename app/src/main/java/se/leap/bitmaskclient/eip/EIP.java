@@ -16,7 +16,6 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,6 +32,9 @@ import java.lang.ref.WeakReference;
 import de.blinkt.openvpn.LaunchVPN;
 import se.leap.bitmaskclient.OnBootReceiver;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
+import static android.content.Intent.CATEGORY_DEFAULT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
@@ -41,13 +43,14 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_UPDATE;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.ERROR_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -61,15 +64,13 @@ import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
  */
 public final class EIP extends IntentService {
 
-    public final static String TAG = EIP.class.getSimpleName();
-    public final static String SERVICE_API_PATH = "config/eip-service.json";
+    public final static String TAG = EIP.class.getSimpleName(),
+            SERVICE_API_PATH = "config/eip-service.json",
+            ERRORS = "errors",
+            ERROR_ID = "errorID";
 
     private WeakReference<ResultReceiver> mReceiverRef = new WeakReference<>(null);
     private SharedPreferences preferences;
-
-    private JSONObject eipDefinition;
-    private GatewaysManager gatewaysManager = new GatewaysManager();
-    private Gateway gateway;
 
     public EIP() {
         super(TAG);
@@ -79,9 +80,6 @@ public final class EIP extends IntentService {
     public void onCreate() {
         super.onCreate();
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        eipDefinition = eipDefinitionFromPreferences();
-        if (gatewaysManager.isEmpty())
-            gatewaysFromPreferences();
     }
 
     @Override
@@ -108,11 +106,8 @@ public final class EIP extends IntentService {
             case EIP_ACTION_IS_RUNNING:
                 isRunning();
                 break;
-            case EIP_ACTION_UPDATE:
-                updateEIPService();
-                break;
             case EIP_ACTION_CHECK_CERT_VALIDITY:
-                checkCertValidity();
+                checkVPNCertificateValidity();
                 break;
         }
     }
@@ -123,21 +118,29 @@ public final class EIP extends IntentService {
      * It also sets up early routes.
      */
     private void startEIP() {
-        if (!preferences.getBoolean(EIP_RESTART_ON_BOOT, false)){
-            preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, true).commit();
-        }
-        if (gatewaysManager.isEmpty())
-            updateEIPService();
         if (!EipStatus.getInstance().isBlockingVpnEstablished())  {
             earlyRoutes();
         }
 
-        gateway = gatewaysManager.select();
+        Bundle result = new Bundle();
+
+        if (!preferences.getBoolean(EIP_RESTART_ON_BOOT, false)){
+            preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, true).commit();
+        }
+
+        GatewaysManager gatewaysManager = gatewaysFromPreferences();
+        if (!isVPNCertificateValid()){
+            setErrorResult(result, vpn_certificate_is_invalid, ERROR_INVALID_VPN_CERTIFICATE.toString());
+            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED, result);
+            return;
+        }
+
+        Gateway gateway = gatewaysManager.select();
         if (gateway != null && gateway.getProfile() != null) {
-            launchActiveGateway();
-            tellToReceiverOrBroadcast(EIP_ACTION_START, Activity.RESULT_OK);
+            launchActiveGateway(gateway);
+            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_OK);
         } else
-            tellToReceiverOrBroadcast(EIP_ACTION_START, Activity.RESULT_CANCELED);
+            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED);
     }
 
     /**
@@ -147,14 +150,12 @@ public final class EIP extends IntentService {
     private void startEIPAlwaysOnVpn() {
         Log.d(TAG, "startEIPAlwaysOnVpn vpn");
 
-        if (gatewaysManager.isEmpty())
-            updateEIPService();
-
-        gateway = gatewaysManager.select();
+        GatewaysManager gatewaysManager = gatewaysFromPreferences();
+        Gateway gateway = gatewaysManager.select();
 
         if (gateway != null && gateway.getProfile() != null) {
             Log.d(TAG, "startEIPAlwaysOnVpn eip launch avtive gateway vpn");
-            launchActiveGateway();
+            launchActiveGateway(gateway);
         } else {
             Log.d(TAG, "startEIPAlwaysOnVpn no active profile available!");
         }
@@ -170,7 +171,7 @@ public final class EIP extends IntentService {
         startActivity(voidVpnLauncher);
     }
 
-    private void launchActiveGateway() {
+    private void launchActiveGateway(Gateway gateway) {
         Intent intent = new Intent(this, LaunchVPN.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -180,10 +181,11 @@ public final class EIP extends IntentService {
     }
 
     private void stopEIP() {
+        // TODO try to do anything! stop eip from here if possible...
         EipStatus eipStatus = EipStatus.getInstance();
-        int resultCode = Activity.RESULT_CANCELED;
+        int resultCode = RESULT_CANCELED;
         if (eipStatus.isConnected() || eipStatus.isConnecting())
-            resultCode = Activity.RESULT_OK;
+            resultCode = RESULT_OK;
 
         tellToReceiverOrBroadcast(EIP_ACTION_STOP, resultCode);
     }
@@ -196,20 +198,9 @@ public final class EIP extends IntentService {
     private void isRunning() {
         EipStatus eipStatus = EipStatus.getInstance();
         int resultCode = (eipStatus.isConnected()) ?
-                Activity.RESULT_OK :
-                Activity.RESULT_CANCELED;
+                RESULT_OK :
+                RESULT_CANCELED;
         tellToReceiverOrBroadcast(EIP_ACTION_IS_RUNNING, resultCode);
-    }
-
-    /**
-     * Loads eip-service.json from SharedPreferences, delete previous vpn profiles and add new gateways.
-     * TODO Implement API call to refresh eip-service.json from the provider
-     */
-    private void updateEIPService() {
-        eipDefinition = eipDefinitionFromPreferences();
-        if (eipDefinition.length() > 0)
-            updateGateways();
-        tellToReceiverOrBroadcast(EIP_ACTION_UPDATE, Activity.RESULT_OK);
     }
 
     private JSONObject eipDefinitionFromPreferences() {
@@ -226,34 +217,25 @@ public final class EIP extends IntentService {
         return result;
     }
 
-    private void updateGateways() {
-        gatewaysManager.clearGatewaysAndProfiles();
-        gatewaysManager.fromEipServiceJson(eipDefinition);
-        gatewaysToPreferences();
+    private GatewaysManager gatewaysFromPreferences() {
+        GatewaysManager gatewaysManager = new GatewaysManager(this, preferences);
+        gatewaysManager.fromEipServiceJson(eipDefinitionFromPreferences());
+        return gatewaysManager;
     }
 
-    private void gatewaysFromPreferences() {
-        String gatewaysString = preferences.getString(Gateway.TAG, "");
-        gatewaysManager = new GatewaysManager(this, preferences);
-        gatewaysManager.addFromString(gatewaysString);
-        preferences.edit().remove(Gateway.TAG).apply();
-    }
-
-    private void gatewaysToPreferences() {
-        String gateways_string = gatewaysManager.toString();
-        preferences.edit().putString(Gateway.TAG, gateways_string).commit();
-    }
-
-    private void checkCertValidity() {
-        VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
-        int resultCode = validator.isValid() ?
-                Activity.RESULT_OK :
-                Activity.RESULT_CANCELED;
+    private void checkVPNCertificateValidity() {
+        int resultCode = isVPNCertificateValid() ?
+                RESULT_OK :
+                RESULT_CANCELED;
         tellToReceiverOrBroadcast(EIP_ACTION_CHECK_CERT_VALIDITY, resultCode);
     }
 
-    private void tellToReceiverOrBroadcast(String action, int resultCode) {
-        Bundle resultData = new Bundle();
+    private boolean isVPNCertificateValid() {
+        VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
+        return validator.isValid();
+    }
+
+    private void tellToReceiverOrBroadcast(String action, int resultCode, Bundle resultData) {
         resultData.putString(EIP_REQUEST, action);
         if (mReceiverRef.get() != null) {
             mReceiverRef.get().send(resultCode, resultData);
@@ -262,13 +244,33 @@ public final class EIP extends IntentService {
         }
     }
 
+    private void tellToReceiverOrBroadcast(String action, int resultCode) {
+        tellToReceiverOrBroadcast(action, resultCode, new Bundle());
+    }
+
     private void broadcastEvent(int resultCode , Bundle resultData) {
         Intent intentUpdate = new Intent(BROADCAST_EIP_EVENT);
-        intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
+        intentUpdate.addCategory(CATEGORY_DEFAULT);
         intentUpdate.putExtra(BROADCAST_RESULT_CODE, resultCode);
         intentUpdate.putExtra(BROADCAST_RESULT_KEY, resultData);
         Log.d(TAG, "sending broadcast");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intentUpdate);
     }
 
+    Bundle setErrorResult(Bundle result, int errorMessageId, String errorId) {
+        JSONObject errorJson = new JSONObject();
+        addErrorMessageToJson(errorJson, getResources().getString(errorMessageId), errorId);
+        result.putString(ERRORS, errorJson.toString());
+        result.putBoolean(BROADCAST_RESULT_KEY, false);
+        return result;
+    }
+
+    private void addErrorMessageToJson(JSONObject jsonObject, String errorMessage, String errorId) {
+        try {
+            jsonObject.put(ERRORS, errorMessage);
+            jsonObject.put(ERROR_ID, errorId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -51,10 +51,12 @@ import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
-import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
+import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
+import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.R.string.certificate_error;
+import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
+import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.malformed_url;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
@@ -201,28 +203,33 @@ public class ProviderApiManager extends ProviderApiManagerBase {
      * @return true if certificate was downloaded correctly, false if provider.json is not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error.
      */
     @Override
-    protected boolean updateVpnCertificate(Provider provider) {
+    protected Bundle updateVpnCertificate(Provider provider) {
+        Bundle result = new Bundle();
         try {
-            JSONObject providerDefinition = provider.getDefinition();
-
-            String providerMainUrl = providerDefinition.getString(Provider.API_URL);
-            URL newCertStringUrl = new URL(providerMainUrl + "/" + providerDefinition.getString(Provider.API_VERSION) + "/" + PROVIDER_VPN_CERTIFICATE);
+            JSONObject providerJson = provider.getDefinition();
+            String providerMainUrl = providerJson.getString(Provider.API_URL);
+            URL newCertStringUrl = new URL(providerMainUrl + "/" + providerJson.getString(Provider.API_VERSION) + "/" + PROVIDER_VPN_CERTIFICATE);
 
             String certString = downloadWithProviderCA(provider.getCaCert(), newCertStringUrl.toString(), lastDangerOn);
-
-            if (certString == null || certString.isEmpty() || ConfigHelper.checkErroneousDownload(certString))
-                return false;
-            else
-                return loadCertificate(provider, certString);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+            if (ConfigHelper.checkErroneousDownload(certString)) {
+                if (certString == null || certString.isEmpty()) {
+                    // probably 204
+                    setErrorResult(result, error_io_exception_user_message, null);
+                } else {
+                    String reasonToFail = pickErrorMessage(certString);
+                    result.putString(ERRORS, reasonToFail);
+                    result.putBoolean(BROADCAST_RESULT_KEY, false);
+                    return result;
+                }
+            }
+            result = loadCertificate(provider, certString);
+        } catch (IOException | JSONException e) {
+            // TODO try to get Provider Json
+            setErrorResult(result, downloading_vpn_certificate_failed, null);
             e.printStackTrace();
-            return false;
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return false;
         }
+        result.putParcelable(PROVIDER_KEY, provider);
+        return result;
     }
 
 

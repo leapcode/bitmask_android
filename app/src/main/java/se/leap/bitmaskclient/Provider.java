@@ -112,10 +112,12 @@ public final class Provider implements Parcelable {
 
     public boolean isConfigured() {
         return !mainUrl.isDefault() &&
-                definition.length() > 0 &&
                 !apiUrl.isDefault() &&
-                caCert != null &&
-                !caCert.isEmpty();
+                hasCaCert() &&
+                hasDefinition() &&
+                hasVpnCertificate() &&
+                hasEIP() &&
+                hasPrivateKey();
     }
 
     public void setMainUrl(URL url) {
@@ -161,7 +163,7 @@ public final class Provider implements Parcelable {
         return getDefinition().toString();
     }
 
-    protected String getDomain() {
+    public String getDomain() {
         return mainUrl.getDomain();
     }
 
@@ -169,7 +171,7 @@ public final class Provider implements Parcelable {
         return getMainUrl().toString();
     }
 
-    protected DefaultedURL getMainUrl() {
+    public DefaultedURL getMainUrl() {
         return mainUrl;
     }
 
@@ -398,6 +400,10 @@ public final class Provider implements Parcelable {
 
     public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
+    }
+
+    public boolean hasPrivateKey() {
+        return privateKey != null && privateKey.length() > 0;
     }
 
     public String getVpnCertificate() {

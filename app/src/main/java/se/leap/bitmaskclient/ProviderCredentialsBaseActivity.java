@@ -41,7 +41,7 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_PASSWORD;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
-import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.ProviderAPI.SIGN_UP;
 
@@ -59,7 +59,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
 
     final private static String SHOWING_FORM = "SHOWING_FORM";
     final private static String PERFORMING_ACTION = "PERFORMING_ACTION";
-    final private static String USER_MESSAGE = "USER_MESSAGE";
+    final public static String USER_MESSAGE = "USER_MESSAGE";
     final private static String USERNAME_ERROR = "USERNAME_ERROR";
     final private static String PASSWORD_ERROR = "PASSWORD_ERROR";
     final private static String PASSWORD_VERIFICATION_ERROR = "PASSWORD_VERIFICATION_ERROR";
@@ -104,6 +104,12 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         setUpListeners();
         if(savedInstanceState != null) {
             restoreState(savedInstanceState);
+        }
+
+        String userMessageString = getIntent().getStringExtra(USER_MESSAGE);
+        if (userMessageString != null) {
+            userMessage.setText(userMessageString);
+            userMessage.setVisibility(VISIBLE);
         }
     }
 
@@ -204,7 +210,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
 
     void downloadVpnCertificate(Provider handledProvider) {
         provider = handledProvider;
-        ProviderAPICommand.execute(this, DOWNLOAD_CERTIFICATE, provider);
+        ProviderAPICommand.execute(this, DOWNLOAD_VPN_CERTIFICATE, provider);
     }
 
     protected Bundle bundleUsernameAndPassword(String username, String password) {
@@ -381,7 +387,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
                 return;
             }
 
-            int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, -1);
+            int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, RESULT_CANCELED);
             Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
             Provider handledProvider = resultData.getParcelable(PROVIDER_KEY);
 
@@ -395,11 +401,10 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
                     handleReceivedErrors((Bundle) intent.getParcelableExtra(BROADCAST_RESULT_KEY));
                     break;
 
-                case ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE:
+                case ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                     successfullyFinished(handledProvider);
-                    //activity.eip_fragment.updateEipService();
                     break;
-                case ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE:
+                case ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                     // TODO activity.setResult(RESULT_CANCELED);
                     break;
             }

@@ -61,18 +61,18 @@ import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
-import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
-import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
+import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
+import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
-import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_EIP_SERVICE;
+import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_SERVICE_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORID;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.FAILED_LOGIN;
 import static se.leap.bitmaskclient.ProviderAPI.FAILED_SIGNUP;
-import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.LOGOUT_FAILED;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_IN;
@@ -89,6 +89,7 @@ import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_LOGOUT;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_SIGNUP;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.R.string.certificate_error;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
@@ -184,14 +185,15 @@ public abstract class ProviderApiManagerBase {
                     sendToReceiverOrBroadcast(receiver, LOGOUT_FAILED, Bundle.EMPTY, provider);
                 }
                 break;
-            case DOWNLOAD_CERTIFICATE:
-                if (updateVpnCertificate(provider)) {
-                    sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY, provider);
+            case DOWNLOAD_VPN_CERTIFICATE:
+                result = updateVpnCertificate(provider);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);
                 } else {
-                    sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_CERTIFICATE, Bundle.EMPTY, provider);
+                    sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);
                 }
                 break;
-            case DOWNLOAD_EIP_SERVICE:
+            case DOWNLOAD_SERVICE_JSON:
                 result = getAndSetEipServiceJson(provider);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
@@ -537,7 +539,7 @@ public abstract class ProviderApiManagerBase {
     }
 
     private String requestStringFromServer(@NonNull String url, @NonNull String request_method, String jsonString, @NonNull List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient) {
-        String plainResponseBody = null;
+        String plainResponseBody;
 
         try {
 
@@ -617,7 +619,7 @@ public abstract class ProviderApiManagerBase {
      *
      * @return true if certificate was downloaded correctly, false if provider.json is not present in SharedPreferences, or if the certificate url could not be parsed as a URI, or if there was an SSL error.
      */
-    protected abstract boolean updateVpnCertificate(Provider provider);
+    protected abstract Bundle updateVpnCertificate(Provider provider);
 
 
     protected boolean isValidJson(String jsonString) {
@@ -815,15 +817,17 @@ public abstract class ProviderApiManagerBase {
         return false;
     }
 
-    protected boolean loadCertificate(Provider provider, String cert_string) {
-        if (cert_string == null) {
-            return false;
+    protected Bundle loadCertificate(Provider provider, String certString) {
+        Bundle result = new Bundle();
+        if (certString == null) {
+            setErrorResult(result, vpn_certificate_is_invalid, null);
+            return result;
         }
 
         try {
             // API returns concatenated cert & key.  Split them for OpenVPN options
             String certificateString = null, keyString = null;
-            String[] certAndKey = cert_string.split("(?<=-\n)");
+            String[] certAndKey = certString.split("(?<=-\n)");
             for (int i = 0; i < certAndKey.length - 1; i++) {
                 if (certAndKey[i].contains("KEY")) {
                     keyString = certAndKey[i++] + certAndKey[i];
@@ -837,13 +841,14 @@ public abstract class ProviderApiManagerBase {
             provider.setPrivateKey( "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----");
 
             X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
+            certificate.checkValidity();
             certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
             provider.setVpnCertificate( "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----");
-            return true;
+            result.putBoolean(BROADCAST_RESULT_KEY, true);
         } catch (CertificateException | NullPointerException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
-            return false;
+            setErrorResult(result, vpn_certificate_is_invalid, null);
         }
+        return result;
     }
 }

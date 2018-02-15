@@ -1,32 +1,100 @@
 package se.leap.bitmaskclient;
 
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Observable;
+import java.util.Observer;
+
+import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
+import de.blinkt.openvpn.core.OpenVPNService;
+import de.blinkt.openvpn.core.ProfileManager;
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.drawer.NavigationDrawerFragment;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.eip.EipStatus;
+import se.leap.bitmaskclient.eip.VoidVpnService;
 
+import static android.content.Intent.CATEGORY_DEFAULT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
+import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
+import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.EipFragment.ASK_TO_CANCEL_VPN;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderCredentialsBaseActivity.USER_MESSAGE;
+import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Observer, MainActivityErrorDialog.MainActivityErrorDialogInterface{
 
+    public final static String TAG = MainActivity.class.getSimpleName();
+
+    private final String ACTIVITY_STATE = "state of activity";
+    private final String DEFAULT_UI_STATE = "default state";
+    private final String SHOW_DIALOG_STATE = "show dialog";
+    private final String REASON_TO_FAIL = "reason to fail";
+
+    protected Intent mConfigState = new Intent(DEFAULT_UI_STATE);
     private static Provider provider = new Provider();
-    private static FragmentManagerEnhanced fragmentManager;
     private SharedPreferences preferences;
 
+    private String reasonToFail;
+
+    private EipStatus eipStatus;
     private NavigationDrawerFragment navigationDrawerFragment;
+    private MainActivityBroadcastReceiver mainActivityBroadcastReceiver;
+
+    private IOpenVPNServiceInternal mService;
+    private ServiceConnection openVpnConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+        }
+
+    };
 
     public final static String ACTION_SHOW_VPN_FRAGMENT = "action_show_vpn_fragment";
 
@@ -40,19 +108,62 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
+        mainActivityBroadcastReceiver = new MainActivityBroadcastReceiver();
+        setUpBroadcastReceiver();
+
         navigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         provider = ConfigHelper.getSavedProviderFromSharedPreferences(preferences);
 
-        fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
         // Set up the drawer.
         navigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
+        eipStatus = EipStatus.getInstance();
+
         handleIntentAction(getIntent());
+        if(savedInstanceState != null) {
+            restoreState(savedInstanceState);
+        }
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
+        outState.putString(ACTIVITY_STATE, mConfigState.getAction());
+        outState.putParcelable(PROVIDER_KEY, provider);
+
+        DialogFragment dialogFragment = (DialogFragment) new FragmentManagerEnhanced(getSupportFragmentManager()).findFragmentByTag(MainActivityErrorDialog.TAG);
+        outState.putString(REASON_TO_FAIL, reasonToFail);
+        if (dialogFragment != null) {
+            dialogFragment.dismiss();
+        }
+
+        super.onSaveInstanceState(outState);
+    }
+
+    private void restoreState(Bundle savedInstance) {
+        String activityState = savedInstance.getString(ACTIVITY_STATE, "");
+        if (activityState.equals(SHOW_DIALOG_STATE)) {
+            reasonToFail = savedInstance.getString(REASON_TO_FAIL);
+            if (reasonToFail != null) {
+                showDownloadFailedDialog(reasonToFail);
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bindOpenVpnService();
+
+        String action = mConfigState.getAction();
+        if(action.equalsIgnoreCase(SHOW_DIALOG_STATE)) {
+            showDownloadFailedDialog(reasonToFail);
+        }
     }
 
     @Override
@@ -122,8 +233,196 @@ public class MainActivity extends AppCompatActivity {
         Bundle arguments = new Bundle();
         arguments.putParcelable(PROVIDER_KEY, provider);
         fragment.setArguments(arguments);
-        fragmentManager.beginTransaction()
+        new FragmentManagerEnhanced(getSupportFragmentManager()).beginTransaction()
                 .replace(R.id.container, fragment)
                 .commit();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unbindService(openVpnConnection);
+    }
+
+    @Override
+    protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mainActivityBroadcastReceiver);
+        mainActivityBroadcastReceiver = null;
+        super.onDestroy();
+    }
+
+    private void setUpBroadcastReceiver() {
+        IntentFilter updateIntentFilter = new IntentFilter(BROADCAST_EIP_EVENT);
+        updateIntentFilter.addAction(BROADCAST_PROVIDER_API_EVENT);
+        updateIntentFilter.addCategory(CATEGORY_DEFAULT);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mainActivityBroadcastReceiver, updateIntentFilter);
+        Log.d(TAG, "broadcast registered");
+    }
+
+    @Override
+    public void onDialogDismissed() {
+        mConfigState.setAction(DEFAULT_UI_STATE);
+        reasonToFail = null;
+    }
+
+    private class MainActivityBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "received Broadcast");
+
+            String action = intent.getAction();
+            if (action == null) {
+                return;
+            }
+
+            int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, RESULT_CANCELED);
+            Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
+            if (resultData == null) {
+                resultData = Bundle.EMPTY;
+            }
+
+            switch (action) {
+                case BROADCAST_EIP_EVENT:
+                    handleEIPEvent(resultCode, resultData);
+                    break;
+                case BROADCAST_PROVIDER_API_EVENT:
+                    handleProviderApiEvent(resultCode, resultData);
+                    break;
+            }
+        }
+    }
+
+    private void handleEIPEvent(int resultCode, Bundle resultData) {
+        String request = resultData.getString(EIP_REQUEST);
+
+        if (request == null) {
+            return;
+        }
+
+        switch (request) {
+            case EIP_ACTION_START:
+                switch (resultCode) {
+                    case RESULT_OK:
+                        break;
+                    case RESULT_CANCELED:
+                        String error = resultData.getString(ERRORS);
+                        if (LeapSRPSession.loggedIn() || provider.allowsAnonymous()) {
+                            showDownloadFailedDialog(error);
+                        } else {
+                            askUserToLogIn(getString(vpn_certificate_user_message));
+                        }
+                        break;
+                }
+                break;
+            case EIP_ACTION_STOP:
+                switch (resultCode) {
+                    case RESULT_OK:
+                        stop();
+                        break;
+                    case RESULT_CANCELED:
+                        break;
+                }
+                break;
+        }
+    }
+
+    public void handleProviderApiEvent(int resultCode, Bundle resultData) {
+        // TODO call DOWNLOAD_EIP_SERVICES ore remove respective cases
+        switch (resultCode) {
+            case CORRECTLY_DOWNLOADED_EIP_SERVICE:
+                provider = resultData.getParcelable(PROVIDER_KEY);
+                EipCommand.startVPN(this);
+                break;
+            case INCORRECTLY_DOWNLOADED_EIP_SERVICE:
+                // TODO CATCH ME IF YOU CAN - WHAT DO WE WANT TO DO?
+                break;
+
+            case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
+                provider = resultData.getParcelable(PROVIDER_KEY);
+                ConfigHelper.storeProviderInPreferences(preferences, provider);
+                EipCommand.startVPN(this);
+                break;
+            case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
+                if (LeapSRPSession.loggedIn() || provider.allowsAnonymous()) {
+                    showDownloadFailedDialog(getString(downloading_vpn_certificate_failed));
+                } else {
+                    askUserToLogIn(getString(vpn_certificate_user_message));
+                }
+                break;
+        }
+    }
+
+    /**
+     * Shows an error dialog
+     */
+    public void showDownloadFailedDialog(String reasonToFail) {
+        this.reasonToFail = reasonToFail;
+        mConfigState.setAction(SHOW_DIALOG_STATE);
+        try {
+
+            FragmentTransaction fragmentTransaction = new FragmentManagerEnhanced(
+                    this.getSupportFragmentManager()).removePreviousFragment(
+                            MainActivityErrorDialog.TAG);
+            DialogFragment newFragment;
+            try {
+                JSONObject errorJson = new JSONObject(reasonToFail);
+                newFragment = MainActivityErrorDialog.newInstance(provider, errorJson);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                newFragment = MainActivityErrorDialog.newInstance(provider, reasonToFail);
+            }
+            newFragment.show(fragmentTransaction, MainActivityErrorDialog.TAG);
+        } catch (IllegalStateException | NullPointerException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (observable instanceof EipStatus) {
+            eipStatus = (EipStatus) observable;
+        }
+    }
+
+    private void stop() {
+        preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, false).apply();
+        if (eipStatus.isBlockingVpnEstablished()) {
+            stopBlockingVpn();
+        }
+        disconnect();
+    }
+
+    private void stopBlockingVpn() {
+        Log.d(TAG, "stop VoidVpn!");
+        Intent stopVoidVpnIntent = new Intent(this, VoidVpnService.class);
+        stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
+        startService(stopVoidVpnIntent);
+    }
+
+    private void disconnect() {
+        ProfileManager.setConntectedVpnProfileDisconnected(this);
+        if (mService != null) {
+            try {
+                mService.stopVPN(false);
+            } catch (RemoteException e) {
+                VpnStatus.logException(e);
+            }
+        }
+    }
+
+    private void bindOpenVpnService() {
+        Intent intent = new Intent(this, OpenVPNService.class);
+        intent.setAction(OpenVPNService.START_SERVICE);
+        bindService(intent, openVpnConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void askUserToLogIn(String userMessage) {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.putExtra(PROVIDER_KEY, provider);
+        if (userMessage != null) {
+            intent.putExtra(USER_MESSAGE, userMessage);
+        }
+        startActivityForResult(intent, REQUEST_CODE_LOG_IN);
     }
 }

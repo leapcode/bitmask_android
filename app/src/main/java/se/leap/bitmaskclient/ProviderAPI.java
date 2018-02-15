@@ -44,13 +44,12 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
             SIGN_UP = "srpRegister",
             LOG_IN = "srpAuth",
             LOG_OUT = "logOut",
-            DOWNLOAD_CERTIFICATE = "downloadUserAuthedCertificate",
+            DOWNLOAD_VPN_CERTIFICATE = "downloadUserAuthedVPNCertificate",
             PARAMETERS = "parameters",
             RECEIVER_KEY = "receiver",
             ERRORS = "errors",
             ERRORID = "errorId",
-            UPDATE_PROGRESSBAR = "update_progressbar",
-            DOWNLOAD_EIP_SERVICE = "ProviderAPI.DOWNLOAD_EIP_SERVICE",
+            DOWNLOAD_SERVICE_JSON = "ProviderAPI.DOWNLOAD_SERVICE_JSON",
             PROVIDER_SET_UP = "ProviderAPI.PROVIDER_SET_UP";
 
     final public static int
@@ -60,16 +59,14 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
             FAILED_SIGNUP = 6,
             SUCCESSFUL_LOGOUT = 7,
             LOGOUT_FAILED = 8,
-            CORRECTLY_DOWNLOADED_CERTIFICATE = 9,
-            INCORRECTLY_DOWNLOADED_CERTIFICATE = 10,
+            CORRECTLY_DOWNLOADED_VPN_CERTIFICATE = 9,
+            INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE = 10,
             PROVIDER_OK = 11,
             PROVIDER_NOK = 12,
             CORRECTLY_DOWNLOADED_EIP_SERVICE = 13,
             INCORRECTLY_DOWNLOADED_EIP_SERVICE = 14;
 
     ProviderApiManager providerApiManager;
-
-
 
     public ProviderAPI() {
         super(TAG);
@@ -81,7 +78,6 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
     public static boolean lastDangerOn() {
         return ProviderApiManager.lastDangerOn();
     }
-
 
     @Override
     public void onCreate() {
@@ -98,7 +94,6 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
     protected void onHandleIntent(Intent command) {
         providerApiManager.handleIntent(command);
     }
-
 
     private ProviderApiManager initApiManager() {
         SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);

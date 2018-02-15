@@ -52,6 +52,7 @@ import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
 import static se.leap.bitmaskclient.R.string.keyChainAccessError;
 import static se.leap.bitmaskclient.R.string.server_unreachable_message;
+import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 
 /**
  * Created by cyberta on 08.01.18.
@@ -90,7 +91,8 @@ public class OkHttpClientGenerator {
             return clientBuilder.build();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            addErrorMessageToJson(initError, resources.getString(R.string.certificate_error));
+            // TODO ca cert is invalid - show better error ?!
+            addErrorMessageToJson(initError, resources.getString(certificate_error));
         } catch (IllegalStateException | KeyManagementException | KeyStoreException e) {
             e.printStackTrace();
             addErrorMessageToJson(initError, String.format(resources.getString(keyChainAccessError), e.getLocalizedMessage()));
@@ -99,6 +101,7 @@ public class OkHttpClientGenerator {
             addErrorMessageToJson(initError, resources.getString(error_no_such_algorithm_exception_user_message));
         } catch (CertificateException e) {
             e.printStackTrace();
+            // TODO ca cert is invalid - show better error ?!
             addErrorMessageToJson(initError, resources.getString(certificate_error));
         } catch (UnknownHostException e) {
             e.printStackTrace();

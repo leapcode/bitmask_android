@@ -26,36 +26,35 @@ import android.support.v4.app.DialogFragment;
 
 import org.json.JSONObject;
 
-import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.DEFAULT;
-import static se.leap.bitmaskclient.DownloadFailedDialog.DOWNLOAD_ERRORS.valueOf;
-import static se.leap.bitmaskclient.ProviderAPI.ERRORID;
-import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.*;
+import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.eip.EIP.ERRORS;
+import static se.leap.bitmaskclient.eip.EIP.ERROR_ID;
 
 /**
  * Implements a dialog to show why a download failed.
  *
  * @author parmegv
  */
-public class DownloadFailedDialog extends DialogFragment {
+public class MainActivityErrorDialog extends DialogFragment {
 
     public static String TAG = "downloaded_failed_dialog";
     private String reasonToFail;
     private DOWNLOAD_ERRORS downloadError = DEFAULT;
 
+    private MainActivityErrorDialogInterface callbackInterface;
     private Provider provider;
 
     public enum DOWNLOAD_ERRORS {
         DEFAULT,
-        ERROR_CORRUPTED_PROVIDER_JSON,
-        ERROR_INVALID_CERTIFICATE,
-        ERROR_CERTIFICATE_PINNING
+        ERROR_INVALID_VPN_CERTIFICATE,
     }
 
     /**
      * @return a new instance of this DialogFragment.
      */
     public static DialogFragment newInstance(Provider provider, String reasonToFail) {
-        DownloadFailedDialog dialogFragment = new DownloadFailedDialog();
+        MainActivityErrorDialog dialogFragment = new MainActivityErrorDialog();
         dialogFragment.reasonToFail = reasonToFail;
         dialogFragment.provider = provider;
         return dialogFragment;
@@ -65,7 +64,7 @@ public class DownloadFailedDialog extends DialogFragment {
      * @return a new instance of this DialogFragment.
      */
     public static DialogFragment newInstance(Provider provider, JSONObject errorJson) {
-        DownloadFailedDialog dialogFragment = new DownloadFailedDialog();
+        MainActivityErrorDialog dialogFragment = new MainActivityErrorDialog();
         dialogFragment.provider = provider;
         try {
             if (errorJson.has(ERRORS)) {
@@ -75,8 +74,8 @@ public class DownloadFailedDialog extends DialogFragment {
                 dialogFragment.reasonToFail = dialogFragment.getString(R.string.error_io_exception_user_message);
             }
 
-            if (errorJson.has(ERRORID)) {
-                dialogFragment.downloadError = valueOf(errorJson.getString(ERRORID));
+            if (errorJson.has(ERROR_ID)) {
+                dialogFragment.downloadError = valueOf(errorJson.getString(ERROR_ID));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,27 +91,18 @@ public class DownloadFailedDialog extends DialogFragment {
         builder.setMessage(reasonToFail)
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                interfaceWithConfigurationWizard.cancelSettingUpProvider();
                 dialog.dismiss();
+                callbackInterface.onDialogDismissed();
             }
         });
-switch (downloadError) {
-            case ERROR_CORRUPTED_PROVIDER_JSON:
-                builder.setPositiveButton(R.string.update_provider_details, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dismiss();
-                        interfaceWithConfigurationWizard.updateProviderDetails();
-                    }
-                });
-                break;
-            case ERROR_CERTIFICATE_PINNING:
-            case ERROR_INVALID_CERTIFICATE:
+        switch (downloadError) {
+            case ERROR_INVALID_VPN_CERTIFICATE:
                 builder.setPositiveButton(R.string.update_certificate, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dismiss();
-                        interfaceWithConfigurationWizard.updateProviderDetails();
+                        ProviderAPICommand.execute(getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
+                        callbackInterface.onDialogDismissed();
                     }
                 });
                 break;
@@ -120,7 +110,7 @@ switch (downloadError) {
                 builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dismiss();
-                                interfaceWithConfigurationWizard.retrySetUpProvider(provider);
+                                callbackInterface.onDialogDismissed();
                             }
                         });
                 break;
@@ -130,21 +120,20 @@ switch (downloadError) {
         return builder.create();
     }
 
-    public interface DownloadFailedDialogInterface {
-        void retrySetUpProvider(@NonNull Provider provider);
-
-        void cancelSettingUpProvider();
-
-        void updateProviderDetails();
+    @Override
+    public void dismiss() {
+        super.dismiss();
     }
 
-    DownloadFailedDialogInterface interfaceWithConfigurationWizard;
+    public interface MainActivityErrorDialogInterface {
+        void onDialogDismissed();
+    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            interfaceWithConfigurationWizard = (DownloadFailedDialogInterface) context;
+            callbackInterface = (MainActivityErrorDialogInterface) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " must implement NoticeDialogListener");
@@ -153,8 +142,7 @@ switch (downloadError) {
 
     @Override
     public void onCancel(DialogInterface dialog) {
-        interfaceWithConfigurationWizard.cancelSettingUpProvider();
-        dialog.dismiss();
+        super.onCancel(dialog);
+        callbackInterface.onDialogDismissed();
     }
-
 }

@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_UPDATE;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 
 /**
@@ -38,14 +37,6 @@ public class EipCommand {
         if (resultReceiver != null)
             vpnIntent.putExtra(EIP_RECEIVER, resultReceiver);
         context.startService(vpnIntent);
-    }
-
-    public static void updateEipService(@NonNull Context context, ResultReceiver resultReceiver) {
-        execute(context, EIP_ACTION_UPDATE, resultReceiver);
-    }
-
-    public static void updateEipService(@NonNull Context context) {
-        execute(context, EIP_ACTION_UPDATE);
     }
 
     public static void startVPN(@NonNull Context context) {

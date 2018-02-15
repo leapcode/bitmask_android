@@ -53,10 +53,10 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
-import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
-import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
@@ -74,7 +74,7 @@ import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
  */
 
 public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
-        implements NewProviderDialog.NewProviderDialogInterface, DownloadFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
+        implements NewProviderDialog.NewProviderDialogInterface, ProviderSetupFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
 
     @InjectView(R.id.provider_list)
     protected ListView providerListView;
@@ -121,7 +121,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         outState.putString(ACTIVITY_STATE, mConfigState.getAction());
         outState.putParcelable(PROVIDER_KEY, provider);
 
-        DialogFragment dialogFragment = (DialogFragment) fragmentManager.findFragmentByTag(DownloadFailedDialog.TAG);
+        DialogFragment dialogFragment = (DialogFragment) fragmentManager.findFragmentByTag(ProviderSetupFailedDialog.TAG);
         if (dialogFragment != null) {
             outState.putString(REASON_TO_FAIL, reasonToFail);
             dialogFragment.dismiss();
@@ -313,7 +313,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
      * Asks ProviderApiService to download an anonymous (anon) VPN certificate.
      */
     private void downloadVpnCertificate() {
-        ProviderAPICommand.execute(this, DOWNLOAD_CERTIFICATE, provider);
+        ProviderAPICommand.execute(this, DOWNLOAD_VPN_CERTIFICATE, provider);
     }
 
     /**
@@ -345,16 +345,16 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
      */
     public void showDownloadFailedDialog() {
         try {
-            FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(DownloadFailedDialog.TAG);
+            FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(ProviderSetupFailedDialog.TAG);
             DialogFragment newFragment;
             try {
                 JSONObject errorJson = new JSONObject(reasonToFail);
-                newFragment = DownloadFailedDialog.newInstance(provider, errorJson);
+                newFragment = ProviderSetupFailedDialog.newInstance(provider, errorJson);
             } catch (JSONException e) {
                 e.printStackTrace();
-                newFragment = DownloadFailedDialog.newInstance(provider, reasonToFail);
+                newFragment = ProviderSetupFailedDialog.newInstance(provider, reasonToFail);
             }
-            newFragment.show(fragmentTransaction, DownloadFailedDialog.TAG);
+            newFragment.show(fragmentTransaction, ProviderSetupFailedDialog.TAG);
         } catch (IllegalStateException e) {
             e.printStackTrace();
             mConfigState.setAction(PENDING_SHOW_FAILED_DIALOG);
@@ -405,7 +405,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
             if (mConfigState.getAction() != null &&
                     mConfigState.getAction().equalsIgnoreCase(SETTING_UP_PROVIDER)) {
-                int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, -1);
+                int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, RESULT_CANCELED);
                 Log.d(TAG, "Broadcast resultCode: " + Integer.toString(resultCode));
 
                 Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
@@ -419,10 +419,10 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
                         case PROVIDER_NOK:
                             handleProviderSetupFailed(resultData);
                             break;
-                        case CORRECTLY_DOWNLOADED_CERTIFICATE:
+                        case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                             handleCorrectlyDownloadedCertificate(handledProvider);
                             break;
-                        case INCORRECTLY_DOWNLOADED_CERTIFICATE:
+                        case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                             handleIncorrectlyDownloadedCertificate();
                             break;
                     }

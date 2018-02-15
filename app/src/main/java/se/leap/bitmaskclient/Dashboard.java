@@ -162,7 +162,6 @@ public class Dashboard extends ButterKnifeActivity {
                 case 91: // 0.6.0 without Bug #5999
                 case 101: // 0.8.0
                     if (!preferences.getString(PROVIDER_EIP_DEFINITION, "").isEmpty())
-                        EipCommand.updateEipService(this);
                     break;
             }
         } catch (NameNotFoundException e) {

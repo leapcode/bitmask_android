@@ -18,22 +18,18 @@ package se.leap.bitmaskclient;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,38 +46,20 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
-import de.blinkt.openvpn.core.ProfileManager;
-import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
-import se.leap.bitmaskclient.eip.VoidVpnService;
 
-import static android.app.Activity.RESULT_OK;
-import static android.content.Intent.CATEGORY_DEFAULT;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
-import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_UPDATE;
-import static se.leap.bitmaskclient.Constants.EIP_NOTIFICATION;
-import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
-import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
+import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderCredentialsBaseActivity.USER_MESSAGE;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 
 public class EipFragment extends Fragment implements Observer {
 
@@ -114,9 +92,6 @@ public class EipFragment extends Fragment implements Observer {
     TextView vpnRoute;
 
     private EipStatus eipStatus;
-    private boolean wantsToConnect;
-
-    private EIPFragmentBroadcastReceiver eipFragmentBroadcastReceiver;
 
     private IOpenVPNServiceInternal mService;
     private ServiceConnection openVpnConnection = new ServiceConnection() {
@@ -161,7 +136,6 @@ public class EipFragment extends Fragment implements Observer {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         eipStatus = EipStatus.getInstance();
-        eipFragmentBroadcastReceiver = new EIPFragmentBroadcastReceiver();
         Activity activity = getActivity();
         if (activity != null) {
             preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
@@ -188,7 +162,6 @@ public class EipFragment extends Fragment implements Observer {
         super.onResume();
         //FIXME: avoid race conditions while checking certificate an logging in at about the same time
         //eipCommand(Constants.EIP_ACTION_CHECK_CERT_VALIDITY);
-        setUpBroadcastReceiver();
         handleNewState();
         bindOpenVpnService();
     }
@@ -200,7 +173,6 @@ public class EipFragment extends Fragment implements Observer {
         Activity activity = getActivity();
         if (activity != null) {
             getActivity().unbindService(openVpnConnection);
-            LocalBroadcastManager.getInstance(activity).unregisterReceiver(eipFragmentBroadcastReceiver);
         }
         Log.d(TAG, "broadcast unregistered");
     }
@@ -253,13 +225,7 @@ public class EipFragment extends Fragment implements Observer {
         if (canStartEIP()) {
             startEipFromScratch();
         } else if (canLogInToStartEIP()) {
-            wantsToConnect = true;
-            Intent intent = new Intent(getContext(), LoginActivity.class);
-            intent.putExtra(PROVIDER_KEY, provider);
-            Activity activity = getActivity();
-            if (activity != null) {
-                activity.startActivityForResult(intent, REQUEST_CODE_LOG_IN);
-            }
+            askUserToLogIn(getString(vpn_certificate_user_message));
         } else {
             // provider has no VpnCertificate but user is logged in
             downloadVpnCertificate();
@@ -274,7 +240,7 @@ public class EipFragment extends Fragment implements Observer {
 
     private boolean canLogInToStartEIP() {
         boolean isAllowedRegistered = provider.allowsRegistered();
-        boolean isLoggedIn = !LeapSRPSession.getToken().isEmpty();
+        boolean isLoggedIn = LeapSRPSession.loggedIn();
         return isAllowedRegistered && !isLoggedIn && !eipStatus.isConnecting() && !eipStatus.isConnected();
     }
 
@@ -310,45 +276,12 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     public void startEipFromScratch() {
-        wantsToConnect = false;
         saveStatus(true);
         Context context = getContext();
         if (context != null) {
             EipCommand.startVPN(context);
         } else {
             Log.e(TAG, "context is null when trying to start VPN");
-        }
-    }
-
-    private void stop() {
-        saveStatus(false);
-        if (eipStatus.isBlockingVpnEstablished()) {
-            stopBlockingVpn();
-        }
-        disconnect();
-    }
-
-    private void stopBlockingVpn() {
-        Log.d(TAG, "stop VoidVpn!");
-        Activity activity = getActivity();
-        if (activity != null) {
-            Intent stopVoidVpnIntent = new Intent(activity, VoidVpnService.class);
-            stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
-            activity.startService(stopVoidVpnIntent);
-        } else {
-            Log.e(TAG, "activity is null when trying to stop blocking vpn");
-            // TODO what to do if not stopping void vpn?
-        }
-    }
-
-    private void disconnect() {
-        ProfileManager.setConntectedVpnProfileDisconnected(getActivity());
-        if (mService != null) {
-            try {
-                mService.stopVPN(false);
-            } catch (RemoteException e) {
-                VpnStatus.logException(e);
-            }
         }
     }
 
@@ -454,84 +387,6 @@ public class EipFragment extends Fragment implements Observer {
         }
     }
 
-    private class EIPFragmentBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "received Broadcast");
-
-            String action = intent.getAction();
-            if (action == null) {
-                return;
-            }
-
-            int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, -1);
-            Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
-            switch (action) {
-                case BROADCAST_EIP_EVENT:
-                    handleEIPEvent(resultCode, resultData);
-                    break;
-                case BROADCAST_PROVIDER_API_EVENT:
-                    handleProviderApiEvent(resultCode, resultData);
-                    break;
-            }
-        }
-    }
-
-    private void handleEIPEvent(int resultCode, Bundle resultData) {
-        String request = resultData.getString(EIP_REQUEST);
-
-        if (request == null) {
-            return;
-        }
-
-        switch (request) {
-            case EIP_ACTION_START:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        break;
-                }
-                break;
-            case EIP_ACTION_STOP:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        stop();
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        break;
-                }
-                break;
-            case EIP_NOTIFICATION:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        break;
-                }
-                break;
-            case EIP_ACTION_CHECK_CERT_VALIDITY:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        downloadVpnCertificate();
-                        break;
-                }
-                break;
-            case EIP_ACTION_UPDATE:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        if (wantsToConnect)
-                            startEipFromScratch();
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        handleNewState();
-                        break;
-                }
-        }
-    }
-
     private void greyscaleBackground() {
         ColorMatrix matrix = new ColorMatrix();
         matrix.setSaturation(0);
@@ -550,46 +405,21 @@ public class EipFragment extends Fragment implements Observer {
         background.setImageAlpha(255);
     }
 
-    public void handleProviderApiEvent(int resultCode, Bundle resultData) {
-        Context context = getContext();
-        if (context == null) {
-            return;
-        }
-
-        // TODO call DOWNLOAD_EIP_SERVICES ore remove respective cases
-        switch (resultCode) {
-            case CORRECTLY_DOWNLOADED_EIP_SERVICE:
-                provider = resultData.getParcelable(PROVIDER_KEY);
-                EipCommand.updateEipService(context);
-                break;
-            case INCORRECTLY_DOWNLOADED_EIP_SERVICE:
-                //dashboard.setResult(RESULT_CANCELED);
-                // TODO CATCH ME IF YOU CAN - WHAT DO WE WANT TO DO?
-                break;
-            case CORRECTLY_DOWNLOADED_CERTIFICATE:
-                startEipFromScratch();
-                break;
-            case INCORRECTLY_DOWNLOADED_CERTIFICATE:
-                // TODO CATCH ME IF YOU CAN - LOGIN?
-                break;
-        }
-    }
-
     private void downloadVpnCertificate() {
-        ProviderAPICommand.execute(getContext(), DOWNLOAD_CERTIFICATE, provider);
+        ProviderAPICommand.execute(getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
     }
 
-    private void setUpBroadcastReceiver() {
+    private void askUserToLogIn(String userMessage) {
+        Intent intent = new Intent(getContext(), LoginActivity.class);
+        intent.putExtra(PROVIDER_KEY, provider);
+
+        if(userMessage != null) {
+            intent.putExtra(USER_MESSAGE, userMessage);
+        }
+
         Activity activity = getActivity();
         if (activity != null) {
-            IntentFilter updateIntentFilter = new IntentFilter(BROADCAST_EIP_EVENT);
-            updateIntentFilter.addAction(BROADCAST_PROVIDER_API_EVENT);
-            updateIntentFilter.addCategory(CATEGORY_DEFAULT);
-            LocalBroadcastManager.getInstance(activity).registerReceiver(eipFragmentBroadcastReceiver, updateIntentFilter);
-            Log.d(TAG, "broadcast registered");
-        } else {
-            Log.e(TAG, "activity null when setting up broadcast receiver");
+            activity.startActivityForResult(intent, REQUEST_CODE_LOG_IN);
         }
     }
-
 }

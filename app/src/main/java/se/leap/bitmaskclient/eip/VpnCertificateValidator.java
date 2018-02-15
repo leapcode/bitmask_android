@@ -48,12 +48,16 @@ public class VpnCertificateValidator {
             return false;
         }
 
-        X509Certificate certificate_x509 = ConfigHelper.parseX509CertificateFromString(certificate);
-        return isValid(certificate_x509);
+        X509Certificate x509Certificate = ConfigHelper.parseX509CertificateFromString(certificate);
+        return isValid(x509Certificate);
     }
 
 
     private boolean isValid(X509Certificate certificate) {
+        if (certificate == null) {
+            return false;
+        }
+
         Calendar offsetDate = calculateOffsetCertificateValidity(certificate);
         try {
             certificate.checkValidity(offsetDate.getTime());

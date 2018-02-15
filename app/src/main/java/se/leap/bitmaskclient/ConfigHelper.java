@@ -72,9 +72,9 @@ public class ConfigHelper {
             "eeaf0ab9adb38dd69c33f80afa8fc5e86072618775ff3c0b9ea2314c9c256576d674df7496ea81d3383b4813d692c6e0e0d5d8e250b98be48e495c1d6089dad15dc7d7b46154d6b6ce8ef4ad69b15d4982559b297bcf1885c529f566660e57ec68edbc3c05726cc02fd4cbf4976eaa9afd5138fe8376435b9fc61d2fc0eb06e3";
     final public static BigInteger G = new BigInteger("2");
 
-    public static boolean checkErroneousDownload(String downloaded_string) {
+    public static boolean checkErroneousDownload(String downloadedString) {
         try {
-            if (downloaded_string == null || downloaded_string.isEmpty() || new JSONObject(downloaded_string).has(ProviderAPI.ERRORS)) {
+            if (downloadedString == null || downloadedString.isEmpty() || new JSONObject(downloadedString).has(ProviderAPI.ERRORS)) {
                 return true;
             } else {
                 return false;
@@ -158,7 +158,7 @@ public class ConfigHelper {
     }
 
     protected static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {
-        RSAPrivateKey key = null;
+        RSAPrivateKey key;
         try {
             KeyFactory kf = KeyFactory.getInstance("RSA", "BC");
             rsaKeyString = rsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
@@ -282,6 +282,7 @@ public class ConfigHelper {
             provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
             provider.setVpnCertificate(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
             provider.setPrivateKey(preferences.getString(PROVIDER_PRIVATE_KEY, ""));
+            provider.setEipServiceJson(new JSONObject(preferences.getString(PROVIDER_EIP_DEFINITION, "")));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -374,8 +375,6 @@ public class ConfigHelper {
                 putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
                 putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
                 putString(PROVIDER_EIP_DEFINITION + "." + providerDomain, provider.getEipServiceJsonString()).
-                putString(PROVIDER_PRIVATE_KEY + "." + providerDomain, provider.getPrivateKey()).
-                putString(PROVIDER_VPN_CERTIFICATE + "." + providerDomain, provider.getVpnCertificate()).
                 apply();
     }
 
