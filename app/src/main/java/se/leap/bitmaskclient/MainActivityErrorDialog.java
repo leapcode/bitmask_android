@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013 LEAP Encryption Access Project and contributers
+ * Copyright (c) 2018 LEAP Encryption Access Project and contributers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,9 +32,10 @@ import static se.leap.bitmaskclient.eip.EIP.ERRORS;
 import static se.leap.bitmaskclient.eip.EIP.ERROR_ID;
 
 /**
- * Implements a dialog to show why a download failed.
+ * Implements a error dialog for the main activity.
  *
- * @author parmegv
+ * @author fupduck
+ * @author cyberta
  */
 public class MainActivityErrorDialog extends DialogFragment {
 
