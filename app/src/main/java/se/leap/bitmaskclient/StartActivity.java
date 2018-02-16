@@ -164,7 +164,7 @@ public class StartActivity extends Activity {
             } else {
                 Log.d(TAG, "vpn provider is configured");
                 if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
-                    EipCommand.startVPN(getApplicationContext(), true);
+                    EipCommand.startVPN(this, true);
                     finish();
                     return;
                 }
@@ -192,7 +192,7 @@ public class StartActivity extends Activity {
             if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
                 ConfigHelper.storeProviderInPreferences(preferences, provider);
-                EipCommand.startVPN(this.getApplicationContext(), false);
+                EipCommand.startVPN(this, false);
                 showMainActivity();
             } else if (resultCode == RESULT_CANCELED) {
                 finish();
