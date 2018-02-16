@@ -35,6 +35,7 @@ import se.leap.bitmaskclient.drawer.NavigationDrawerFragment;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VoidVpnService;
+import se.leap.bitmaskclient.fragments.LogFragment;
 
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
@@ -97,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
     };
 
     public final static String ACTION_SHOW_VPN_FRAGMENT = "action_show_vpn_fragment";
+    public final static String ACTION_SHOW_LOG_FRAGMENT = "action_show_log_fragment";
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -188,6 +190,9 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
                 }
                 bundle.putParcelable(PROVIDER_KEY, provider);
                 fragment.setArguments(bundle);
+                break;
+            case ACTION_SHOW_LOG_FRAGMENT:
+                fragment = new LogFragment();
                 break;
             default:
                 break;
