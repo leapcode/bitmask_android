@@ -8,7 +8,6 @@ import android.view.View;
 import com.robotium.solo.Solo;
 
 import se.leap.bitmaskclient.ProviderListActivity;
-import se.leap.bitmaskclient.Dashboard;
 import se.leap.bitmaskclient.R;
 
 public abstract class BaseTestDashboardFragment extends ActivityInstrumentationTestCase2<Dashboard> {

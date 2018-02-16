@@ -21,13 +21,12 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-import de.blinkt.openvpn.activities.LogWindow;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.MainActivity;
 
 /**
  * This Activity actually handles two stages of a launcher shortcut's life cycle.
@@ -143,7 +142,8 @@ public class LaunchVPN extends Activity {
 
     void showLogWindow() {
 
-        Intent startLW = new Intent(getBaseContext(), LogWindow.class);
+        Intent startLW = new Intent(getBaseContext(), MainActivity.class);
+        startLW.putExtra(MainActivity.ACTION_SHOW_LOG_FRAGMENT, true);
         startLW.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(startLW);
 

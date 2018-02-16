@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 
 import se.leap.bitmaskclient.drawer.NavigationDrawerFragment;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.fragments.LogFragment;
 
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private NavigationDrawerFragment navigationDrawerFragment;
 
     public final static String ACTION_SHOW_VPN_FRAGMENT = "action_show_vpn_fragment";
+    public final static String ACTION_SHOW_LOG_FRAGMENT = "action_show_log_fragment";
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -77,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 bundle.putParcelable(PROVIDER_KEY, provider);
                 fragment.setArguments(bundle);
+                break;
+            case ACTION_SHOW_LOG_FRAGMENT:
+                fragment = new LogFragment();
                 break;
             default:
                 break;
