@@ -14,6 +14,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EIP;
+import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.userstatus.User;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
@@ -163,7 +164,7 @@ public class StartActivity extends Activity {
             } else {
                 Log.d(TAG, "vpn provider is configured");
                 if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
-                    eipCommand(EIP_ACTION_START);
+                    EipCommand.startVPN(this, true);
                     finish();
                     return;
                 }
@@ -191,7 +192,7 @@ public class StartActivity extends Activity {
             if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
                 ConfigHelper.storeProviderInPreferences(preferences, provider);
-                eipCommand(EIP_ACTION_START);
+                EipCommand.startVPN(this, false);
                 showMainActivity();
             } else if (resultCode == RESULT_CANCELED) {
                 finish();
@@ -207,16 +208,4 @@ public class StartActivity extends Activity {
         finish();
     }
 
-
-    /**
-     * Send a command to EIP
-     *
-     * @param action A valid String constant from EIP class representing an Intent
-     *               filter for the EIP class
-     */
-    private void eipCommand(String action) {
-        Intent vpn_intent = new Intent(this.getApplicationContext(), EIP.class);
-        vpn_intent.setAction(action);
-        this.startService(vpn_intent);
-    }
 }

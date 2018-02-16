@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                 case REQUEST_CODE_CONFIGURE_LEAP:
                     break;
                 case REQUEST_CODE_LOG_IN:
-                    EipCommand.startVPN(this);
+                    EipCommand.startVPN(this, true);
                     break;
             }
         }

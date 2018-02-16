@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/vpn_btn_guideline_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.125" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/vpn_btn_guideline_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.875" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/vpn_btn_guideline_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.125" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/vpn_btn_guideline_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.875" />
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/icn_guideline_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/icn_guideline_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/icn_guideline_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/icn_guideline_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8" />
+
+   <android.support.constraint.Guideline
+        android:id="@+id/border_guideline_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.025" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/border_guideline_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.975" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/border_guideline_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.025" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/border_guideline_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.975" />
+
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/border_guideline_bottom"
+        app:layout_constraintEnd_toEndOf="@id/border_guideline_right"
+        app:layout_constraintStart_toStartOf="@id/border_guideline_left"
+        app:layout_constraintTop_toTopOf="@id/border_guideline_top"
+        android:indeterminate="true"
+        android:indeterminateDuration="2000"
+        android:indeterminateDrawable="@drawable/progressbar_circle"
+        android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+        android:indeterminateBehavior="cycle"
+        />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/circle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/vpn_btn_guideline_bottom"
+        app:layout_constraintEnd_toStartOf="@+id/vpn_btn_guideline_right"
+        app:layout_constraintStart_toStartOf="@+id/vpn_btn_guideline_left"
+        app:layout_constraintTop_toTopOf="@+id/vpn_btn_guideline_top"
+        app:srcCompat="@drawable/black_circle" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/vpn_state_key"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/icn_guideline_bottom"
+        app:layout_constraintEnd_toStartOf="@id/icn_guideline_right"
+        app:layout_constraintStart_toStartOf="@id/icn_guideline_left"
+        app:layout_constraintTop_toTopOf="@id/icn_guideline_top"
+        app:srcCompat="@drawable/vpn_connected" />
+
+</android.support.constraint.ConstraintLayout>

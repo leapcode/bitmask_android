@@ -1,5 +1,6 @@
 package se.leap.bitmaskclient.eip;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.ResultReceiver;
@@ -12,6 +13,7 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_UPDATE;
+import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 
 /**
@@ -21,7 +23,7 @@ import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 public class EipCommand {
 
     public static void execute(@NotNull Context context, @NotNull String action) {
-        execute(context, action, null);
+        execute(context, action, null, null);
     }
 
     /**
@@ -31,9 +33,12 @@ public class EipCommand {
      *               filter for the EIP class
      * @param resultReceiver The resultreceiver to reply to
      */
-    public static void execute(@NotNull Context context, @NotNull String action, @Nullable ResultReceiver resultReceiver) {
+    public static void execute(@NotNull Context context, @NotNull String action, @Nullable ResultReceiver resultReceiver, @Nullable Intent vpnIntent) {
         // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
-        Intent vpnIntent = new Intent(context.getApplicationContext(), EIP.class);
+        if (vpnIntent == null) {
+            vpnIntent = new Intent();
+        }
+        vpnIntent.setComponent(new ComponentName(context.getApplicationContext(), EIP.class));
         vpnIntent.setAction(action);
         if (resultReceiver != null)
             vpnIntent.putExtra(EIP_RECEIVER, resultReceiver);
@@ -41,19 +46,21 @@ public class EipCommand {
     }
 
     public static void updateEipService(@NonNull Context context, ResultReceiver resultReceiver) {
-        execute(context, EIP_ACTION_UPDATE, resultReceiver);
+        execute(context, EIP_ACTION_UPDATE, resultReceiver, null);
     }
 
     public static void updateEipService(@NonNull Context context) {
-        execute(context, EIP_ACTION_UPDATE);
+        execute(context, EIP_ACTION_UPDATE, null, null);
     }
 
-    public static void startVPN(@NonNull Context context) {
-        execute(context, EIP_ACTION_START);
+    public static void startVPN(@NonNull Context context, boolean earlyRoutes) {
+        Intent baseIntent = new Intent();
+        baseIntent.putExtra(EIP_EARLY_ROUTES, earlyRoutes);
+        execute(context, EIP_ACTION_START, null, baseIntent);
     }
 
     public static void startVPN(@NonNull Context context, ResultReceiver resultReceiver) {
-        execute(context, EIP_ACTION_START, resultReceiver);
+        execute(context, EIP_ACTION_START, resultReceiver, null);
     }
 
     public static void stopVPN(@NonNull Context context) {
@@ -61,7 +68,7 @@ public class EipCommand {
     }
 
     public static void stopVPN(@NonNull Context context, ResultReceiver resultReceiver) {
-        execute(context, EIP_ACTION_STOP, resultReceiver);
+        execute(context, EIP_ACTION_STOP, resultReceiver, null);
     }
 
     public static void checkVpnCertificate(@NonNull Context context) {
@@ -69,7 +76,7 @@ public class EipCommand {
     }
 
     public static void checkVpnCertificate(@NonNull Context context, ResultReceiver resultReceiver) {
-        execute(context, EIP_ACTION_CHECK_CERT_VALIDITY, resultReceiver);
+        execute(context, EIP_ACTION_CHECK_CERT_VALIDITY, resultReceiver, null);
     }
 
 }

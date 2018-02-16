@@ -7,6 +7,7 @@
     <dimen name="paddingItemsSidebarLog">20dp</dimen>
     <dimen name="stdpadding">8dp</dimen>
     <dimen name="standard_margin">8dp</dimen>
+    <dimen name="mainbutton_padding">20dp</dimen>
     <bool name="logSildersAlwaysVisible">false</bool>
 
     <dimen name="diameter">48dp</dimen>

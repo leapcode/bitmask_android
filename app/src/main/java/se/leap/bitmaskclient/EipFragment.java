@@ -55,6 +55,7 @@ import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VoidVpnService;
+import se.leap.bitmaskclient.views.VpnStateImage;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.CATEGORY_DEFAULT;
@@ -98,11 +99,8 @@ public class EipFragment extends Fragment implements Observer {
     @InjectView(R.id.background)
     AppCompatImageView background;
 
-    @InjectView(R.id.key)
-    AppCompatImageView key;
-
-    @InjectView(R.id.cirle)
-    AppCompatImageView circle;
+    @InjectView(R.id.vpn_state_image)
+    VpnStateImage vpnStateImage;
 
     @InjectView(R.id.vpn_main_button)
     Button mainButton;
@@ -226,13 +224,8 @@ public class EipFragment extends Fragment implements Observer {
         handleIcon();
     }
 
-    @OnClick(R.id.key)
-    void onKeyClick() {
-        handleIcon();
-    }
-
-    @OnClick(R.id.cirle)
-    void onCircleClick() {
+    @OnClick(R.id.vpn_state_image)
+    void onVpnStateImageClick() {
         handleIcon();
     }
 
@@ -288,36 +281,41 @@ public class EipFragment extends Fragment implements Observer {
 
     private void askPendingStartCancellation() {
         Activity activity = getActivity();
-        if (activity != null) {
-            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-            alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
-                    .setMessage(activity.getString(R.string.eip_cancel_connect_text))
-                    .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            stopEipIfPossible();
-                        }
-                    })
-                    .setNegativeButton(activity.getString(android.R.string.no), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .show();
-        } else {
+        if (activity == null) {
             Log.e(TAG, "activity is null when asking to cancel");
+            return;
         }
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+        alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
+                .setMessage(activity.getString(R.string.eip_cancel_connect_text))
+                .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        stopEipIfPossible();
+                    }
+                })
+                .setNegativeButton(activity.getString(android.R.string.no), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
+
     }
 
     public void startEipFromScratch() {
+        Context context = getContext();
+        if (context == null) {
+            Log.e(TAG, "context is null when trying to start VPN");
+            return;
+        }
         wantsToConnect = false;
         saveStatus(true);
-        Context context = getContext();
-        if (context != null) {
-            EipCommand.startVPN(context);
-        } else {
-            Log.e(TAG, "context is null when trying to start VPN");
-        }
+        EipCommand.startVPN(context, false);
+        vpnStateImage.showProgress();
+        routedText.setVisibility(GONE);
+        vpnRoute.setVisibility(GONE);
+        colorBackgroundALittle();
     }
 
     private void stop() {
@@ -331,14 +329,14 @@ public class EipFragment extends Fragment implements Observer {
     private void stopBlockingVpn() {
         Log.d(TAG, "stop VoidVpn!");
         Activity activity = getActivity();
-        if (activity != null) {
-            Intent stopVoidVpnIntent = new Intent(activity, VoidVpnService.class);
-            stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
-            activity.startService(stopVoidVpnIntent);
-        } else {
-            Log.e(TAG, "activity is null when trying to stop blocking vpn");
+        if (activity == null) {
             // TODO what to do if not stopping void vpn?
+            Log.e(TAG, "activity is null when trying to stop blocking vpn");
+            return;
         }
+        Intent stopVoidVpnIntent = new Intent(activity, VoidVpnService.class);
+        stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
+        activity.startService(stopVoidVpnIntent);
     }
 
     private void disconnect() {
@@ -354,34 +352,33 @@ public class EipFragment extends Fragment implements Observer {
 
     protected void stopEipIfPossible() {
         Context context = getContext();
-        if (context != null) {
-            EipCommand.stopVPN(getContext());
-        } else {
+        if (context == null) {
             Log.e(TAG, "context is null when trying to stop EIP");
+            return;
         }
+        EipCommand.stopVPN(getContext());
     }
 
     protected void askToStopEIP() {
         Activity activity = getActivity();
-        if (activity != null) {
-            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
-            alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
-                    .setMessage(activity.getString(R.string.eip_warning_browser_inconsistency))
-                    .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            stopEipIfPossible();
-                        }
-                    })
-                    .setNegativeButton(activity.getString(android.R.string.no), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .show();
-        } else {
+        if (activity == null) {
             Log.e(TAG, "activity is null when asking to stop EIP");
         }
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
+        alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
+                .setMessage(activity.getString(R.string.eip_warning_browser_inconsistency))
+                .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        stopEipIfPossible();
+                    }
+                })
+                .setNegativeButton(activity.getString(android.R.string.no), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
     }
 
     @Override
@@ -404,29 +401,33 @@ public class EipFragment extends Fragment implements Observer {
 
     private void handleNewState() {
         Activity activity = getActivity();
-        if (activity != null) {
-            if (eipStatus.isConnecting()) {
-                mainButton.setText(activity.getString(android.R.string.cancel));
-                key.setImageResource(R.drawable.vpn_connecting);
-                routedText.setVisibility(GONE);
-                vpnRoute.setVisibility(GONE);
-                colorBackgroundALittle();
-            } else if (eipStatus.isConnected() || isOpenVpnRunningWithoutNetwork()) {
-                mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
-                key.setImageResource(R.drawable.vpn_connected);
-                routedText.setVisibility(VISIBLE);
-                vpnRoute.setVisibility(VISIBLE);
-                vpnRoute.setText(ConfigHelper.getProviderName(preferences));
-                colorBackground();
-            } else {
-                mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
-                key.setImageResource(R.drawable.vpn_disconnected);
-                routedText.setVisibility(GONE);
-                vpnRoute.setVisibility(GONE);
-                greyscaleBackground();
-            }
-        } else {
+        if (activity == null) {
             Log.e(TAG, "activity is null while trying to handle new state");
+            return;
+        }
+
+        if (eipStatus.isConnecting()) {
+            mainButton.setText(activity.getString(android.R.string.cancel));
+            vpnStateImage.setStateIcon(R.drawable.vpn_connecting);
+            vpnStateImage.showProgress();
+            routedText.setVisibility(GONE);
+            vpnRoute.setVisibility(GONE);
+            colorBackgroundALittle();
+        } else if (eipStatus.isConnected() || isOpenVpnRunningWithoutNetwork()) {
+            mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
+            vpnStateImage.setStateIcon(R.drawable.vpn_connected);
+            vpnStateImage.stopProgress(true);
+            routedText.setVisibility(VISIBLE);
+            vpnRoute.setVisibility(VISIBLE);
+            vpnRoute.setText(ConfigHelper.getProviderName(preferences));
+            colorBackground();
+        } else {
+            mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
+            vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
+            vpnStateImage.stopProgress(false);
+            routedText.setVisibility(GONE);
+            vpnRoute.setVisibility(GONE);
+            greyscaleBackground();
         }
     }
 
@@ -445,13 +446,15 @@ public class EipFragment extends Fragment implements Observer {
 
     private void bindOpenVpnService() {
         Activity activity = getActivity();
-        if (activity != null) {
-            Intent intent = new Intent(activity, OpenVPNService.class);
-            intent.setAction(OpenVPNService.START_SERVICE);
-            activity.bindService(intent, openVpnConnection, Context.BIND_AUTO_CREATE);
-        } else {
+        if (activity == null) {
             Log.e(TAG, "activity is null when binding OpenVpn");
+            return;
         }
+
+        Intent intent = new Intent(activity, OpenVPNService.class);
+        intent.setAction(OpenVPNService.START_SERVICE);
+        activity.bindService(intent, openVpnConnection, Context.BIND_AUTO_CREATE);
+
     }
 
     private class EIPFragmentBroadcastReceiver extends BroadcastReceiver {
@@ -547,7 +550,7 @@ public class EipFragment extends Fragment implements Observer {
 
     private void colorBackground() {
         background.setColorFilter(null);
-        background.setImageAlpha(255);
+        background.setImageAlpha(210);
     }
 
     public void handleProviderApiEvent(int resultCode, Bundle resultData) {
