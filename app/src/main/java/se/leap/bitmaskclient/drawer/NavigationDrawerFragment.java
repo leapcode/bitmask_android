@@ -26,6 +26,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import se.leap.bitmaskclient.ConfigHelper;
+import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.R;
@@ -34,6 +35,7 @@ import se.leap.bitmaskclient.fragments.LogFragment;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
@@ -278,6 +280,10 @@ public class NavigationDrawerFragment extends Fragment {
         if (parent == mDrawerAccountsListView) {
             mTitle = getString(R.string.vpn_fragment_title);
             fragment = new EipFragment();
+            Bundle arguments = new Bundle();
+            Provider currentProvider = ConfigHelper.getSavedProviderFromSharedPreferences(preferences);
+            arguments.putParcelable(PROVIDER_KEY, currentProvider);
+            fragment.setArguments(arguments);
         } else {
             Log.d("Drawer", String.format("Selected position %d", position));
             switch (position) {
