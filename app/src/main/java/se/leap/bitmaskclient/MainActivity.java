@@ -197,6 +197,9 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
             default:
                 break;
         }
+        // on layout change / recreation of the activity, we don't want create new Fragments
+        // instead the fragments themselves care about recreation and state restoration
+        intent.setAction(null);
 
         if (fragment != null) {
             new FragmentManagerEnhanced(getSupportFragmentManager()).beginTransaction()
@@ -254,6 +257,14 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mainActivityBroadcastReceiver);
         mainActivityBroadcastReceiver = null;
         super.onDestroy();
+    }
+
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (observable instanceof EipStatus) {
+            eipStatus = (EipStatus) observable;
+        }
     }
 
     private void setUpBroadcastReceiver() {
@@ -383,12 +394,6 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
 
     }
 
-    @Override
-    public void update(Observable observable, Object data) {
-        if (observable instanceof EipStatus) {
-            eipStatus = (EipStatus) observable;
-        }
-    }
 
     private void stop() {
         preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, false).apply();

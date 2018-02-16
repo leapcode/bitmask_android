@@ -17,7 +17,6 @@
 package se.leap.bitmaskclient;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,6 +29,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -65,7 +65,6 @@ public class EipFragment extends Fragment implements Observer {
 
     public final static String TAG = EipFragment.class.getSimpleName();
 
-    protected static final String IS_CONNECTED = TAG + ".is_connected";
     public static final String START_EIP_ON_BOOT = "start on boot";
     public static final String ASK_TO_CANCEL_VPN = "ask_to_cancel_vpn";
 
@@ -92,6 +91,14 @@ public class EipFragment extends Fragment implements Observer {
     TextView vpnRoute;
 
     private EipStatus eipStatus;
+
+    //---saved Instance -------
+    private final static String KEY_SHOW_PENDING_START_CANCELLATION = "KEY_SHOW_PENDING_START_CANCELLATION";
+    private final static String KEY_SHOW_ASK_TO_STOP_EIP = "KEY_SHOW_ASK_TO_STOP_EIP";
+    private boolean showPendingStartCancellation = false;
+    private boolean showAskToStopEip = false;
+    //------------------------
+    AlertDialog alertDialog;
 
     private IOpenVPNServiceInternal mService;
     private ServiceConnection openVpnConnection = new ServiceConnection() {
@@ -152,8 +159,11 @@ public class EipFragment extends Fragment implements Observer {
 
         Bundle arguments = getArguments();
         if (arguments != null && arguments.containsKey(ASK_TO_CANCEL_VPN) && arguments.getBoolean(ASK_TO_CANCEL_VPN)) {
+            arguments.remove(ASK_TO_CANCEL_VPN);
+            setArguments(arguments);
             askToStopEIP();
         }
+        restoreFromSavedInstance(savedInstanceState);
         return view;
     }
 
@@ -178,15 +188,32 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        eipStatus.deleteObserver(this);
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (showAskToStopEip) {
+            outState.putBoolean(KEY_SHOW_ASK_TO_STOP_EIP, true);
+            alertDialog.dismiss();
+        } else if (showPendingStartCancellation) {
+            outState.putBoolean(KEY_SHOW_PENDING_START_CANCELLATION, true);
+            alertDialog.dismiss();
+
+        }
+    }
+
+    private void restoreFromSavedInstance(Bundle savedInstanceState) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SHOW_PENDING_START_CANCELLATION)) {
+            showPendingStartCancellation = true;
+            askPendingStartCancellation();
+        } else if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SHOW_ASK_TO_STOP_EIP)) {
+            showAskToStopEip = true;
+            askToStopEIP();
+        }
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putBoolean(IS_CONNECTED, eipStatus.isConnected());
-        super.onSaveInstanceState(outState);
+    public void onDestroyView() {
+        super.onDestroyView();
+        eipStatus.deleteObserver(this);
     }
 
     private void saveStatus(boolean restartOnBoot) {
@@ -252,29 +279,6 @@ public class EipFragment extends Fragment implements Observer {
         }
     }
 
-    private void askPendingStartCancellation() {
-        Activity activity = getActivity();
-        if (activity != null) {
-            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-            alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
-                    .setMessage(activity.getString(R.string.eip_cancel_connect_text))
-                    .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            stopEipIfPossible();
-                        }
-                    })
-                    .setNegativeButton(activity.getString(android.R.string.no), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .show();
-        } else {
-            Log.e(TAG, "activity is null when asking to cancel");
-        }
-    }
-
     public void startEipFromScratch() {
         saveStatus(true);
         Context context = getContext();
@@ -294,11 +298,40 @@ public class EipFragment extends Fragment implements Observer {
         }
     }
 
+    private void askPendingStartCancellation() {
+        Activity activity = getActivity();
+        if (activity != null) {
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+            showPendingStartCancellation = true;
+            alertDialog = alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
+                    .setMessage(activity.getString(R.string.eip_cancel_connect_text))
+                    .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            stopEipIfPossible();
+                        }
+                    })
+                    .setNegativeButton(activity.getString(android.R.string.no), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    showPendingStartCancellation = false;
+                }
+            }).show();
+        } else {
+            Log.e(TAG, "activity is null when asking to cancel");
+        }
+    }
+
     protected void askToStopEIP() {
         Activity activity = getActivity();
         if (activity != null) {
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
-            alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
+            showAskToStopEip = true;
+            alertDialog = alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
                     .setMessage(activity.getString(R.string.eip_warning_browser_inconsistency))
                     .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
                         @Override
@@ -310,8 +343,12 @@ public class EipFragment extends Fragment implements Observer {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                         }
-                    })
-                    .show();
+                    }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    showAskToStopEip = false;
+                }
+            }).show();
         } else {
             Log.e(TAG, "activity is null when asking to stop EIP");
         }
