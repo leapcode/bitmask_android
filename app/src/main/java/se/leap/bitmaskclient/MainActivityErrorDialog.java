@@ -16,34 +16,37 @@
  */
 package se.leap.bitmaskclient;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 
 import org.json.JSONObject;
 
-import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.*;
+import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.DEFAULT;
+import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.valueOf;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.eip.EIP.ERRORS;
 import static se.leap.bitmaskclient.eip.EIP.ERROR_ID;
 
 /**
- * Implements a error dialog for the main activity.
+ * Implements an error dialog for the main activity.
  *
  * @author fupduck
  * @author cyberta
  */
 public class MainActivityErrorDialog extends DialogFragment {
 
-    public static String TAG = "downloaded_failed_dialog";
+    final public static String TAG = "downloaded_failed_dialog";
+    final private static String KEY_REASON_TO_FAIL = "key reason to fail";
+    final private static String KEY_PROVIDER = "key provider";
     private String reasonToFail;
     private DOWNLOAD_ERRORS downloadError = DEFAULT;
 
-    private MainActivityErrorDialogInterface callbackInterface;
     private Provider provider;
 
     public enum DOWNLOAD_ERRORS {
@@ -86,14 +89,18 @@ public class MainActivityErrorDialog extends DialogFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        restoreFromSavedInstance(savedInstanceState);
+    }
+
+    @Override
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(reasonToFail)
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-                callbackInterface.onDialogDismissed();
             }
         });
         switch (downloadError) {
@@ -101,19 +108,11 @@ public class MainActivityErrorDialog extends DialogFragment {
                 builder.setPositiveButton(R.string.update_certificate, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dismiss();
                         ProviderAPICommand.execute(getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
-                        callbackInterface.onDialogDismissed();
                     }
                 });
                 break;
             default:
-                builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dismiss();
-                                callbackInterface.onDialogDismissed();
-                            }
-                        });
                 break;
         }
 
@@ -121,29 +120,24 @@ public class MainActivityErrorDialog extends DialogFragment {
         return builder.create();
     }
 
-    @Override
-    public void dismiss() {
-        super.dismiss();
-    }
-
-    public interface MainActivityErrorDialogInterface {
-        void onDialogDismissed();
-    }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            callbackInterface = (MainActivityErrorDialogInterface) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement NoticeDialogListener");
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_REASON_TO_FAIL, reasonToFail);
+        outState.putParcelable(KEY_PROVIDER, provider);
+    }
+
+    private void restoreFromSavedInstance(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            return;
+        }
+        if (savedInstanceState.containsKey(KEY_PROVIDER)) {
+            this.provider = savedInstanceState.getParcelable(KEY_PROVIDER);
+        }
+        if (savedInstanceState.containsKey(KEY_REASON_TO_FAIL)) {
+            this.reasonToFail = savedInstanceState.getString(KEY_REASON_TO_FAIL);
         }
     }
 
-    @Override
-    public void onCancel(DialogInterface dialog) {
-        super.onCancel(dialog);
-        callbackInterface.onDialogDismissed();
-    }
 }

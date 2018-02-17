@@ -63,21 +63,17 @@ import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 
 
-public class MainActivity extends AppCompatActivity implements Observer, MainActivityErrorDialog.MainActivityErrorDialogInterface{
+public class MainActivity extends AppCompatActivity implements Observer {
 
     public final static String TAG = MainActivity.class.getSimpleName();
 
-    private final String ACTIVITY_STATE = "state of activity";
-    private final String DEFAULT_UI_STATE = "default state";
-    private final String SHOW_DIALOG_STATE = "show dialog";
-    private final String REASON_TO_FAIL = "reason to fail";
+    private static final String KEY_ACTIVITY_STATE = "key state of activity";
+    private static final String DEFAULT_UI_STATE = "default state";
+    private static final String SHOW_DIALOG_STATE = "show dialog";
+    private static final String REASON_TO_FAIL = "reason to fail";
 
-    protected Intent mConfigState = new Intent(DEFAULT_UI_STATE);
     private static Provider provider = new Provider();
     private SharedPreferences preferences;
-
-    private String reasonToFail;
-
     private EipStatus eipStatus;
     private NavigationDrawerFragment navigationDrawerFragment;
     private MainActivityBroadcastReceiver mainActivityBroadcastReceiver;
@@ -125,47 +121,12 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         eipStatus = EipStatus.getInstance();
-
-        handleIntentAction(getIntent());
-        if(savedInstanceState != null) {
-            restoreState(savedInstanceState);
-        }
-
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NotNull Bundle outState) {
-        outState.putString(ACTIVITY_STATE, mConfigState.getAction());
-        outState.putParcelable(PROVIDER_KEY, provider);
-
-        DialogFragment dialogFragment = (DialogFragment) new FragmentManagerEnhanced(getSupportFragmentManager()).findFragmentByTag(MainActivityErrorDialog.TAG);
-        outState.putString(REASON_TO_FAIL, reasonToFail);
-        if (dialogFragment != null) {
-            dialogFragment.dismiss();
-        }
-
-        super.onSaveInstanceState(outState);
-    }
-
-    private void restoreState(Bundle savedInstance) {
-        String activityState = savedInstance.getString(ACTIVITY_STATE, "");
-        if (activityState.equals(SHOW_DIALOG_STATE)) {
-            reasonToFail = savedInstance.getString(REASON_TO_FAIL);
-            if (reasonToFail != null) {
-                showDownloadFailedDialog(reasonToFail);
-            }
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         bindOpenVpnService();
-
-        String action = mConfigState.getAction();
-        if(action.equalsIgnoreCase(SHOW_DIALOG_STATE)) {
-            showDownloadFailedDialog(reasonToFail);
-        }
     }
 
     @Override
@@ -275,12 +236,6 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
         Log.d(TAG, "broadcast registered");
     }
 
-    @Override
-    public void onDialogDismissed() {
-        mConfigState.setAction(DEFAULT_UI_STATE);
-        reasonToFail = null;
-    }
-
     private class MainActivityBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -323,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
                     case RESULT_CANCELED:
                         String error = resultData.getString(ERRORS);
                         if (LeapSRPSession.loggedIn() || provider.allowsAnonymous()) {
-                            showDownloadFailedDialog(error);
+                            showMainActivityErrorDialog(error);
                         } else {
                             askUserToLogIn(getString(vpn_certificate_user_message));
                         }
@@ -360,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
                 break;
             case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 if (LeapSRPSession.loggedIn() || provider.allowsAnonymous()) {
-                    showDownloadFailedDialog(getString(downloading_vpn_certificate_failed));
+                    showMainActivityErrorDialog(getString(downloading_vpn_certificate_failed));
                 } else {
                     askUserToLogIn(getString(vpn_certificate_user_message));
                 }
@@ -371,9 +326,7 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
     /**
      * Shows an error dialog
      */
-    public void showDownloadFailedDialog(String reasonToFail) {
-        this.reasonToFail = reasonToFail;
-        mConfigState.setAction(SHOW_DIALOG_STATE);
+    public void showMainActivityErrorDialog(String reasonToFail) {
         try {
 
             FragmentTransaction fragmentTransaction = new FragmentManagerEnhanced(
@@ -390,6 +343,7 @@ public class MainActivity extends AppCompatActivity implements Observer, MainAct
             newFragment.show(fragmentTransaction, MainActivityErrorDialog.TAG);
         } catch (IllegalStateException | NullPointerException e) {
             e.printStackTrace();
+            Log.w(TAG, "error dialog leaked!");
         }
 
     }
