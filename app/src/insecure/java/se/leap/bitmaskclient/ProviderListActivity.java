@@ -101,6 +101,7 @@ public class ProviderListActivity extends ProviderListBaseActivity {
      */
     @Override
     public void retrySetUpProvider(@NonNull Provider provider) {
+        mConfigState.setAction(SETTING_UP_PROVIDER);
         ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
     }
 
