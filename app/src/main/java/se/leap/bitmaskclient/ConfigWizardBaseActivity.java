@@ -2,6 +2,7 @@ package se.leap.bitmaskclient;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -72,6 +73,20 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
         super.setContentView(view, params);
         if (provider != null)
             setProviderHeaderText(provider.getName());
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (provider != null) {
+            outState.putParcelable(PROVIDER_KEY, provider);
+        }
+    }
+
+    protected void restoreState(Bundle savedInstanceState) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(PROVIDER_KEY)) {
+            provider = savedInstanceState.getParcelable(PROVIDER_KEY);
+        }
     }
 
     protected void setProviderHeaderLogo(@DrawableRes int providerHeaderLogo) {

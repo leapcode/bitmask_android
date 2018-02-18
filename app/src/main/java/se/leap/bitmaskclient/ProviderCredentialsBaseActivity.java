@@ -102,9 +102,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         LocalBroadcastManager.getInstance(this).registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
 
         setUpListeners();
-        if(savedInstanceState != null) {
-            restoreState(savedInstanceState);
-        }
+        restoreState(savedInstanceState);
 
         String userMessageString = getIntent().getStringExtra(USER_MESSAGE);
         if (userMessageString != null) {
@@ -127,7 +125,11 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         }
     }
 
-    private void restoreState(Bundle savedInstance) {
+    protected void restoreState(Bundle savedInstance) {
+        super.restoreState(savedInstance);
+        if (savedInstance == null) {
+            return;
+        }
         if (savedInstance.getString(USER_MESSAGE) != null) {
             userMessage.setText(savedInstance.getString(USER_MESSAGE));
             userMessage.setVisibility(VISIBLE);

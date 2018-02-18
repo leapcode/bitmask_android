@@ -91,7 +91,8 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     final protected static String PROVIDER_NOT_SET = "PROVIDER NOT SET";
     final protected static String SETTING_UP_PROVIDER = "PROVIDER GETS SET";
     final private static  String SHOWING_PROVIDER_DETAILS = "SHOWING PROVIDER DETAILS";
-    final private static String PENDING_SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG";
+    final private static String PENDING_SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG PENDING";
+    final private static String SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG";
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
     final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
 
@@ -117,17 +118,22 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     }
 
     @Override
-    protected void onSaveInstanceState(@NotNull Bundle outState) {
+    public void onSaveInstanceState(@NotNull Bundle outState) {
         outState.putString(ACTIVITY_STATE, mConfigState.getAction());
-        outState.putParcelable(PROVIDER_KEY, provider);
-
-        DialogFragment dialogFragment = (DialogFragment) fragmentManager.findFragmentByTag(ProviderSetupFailedDialog.TAG);
-        if (dialogFragment != null) {
-            outState.putString(REASON_TO_FAIL, reasonToFail);
-            dialogFragment.dismiss();
-        }
+        outState.putString(REASON_TO_FAIL, reasonToFail);
 
         super.onSaveInstanceState(outState);
+    }
+
+    protected void restoreState(Bundle savedInstanceState) {
+        super.restoreState(savedInstanceState);
+        if (savedInstanceState == null) {
+            return;
+        }
+        mConfigState.setAction(savedInstanceState.getString(ACTIVITY_STATE, PROVIDER_NOT_SET));
+        if (savedInstanceState.containsKey(REASON_TO_FAIL)) {
+            reasonToFail = savedInstanceState.getString(REASON_TO_FAIL);
+        }
     }
 
     @Override
@@ -137,28 +143,8 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         providerManager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
 
         setUpInitialUI();
-
         initProviderList();
-
-        if (savedInstanceState != null)
-            restoreState(savedInstanceState);
-    }
-
-    private void restoreState(Bundle savedInstanceState) {
-
-        provider = savedInstanceState.getParcelable(Provider.KEY);
-        mConfigState.setAction(savedInstanceState.getString(ACTIVITY_STATE, PROVIDER_NOT_SET));
-
-        reasonToFail = savedInstanceState.getString(REASON_TO_FAIL);
-        if(reasonToFail != null) {
-            showDownloadFailedDialog();
-        }
-
-        if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
-                         PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())
-                ) {
-            showProgressBar();
-        }
+        restoreState(savedInstanceState);
     }
 
     @Override
@@ -166,15 +152,17 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         Log.d(TAG, "resuming with ConfigState: " + mConfigState.getAction());
         super.onResume();
         setUpProviderAPIResultReceiver();
-        hideProgressBar();
         isActivityShowing = true;
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction())) {
             showProgressBar();
             checkProviderSetUp();
         } else if (PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
+            showProgressBar();
             showDownloadFailedDialog();
+        } else if (SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
+            showProgressBar();
         } else if (SHOWING_PROVIDER_DETAILS.equals(mConfigState.getAction())) {
-            cancelAndShowAllProviders();
+            cancelSettingUpProvider();
         }
     }
 
@@ -257,7 +245,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     @OnItemClick(R.id.provider_list)
     void onItemSelected(int position) {
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
-                PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
+                SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             return;
         }
 
@@ -276,10 +264,9 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     @Override
     public void onBackPressed() {
         if (SETTING_UP_PROVIDER.equals(mConfigState.getAction()) ||
-                PENDING_SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
+                SHOW_FAILED_DIALOG.equals(mConfigState.getAction())) {
             stopSettingUpProvider();
         } else {
-            askDashboardToQuitApp();
             super.onBackPressed();
         }
     }
@@ -291,22 +278,18 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     @Override
     public void cancelSettingUpProvider() {
         mConfigState.setAction(PROVIDER_NOT_SET);
+        provider = null;
         hideProgressBar();
     }
 
     @Override
     public void updateProviderDetails() {
+        mConfigState.setAction(SETTING_UP_PROVIDER);
         ProviderAPICommand.execute(this, UPDATE_PROVIDER_DETAILS, provider);
     }
 
     public void checkProviderSetUp() {
         ProviderAPICommand.execute(this, PROVIDER_SET_UP, provider, providerAPIResultReceiver);
-    }
-
-    private void askDashboardToQuitApp() {
-        Intent askQuit = new Intent();
-        askQuit.putExtra(APP_ACTION_QUIT, APP_ACTION_QUIT);
-        setResult(RESULT_CANCELED, askQuit);
     }
 
     /**
@@ -345,6 +328,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
      */
     public void showDownloadFailedDialog() {
         try {
+            mConfigState.setAction(SHOW_FAILED_DIALOG);
             FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(ProviderSetupFailedDialog.TAG);
             DialogFragment newFragment;
             try {
@@ -353,12 +337,14 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
             } catch (JSONException e) {
                 e.printStackTrace();
                 newFragment = ProviderSetupFailedDialog.newInstance(provider, reasonToFail);
+            } catch (NullPointerException e) {
+                //reasonToFail was null
+                return;
             }
             newFragment.show(fragmentTransaction, ProviderSetupFailedDialog.TAG);
         } catch (IllegalStateException e) {
             e.printStackTrace();
             mConfigState.setAction(PENDING_SHOW_FAILED_DIALOG);
-            mConfigState.putExtra(REASON_TO_FAIL, reasonToFail);
         }
 
     }
@@ -386,11 +372,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
         return true;
-    }
-
-    public void cancelAndShowAllProviders() {
-        mConfigState.setAction(PROVIDER_NOT_SET);
-        provider = null;
     }
 
     public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {

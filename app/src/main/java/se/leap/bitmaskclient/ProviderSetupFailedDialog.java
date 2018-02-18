@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 
 import org.json.JSONObject;
@@ -39,6 +40,9 @@ import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 public class ProviderSetupFailedDialog extends DialogFragment {
 
     public static String TAG = "downloaded_failed_dialog";
+    private final static String KEY_PROVIDER = "key provider";
+    private final static String KEY_REASON_TO_FAIL = "key reason to fail";
+    private final static String KEY_DOWNLOAD_ERROR = "key download error";
     private String reasonToFail;
     private DOWNLOAD_ERRORS downloadError = DEFAULT;
 
@@ -86,6 +90,12 @@ public class ProviderSetupFailedDialog extends DialogFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        restoreFromSavedInstance(savedInstanceState);
+    }
+
+    @Override
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -93,7 +103,6 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 interfaceWithConfigurationWizard.cancelSettingUpProvider();
-                dialog.dismiss();
             }
         });
         switch (downloadError) {
@@ -101,7 +110,6 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                 builder.setPositiveButton(R.string.update_provider_details, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dismiss();
                         interfaceWithConfigurationWizard.updateProviderDetails();
                     }
                 });
@@ -111,7 +119,6 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                 builder.setPositiveButton(R.string.update_certificate, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dismiss();
                         interfaceWithConfigurationWizard.updateProviderDetails();
                     }
                 });
@@ -119,7 +126,6 @@ public class ProviderSetupFailedDialog extends DialogFragment {
             default:
                 builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                dismiss();
                                 interfaceWithConfigurationWizard.retrySetUpProvider(provider);
                             }
                         });
@@ -157,4 +163,26 @@ public class ProviderSetupFailedDialog extends DialogFragment {
         dialog.dismiss();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(KEY_PROVIDER, provider);
+        outState.putString(KEY_REASON_TO_FAIL, reasonToFail);
+        outState.putString(KEY_DOWNLOAD_ERROR, downloadError.toString());
+    }
+
+    private void restoreFromSavedInstance(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            return;
+        }
+        if (savedInstanceState.containsKey(KEY_PROVIDER)) {
+            this.provider = savedInstanceState.getParcelable(KEY_PROVIDER);
+        }
+        if (savedInstanceState.containsKey(KEY_REASON_TO_FAIL)) {
+            this.reasonToFail = savedInstanceState.getString(KEY_REASON_TO_FAIL);
+        }
+        if (savedInstanceState.containsKey(KEY_DOWNLOAD_ERROR)) {
+            this.downloadError = valueOf(savedInstanceState.getString(KEY_DOWNLOAD_ERROR));
+        }
+    }
 }
