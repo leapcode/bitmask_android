@@ -61,6 +61,8 @@ import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_KEY;
+import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_MESSAGE;
 import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
@@ -89,6 +91,7 @@ import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_LOGOUT;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_SIGNUP;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.R.string.certificate_error;
+import static se.leap.bitmaskclient.R.string.switch_provider_menu_option;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
@@ -298,7 +301,7 @@ public abstract class ProviderApiManagerBase {
         JSONObject api_result = sendNewUserDataToSRPServer(provider.getApiUrlString(), username, new BigInteger(1, salt).toString(16), password_verifier.toString(16), okHttpClient);
 
         Bundle result = new Bundle();
-        if (api_result.has(ERRORS))
+        if (api_result.has(ERRORS) || api_result.has(BACKEND_ERROR_KEY))
             result = authFailedNotification(api_result, username);
         else {
             result.putString(CREDENTIALS_USERNAME, username);
@@ -390,8 +393,8 @@ public abstract class ProviderApiManagerBase {
 
     private Bundle authFailedNotification(JSONObject result, String username) {
         Bundle userNotificationBundle = new Bundle();
-        Object baseErrorMessage = result.opt(ERRORS);
-        if (baseErrorMessage != null) {
+        if (result.has(ERRORS)) {
+            Object baseErrorMessage = result.opt(ERRORS);
             if (baseErrorMessage instanceof JSONObject) {
                 try {
                     JSONObject errorMessage = result.getJSONObject(ERRORS);
@@ -408,6 +411,16 @@ public abstract class ProviderApiManagerBase {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            }
+        } else if (result.has(BACKEND_ERROR_KEY)) {
+            try {
+                String backendErrorMessage = resources.getString(R.string.error_json_exception_user_message);
+                if (result.has(BACKEND_ERROR_MESSAGE)) {
+                    backendErrorMessage = resources.getString(R.string.error) + result.getString(BACKEND_ERROR_MESSAGE);
+                }
+                userNotificationBundle.putString(resources.getString(R.string.user_message), backendErrorMessage);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
 

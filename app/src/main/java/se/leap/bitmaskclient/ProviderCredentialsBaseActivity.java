@@ -360,7 +360,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             Linkify.addLinks(userMessage, Linkify.ALL);
             userMessage.setMovementMethod(LinkMovementMethod.getInstance());
             userMessage.setVisibility(VISIBLE);
-        } else if (userMessage.getVisibility() != VISIBLE) {
+        } else if (userMessage.getVisibility() != GONE) {
             userMessage.setVisibility(GONE);
         }
 
