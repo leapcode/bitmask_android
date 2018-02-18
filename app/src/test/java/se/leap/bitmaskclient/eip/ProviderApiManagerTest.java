@@ -269,7 +269,7 @@ public class ProviderApiManagerTest {
 
         Bundle expectedResult = mockBundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_VPN_CERTIFICATE\",\"errors\":\"Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         Intent providerApiCommand = mockIntent();
@@ -292,7 +292,7 @@ public class ProviderApiManagerTest {
 
         Bundle expectedResult = mockBundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_VPN_CERTIFICATE\",\"errors\":\"Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         Intent providerApiCommand = mockIntent();
@@ -315,7 +315,7 @@ public class ProviderApiManagerTest {
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_VPN_CERTIFICATE\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         Intent providerApiCommand = mockIntent();
@@ -340,7 +340,7 @@ public class ProviderApiManagerTest {
 
         Bundle expectedResult = mockBundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_VPN_CERTIFICATE\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         Intent providerApiCommand = mockIntent();
