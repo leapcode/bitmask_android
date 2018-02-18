@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/eipServiceFragment"
-    >
+    android:id="@+id/eipServiceFragment">
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_horizontal_top"
@@ -14,7 +12,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintGuide_percent="0.3"
+        app:layout_constraintGuide_percent="0.225"
         />
 
     <android.support.constraint.Guideline
@@ -23,7 +21,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.3"
+        app:layout_constraintGuide_percent="0.225"
         />
 
 
@@ -34,7 +32,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintGuide_percent="0.7"
+        app:layout_constraintGuide_percent="0.775"
         />
 
     <android.support.constraint.Guideline
@@ -43,7 +41,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.7"
+        app:layout_constraintGuide_percent="0.775"
         />
 
     <android.support.v7.widget.AppCompatImageView
@@ -70,40 +68,17 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/cirle"
+    <se.leap.bitmaskclient.views.VpnStateImage
+        android:id="@+id/vpn_state_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="@dimen/stdpadding"
-        android:layout_marginEnd="@dimen/stdpadding"
-        android:layout_marginStart="@dimen/stdpadding"
-        android:layout_marginTop="@dimen/stdpadding"
-        android:layout_marginLeft="@dimen/stdpadding"
-        android:layout_marginRight="@dimen/stdpadding"
+        android:layout_margin="@dimen/stdpadding"
         app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal_bottom"
         app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_right"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/guideline_vertical_left"
         app:layout_constraintTop_toTopOf="@+id/guideline_horizontal_top"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/black_circle" />
-
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/key"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="@dimen/stdpadding"
-        android:layout_marginEnd="@dimen/stdpadding"
-        android:layout_marginStart="@dimen/stdpadding"
-        android:layout_marginTop="@dimen/stdpadding"
-        android:layout_marginLeft="@dimen/stdpadding"
-        android:layout_marginRight="@dimen/stdpadding"
-        app:layout_constraintBottom_toBottomOf="@+id/cirle"
-        app:layout_constraintEnd_toEndOf="@+id/cirle"
-        app:layout_constraintStart_toStartOf="@+id/cirle"
-        app:layout_constraintTop_toTopOf="@+id/cirle"
-        app:srcCompat="@drawable/vpn_connected" />
-
+        app:layout_constraintDimensionRatio="1:1"
+        />
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/vpn_main_button"

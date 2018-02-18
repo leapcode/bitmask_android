@@ -43,6 +43,7 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
+import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
@@ -95,7 +96,8 @@ public final class EIP extends IntentService {
 
         switch (action) {
             case EIP_ACTION_START:
-                startEIP();
+                boolean earlyRoutes = intent.getBooleanExtra(EIP_EARLY_ROUTES, true);
+                startEIP(earlyRoutes);
                 break;
             case EIP_ACTION_START_ALWAYS_ON_VPN:
                 startEIPAlwaysOnVpn();
@@ -117,8 +119,8 @@ public final class EIP extends IntentService {
      * Intent to {@link de.blinkt.openvpn.LaunchVPN}.
      * It also sets up early routes.
      */
-    private void startEIP() {
-        if (!EipStatus.getInstance().isBlockingVpnEstablished())  {
+    private void startEIP(boolean earlyRoutes) {
+        if (!EipStatus.getInstance().isBlockingVpnEstablished() && earlyRoutes)  {
             earlyRoutes();
         }
 
@@ -181,7 +183,7 @@ public final class EIP extends IntentService {
     }
 
     private void stopEIP() {
-        // TODO try to do anything! stop eip from here if possible...
+        // TODO stop eip from here if possible...
         EipStatus eipStatus = EipStatus.getInstance();
         int resultCode = RESULT_CANCELED;
         if (eipStatus.isConnected() || eipStatus.isConnecting())

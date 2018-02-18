@@ -44,6 +44,7 @@ public interface Constants {
     String EIP_REQUEST = "EIP.REQUEST";
     String EIP_RESTART_ON_BOOT = "EIP.RESTART_ON_BOOT";
     String EIP_IS_ALWAYS_ON = "EIP.EIP_IS_ALWAYS_ON";
+    String EIP_EARLY_ROUTES = "EIP.EARLY_ROUTES";
 
 
     //////////////////////////////////////////////

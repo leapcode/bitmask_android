@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 case REQUEST_CODE_CONFIGURE_LEAP:
                     break;
                 case REQUEST_CODE_LOG_IN:
-                    EipCommand.startVPN(this);
+                    EipCommand.startVPN(this, true);
                     break;
             }
         }
@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         switch (resultCode) {
             case CORRECTLY_DOWNLOADED_EIP_SERVICE:
                 provider = resultData.getParcelable(PROVIDER_KEY);
-                EipCommand.startVPN(this);
+                EipCommand.startVPN(this, true);
                 break;
             case INCORRECTLY_DOWNLOADED_EIP_SERVICE:
                 // TODO CATCH ME IF YOU CAN - WHAT DO WE WANT TO DO?
@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 provider = resultData.getParcelable(PROVIDER_KEY);
                 ConfigHelper.storeProviderInPreferences(preferences, provider);
-                EipCommand.startVPN(this);
+                EipCommand.startVPN(this, true);
                 break;
             case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 if (LeapSRPSession.loggedIn() || provider.allowsAnonymous()) {
