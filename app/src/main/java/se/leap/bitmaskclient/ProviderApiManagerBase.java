@@ -298,7 +298,7 @@ public abstract class ProviderApiManagerBase {
 
         BigInteger password_verifier = client.calculateV(username, password, salt);
 
-        JSONObject api_result = sendNewUserDataToSRPServer(provider.getApiUrlString(), username, new BigInteger(1, salt).toString(16), password_verifier.toString(16), okHttpClient);
+        JSONObject api_result = sendNewUserDataToSRPServer(provider.getApiUrlWithVersion(), username, new BigInteger(1, salt).toString(16), password_verifier.toString(16), okHttpClient);
 
         Bundle result = new Bundle();
         if (api_result.has(ERRORS) || api_result.has(BACKEND_ERROR_KEY))
@@ -820,7 +820,7 @@ public abstract class ProviderApiManagerBase {
             return false;
         }
 
-        String deleteUrl = provider.getApiUrlString() + "/logout";
+        String deleteUrl = provider.getApiUrlWithVersion() + "/logout";
 
         if (ProviderApiConnector.delete(okHttpClient, deleteUrl)) {
             LeapSRPSession.setToken("");
