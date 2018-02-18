@@ -163,7 +163,7 @@ public abstract class ProviderApiManagerBase {
                 }
                 break;
             case SIGN_UP:
-                result = tryToRegister(parameters);
+                result = tryToRegister(provider, parameters);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     sendToReceiverOrBroadcast(receiver, SUCCESSFUL_SIGNUP, result, provider);
                 } else {
@@ -254,12 +254,11 @@ public abstract class ProviderApiManagerBase {
 
 
 
-    private Bundle tryToRegister(Bundle task) {
+    private Bundle tryToRegister(Provider provider, Bundle task) {
         Bundle result = new Bundle();
 
         String username = task.getString(CREDENTIALS_USERNAME);
         String password = task.getString(CREDENTIALS_PASSWORD);
-        Provider provider = task.getParcelable(PROVIDER_KEY);
 
         if(provider == null) {
             result.putBoolean(BROADCAST_RESULT_KEY, false);
