@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         eipStatus = EipStatus.getInstance();
+        handleIntentAction(getIntent());
     }
 
     @Override
