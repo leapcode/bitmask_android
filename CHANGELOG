@@ -10,7 +10,12 @@ Features:
       the user creates a vpn profile or enables unsecured internet traffic
       with a click on a notification
 - improved certificate pinning mechanism
-- (more to come)
+- complete new ui based on material design
+- different layouts for smartphones and tablets
+- improved error handling for expired certificates
+- updated crypto libraries openssl, openvpn, mbedtls etc.
+- support for Android 8.1
+- new translations
 
 0.9.7 - the maintenance release
 Bugs:
