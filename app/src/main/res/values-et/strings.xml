@@ -1,11 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="retry">Proovi uuesti</string>
+  <string name="switch_provider_menu_option">Vaheta pakkujat</string>
   <string name="info">info</string>
   <string name="show_connection_details">Näita ühenduse andmeid</string>
   <string name="routes_info">Marsruudid: %s</string>
-  <string name="routes_info6">IPv6 marsruudid: %s</string>
   <string name="error_empty_username">Kasutajanimi peab olema määratud.</string>
-  <string name="cert_from_keystore">Saadud sertifikaat \'%s\' võtmehoidlast</string>
-  <string name="bitmask_log">Bitmask Logi</string>
-
+  <string name="provider_label">Pakkuja:</string>
+  <string name="provider_label_none">Pakkuja on seadistamata</string>
+  <string name="status_unknown">Olek teadmata.</string>
+  <string name="introduce_new_provider">Lisa uus teenusepakkuja</string>
+  <string name="save">Salvesta</string>
+  <string name="new_provider_uri">Domeeninimi</string>
+  <string name="use_anonymously_button">Kasuta anonüümselt</string>
+  <string name="username_hint">kasutajanimi</string>
+  <string name="username_ask">Palun sisesta oma kasutajanimi</string>
+  <string name="password_hint">parool</string>
+  <string name="user_message">Kasutaja sõnum</string>
+  <string name="error_bad_user_password_user_message">Sobimatu kasutajanimi või parool.</string>
+  <string name="error_client_http_user_message">Proovi uuesti: rakenduse HTTP viga</string>
+  <string name="error_io_exception_user_message">Proovi uuesti: I/O viga</string>
+  <string name="error_json_exception_user_message">Proovi uuesti: serverist saadeti halb vastus</string>
+  <string name="login_button">Logi sisse</string>
+  <string name="logout_button">Logi välja</string>
+  <string name="setup_error_title">Häälestusviga</string>
+  <string name="setup_error_configure_button">Seadista</string>
+  <string name="setup_error_close_button">Välju</string>
+  <string name="malformed_url">See ei paista olevat Bitmask\'i pakkuja.</string>
+  <string name="certificate_error">See ei ole usaldatud Bitmask\'i pakkuja.</string>
+  <string name="configuring_provider">Häälestan pakkujat</string>
+  <string name="incorrectly_downloaded_certificate_message">Sinu anonüümset serti ei laaditud alla</string>
+  <string name="authentication_failed_message">Autentimine ebaõnnestus.</string>
+  <string name="eip_status_start_pending">Alustan ühendust</string>
+  <string name="eip_cancel_connect_title">Tühistan ühenduse?</string>
+  <string name="eip_cancel_connect_text">Hetkel toimub ühendumiskatse. Kas soovid seda tühistada?</string>
+  <string name="eip_state_connected">Ühendus on turvaline.</string>
 </resources>

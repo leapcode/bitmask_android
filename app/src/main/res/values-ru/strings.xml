@@ -1,10 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="retry">Повтор</string>
+  <string name="switch_provider_menu_option">Смена провайдера</string>
   <string name="info">информация</string>
   <string name="show_connection_details">Показать подробности о подключении</string>
   <string name="routes_info">Маршруты: %s</string>
-  <string name="routes_info6">Маршруты IPv6: %s</string>
   <string name="error_empty_username">Имя пользователя не должно быть пустым.</string>
-  <string name="cert_from_keystore">Получен сертификат \'%s\' из хранилища ключей</string>
-  <string name="bitmask_log">Журнал Bitmask</string>
+  <string name="provider_label">Провайдер:</string>
+  <string name="provider_label_none">Ни один провайдер не настроен</string>
+  <string name="status_unknown">Состояние неизвестно.</string>
+  <string name="introduce_new_provider">Добавить нового провайдера услуг</string>
+  <string name="save">Сохранить</string>
+  <string name="new_provider_uri">Имя домена</string>
+  <string name="use_anonymously_button">Использовать анонимно</string>
+  <string name="username_hint">имя пользователя</string>
+  <string name="username_ask">Пожалуйста, введите имя пользователя</string>
+  <string name="password_hint">пароль</string>
+  <string name="user_message">Сообщение пользователя</string>
+  <string name="error_bad_user_password_user_message">Неправильное имя пользователя или пароль.</string>
+  <string name="error_client_http_user_message">Попытайтесь снова: ошибка HTTP клиента</string>
+  <string name="error_io_exception_user_message">Попытайтесь снова: ошибка ввода/вывода</string>
+  <string name="error_json_exception_user_message">Попытайтесь снова: некорректный ответ от сервера</string>
+  <string name="login_button">Войти</string>
+  <string name="logout_button">Выйти</string>
+  <string name="setup_error_title">Ошибка конфигурации</string>
+  <string name="setup_error_configure_button">Настройка</string>
+  <string name="setup_error_close_button">Выход</string>
+  <string name="malformed_url">Кажется это не провайдер Bitmask.</string>
+  <string name="certificate_error">Этот провайдер не является надежным провайдером Bitmask.</string>
+  <string name="configuring_provider">Настройка провайдера</string>
+  <string name="incorrectly_downloaded_certificate_message">Ваш анононимный сертификат не скачан.</string>
+  <string name="authentication_failed_message">Проверка подлинности не прошла.</string>
+  <string name="eip_status_start_pending">Установка соединения</string>
+  <string name="eip_cancel_connect_title">Отменить соединение?</string>
+  <string name="eip_cancel_connect_text">Производится попытка установить соединение. Вы хотите её отменить?</string>
+  <string name="eip_state_connected">Соединение защищено.</string>
 </resources>

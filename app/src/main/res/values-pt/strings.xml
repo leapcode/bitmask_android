@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="retry">Repetir</string>
+  <string name="switch_provider_menu_option">Mudar Provedor</string>
+  <string name="info">informação</string>
+  <string name="show_connection_details">Mostrar detalhes da ligação</string>
+  <string name="routes_info">Rotas: %s</string>
+  <string name="error_empty_username">O nome de utilizador não deve estar em branco</string>
+  <string name="provider_label">Provedor:</string>
+  <string name="provider_label_none">Nenhum provedor configurado</string>
+  <string name="status_unknown">Estado desconhecido</string>
+  <string name="introduce_new_provider">Adicione um novo provedor de serviço</string>
+  <string name="save">Guardar</string>
+  <string name="new_provider_uri">Nome do Domínio</string>
+  <string name="use_anonymously_button">Utilizar anonimamente</string>
+  <string name="username_hint">nome de utilizador</string>
+  <string name="username_ask">Por favor, insira o seu nome de utilizador</string>
+  <string name="password_hint">senha</string>
+  <string name="user_message">Mensagem do Utilizador</string>
+  <string name="error_bad_user_password_user_message">Nome de utilizador ou senha errado.</string>
+  <string name="error_client_http_user_message">Tente de novo: Erro HTTP de Cliente</string>
+  <string name="error_io_exception_user_message">Tente de novo: Erro I/O</string>
+  <string name="error_json_exception_user_message">Tente de novo: Má resposta do servidor</string>
+  <string name="login_button">Iniciar Sessão</string>
+  <string name="logout_button">Terminar Sessão</string>
+  <string name="setup_error_title">Erro de Configuração</string>
+  <string name="setup_error_configure_button">Configurar</string>
+  <string name="setup_error_close_button">Sair</string>
+  <string name="malformed_url">Este não parece ser um provedor Bitmask.</string>
+  <string name="certificate_error">Este não é um provedor Bitmask de confiança.</string>
+  <string name="configuring_provider">A configurar o provedor</string>
+  <string name="incorrectly_downloaded_certificate_message">O seu próprio certificado não foi transferido</string>
+  <string name="authentication_failed_message">A autenticação falhou.</string>
+  <string name="eip_status_start_pending">A iniciar a conexão</string>
+  <string name="eip_cancel_connect_title">Cancelar coneção?</string>
+  <string name="eip_cancel_connect_text">Existe uma tentativa de conexão em progresso.  Deseja-a cancelar?</string>
+  <string name="eip_state_connected">Conexão Segura.</string>
+</resources>

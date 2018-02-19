@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="retry">Toista</string>
+  <string name="switch_provider_menu_option">Vaihda palvelutarjoajaa</string>
+  <string name="info">tiedot</string>
+  <string name="show_connection_details">Näytä lisätiedot yhteydestä</string>
+  <string name="routes_info">Reitittää: %s</string>
+  <string name="error_empty_username">Käyttäjätunnus ei saa olla tyhjä.</string>
+  <string name="provider_label">Palvelutarjoaja:</string>
+  <string name="provider_label_none">Yhtään palvelutarjoajaa ei ole asetettu</string>
+  <string name="status_unknown">Tila tuntematon.</string>
+  <string name="introduce_new_provider">Lisää uusi palvelutarjoaja</string>
+  <string name="save">Tallenna</string>
+  <string name="new_provider_uri">Verkkotunnusnimi</string>
+  <string name="use_anonymously_button">Käytä anonyymisti</string>
+  <string name="username_hint">käyttäjätunnus</string>
+  <string name="username_ask">Kirjoita käyttäjätunnuksesi</string>
+  <string name="password_hint">salasana</string>
+  <string name="user_message">Käyttäjäviesti</string>
+  <string name="error_bad_user_password_user_message">Virheellinen käyttäjätunnus tai salasana.</string>
+  <string name="error_client_http_user_message">Yritä uudelleen: Asiakasohjelman HTTP-virhe</string>
+  <string name="error_io_exception_user_message">Yritä uudelleen: Siirräntävirhe</string>
+  <string name="error_json_exception_user_message">Yritä uudelleen: Väärä vastaus palvelimelta</string>
+  <string name="login_button">Kirjaudu</string>
+  <string name="logout_button">Kirjaudu ulos</string>
+  <string name="setup_error_title">Asetusvirhe</string>
+  <string name="setup_error_configure_button">Aseta</string>
+  <string name="setup_error_close_button">Poistu</string>
+  <string name="malformed_url">Se ei tunnu olevan Bitmask-palvelutarjoaja.</string>
+  <string name="certificate_error">Tämä ei ole turvattu Bitmask-palvelutarjoaja.</string>
+  <string name="configuring_provider">Asetetaan palvelutarjoaja</string>
+  <string name="incorrectly_downloaded_certificate_message">Anonyymivarmennettasi ei ladattu</string>
+  <string name="authentication_failed_message">Todentaminen epäonnistui.</string>
+  <string name="eip_status_start_pending">Alustetaan yhteys</string>
+  <string name="eip_cancel_connect_title">Perutaanko yhteys?</string>
+  <string name="eip_cancel_connect_text">Yhteysyritys on käynnissä. Haluatko perua sen?</string>
+  <string name="eip_state_connected">Yhteys turvattu.</string>
+</resources>

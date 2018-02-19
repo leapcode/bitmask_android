@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="retry">Pokušaj ponovo</string>
+  <string name="switch_provider_menu_option">Switch provider</string>
+  <string name="info">Info</string>
+  <string name="show_connection_details">Pokaži detalje veze</string>
+  <string name="routes_info">Rute: %s</string>
+  <string name="error_empty_username">Korisničko ime ne smije biti prazno!</string>
+  <string name="provider_label">Pružatelj:</string>
+  <string name="provider_label_none">Nema konfiguriranog pružatelja</string>
+  <string name="status_unknown">Status nepoznat.</string>
+  <string name="introduce_new_provider">Dodaj novog pružatelja usluga</string>
+  <string name="save">Spremi</string>
+  <string name="new_provider_uri">Ime domene</string>
+  <string name="use_anonymously_button">Koristi anonimno</string>
+  <string name="username_hint">Korisničko ime</string>
+  <string name="username_ask">Unesite Vaše korisničko ime</string>
+  <string name="password_hint">Lozinka</string>
+  <string name="user_message">Poruka korisnika</string>
+  <string name="error_bad_user_password_user_message">Netočno korisničko ime ili lozinka</string>
+  <string name="error_client_http_user_message">Pokušajte ponovo: Client HTTP error</string>
+  <string name="error_io_exception_user_message">Pokušajte ponovo: I/O error</string>
+  <string name="error_json_exception_user_message">Pokušajte ponovo: Bad response from the server</string>
+  <string name="login_button">Prijavite se</string>
+  <string name="logout_button">Odjavite se</string>
+  <string name="setup_error_title">Greška u konfiguraciji</string>
+  <string name="setup_error_configure_button">Konfiguriraj</string>
+  <string name="setup_error_close_button">Izađi</string>
+  <string name="malformed_url">Čini se da to nije Bitmask pružatelj</string>
+  <string name="certificate_error">Bitmask nema povjerenja u ovog pružatelja.</string>
+  <string name="configuring_provider">Konfiguriram pružatelja</string>
+  <string name="incorrectly_downloaded_certificate_message">Vaš anonimni certifikat nije preuzet</string>
+  <string name="authentication_failed_message">Autentifikacija neuspješna.</string>
+  <string name="eip_status_start_pending">Pokrećem vezu</string>
+  <string name="eip_cancel_connect_title">Prekinuti vezu?</string>
+  <string name="eip_cancel_connect_text">U tijeku je pokušaj povezivanja. Želite li ga prekinuti?</string>
+  <string name="eip_state_connected">Veza osigurana.</string>
+</resources>

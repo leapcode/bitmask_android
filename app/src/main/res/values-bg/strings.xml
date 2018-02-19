@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="retry">Опитайте отново</string>
+  <string name="switch_provider_menu_option">Превключи Доставчика</string>
+  <string name="provider_label_none">Няма конфигуриран доставчик</string>
+  <string name="status_unknown">Статус неизвестен.</string>
+  <string name="save">Запази</string>
+  <string name="new_provider_uri">Име на домейна</string>
+  <string name="username_hint">потребителско име</string>
+  <string name="username_ask">Моля въведете потребителско име</string>
+  <string name="password_hint">Парола</string>
+  <string name="user_message">Съобщение за потребителя</string>
+  <string name="error_bad_user_password_user_message">Неправилно потребителско име или парола.</string>
+  <string name="login_button">Влизане</string>
+  <string name="logout_button">Излизане</string>
+  <string name="setup_error_title">Конфигурационна грешка </string>
+  <string name="setup_error_configure_button">Конфигуриране</string>
+  <string name="setup_error_close_button">Изход</string>
+  <string name="eip_status_start_pending">Започване на връзка</string>
+  <string name="eip_state_connected">Защитенa Връзка</string>
+</resources>

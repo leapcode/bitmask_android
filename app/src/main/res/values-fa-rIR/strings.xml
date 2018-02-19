@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="retry">تلاش دوباره</string>
+  <string name="switch_provider_menu_option">تعویض ارائه دهنده</string>
+  <string name="info">اطلاعات</string>
+  <string name="show_connection_details">نمایش اطلاعات تماس</string>
+  <string name="routes_info">مسیرها: %s</string>
+  <string name="error_empty_username">نام کاربری نباید خالی باشد.</string>
+  <string name="provider_label">ارائه‌دهنده:</string>
+  <string name="provider_label_none">ارائه‌دهنده‌ای تنظیم نشده</string>
+  <string name="status_unknown">وضعیت نامشخص.</string>
+  <string name="introduce_new_provider">ارائه‌دهنده‌ی سروریس جدید وارد کنید</string>
+  <string name="save">ذخیره</string>
+  <string name="new_provider_uri">نام دامنه</string>
+  <string name="use_anonymously_button">استفاده از ناشناسی</string>
+  <string name="username_hint">نام کاربری</string>
+  <string name="username_ask">لطفا شناسه‌ی خود را وارد کنید</string>
+  <string name="password_hint">کلمه عبور</string>
+  <string name="user_message">پیغام کاربر</string>
+  <string name="error_bad_user_password_user_message">شناسه یا رمز نادرست</string>
+  <string name="error_client_http_user_message">تلاش دوباره: خطای HTTP کاربر</string>
+  <string name="error_io_exception_user_message">تلاش دوباره: خطای I/O</string>
+  <string name="error_json_exception_user_message">تلاش دوباره: پاسخ نامناسب از سرور</string>
+  <string name="login_button">ورود</string>
+  <string name="logout_button">برون رفت</string>
+  <string name="setup_error_title">خطای تنظیمات</string>
+  <string name="setup_error_configure_button">تنظیم</string>
+  <string name="setup_error_close_button">خروج</string>
+  <string name="malformed_url">به نظر نمی‌رسد که یک ارائه‌دهنده‌ی بیتمسک باشد.</string>
+  <string name="certificate_error">این یک ارائه‌دهنده‌ی قابل اعتماد بیتمسک نیست.</string>
+  <string name="configuring_provider">در حال تنظیم کردن ارائه‌دهنده</string>
+  <string name="incorrectly_downloaded_certificate_message">گواهی ناشناسی شما دریافت نشد</string>
+  <string name="authentication_failed_message">احراز هویت ناموفق بود.</string>
+  <string name="eip_status_start_pending">آماده‌سازی اتصال</string>
+  <string name="eip_cancel_connect_title">انصراف از اتصال؟</string>
+  <string name="eip_cancel_connect_text">تلاشی برای برقراری ارتباط در جریان است. آیا می‌خواهید آن را قطع کنید؟</string>
+  <string name="eip_state_connected">اتصال امن.</string>
+</resources>

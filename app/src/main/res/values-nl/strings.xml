@@ -1,8 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="retry">Opnieuw proberen</string>
+  <string name="repository_url_text">Broncode is beschikbaar op https://0xacab.org/leap/bitmask_android</string>
+  <string name="leap_tracker">Issue tracker https://0xacab.org/leap/bitmask_android/issues</string>
+  <string name="switch_provider_menu_option">Provider wisselen</string>
   <string name="info">info</string>
   <string name="show_connection_details">Details van de verbinding weergeven</string>
   <string name="routes_info">Routes: %s</string>
-  <string name="routes_info6">Routes IPv6: %s</string>
   <string name="error_empty_username">De gebruikersnaam moet niet leeg zijn.</string>
+  <string name="provider_label">Provider:</string>
+  <string name="provider_label_none">Geen provider ingesteld</string>
+  <string name="status_unknown">Status onbekend</string>
+  <string name="introduce_new_provider">Nieuwe serviceprovider toevoegen</string>
+  <string name="save">Opslaan</string>
+  <string name="new_provider_uri">Domeinnaam</string>
+  <string name="use_anonymously_button">Anoniem gebruiken</string>
+  <string name="username_hint">gebruikersnaam</string>
+  <string name="username_ask">Geef je gebruikersnaam in</string>
+  <string name="password_hint">wachtwoord</string>
+  <string name="user_message">Bericht</string>
+  <string name="error_bad_user_password_user_message">Gebruikersnaam of wachtwoord verkeerd.</string>
+  <string name="error_client_http_user_message">Probeer opnieuw: Client HTTP fout</string>
+  <string name="error_io_exception_user_message">Probeer opnieuw: I/O fout</string>
+  <string name="error_json_exception_user_message">Probeer opnieuw: incorrect antwoord van de server</string>
+  <string name="login_button">Aanmelden</string>
+  <string name="logout_button">Afmelden</string>
+  <string name="setup_error_title">Configuratiefout</string>
+  <string name="setup_error_configure_button">Configureren</string>
+  <string name="setup_error_close_button">Aflsluiten</string>
+  <string name="malformed_url">Dit lijkt geen Bitmask provider te zijn.</string>
+  <string name="certificate_error">Dit is geen vertrouwde Bitmask provider.</string>
+  <string name="configuring_provider">Provider wordt ingesteld</string>
+  <string name="incorrectly_downloaded_certificate_message">Je anonieme certificaat is niet gedownload</string>
+  <string name="authentication_failed_message">Authenticatie mislukt.</string>
+  <string name="eip_status_start_pending">Verbinding wordt geïnitialiseerd</string>
+  <string name="eip_cancel_connect_title">Verbinding annuleren?</string>
+  <string name="eip_cancel_connect_text">We proberen een verbinding tot stand te brengen. Wil je dit annuleren?</string>
+  <string name="eip_state_connected">Verbinding beveiligd.</string>
+  <string name="update_certificate">Update certificaat</string>
 </resources>

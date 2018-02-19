@@ -1,8 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="retry">Opakovat</string>
+  <string name="switch_provider_menu_option">Přepnout poskytovatele</string>
+  <string name="info">info</string>
   <string name="show_connection_details">Zobrazit detaily spojení</string>
   <string name="routes_info">Směrování: %s</string>
-  <string name="routes_info6">Směrování IPv6: %s</string>
   <string name="error_empty_username">Jméno nesmí být prázdné.</string>
-  <string name="cert_from_keystore">Získán certifikát \'%s\' z úložiště</string>
+  <string name="provider_label">Poskytovatel</string>
+  <string name="provider_label_none">Žádný poskytovatel nenakonfigurován.</string>
+  <string name="status_unknown">Status neznámý</string>
+  <string name="introduce_new_provider">Přidejte nového poskytovatele služeb</string>
+  <string name="save">Uložit</string>
+  <string name="new_provider_uri">Jméno domény</string>
+  <string name="use_anonymously_button">Použít anonymně</string>
+  <string name="username_hint">uživatelské jméno</string>
+  <string name="username_ask">Prosím zadejte své uživatelské jméno</string>
+  <string name="password_hint">heslo</string>
+  <string name="user_message">Zpráva uživatele</string>
+  <string name="error_bad_user_password_user_message">Nesprávné uživatelské jméno nebo heslo.</string>
+  <string name="error_client_http_user_message">Zkuste znovu: chyba HTTP klienta.</string>
+  <string name="error_io_exception_user_message">Zkuste znovu: I/O chyba</string>
+  <string name="error_json_exception_user_message">Zkuste znovu: Špatná odpověď serveru</string>
+  <string name="login_button">Přihlásit</string>
+  <string name="logout_button">Odhlásit</string>
+  <string name="setup_error_title">Chyba konfigurace</string>
+  <string name="setup_error_configure_button">Konfigurovat</string>
+  <string name="setup_error_close_button">Odejít</string>
+  <string name="malformed_url">Nevypadá to jako poskytovatel Bitmask. </string>
+  <string name="certificate_error">Toto není důvěryhodný poskytovatel Bitmask.</string>
+  <string name="configuring_provider">Konfigurace poskytovatele</string>
+  <string name="incorrectly_downloaded_certificate_message">Váš anon cert nebyl stažen</string>
+  <string name="authentication_failed_message">Ověření nebylo úspěšné.</string>
+  <string name="eip_status_start_pending">Zahajování připojení</string>
+  <string name="eip_cancel_connect_title">Zrušit připojení?</string>
+  <string name="eip_cancel_connect_text">Probíhá pokus o přihlášení. Přejete si jej zrušit?</string>
+  <string name="eip_state_connected">Připojení jsou bezpečná.</string>
 </resources>

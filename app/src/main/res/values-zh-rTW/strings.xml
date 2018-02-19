@@ -1,8 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="repository_url_text">取得原始碼與個案追蹤，可上 https://0xacab.org/leap/bitmask_android</string>
+  <string name="retry">重試</string>
+  <string name="info">資訊</string>
   <string name="show_connection_details">顯示連線的詳細資訊</string>
   <string name="routes_info">路徑: %s</string>
-  <string name="routes_info6">IPv6路由: %s</string>
-  <string name="bitmask_log">Bitmask 運作記錄</string>
+  <string name="error_empty_username">使用者名稱不能為空。</string>
+  <string name="save">儲存</string>
+  <string name="new_provider_uri">網域名</string>
+  <string name="username_hint">用戶名</string>
+  <string name="password_hint">密碼</string>
+  <string name="login_button">登入</string>
+  <string name="setup_error_configure_button">設定</string>
+  <string name="setup_error_close_button">離開</string>
 </resources>

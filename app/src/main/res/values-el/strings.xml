@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="retry">Ξαναδοκίμασε</string>
+  <string name="save">Αποθήκευση</string>
+  <string name="username_hint">Όνομα χρήστη</string>
+  <string name="username_ask">Παρακαλούμε εισάγετε το όνομα χρήστη σας</string>
+  <string name="password_hint">κωδικός πρόσβασης</string>
+  <string name="error_io_exception_user_message">Δοκιμάστε ξανά: Σφάλμα Ε/Ε</string>
+  <string name="login_button">Σύνδεση</string>
+  <string name="setup_error_configure_button">Ρύθμιση </string>
+  <string name="setup_error_close_button">Έξοδος</string>
+  <string name="eip_cancel_connect_text">Υπάρχει μια προσπάθεια σύνδεσης σε εξέλιξη. Θέλετε να την ακυρώσετε;</string>
+</resources>

@@ -1,10 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="retry">Reintenta</string>
   <string name="info">info</string>
   <string name="show_connection_details">Mostra els detalls de conexió</string>
-  <string name="dns_server_info">Servidor DNS: %s</string>
   <string name="routes_info">Rutes: %s</string>
-  <string name="routes_info6">Rutes IPv6: %s</string>
-  <string name="bitmask_log">Registre Bitmask</string>
-
+  <string name="error_empty_username">El nom d\'usuari no pot estar buit</string>
+  <string name="introduce_new_provider">Afegeix un nou proveïdor de serveis</string>
+  <string name="save">Guardar</string>
+  <string name="username_hint">nom d\'usuari</string>
+  <string name="password_hint">contrasenya</string>
+  <string name="error_bad_user_password_user_message">Nom d\'usuari o contrasenya incorrecte</string>
+  <string name="setup_error_configure_button">Configurar</string>
+  <string name="setup_error_close_button">Surt</string>
 </resources>

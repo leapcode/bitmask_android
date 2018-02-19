@@ -1,11 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="repository_url_text">Cod sursă şi tracker probleme disponibile la https://0xacab.org/leap/bitmask_android</string>
+  <string name="retry">Reâncearcă</string>
+  <string name="switch_provider_menu_option">Schimbare furnizor</string>
   <string name="info">info</string>
   <string name="show_connection_details">Arată detaliile conexiunii</string>
   <string name="routes_info">Rute: %s</string>
-  <string name="routes_info6">Rute IPv6: %s</string>
-  <string name="cert_from_keystore">Am primit certificatul \'%s\' din Keystore</string>
-  <string name="bitmask_log">Jurnal Bitmask</string>
-
+  <string name="error_empty_username">Numele de utilizator nu trebuie să fie gol.</string>
+  <string name="provider_label">Furnizor:</string>
+  <string name="provider_label_none">Niciun furnizor configurat</string>
+  <string name="status_unknown">Statut necunoscut.</string>
+  <string name="introduce_new_provider">Adaugă un nou serviciu furnizor</string>
+  <string name="save">Salvare</string>
+  <string name="new_provider_uri">Nume domeniu</string>
+  <string name="use_anonymously_button">Utilizează anonim</string>
+  <string name="username_hint">Nume utilizator</string>
+  <string name="username_ask">Vă rugăm introduceți numele dumneavoastră de utilizator</string>
+  <string name="password_hint">parola</string>
+  <string name="user_message">Mesaj utilizator</string>
+  <string name="error_bad_user_password_user_message">Nume de utilizator sau parolă incorect.</string>
+  <string name="error_client_http_user_message">Încercați din nou: Eroare client HTTP</string>
+  <string name="error_io_exception_user_message">Încercați din nou: Eroare I/O</string>
+  <string name="error_json_exception_user_message">Încercați din nou: Răspuns greșit de la server</string>
+  <string name="login_button">Autentificare</string>
+  <string name="logout_button">Deautentificare</string>
+  <string name="setup_error_title">Eroare Configurație</string>
+  <string name="setup_error_configure_button">Configurare</string>
+  <string name="setup_error_close_button">Ieșire</string>
+  <string name="malformed_url">Nu pare să existe un provider Bitmask.</string>
+  <string name="certificate_error">Acesta nu este un furnizor Bitmask de încredere.</string>
+  <string name="configuring_provider">Configurare furnizor</string>
+  <string name="incorrectly_downloaded_certificate_message">Certificatul anonim nu a fost descărcat</string>
+  <string name="authentication_failed_message">Autentificare eșuată.</string>
+  <string name="eip_status_start_pending">Inițiere conexiune</string>
+  <string name="eip_cancel_connect_title">Anulare conexiune?</string>
+  <string name="eip_cancel_connect_text">Există o încercare de conexiune în progres. Doriți să o anulați?</string>
+  <string name="eip_state_connected">Conexiune Sigură.</string>
 </resources>

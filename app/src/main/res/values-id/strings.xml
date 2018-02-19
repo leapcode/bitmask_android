@@ -1,10 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="retry">Coba Ulang</string>
+  <string name="switch_provider_menu_option">Penyedia/provider beralih</string>
   <string name="info">Info</string>
   <string name="show_connection_details">Detail koneksi</string>
   <string name="routes_info">Rute: %s</string>
-  <string name="routes_info6">Rute IPv6: %s</string>
   <string name="error_empty_username">Nama pengguna tidak boleh kosong.</string>
-  <string name="cert_from_keystore">Sertifikat didapatkan \'%s\' dari Keystore</string>
-  <string name="bitmask_log">Catatan Bitmask</string>
+  <string name="provider_label">Penyedia</string>
+  <string name="provider_label_none">Tidak ada penyedia yang dikonfigurasi</string>
+  <string name="status_unknown">Status tidak dikenal</string>
+  <string name="introduce_new_provider">Tambah penyedia layanan baru</string>
+  <string name="save">Simpan</string>
+  <string name="new_provider_uri">Nama domain</string>
+  <string name="use_anonymously_button">Menggunakan secara anonim</string>
+  <string name="username_hint">Nama pengguna</string>
+  <string name="username_ask">Silakan masukkan nama pengguna anda</string>
+  <string name="password_hint">Pasword</string>
+  <string name="user_message">Pesan pengguna</string>
+  <string name="error_bad_user_password_user_message">Nama pengguna atau pasword salah</string>
+  <string name="error_client_http_user_message">Coba lagi: client HTTP eror</string>
+  <string name="error_io_exception_user_message">Coba lagi: kesalahan I/O</string>
+  <string name="error_json_exception_user_message">Coba lagi: respon buruk dari penyedia</string>
+  <string name="login_button">Masuk</string>
+  <string name="logout_button">Keluar</string>
+  <string name="setup_error_title">Kesalahan konfigurasi</string>
+  <string name="setup_error_configure_button">Konfigurasi</string>
+  <string name="setup_error_close_button">Keluar</string>
+  <string name="malformed_url">Tidak tampak sebagai penyedia Bitmask</string>
+  <string name="certificate_error">Peneyedia Bitmask ini tidak terpercaya</string>
+  <string name="configuring_provider">Penyedia menkonfigurasi</string>
+  <string name="incorrectly_downloaded_certificate_message">Cert anon anda tidak terdownload</string>
+  <string name="authentication_failed_message">Otentikasi telah gagal</string>
+  <string name="eip_status_start_pending">Memulai sambungan</string>
+  <string name="eip_cancel_connect_title">Membatalkan sambungan</string>
+  <string name="eip_cancel_connect_text">Upaya penyambungan sedang berlangsung. Apakah anda berharap untuk membatalkannya?</string>
+  <string name="eip_state_connected">Koneksi aman</string>
 </resources>

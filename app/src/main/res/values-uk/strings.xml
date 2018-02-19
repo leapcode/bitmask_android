@@ -1,11 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="repository_url_text">Початковий код і відстеження проблем доступні по https://0xacab.org/leap/bitmask_android</string>
+  <string name="retry">Повторити</string>
   <string name="info">Інформація</string>
   <string name="show_connection_details">Показати відомості про підключення</string>
   <string name="routes_info">Маршрути: %s</string>
-  <string name="routes_info6">Маршрути IPv6: %s</string>
   <string name="error_empty_username">Ім\'я користувача не може бути порожнім.</string>
-  <string name="cert_from_keystore">Отримано сертифікат \'%s\' з сховища ключів</string>
-  <string name="bitmask_log">Журнал Bitmask</string>
+  <string name="save">Зберегти</string>
+  <string name="new_provider_uri">Назва домена</string>
+  <string name="username_hint">ім\'я користувача</string>
+  <string name="password_hint">пароль</string>
+  <string name="login_button">Вхід у систему</string>
+  <string name="setup_error_configure_button">Налаштування</string>
+  <string name="setup_error_close_button">Вихід</string>
 </resources>
