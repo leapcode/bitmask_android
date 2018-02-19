@@ -221,6 +221,9 @@ public final class EIP extends IntentService {
 
     private GatewaysManager gatewaysFromPreferences() {
         GatewaysManager gatewaysManager = new GatewaysManager(this, preferences);
+        //TODO: THIS IS A QUICK FIX - it deletes all profiles in ProfileManager, thus it's possible
+        // to add all gateways from prefs without duplicates, but this should be refactored.
+        gatewaysManager.clearGatewaysAndProfiles();
         gatewaysManager.fromEipServiceJson(eipDefinitionFromPreferences());
         return gatewaysManager;
     }
