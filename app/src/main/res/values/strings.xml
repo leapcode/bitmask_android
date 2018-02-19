@@ -106,5 +106,5 @@
   <string name="warning_expired_provider_cert">Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.</string>
   <string name="downloading_vpn_certificate_failed">Downloading the VPN certificate failed. Try again or choose another provider.</string>
   <string name="vpn_certificate_is_invalid">VPN certificate is invalid. Try to download a new one.</string>
-  <string name="vpn_certificate_user_message">The VPN certificate is invalid. Please log in to do download a new one.</string>
+  <string name="vpn_certificate_user_message">The VPN certificate is invalid. Please log in to download a new one.</string>
 </resources>
