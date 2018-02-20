@@ -51,6 +51,7 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
             ERRORID = "errorId",
             BACKEND_ERROR_KEY = "error",
             BACKEND_ERROR_MESSAGE = "message",
+            USER_MESSAGE = "userMessage",
             DOWNLOAD_SERVICE_JSON = "ProviderAPI.DOWNLOAD_SERVICE_JSON",
             PROVIDER_SET_UP = "ProviderAPI.PROVIDER_SET_UP";
 

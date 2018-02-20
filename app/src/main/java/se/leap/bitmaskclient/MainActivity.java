@@ -20,7 +20,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -58,7 +57,7 @@ import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFI
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderCredentialsBaseActivity.USER_MESSAGE;
+import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 
@@ -67,12 +66,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     public final static String TAG = MainActivity.class.getSimpleName();
 
-    private static final String KEY_ACTIVITY_STATE = "key state of activity";
-    private static final String DEFAULT_UI_STATE = "default state";
-    private static final String SHOW_DIALOG_STATE = "show dialog";
-    private static final String REASON_TO_FAIL = "reason to fail";
-
-    private static Provider provider = new Provider();
+    private Provider provider = new Provider();
     private SharedPreferences preferences;
     private EipStatus eipStatus;
     private NavigationDrawerFragment navigationDrawerFragment;
@@ -198,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     break;
             }
         }
-
+        //TODO: Why do we want this --v? legacy and redundant?
         Fragment fragment = new EipFragment();
         Bundle arguments = new Bundle();
         arguments.putParcelable(PROVIDER_KEY, provider);

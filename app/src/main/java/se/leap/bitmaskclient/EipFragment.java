@@ -60,7 +60,7 @@ import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderCredentialsBaseActivity.USER_MESSAGE;
+import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 
 public class EipFragment extends Fragment implements Observer {
