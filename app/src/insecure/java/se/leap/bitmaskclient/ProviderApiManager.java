@@ -206,9 +206,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     protected Bundle updateVpnCertificate(Provider provider) {
         Bundle result = new Bundle();
         try {
-            JSONObject providerJson = provider.getDefinition();
-            String providerMainUrl = providerJson.getString(Provider.API_URL);
-            URL newCertStringUrl = new URL(providerMainUrl + "/" + providerJson.getString(Provider.API_VERSION) + "/" + PROVIDER_VPN_CERTIFICATE);
+            URL newCertStringUrl = new URL(provider.getApiUrlWithVersion() + "/" + PROVIDER_VPN_CERTIFICATE);
 
             String certString = downloadWithProviderCA(provider.getCaCert(), newCertStringUrl.toString(), lastDangerOn);
             if (ConfigHelper.checkErroneousDownload(certString)) {
@@ -223,8 +221,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 }
             }
             result = loadCertificate(provider, certString);
-        } catch (IOException | JSONException e) {
-            // TODO try to get Provider Json
+        } catch (IOException e) {
             setErrorResult(result, downloading_vpn_certificate_failed, null);
             e.printStackTrace();
         }
