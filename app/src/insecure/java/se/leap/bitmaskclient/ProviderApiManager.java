@@ -140,7 +140,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         else
             providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, providerDefinition, dangerOn);
 
-        if (!isValidJson(providerDotJsonString)) {
+        if (ConfigHelper.checkErroneousDownload(providerDotJsonString) || !isValidJson(providerDotJsonString)) {
             result.putString(ERRORS, resources.getString(malformed_url));
             result.putBoolean(BROADCAST_RESULT_KEY, false);
             return result;
