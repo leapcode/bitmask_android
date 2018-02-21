@@ -107,7 +107,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         Set<Provider> providers = new HashSet<>();
         try {
             for (String file : files) {
-                String mainUrl = extractMainUrlFromInputStream(new FileInputStream(externalFilesDir.getAbsolutePath() + "/" + file));
+                String mainUrl = extractMainUrlFromInputStream(ConfigHelper.getInputStreamFrom(externalFilesDir.getAbsolutePath() + "/" + file));
                 providers.add(new Provider(new URL(mainUrl)));
             }
         } catch (MalformedURLException | FileNotFoundException e) {
@@ -219,6 +219,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         defaultProviderURLs.clear();
     }
 
+    //FIXME: removed custom providers should be deleted here as well
     void saveCustomProvidersToFile() {
         try {
             for (Provider provider : customProviders) {
