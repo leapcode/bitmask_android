@@ -39,11 +39,10 @@ public class ProviderListActivity extends ProviderListBaseActivity {
         setUpProvider();
     }
 
+    @Override
     public void showAndSelectProvider(String provider_main_url) {
         try {
             provider = new Provider(new URL((provider_main_url)));
-            adapter.add(provider);
-            adapter.saveProviders();
             autoSelectProvider(provider);
         } catch (MalformedURLException e) {
             e.printStackTrace();
