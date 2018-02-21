@@ -207,7 +207,8 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
     void handleProviderSetUp(Provider handledProvider) {
         this.provider = handledProvider;
-
+        adapter.add(provider);
+        adapter.saveProviders();
         if (provider.allowsAnonymous()) {
             mConfigState.putExtra(SERVICES_RETRIEVED, true);
             downloadVpnCertificate();

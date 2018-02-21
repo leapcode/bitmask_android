@@ -278,8 +278,6 @@ public final class Provider implements Parcelable {
         try {
             json.put(Provider.MAIN_URL, mainUrl);
             //TODO: add other fields here?
-            //this is used to save custom providers as json. I guess this doesn't work correctly
-            //TODO 2: verify that
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -428,5 +426,4 @@ public final class Provider implements Parcelable {
         allowRegistered = false;
         allowAnonymous = false;
     }
-
 }

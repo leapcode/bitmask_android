@@ -27,6 +27,8 @@ import org.spongycastle.util.encoders.Base64;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,9 +49,11 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static android.R.attr.name;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
@@ -125,36 +129,14 @@ public class ConfigHelper {
         return (X509Certificate) certificate;
     }
 
+    public static String loadInputStreamAsString(java.io.InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
 
-    public static String loadInputStreamAsString(InputStream inputStream) {
-        BufferedReader in = null;
-        try {
-            StringBuilder buf = new StringBuilder();
-            in = new BufferedReader(new InputStreamReader(inputStream));
-
-            String str;
-            boolean isFirst = true;
-            while ( (str = in.readLine()) != null ) {
-                if (isFirst)
-                    isFirst = false;
-                else
-                    buf.append('\n');
-                buf.append(str);
-            }
-            return buf.toString();
-        } catch (IOException e) {
-            Log.e(TAG, "Error opening asset " + name);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "Error closing asset " + name);
-                }
-            }
-        }
-
-        return null;
+    //allows us to mock FileInputStream
+    public static InputStream getInputStreamFrom(String filePath) throws FileNotFoundException {
+        return new FileInputStream(filePath);
     }
 
     protected static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {

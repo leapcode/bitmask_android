@@ -31,6 +31,8 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     private File externalFilesDir;
     private Set<Provider> defaultProviders;
     private Set<Provider> customProviders;
+    private Set<URL> defaultProviderURLs;
+    private Set<URL> customProviderURLs;
 
     private static ProviderManager instance;
 
@@ -52,9 +54,18 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     private void addDefaultProviders(AssetManager assets_manager) {
         try {
             defaultProviders = providersFromAssets(URLS, assets_manager.list(URLS));
+            defaultProviderURLs = getProviderUrlSetFromProviderSet(defaultProviders);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private Set<URL> getProviderUrlSetFromProviderSet(Set<Provider> providers) {
+        HashSet<URL> providerUrls = new HashSet<>();
+        for (Provider provider : providers) {
+            providerUrls.add(provider.getMainUrl().getUrl());
+        }
+        return providerUrls;
     }
 
     private Set<Provider> providersFromAssets(String directory, String[] relativeFilePaths) {
@@ -89,13 +100,14 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         customProviders = externalFilesDir != null && externalFilesDir.isDirectory() ?
                 providersFromFiles(externalFilesDir.list()) :
                 new HashSet<Provider>();
+        customProviderURLs = getProviderUrlSetFromProviderSet(customProviders);
     }
 
     private Set<Provider> providersFromFiles(String[] files) {
         Set<Provider> providers = new HashSet<>();
         try {
             for (String file : files) {
-                String mainUrl = extractMainUrlFromInputStream(new FileInputStream(externalFilesDir.getAbsolutePath() + "/" + file));
+                String mainUrl = extractMainUrlFromInputStream(ConfigHelper.getInputStreamFrom(externalFilesDir.getAbsolutePath() + "/" + file));
                 providers.add(new Provider(new URL(mainUrl)));
             }
         } catch (MalformedURLException | FileNotFoundException e) {
@@ -132,6 +144,8 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         allProviders.addAll(defaultProviders);
         if(customProviders != null)
             allProviders.addAll(customProviders);
+        //add an option to add a custom provider
+        //TODO: refactor me?
         allProviders.add(new Provider());
         return allProviders;
     }
@@ -153,32 +167,59 @@ public class ProviderManager implements AdapteeCollection<Provider> {
 
     @Override
     public boolean add(Provider element) {
-        return !defaultProviders.contains(element) || customProviders.add(element);
+        return element != null &&
+                !defaultProviderURLs.contains(element.getMainUrl().getUrl()) &&
+                customProviders.add(element) &&
+                customProviderURLs.add(element.getMainUrl().getUrl());
     }
 
     @Override
     public boolean remove(Object element) {
-        return customProviders.remove(element);
+        return element instanceof Provider &&
+                customProviders.remove(element) &&
+                customProviderURLs.remove(((Provider) element).getMainUrl().getUrl());
     }
 
     @Override
     public boolean addAll(Collection<? extends Provider> elements) {
-        return customProviders.addAll(elements);
+        Iterator iterator = elements.iterator();
+        boolean addedAll = true;
+        while (iterator.hasNext()) {
+            Provider p = (Provider) iterator.next();
+            addedAll = customProviders.add(p) &&
+                    customProviderURLs.add(p.getMainUrl().getUrl()) &&
+                    addedAll;
+        }
+        return addedAll;
     }
 
     @Override
     public boolean removeAll(Collection<?> elements) {
-        if(!elements.getClass().equals(Provider.class))
+        Iterator iterator = elements.iterator();
+        boolean removedAll = true;
+        try {
+            while (iterator.hasNext()) {
+                Provider p = (Provider) iterator.next();
+                removedAll = ((defaultProviders.remove(p) && defaultProviderURLs.remove(p.getMainUrl().getUrl())) ||
+                        (customProviders.remove(p) && customProviderURLs.remove(p.getMainUrl().getUrl()))) &&
+                        removedAll;
+            }
+        } catch (ClassCastException e) {
             return false;
-        return defaultProviders.removeAll(elements) || customProviders.removeAll(elements);
+        }
+
+        return removedAll;
     }
 
     @Override
     public void clear() {
         defaultProviders.clear();
         customProviders.clear();
+        customProviderURLs.clear();
+        defaultProviderURLs.clear();
     }
 
+    //FIXME: removed custom providers should be deleted here as well
     void saveCustomProvidersToFile() {
         try {
             for (Provider provider : customProviders) {
