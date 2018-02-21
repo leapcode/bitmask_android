@@ -74,7 +74,7 @@ public class ConfigHelper {
 
     public static boolean checkErroneousDownload(String downloadedString) {
         try {
-            if (downloadedString == null || downloadedString.isEmpty() || new JSONObject(downloadedString).has(ProviderAPI.ERRORS)) {
+            if (downloadedString == null || downloadedString.isEmpty() || new JSONObject(downloadedString).has(ProviderAPI.ERRORS) || new JSONObject(downloadedString).has(ProviderAPI.BACKEND_ERROR_KEY)) {
                 return true;
             } else {
                 return false;

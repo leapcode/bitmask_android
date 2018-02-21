@@ -46,6 +46,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -63,19 +64,16 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_MESSAGE;
-import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
-import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
-import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
-import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_SERVICE_JSON;
+import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORID;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.FAILED_LOGIN;
 import static se.leap.bitmaskclient.ProviderAPI.FAILED_SIGNUP;
-import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.LOGOUT_FAILED;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_OUT;
@@ -90,15 +88,18 @@ import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_LOGIN;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_LOGOUT;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_SIGNUP;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
+import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
+import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
+import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
+import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
 import static se.leap.bitmaskclient.R.string.certificate_error;
-import static se.leap.bitmaskclient.R.string.switch_provider_menu_option;
-import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
 import static se.leap.bitmaskclient.R.string.malformed_url;
 import static se.leap.bitmaskclient.R.string.server_unreachable_message;
 import static se.leap.bitmaskclient.R.string.service_is_down_error;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
 import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
@@ -290,7 +291,7 @@ public abstract class ProviderApiManagerBase {
         JSONObject stepResult = null;
         OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), stepResult);
         if (okHttpClient == null) {
-            return authFailedNotification(stepResult, username);
+            return backendErrorNotification(stepResult, username);
         }
 
         LeapSRPSession client = new LeapSRPSession(username, password);
@@ -302,7 +303,7 @@ public abstract class ProviderApiManagerBase {
 
         Bundle result = new Bundle();
         if (api_result.has(ERRORS) || api_result.has(BACKEND_ERROR_KEY))
-            result = authFailedNotification(api_result, username);
+            result = backendErrorNotification(api_result, username);
         else {
             result.putString(CREDENTIALS_USERNAME, username);
             result.putString(CREDENTIALS_PASSWORD, password);
@@ -349,7 +350,7 @@ public abstract class ProviderApiManagerBase {
 
         OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), stepResult);
         if (okHttpClient == null) {
-            return authFailedNotification(stepResult, username);
+            return backendErrorNotification(stepResult, username);
         }
 
         LeapSRPSession client = new LeapSRPSession(username, password);
@@ -367,15 +368,15 @@ public abstract class ProviderApiManagerBase {
                 if (client.verify(M2)) {
                     result.putBoolean(BROADCAST_RESULT_KEY, true);
                 } else {
-                    authFailedNotification(step_result, username);
+                    backendErrorNotification(step_result, username);
                 }
             } else {
                 result.putBoolean(BROADCAST_RESULT_KEY, false);
                 result.putString(CREDENTIALS_USERNAME, username);
-                result.putString(resources.getString(R.string.user_message), resources.getString(R.string.error_srp_math_error_user_message));
+                result.putString(USER_MESSAGE, resources.getString(R.string.error_srp_math_error_user_message));
             }
         } catch (JSONException e) {
-            result = authFailedNotification(step_result, username);
+            result = backendErrorNotification(step_result, username);
             e.printStackTrace();
         }
 
@@ -391,7 +392,7 @@ public abstract class ProviderApiManagerBase {
         return true;
     }
 
-    private Bundle authFailedNotification(JSONObject result, String username) {
+    private Bundle backendErrorNotification(JSONObject result, String username) {
         Bundle userNotificationBundle = new Bundle();
         if (result.has(ERRORS)) {
             Object baseErrorMessage = result.opt(ERRORS);
@@ -400,14 +401,14 @@ public abstract class ProviderApiManagerBase {
                     JSONObject errorMessage = result.getJSONObject(ERRORS);
                     String errorType = errorMessage.keys().next().toString();
                     String message = errorMessage.get(errorType).toString();
-                    userNotificationBundle.putString(resources.getString(R.string.user_message), message);
-                } catch (JSONException e) {
+                    userNotificationBundle.putString(USER_MESSAGE, message);
+                } catch (JSONException | NoSuchElementException | NullPointerException e) {
                     e.printStackTrace();
                 }
             } else if (baseErrorMessage instanceof String) {
                 try {
                     String errorMessage = result.getString(ERRORS);
-                    userNotificationBundle.putString(resources.getString(R.string.user_message), errorMessage);
+                    userNotificationBundle.putString(USER_MESSAGE, errorMessage);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -418,7 +419,7 @@ public abstract class ProviderApiManagerBase {
                 if (result.has(BACKEND_ERROR_MESSAGE)) {
                     backendErrorMessage = resources.getString(R.string.error) + result.getString(BACKEND_ERROR_MESSAGE);
                 }
-                userNotificationBundle.putString(resources.getString(R.string.user_message), backendErrorMessage);
+                userNotificationBundle.putString(USER_MESSAGE, backendErrorMessage);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -431,7 +432,7 @@ public abstract class ProviderApiManagerBase {
         return userNotificationBundle;
     }
 
-    void sendToReceiverOrBroadcast(ResultReceiver receiver, int resultCode, Bundle resultData, Provider provider) {
+    private void sendToReceiverOrBroadcast(ResultReceiver receiver, int resultCode, Bundle resultData, Provider provider) {
         if (resultData == null || resultData == Bundle.EMPTY) {
             resultData = new Bundle();
         }

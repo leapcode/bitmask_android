@@ -34,6 +34,7 @@ import se.leap.bitmaskclient.eip.EIP;
 
 import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
@@ -84,6 +85,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
         //provider details invalid
         if (currentDownload.containsKey(ERRORS)) {
+            currentDownload.putParcelable(PROVIDER_KEY, provider);
             return currentDownload;
         }
 
@@ -121,7 +123,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, providerDefinition);
         }
 
-        if (!isValidJson(providerDotJsonString)) {
+        if (ConfigHelper.checkErroneousDownload(providerDotJsonString) || !isValidJson(providerDotJsonString)) {
             setErrorResult(result, malformed_url, null);
             return result;
         }
@@ -177,9 +179,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     protected Bundle updateVpnCertificate(Provider provider) {
         Bundle result = new Bundle();
         try {
-            JSONObject providerJson = provider.getDefinition();
-            String providerMainUrl = providerJson.getString(Provider.API_URL);
-            URL newCertStringUrl = new URL(providerMainUrl + "/" + providerJson.getString(Provider.API_VERSION) + "/" + PROVIDER_VPN_CERTIFICATE);
+            URL newCertStringUrl = new URL(provider.getApiUrlWithVersion() + "/" + PROVIDER_VPN_CERTIFICATE);
 
             String certString = downloadWithProviderCA(provider.getCaCert(), newCertStringUrl.toString());
             if (ConfigHelper.checkErroneousDownload(certString)) {
@@ -194,7 +194,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 }
             }
             return loadCertificate(provider, certString);
-        } catch (IOException | JSONException e) {
+        } catch (IOException e) {
             // TODO try to get Provider Json
             setErrorResult(result, downloading_vpn_certificate_failed, null);
             e.printStackTrace();
