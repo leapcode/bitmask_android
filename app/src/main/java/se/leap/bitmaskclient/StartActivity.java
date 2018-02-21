@@ -184,12 +184,9 @@ public class StartActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null) {
-            return;
-        }
 
         if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
-            if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
+            if (resultCode == RESULT_OK && data != null && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
                 ConfigHelper.storeProviderInPreferences(preferences, provider);
                 EipCommand.startVPN(this, false);
