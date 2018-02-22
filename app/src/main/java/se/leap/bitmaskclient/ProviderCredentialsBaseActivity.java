@@ -186,7 +186,11 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         String username = usernameField.getText().toString();
         String providerDomain = provider.getDomain();
         if (username.endsWith(providerDomain)) {
-            return username.split("@" + providerDomain)[0];
+            try {
+                return username.split("@" + providerDomain)[0];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                return "";
+            }
         }
         return username;
     }
@@ -240,9 +244,15 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             @Override
             public void afterTextChanged(Editable s) {
                 if (getUsername().equalsIgnoreCase("")) {
+                    s.clear();
                     usernameError.setError(getString(R.string.username_ask));
                 } else {
                     usernameError.setError(null);
+                    String suffix = "@" + provider.getDomain();
+                    if (!usernameField.getText().toString().endsWith(suffix)) {
+                        s.append(suffix);
+                        usernameField.setSelection(usernameField.getText().toString().indexOf('@'));
+                    }
                 }
             }
         });
