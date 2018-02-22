@@ -171,8 +171,8 @@ public class EipFragment extends Fragment implements Observer {
         super.onResume();
         //FIXME: avoid race conditions while checking certificate an logging in at about the same time
         //eipCommand(Constants.EIP_ACTION_CHECK_CERT_VALIDITY);
-        handleNewState();
         bindOpenVpnService();
+        handleNewState();
     }
 
     @Override
@@ -407,8 +407,10 @@ public class EipFragment extends Fragment implements Observer {
     private boolean isOpenVpnRunningWithoutNetwork() {
         boolean isRunning = false;
         try {
-            isRunning = eipStatus.getLevel() == LEVEL_NONETWORK &&
-                    mService.isVpnRunning();
+            if (mService != null) {
+                isRunning = eipStatus.getLevel() == LEVEL_NONETWORK &&
+                        mService.isVpnRunning();
+            }
         } catch (Exception e) {
             //eat me
             e.printStackTrace();
