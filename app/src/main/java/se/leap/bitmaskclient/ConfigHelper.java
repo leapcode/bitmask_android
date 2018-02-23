@@ -16,7 +16,9 @@
  */
 package se.leap.bitmaskclient;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -52,6 +54,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import static android.R.attr.name;
+import static se.leap.bitmaskclient.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
@@ -383,6 +386,7 @@ public class ConfigHelper {
         clearDataOfLastProvider(preferences, false);
     }
 
+    @Deprecated
     public static void clearDataOfLastProvider(SharedPreferences preferences, boolean commit) {
         Map<String, ?> allEntries = preferences.getAll();
         List<String> lastProvidersKeys = new ArrayList<>();
@@ -410,18 +414,30 @@ public class ConfigHelper {
     }
 
     public static void deleteProviderDetailsFromPreferences(@NonNull SharedPreferences preferences, String providerDomain) {
-            preferences.edit().
-                    remove(Provider.KEY + "." + providerDomain).
-                    remove(Provider.CA_CERT + "." + providerDomain).
-                    remove(Provider.CA_CERT_FINGERPRINT + "." + providerDomain).
-                    remove(Provider.MAIN_URL + "." + providerDomain).
-                    remove(Provider.KEY + "." + providerDomain).
-                    remove(Provider.CA_CERT + "." + providerDomain).
-                    remove(PROVIDER_EIP_DEFINITION + "." + providerDomain).
-                    remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
-                    remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
-                    apply();
+        preferences.edit().
+                remove(Provider.KEY + "." + providerDomain).
+                remove(Provider.CA_CERT + "." + providerDomain).
+                remove(Provider.CA_CERT_FINGERPRINT + "." + providerDomain).
+                remove(Provider.MAIN_URL + "." + providerDomain).
+                remove(Provider.KEY + "." + providerDomain).
+                remove(Provider.CA_CERT + "." + providerDomain).
+                remove(PROVIDER_EIP_DEFINITION + "." + providerDomain).
+                remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
+                remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
+                apply();
     }
 
+    public static void saveBattery(Context context, boolean isEnabled) {
+        if (context == null) {
+            return;
+        }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(DEFAULT_SHARED_PREFS_BATTERY_SAVER, isEnabled).apply();
+    }
+
+    public static boolean getSaveBattery(@NonNull Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(DEFAULT_SHARED_PREFS_BATTERY_SAVER, false);
+    }
 
 }

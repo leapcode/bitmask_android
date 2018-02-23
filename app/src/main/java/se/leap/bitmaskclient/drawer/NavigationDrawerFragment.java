@@ -1,6 +1,24 @@
+/**
+ * Copyright (c) 2018 LEAP Encryption Access Project and contributers
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.leap.bitmaskclient.drawer;
 
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -11,6 +29,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,10 +41,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import se.leap.bitmaskclient.ConfigHelper;
+import se.leap.bitmaskclient.DrawerSettingsAdapter;
+import se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.EipFragment;
@@ -35,9 +57,19 @@ import se.leap.bitmaskclient.fragments.LogFragment;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
+import static se.leap.bitmaskclient.ConfigHelper.getSaveBattery;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.ABOUT;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.BATTERY_SAVER;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSimpleTextInstance;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSwitchInstance;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.LOG;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.SWITCH_PROVIDER;
+import static se.leap.bitmaskclient.R.string.about_fragment_title;
+import static se.leap.bitmaskclient.R.string.log_fragment_title;
+import static se.leap.bitmaskclient.R.string.switch_provider_menu_option;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -63,6 +95,7 @@ public class NavigationDrawerFragment extends Fragment {
     private ListView mDrawerAccountsListView;
     private View mFragmentContainerView;
     private ArrayAdapter<String> accountListAdapter;
+    private DrawerSettingsAdapter settingsListAdapter;
 
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
@@ -71,17 +104,23 @@ public class NavigationDrawerFragment extends Fragment {
 
     private SharedPreferences preferences;
 
+    private final static String KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE = "KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE";
+    private boolean showEnableExperimentalFeature = false;
+    AlertDialog alertDialog;
+
     public NavigationDrawerFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // Read in the flag indicating whether or not the user has demonstrated awareness of the
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         mUserLearnedDrawer = preferences.getBoolean(PREF_USER_LEARNED_DRAWER, false);
+        if (savedInstanceState != null) {
+            mFromSavedInstanceState = true;
+        }
     }
 
     @Override
@@ -95,7 +134,9 @@ public class NavigationDrawerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mDrawerView = inflater.inflate(R.layout.drawer_main, container, false);
+        restoreFromSavedInstance(savedInstanceState);
         return mDrawerView;
+
     }
 
     public boolean isDrawerOpen() {
@@ -119,16 +160,23 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(parent, position);
             }
         });
+        settingsListAdapter = new DrawerSettingsAdapter(getLayoutInflater());
+        if (getContext() != null) {
+            settingsListAdapter.addItem(getSwitchInstance(getString(R.string.save_battery),
+                    getSaveBattery(getContext()),
+                    BATTERY_SAVER,
+                    new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean newStateIsChecked) {
+                            onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked);
+                        }
+                    }));
+        }
+        settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
+        settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
+        settingsListAdapter.addItem(getSimpleTextInstance(getString(about_fragment_title), ABOUT));
 
-        mDrawerSettingsListView.setAdapter(new ArrayAdapter<String>(
-                actionBar.getThemedContext(),
-                R.layout.single_list_item,
-                android.R.id.text1,
-                new String[]{
-                        getString(R.string.switch_provider_menu_option),
-                        getString(R.string.log_fragment_title),
-                        getString(R.string.about_fragment_title),
-                }));
+        mDrawerSettingsListView.setAdapter(settingsListAdapter);
 
         mDrawerAccountsListView = mDrawerView.findViewById(R.id.accountList);
         mDrawerAccountsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -215,12 +263,55 @@ public class NavigationDrawerFragment extends Fragment {
         if (mDrawerLayout != null) {
             mDrawerLayout.closeDrawer(mFragmentContainerView);
         }
-        onNavigationDrawerItemSelected(list, position);
+        onTextItemSelected(list, position);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (showEnableExperimentalFeature) {
+            outState.putBoolean(KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE, true);
+            alertDialog.dismiss();
+        }
+    }
+
+    private void restoreFromSavedInstance(Bundle savedInstanceState) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE)) {
+            showEnableExperimentalFeature = true;
+            showExperimentalFeatureAlert();
+        }
+    }
+
+    private void showExperimentalFeatureAlert() {
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+        showEnableExperimentalFeature = true;
+        alertDialog = alertBuilder.setTitle(activity.getString(R.string.experimental_feature_title))
+                .setMessage(activity.getString(R.string.experimental_feature_message))
+                .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        DrawerSettingsItem item = settingsListAdapter.getDrawerItem(BATTERY_SAVER);
+                        item.setChecked(true);
+                        settingsListAdapter.notifyDataSetChanged();
+                        ConfigHelper.saveBattery(getContext(), item.isChecked());
+                    }
+                })
+                .setNegativeButton(activity.getString(android.R.string.no), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        disableSwitch(BATTERY_SAVER);
+                    }
+                }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        showEnableExperimentalFeature = false;
+                    }
+                }).show();
     }
 
     @Override
@@ -272,7 +363,28 @@ public class NavigationDrawerFragment extends Fragment {
         return ((AppCompatActivity) getActivity()).getSupportActionBar();
     }
 
-    public void onNavigationDrawerItemSelected(AdapterView<?> parent, int position) {
+    private void onSwitchItemSelected(int elementType, boolean newStateIsChecked) {
+        switch (elementType) {
+            case BATTERY_SAVER:
+                if (newStateIsChecked) {
+                    showExperimentalFeatureAlert();
+                } else {
+                    ConfigHelper.saveBattery(this.getContext(), false);
+                    disableSwitch(BATTERY_SAVER);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void disableSwitch(int elementType) {
+        DrawerSettingsItem item = settingsListAdapter.getDrawerItem(elementType);
+        item.setChecked(false);
+        settingsListAdapter.notifyDataSetChanged();
+    }
+
+    public void onTextItemSelected(AdapterView<?> parent, int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         Fragment fragment = null;
@@ -286,16 +398,17 @@ public class NavigationDrawerFragment extends Fragment {
             fragment.setArguments(arguments);
         } else {
             Log.d("Drawer", String.format("Selected position %d", position));
-            switch (position) {
-                case 0:
+            DrawerSettingsItem settingsItem = settingsListAdapter.getItem(position);
+            switch (settingsItem.getItemType()) {
+                case SWITCH_PROVIDER:
                     getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
                     break;
-                case 1:
-                    mTitle = getString(R.string.log_fragment_title);
+                case LOG:
+                    mTitle = getString(log_fragment_title);
                     fragment = new LogFragment();
                     break;
-                case 2:
-                    mTitle = getString(R.string.about_fragment_title);
+                case ABOUT:
+                    mTitle = getString(about_fragment_title);
                     fragment = new AboutFragment();
                     break;
                 default:
