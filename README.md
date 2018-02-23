@@ -2,7 +2,7 @@
 
 This repository contains the source code for the [Bitmask](https://bitmask.net/) Android client. Bitmask Android offers one-click free VPN service from trusted providers of the LEAP stack.
 
-To lean about the stack, visit [leap.se](https://leap.se).
+To learn about the stack, visit [leap.se](https://leap.se).
 
 Please see the [issues](https://0xacab.org/leap/bitmask_android/issues) section to report any bugs or feature requests, and to see the list of known issues.
 
@@ -475,7 +475,7 @@ Please file bug tickets on our main [development platform](https://0xacab.org/le
 
 ## Contributing <a name="contributing"></a>
 
-Please fork this repository and contribute back using [pull requests](https://github.com/leapcode/leap_android/pulls).
+Please fork this repository and contribute back using [pull requests](https://0xacab.org/leap/bitmask_android/merge_requests).
 
 Our preferred method for receiving translations is our [Transifex project](https://www.transifex.com/projects/p/bitmask-android).
 
