@@ -290,8 +290,8 @@ public class NavigationDrawerFragment extends Fragment {
 
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
         showEnableExperimentalFeature = true;
-        alertDialog = alertBuilder.setTitle(activity.getString(R.string.experimental_feature_title))
-                .setMessage(activity.getString(R.string.experimental_feature_message))
+        alertDialog = alertBuilder.setTitle(activity.getString(R.string.save_battery))
+                .setMessage(activity.getString(R.string.save_battery_message))
                 .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -311,7 +311,13 @@ public class NavigationDrawerFragment extends Fragment {
                     public void onDismiss(DialogInterface dialog) {
                         showEnableExperimentalFeature = false;
                     }
-                }).show();
+                }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        disableSwitch(BATTERY_SAVER);
+                    }
+                })
+                .show();
     }
 
     @Override
