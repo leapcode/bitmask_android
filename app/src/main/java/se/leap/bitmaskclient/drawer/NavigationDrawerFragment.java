@@ -315,6 +315,7 @@ public class NavigationDrawerFragment extends Fragment {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         disableSwitch(BATTERY_SAVER);
+                        showEnableExperimentalFeature = false;
                     }
                 })
                 .show();
