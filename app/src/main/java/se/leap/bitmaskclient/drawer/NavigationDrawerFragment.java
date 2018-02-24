@@ -277,7 +277,6 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void restoreFromSavedInstance(Bundle savedInstanceState) {
         if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE)) {
-            showEnableExperimentalFeature = true;
             showExperimentalFeatureAlert();
         }
     }
@@ -373,6 +372,10 @@ public class NavigationDrawerFragment extends Fragment {
     private void onSwitchItemSelected(int elementType, boolean newStateIsChecked) {
         switch (elementType) {
             case BATTERY_SAVER:
+                if (ConfigHelper.getSaveBattery(getContext()) == newStateIsChecked) {
+                    //initial ui setup, ignore
+                    return;
+                }
                 if (newStateIsChecked) {
                     showExperimentalFeatureAlert();
                 } else {
