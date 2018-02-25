@@ -48,7 +48,6 @@ import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
-import se.leap.bitmaskclient.eip.VoidVpnService;
 import se.leap.bitmaskclient.views.VpnStateImage;
 
 import static android.view.View.GONE;
@@ -67,7 +66,6 @@ public class EipFragment extends Fragment implements Observer {
 
     public final static String TAG = EipFragment.class.getSimpleName();
 
-    public static final String START_EIP_ON_BOOT = "start on boot";
     public static final String ASK_TO_CANCEL_VPN = "ask_to_cancel_vpn";
 
 
@@ -100,23 +98,7 @@ public class EipFragment extends Fragment implements Observer {
     AlertDialog alertDialog;
 
     private IOpenVPNServiceInternal mService;
-    private ServiceConnection openVpnConnection = new ServiceConnection() {
-
-
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-
-            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mService = null;
-        }
-
-    };
+    private ServiceConnection openVpnConnection;
 
     @Override
     public void onAttach(Context context) {
@@ -141,6 +123,7 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        openVpnConnection = new EipFragmentServiceConnection();
         eipStatus = EipStatus.getInstance();
         Activity activity = getActivity();
         if (activity != null) {
@@ -230,7 +213,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     void handleIcon() {
-        if (eipStatus.isConnected() || eipStatus.isConnecting())
+        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnected() || eipStatus.isConnecting())
             handleSwitchOff();
         else
             handleSwitchOn();
@@ -386,10 +369,20 @@ public class EipFragment extends Fragment implements Observer {
             routedText.setVisibility(GONE);
             vpnRoute.setVisibility(GONE);
             colorBackgroundALittle();
-        } else if (eipStatus.isConnected() || isOpenVpnRunningWithoutNetwork()) {
+        } else if (eipStatus.isConnected() ) {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
             vpnStateImage.setStateIcon(R.drawable.vpn_connected);
             vpnStateImage.stopProgress(true);
+            routedText.setText(R.string.vpn_securely_routed);
+            routedText.setVisibility(VISIBLE);
+            vpnRoute.setVisibility(VISIBLE);
+            vpnRoute.setText(ConfigHelper.getProviderName(preferences));
+            colorBackground();
+        } else if(isOpenVpnRunningWithoutNetwork()){
+            mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
+            vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
+            vpnStateImage.stopProgress(true);
+            routedText.setText(R.string.vpn_securely_routed_no_internet);
             routedText.setVisibility(VISIBLE);
             vpnRoute.setVisibility(VISIBLE);
             vpnRoute.setText(ConfigHelper.getProviderName(preferences));
@@ -407,10 +400,8 @@ public class EipFragment extends Fragment implements Observer {
     private boolean isOpenVpnRunningWithoutNetwork() {
         boolean isRunning = false;
         try {
-            if (mService != null) {
-                isRunning = eipStatus.getLevel() == LEVEL_NONETWORK &&
-                        mService.isVpnRunning();
-            }
+            isRunning = eipStatus.getLevel() == LEVEL_NONETWORK &&
+                    mService.isVpnRunning();
         } catch (Exception e) {
             //eat me
             e.printStackTrace();
@@ -465,6 +456,20 @@ public class EipFragment extends Fragment implements Observer {
         Activity activity = getActivity();
         if (activity != null) {
             activity.startActivityForResult(intent, REQUEST_CODE_LOG_IN);
+        }
+    }
+
+    private class EipFragmentServiceConnection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
+            handleNewState();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
         }
     }
 }

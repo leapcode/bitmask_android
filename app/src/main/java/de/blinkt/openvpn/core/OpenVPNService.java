@@ -913,7 +913,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             // CONNECTED
             // Does not work :(
             notificationManager.buildOpenVpnNotification(
-                    mProfile != null ? mProfile.mName : "",
+                    mProfile.mName,
                     VpnStatus.getLastCleanLogMessage(this),
                     VpnStatus.getLastCleanLogMessage(this),
                     level,
@@ -944,7 +944,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     humanReadableByteCount(out, false, getResources()),
                     humanReadableByteCount(diffOut / OpenVPNManagement.mBytecountInterval, true, getResources()));
             notificationManager.buildOpenVpnNotification(
-                    mProfile != null ? mProfile.mName : "",
+                    mProfile.mName,
                     netstat,
                     null,
                     LEVEL_CONNECTED,
@@ -987,7 +987,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     public void requestInputFromUser(int resid, String needed) {
         VpnStatus.updateStateString("NEED", "need " + needed, resid, LEVEL_WAITING_FOR_USER_INPUT);
         notificationManager.buildOpenVpnNotification(
-                mProfile != null ? mProfile.mName : "",
+                mProfile.mName,
                 getString(resid),
                 getString(resid),
                 LEVEL_WAITING_FOR_USER_INPUT,
