@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -62,6 +63,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.ABOUT;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.ALWAYS_ON;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.BATTERY_SAVER;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSimpleTextInstance;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSwitchInstance;
@@ -170,6 +172,9 @@ public class NavigationDrawerFragment extends Fragment {
                             onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked);
                         }
                     }));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            settingsListAdapter.addItem(getSimpleTextInstance(getString(R.string.always_on_vpn), ALWAYS_ON));
         }
         settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
         settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
@@ -421,6 +426,11 @@ public class NavigationDrawerFragment extends Fragment {
                 case ABOUT:
                     mTitle = getString(about_fragment_title);
                     fragment = new AboutFragment();
+                    break;
+                case ALWAYS_ON:
+                    Intent intent = new Intent("android.net.vpn.SETTINGS");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                     break;
                 default:
                     break;
