@@ -111,4 +111,6 @@
   <string name="save_battery">Save battery</string>
   <string name="save_battery_message">Background data connections will hibernate when your phone is inactive. This feature is still experimental.</string>
   <string name="always_on_vpn">Always-on VPN</string>
+  <string name="do_not_show_again">Do not show again.</string>
+  <string name="always_on_vpn_user_message">To enable always-on VPN in Android VPN Settings click on the configure icon and turn the switch on."</string>
 </resources>
