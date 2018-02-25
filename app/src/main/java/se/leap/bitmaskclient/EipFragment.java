@@ -389,7 +389,7 @@ public class EipFragment extends Fragment implements Observer {
             routedText.setVisibility(VISIBLE);
             vpnRoute.setVisibility(VISIBLE);
             setVpnRouteText();
-            colorBackground();
+            colorBackgroundALittle();
         } else {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
             vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
