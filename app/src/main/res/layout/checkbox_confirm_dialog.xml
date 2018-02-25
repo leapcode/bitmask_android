@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/user_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:layout_margin="4dp"
+        tools:text="To enable always-on VPN please click on the settings icon [img src=settings/] and turn the switch on. \nFurther information: https://help.bitmask.net/android"
+        />
+
+
+    <CheckBox
+        android:id="@+id/do_not_show_again"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/stdpadding"
+        android:text="@string/do_not_show_again" />
+
+</LinearLayout>
