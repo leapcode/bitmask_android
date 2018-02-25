@@ -31,6 +31,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,10 +85,10 @@ public class EipFragment extends Fragment implements Observer {
     Button mainButton;
 
     @InjectView(R.id.routed_text)
-    TextView routedText;
+    AppCompatTextView routedText;
 
     @InjectView(R.id.vpn_route)
-    TextView vpnRoute;
+    AppCompatTextView vpnRoute;
 
     private EipStatus eipStatus;
 
