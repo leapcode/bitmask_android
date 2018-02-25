@@ -369,12 +369,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
-        return true;
-    }
-
     public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
