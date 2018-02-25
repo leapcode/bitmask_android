@@ -44,8 +44,10 @@ import java.util.Observer;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
+import de.blinkt.openvpn.core.ProfileManager;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.views.VpnStateImage;
@@ -376,7 +378,7 @@ public class EipFragment extends Fragment implements Observer {
             routedText.setText(R.string.vpn_securely_routed);
             routedText.setVisibility(VISIBLE);
             vpnRoute.setVisibility(VISIBLE);
-            vpnRoute.setText(ConfigHelper.getProviderName(preferences));
+            setVpnRouteText();
             colorBackground();
         } else if(isOpenVpnRunningWithoutNetwork()){
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
@@ -385,7 +387,7 @@ public class EipFragment extends Fragment implements Observer {
             routedText.setText(R.string.vpn_securely_routed_no_internet);
             routedText.setVisibility(VISIBLE);
             vpnRoute.setVisibility(VISIBLE);
-            vpnRoute.setText(ConfigHelper.getProviderName(preferences));
+            setVpnRouteText();
             colorBackground();
         } else {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
@@ -457,6 +459,15 @@ public class EipFragment extends Fragment implements Observer {
         if (activity != null) {
             activity.startActivityForResult(intent, REQUEST_CODE_LOG_IN);
         }
+    }
+
+    private void setVpnRouteText() {
+        String vpnRouteString = provider.getName();
+        VpnProfile vpnProfile = ProfileManager.getLastConnectedVpn();
+        if (vpnProfile != null && vpnProfile.mName != null) {
+            vpnRouteString += " (" + vpnProfile.mName + ")";
+        }
+        vpnRoute.setText(vpnRouteString);
     }
 
     private class EipFragmentServiceConnection implements ServiceConnection {
