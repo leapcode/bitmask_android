@@ -81,4 +81,9 @@ public interface Constants {
     String BROADCAST_RESULT_CODE = "BROADCAST.RESULT_CODE";
     String BROADCAST_RESULT_KEY = "BROADCAST.RESULT_KEY";
 
+
+    //////////////////////////////////////////////
+    // ICS-OPENVPN CONSTANTS
+    /////////////////////////////////////////////
+    String DEFAULT_SHARED_PREFS_BATTERY_SAVER = "screenoff";
 }

@@ -107,4 +107,6 @@
   <string name="downloading_vpn_certificate_failed">Downloading the VPN certificate failed. Try again or choose another provider.</string>
   <string name="vpn_certificate_is_invalid">VPN certificate is invalid. Try to download a new one.</string>
   <string name="vpn_certificate_user_message">The VPN certificate is invalid. Please log in to download a new one.</string>
+  <string name="save_battery">Save battery</string>
+  <string name="save_battery_message">Background data connections will hibernate when your phone is inactive. This feature is still experimental.</string>
 </resources>
