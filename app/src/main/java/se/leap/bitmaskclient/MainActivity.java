@@ -2,15 +2,11 @@ package se.leap.bitmaskclient;
 
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -26,14 +22,9 @@ import org.json.JSONObject;
 import java.util.Observable;
 import java.util.Observer;
 
-import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
-import de.blinkt.openvpn.core.OpenVPNService;
-import de.blinkt.openvpn.core.ProfileManager;
-import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.drawer.NavigationDrawerFragment;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
-import se.leap.bitmaskclient.eip.VoidVpnService;
 import se.leap.bitmaskclient.fragments.LogFragment;
 
 import static android.content.Intent.CATEGORY_DEFAULT;
@@ -43,9 +34,7 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
-import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
@@ -62,30 +51,14 @@ import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 
 
-public class MainActivity extends AppCompatActivity implements Observer {
+public class MainActivity extends AppCompatActivity {
 
     public final static String TAG = MainActivity.class.getSimpleName();
 
     private Provider provider = new Provider();
     private SharedPreferences preferences;
-    private EipStatus eipStatus;
     private NavigationDrawerFragment navigationDrawerFragment;
     private MainActivityBroadcastReceiver mainActivityBroadcastReceiver;
-
-    private IOpenVPNServiceInternal mService;
-    private ServiceConnection openVpnConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mService = null;
-        }
-
-    };
 
     public final static String ACTION_SHOW_VPN_FRAGMENT = "action_show_vpn_fragment";
     public final static String ACTION_SHOW_LOG_FRAGMENT = "action_show_log_fragment";
@@ -114,14 +87,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        eipStatus = EipStatus.getInstance();
         handleIntentAction(getIntent());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        bindOpenVpnService();
     }
 
     @Override
@@ -205,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
     @Override
     protected void onPause() {
         super.onPause();
-        unbindService(openVpnConnection);
     }
 
     @Override
@@ -213,14 +183,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mainActivityBroadcastReceiver);
         mainActivityBroadcastReceiver = null;
         super.onDestroy();
-    }
-
-
-    @Override
-    public void update(Observable observable, Object data) {
-        if (observable instanceof EipStatus) {
-            eipStatus = (EipStatus) observable;
-        }
     }
 
     private void setUpBroadcastReceiver() {
@@ -283,7 +245,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
             case EIP_ACTION_STOP:
                 switch (resultCode) {
                     case RESULT_OK:
-                        stop();
                         break;
                     case RESULT_CANCELED:
                         break;
@@ -341,39 +302,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
             Log.w(TAG, "error dialog leaked!");
         }
 
-    }
-
-
-    private void stop() {
-        preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, false).apply();
-        if (eipStatus.isBlockingVpnEstablished()) {
-            stopBlockingVpn();
-        }
-        disconnect();
-    }
-
-    private void stopBlockingVpn() {
-        Log.d(TAG, "stop VoidVpn!");
-        Intent stopVoidVpnIntent = new Intent(this, VoidVpnService.class);
-        stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
-        startService(stopVoidVpnIntent);
-    }
-
-    private void disconnect() {
-        ProfileManager.setConntectedVpnProfileDisconnected(this);
-        if (mService != null) {
-            try {
-                mService.stopVPN(false);
-            } catch (RemoteException e) {
-                VpnStatus.logException(e);
-            }
-        }
-    }
-
-    private void bindOpenVpnService() {
-        Intent intent = new Intent(this, OpenVPNService.class);
-        intent.setAction(OpenVPNService.START_SERVICE);
-        bindService(intent, openVpnConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void askUserToLogIn(String userMessage) {
