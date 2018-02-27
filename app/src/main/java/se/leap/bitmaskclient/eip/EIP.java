@@ -184,6 +184,7 @@ public final class EIP extends IntentService {
 
     private void stopEIP() {
         // TODO stop eip from here if possible...
+        // TODO then refactor EipFragment.handleSwitchOff
         EipStatus eipStatus = EipStatus.getInstance();
         int resultCode = RESULT_CANCELED;
         if (eipStatus.isConnected() || eipStatus.isConnecting())

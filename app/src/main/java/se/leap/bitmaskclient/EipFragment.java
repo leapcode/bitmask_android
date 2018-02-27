@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
@@ -56,6 +57,11 @@ import se.leap.bitmaskclient.views.VpnStateImage;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
+import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
+import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
@@ -256,6 +262,17 @@ public class EipFragment extends Fragment implements Observer {
             askPendingStartCancellation();
         } else if (eipStatus.isConnected()) {
             askToStopEIP();
+        } else if (isOpenVpnRunningWithoutNetwork()) {
+            // TODO move to EIP
+            // TODO see stopEIP function
+            Bundle resultData = new Bundle();
+            resultData.putString(EIP_REQUEST, EIP_ACTION_STOP);
+            Intent intentUpdate = new Intent(BROADCAST_EIP_EVENT);
+            intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
+            intentUpdate.putExtra(BROADCAST_RESULT_CODE, Activity.RESULT_OK);
+            intentUpdate.putExtra(BROADCAST_RESULT_KEY, resultData);
+            Log.d(TAG, "sending broadcast");
+            LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intentUpdate);
         }
     }
 
