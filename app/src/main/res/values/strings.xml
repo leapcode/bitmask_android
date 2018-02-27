@@ -39,12 +39,11 @@
   <string name="error_io_exception_user_message">Try again: I/O error</string>
   <string name="error_json_exception_user_message">Try again: Bad response from the server</string>
   <string name="error_no_such_algorithm_exception_user_message">Encryption algorithm not found. Please upgrade Android!</string>
-  <string name="signup_or_login_button">Sign Up/Log In</string>
   <string name="login_button">Log In</string>
-  <string name="login_to_profile">Log in to profile</string>
+  <string name="login_to_profile">Log In</string>
   <string name="logout_button">Log Out</string>
   <string name="signup_button">Sign Up</string>
-  <string name="create_profile">Create profile</string>
+  <string name="create_profile">Sign Up</string>
   <string name="setup_provider">Set up provider</string>
   <string name="setup_error_title">Configuration Error</string>
   <string name="setup_error_configure_button">Configure</string>
