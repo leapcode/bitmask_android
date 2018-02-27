@@ -23,7 +23,7 @@
   <string name="valid_url_entered">Gültige URL</string>
   <string name="not_valid_url_entered">Ungültige URL</string>
   <string name="provider_details_title">Provider Details</string>
-  <string name="use_anonymously_button">Anonym benutzen.</string>
+  <string name="use_anonymously_button">Anonym benutzen</string>
   <string name="username_hint">Benutzer*innenname</string>
   <string name="username_ask">Bitte geben Sie Ihr Benutzer*innenname ein</string>
   <string name="password_ask">Bitte Passwort eingeben</string>
@@ -41,10 +41,10 @@
   <string name="error_no_such_algorithm_exception_user_message">Verschlüsselungsalgorithmus nicht gefunden. Bitte aktualisiere deine Android-Version!</string>
   <string name="signup_or_login_button">Registrieren / Anmelden</string>
   <string name="login_button">Anmelden</string>
-  <string name="login_to_profile">Profil anmelden.</string>
+  <string name="login_to_profile">Anmelden</string>
   <string name="logout_button">Abmelden</string>
   <string name="signup_button">Registrieren</string>
-  <string name="create_profile">Profil erstellen.</string>
+  <string name="create_profile">Profil erstellen</string>
   <string name="setup_provider">Provider einrichten.</string>
   <string name="setup_error_title">Konfigurationsfehler</string>
   <string name="setup_error_configure_button">Konfigurieren</string>
@@ -99,7 +99,14 @@
   <string name="void_vpn_title">Internetverkehr wird blockiert</string>
   <string name="update_provider_details">Providerdetails werden aktualisiert</string>
   <string name="update_certificate">Zertifikat aktualisieren</string>
+  <string name="warning_eip_json_corrupted">Die Aktualisierung der Providerkonfiguration ist fehlgeschlagen.</string>
+  <string name="eip_json_corrupted_user_message">Die Aktualisierung der Providerkonfiguration ist fehlgeschlagen. Bitte einloggen, um es erneut zu versuchen.</string>
   <string name="warning_corrupted_provider_details">Die gespeicherten Providerdetails sind fehlerhaft. Du kannst entweder Bitmask aktualisieren (Empfehlung) oder die Providerdetails mithilfe eines kommerziellen CA Zertifikates aktualisieren. </string>
   <string name="warning_corrupted_provider_cert">Das gespeicherte Providerzertifikat ist ungültig. Du kannst entweder Bitmask aktualisieren (Empfehlung) oder das Providerzertifikat mithilfe eines kommerziellen CA Zertifikates aktualisieren. </string>
   <string name="warning_expired_provider_cert">Das gespeicherte Providerzertifikat ist abgelaufen. Du kannst entweder Bitmask aktualisieren (Empfehlung) oder das Providerzertifikat mithilfe eines kommerziellen CA Zertifikates aktualisieren. </string>
+  <string name="downloading_vpn_certificate_failed">Das Herunterladen des VPN Zertifikates ist fehlgeschlagen. Versuche es erneut oder wähle einen anderen Provider aus.</string>
+  <string name="vpn_certificate_is_invalid">Das VPN Zertifikat ist ungültig. Versuche ein neues herunterzuladen.</string>
+  <string name="vpn_certificate_user_message">Das VPN Zertifikat ist ungültig. Bitte melde dich an, um ein neues herunterzuladen.</string>
+  <string name="save_battery">Batteriesparmodus</string>
+  <string name="save_battery_message">Hintergrunddaten werden nicht übertragen während das Telefon inaktiv ist. Diese Funktion ist noch experimentell.</string>
 </resources>

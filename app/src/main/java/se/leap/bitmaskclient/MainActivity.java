@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2018 LEAP Encryption Access Project and contributers
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.leap.bitmaskclient;
 
 
@@ -20,7 +36,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -58,7 +73,7 @@ import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFI
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderCredentialsBaseActivity.USER_MESSAGE;
+import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 
@@ -67,12 +82,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     public final static String TAG = MainActivity.class.getSimpleName();
 
-    private static final String KEY_ACTIVITY_STATE = "key state of activity";
-    private static final String DEFAULT_UI_STATE = "default state";
-    private static final String SHOW_DIALOG_STATE = "show dialog";
-    private static final String REASON_TO_FAIL = "reason to fail";
-
-    private static Provider provider = new Provider();
+    private Provider provider = new Provider();
     private SharedPreferences preferences;
     private EipStatus eipStatus;
     private NavigationDrawerFragment navigationDrawerFragment;
@@ -198,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     break;
             }
         }
-
+        //TODO: Why do we want this --v? legacy and redundant?
         Fragment fragment = new EipFragment();
         Bundle arguments = new Bundle();
         arguments.putParcelable(PROVIDER_KEY, provider);

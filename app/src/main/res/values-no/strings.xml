@@ -99,7 +99,12 @@
   <string name="void_vpn_title">Blokkerer trafikk</string>
   <string name="update_provider_details">Oppdater tilbyderdetaljer</string>
   <string name="update_certificate">Oppdater sertifikat</string>
+  <string name="warning_eip_json_corrupted">Oppdatering av tilbyderoppsett mislyktes</string>
+  <string name="eip_json_corrupted_user_message">Oppdatering av tilbyderoppsett mislyktes. Logg inn og prøv igjen.</string>
   <string name="warning_corrupted_provider_details">De lagrede tilbyderdetaljene er skadet. Du kan enten oppdatere Bitmask (anbefalt) eller oppdatere tilbyderdetaljene til å bruke et kommersielt CA-sertifikat.</string>
   <string name="warning_corrupted_provider_cert">Lagret tilbydersertifikat er ugyldig. Du kan enten oppdatere Bitmask (anbefalt) eller oppdatere tilbydersertifikatet til å bruke et kommersielt CA-sertifikat.</string>
   <string name="warning_expired_provider_cert">Det lagrede tilbydersertifikatet er utløpt. Du kan enten oppdatere Bitmask (anbefalt) eller oppdatere tilbydersertifikatet til å bruke et kommersielt CA-sertifikat.</string>
+  <string name="downloading_vpn_certificate_failed">Nedlasting av VPN-sertifikat mislyktes. Prøv igjen eller velg en annen tilbyder.</string>
+  <string name="vpn_certificate_is_invalid">VPN-sertifikatet er ugyldig. Prøv å laste ned et nytt et.</string>
+  <string name="vpn_certificate_user_message">VPN-sertifikatet er ugyldig. Logg inn for å laste ned et nytt et.</string>
 </resources>

@@ -9,6 +9,7 @@
   <string name="new_provider_uri">Назва домена</string>
   <string name="username_hint">ім\'я користувача</string>
   <string name="password_hint">пароль</string>
+  <string name="about_fragment_title">Про</string>
   <string name="login_button">Вхід у систему</string>
   <string name="setup_error_configure_button">Налаштування</string>
   <string name="setup_error_close_button">Вихід</string>

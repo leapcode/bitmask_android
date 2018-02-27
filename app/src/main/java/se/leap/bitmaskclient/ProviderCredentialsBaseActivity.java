@@ -30,6 +30,7 @@ import org.json.JSONException;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import se.leap.bitmaskclient.Constants.CREDENTIAL_ERRORS;
+import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.userstatus.User;
 
 import static android.view.View.GONE;
@@ -41,9 +42,12 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_PASSWORD;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.ProviderAPI.SIGN_UP;
+import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 
 /**
  * Base Activity for activities concerning a provider interaction
@@ -59,7 +63,6 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
 
     final private static String SHOWING_FORM = "SHOWING_FORM";
     final private static String PERFORMING_ACTION = "PERFORMING_ACTION";
-    final public static String USER_MESSAGE = "USER_MESSAGE";
     final private static String USERNAME_ERROR = "USERNAME_ERROR";
     final private static String PASSWORD_ERROR = "PASSWORD_ERROR";
     final private static String PASSWORD_VERIFICATION_ERROR = "PASSWORD_VERIFICATION_ERROR";
@@ -183,7 +186,11 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         String username = usernameField.getText().toString();
         String providerDomain = provider.getDomain();
         if (username.endsWith(providerDomain)) {
-            return username.split("@" + providerDomain)[0];
+            try {
+                return username.split("@" + providerDomain)[0];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                return "";
+            }
         }
         return username;
     }
@@ -237,9 +244,15 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             @Override
             public void afterTextChanged(Editable s) {
                 if (getUsername().equalsIgnoreCase("")) {
+                    s.clear();
                     usernameError.setError(getString(R.string.username_ask));
                 } else {
                     usernameError.setError(null);
+                    String suffix = "@" + provider.getDomain();
+                    if (!usernameField.getText().toString().endsWith(suffix)) {
+                        s.append(suffix);
+                        usernameField.setSelection(usernameField.getText().toString().indexOf('@'));
+                    }
                 }
             }
         });
@@ -344,8 +357,8 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         if (arguments.containsKey(CREDENTIAL_ERRORS.USERNAME_MISSING.toString())) {
             usernameError.setError(getString(R.string.username_ask));
         }
-        if (arguments.containsKey(getString(R.string.user_message))) {
-            String userMessageString = arguments.getString(getString(R.string.user_message));
+        if (arguments.containsKey(USER_MESSAGE)) {
+            String userMessageString = arguments.getString(USER_MESSAGE);
             try {
                  userMessageString = new JSONArray(userMessageString).getString(0);
             } catch (JSONException e) {
@@ -395,6 +408,10 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
 
             switch (resultCode) {
                 case ProviderAPI.SUCCESSFUL_SIGNUP:
+                    String password = resultData.getString(CREDENTIALS_PASSWORD);
+                    String username = resultData.getString(CREDENTIALS_USERNAME);
+                    login(username, password);
+                    break;
                 case ProviderAPI.SUCCESSFUL_LOGIN:
                     downloadVpnCertificate(handledProvider);
                     break;
@@ -403,11 +420,10 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
                     handleReceivedErrors((Bundle) intent.getParcelableExtra(BROADCAST_RESULT_KEY));
                     break;
 
+                case ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
+                    // error handling takes place in MainActivity
                 case ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                     successfullyFinished(handledProvider);
-                    break;
-                case ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
-                    // TODO activity.setResult(RESULT_CANCELED);
                     break;
             }
         }

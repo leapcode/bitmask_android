@@ -207,7 +207,8 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
     void handleProviderSetUp(Provider handledProvider) {
         this.provider = handledProvider;
-
+        adapter.add(provider);
+        adapter.saveProviders();
         if (provider.allowsAnonymous()) {
             mConfigState.putExtra(SERVICES_RETRIEVED, true);
             downloadVpnCertificate();
@@ -366,12 +367,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
             intent.putExtra(PROVIDER_KEY, provider);
             startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.configuration_wizard_activity, menu);
-        return true;
     }
 
     public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {

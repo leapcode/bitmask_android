@@ -13,12 +13,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.userstatus.User;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
@@ -32,7 +30,7 @@ import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
  * and acts and calls another activity accordingly.
  *
  */
-public class StartActivity extends Activity {
+public class StartActivity extends Activity{
     public static final String TAG = StartActivity.class.getSimpleName();
 
     @Retention(RetentionPolicy.SOURCE)
@@ -184,12 +182,9 @@ public class StartActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null) {
-            return;
-        }
 
         if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
-            if (resultCode == RESULT_OK && data.hasExtra(Provider.KEY)) {
+            if (resultCode == RESULT_OK && data != null && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
                 ConfigHelper.storeProviderInPreferences(preferences, provider);
                 EipCommand.startVPN(this, false);

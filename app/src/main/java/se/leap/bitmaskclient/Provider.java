@@ -90,9 +90,8 @@ public final class Provider implements Parcelable {
         }
         if (definition != null) {
             try {
-                this.definition = new JSONObject(definition);
-                parseDefinition(this.definition);
-            } catch (JSONException | NullPointerException e) {
+                define(new JSONObject(definition));
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
@@ -133,26 +132,8 @@ public final class Provider implements Parcelable {
     }
 
     public boolean define(JSONObject providerJson) {
-       /*
-        * fix against "api_uri": "https://calyx.net.malicious.url.net:4430",
-        * This method aims to prevent attacks where the provider.json file got manipulated by a third party.
-        * The main url should not change.
-        */
-
-        try {
-            String providerApiUrl = providerJson.getString(Provider.API_URL);
-            String providerDomain = providerJson.getString(Provider.DOMAIN);
-            if (getMainUrlString().contains(providerDomain) && providerApiUrl.contains(providerDomain  + ":")) {
-                definition = providerJson;
-                parseDefinition(definition);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return false;
-        }
+        definition = providerJson;
+        return parseDefinition(definition);
     }
 
     public JSONObject getDefinition() {
@@ -297,8 +278,6 @@ public final class Provider implements Parcelable {
         try {
             json.put(Provider.MAIN_URL, mainUrl);
             //TODO: add other fields here?
-            //this is used to save custom providers as json. I guess this doesn't work correctly
-            //TODO 2: verify that
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -345,7 +324,7 @@ public final class Provider implements Parcelable {
         }
     }
 
-    private void parseDefinition(JSONObject definition) {
+    private boolean parseDefinition(JSONObject definition) {
         try {
             String pin =  definition.getString(CA_CERT_FINGERPRINT);
             this.certificatePin = pin.split(":")[1].trim();
@@ -354,8 +333,9 @@ public final class Provider implements Parcelable {
             this.allowAnonymous = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS);
             this.allowRegistered = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED);
             this.apiVersion = getDefinition().getString(Provider.API_VERSION);
+            return true;
         } catch (JSONException | ArrayIndexOutOfBoundsException | MalformedURLException e) {
-            e.printStackTrace();
+            return false;
         }
     }
 
@@ -446,5 +426,4 @@ public final class Provider implements Parcelable {
         allowRegistered = false;
         allowAnonymous = false;
     }
-
 }

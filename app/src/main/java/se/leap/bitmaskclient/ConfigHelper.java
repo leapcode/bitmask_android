@@ -16,7 +16,9 @@
  */
 package se.leap.bitmaskclient;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -27,6 +29,8 @@ import org.spongycastle.util.encoders.Base64;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,11 +51,14 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static android.R.attr.name;
+import static se.leap.bitmaskclient.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
@@ -74,7 +81,7 @@ public class ConfigHelper {
 
     public static boolean checkErroneousDownload(String downloadedString) {
         try {
-            if (downloadedString == null || downloadedString.isEmpty() || new JSONObject(downloadedString).has(ProviderAPI.ERRORS)) {
+            if (downloadedString == null || downloadedString.isEmpty() || new JSONObject(downloadedString).has(ProviderAPI.ERRORS) || new JSONObject(downloadedString).has(ProviderAPI.BACKEND_ERROR_KEY)) {
                 return true;
             } else {
                 return false;
@@ -125,36 +132,14 @@ public class ConfigHelper {
         return (X509Certificate) certificate;
     }
 
+    public static String loadInputStreamAsString(java.io.InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
 
-    public static String loadInputStreamAsString(InputStream inputStream) {
-        BufferedReader in = null;
-        try {
-            StringBuilder buf = new StringBuilder();
-            in = new BufferedReader(new InputStreamReader(inputStream));
-
-            String str;
-            boolean isFirst = true;
-            while ( (str = in.readLine()) != null ) {
-                if (isFirst)
-                    isFirst = false;
-                else
-                    buf.append('\n');
-                buf.append(str);
-            }
-            return buf.toString();
-        } catch (IOException e) {
-            Log.e(TAG, "Error opening asset " + name);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "Error closing asset " + name);
-                }
-            }
-        }
-
-        return null;
+    //allows us to mock FileInputStream
+    public static InputStream getInputStreamFrom(String filePath) throws FileNotFoundException {
+        return new FileInputStream(filePath);
     }
 
     protected static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {
@@ -383,6 +368,7 @@ public class ConfigHelper {
         clearDataOfLastProvider(preferences, false);
     }
 
+    @Deprecated
     public static void clearDataOfLastProvider(SharedPreferences preferences, boolean commit) {
         Map<String, ?> allEntries = preferences.getAll();
         List<String> lastProvidersKeys = new ArrayList<>();
@@ -410,18 +396,30 @@ public class ConfigHelper {
     }
 
     public static void deleteProviderDetailsFromPreferences(@NonNull SharedPreferences preferences, String providerDomain) {
-            preferences.edit().
-                    remove(Provider.KEY + "." + providerDomain).
-                    remove(Provider.CA_CERT + "." + providerDomain).
-                    remove(Provider.CA_CERT_FINGERPRINT + "." + providerDomain).
-                    remove(Provider.MAIN_URL + "." + providerDomain).
-                    remove(Provider.KEY + "." + providerDomain).
-                    remove(Provider.CA_CERT + "." + providerDomain).
-                    remove(PROVIDER_EIP_DEFINITION + "." + providerDomain).
-                    remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
-                    remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
-                    apply();
+        preferences.edit().
+                remove(Provider.KEY + "." + providerDomain).
+                remove(Provider.CA_CERT + "." + providerDomain).
+                remove(Provider.CA_CERT_FINGERPRINT + "." + providerDomain).
+                remove(Provider.MAIN_URL + "." + providerDomain).
+                remove(Provider.KEY + "." + providerDomain).
+                remove(Provider.CA_CERT + "." + providerDomain).
+                remove(PROVIDER_EIP_DEFINITION + "." + providerDomain).
+                remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
+                remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
+                apply();
     }
 
+    public static void saveBattery(Context context, boolean isEnabled) {
+        if (context == null) {
+            return;
+        }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(DEFAULT_SHARED_PREFS_BATTERY_SAVER, isEnabled).apply();
+    }
+
+    public static boolean getSaveBattery(@NonNull Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(DEFAULT_SHARED_PREFS_BATTERY_SAVER, false);
+    }
 
 }

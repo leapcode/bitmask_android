@@ -1,16 +1,19 @@
 package se.leap.bitmaskclient;
 
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import butterknife.InjectView;
 
@@ -38,6 +41,9 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     @InjectView(R.id.loading_screen)
     protected LinearLayout loadingScreen;
 
+    @InjectView(R.id.progressbar)
+    protected ProgressBar progressBar;
+
     @InjectView(R.id.progressbar_description)
     protected AppCompatTextView progressbarText;
 
@@ -59,6 +65,7 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
         super.setContentView(view);
         if (provider != null)
             setProviderHeaderText(provider.getName());
+        setProgressbarColorForPreLollipop();
     }
 
     @Override
@@ -66,6 +73,7 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
         super.setContentView(layoutResID);
         if (provider != null)
             setProviderHeaderText(provider.getName());
+        setProgressbarColorForPreLollipop();
     }
 
     @Override
@@ -73,7 +81,17 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
         super.setContentView(view, params);
         if (provider != null)
             setProviderHeaderText(provider.getName());
+        setProgressbarColorForPreLollipop();
     }
+
+    private void setProgressbarColorForPreLollipop() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            progressBar.getIndeterminateDrawable().setColorFilter(
+                    ContextCompat.getColor(this, R.color.colorPrimary),
+                    PorterDuff.Mode.SRC_IN);
+        }
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

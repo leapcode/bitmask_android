@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013 LEAP Encryption Access Project and contributers
+ * Copyright (c) 2018 LEAP Encryption Access Project and contributers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,30 +46,35 @@ import java.util.Observer;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
+import de.blinkt.openvpn.core.ProfileManager;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
-import se.leap.bitmaskclient.eip.VoidVpnService;
 import se.leap.bitmaskclient.views.VpnStateImage;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
+import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
+import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
+import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderCredentialsBaseActivity.USER_MESSAGE;
+import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 
 public class EipFragment extends Fragment implements Observer {
 
     public final static String TAG = EipFragment.class.getSimpleName();
 
-    public static final String START_EIP_ON_BOOT = "start on boot";
     public static final String ASK_TO_CANCEL_VPN = "ask_to_cancel_vpn";
 
 
@@ -84,10 +91,10 @@ public class EipFragment extends Fragment implements Observer {
     Button mainButton;
 
     @InjectView(R.id.routed_text)
-    TextView routedText;
+    AppCompatTextView routedText;
 
     @InjectView(R.id.vpn_route)
-    TextView vpnRoute;
+    AppCompatTextView vpnRoute;
 
     private EipStatus eipStatus;
 
@@ -100,23 +107,7 @@ public class EipFragment extends Fragment implements Observer {
     AlertDialog alertDialog;
 
     private IOpenVPNServiceInternal mService;
-    private ServiceConnection openVpnConnection = new ServiceConnection() {
-
-
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-
-            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mService = null;
-        }
-
-    };
+    private ServiceConnection openVpnConnection;
 
     @Override
     public void onAttach(Context context) {
@@ -141,6 +132,7 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        openVpnConnection = new EipFragmentServiceConnection();
         eipStatus = EipStatus.getInstance();
         Activity activity = getActivity();
         if (activity != null) {
@@ -171,8 +163,8 @@ public class EipFragment extends Fragment implements Observer {
         super.onResume();
         //FIXME: avoid race conditions while checking certificate an logging in at about the same time
         //eipCommand(Constants.EIP_ACTION_CHECK_CERT_VALIDITY);
-        handleNewState();
         bindOpenVpnService();
+        handleNewState();
     }
 
     @Override
@@ -230,7 +222,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     void handleIcon() {
-        if (eipStatus.isConnected() || eipStatus.isConnecting())
+        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnected() || eipStatus.isConnecting())
             handleSwitchOff();
         else
             handleSwitchOn();
@@ -266,7 +258,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleSwitchOff() {
-        if (eipStatus.isConnecting()) {
+        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnecting()) {
             askPendingStartCancellation();
         } else if (eipStatus.isConnected()) {
             askToStopEIP();
@@ -290,7 +282,20 @@ public class EipFragment extends Fragment implements Observer {
     protected void stopEipIfPossible() {
         Context context = getContext();
         if (context != null) {
-            EipCommand.stopVPN(getContext());
+            if (isOpenVpnRunningWithoutNetwork()) {
+                // TODO move to EIP
+                // TODO see stopEIP function
+                Bundle resultData = new Bundle();
+                resultData.putString(EIP_REQUEST, EIP_ACTION_STOP);
+                Intent intentUpdate = new Intent(BROADCAST_EIP_EVENT);
+                intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
+                intentUpdate.putExtra(BROADCAST_RESULT_CODE, Activity.RESULT_OK);
+                intentUpdate.putExtra(BROADCAST_RESULT_KEY, resultData);
+                Log.d(TAG, "sending broadcast");
+                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intentUpdate);
+            } else {
+                EipCommand.stopVPN(getContext());
+            }
         } else {
             Log.e(TAG, "context is null when trying to stop EIP");
         }
@@ -386,14 +391,24 @@ public class EipFragment extends Fragment implements Observer {
             routedText.setVisibility(GONE);
             vpnRoute.setVisibility(GONE);
             colorBackgroundALittle();
-        } else if (eipStatus.isConnected() || isOpenVpnRunningWithoutNetwork()) {
+        } else if (eipStatus.isConnected() ) {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
             vpnStateImage.setStateIcon(R.drawable.vpn_connected);
             vpnStateImage.stopProgress(true);
+            routedText.setText(R.string.vpn_securely_routed);
             routedText.setVisibility(VISIBLE);
             vpnRoute.setVisibility(VISIBLE);
-            vpnRoute.setText(ConfigHelper.getProviderName(preferences));
+            setVpnRouteText();
             colorBackground();
+        } else if(isOpenVpnRunningWithoutNetwork()){
+            mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
+            vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
+            vpnStateImage.stopProgress(true);
+            routedText.setText(R.string.vpn_securely_routed_no_internet);
+            routedText.setVisibility(VISIBLE);
+            vpnRoute.setVisibility(VISIBLE);
+            setVpnRouteText();
+            colorBackgroundALittle();
         } else {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
             vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
@@ -463,6 +478,29 @@ public class EipFragment extends Fragment implements Observer {
         Activity activity = getActivity();
         if (activity != null) {
             activity.startActivityForResult(intent, REQUEST_CODE_LOG_IN);
+        }
+    }
+
+    private void setVpnRouteText() {
+        String vpnRouteString = provider.getName();
+        VpnProfile vpnProfile = ProfileManager.getLastConnectedVpn();
+        if (vpnProfile != null && vpnProfile.mName != null) {
+            vpnRouteString += " (" + vpnProfile.mName + ")";
+        }
+        vpnRoute.setText(vpnRouteString);
+    }
+
+    private class EipFragmentServiceConnection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
+            handleNewState();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
         }
     }
 }

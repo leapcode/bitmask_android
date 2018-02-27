@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -29,7 +30,6 @@ import java.util.Set;
 
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.ConfigHelper;
-import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.OkHttpClientGenerator;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
@@ -343,6 +343,18 @@ public class MockHelper {
         return resultReceiver;
     }
 
+    public static void mockConfigHelperForFileInputStream() throws FileNotFoundException {
+        mockStatic(ConfigHelper.class);
+        when(ConfigHelper.loadInputStreamAsString(any(InputStream.class))).thenCallRealMethod();
+        when(ConfigHelper.getInputStreamFrom(anyString())).thenAnswer(new Answer<InputStream>() {
+            @Override
+            public InputStream answer(InvocationOnMock invocation) throws Throwable {
+                String filename = (String) invocation.getArguments()[0];
+                return getClass().getClassLoader().getResourceAsStream(filename);
+            }
+        });
+    }
+
     public static void mockConfigHelper(String mockedFingerprint, final Provider providerFromPrefs) throws CertificateEncodingException, NoSuchAlgorithmException {
         // FIXME use MockSharedPreferences instead of provider
         mockStatic(ConfigHelper.class);
@@ -366,6 +378,7 @@ public class MockHelper {
         when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
         when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
         when(ConfigHelper.parseX509CertificateFromString(anyString())).thenCallRealMethod();
+        when(ConfigHelper.loadInputStreamAsString(any(InputStream.class))).thenCallRealMethod();
     }
     public static void mockFingerprintForCertificate(String mockedFingerprint) throws CertificateEncodingException, NoSuchAlgorithmException {
         mockStatic(ConfigHelper.class);

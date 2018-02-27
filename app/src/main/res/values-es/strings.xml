@@ -99,7 +99,14 @@
   <string name="void_vpn_title">Bloqueando el tráfico</string>
   <string name="update_provider_details">Actualizar detalles del proveedor</string>
   <string name="update_certificate">Actualizar certificado</string>
+  <string name="warning_eip_json_corrupted">No se pudo actualizar la configuración del proveedor.</string>
+  <string name="eip_json_corrupted_user_message">No se pudo actualizar la configuración del proveedor. Por favor, incie sesión e inténtelo de nuevo.</string>
   <string name="warning_corrupted_provider_details">Los detalles del proveedor almacenados están corrompidos. Puede actualizar Bitmask (recomendado), o bien actualizar los detalles del proveedor usando un certificado de una autoridad de certificación/CA comercial.</string>
   <string name="warning_corrupted_provider_cert">El certificado del proveedor almacenado no es válido. Puede actualizar Bitmask (recomendado), o bien actualizar el certificado de proveedor usando una autoridad de certificación/CA comercial.</string>
   <string name="warning_expired_provider_cert">El certificado del proveedor almacenado ha caducado. Puede actualizar Bitmask (recomendado) o actualizar el certificado de proveedor usando una autoridad de certificación/CA comercial.</string>
+  <string name="downloading_vpn_certificate_failed">No se pudo descargar el certificado de la VPN. Inténtelo de nuevo o escoja otro proveedor.</string>
+  <string name="vpn_certificate_is_invalid">El certificado de la VPN no es válido. Trate de descargar uno nuevo.</string>
+  <string name="vpn_certificate_user_message">El certificado de la VPN no es válido. Por favor, inicie sesión para descargar uno nuevo.</string>
+  <string name="save_battery">Ahorrar batería</string>
+  <string name="save_battery_message">Las conexiones de datos en segundo plano hibernarán cuando su teléfono esté inactivo. Esta característica todavía es experimental.</string>
 </resources>
