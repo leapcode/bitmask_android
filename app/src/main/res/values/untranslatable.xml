@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="notifcation_title_bitmask">Bitmask - %s</string>
-
-    <string name="copyright_leapgui" translatable="false">Copyright 2012-2017\nLEAP Encryption Access Project &lt;info@leap.se></string>
+    <string name="copyright_leapgui" translatable="false">Copyright 2012-2018\nLEAP Encryption Access Project &lt;info@leap.se></string>
     <string name="opevpn_copyright" translatable="false">Copyright © 2002–2010 OpenVPN Technologies, Inc. &lt;sales@openvpn.net>\n
 	  "OpenVPN" is a trademark of OpenVPN Technologies, Inc.</string>
     <string name="lzo_copyright" translatable="false">Copyright © 1996 – 2011 Markus Franz Xaver Johannes Oberhumer</string>
@@ -15,20 +14,21 @@
     <string name="openvpn" translatable="false">OpenVPN</string>
     <string name="lzo" translatable="false">LZO</string>
     <string name="openssl" translatable="false">OpenSSL</string>
+    <string name="mbetTLS" translatable="false">Mbed TLS</string>
+    <string name="copyright_mbetTLS" translatable="false">Unless specifically indicated otherwise in a file, files are licensed under the Apache 2.0 license, as can be found in: apache-2.0.txt. \n
+        https://github.com/schwabe/polarssl/blob/icsopenvpn_270/apache-2.0.txt
+    </string>
+    <string name="asio">Asio</string>
+    <string name="copyright_asio">Boost Software License - Version 1.0 - August 17th, 2003</string>
+    <string name="openvpn3">OpenVPN 3</string>
+    <string name="copyright_openvpn3">GNU AFFERO GENERAL PUBLIC LICENSE\n
+        Version 3, 19 November 2007</string>
     <string name="unknown_state" translatable="false">Unknown state</string>
-
     <string name="copyright_blinktgui" translatable="false">Copyright 2012–2017 Arne Schwabe &lt;arne@rfc2549.org></string>
-
     <string name="defaultserver" translatable="false">openvpn.uni-paderborn.de</string>
     <string name="defaultport" translatable="false">1194</string>
     <string name="copyright_file_dialog" translatable="false">File Dialog based on work by Alexander Ponomarev</string>
-
-
-
     <string name="file_dialog" translatable="false">File Dialog</string>
-
-
-
     <string name="permission_description">Allows another app to control OpenVPN</string>
     <string name="bouncy_castle" translatable="false">Bouncy Castle Crypto APIs</string>
     <string name="copyright_bouncycastle" translatable="false">Copyright © 2000–2012 The Legion Of The Bouncy Castle (http://www.bouncycastle.org)</string>
