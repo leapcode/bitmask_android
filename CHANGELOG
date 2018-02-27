@@ -16,6 +16,7 @@ Features:
 - updated crypto libraries openssl, openvpn, mbedtls etc.
 - support for Android 8.1
 - new translations
+- new experimental feature to save battery
 
 0.9.7 - the maintenance release
 Bugs:

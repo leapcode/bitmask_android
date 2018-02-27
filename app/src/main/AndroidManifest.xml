@@ -16,8 +16,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="se.leap.bitmaskclient"
-    android:versionCode="133"
-    android:versionName="0.9.8RC2" >
+    android:versionCode="134"
+    android:versionName="0.9.8" >
 
     <uses-sdk
         android:minSdkVersion="16"
