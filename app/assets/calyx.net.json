@@ -1,5 +1,5 @@
 {
-  "api_uri": "https://calyx.net:4430",
+  "api_uri": "https://api.calyx.net:4430",
   "api_version": "1",
   "ca_cert_fingerprint": "SHA256: 43683c9ba3862c5384a8c1885072fcac40b5d2d4dd67331443f13a3077fa2e69",
   "ca_cert_uri": "https://calyx.net/ca.crt",
