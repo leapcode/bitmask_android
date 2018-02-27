@@ -16,15 +16,20 @@
   <string name="status_unknown">État inconnu.</string>
   <string name="eip_service_label">Accès à Internet par RPV chiffré</string>
   <string name="configuration_wizard_title">Choisir un fournisseur de services</string>
+  <string name="add_provider">Ajouter un nouveau fournisseur</string>
   <string name="introduce_new_provider">Ajouter un nouveau fournisseur de services</string>
   <string name="save">Enregistrer</string>
   <string name="new_provider_uri">Nom de domaine</string>
   <string name="valid_url_entered">Cette URL est valide</string>
   <string name="not_valid_url_entered">URL malformée</string>
+  <string name="provider_details_title">Renseignements sur le fournisseur</string>
   <string name="use_anonymously_button">Utiliser anonymement</string>
   <string name="username_hint">nom d’utilisateur</string>
   <string name="username_ask">Veuillez saisir votre nom d’utilisateur</string>
+  <string name="password_ask">Veuillez saisir votre mot de passe</string>
   <string name="password_hint">mot de passe</string>
+  <string name="password_match">Les mots de passe correspondent</string>
+  <string name="password_mismatch">Les mots de passe ne correspondent pas</string>
   <string name="user_message">Message utilisateur</string>
   <string name="about_fragment_title">À propos</string>
   <string name="error_srp_math_error_user_message">Ressayer : erreur mathématique du serveur.</string>
@@ -82,6 +87,10 @@
   <string name="vpn_securely_routed">Votre trafic est acheminé en toute sécurité par :</string>
   <string name="bitmask_log">Journal Bitmask</string>
   <string name="title_activity_main">Bitmask</string>
+  <string name="log_fragment_title">Journal</string>
+  <string name="vpn_fragment_title">RPV</string>
+  <string name="navigation_drawer_open">Ouvrir le tiroir de navigation</string>
+  <string name="navigation_drawer_close">Fermer le tiroir de navigation</string>
   <string name="action_example">Exemple d’action</string>
   <string name="action_settings">Paramètres</string>
   <string name="void_vpn_establish">Bitmask bloque tout le trafic Internet sortant.</string>
@@ -90,7 +99,14 @@
   <string name="void_vpn_title">Blocage du trafic</string>
   <string name="update_provider_details">Mettre les renseignements de fournisseur à jour</string>
   <string name="update_certificate">Mettre le certificat à jour</string>
+  <string name="warning_eip_json_corrupted">Échec de mise à jour de la configuration du fournisseur.</string>
+  <string name="eip_json_corrupted_user_message">Échec de mise à jour de la configuration du fournisseur. Veuillez vous connecter pour ressayer.</string>
   <string name="warning_corrupted_provider_details">Les renseignements de fournisseur enregistrés sont corrompus. Vous pouvez soit mettre Bitmask à jour (recommandé), soit mettre les renseignements de fournisseur à jour en utilisant un certificat CA commercial.</string>
   <string name="warning_corrupted_provider_cert">Le certificat de fournisseur enregistré est invalide. Vous pouvez soit mettre Bitmask à jour (recommandé), soit mettre le certificat de fournisseur à jour en utilisant un certificat CA commercial.</string>
   <string name="warning_expired_provider_cert">Le certificat de fournisseur enregistré est expiré. Vous pouvez soit mettre Bitmask à jour (recommandé), soit mettre le certificat de fournisseur à jour en utilisant un certificat CA commercial.</string>
+  <string name="downloading_vpn_certificate_failed">Échec de téléchargement du certificat du RPV. Ressayez ou choisissez un autre fournisseur.</string>
+  <string name="vpn_certificate_is_invalid">Le certificat du RPV est invalide. Essayez d’en télécharger un nouveau.</string>
+  <string name="vpn_certificate_user_message">Le certificat du RPV est invalide. Veuillez vous connecter pour en télécharger un nouveau.</string>
+  <string name="save_battery">Économiser la batterie</string>
+  <string name="save_battery_message">Les communications de données d’arrière-plan seront mises en veille quand votre téléphone sera inactif. Cette fonction est encore expérimentale.</string>
 </resources>
