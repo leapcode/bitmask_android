@@ -258,21 +258,10 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleSwitchOff() {
-        if (eipStatus.isConnecting()) {
+        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnecting()) {
             askPendingStartCancellation();
         } else if (eipStatus.isConnected()) {
             askToStopEIP();
-        } else if (isOpenVpnRunningWithoutNetwork()) {
-            // TODO move to EIP
-            // TODO see stopEIP function
-            Bundle resultData = new Bundle();
-            resultData.putString(EIP_REQUEST, EIP_ACTION_STOP);
-            Intent intentUpdate = new Intent(BROADCAST_EIP_EVENT);
-            intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
-            intentUpdate.putExtra(BROADCAST_RESULT_CODE, Activity.RESULT_OK);
-            intentUpdate.putExtra(BROADCAST_RESULT_KEY, resultData);
-            Log.d(TAG, "sending broadcast");
-            LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intentUpdate);
         }
     }
 
@@ -293,7 +282,20 @@ public class EipFragment extends Fragment implements Observer {
     protected void stopEipIfPossible() {
         Context context = getContext();
         if (context != null) {
-            EipCommand.stopVPN(getContext());
+            if (isOpenVpnRunningWithoutNetwork()) {
+                // TODO move to EIP
+                // TODO see stopEIP function
+                Bundle resultData = new Bundle();
+                resultData.putString(EIP_REQUEST, EIP_ACTION_STOP);
+                Intent intentUpdate = new Intent(BROADCAST_EIP_EVENT);
+                intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
+                intentUpdate.putExtra(BROADCAST_RESULT_CODE, Activity.RESULT_OK);
+                intentUpdate.putExtra(BROADCAST_RESULT_KEY, resultData);
+                Log.d(TAG, "sending broadcast");
+                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intentUpdate);
+            } else {
+                EipCommand.stopVPN(getContext());
+            }
         } else {
             Log.e(TAG, "context is null when trying to stop EIP");
         }
