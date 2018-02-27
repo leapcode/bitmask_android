@@ -32,9 +32,9 @@
     <application
         android:name=".BitmaskApp"
         android:allowBackup="true"
-        android:icon="@drawable/icon"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:logo="@drawable/icon"
+        android:logo="@mipmap/ic_launcher"
         android:theme="@style/BitmaskTheme">
         <service
             android:name=".eip.VoidVpnService"
