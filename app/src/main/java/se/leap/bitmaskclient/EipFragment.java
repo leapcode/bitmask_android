@@ -37,6 +37,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -251,7 +252,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleSwitchOff() {
-        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnecting()) {
+        if (eipStatus.isConnecting()) {
             askPendingStartCancellation();
         } else if (eipStatus.isConnected()) {
             askToStopEIP();
