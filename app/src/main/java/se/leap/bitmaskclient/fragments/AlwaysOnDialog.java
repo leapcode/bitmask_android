@@ -15,6 +15,7 @@ import android.widget.CheckBox;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.views.IconTextView;
 
 import static se.leap.bitmaskclient.ConfigHelper.saveShowAlwaysOnDialog;
 
@@ -31,6 +32,9 @@ public class AlwaysOnDialog extends AppCompatDialogFragment {
     @InjectView(R.id.do_not_show_again)
     CheckBox doNotShowAgainCheckBox;
 
+    @InjectView(R.id.user_message)
+    IconTextView userMessage;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,8 +48,9 @@ public class AlwaysOnDialog extends AppCompatDialogFragment {
         View view = inflater.inflate(R.layout.checkbox_confirm_dialog, null);
         ButterKnife.inject(this, view);
 
+        userMessage.setIcon(R.drawable.ic_settings);
+        userMessage.setText(getString(R.string.always_on_vpn_user_message));
         builder.setView(view)
-                .setMessage(R.string.always_on_vpn_user_message)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         if (doNotShowAgainCheckBox.isChecked()) {
@@ -61,7 +66,6 @@ public class AlwaysOnDialog extends AppCompatDialogFragment {
                         dialog.cancel();
                     }
                 });
-        // Create the AlertDialog object and return it
         return builder.create();
     }
 }
