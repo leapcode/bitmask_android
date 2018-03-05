@@ -22,9 +22,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -48,6 +51,8 @@ import android.widget.Toast;
 import se.leap.bitmaskclient.ConfigHelper;
 import se.leap.bitmaskclient.DrawerSettingsAdapter;
 import se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem;
+import se.leap.bitmaskclient.FragmentManagerEnhanced;
+import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderListActivity;
@@ -58,10 +63,12 @@ import se.leap.bitmaskclient.fragments.LogFragment;
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
 import static se.leap.bitmaskclient.ConfigHelper.getSaveBattery;
+import static se.leap.bitmaskclient.ConfigHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.ABOUT;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.ALWAYS_ON;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.BATTERY_SAVER;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSimpleTextInstance;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSwitchInstance;
@@ -170,6 +177,9 @@ public class NavigationDrawerFragment extends Fragment {
                             onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked);
                         }
                     }));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            settingsListAdapter.addItem(getSimpleTextInstance(getString(R.string.always_on_vpn), ALWAYS_ON));
         }
         settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
         settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
@@ -288,7 +298,8 @@ public class NavigationDrawerFragment extends Fragment {
         try {
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
             showEnableExperimentalFeature = true;
-            alertDialog = alertBuilder.setTitle(activity.getString(R.string.save_battery))
+            alertDialog = alertBuilder
+                    .setTitle(activity.getString(R.string.save_battery))
                     .setMessage(activity.getString(R.string.save_battery_message))
                     .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
                         @Override
@@ -316,6 +327,19 @@ public class NavigationDrawerFragment extends Fragment {
                         }
                     }).show();
         } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showAlwaysOnDialog() {
+        try {
+
+            FragmentTransaction fragmentTransaction = new FragmentManagerEnhanced(
+                    getActivity().getSupportFragmentManager()).removePreviousFragment(
+                    AlwaysOnDialog.TAG);
+            DialogFragment newFragment = new AlwaysOnDialog();
+            newFragment.show(fragmentTransaction, AlwaysOnDialog.TAG);
+        } catch (IllegalStateException | NullPointerException e) {
             e.printStackTrace();
         }
 
@@ -421,6 +445,15 @@ public class NavigationDrawerFragment extends Fragment {
                 case ABOUT:
                     mTitle = getString(about_fragment_title);
                     fragment = new AboutFragment();
+                    break;
+                case ALWAYS_ON:
+                    if (getShowAlwaysOnDialog(getContext())) {
+                        showAlwaysOnDialog();
+                    } else {
+                        Intent intent = new Intent("android.net.vpn.SETTINGS");
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
                     break;
                 default:
                     break;
