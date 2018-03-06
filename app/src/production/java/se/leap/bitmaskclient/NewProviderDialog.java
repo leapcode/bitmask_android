@@ -65,7 +65,7 @@ public class NewProviderDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.new_provider_dialog, null);
+        View view = inflater.inflate(R.layout.d_new_provider, null);
         ButterKnife.inject(this, view);
         Bundle arguments = getArguments();
         if (arguments != null) {

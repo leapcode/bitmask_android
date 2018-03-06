@@ -22,7 +22,7 @@
 
         <include layout="@layout/f_log_sliders"/>
 
-        <include layout="@layout/vpnstatus"/>
+        <include layout="@layout/v_vpn_status"/>
     </LinearLayout>
 
     <ListView

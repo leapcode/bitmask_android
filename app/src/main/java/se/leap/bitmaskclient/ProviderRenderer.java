@@ -25,7 +25,7 @@ public class ProviderRenderer extends Renderer<Provider> {
 
     @Override
     protected View inflate(LayoutInflater inflater, ViewGroup parent) {
-        View view = inflater.inflate(R.layout.provider_list_item, parent, false);
+        View view = inflater.inflate(R.layout.v_provider_list_item, parent, false);
         ButterKnife.inject(this, view);
         return view;
     }

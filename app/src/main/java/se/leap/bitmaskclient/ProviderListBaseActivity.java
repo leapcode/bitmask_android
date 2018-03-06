@@ -28,7 +28,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.Menu;
 import android.widget.ListView;
 
 import com.pedrogomez.renderers.Renderer;
@@ -47,7 +46,6 @@ import butterknife.InjectView;
 import butterknife.OnItemClick;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 
-import static se.leap.bitmaskclient.Constants.APP_ACTION_QUIT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
@@ -167,7 +165,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     }
 
     private void setUpInitialUI() {
-        setContentView(R.layout.provider_list_activity);
+        setContentView(R.layout.a_provider_list);
         setProviderHeaderText(R.string.setup_provider);
         hideProgressBar();
     }

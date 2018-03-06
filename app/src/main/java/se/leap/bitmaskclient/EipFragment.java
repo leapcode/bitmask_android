@@ -38,7 +38,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -145,7 +144,7 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         eipStatus.addObserver(this);
-        View view = inflater.inflate(R.layout.eip_service_fragment, container, false);
+        View view = inflater.inflate(R.layout.f_eip, container, false);
         ButterKnife.inject(this, view);
 
         Bundle arguments = getArguments();
