@@ -200,7 +200,7 @@ public class VpnNotificationManager {
      */
     private RemoteViews getKitkatCustomRemoteView(ConnectionStatus status, String title, String message) {
         int iconResource = getIconByConnectionStatus(status);
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.custom_notification_layout);
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.v_custom_notification);
         remoteViews.setImageViewResource(R.id.image_icon, iconResource);
         remoteViews.setTextViewText(R.id.message, message);
         remoteViews.setTextViewText(R.id.title, title);

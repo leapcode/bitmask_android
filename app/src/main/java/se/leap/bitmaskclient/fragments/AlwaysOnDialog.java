@@ -45,7 +45,7 @@ public class AlwaysOnDialog extends AppCompatDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.checkbox_confirm_dialog, null);
+        View view = inflater.inflate(R.layout.d_checkbox_confirm, null);
         ButterKnife.inject(this, view);
 
         userMessage.setIcon(R.drawable.ic_settings);

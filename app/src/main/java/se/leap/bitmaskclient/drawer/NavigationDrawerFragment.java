@@ -140,7 +140,7 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mDrawerView = inflater.inflate(R.layout.drawer_main, container, false);
+        mDrawerView = inflater.inflate(R.layout.f_drawer_main, container, false);
         restoreFromSavedInstance(savedInstanceState);
         return mDrawerView;
     }
@@ -196,7 +196,7 @@ public class NavigationDrawerFragment extends Fragment {
         });
 
         accountListAdapter = new ArrayAdapter<>(actionBar.getThemedContext(),
-                R.layout.single_list_item,
+                R.layout.v_single_list_item,
                 android.R.id.text1);
 
         createListAdapterData();
@@ -363,11 +363,6 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        if (item.getItemId() == R.id.action_example) {
-            Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
             return true;
         }
 

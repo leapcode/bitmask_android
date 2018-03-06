@@ -176,14 +176,14 @@ public class DrawerSettingsAdapter extends BaseAdapter {
 
     @NonNull
     private View initSwitchBinding(ViewHolder holder) {
-        View convertView = mInflater.inflate(R.layout.switch_list_item, null);
+        View convertView = mInflater.inflate(R.layout.v_switch_list_item, null);
         holder.switchView = convertView.findViewById(android.R.id.text1);
         return convertView;
     }
 
     @NonNull
     private View initTextViewBinding(ViewHolder holder) {
-        View convertView = mInflater.inflate(R.layout.single_list_item, null);
+        View convertView = mInflater.inflate(R.layout.v_single_list_item, null);
         holder.textView = convertView.findViewById(android.R.id.text1);
         return convertView;
     }
