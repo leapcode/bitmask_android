@@ -16,11 +16,18 @@
  */
 package se.leap.bitmaskclient.eip;
 
-import android.app.IntentService;
+import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -28,8 +35,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import de.blinkt.openvpn.LaunchVPN;
+import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
+import de.blinkt.openvpn.core.OpenVPNService;
+import de.blinkt.openvpn.core.ProfileManager;
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.OnBootReceiver;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -43,11 +58,11 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
-import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.ERROR_INVALID_VPN_CERTIFICATE;
@@ -56,14 +71,14 @@ import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
  * Internet Proxy connection.  Connections are started, stopped, and queried through
- * this IntentService.
+ * this Service.
  * Contains logic for parsing eip-service.json from the provider, configuring and selecting
  * gateways, and controlling {@link de.blinkt.openvpn.core.OpenVPNService} connections.
  *
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author Parménides GV <parmegv@sdf.org>
  */
-public final class EIP extends IntentService {
+public final class EIP extends Service implements Observer {
 
     public final static String TAG = EIP.class.getSimpleName(),
             SERVICE_API_PATH = "config/eip-service.json",
@@ -72,46 +87,76 @@ public final class EIP extends IntentService {
 
     private WeakReference<ResultReceiver> mReceiverRef = new WeakReference<>(null);
     private SharedPreferences preferences;
+    private AtomicInteger processCounter;
+    private EipStatus eipStatus;
 
-    public EIP() {
-        super(TAG);
+    private AtomicBoolean disconnectOnConnect = new AtomicBoolean(false);
+
+    private IOpenVPNServiceInternal mService;
+    private ServiceConnection openVpnConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
+            if (disconnectOnConnect.get()) {
+                disconnect();
+                disconnectOnConnect.set(false);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+        }
+    };
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        bindOpenVpnService();
+        eipStatus = EipStatus.getInstance();
+        eipStatus.addObserver(this);
+        processCounter = new AtomicInteger(0);
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        String action = intent.getAction();
+    public void onDestroy() {
+        super.onDestroy();
+        eipStatus.deleteObserver(this);
+        unbindService(openVpnConnection);
+    }
+
+    /**
+     * update eipStatus whenever it changes
+     */
+    @Override
+    public void update(Observable observable, Object data) {
+        if (observable instanceof EipStatus) {
+            eipStatus = (EipStatus) observable;
+        }
+    }
+
+    /**
+     * register new process with processCounter and start it
+     * @param intent the intent that started this EIP call
+     */
+    @Override
+    public int onStartCommand(final Intent intent, int flags, int startId) {
+        processCounter.incrementAndGet();
+        final String action = intent.getAction();
         if (intent.getParcelableExtra(EIP_RECEIVER) != null) {
             mReceiverRef = new WeakReference<>((ResultReceiver) intent.getParcelableExtra(EIP_RECEIVER));
         }
-
-        if (action == null) {
-            return;
+        if (action != null) {
+            new EipThread(this, action, intent).start();
         }
-
-        switch (action) {
-            case EIP_ACTION_START:
-                boolean earlyRoutes = intent.getBooleanExtra(EIP_EARLY_ROUTES, true);
-                startEIP(earlyRoutes);
-                break;
-            case EIP_ACTION_START_ALWAYS_ON_VPN:
-                startEIPAlwaysOnVpn();
-                break;
-            case EIP_ACTION_STOP:
-                stopEIP();
-                break;
-            case EIP_ACTION_IS_RUNNING:
-                isRunning();
-                break;
-            case EIP_ACTION_CHECK_CERT_VALIDITY:
-                checkVPNCertificateValidity();
-                break;
-        }
+        return START_STICKY;
     }
 
     /**
@@ -125,9 +170,8 @@ public final class EIP extends IntentService {
         }
 
         Bundle result = new Bundle();
-
         if (!preferences.getBoolean(EIP_RESTART_ON_BOOT, false)){
-            preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, true).commit();
+            preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, true).apply();
         }
 
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
@@ -173,6 +217,10 @@ public final class EIP extends IntentService {
         startActivity(voidVpnLauncher);
     }
 
+    /**
+     * starts the VPN and connects to the given gateway
+     * @param gateway to connect to
+     */
     private void launchActiveGateway(Gateway gateway) {
         Intent intent = new Intent(this, LaunchVPN.class);
         intent.setAction(Intent.ACTION_MAIN);
@@ -182,14 +230,18 @@ public final class EIP extends IntentService {
         startActivity(intent);
     }
 
+    /**
+     * Stop VPN
+     * First checks if the OpenVpnConnection is open then
+     * terminates EIP if currently connected or connecting
+     */
     private void stopEIP() {
-        // TODO stop eip from here if possible...
-        // TODO then refactor EipFragment.handleSwitchOff
-        EipStatus eipStatus = EipStatus.getInstance();
+        // if the OpenVpnConnection doesn't exist remember to disconnect after connecting
         int resultCode = RESULT_CANCELED;
-        if (eipStatus.isConnected() || eipStatus.isConnecting())
+        if (eipStatus.isConnected() || eipStatus.isConnecting()) {
+            stop();
             resultCode = RESULT_OK;
-
+        }
         tellToReceiverOrBroadcast(EIP_ACTION_STOP, resultCode);
     }
 
@@ -206,29 +258,20 @@ public final class EIP extends IntentService {
         tellToReceiverOrBroadcast(EIP_ACTION_IS_RUNNING, resultCode);
     }
 
-    private JSONObject eipDefinitionFromPreferences() {
-        JSONObject result = new JSONObject();
-        try {
-            String eipDefinitionString = preferences.getString(PROVIDER_EIP_DEFINITION, "");
-            if (!eipDefinitionString.isEmpty()) {
-                result = new JSONObject(eipDefinitionString);
-            }
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return result;
-    }
-
+    /**
+     * read eipServiceJson from preferences and parse Gateways
+     * @return GatewaysManager
+     */
     private GatewaysManager gatewaysFromPreferences() {
         GatewaysManager gatewaysManager = new GatewaysManager(this, preferences);
-        //TODO: THIS IS A QUICK FIX - it deletes all profiles in ProfileManager, thus it's possible
-        // to add all gateways from prefs without duplicates, but this should be refactored.
-        gatewaysManager.clearGatewaysAndProfiles();
-        gatewaysManager.fromEipServiceJson(eipDefinitionFromPreferences());
+        gatewaysManager.configureFromPreferences();
         return gatewaysManager;
     }
 
+    /**
+     * read VPN certificate from preferences and check it
+     * broadcast result
+     */
     private void checkVPNCertificateValidity() {
         int resultCode = isVPNCertificateValid() ?
                 RESULT_OK :
@@ -236,11 +279,22 @@ public final class EIP extends IntentService {
         tellToReceiverOrBroadcast(EIP_ACTION_CHECK_CERT_VALIDITY, resultCode);
     }
 
+    /**
+     * read VPN certificate from preferences and check it
+     * @return true if VPN certificate is valid false otherwise
+     */
     private boolean isVPNCertificateValid() {
         VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
         return validator.isValid();
     }
 
+    /**
+     * send resultCode and resultData to receiver or
+     * broadcast the result if no receiver is defined
+     * @param action the action that has been performed
+     * @param resultCode RESULT_OK if action was successful RESULT_CANCELED otherwise
+     * @param resultData other data to broadcast or return to receiver
+     */
     private void tellToReceiverOrBroadcast(String action, int resultCode, Bundle resultData) {
         resultData.putString(EIP_REQUEST, action);
         if (mReceiverRef.get() != null) {
@@ -250,10 +304,21 @@ public final class EIP extends IntentService {
         }
     }
 
+    /**
+     * send resultCode and resultData to receiver or
+     * broadcast the result if no receiver is defined
+     * @param action the action that has been performed
+     * @param resultCode RESULT_OK if action was successful RESULT_CANCELED otherwise
+     */
     private void tellToReceiverOrBroadcast(String action, int resultCode) {
         tellToReceiverOrBroadcast(action, resultCode, new Bundle());
     }
 
+    /**
+     * broadcast resul
+     * @param resultCode RESULT_OK if action was successful RESULT_CANCELED otherwise
+     * @param resultData other data to broadcast or return to receiver
+     */
     private void broadcastEvent(int resultCode , Bundle resultData) {
         Intent intentUpdate = new Intent(BROADCAST_EIP_EVENT);
         intentUpdate.addCategory(CATEGORY_DEFAULT);
@@ -263,20 +328,132 @@ public final class EIP extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intentUpdate);
     }
 
-    Bundle setErrorResult(Bundle result, int errorMessageId, String errorId) {
-        JSONObject errorJson = new JSONObject();
-        addErrorMessageToJson(errorJson, getResources().getString(errorMessageId), errorId);
-        result.putString(ERRORS, errorJson.toString());
-        result.putBoolean(BROADCAST_RESULT_KEY, false);
-        return result;
-    }
 
-    private void addErrorMessageToJson(JSONObject jsonObject, String errorMessage, String errorId) {
+    /**
+     * helper function to add error to result bundle
+     * @param result - result of an action
+     * @param errorMessageId - id of string resource describing the error
+     * @param errorId - MainActivityErrorDialog DownloadError id
+     */
+    void setErrorResult(Bundle result, @StringRes int errorMessageId, String errorId) {
+        JSONObject errorJson = new JSONObject();
         try {
-            jsonObject.put(ERRORS, errorMessage);
-            jsonObject.put(ERROR_ID, errorId);
+            errorJson.put(ERRORS, getResources().getString(errorMessageId));
+            errorJson.put(ERROR_ID, errorId);
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+        result.putString(ERRORS, errorJson.toString());
+        result.putBoolean(BROADCAST_RESULT_KEY, false);
+    }
+
+
+    /**
+     * disable startup on restart
+     * then stop VPN
+     */
+    private void stop() {
+        preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, false).apply();
+        if (eipStatus.isBlockingVpnEstablished()) {
+            stopBlockingVpn();
+        }
+        disconnect();
+    }
+
+    /**
+     * stop void vpn from blocking internet
+     */
+    private void stopBlockingVpn() {
+        Log.d(TAG, "stop VoidVpn!");
+        Intent stopVoidVpnIntent = new Intent(this, VoidVpnService.class);
+        stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
+        startService(stopVoidVpnIntent);
+    }
+
+
+    /**
+     * check if OpenVPNConnection is connected
+     * then terminate VPN connection
+     */
+    private void disconnect() {
+        // if OpenVPNConnection is not connected remember to disconnect
+        // after connection is established
+        if (mService == null) {
+            disconnectOnConnect.set(true);
+            return;
+        }
+
+        ProfileManager.setConntectedVpnProfileDisconnected(this);
+        if (mService != null) {
+            try {
+                mService.stopVPN(false);
+            } catch (RemoteException e) {
+                VpnStatus.logException(e);
+            }
+        }
+    }
+
+    /**
+     * bind OpenVPNService to openVPNConnection
+     */
+    private void bindOpenVpnService() {
+        Intent intent = new Intent(this, OpenVPNService.class);
+        intent.setAction(OpenVPNService.START_SERVICE);
+        bindService(intent, openVpnConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    /**
+     * Thread to handle the requests to this service
+     */
+    class EipThread extends Thread {
+        EipThread(EIP eipReference, String action, Intent startIntent) {
+            super(new EipRunnable(eipReference, action, startIntent));
+        }
+    }
+
+    /**
+     * Runnable to be used in the EipThread class
+     */
+    class EipRunnable implements Runnable {
+        private String action;
+        private EIP eipReference;
+        private Intent intent;
+
+        EipRunnable(EIP eipReference, String action, Intent startIntent){
+            super();
+            this.action = action;
+            this.eipReference = eipReference;
+            this.intent = startIntent;
+        }
+
+        /**
+         * select correct function to call based upon transmitted action
+         * after completing check if no other thread is running
+         * if no other thread is running terminate the EIP service
+         */
+        @Override
+        public void run() {
+            switch (action) {
+                case EIP_ACTION_START:
+                    boolean earlyRoutes = intent.getBooleanExtra(EIP_EARLY_ROUTES, true);
+                    startEIP(earlyRoutes);
+                    break;
+                case EIP_ACTION_START_ALWAYS_ON_VPN:
+                    startEIPAlwaysOnVpn();
+                    break;
+                case EIP_ACTION_STOP:
+                    stopEIP();
+                    break;
+                case EIP_ACTION_IS_RUNNING:
+                    isRunning();
+                    break;
+                case EIP_ACTION_CHECK_CERT_VALIDITY:
+                    checkVPNCertificateValidity();
+                    break;
+            }
+            if (processCounter.decrementAndGet() == 0) {
+                eipReference.stopSelf();
+            }
         }
     }
 }
