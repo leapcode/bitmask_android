@@ -16,6 +16,7 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -93,21 +94,7 @@ public final class EIP extends Service implements Observer {
     private AtomicBoolean disconnectOnConnect = new AtomicBoolean(false);
 
     private IOpenVPNServiceInternal mService;
-    private ServiceConnection openVpnConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
-            if (disconnectOnConnect.get()) {
-                disconnect();
-                disconnectOnConnect.set(false);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mService = null;
-        }
-    };
+    private ServiceConnection openVpnConnection;
 
     @Nullable
     @Override
@@ -118,7 +105,6 @@ public final class EIP extends Service implements Observer {
     @Override
     public void onCreate() {
         super.onCreate();
-        bindOpenVpnService();
         eipStatus = EipStatus.getInstance();
         eipStatus.addObserver(this);
         processCounter = new AtomicInteger(0);
@@ -129,7 +115,9 @@ public final class EIP extends Service implements Observer {
     public void onDestroy() {
         super.onDestroy();
         eipStatus.deleteObserver(this);
-        unbindService(openVpnConnection);
+        if (mService != null) {
+            unbindService(openVpnConnection);
+        }
     }
 
     /**
@@ -150,11 +138,13 @@ public final class EIP extends Service implements Observer {
     public int onStartCommand(final Intent intent, int flags, int startId) {
         processCounter.incrementAndGet();
         final String action = intent.getAction();
-        if (intent.getParcelableExtra(EIP_RECEIVER) != null) {
-            mReceiverRef = new WeakReference<>((ResultReceiver) intent.getParcelableExtra(EIP_RECEIVER));
-        }
         if (action != null) {
+            if (intent.getParcelableExtra(EIP_RECEIVER) != null) {
+                mReceiverRef = new WeakReference<>((ResultReceiver) intent.getParcelableExtra(EIP_RECEIVER));
+            }
             new EipThread(this, action, intent).start();
+        } else {
+            processCounter.decrementAndGet();
         }
         return START_STICKY;
     }
@@ -164,6 +154,7 @@ public final class EIP extends Service implements Observer {
      * Intent to {@link de.blinkt.openvpn.LaunchVPN}.
      * It also sets up early routes.
      */
+    @SuppressLint("ApplySharedPref")
     private void startEIP(boolean earlyRoutes) {
         if (!EipStatus.getInstance().isBlockingVpnEstablished() && earlyRoutes)  {
             earlyRoutes();
@@ -171,7 +162,7 @@ public final class EIP extends Service implements Observer {
 
         Bundle result = new Bundle();
         if (!preferences.getBoolean(EIP_RESTART_ON_BOOT, false)){
-            preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, true).apply();
+            preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, true).commit();
         }
 
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
@@ -349,7 +340,7 @@ public final class EIP extends Service implements Observer {
 
 
     /**
-     * disable startup on restart
+     * disable Bitmask starting on after phone reboot
      * then stop VPN
      */
     private void stop() {
@@ -380,6 +371,7 @@ public final class EIP extends Service implements Observer {
         // after connection is established
         if (mService == null) {
             disconnectOnConnect.set(true);
+            bindOpenVpnService();
             return;
         }
 
@@ -397,6 +389,20 @@ public final class EIP extends Service implements Observer {
      * bind OpenVPNService to openVPNConnection
      */
     private void bindOpenVpnService() {
+        openVpnConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName className, IBinder service) {
+                mService = IOpenVPNServiceInternal.Stub.asInterface(service);
+                if (disconnectOnConnect.get()) {
+                    disconnect();
+                    disconnectOnConnect.set(false);
+                }
+            }
+            @Override
+            public void onServiceDisconnected(ComponentName arg0) {
+                mService = null;
+            }
+        };
         Intent intent = new Intent(this, OpenVPNService.class);
         intent.setAction(OpenVPNService.START_SERVICE);
         bindService(intent, openVpnConnection, Context.BIND_AUTO_CREATE);
