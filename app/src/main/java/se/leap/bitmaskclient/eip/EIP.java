@@ -29,16 +29,19 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.annotation.WorkerThread;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Closeable;
 import java.lang.ref.WeakReference;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.blinkt.openvpn.LaunchVPN;
@@ -51,6 +54,7 @@ import se.leap.bitmaskclient.OnBootReceiver;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.CATEGORY_DEFAULT;
+import static se.leap.bitmaskclient.ConfigHelper.ensureNotOnMainThread;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
@@ -91,10 +95,7 @@ public final class EIP extends Service implements Observer {
     private AtomicInteger processCounter;
     private EipStatus eipStatus;
 
-    private AtomicBoolean disconnectOnConnect = new AtomicBoolean(false);
-
-    private IOpenVPNServiceInternal mService;
-    private ServiceConnection openVpnConnection;
+    private OpenvpnServiceConnection openvpnServiceConnection;
 
     @Nullable
     @Override
@@ -115,8 +116,9 @@ public final class EIP extends Service implements Observer {
     public void onDestroy() {
         super.onDestroy();
         eipStatus.deleteObserver(this);
-        if (mService != null) {
-            unbindService(openVpnConnection);
+        if (openvpnServiceConnection != null) {
+            openvpnServiceConnection.close();
+            openvpnServiceConnection = null;
         }
     }
 
@@ -226,13 +228,10 @@ public final class EIP extends Service implements Observer {
      * First checks if the OpenVpnConnection is open then
      * terminates EIP if currently connected or connecting
      */
+    @WorkerThread
     private void stopEIP() {
         // if the OpenVpnConnection doesn't exist remember to disconnect after connecting
-        int resultCode = RESULT_CANCELED;
-        if (eipStatus.isConnected() || eipStatus.isConnecting()) {
-            stop();
-            resultCode = RESULT_OK;
-        }
+        int resultCode = stop() ? RESULT_OK : RESULT_CANCELED;
         tellToReceiverOrBroadcast(EIP_ACTION_STOP, resultCode);
     }
 
@@ -343,12 +342,13 @@ public final class EIP extends Service implements Observer {
      * disable Bitmask starting on after phone reboot
      * then stop VPN
      */
-    private void stop() {
+    @WorkerThread
+    private boolean stop() {
         preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, false).apply();
         if (eipStatus.isBlockingVpnEstablished()) {
             stopBlockingVpn();
         }
-        disconnect();
+        return disconnect();
     }
 
     /**
@@ -366,46 +366,79 @@ public final class EIP extends Service implements Observer {
      * check if OpenVPNConnection is connected
      * then terminate VPN connection
      */
-    private void disconnect() {
+    @WorkerThread
+    private boolean disconnect() {
         // if OpenVPNConnection is not connected remember to disconnect
         // after connection is established
-        if (mService == null) {
-            disconnectOnConnect.set(true);
-            bindOpenVpnService();
-            return;
+        if (openvpnServiceConnection == null) {
+            try {
+                openvpnServiceConnection = new OpenvpnServiceConnection(this);
+            } catch (InterruptedException | IllegalStateException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
 
         ProfileManager.setConntectedVpnProfileDisconnected(this);
-        if (mService != null) {
-            try {
-                mService.stopVPN(false);
-            } catch (RemoteException e) {
-                VpnStatus.logException(e);
-            }
+        try {
+            return openvpnServiceConnection.getService().stopVPN(false);
+        } catch (RemoteException e) {
+            VpnStatus.logException(e);
         }
+        return false;
     }
 
     /**
-     * bind OpenVPNService to openVPNConnection
+     * Creates a service connection to OpenVpnService.
+     * The constructor blocks until the service is bound to the given Context.
+     * Pattern stolen from android.security.KeyChain.java
      */
-    private void bindOpenVpnService() {
-        openVpnConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName className, IBinder service) {
-                mService = IOpenVPNServiceInternal.Stub.asInterface(service);
-                if (disconnectOnConnect.get()) {
-                    disconnect();
-                    disconnectOnConnect.set(false);
+    @WorkerThread
+    public static class OpenvpnServiceConnection implements Closeable {
+        private final Context context;
+        private ServiceConnection serviceConnection;
+        private IOpenVPNServiceInternal service;
+
+
+
+        protected OpenvpnServiceConnection(Context context) throws InterruptedException {
+            this.context = context;
+            ensureNotOnMainThread(context);
+            Log.d(TAG, "initSynchronzedServiceConnection!");
+            initSynchronizedServiceConnection(context);
+        }
+
+        private void initSynchronizedServiceConnection(Context context) throws InterruptedException {
+            final BlockingQueue<IOpenVPNServiceInternal> blockingQueue = new LinkedBlockingQueue<>(1);
+            this.serviceConnection = new ServiceConnection() {
+                volatile boolean mConnectedAtLeastOnce = false;
+                @Override public void onServiceConnected(ComponentName name, IBinder service) {
+                    if (!mConnectedAtLeastOnce) {
+                        mConnectedAtLeastOnce = true;
+                        try {
+                            blockingQueue.put(IOpenVPNServiceInternal.Stub.asInterface(service));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
-            }
-            @Override
-            public void onServiceDisconnected(ComponentName arg0) {
-                mService = null;
-            }
-        };
-        Intent intent = new Intent(this, OpenVPNService.class);
-        intent.setAction(OpenVPNService.START_SERVICE);
-        bindService(intent, openVpnConnection, Context.BIND_AUTO_CREATE);
+                @Override public void onServiceDisconnected(ComponentName name) {
+                }
+            };
+
+            Intent intent = new Intent(context, OpenVPNService.class);
+            intent.setAction(OpenVPNService.START_SERVICE);
+            context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+            service = blockingQueue.take();
+        }
+
+        @Override public void close() {
+            context.unbindService(serviceConnection);
+        }
+
+        public IOpenVPNServiceInternal getService() {
+            return service;
+        }
     }
 
     /**

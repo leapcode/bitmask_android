@@ -18,6 +18,7 @@ package se.leap.bitmaskclient;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -451,4 +452,11 @@ public class ConfigHelper {
         return result;
     }
 
+    public static void ensureNotOnMainThread(@NonNull Context context) throws IllegalStateException{
+        Looper looper = Looper.myLooper();
+        if (looper != null && looper == context.getMainLooper()) {
+            throw new IllegalStateException(
+                    "calling this from your main thread can lead to deadlock");
+        }
+    }
 }
