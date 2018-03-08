@@ -55,6 +55,7 @@ import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static se.leap.bitmaskclient.ConfigHelper.ensureNotOnMainThread;
+import static se.leap.bitmaskclient.ConfigHelper.trim;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
@@ -95,7 +96,8 @@ public final class EIP extends Service implements Observer {
     private AtomicInteger processCounter;
     private EipStatus eipStatus;
 
-    private OpenvpnServiceConnection openvpnServiceConnection;
+    // Service connection to OpenVpnService, shared between threads
+    private volatile OpenvpnServiceConnection openvpnServiceConnection;
 
     @Nullable
     @Override
@@ -363,20 +365,15 @@ public final class EIP extends Service implements Observer {
 
 
     /**
-     * check if OpenVPNConnection is connected
-     * then terminate VPN connection
+     * creates a OpenVpnServiceConnection if necessary
+     * then terminates OpenVPN
      */
     @WorkerThread
     private boolean disconnect() {
-        // if OpenVPNConnection is not connected remember to disconnect
-        // after connection is established
-        if (openvpnServiceConnection == null) {
-            try {
-                openvpnServiceConnection = new OpenvpnServiceConnection(this);
-            } catch (InterruptedException | IllegalStateException e) {
-                e.printStackTrace();
-                return false;
-            }
+        try {
+            initOpenVpnServiceConnection();
+        } catch (InterruptedException | IllegalStateException e) {
+            return false;
         }
 
         ProfileManager.setConntectedVpnProfileDisconnected(this);
@@ -389,6 +386,20 @@ public final class EIP extends Service implements Observer {
     }
 
     /**
+     * Assigns a new OpenvpnServiceConnection to EIP's member variable openvpnServiceConnection.
+     * Only one thread at a time can create the service connection, that will be shared between threads
+     *
+     * @throws InterruptedException thrown if thread gets interrupted
+     * @throws IllegalStateException thrown if this method was not called from a background thread
+     */
+    @WorkerThread
+    private synchronized void initOpenVpnServiceConnection() throws InterruptedException, IllegalStateException {
+        if (openvpnServiceConnection == null) {
+            openvpnServiceConnection = new OpenvpnServiceConnection(this);
+        }
+    }
+
+    /**
      * Creates a service connection to OpenVpnService.
      * The constructor blocks until the service is bound to the given Context.
      * Pattern stolen from android.security.KeyChain.java
@@ -398,8 +409,6 @@ public final class EIP extends Service implements Observer {
         private final Context context;
         private ServiceConnection serviceConnection;
         private IOpenVPNServiceInternal service;
-
-
 
         protected OpenvpnServiceConnection(Context context) throws InterruptedException {
             this.context = context;
