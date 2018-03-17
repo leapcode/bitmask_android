@@ -418,10 +418,12 @@ public class NavigationDrawerFragment extends Fragment {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         Fragment fragment = null;
+        String fragmentTag = null;
 
         if (parent == mDrawerAccountsListView) {
             mTitle = getString(R.string.vpn_fragment_title);
             fragment = new EipFragment();
+            fragmentTag = EipFragment.TAG;
             Bundle arguments = new Bundle();
             Provider currentProvider = ConfigHelper.getSavedProviderFromSharedPreferences(preferences);
             arguments.putParcelable(PROVIDER_KEY, currentProvider);
@@ -457,7 +459,7 @@ public class NavigationDrawerFragment extends Fragment {
 
         if (fragment != null) {
             fragmentManager.beginTransaction()
-                    .replace(R.id.container, fragment)
+                    .replace(R.id.container, fragment, fragmentTag)
                     .commit();
         }
 

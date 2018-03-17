@@ -141,6 +141,22 @@ public class MainActivity extends AppCompatActivity implements Observer {
     }
 
     @Override
+    public void onBackPressed() {
+        FragmentManagerEnhanced fragmentManagerEnhanced = new FragmentManagerEnhanced(getSupportFragmentManager());
+        if (fragmentManagerEnhanced.findFragmentByTag(EipFragment.TAG) == null) {
+            Fragment fragment = new EipFragment();
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(PROVIDER_KEY, provider);
+            fragment.setArguments(bundle);
+            fragmentManagerEnhanced.beginTransaction()
+                    .replace(R.id.container, fragment, EipFragment.TAG)
+                    .commit();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
@@ -152,10 +168,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
             return;
         }
 
+        String fragmentTag = null;
         Fragment fragment = null;
         switch (intent.getAction()) {
             case ACTION_SHOW_VPN_FRAGMENT:
                 fragment = new EipFragment();
+                fragmentTag = EipFragment.TAG;
                 Bundle bundle = new Bundle();
                 if (intent.hasExtra(ASK_TO_CANCEL_VPN)) {
                     bundle.putBoolean(ASK_TO_CANCEL_VPN, true);
@@ -175,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
         if (fragment != null) {
             new FragmentManagerEnhanced(getSupportFragmentManager()).beginTransaction()
-                    .replace(R.id.container, fragment)
+                    .replace(R.id.container, fragment, fragmentTag)
                     .commit();
         }
     }
@@ -214,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         arguments.putParcelable(PROVIDER_KEY, provider);
         fragment.setArguments(arguments);
         new FragmentManagerEnhanced(getSupportFragmentManager()).beginTransaction()
-                .replace(R.id.container, fragment)
+                .replace(R.id.container, fragment, EipFragment.TAG)
                 .commit();
     }
 
