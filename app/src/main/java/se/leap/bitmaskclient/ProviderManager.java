@@ -1,6 +1,7 @@
 package se.leap.bitmaskclient;
 
 import android.content.res.AssetManager;
+import android.support.annotation.VisibleForTesting;
 
 import com.pedrogomez.renderers.AdapteeCollection;
 
@@ -8,9 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -21,6 +20,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import static se.leap.bitmaskclient.utils.FileHelper.createFile;
+import static se.leap.bitmaskclient.utils.FileHelper.persistFile;
+import static se.leap.bitmaskclient.utils.InputStreamHelper.getInputStreamFrom;
+import static se.leap.bitmaskclient.utils.InputStreamHelper.loadInputStreamAsString;
 
 /**
  * Created by parmegv on 4/12/14.
@@ -37,12 +41,19 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     private static ProviderManager instance;
 
     final private static String URLS = "urls";
+    final private static String EXT_JSON = ".json";
+    final private static String EXT_PEM = ".pem";
 
     public static ProviderManager getInstance(AssetManager assetsManager, File externalFilesDir) {
         if (instance == null)
             instance = new ProviderManager(assetsManager, externalFilesDir);
 
         return instance;
+    }
+
+    @VisibleForTesting
+    static void reset() {
+        instance = null;
     }
 
     private ProviderManager(AssetManager assetManager, File externalFilesDir) {
@@ -79,8 +90,8 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                     String provider = file.substring(0, file.length() - ".url".length());
                     InputStream provider_file = assetsManager.open(directory + "/" + file);
                     mainUrl = extractMainUrlFromInputStream(provider_file);
-                    certificate = ConfigHelper.loadInputStreamAsString(assetsManager.open(provider + ".pem"));
-                    providerDefinition = ConfigHelper.loadInputStreamAsString(assetsManager.open(provider + ".json"));
+                    certificate = loadInputStreamAsString(assetsManager.open(provider + EXT_PEM));
+                    providerDefinition = loadInputStreamAsString(assetsManager.open(provider + EXT_JSON));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -107,7 +118,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         Set<Provider> providers = new HashSet<>();
         try {
             for (String file : files) {
-                String mainUrl = extractMainUrlFromInputStream(ConfigHelper.getInputStreamFrom(externalFilesDir.getAbsolutePath() + "/" + file));
+                String mainUrl = extractMainUrlFromInputStream(getInputStreamFrom(externalFilesDir.getAbsolutePath() + "/" + file));
                 providers.add(new Provider(new URL(mainUrl)));
             }
         } catch (MalformedURLException | FileNotFoundException e) {
@@ -219,19 +230,33 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         defaultProviderURLs.clear();
     }
 
-    //FIXME: removed custom providers should be deleted here as well
     void saveCustomProvidersToFile() {
         try {
+            deleteLegacyCustomProviders();
+
             for (Provider provider : customProviders) {
-                File providerFile = new File(externalFilesDir, provider.getName() + ".json");
+                File providerFile = createFile(externalFilesDir, provider.getName() + EXT_JSON);
                 if (!providerFile.exists()) {
-                    FileWriter writer = new FileWriter(providerFile);
-                    writer.write(provider.toJson().toString());
-                    writer.close();
+                    persistFile(providerFile, provider.toJson().toString());
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Deletes persisted custom providers from from internal storage that are not in customProviders list anymore
+     */
+    private void deleteLegacyCustomProviders() throws IOException, SecurityException {
+        Set<Provider> persistedCustomProviders = externalFilesDir != null && externalFilesDir.isDirectory() ?
+                providersFromFiles(externalFilesDir.list()) : new HashSet<Provider>();
+            persistedCustomProviders.removeAll(customProviders);
+        for (Provider providerToDelete : persistedCustomProviders) {
+            File providerFile = createFile(externalFilesDir, providerToDelete.getName() + EXT_JSON);
+            if (providerFile.exists()) {
+                providerFile.delete();
+            }
         }
     }
 }
