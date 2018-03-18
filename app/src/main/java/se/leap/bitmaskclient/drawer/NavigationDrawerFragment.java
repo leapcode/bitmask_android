@@ -46,9 +46,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import se.leap.bitmaskclient.ConfigHelper;
+import se.leap.bitmaskclient.utils.ConfigHelper;
 import se.leap.bitmaskclient.DrawerSettingsAdapter;
 import se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem;
 import se.leap.bitmaskclient.FragmentManagerEnhanced;
@@ -62,8 +61,6 @@ import se.leap.bitmaskclient.fragments.LogFragment;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
-import static se.leap.bitmaskclient.ConfigHelper.getSaveBattery;
-import static se.leap.bitmaskclient.ConfigHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
@@ -77,6 +74,11 @@ import static se.leap.bitmaskclient.DrawerSettingsAdapter.SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
 import static se.leap.bitmaskclient.R.string.log_fragment_title;
 import static se.leap.bitmaskclient.R.string.switch_provider_menu_option;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getProviderName;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getSaveBattery;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getShowAlwaysOnDialog;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.saveBattery;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -307,7 +309,7 @@ public class NavigationDrawerFragment extends Fragment {
                             DrawerSettingsItem item = settingsListAdapter.getDrawerItem(BATTERY_SAVER);
                             item.setChecked(true);
                             settingsListAdapter.notifyDataSetChanged();
-                            ConfigHelper.saveBattery(getContext(), item.isChecked());
+                            saveBattery(getContext(), item.isChecked());
                         }
                     })
                     .setNegativeButton(activity.getString(android.R.string.no), new DialogInterface.OnClickListener() {
@@ -392,14 +394,14 @@ public class NavigationDrawerFragment extends Fragment {
     private void onSwitchItemSelected(int elementType, boolean newStateIsChecked) {
         switch (elementType) {
             case BATTERY_SAVER:
-                if (ConfigHelper.getSaveBattery(getContext()) == newStateIsChecked) {
+                if (getSaveBattery(getContext()) == newStateIsChecked) {
                     //initial ui setup, ignore
                     return;
                 }
                 if (newStateIsChecked) {
                     showExperimentalFeatureAlert();
                 } else {
-                    ConfigHelper.saveBattery(this.getContext(), false);
+                    saveBattery(this.getContext(), false);
                     disableSwitch(BATTERY_SAVER);
                 }
                 break;
@@ -423,7 +425,7 @@ public class NavigationDrawerFragment extends Fragment {
             mTitle = getString(R.string.vpn_fragment_title);
             fragment = new EipFragment();
             Bundle arguments = new Bundle();
-            Provider currentProvider = ConfigHelper.getSavedProviderFromSharedPreferences(preferences);
+            Provider currentProvider = getSavedProviderFromSharedPreferences(preferences);
             arguments.putParcelable(PROVIDER_KEY, currentProvider);
             fragment.setArguments(arguments);
         } else {
@@ -481,7 +483,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void createListAdapterData() {
         accountListAdapter.clear();
-        String providerName = ConfigHelper.getProviderName(preferences);
+        String providerName = getProviderName(preferences);
         if (providerName == null) {
             //TODO: ADD A header to the ListView containing a useful message.
             //TODO 2: disable switchProvider

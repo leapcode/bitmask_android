@@ -22,6 +22,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
+import se.leap.bitmaskclient.utils.ConfigHelper;
 
 /**
  * Created by cyberta on 24.10.17.

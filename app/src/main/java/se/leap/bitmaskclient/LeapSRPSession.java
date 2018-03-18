@@ -17,12 +17,16 @@
 package se.leap.bitmaskclient;
 
 
-import org.jboss.security.srp.*;
+import org.jboss.security.srp.SRPParameters;
 
-import java.io.*;
-import java.math.*;
-import java.security.*;
-import java.util.*;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Arrays;
+
+import se.leap.bitmaskclient.utils.ConfigHelper;
 
 /**
  * Implements all SRP algorithm logic.

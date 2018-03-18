@@ -51,6 +51,7 @@ import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VoidVpnService;
 import se.leap.bitmaskclient.fragments.LogFragment;
+import se.leap.bitmaskclient.utils.ConfigHelper;
 
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
@@ -76,6 +77,8 @@ import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTI
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.storeProviderInPreferences;
 
 
 public class MainActivity extends AppCompatActivity implements Observer {
@@ -123,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        provider = ConfigHelper.getSavedProviderFromSharedPreferences(preferences);
+        provider = getSavedProviderFromSharedPreferences(preferences);
 
         // Set up the drawer.
         navigationDrawerFragment.setUp(
@@ -194,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 return;
             }
 
-            ConfigHelper.storeProviderInPreferences(preferences, provider);
+            storeProviderInPreferences(preferences, provider);
             navigationDrawerFragment.refresh();
 
             switch (requestCode) {
@@ -321,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
             case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 provider = resultData.getParcelable(PROVIDER_KEY);
-                ConfigHelper.storeProviderInPreferences(preferences, provider);
+                storeProviderInPreferences(preferences, provider);
                 EipCommand.startVPN(this, true);
                 break;
             case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:

@@ -52,8 +52,9 @@ import javax.net.ssl.SSLHandshakeException;
 
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.Constants.CREDENTIAL_ERRORS;
+import se.leap.bitmaskclient.utils.ConfigHelper;
 
-import static se.leap.bitmaskclient.ConfigHelper.getFingerprintFromCertificate;
+import static se.leap.bitmaskclient.utils.ConfigHelper.getFingerprintFromCertificate;
 import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
@@ -103,6 +104,9 @@ import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
 import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
+import static se.leap.bitmaskclient.utils.ConfigHelper.parseRsaKeyFromString;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getFromPersistedProvider;
 
 /**
  * Implements the logic of the http api calls. The methods of this class needs to be called from
@@ -218,7 +222,7 @@ public abstract class ProviderApiManagerBase {
 
     void resetProviderDetails(Provider provider) {
         provider.reset();
-        ConfigHelper.deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
+        deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
     }
 
     String formatErrorMessage(final int toastStringId) {
@@ -754,16 +758,16 @@ public abstract class ProviderApiManagerBase {
     }
 
     protected String getPersistedPrivateKey(String providerDomain) {
-        return ConfigHelper.getFromPersistedProvider(PROVIDER_PRIVATE_KEY, providerDomain, preferences);
+        return getFromPersistedProvider(PROVIDER_PRIVATE_KEY, providerDomain, preferences);
     }
 
     protected String getPersistedVPNCertificate(String providerDomain) {
-        return ConfigHelper.getFromPersistedProvider(PROVIDER_VPN_CERTIFICATE, providerDomain, preferences);
+        return getFromPersistedProvider(PROVIDER_VPN_CERTIFICATE, providerDomain, preferences);
     }
 
     protected JSONObject getPersistedProviderDefinition(String providerDomain) {
         try {
-            return new JSONObject(ConfigHelper.getFromPersistedProvider(Provider.KEY, providerDomain, preferences));
+            return new JSONObject(getFromPersistedProvider(Provider.KEY, providerDomain, preferences));
         } catch (JSONException e) {
             e.printStackTrace();
             return new JSONObject();
@@ -849,7 +853,7 @@ public abstract class ProviderApiManagerBase {
                 }
             }
 
-            RSAPrivateKey key = ConfigHelper.parseRsaKeyFromString(keyString);
+            RSAPrivateKey key = parseRsaKeyFromString(keyString);
             keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
             provider.setPrivateKey( "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----");
 
