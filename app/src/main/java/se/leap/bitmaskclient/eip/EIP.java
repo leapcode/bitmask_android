@@ -55,7 +55,6 @@ import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static se.leap.bitmaskclient.ConfigHelper.ensureNotOnMainThread;
-import static se.leap.bitmaskclient.ConfigHelper.trim;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
@@ -91,10 +90,10 @@ public final class EIP extends Service implements Observer {
             ERRORS = "errors",
             ERROR_ID = "errorID";
 
-    private WeakReference<ResultReceiver> mReceiverRef = new WeakReference<>(null);
-    private SharedPreferences preferences;
+    private volatile WeakReference<ResultReceiver> mReceiverRef = new WeakReference<>(null);
+    private volatile SharedPreferences preferences;
     private AtomicInteger processCounter;
-    private EipStatus eipStatus;
+    private volatile EipStatus eipStatus;
 
     // Service connection to OpenVpnService, shared between threads
     private volatile OpenvpnServiceConnection openvpnServiceConnection;
@@ -160,7 +159,7 @@ public final class EIP extends Service implements Observer {
      */
     @SuppressLint("ApplySharedPref")
     private void startEIP(boolean earlyRoutes) {
-        if (!EipStatus.getInstance().isBlockingVpnEstablished() && earlyRoutes)  {
+        if (!eipStatus.isBlockingVpnEstablished() && earlyRoutes)  {
             earlyRoutes();
         }
 
@@ -232,7 +231,6 @@ public final class EIP extends Service implements Observer {
      */
     @WorkerThread
     private void stopEIP() {
-        // if the OpenVpnConnection doesn't exist remember to disconnect after connecting
         int resultCode = stop() ? RESULT_OK : RESULT_CANCELED;
         tellToReceiverOrBroadcast(EIP_ACTION_STOP, resultCode);
     }
@@ -243,7 +241,6 @@ public final class EIP extends Service implements Observer {
      * request if it's not connected, <code>Activity.RESULT_OK</code> otherwise.
      */
     private void isRunning() {
-        EipStatus eipStatus = EipStatus.getInstance();
         int resultCode = (eipStatus.isConnected()) ?
                 RESULT_OK :
                 RESULT_CANCELED;
@@ -307,7 +304,7 @@ public final class EIP extends Service implements Observer {
     }
 
     /**
-     * broadcast resul
+     * broadcast result
      * @param resultCode RESULT_OK if action was successful RESULT_CANCELED otherwise
      * @param resultData other data to broadcast or return to receiver
      */
@@ -410,10 +407,10 @@ public final class EIP extends Service implements Observer {
         private ServiceConnection serviceConnection;
         private IOpenVPNServiceInternal service;
 
-        protected OpenvpnServiceConnection(Context context) throws InterruptedException {
+        protected OpenvpnServiceConnection(Context context) throws InterruptedException, IllegalStateException {
             this.context = context;
             ensureNotOnMainThread(context);
-            Log.d(TAG, "initSynchronzedServiceConnection!");
+            Log.d(TAG, "initSynchronizedServiceConnection!");
             initSynchronizedServiceConnection(context);
         }
 
