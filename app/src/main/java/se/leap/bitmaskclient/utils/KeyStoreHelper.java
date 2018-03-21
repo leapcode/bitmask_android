@@ -2,7 +2,6 @@ package se.leap.bitmaskclient.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -15,7 +14,7 @@ import java.security.cert.X509Certificate;
  */
 
 public class KeyStoreHelper {
-    private static KeyStore keystore_trusted;
+    private static KeyStore trustedKeystore;
 
     /**
      * Adds a new X509 certificate given its input stream and its provider name
@@ -29,7 +28,7 @@ public class KeyStoreHelper {
             cf = CertificateFactory.getInstance("X.509");
             X509Certificate cert =
                     (X509Certificate) cf.generateCertificate(inputStream);
-            keystore_trusted.setCertificateEntry(provider, cert);
+            trustedKeystore.setCertificateEntry(provider, cert);
         } catch (CertificateException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -49,11 +48,11 @@ public class KeyStoreHelper {
 
         try {
             X509Certificate cert = ConfigHelper.parseX509CertificateFromString(certificate);
-            if (keystore_trusted == null) {
-                keystore_trusted = KeyStore.getInstance("BKS");
-                keystore_trusted.load(null);
+            if (trustedKeystore == null) {
+                trustedKeystore = KeyStore.getInstance("BKS");
+                trustedKeystore.load(null);
             }
-            keystore_trusted.setCertificateEntry(provider, cert);
+            trustedKeystore.setCertificateEntry(provider, cert);
         } catch (KeyStoreException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -73,7 +72,7 @@ public class KeyStoreHelper {
      * @return class wide keystore
      */
     public static KeyStore getKeystore() {
-        return keystore_trusted;
+        return trustedKeystore;
     }
 
 }
