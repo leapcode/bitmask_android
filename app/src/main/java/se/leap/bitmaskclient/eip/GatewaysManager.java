@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
@@ -36,6 +35,7 @@ import java.util.List;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.ProfileManager;
+import se.leap.bitmaskclient.ConfigHelper;
 import se.leap.bitmaskclient.Provider;
 
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
@@ -49,52 +49,49 @@ public class GatewaysManager {
     private Context context;
     private SharedPreferences preferences;
     private List<Gateway> gateways = new ArrayList<>();
-    private ProfileManager profile_manager;
-    private Type list_type = new TypeToken<ArrayList<Gateway>>() {
-    }.getType();
+    private ProfileManager profileManager;
+    private Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
 
-    public GatewaysManager() {
-    }
-
-    public GatewaysManager(Context context, SharedPreferences preferences) {
+    GatewaysManager(Context context, SharedPreferences preferences) {
         this.context = context;
         this.preferences = preferences;
-        profile_manager = ProfileManager.getInstance(context);
+        profileManager = ProfileManager.getInstance(context);
     }
 
+    /**
+     * select closest Gateway
+      * @return the closest Gateway
+     */
     public Gateway select() {
-        GatewaySelector gateway_selector = new GatewaySelector(gateways);
-        return gateway_selector.select();
+        GatewaySelector gatewaySelector = new GatewaySelector(gateways);
+        return gatewaySelector.select();
     }
 
+    /**
+     * check if there are no gateways defined
+     * @return true if no gateways defined else false
+     */
     public boolean isEmpty() {
         return gateways.isEmpty();
     }
 
+    /**
+     * @return number of gateways defined in the GatewaysManager
+     */
     public int size() {
         return gateways.size();
     }
 
-    public void addFromString(String gateways) {
-        List<Gateway> gateways_list = new ArrayList<>();
-        try {
-            gateways_list = new Gson().fromJson(gateways, list_type);
-        } catch (JsonSyntaxException e) {
-            gateways_list.add(new Gson().fromJson(gateways, Gateway.class));
-        }
-
-        if (gateways_list != null) {
-            for (Gateway gateway : gateways_list)
-                addGateway(gateway);
-        }
-    }
-
     @Override
     public String toString() {
-        return new Gson().toJson(gateways, list_type);
+        return new Gson().toJson(gateways, listType);
     }
 
-    public void fromEipServiceJson(JSONObject eipDefinition) {
+    /**
+     * parse gateways from eipDefinition
+     * @param eipDefinition eipServiceJson
+     */
+    void fromEipServiceJson(JSONObject eipDefinition) {
         try {
             JSONArray gatewaysDefined = eipDefinition.getJSONArray("gateways");
             for (int i = 0; i < gatewaysDefined.length(); i++) {
@@ -113,6 +110,11 @@ public class GatewaysManager {
         }
     }
 
+    /**
+     * check if a gateway is an OpenVpn gateway
+     * @param gateway to check
+     * @return true if gateway is an OpenVpn gateway otherwise false
+     */
     private boolean isOpenVpnGateway(JSONObject gateway) {
         try {
             String transport = gateway.getJSONObject("capabilities").getJSONArray("transport").toString();
@@ -137,7 +139,7 @@ public class GatewaysManager {
     private boolean containsProfileWithSecrets(VpnProfile profile) {
         boolean result = false;
 
-        Collection<VpnProfile> profiles = profile_manager.getProfiles();
+        Collection<VpnProfile> profiles = profileManager.getProfiles();
         for (VpnProfile aux : profiles) {
             result = result || sameConnections(profile.mConnections, aux.mConnections)
                     && profile.mClientCertFilename.equalsIgnoreCase(aux.mClientCertFilename)
@@ -146,11 +148,11 @@ public class GatewaysManager {
         return result;
     }
 
-    protected void clearGatewaysAndProfiles() {
+    void clearGatewaysAndProfiles() {
         gateways.clear();
-        ArrayList<VpnProfile> profiles = new ArrayList<>(profile_manager.getProfiles());
+        ArrayList<VpnProfile> profiles = new ArrayList<>(profileManager.getProfiles());
         for (VpnProfile profile : profiles) {
-            profile_manager.removeProfile(context, profile);
+            profileManager.removeProfile(context, profile);
         }
     }
 
@@ -159,42 +161,62 @@ public class GatewaysManager {
         gateways.add(gateway);
 
         VpnProfile profile = gateway.getProfile();
-        profile_manager.addProfile(profile);
+        profileManager.addProfile(profile);
     }
 
     private void removeDuplicatedGateway(Gateway gateway) {
         Iterator<Gateway> it = gateways.iterator();
-        List<Gateway> gateways_to_remove = new ArrayList<>();
+        List<Gateway> gatewaysToRemove = new ArrayList<>();
         while (it.hasNext()) {
             Gateway aux = it.next();
             if (sameConnections(aux.getProfile().mConnections, gateway.getProfile().mConnections)) {
-                gateways_to_remove.add(aux);
+                gatewaysToRemove.add(aux);
             }
         }
-        gateways.removeAll(gateways_to_remove);
+        gateways.removeAll(gatewaysToRemove);
         removeDuplicatedProfiles(gateway.getProfile());
     }
 
     private void removeDuplicatedProfiles(VpnProfile original) {
-        Collection<VpnProfile> profiles = profile_manager.getProfiles();
-        List<VpnProfile> remove_list = new ArrayList<>();
+        Collection<VpnProfile> profiles = profileManager.getProfiles();
+        List<VpnProfile> removeList = new ArrayList<>();
         for (VpnProfile aux : profiles) {
-            if (sameConnections(original.mConnections, aux.mConnections))
-                remove_list.add(aux);
+            if (sameConnections(original.mConnections, aux.mConnections)) {
+                removeList.add(aux);
+            }
         }
-        for (VpnProfile profile : remove_list)
-            profile_manager.removeProfile(context, profile);
+        for (VpnProfile profile : removeList) {
+            profileManager.removeProfile(context, profile);
+        }
     }
 
+    /**
+     * check if all connections in c1 are also in c2
+     * @param c1 array of connections
+     * @param c2 array of connections
+     * @return true if all connections of c1 exist in c2 and vice versa
+     */
     private boolean sameConnections(Connection[] c1, Connection[] c2) {
-        int same_connections = 0;
+        int sameConnections = 0;
         for (Connection c1_aux : c1) {
             for (Connection c2_aux : c2)
                 if (c2_aux.mServerName.equals(c1_aux.mServerName)) {
-                    same_connections++;
+                    sameConnections++;
                     break;
                 }
         }
-        return c1.length == c2.length && c1.length == same_connections;
+        return c1.length == c2.length && c1.length == sameConnections;
+    }
+
+    /**
+     * read EipServiceJson from preferences and set gateways
+     */
+    void configureFromPreferences() {
+        //TODO: THIS IS A QUICK FIX - it deletes all profiles in ProfileManager, thus it's possible
+        // to add all gateways from prefs without duplicates, but this should be refactored.
+        clearGatewaysAndProfiles();
+        fromEipServiceJson(
+                ConfigHelper.getEipDefinitionFromPreferences(preferences)
+        );
     }
 }
