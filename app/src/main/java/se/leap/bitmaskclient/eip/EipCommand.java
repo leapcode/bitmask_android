@@ -42,7 +42,7 @@ public class EipCommand {
         vpnIntent.setAction(action);
         if (resultReceiver != null)
             vpnIntent.putExtra(EIP_RECEIVER, resultReceiver);
-        context.startService(vpnIntent);
+        EIP.enqueueWork(context, vpnIntent);
     }
 
     public static void startVPN(@NonNull Context context, boolean earlyRoutes) {
