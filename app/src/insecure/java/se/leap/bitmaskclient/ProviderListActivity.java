@@ -50,25 +50,9 @@ public class ProviderListActivity extends ProviderListBaseActivity {
         preferences.edit().remove(ProviderItem.DANGER_ON).apply();
     }
 
-    /**
-     * Open the new provider dialog with data
-     */
-    public void addAndSelectNewProvider(String mainUrl, boolean danger_on) {
-        FragmentTransaction fragment_transaction = fragmentManager.removePreviousFragment(NewProviderDialog.TAG);
-
-        DialogFragment newFragment = new NewProviderDialog();
-        Bundle data = new Bundle();
-        data.putString(Provider.MAIN_URL, mainUrl);
-        data.putBoolean(ProviderItem.DANGER_ON, danger_on);
-        newFragment.setArguments(data);
-        newFragment.show(fragment_transaction, NewProviderDialog.TAG);
-    }
-
     public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
         try {
             provider = new Provider(new URL((provider_main_url)));
-            adapter.add(provider);
-            adapter.saveProviders();
             autoSelectProvider(provider, danger_on);
         } catch (MalformedURLException e) {
             e.printStackTrace();
