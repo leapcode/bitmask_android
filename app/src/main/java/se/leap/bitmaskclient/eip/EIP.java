@@ -211,10 +211,11 @@ public final class EIP extends Service implements Observer {
             }
         }
 
-        /* Initiates an EIP connection by selecting a gateway and preparing and sending an
-   * Intent to {@link de.blinkt.openvpn.LaunchVPN}.
-              * It also sets up early routes.
-              */
+        /**
+         * Initiates an EIP connection by selecting a gateway and preparing and sending an
+         * Intent to {@link de.blinkt.openvpn.LaunchVPN}.
+         * It also sets up early routes.
+         */
         @SuppressLint("ApplySharedPref")
         private void startEIP(boolean earlyRoutes) {
             if (!eipStatus.isBlockingVpnEstablished() && earlyRoutes) {
