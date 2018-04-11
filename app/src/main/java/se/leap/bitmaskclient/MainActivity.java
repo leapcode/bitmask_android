@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         mainActivityBroadcastReceiver = new MainActivityBroadcastReceiver();
+        setUpBroadcastReceiver();
 
         navigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -103,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        setUpBroadcastReceiver();
         super.onResume();
     }
 
@@ -205,12 +205,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mainActivityBroadcastReceiver);
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mainActivityBroadcastReceiver);
         mainActivityBroadcastReceiver = null;
         super.onDestroy();
     }
