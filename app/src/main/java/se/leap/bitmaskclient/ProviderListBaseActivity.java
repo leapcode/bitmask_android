@@ -298,27 +298,14 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         ProviderAPICommand.execute(this, DOWNLOAD_VPN_CERTIFICATE, provider);
     }
 
+
     /**
      * Open the new provider dialog
      */
     public void addAndSelectNewProvider() {
-        addAndSelectNewProvider(null);
-    }
-
-    /**
-     * Open the new provider dialog
-     * @param mainUrl - the main url of the provider to add - if null add a new provider
-     */
-    public void addAndSelectNewProvider(@Nullable  String mainUrl) {
         FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(NewProviderDialog.TAG);
 
         DialogFragment newFragment = new NewProviderDialog();
-
-        if (mainUrl != null) {
-            Bundle data = new Bundle();
-            data.putString(Provider.MAIN_URL, mainUrl);
-            newFragment.setArguments(data);
-        }
         newFragment.show(fragmentTransaction, NewProviderDialog.TAG);
     }
 
