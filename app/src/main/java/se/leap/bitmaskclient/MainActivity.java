@@ -54,10 +54,10 @@ import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.EipFragment.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
-import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
-import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
@@ -294,12 +294,12 @@ public class MainActivity extends AppCompatActivity {
                 // TODO CATCH ME IF YOU CAN - WHAT DO WE WANT TO DO?
                 break;
 
-            case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
+            case CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
                 provider = resultData.getParcelable(PROVIDER_KEY);
                 ConfigHelper.storeProviderInPreferences(preferences, provider);
                 EipCommand.startVPN(this, true);
                 break;
-            case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
+            case INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
                 if (LeapSRPSession.loggedIn() || provider.allowsAnonymous()) {
                     showMainActivityErrorDialog(getString(downloading_vpn_certificate_failed));
                 } else {
