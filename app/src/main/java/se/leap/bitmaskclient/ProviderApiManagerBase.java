@@ -207,6 +207,7 @@ public abstract class ProviderApiManagerBase {
                 } else {
                     sendToReceiverOrBroadcast(receiver, INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE, result, provider);
                 }
+                break;
             case DOWNLOAD_SERVICE_JSON:
                 result = getAndSetEipServiceJson(provider);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
