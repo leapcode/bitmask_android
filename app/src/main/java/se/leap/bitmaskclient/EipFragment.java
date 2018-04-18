@@ -29,7 +29,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
@@ -56,17 +55,12 @@ import se.leap.bitmaskclient.views.VpnStateImage;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
-import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
-import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 
@@ -240,7 +234,7 @@ public class EipFragment extends Fragment implements Observer {
             askUserToLogIn(getString(vpn_certificate_user_message));
         } else {
             // provider has no VpnCertificate but user is logged in
-            downloadVpnCertificate();
+            updateInvalidVpnCertificate();
         }
     }
 
@@ -449,8 +443,8 @@ public class EipFragment extends Fragment implements Observer {
         background.setImageAlpha(210);
     }
 
-    private void downloadVpnCertificate() {
-        ProviderAPICommand.execute(getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
+    private void updateInvalidVpnCertificate() {
+        ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider);
     }
 
     private void askUserToLogIn(String userMessage) {
