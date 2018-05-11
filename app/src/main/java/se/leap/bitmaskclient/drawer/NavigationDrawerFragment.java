@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -96,6 +97,7 @@ public class NavigationDrawerFragment extends Fragment {
     private View mFragmentContainerView;
     private ArrayAdapter<String> accountListAdapter;
     private DrawerSettingsAdapter settingsListAdapter;
+    private Toolbar mToolbar;
 
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
@@ -150,7 +152,14 @@ public class NavigationDrawerFragment extends Fragment {
      */
     public void setUp(int fragmentId, DrawerLayout drawerLayout) {
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        ActionBar actionBar = activity.getSupportActionBar();
+        mDrawerLayout = drawerLayout;
+
+        mToolbar = mDrawerLayout.findViewById(R.id.toolbar);
+        activity.setSupportActionBar(mToolbar);
+
+        final ActionBar actionBar = activity.getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
 
         mDrawerSettingsListView = mDrawerView.findViewById(R.id.settingsList);
         mDrawerSettingsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -176,7 +185,6 @@ public class NavigationDrawerFragment extends Fragment {
         settingsListAdapter.addItem(getSimpleTextInstance(getString(about_fragment_title), ABOUT));
 
         mDrawerSettingsListView.setAdapter(settingsListAdapter);
-
         mDrawerAccountsListView = mDrawerView.findViewById(R.id.accountList);
         mDrawerAccountsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -194,13 +202,10 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerAccountsListView.setAdapter(accountListAdapter);
 
         mFragmentContainerView = activity.findViewById(fragmentId);
-        mDrawerLayout = drawerLayout;
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the navigation drawer and the action bar app icon.
         mDrawerToggle = new ActionBarDrawerToggle(
@@ -232,16 +237,40 @@ public class NavigationDrawerFragment extends Fragment {
                     // the navigation drawer automatically in the future.
                     mUserLearnedDrawer = true;
                     preferences.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
+                    mToolbar.setNavigationIcon(R.drawable.ic_menu_default);
                 }
 
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
         };
 
+        Handler navigationDrawerHandler = new Handler();
         // If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
         // per the navigation drawer design guidelines.
         if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
-            mDrawerLayout.openDrawer(mFragmentContainerView);
+            mDrawerLayout.openDrawer(mFragmentContainerView, false);
+            navigationDrawerHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mDrawerLayout.closeDrawer(mFragmentContainerView, true);
+                }
+            }, 1500);
+            navigationDrawerHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mToolbar.setNavigationIcon(R.drawable.ic_menu_color_point);
+                    mToolbar.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+                }
+            }, 3000);
+
+        } else if (!mUserLearnedDrawer) {
+            navigationDrawerHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mToolbar.setNavigationIcon(R.drawable.ic_menu_color_point);
+                    mToolbar.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+                }
+            }, 1500);
         }
 
         // Defer code dependent on restoration of previous instance state.
