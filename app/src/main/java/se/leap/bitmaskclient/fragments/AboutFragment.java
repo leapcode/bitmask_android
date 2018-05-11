@@ -3,7 +3,6 @@ package se.leap.bitmaskclient.fragments;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +23,7 @@ public class AboutFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.about, container, false);
+        View view = inflater.inflate(R.layout.f_about, container, false);
         ButterKnife.inject(this, view);
         return view;
     }

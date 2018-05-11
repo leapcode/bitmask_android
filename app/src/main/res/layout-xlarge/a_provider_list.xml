@@ -34,14 +34,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.275" />
+        app:layout_constraintGuide_percent="0.15" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline_bottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.725" />
+        app:layout_constraintGuide_percent="0.85" />
 
     <LinearLayout
         android:orientation="vertical"
@@ -58,7 +58,7 @@
         app:layout_constraintTop_toTopOf="@+id/guideline_top"
         app:layout_constraintWidth_min="731dp">
 
-        <include layout="@layout/loading_screen" />
+        <include layout="@layout/v_loading_screen" />
 
         <LinearLayout
             android:id="@+id/content"
@@ -66,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <include layout="@layout/provider_header"
+            <include layout="@layout/v_provider_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 

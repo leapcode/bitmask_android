@@ -58,7 +58,7 @@
         app:layout_constraintTop_toTopOf="@+id/guideline_top"
         app:layout_constraintWidth_min="731dp">
 
-        <include layout="@layout/loading_screen" />
+        <include layout="@layout/v_loading_screen" />
 
         <LinearLayout
             android:id="@+id/content"
@@ -67,7 +67,7 @@
             android:layout_height="wrap_content">
 
             <include
-                layout="@layout/provider_header"
+                layout="@layout/v_provider_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 

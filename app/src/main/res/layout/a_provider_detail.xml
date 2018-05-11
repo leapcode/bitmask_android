@@ -7,7 +7,7 @@
     android:orientation="vertical"
     style="@style/BitmaskActivity" >
 
-    <include layout="@layout/loading_screen" />
+    <include layout="@layout/v_loading_screen" />
 
     <LinearLayout
         android:id="@+id/content"
@@ -16,7 +16,7 @@
         android:layout_height="match_parent">
 
         <include
-            layout="@layout/provider_header"
+            layout="@layout/v_provider_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

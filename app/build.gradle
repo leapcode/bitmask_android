@@ -173,9 +173,7 @@ task copyIcsOpenVPNClasses( type: Copy ) {
 task copyIcsOpenVPNXml( type: Copy )  {
   println "copyIcsOpenVPNXml"
   from ('../ics-openvpn/main/') {
-    include '**/vpnstatus.xml'
     include '**/strings.xml'
-    include '**/vpnstatus.xml'
     include '**/refs.xml'
     include '**/white_rect.xml'
     include '**/plurals.xml'

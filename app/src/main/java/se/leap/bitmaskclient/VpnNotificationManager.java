@@ -111,8 +111,21 @@ public class VpnNotificationManager {
      * @param when
      */
     public void buildOpenVpnNotification(String profileName, final String msg, String tickerText, ConnectionStatus status, long when, String notificationChannelNewstatusId) {
+        String cancelString;
+        switch (status) {
+            // show cancel if no connection
+            case LEVEL_START:
+            case LEVEL_NONETWORK:
+            case LEVEL_CONNECTING_SERVER_REPLIED:
+            case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
+                cancelString = context.getString(R.string.cancel);
+                break;
+            // show disconnect if connection exists
+            default:
+                cancelString = context.getString(R.string.cancel_connection);
+        }
         NotificationCompat.Action.Builder actionBuilder = new NotificationCompat.Action.
-                Builder(R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.cancel_connection), getDisconnectIntent());
+                Builder(R.drawable.ic_menu_close_clear_cancel, cancelString, getDisconnectIntent());
         String title;
         if (isEmpty(profileName)) {
             title = context.getString(R.string.app_name);
@@ -200,7 +213,7 @@ public class VpnNotificationManager {
      */
     private RemoteViews getKitkatCustomRemoteView(ConnectionStatus status, String title, String message) {
         int iconResource = getIconByConnectionStatus(status);
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.custom_notification_layout);
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.v_custom_notification);
         remoteViews.setImageViewResource(R.id.image_icon, iconResource);
         remoteViews.setTextViewText(R.id.message, message);
         remoteViews.setTextViewText(R.id.title, title);
