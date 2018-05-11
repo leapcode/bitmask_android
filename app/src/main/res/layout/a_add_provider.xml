@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddProviderActivity"
+    android:padding="@dimen/stdpadding"
+    style="@style/BitmaskActivity">
+
+    <!--Contains header information!??? -->
+    <include layout="@layout/v_add_provider" />
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- the header contains the mask-->
+        <include layout="@layout/v_provider_header" />
+
+        <EditText
+            android:id="@+id/textUri"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/new_provider_uri"
+            android:inputType="text"
+            android:padding="@dimen/stdpadding"/>
+        <!--      android:imeOptions="actionSend" => was passieren soll, wenn ok geklickt wird -->
+
+
+        <Button
+            android:id="@+id/button_save"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/save" />
+
+        <Button
+            android:id="@+id/button_cancel"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/cancel" />
+
+    </LinearLayout>
+
+</RelativeLayout>

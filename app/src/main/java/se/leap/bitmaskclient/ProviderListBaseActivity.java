@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2017 LEAP Encryption Access Project and contributors
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -50,6 +50,7 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.REQUEST_CODE_ADD_PROVIDER;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
@@ -88,7 +89,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
     final protected static String PROVIDER_NOT_SET = "PROVIDER NOT SET";
     final protected static String SETTING_UP_PROVIDER = "PROVIDER GETS SET";
-    final private static  String SHOWING_PROVIDER_DETAILS = "SHOWING PROVIDER DETAILS";
+    final private static String SHOWING_PROVIDER_DETAILS = "SHOWING PROVIDER DETAILS";
     final private static String PENDING_SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG PENDING";
     final private static String SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG";
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
@@ -101,6 +102,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
     private boolean isActivityShowing;
     private String reasonToFail;
+    private boolean testNewURL;
 
     public abstract void retrySetUpProvider(@NonNull Provider provider);
 
@@ -191,6 +193,11 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
                 setResult(resultCode, data);
                 finish();
             }
+        } else if (requestCode == REQUEST_CODE_ADD_PROVIDER) {
+            if (resultCode == RESULT_OK) {
+                testNewURL = true;
+                showAndSelectProvider(data.getStringExtra("new_url"));
+            }
         }
     }
 
@@ -216,6 +223,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     }
 
     void handleProviderSetupFailed(Bundle resultData) {
+
         reasonToFail = resultData.getString(ERRORS);
         showDownloadFailedDialog();
     }
@@ -304,9 +312,21 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
      */
     public void addAndSelectNewProvider() {
         FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(NewProviderDialog.TAG);
+        Intent intent = new Intent(this, AddProviderActivity.class);
+        startActivityForResult(intent, REQUEST_CODE_ADD_PROVIDER);
+        //ToDo: Delete NewProviderDialog()
+    }
 
-        DialogFragment newFragment = new NewProviderDialog();
-        newFragment.show(fragmentTransaction, NewProviderDialog.TAG);
+    /**
+     * Open the new provider dialog
+     */
+    @Override
+    public void addAndSelectNewProvider(String url) {
+        testNewURL = false;
+        FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(NewProviderDialog.TAG);
+        Intent intent = new Intent(this, AddProviderActivity.class);
+        intent.putExtra("invalid_url", url);
+        startActivityForResult(intent, REQUEST_CODE_ADD_PROVIDER);
     }
 
     /**
@@ -319,7 +339,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
             DialogFragment newFragment;
             try {
                 JSONObject errorJson = new JSONObject(reasonToFail);
-                newFragment = ProviderSetupFailedDialog.newInstance(provider, errorJson);
+                newFragment = ProviderSetupFailedDialog.newInstance(provider, errorJson, testNewURL);
             } catch (JSONException e) {
                 e.printStackTrace();
                 newFragment = ProviderSetupFailedDialog.newInstance(provider, reasonToFail);
@@ -339,8 +359,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
      * Once selected a provider, this fragment offers the user to log in,
      * use it anonymously (if possible)
      * or cancel his/her election pressing the back button.
-     *
-     *
      */
     public void showProviderDetails() {
         // show only if current activity is shown
