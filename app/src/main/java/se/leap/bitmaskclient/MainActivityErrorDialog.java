@@ -28,7 +28,7 @@ import org.json.JSONObject;
 
 import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.DEFAULT;
 import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.valueOf;
-import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.eip.EIP.ERRORS;
 import static se.leap.bitmaskclient.eip.EIP.ERROR_ID;
 
@@ -107,7 +107,7 @@ public class MainActivityErrorDialog extends DialogFragment {
                 builder.setPositiveButton(R.string.update_certificate, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ProviderAPICommand.execute(getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
+                        ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider);
                     }
                 });
                 break;

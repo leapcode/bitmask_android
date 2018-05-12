@@ -16,6 +16,8 @@
  */
 package se.leap.bitmaskclient.utils;
 
+import android.content.Context;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import org.json.JSONException;
@@ -157,5 +159,12 @@ public class ConfigHelper {
         return byteArrayToHex(byteArray);
     }
 
+    public static void ensureNotOnMainThread(@NonNull Context context) throws IllegalStateException{
+        Looper looper = Looper.myLooper();
+        if (looper != null && looper == context.getMainLooper()) {
+            throw new IllegalStateException(
+                    "calling this from your main thread can lead to deadlock");
+        }
+    }
 
 }

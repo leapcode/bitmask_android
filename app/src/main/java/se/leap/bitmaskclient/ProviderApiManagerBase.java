@@ -67,6 +67,7 @@ import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_MESSAGE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_SERVICE_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORID;
@@ -75,6 +76,7 @@ import static se.leap.bitmaskclient.ProviderAPI.FAILED_LOGIN;
 import static se.leap.bitmaskclient.ProviderAPI.FAILED_SIGNUP;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.LOGOUT_FAILED;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_OUT;
@@ -88,6 +90,7 @@ import static se.leap.bitmaskclient.ProviderAPI.SIGN_UP;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_LOGIN;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_LOGOUT;
 import static se.leap.bitmaskclient.ProviderAPI.SUCCESSFUL_SIGNUP;
+import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
@@ -199,6 +202,14 @@ public abstract class ProviderApiManagerBase {
                     sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);
                 } else {
                     sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);
+                }
+                break;
+            case UPDATE_INVALID_VPN_CERTIFICATE:
+                result = updateVpnCertificate(provider);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    sendToReceiverOrBroadcast(receiver, CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE, result, provider);
+                } else {
+                    sendToReceiverOrBroadcast(receiver, INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE, result, provider);
                 }
                 break;
             case DOWNLOAD_SERVICE_JSON:

@@ -2,6 +2,7 @@ package se.leap.bitmaskclient.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +10,12 @@ import android.support.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -217,4 +224,19 @@ public class PreferenceHelper {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
         return preferences.getBoolean(ALWAYS_ON_SHOW_DIALOG, true);
     }
+
+    public static JSONObject getEipDefinitionFromPreferences(SharedPreferences preferences) {
+        JSONObject result = new JSONObject();
+        try {
+            String eipDefinitionString = preferences.getString(PROVIDER_EIP_DEFINITION, "");
+            if (!eipDefinitionString.isEmpty()) {
+                result = new JSONObject(eipDefinitionString);
+            }
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 }
