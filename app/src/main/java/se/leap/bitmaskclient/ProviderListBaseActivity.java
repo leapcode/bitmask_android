@@ -196,7 +196,9 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         } else if (requestCode == REQUEST_CODE_ADD_PROVIDER) {
             if (resultCode == RESULT_OK) {
                 testNewURL = true;
-                showAndSelectProvider(data.getStringExtra("new_url"));
+                String newUrl = data.getStringExtra("new_url");
+                this.provider.setMainUrl(newUrl);
+                showAndSelectProvider(newUrl);
             }
         }
     }

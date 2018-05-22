@@ -129,7 +129,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
             case ERROR_NEW_URL_NO_VPN_PROVIDER:
                 builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        interfaceWithConfigurationWizard.addAndSelectNewProvider(provider.getApiUrlString());
+                        interfaceWithConfigurationWizard.addAndSelectNewProvider(provider.getMainUrlString());
                     }
                 });
                 break;
