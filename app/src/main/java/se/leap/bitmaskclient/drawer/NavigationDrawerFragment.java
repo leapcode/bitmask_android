@@ -25,6 +25,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -47,18 +48,17 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import se.leap.bitmaskclient.ConfigHelper;
 import se.leap.bitmaskclient.DrawerSettingsAdapter;
 import se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem;
-import se.leap.bitmaskclient.FragmentManagerEnhanced;
-import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.EipFragment;
+import se.leap.bitmaskclient.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.fragments.AboutFragment;
+import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.LogFragment;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -91,6 +91,7 @@ public class NavigationDrawerFragment extends Fragment {
      * expands it. This shared preference tracks this.
      */
     private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
+    private static final String TAG = NavigationDrawerFragment.class.getName();
 
     /**
      * Helper component that ties the action bar to the navigation drawer.
@@ -106,8 +107,9 @@ public class NavigationDrawerFragment extends Fragment {
     private DrawerSettingsAdapter settingsListAdapter;
     private Toolbar mToolbar;
 
-    private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
+    private volatile boolean wasPaused;
+    private volatile boolean shouldCloseOnResume;
 
     private String mTitle;
 
@@ -127,9 +129,6 @@ public class NavigationDrawerFragment extends Fragment {
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         mUserLearnedDrawer = preferences.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-        if (savedInstanceState != null) {
-            mFromSavedInstanceState = true;
-        }
     }
 
     @Override
@@ -151,6 +150,23 @@ public class NavigationDrawerFragment extends Fragment {
         return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        wasPaused = false;
+        if (shouldCloseOnResume) {
+            closeDrawerWithDelay(2000);
+            showDottedIconWithDelay(3000);
+        }
+        //
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        wasPaused = true;
+    }
+
     /**
      * Users of this fragment must call this method to set up the navigation drawer interactions.
      *
@@ -158,70 +174,44 @@ public class NavigationDrawerFragment extends Fragment {
      * @param drawerLayout The DrawerLayout containing this fragment's UI.
      */
     public void setUp(int fragmentId, DrawerLayout drawerLayout) {
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        final AppCompatActivity activity = (AppCompatActivity) getActivity();
+        mFragmentContainerView = activity.findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
-
+        // set a custom shadow that overlays the main content when the drawer opens
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mToolbar = mDrawerLayout.findViewById(R.id.toolbar);
-        activity.setSupportActionBar(mToolbar);
 
-        final ActionBar actionBar = activity.getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
-
-        mDrawerSettingsListView = mDrawerView.findViewById(R.id.settingsList);
-        mDrawerSettingsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(parent, position);
-            }
-        });
-        settingsListAdapter = new DrawerSettingsAdapter(getLayoutInflater());
-        if (getContext() != null) {
-            settingsListAdapter.addItem(getSwitchInstance(getString(R.string.save_battery),
-                    getSaveBattery(getContext()),
-                    BATTERY_SAVER,
-                    new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean newStateIsChecked) {
-                            onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked);
-                        }
-                    }));
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            settingsListAdapter.addItem(getSimpleTextInstance(getString(R.string.always_on_vpn), ALWAYS_ON));
-        }
-        settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
-        settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
-        settingsListAdapter.addItem(getSimpleTextInstance(getString(about_fragment_title), ABOUT));
-
-        mDrawerSettingsListView.setAdapter(settingsListAdapter);
-        mDrawerAccountsListView = mDrawerView.findViewById(R.id.accountList);
-        mDrawerAccountsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(parent, position);
-            }
-        });
-
+        final ActionBar actionBar = setupActionBar(mToolbar);
+        settingsListAdapter = setupSettingsListAdapter();
+        mDrawerSettingsListView = setupSettingsListView();
         accountListAdapter = new ArrayAdapter<>(actionBar.getThemedContext(),
                 R.layout.v_single_list_item,
                 android.R.id.text1);
+        refreshAccountListAdapter();
+        mDrawerAccountsListView = setupAccountsListView();
+        mDrawerToggle = setupActionBarDrawerToggle(drawerLayout, mToolbar, activity);
 
-        createListAdapterData();
+        if (!mUserLearnedDrawer) {
+            openNavigationDrawerForFirstTimeUsers();
+        }
 
-        mDrawerAccountsListView.setAdapter(accountListAdapter);
+        // Defer code dependent on restoration of previous instance state.
+        mDrawerLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mDrawerToggle.syncState();
+            }
+        });
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
+    }
 
-        mFragmentContainerView = activity.findViewById(fragmentId);
-
-        // set a custom shadow that overlays the main content when the drawer opens
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-
+    private ActionBarDrawerToggle setupActionBarDrawerToggle(final DrawerLayout drawerLayout, final Toolbar toolbar, final AppCompatActivity activity) {
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the navigation drawer and the action bar app icon.
-        mDrawerToggle = new ActionBarDrawerToggle(
-                getActivity(),
-                mDrawerLayout,
-                (Toolbar) drawerLayout.findViewById(R.id.toolbar),
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
+                activity,
+                drawerLayout,
+                toolbar,
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close
         ) {
@@ -232,7 +222,7 @@ public class NavigationDrawerFragment extends Fragment {
                     return;
                 }
 
-                getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+                activity.invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
 
             @Override
@@ -250,48 +240,106 @@ public class NavigationDrawerFragment extends Fragment {
                     mToolbar.setNavigationIcon(R.drawable.ic_menu_default);
                 }
 
-                getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+                activity.invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
         };
+        return drawerToggle;
+    }
 
-        Handler navigationDrawerHandler = new Handler();
-        // If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
-        // per the navigation drawer design guidelines.
-        if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
-            mDrawerLayout.openDrawer(mFragmentContainerView, false);
-            navigationDrawerHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mDrawerLayout.closeDrawer(mFragmentContainerView, true);
-                }
-            }, 1500);
-            navigationDrawerHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mToolbar.setNavigationIcon(R.drawable.ic_menu_color_point);
-                    mToolbar.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-                }
-            }, 3000);
-
-        } else if (!mUserLearnedDrawer) {
-            navigationDrawerHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mToolbar.setNavigationIcon(R.drawable.ic_menu_color_point);
-                    mToolbar.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-                }
-            }, 1500);
-        }
-
-        // Defer code dependent on restoration of previous instance state.
-        mDrawerLayout.post(new Runnable() {
+    private ListView setupAccountsListView() {
+        ListView drawerAccountsListView = mDrawerView.findViewById(R.id.accountList);
+        drawerAccountsListView.setAdapter(accountListAdapter);
+        drawerAccountsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void run() {
-                mDrawerToggle.syncState();
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectItem(parent, position);
             }
         });
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
+        return drawerAccountsListView;
+    }
 
+    private ListView setupSettingsListView() {
+        ListView drawerSettingsListView = mDrawerView.findViewById(R.id.settingsList);
+        drawerSettingsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectItem(parent, position);
+            }
+        });
+        drawerSettingsListView.setAdapter(settingsListAdapter);
+        return drawerSettingsListView;
+    }
+
+    private DrawerSettingsAdapter setupSettingsListAdapter() {
+        DrawerSettingsAdapter settingsListAdapter = new DrawerSettingsAdapter(getLayoutInflater());
+        if (getContext() != null) {
+            settingsListAdapter.addItem(getSwitchInstance(getString(R.string.save_battery),
+                    getSaveBattery(getContext()),
+                    BATTERY_SAVER,
+                    new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean newStateIsChecked) {
+                            onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked);
+                        }
+                    }));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            settingsListAdapter.addItem(getSimpleTextInstance(getString(R.string.always_on_vpn), ALWAYS_ON));
+        }
+        settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
+        settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
+        settingsListAdapter.addItem(getSimpleTextInstance(getString(about_fragment_title), ABOUT));
+        return settingsListAdapter;
+    }
+
+    private ActionBar setupActionBar(Toolbar toolbar) {
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(toolbar);
+        final ActionBar actionBar = activity.getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+        return actionBar;
+    }
+
+    private void openNavigationDrawerForFirstTimeUsers() {
+        if (mUserLearnedDrawer) {
+            return;
+        }
+
+        mDrawerLayout.openDrawer(mFragmentContainerView, false);
+        closeDrawerWithDelay(2000);
+        showDottedIconWithDelay(3000);
+
+    }
+
+    private void showDottedIconWithDelay(long delay) {
+        final Handler navigationDrawerHandler = new Handler();
+        navigationDrawerHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!wasPaused) {
+                    mToolbar.setNavigationIcon(R.drawable.ic_menu_color_point);
+                    mToolbar.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+                }
+
+            }
+        }, delay);
+    }
+
+    @NonNull
+    private void closeDrawerWithDelay(long delay) {
+        final Handler navigationDrawerHandler = new Handler();
+        navigationDrawerHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!wasPaused) {
+                    mDrawerLayout.closeDrawer(mFragmentContainerView, true);
+                } else {
+                    shouldCloseOnResume = true;
+                }
+
+            }
+        }, delay);
     }
 
     private void selectItem(AdapterView<?> list, int position) {
@@ -394,7 +442,6 @@ public class NavigationDrawerFragment extends Fragment {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -458,7 +505,7 @@ public class NavigationDrawerFragment extends Fragment {
             arguments.putParcelable(PROVIDER_KEY, currentProvider);
             fragment.setArguments(arguments);
         } else {
-            Log.d("Drawer", String.format("Selected position %d", position));
+            Log.d(TAG, String.format("Selected position %d", position));
             DrawerSettingsItem settingsItem = settingsListAdapter.getItem(position);
             switch (settingsItem.getItemType()) {
                 case SWITCH_PROVIDER:
@@ -505,12 +552,12 @@ public class NavigationDrawerFragment extends Fragment {
 
 
     public void refresh() {
-        createListAdapterData();
+        refreshAccountListAdapter();
         accountListAdapter.notifyDataSetChanged();
         mDrawerAccountsListView.setAdapter(accountListAdapter);
     }
 
-    private void createListAdapterData() {
+    private void refreshAccountListAdapter() {
         accountListAdapter.clear();
         String providerName = ConfigHelper.getProviderName(preferences);
         if (providerName == null) {
