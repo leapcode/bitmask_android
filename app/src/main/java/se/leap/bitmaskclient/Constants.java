@@ -87,4 +87,10 @@ public interface Constants {
     // ICS-OPENVPN CONSTANTS
     /////////////////////////////////////////////
     String DEFAULT_SHARED_PREFS_BATTERY_SAVER = "screenoff";
+
+    //////////////////////////////////////////////
+    // CUSTOM CONSTANTS
+    /////////////////////////////////////////////
+    String DONATION_URL = BuildConfig.donation_url;
+
 }

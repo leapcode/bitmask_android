@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -67,9 +68,11 @@ import static se.leap.bitmaskclient.ConfigHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.Constants.DONATION_URL;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.ABOUT;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.ALWAYS_ON;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.BATTERY_SAVER;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.DONATE;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSimpleTextInstance;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSwitchInstance;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.LOG;
@@ -77,6 +80,7 @@ import static se.leap.bitmaskclient.DrawerSettingsAdapter.SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
 import static se.leap.bitmaskclient.R.string.log_fragment_title;
 import static se.leap.bitmaskclient.R.string.switch_provider_menu_option;
+import static se.leap.bitmaskclient.R.string.navigation_drawer_donation_button;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -184,6 +188,7 @@ public class NavigationDrawerFragment extends Fragment {
         settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
         settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
         settingsListAdapter.addItem(getSimpleTextInstance(getString(about_fragment_title), ABOUT));
+        settingsListAdapter.addItem(getSimpleTextInstance(getString(navigation_drawer_donation_button), DONATE));
 
         mDrawerSettingsListView.setAdapter(settingsListAdapter);
 
@@ -451,6 +456,10 @@ public class NavigationDrawerFragment extends Fragment {
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                     }
+                    break;
+                case DONATE:
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
+                    startActivity(browserIntent);
                     break;
                 default:
                     break;

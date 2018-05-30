@@ -12,6 +12,8 @@ android {
     resValue "string", "app_name", "Bitmask"
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
+    //Build Config Feilds for default donation details
+    buildConfigField 'String', 'donation_url', '"https://leap.se/en/about-us/donate"'
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     dexOptions {
       jumboMode true
