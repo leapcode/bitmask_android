@@ -47,7 +47,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import se.leap.bitmaskclient.ConfigHelper;
 import se.leap.bitmaskclient.DrawerSettingsAdapter;
@@ -69,6 +68,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.Constants.DONATION_URL;
+import static se.leap.bitmaskclient.Constants.ENABLE_DONATION;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.ABOUT;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.ALWAYS_ON;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.BATTERY_SAVER;
@@ -80,7 +80,7 @@ import static se.leap.bitmaskclient.DrawerSettingsAdapter.SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
 import static se.leap.bitmaskclient.R.string.log_fragment_title;
 import static se.leap.bitmaskclient.R.string.switch_provider_menu_option;
-import static se.leap.bitmaskclient.R.string.navigation_drawer_donation_button;
+import static se.leap.bitmaskclient.R.string.donate_title;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -188,7 +188,9 @@ public class NavigationDrawerFragment extends Fragment {
         settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
         settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
         settingsListAdapter.addItem(getSimpleTextInstance(getString(about_fragment_title), ABOUT));
-        settingsListAdapter.addItem(getSimpleTextInstance(getString(navigation_drawer_donation_button), DONATE));
+        if (ENABLE_DONATION) {
+            settingsListAdapter.addItem(getSimpleTextInstance(getString(donate_title), DONATE));
+        }
 
         mDrawerSettingsListView.setAdapter(settingsListAdapter);
 

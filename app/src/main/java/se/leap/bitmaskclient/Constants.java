@@ -91,6 +91,12 @@ public interface Constants {
     //////////////////////////////////////////////
     // CUSTOM CONSTANTS
     /////////////////////////////////////////////
-    String DONATION_URL = BuildConfig.donation_url;
+    boolean ENABLE_DONATION = BuildConfig.enable_donation;
+    boolean ENABLE_DONATION_REMINDER = BuildConfig.enable_donation_reminder;
+    int DONATION_REMINDER_DURATION = BuildConfig.donation_reminder_duration;
+    String DONATION_URL = BuildConfig.donation_url == null || BuildConfig.donation_url.equals("")?
+            BuildConfig.default_donation_url:BuildConfig.donation_url;
+    String LAST_DONATION_REMINDER_DATE = "last_daonation_reminder_date";
+
 
 }
