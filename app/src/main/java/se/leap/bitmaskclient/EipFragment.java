@@ -34,6 +34,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -114,6 +116,7 @@ public class EipFragment extends Fragment implements Observer {
     private ServiceConnection openVpnConnection;
 
     private final String DATE_PATTERN = "dd/MM/yyyy";
+    private final int ONE_DAY = 86400000; //1000*60*60*24
 
     @Override
     public void onAttach(Context context) {
@@ -167,7 +170,7 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public void onStart() {
         super.onStart();
-        if (isDonationReminderCallable()){
+        if (isDonationReminderCallable()) {
             showDonationReminder();
         }
     }
@@ -201,7 +204,6 @@ public class EipFragment extends Fragment implements Observer {
         } else if (showPendingStartCancellation) {
             outState.putBoolean(KEY_SHOW_PENDING_START_CANCELLATION, true);
             alertDialog.dismiss();
-
         }
     }
 
@@ -511,11 +513,10 @@ public class EipFragment extends Fragment implements Observer {
             Log.e(TAG, "activity is null when triggering donation reminder");
             return;
         }
-        saveLastDonationReminderDate();
-        String message = activity.getString(R.string.donate_message) == null || activity.getString(R.string.donate_message).equals("")?
-                activity.getString(R.string.donate_default_message):activity.getString(R.string.donate_message);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(activity.getString(R.string.donate_title))
+        String message = TextUtils.isEmpty(activity.getString(R.string.donate_message)) ?
+                activity.getString(R.string.donate_default_message) : activity.getString(R.string.donate_message);
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
+        alertDialog = alertBuilder.setTitle(activity.getString(R.string.donate_title))
                 .setMessage(message)
                 .setPositiveButton(R.string.donate_button_donate, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -526,26 +527,30 @@ public class EipFragment extends Fragment implements Observer {
                 .setNegativeButton(R.string.donate_button_remind_later, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                     }
-                })
-                .show();
+                }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        saveLastDonationReminderDate();
+                    }
+                }).show();
     }
 
-    private boolean isDonationReminderCallable(){
-        if (!ENABLE_DONATION||!ENABLE_DONATION_REMINDER){
+    private boolean isDonationReminderCallable() {
+        if (!ENABLE_DONATION || !ENABLE_DONATION_REMINDER) {
             return false;
         }
 
-        if (preferences==null){
+        if (preferences == null) {
             Log.e(TAG, "preferences is null!");
             return false;
         }
 
-        String lastDonationReminderDate =  preferences.getString(LAST_DONATION_REMINDER_DATE, null);
-        if (lastDonationReminderDate==null){
+        String lastDonationReminderDate = preferences.getString(LAST_DONATION_REMINDER_DATE, null);
+        if (lastDonationReminderDate == null) {
             return true;
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN, Locale.US);
         Date lastDate;
         try {
             lastDate = sdf.parse(lastDonationReminderDate);
@@ -556,12 +561,12 @@ public class EipFragment extends Fragment implements Observer {
         }
 
         Date currentDate = new Date();
-        long diffDays = (currentDate.getTime() - lastDate.getTime())/(1000*60*60*24);
+        long diffDays = (currentDate.getTime() - lastDate.getTime()) / ONE_DAY;
         return diffDays >= DONATION_REMINDER_DURATION;
     }
 
-    private void saveLastDonationReminderDate(){
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN);
+    private void saveLastDonationReminderDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN, Locale.US);
         Date lastDate = new Date();
         preferences.edit().putString(LAST_DONATION_REMINDER_DATE, sdf.format(lastDate)).apply();
     }
