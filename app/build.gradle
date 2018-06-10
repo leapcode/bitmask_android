@@ -55,6 +55,14 @@ android {
     }
     custom {
       dimension "mode"
+      //Change the package name as needed
+      applicationId "org.sample.custom"
+      //Set app name here
+      resValue "string", "app_name", "Bitmask Custom"
+      //Change the versionCode as needed
+      versionCode 1
+      //Change the versionName as needed
+      versionName "1.0"
 
       //Build Config Fields for default donation details
 
