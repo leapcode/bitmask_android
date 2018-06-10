@@ -100,7 +100,6 @@ public class NavigationDrawerFragment extends Fragment {
 
     private DrawerLayout mDrawerLayout;
     private View mDrawerView;
-    private ListView mDrawerSettingsListView;
     private ListView mDrawerAccountsListView;
     private View mFragmentContainerView;
     private ArrayAdapter<String> accountListAdapter;
@@ -158,7 +157,6 @@ public class NavigationDrawerFragment extends Fragment {
             closeDrawerWithDelay(2000);
             showDottedIconWithDelay(3000);
         }
-        //
     }
 
     @Override
@@ -181,15 +179,15 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mToolbar = mDrawerLayout.findViewById(R.id.toolbar);
 
-        final ActionBar actionBar = setupActionBar(mToolbar);
-        settingsListAdapter = setupSettingsListAdapter();
-        mDrawerSettingsListView = setupSettingsListView();
+        final ActionBar actionBar = setupActionBar();
+        setupSettingsListAdapter();
+        setupSettingsListView();
         accountListAdapter = new ArrayAdapter<>(actionBar.getThemedContext(),
                 R.layout.v_single_list_item,
                 android.R.id.text1);
         refreshAccountListAdapter();
-        mDrawerAccountsListView = setupAccountsListView();
-        mDrawerToggle = setupActionBarDrawerToggle(drawerLayout, mToolbar, activity);
+        setupAccountsListView();
+        setupActionBarDrawerToggle(activity);
 
         if (!mUserLearnedDrawer) {
             openNavigationDrawerForFirstTimeUsers();
@@ -205,13 +203,13 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.addDrawerListener(mDrawerToggle);
     }
 
-    private ActionBarDrawerToggle setupActionBarDrawerToggle(final DrawerLayout drawerLayout, final Toolbar toolbar, final AppCompatActivity activity) {
+    private void setupActionBarDrawerToggle(final AppCompatActivity activity) {
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the navigation drawer and the action bar app icon.
-        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
+        mDrawerToggle = new ActionBarDrawerToggle(
                 activity,
-                drawerLayout,
-                toolbar,
+                mDrawerLayout,
+                mToolbar,
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close
         ) {
@@ -243,22 +241,20 @@ public class NavigationDrawerFragment extends Fragment {
                 activity.invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
         };
-        return drawerToggle;
     }
 
-    private ListView setupAccountsListView() {
-        ListView drawerAccountsListView = mDrawerView.findViewById(R.id.accountList);
-        drawerAccountsListView.setAdapter(accountListAdapter);
-        drawerAccountsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    private void setupAccountsListView() {
+        mDrawerAccountsListView = mDrawerView.findViewById(R.id.accountList);
+        mDrawerAccountsListView.setAdapter(accountListAdapter);
+        mDrawerAccountsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectItem(parent, position);
             }
         });
-        return drawerAccountsListView;
     }
 
-    private ListView setupSettingsListView() {
+    private void setupSettingsListView() {
         ListView drawerSettingsListView = mDrawerView.findViewById(R.id.settingsList);
         drawerSettingsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -267,11 +263,10 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
         drawerSettingsListView.setAdapter(settingsListAdapter);
-        return drawerSettingsListView;
     }
 
-    private DrawerSettingsAdapter setupSettingsListAdapter() {
-        DrawerSettingsAdapter settingsListAdapter = new DrawerSettingsAdapter(getLayoutInflater());
+    private void setupSettingsListAdapter() {
+        settingsListAdapter = new DrawerSettingsAdapter(getLayoutInflater());
         if (getContext() != null) {
             settingsListAdapter.addItem(getSwitchInstance(getString(R.string.save_battery),
                     getSaveBattery(getContext()),
@@ -289,12 +284,11 @@ public class NavigationDrawerFragment extends Fragment {
         settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
         settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
         settingsListAdapter.addItem(getSimpleTextInstance(getString(about_fragment_title), ABOUT));
-        return settingsListAdapter;
     }
 
-    private ActionBar setupActionBar(Toolbar toolbar) {
+    private ActionBar setupActionBar() {
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        activity.setSupportActionBar(toolbar);
+        activity.setSupportActionBar(mToolbar);
         final ActionBar actionBar = activity.getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
