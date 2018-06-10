@@ -1,5 +1,7 @@
 package se.leap.bitmaskclient;
 
+import android.text.TextUtils;
+
 public interface Constants {
 
     //////////////////////////////////////////////
@@ -87,4 +89,16 @@ public interface Constants {
     // ICS-OPENVPN CONSTANTS
     /////////////////////////////////////////////
     String DEFAULT_SHARED_PREFS_BATTERY_SAVER = "screenoff";
+
+    //////////////////////////////////////////////
+    // CUSTOM CONSTANTS
+    /////////////////////////////////////////////
+    boolean ENABLE_DONATION = BuildConfig.enable_donation;
+    boolean ENABLE_DONATION_REMINDER = BuildConfig.enable_donation_reminder;
+    int DONATION_REMINDER_DURATION = BuildConfig.donation_reminder_duration;
+    String DONATION_URL = TextUtils.isEmpty(BuildConfig.donation_url) ?
+            BuildConfig.default_donation_url : BuildConfig.donation_url;
+    String LAST_DONATION_REMINDER_DATE = "last_donation_reminder_date";
+
+
 }

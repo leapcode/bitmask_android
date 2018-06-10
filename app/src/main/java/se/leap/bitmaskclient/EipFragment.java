@@ -25,19 +25,27 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -55,11 +63,16 @@ import se.leap.bitmaskclient.views.VpnStateImage;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
+import static se.leap.bitmaskclient.Constants.DONATION_REMINDER_DURATION;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.Constants.DONATION_URL;
+import static se.leap.bitmaskclient.Constants.ENABLE_DONATION;
+import static se.leap.bitmaskclient.Constants.ENABLE_DONATION_REMINDER;
+import static se.leap.bitmaskclient.Constants.LAST_DONATION_REMINDER_DATE;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
@@ -101,6 +114,9 @@ public class EipFragment extends Fragment implements Observer {
 
     private IOpenVPNServiceInternal mService;
     private ServiceConnection openVpnConnection;
+
+    private final String DATE_PATTERN = "dd/MM/yyyy";
+    private final int ONE_DAY = 86400000; //1000*60*60*24
 
     @Override
     public void onAttach(Context context) {
@@ -152,6 +168,14 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (isDonationReminderCallable()) {
+            showDonationReminder();
+        }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         //FIXME: avoid race conditions while checking certificate an logging in at about the same time
@@ -180,7 +204,6 @@ public class EipFragment extends Fragment implements Observer {
         } else if (showPendingStartCancellation) {
             outState.putBoolean(KEY_SHOW_PENDING_START_CANCELLATION, true);
             alertDialog.dismiss();
-
         }
     }
 
@@ -482,5 +505,69 @@ public class EipFragment extends Fragment implements Observer {
         public void onServiceDisconnected(ComponentName arg0) {
             mService = null;
         }
+    }
+
+    private void showDonationReminder() {
+        Activity activity = getActivity();
+        if (activity == null) {
+            Log.e(TAG, "activity is null when triggering donation reminder");
+            return;
+        }
+        String message = TextUtils.isEmpty(activity.getString(R.string.donate_message)) ?
+                activity.getString(R.string.donate_default_message) : activity.getString(R.string.donate_message);
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
+        alertDialog = alertBuilder.setTitle(activity.getString(R.string.donate_title))
+                .setMessage(message)
+                .setPositiveButton(R.string.donate_button_donate, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
+                        startActivity(browserIntent);
+                    }
+                })
+                .setNegativeButton(R.string.donate_button_remind_later, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        saveLastDonationReminderDate();
+                    }
+                }).show();
+    }
+
+    private boolean isDonationReminderCallable() {
+        if (!ENABLE_DONATION || !ENABLE_DONATION_REMINDER) {
+            return false;
+        }
+
+        if (preferences == null) {
+            Log.e(TAG, "preferences is null!");
+            return false;
+        }
+
+        String lastDonationReminderDate = preferences.getString(LAST_DONATION_REMINDER_DATE, null);
+        if (lastDonationReminderDate == null) {
+            return true;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN, Locale.US);
+        Date lastDate;
+        try {
+            lastDate = sdf.parse(lastDonationReminderDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+            return false;
+        }
+
+        Date currentDate = new Date();
+        long diffDays = (currentDate.getTime() - lastDate.getTime()) / ONE_DAY;
+        return diffDays >= DONATION_REMINDER_DURATION;
+    }
+
+    private void saveLastDonationReminderDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN, Locale.US);
+        Date lastDate = new Date();
+        preferences.edit().putString(LAST_DONATION_REMINDER_DATE, sdf.format(lastDate)).apply();
     }
 }
