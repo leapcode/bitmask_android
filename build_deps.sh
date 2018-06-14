@@ -17,6 +17,6 @@ then
 else
     echo "Clean build: starting externalNativeBuild"
     cd ./ics-openvpn || quit
-    ./gradlew clean main:externalNativeBuildCleanNoovpn3Release main:externalNativeBuildNoovpn3Release || quit
+    ./gradlew clean main:externalNativeBuildCleanNoovpn3Release main:externalNativeBuildNoovpn3Release --debug --stacktrace || quit
     cd .. 
 fi

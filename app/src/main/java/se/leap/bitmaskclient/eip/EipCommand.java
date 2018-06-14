@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +42,7 @@ public class EipCommand {
         vpnIntent.setAction(action);
         if (resultReceiver != null)
             vpnIntent.putExtra(EIP_RECEIVER, resultReceiver);
-        context.startService(vpnIntent);
+        EIP.enqueueWork(context, vpnIntent);
     }
 
     public static void startVPN(@NonNull Context context, boolean earlyRoutes) {
@@ -50,6 +51,7 @@ public class EipCommand {
         execute(context, EIP_ACTION_START, null, baseIntent);
     }
 
+    @VisibleForTesting
     public static void startVPN(@NonNull Context context, ResultReceiver resultReceiver) {
         execute(context, EIP_ACTION_START, resultReceiver, null);
     }
@@ -58,6 +60,7 @@ public class EipCommand {
         execute(context, EIP_ACTION_STOP);
     }
 
+    @VisibleForTesting
     public static void stopVPN(@NonNull Context context, ResultReceiver resultReceiver) {
         execute(context, EIP_ACTION_STOP, resultReceiver, null);
     }
@@ -66,6 +69,7 @@ public class EipCommand {
         execute(context, EIP_ACTION_CHECK_CERT_VALIDITY);
     }
 
+    @VisibleForTesting
     public static void checkVpnCertificate(@NonNull Context context, ResultReceiver resultReceiver) {
         execute(context, EIP_ACTION_CHECK_CERT_VALIDITY, resultReceiver, null);
     }

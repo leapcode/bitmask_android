@@ -45,6 +45,7 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
             LOG_IN = "srpAuth",
             LOG_OUT = "logOut",
             DOWNLOAD_VPN_CERTIFICATE = "downloadUserAuthedVPNCertificate",
+            UPDATE_INVALID_VPN_CERTIFICATE = "ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE",
             PARAMETERS = "parameters",
             RECEIVER_KEY = "receiver",
             ERRORS = "errors",
@@ -67,7 +68,9 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
             PROVIDER_OK = 11,
             PROVIDER_NOK = 12,
             CORRECTLY_DOWNLOADED_EIP_SERVICE = 13,
-            INCORRECTLY_DOWNLOADED_EIP_SERVICE = 14;
+            INCORRECTLY_DOWNLOADED_EIP_SERVICE = 14,
+            CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE = 15,
+            INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE = 16;
 
     ProviderApiManager providerApiManager;
 

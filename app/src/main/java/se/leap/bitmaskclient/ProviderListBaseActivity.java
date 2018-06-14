@@ -385,7 +385,8 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
                 Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
                 Provider handledProvider = resultData.getParcelable(PROVIDER_KEY);
 
-                if (handledProvider != null && handledProvider.getDomain().equalsIgnoreCase(provider.getDomain())) {
+                if (handledProvider != null && provider != null &&
+                        handledProvider.getDomain().equalsIgnoreCase(provider.getDomain())) {
                     switch (resultCode) {
                         case PROVIDER_OK:
                             handleProviderSetUp(handledProvider);
