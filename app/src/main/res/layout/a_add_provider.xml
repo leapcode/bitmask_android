@@ -2,11 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/BitmaskActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddProviderActivity"
     android:padding="@dimen/stdpadding"
-    style="@style/BitmaskActivity">
+    tools:context=".AddProviderActivity">
 
     <!--Contains header information!??? -->
     <include layout="@layout/v_add_provider" />
@@ -15,33 +15,52 @@
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:orientation="vertical">
 
         <!-- the header contains the mask-->
         <include layout="@layout/v_provider_header" />
 
-        <EditText
-            android:id="@+id/textUri"
-            android:layout_width="fill_parent"
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/text_uri_error"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
             android:hint="@string/new_provider_uri"
-            android:inputType="text"
-            android:padding="@dimen/stdpadding"/>
-        <!--      android:imeOptions="actionSend" => was passieren soll, wenn ok geklickt wird -->
+            app:errorEnabled="true">
 
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/text_uri"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" />
 
-        <Button
-            android:id="@+id/button_save"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="@string/save" />
+        </android.support.design.widget.TextInputLayout>
 
-        <Button
-            android:id="@+id/button_cancel"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="@string/cancel" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="right"
+            android:orientation="horizontal">
 
+            <Button
+                android:id="@+id/button_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel" />
+
+            <Button
+                android:id="@+id/button_save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:text="@string/save" />
+
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

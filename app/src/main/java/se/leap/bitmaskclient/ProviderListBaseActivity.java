@@ -33,7 +33,6 @@ import android.widget.ListView;
 import com.pedrogomez.renderers.Renderer;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -94,6 +93,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     final private static String SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG";
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
     final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
+    final protected static String EXTRAS_KEY_INVALID_URL = "INVALID_URL";
 
     public ProviderAPIResultReceiver providerAPIResultReceiver;
     private ProviderAPIBroadcastReceiver providerAPIBroadcastReceiver;
@@ -196,7 +196,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         } else if (requestCode == REQUEST_CODE_ADD_PROVIDER) {
             if (resultCode == RESULT_OK) {
                 testNewURL = true;
-                String newUrl = data.getStringExtra("new_url");
+                String newUrl = data.getStringExtra(AddProviderActivity.EXTRAS_KEY_NEW_URL);
                 this.provider.setMainUrl(newUrl);
                 showAndSelectProvider(newUrl);
             }
@@ -327,7 +327,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         testNewURL = false;
         FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(NewProviderDialog.TAG);
         Intent intent = new Intent(this, AddProviderActivity.class);
-        intent.putExtra("invalid_url", url);
+        intent.putExtra(EXTRAS_KEY_INVALID_URL, url);
         startActivityForResult(intent, REQUEST_CODE_ADD_PROVIDER);
     }
 

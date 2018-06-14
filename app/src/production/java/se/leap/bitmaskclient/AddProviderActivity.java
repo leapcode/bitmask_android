@@ -2,34 +2,37 @@ package se.leap.bitmaskclient;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+
+import butterknife.InjectView;
 
 public class AddProviderActivity extends ConfigWizardBaseActivity {
 
-    private EditText editText;
     final public static String TAG = "AddProviderActivity";
+    final public static String EXTRAS_KEY_NEW_URL = "NEW_URL";
+
+    @InjectView(R.id.text_uri_error)
+    TextInputLayout urlError;
+
+    @InjectView(R.id.text_uri)
+    TextInputEditText editUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.a_add_provider);
-        editText = findViewById(R.id.textUri);
         if (this.getIntent().getExtras() != null) {
-            editText.setText(this.getIntent().getExtras().getString("invalid_url"));
+            editUrl.setText(this.getIntent().getExtras().getString(ProviderListBaseActivity.EXTRAS_KEY_INVALID_URL));
         }
         final Button saveButton = findViewById(R.id.button_save);
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.d(TAG, "On Click when save works");
                 saveProvider();
             }
         });
@@ -38,44 +41,62 @@ public class AddProviderActivity extends ConfigWizardBaseActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 finish();
-                //ToDo: Implement this and set testNewURL in ProviderListBaseActivty false!!
-               /* Intent intent= new Intent();
-            intent.putExtra("new_url", entered_url);
-            setResult(RESULT_NOT_OK, intent);
-            finish();*/
             }
         });
+        setUpListeners();
         setUpInitialUI();
     }
 
     private void setUpInitialUI() {
-        //ToDo: find out if needed:
-        //  setContentView(R.layout.a_provider_list);
         setProviderHeaderText(R.string.add_provider);
         hideProgressBar();
     }
 
-
     private void saveProvider() {
-        String entered_url = editText.getText().toString().trim();
+        String entered_url = getURL();
+        if (validURL(entered_url)) {
+            Intent intent = this.getIntent();
+            intent.putExtra(EXTRAS_KEY_NEW_URL, entered_url);
+            setResult(RESULT_OK, intent);
+            finish();
+        } else {
+            editUrl.setText("");
+            urlError.setError(getString(R.string.not_valid_url_entered));
+        }
+    }
+
+    private void setUpListeners() {
+
+        editUrl.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!validURL(getURL())) {
+                    urlError.setError(getString(R.string.not_valid_url_entered));
+                } else {
+                    urlError.setError(null);
+                }
+            }
+        });
+    }
+
+    private String getURL() {
+        String entered_url = editUrl.getText().toString().trim();
+        if (entered_url.contains("www.")) entered_url = entered_url.replaceFirst("www.", "");
         if (!entered_url.startsWith("https://")) {
             if (entered_url.startsWith("http://")) {
                 entered_url = entered_url.substring("http://".length());
             }
             entered_url = "https://".concat(entered_url);
         }
-        Log.d(TAG, "Behind https addition");
-        if (validURL(entered_url)) {
-            Log.d(TAG, "URL seems fine");
-            Intent intent = this.getIntent();
-            intent.putExtra("new_url", entered_url);
-            setResult(RESULT_OK, intent);
-            finish();
-        } else {
-            Log.d(TAG, "Bad URL.");
-            editText.setText("");
-            Toast.makeText(this.getApplicationContext(), R.string.not_valid_url_entered, Toast.LENGTH_LONG).show();
-        }
+        return entered_url;
     }
 
     /**
