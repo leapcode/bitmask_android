@@ -113,4 +113,9 @@
   <string name="always_on_vpn">Always-on VPN</string>
   <string name="do_not_show_again">Do not show again.</string>
   <string name="always_on_vpn_user_message">To enable always-on VPN in Android VPN Settings click on the configure icon [img src] and turn the switch on."</string>
+  <string name="donate_title">Donate</string>
+  <string name="donate_default_message">Please donate today if you value secure communication that is easy for both the end-user and the service provider.</string>
+  <string name="donate_message">LEAP depends on donations and grants. Please donate today if you value secure communication that is easy for both the end-user and the service provider.</string>
+  <string name="donate_button_remind_later">Remind me later</string>
+  <string name="donate_button_donate">Donate</string>
 </resources>
