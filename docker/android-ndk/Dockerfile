@@ -38,4 +38,3 @@ ENV PATH ${PATH}:${ANDROID_NDK_HOME}
 RUN yes | sdkmanager --licenses
 RUN sdkmanager --list
 
-RUN echo "done"
