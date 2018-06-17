@@ -3,6 +3,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 apply plugin: 'com.android.application'
+def appName = ''
 
 android {
   compileSdkVersion 27
@@ -57,9 +58,10 @@ android {
     custom {
       dimension "mode"
       //Change the package name as needed
-      applicationId "org.sample.custom"
+      applicationId "org.sample.customs"
       //Set app name here
-      resValue "string", "app_name", "Bitmask Custom"
+      appName = "Custom"
+      resValue "string", "app_name", appName
       //Change the versionCode as needed
       versionCode 1
       //Change the versionName as needed
@@ -378,6 +380,15 @@ task checkApplicationIdForCustomFlavor (type: Exec ) {
           throw new ExecutionException("ERROR: please change the applicationId(org.sample.custom) if you want to build a custom branded app!")
         }
       }
+    }
+  }
+}
+
+task checkAppNameForCustomFlavor (type: Exec ) {
+  def currFlavor = getCurrentFlavorForBetaOrRelease()
+  if(currFlavor.contains("custom")) {
+    if (appName.equalsIgnoreCase("custom")) {
+      throw new ExecutionException("ERROR: please change the appName(Custom) if you want to build a custom branded app!")
     }
   }
 }
