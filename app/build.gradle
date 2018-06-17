@@ -1,3 +1,4 @@
+import java.util.concurrent.ExecutionException
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -364,5 +365,19 @@ def getCurrentFlavorForBetaOrRelease() {
   else
   {
     return "";
+  }
+}
+
+task checkApplicationIdForCustomFlavor (type: Exec ) {
+  def currFlavor = getCurrentFlavorForBetaOrRelease()
+  if(currFlavor.contains("custom")) {
+    android.applicationVariants.all { variant ->
+      def mergedFlavor = variant.mergedFlavor
+      if (variant.flavorName.toString().equalsIgnoreCase(currFlavor)) {
+        if (mergedFlavor.getApplicationId().equalsIgnoreCase("org.sample.custom")) {
+          throw new ExecutionException("ERROR: please change the applicationId(org.sample.custom) if you want to build a custom branded app!")
+        }
+      }
+    }
   }
 }
