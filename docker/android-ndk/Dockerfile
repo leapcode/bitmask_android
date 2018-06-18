@@ -37,3 +37,4 @@ ENV PATH ${PATH}:${ANDROID_NDK_HOME}
 # Accept all licenses
 RUN yes | sdkmanager --licenses
 RUN sdkmanager --list
+

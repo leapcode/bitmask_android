@@ -18,22 +18,20 @@ package se.leap.bitmaskclient;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.spongycastle.util.encoders.Base64;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -51,13 +49,10 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
-import static android.R.attr.name;
 import static se.leap.bitmaskclient.Constants.ALWAYS_ON_SHOW_DIALOG;
 import static se.leap.bitmaskclient.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
@@ -441,5 +436,27 @@ public class ConfigHelper {
         }
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
         return preferences.getBoolean(ALWAYS_ON_SHOW_DIALOG, true);
+    }
+
+    public static JSONObject getEipDefinitionFromPreferences(SharedPreferences preferences) {
+        JSONObject result = new JSONObject();
+        try {
+            String eipDefinitionString = preferences.getString(PROVIDER_EIP_DEFINITION, "");
+            if (!eipDefinitionString.isEmpty()) {
+                result = new JSONObject(eipDefinitionString);
+            }
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static void ensureNotOnMainThread(@NonNull Context context) throws IllegalStateException{
+        Looper looper = Looper.myLooper();
+        if (looper != null && looper == context.getMainLooper()) {
+            throw new IllegalStateException(
+                    "calling this from your main thread can lead to deadlock");
+        }
     }
 }
