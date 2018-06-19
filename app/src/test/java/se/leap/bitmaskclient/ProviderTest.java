@@ -1,9 +1,7 @@
 package se.leap.bitmaskclient;
 
-import org.json.JSONException;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 

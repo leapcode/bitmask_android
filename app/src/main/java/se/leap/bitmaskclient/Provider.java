@@ -140,7 +140,7 @@ public final class Provider implements Parcelable {
         return definition;
     }
 
-    String getDefinitionString() {
+    public String getDefinitionString() {
         return getDefinition().toString();
     }
 
@@ -148,7 +148,7 @@ public final class Provider implements Parcelable {
         return mainUrl.getDomain();
     }
 
-    String getMainUrlString() {
+    public String getMainUrlString() {
         return getMainUrl().toString();
     }
 

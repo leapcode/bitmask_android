@@ -53,7 +53,6 @@ import se.leap.bitmaskclient.OnBootReceiver;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.CATEGORY_DEFAULT;
-import static se.leap.bitmaskclient.ConfigHelper.ensureNotOnMainThread;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
@@ -71,6 +70,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
+import static se.leap.bitmaskclient.utils.ConfigHelper.ensureNotOnMainThread;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
