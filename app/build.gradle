@@ -52,7 +52,7 @@ android {
     insecure {
       dimension "implementation"
     }
-    defualt {
+    normal {
       dimension "mode"
     }
     //Configurations for custom branded app.
