@@ -27,4 +27,7 @@
 
     <color name="white">#ffffff</color>
 
+    <color name="colorActionBarTitleFont">@color/white</color>
+    <color name="colorActionBarSubtitleFont">@color/black800</color>
+
 </resources>
