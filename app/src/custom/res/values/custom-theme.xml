@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Colors-->
+    <!--Color of the action bar-->
+    <color name="colorPrimary">#b39ddb</color>
+    <!--Color of the status bar-->
+    <color name="colorPrimaryDark">#ac97d2</color>
+    <!--Font color of the action bar title-->
+    <color name="colorActionBarTitleFont">#ffffff</color>
+    <!--Font color of the action bar subtitle-->
+    <color name="colorActionBarSubtitleFont">#000000</color>
+</resources>
