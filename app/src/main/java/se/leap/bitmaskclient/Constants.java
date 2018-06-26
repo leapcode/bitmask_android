@@ -99,6 +99,7 @@ public interface Constants {
     String DONATION_URL = TextUtils.isEmpty(BuildConfig.donation_url) ?
             BuildConfig.default_donation_url : BuildConfig.donation_url;
     String LAST_DONATION_REMINDER_DATE = "last_donation_reminder_date";
+    String FIRST_TIME_USER_DATE = "first_time_user_date";
 
 
 }
