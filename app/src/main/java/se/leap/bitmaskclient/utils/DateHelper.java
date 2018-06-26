@@ -16,8 +16,7 @@ public class DateHelper {
 
     public static long getDateDiffToCurrentDateInDays(String startDate) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN, Locale.US);
-        Date lastDate;
-        lastDate = sdf.parse(startDate);
+        Date lastDate = sdf.parse(startDate);
         Date currentDate = new Date();
         return (currentDate.getTime() - lastDate.getTime()) / ONE_DAY;
     }
