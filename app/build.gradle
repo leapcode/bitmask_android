@@ -3,7 +3,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 apply plugin: 'com.android.application'
-def appName = ''
+def appName = 'Bitmask'
 
 android {
   compileSdkVersion 27
@@ -11,7 +11,7 @@ android {
 
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
-    resValue "string", "app_name", "Bitmask"
+    resValue "string", "app_name", appName
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
 
@@ -91,7 +91,7 @@ android {
     beta {
       initWith release
       applicationIdSuffix ".beta"
-      resValue "string", "app_name", "Bitmask Beta"
+      resValue "string", "app_name", appName + " Beta"
     }
     debug {
       testCoverageEnabled = true
