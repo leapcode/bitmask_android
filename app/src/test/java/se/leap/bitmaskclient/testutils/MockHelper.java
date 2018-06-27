@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,12 +30,15 @@ import java.util.Map;
 import java.util.Set;
 
 import okhttp3.OkHttpClient;
-import se.leap.bitmaskclient.ConfigHelper;
 import se.leap.bitmaskclient.OkHttpClientGenerator;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider;
 import se.leap.bitmaskclient.testutils.matchers.BundleMatcher;
+import se.leap.bitmaskclient.utils.ConfigHelper;
+import se.leap.bitmaskclient.utils.FileHelper;
+import se.leap.bitmaskclient.utils.InputStreamHelper;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -49,6 +53,8 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.utils.FileHelper.createFile;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getFromPersistedProvider;
 
 /**
  * Created by cyberta on 29.01.18.
@@ -343,22 +349,36 @@ public class MockHelper {
         return resultReceiver;
     }
 
-    public static void mockConfigHelperForFileInputStream() throws FileNotFoundException {
-        mockStatic(ConfigHelper.class);
-        when(ConfigHelper.loadInputStreamAsString(any(InputStream.class))).thenCallRealMethod();
-        when(ConfigHelper.getInputStreamFrom(anyString())).thenAnswer(new Answer<InputStream>() {
+    public static void mockInputStreamHelper() throws FileNotFoundException {
+        mockStatic(InputStreamHelper.class);
+        when(InputStreamHelper.loadInputStreamAsString(any(InputStream.class))).thenCallRealMethod();
+        when(InputStreamHelper.getInputStreamFrom(anyString())).thenAnswer(new Answer<InputStream>() {
             @Override
             public InputStream answer(InvocationOnMock invocation) throws Throwable {
                 String filename = (String) invocation.getArguments()[0];
                 return getClass().getClassLoader().getResourceAsStream(filename);
             }
         });
+
     }
 
-    public static void mockConfigHelper(String mockedFingerprint, final Provider providerFromPrefs) throws CertificateEncodingException, NoSuchAlgorithmException {
+    public static void mockFileHelper(final File mockedFile) throws FileNotFoundException {
+        mockStatic(FileHelper.class);
+        when(createFile(any(File.class), anyString())).thenReturn(mockedFile);
+    }
+
+    public static void mockConfigHelper(String mockedFingerprint) throws CertificateEncodingException, NoSuchAlgorithmException {
         // FIXME use MockSharedPreferences instead of provider
         mockStatic(ConfigHelper.class);
-        when(ConfigHelper.getFromPersistedProvider(anyString(), anyString(), any(SharedPreferences.class))).thenAnswer(new Answer<String>() {
+        when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
+        when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
+        when(ConfigHelper.parseX509CertificateFromString(anyString())).thenCallRealMethod();
+    }
+
+    public static void mockPreferenceHelper(final Provider providerFromPrefs) {
+        // FIXME use MockSharedPreferences instead of provider
+        mockStatic(PreferenceHelper.class);
+        when(getFromPersistedProvider(anyString(), anyString(), any(SharedPreferences.class))).thenAnswer(new Answer<String>() {
             @Override
             public String answer(InvocationOnMock invocation) throws Throwable {
                 String key = (String) invocation.getArguments()[0];
@@ -375,11 +395,8 @@ public class MockHelper {
                 return null;
             }
         });
-        when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
-        when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
-        when(ConfigHelper.parseX509CertificateFromString(anyString())).thenCallRealMethod();
-        when(ConfigHelper.loadInputStreamAsString(any(InputStream.class))).thenCallRealMethod();
     }
+
     public static void mockFingerprintForCertificate(String mockedFingerprint) throws CertificateEncodingException, NoSuchAlgorithmException {
         mockStatic(ConfigHelper.class);
         when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);

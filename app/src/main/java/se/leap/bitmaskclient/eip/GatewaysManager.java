@@ -35,8 +35,8 @@ import java.util.List;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.ProfileManager;
-import se.leap.bitmaskclient.ConfigHelper;
 import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
@@ -216,7 +216,7 @@ public class GatewaysManager {
         // to add all gateways from prefs without duplicates, but this should be refactored.
         clearGatewaysAndProfiles();
         fromEipServiceJson(
-                ConfigHelper.getEipDefinitionFromPreferences(preferences)
+                PreferenceHelper.getEipDefinitionFromPreferences(preferences)
         );
     }
 }

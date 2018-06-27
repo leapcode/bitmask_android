@@ -17,7 +17,8 @@ import butterknife.InjectView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.views.IconTextView;
 
-import static se.leap.bitmaskclient.ConfigHelper.saveShowAlwaysOnDialog;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.saveShowAlwaysOnDialog;
+
 
 /**
  * Created by cyberta on 25.02.18.

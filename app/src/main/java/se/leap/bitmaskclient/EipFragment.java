@@ -58,6 +58,7 @@ import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
+import se.leap.bitmaskclient.utils.DateHelper;
 import se.leap.bitmaskclient.views.VpnStateImage;
 
 import static android.view.View.GONE;
@@ -65,6 +66,7 @@ import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static se.leap.bitmaskclient.Constants.DONATION_REMINDER_DURATION;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.Constants.FIRST_TIME_USER_DATE;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
@@ -530,7 +532,8 @@ public class EipFragment extends Fragment implements Observer {
                 }).setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
-                        saveLastDonationReminderDate();
+                        preferences.edit().putString(LAST_DONATION_REMINDER_DATE,
+                                DateHelper.getCurrentDateString()).apply();
                     }
                 }).show();
     }
@@ -545,29 +548,32 @@ public class EipFragment extends Fragment implements Observer {
             return false;
         }
 
-        String lastDonationReminderDate = preferences.getString(LAST_DONATION_REMINDER_DATE, null);
-        if (lastDonationReminderDate == null) {
-            return true;
+        String firstTimeUserDate = preferences.getString(FIRST_TIME_USER_DATE, null);
+        if (firstTimeUserDate == null) {
+            preferences.edit().putString(FIRST_TIME_USER_DATE, DateHelper.getCurrentDateString()).apply();
+            return false;
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN, Locale.US);
-        Date lastDate;
         try {
-            lastDate = sdf.parse(lastDonationReminderDate);
+            long diffDays;
+
+            diffDays = DateHelper.getDateDiffToCurrentDateInDays(firstTimeUserDate);
+            if (diffDays < 1) {
+                return false;
+            }
+
+            String lastDonationReminderDate = preferences.getString(LAST_DONATION_REMINDER_DATE, null);
+            if (lastDonationReminderDate == null) {
+                return true;
+            }
+            diffDays = DateHelper.getDateDiffToCurrentDateInDays(lastDonationReminderDate);
+            return diffDays >= DONATION_REMINDER_DURATION;
+
         } catch (ParseException e) {
             e.printStackTrace();
             Log.e(TAG, e.getMessage());
             return false;
         }
-
-        Date currentDate = new Date();
-        long diffDays = (currentDate.getTime() - lastDate.getTime()) / ONE_DAY;
-        return diffDays >= DONATION_REMINDER_DURATION;
     }
 
-    private void saveLastDonationReminderDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_PATTERN, Locale.US);
-        Date lastDate = new Date();
-        preferences.edit().putString(LAST_DONATION_REMINDER_DATE, sdf.format(lastDate)).apply();
-    }
 }

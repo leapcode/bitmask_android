@@ -15,6 +15,7 @@ import java.lang.annotation.RetentionPolicy;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.userstatus.User;
+import se.leap.bitmaskclient.utils.ConfigHelper;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
@@ -24,6 +25,9 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.providerInSharedPreferences;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.storeProviderInPreferences;
 
 /**
  * Activity shown at startup. Evaluates if App is started for the first time or has been upgraded
@@ -154,9 +158,9 @@ public class StartActivity extends Activity{
     }
 
     private void prepareEIP() {
-        boolean provider_exists = ConfigHelper.providerInSharedPreferences(preferences);
+        boolean provider_exists = providerInSharedPreferences(preferences);
         if (provider_exists) {
-            Provider provider = ConfigHelper.getSavedProviderFromSharedPreferences(preferences);
+            Provider provider = getSavedProviderFromSharedPreferences(preferences);
             if(!provider.isConfigured()) {
                 configureLeapProvider();
             } else {
@@ -186,7 +190,7 @@ public class StartActivity extends Activity{
         if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
             if (resultCode == RESULT_OK && data != null && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
-                ConfigHelper.storeProviderInPreferences(preferences, provider);
+                storeProviderInPreferences(preferences, provider);
                 EipCommand.startVPN(this, false);
                 showMainActivity();
             } else if (resultCode == RESULT_CANCELED) {

@@ -38,13 +38,15 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 
-import se.leap.bitmaskclient.ConfigHelper;
+import se.leap.bitmaskclient.testutils.MockHelper;
+import se.leap.bitmaskclient.utils.ConfigHelper;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.ProviderApiConnector;
 import se.leap.bitmaskclient.ProviderApiManager;
 import se.leap.bitmaskclient.ProviderApiManagerBase;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
@@ -58,6 +60,7 @@ import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockConfigHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockFingerprintForCertificate;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockIntent;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockPreferenceHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnector;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResources;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResultReceiver;
@@ -72,7 +75,7 @@ import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
  */
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ProviderApiManager.class, TextUtils.class, ConfigHelper.class, ProviderApiConnector.class})
+@PrepareForTest({ProviderApiManager.class, TextUtils.class, ConfigHelper.class, ProviderApiConnector.class, PreferenceHelper.class})
 public class ProviderApiManagerTest {
 
     private SharedPreferences mockPreferences;
@@ -172,8 +175,8 @@ public class ProviderApiManagerTest {
     @Test
     public void test_handleIntentSetupProvider_happyPath_storedProviderAndCAFromPreviousSetup() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = new Provider("https://riseup.net");
-        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494", getConfiguredProvider());
-
+        mockPreferenceHelper(getConfiguredProvider());
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         mockPreferences.edit().putString(Provider.KEY + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"))).apply();
         mockPreferences.edit().putString(Provider.CA_CERT + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"))).apply();
@@ -238,7 +241,8 @@ public class ProviderApiManagerTest {
     @Test
     public void test_handleIntentSetupProvider_storedProviderAndCAFromPreviousSetup_failedPinning() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = new Provider("https://riseup.net");
-        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495", getConfiguredProvider());
+        mockPreferenceHelper(getConfiguredProvider());
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495");
 
         mockProviderApiConnector(NO_ERROR);
         mockPreferences.edit().putString(Provider.KEY + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"))).apply();
@@ -308,8 +312,8 @@ public class ProviderApiManagerTest {
     @Test
     public void test_handleIntentSetupProvider_preseededProviderAndCA_ValidCertificateButUpdatedCertificateOnServerSide() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = getConfiguredProvider();
-
-        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494", getConfiguredProvider());
+        mockPreferenceHelper(provider);
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_CASE_UPDATED_CERTIFICATE);
 
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
@@ -331,8 +335,8 @@ public class ProviderApiManagerTest {
     @Test
     public void test_handleIntentSetupProvider_storedProviderAndCAFromPreviousSetup_ValidCertificateButUpdatedCertificateOnServerSide() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = new Provider("https://riseup.net");
-
-        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494", getConfiguredProvider());
+        mockPreferenceHelper(getConfiguredProvider());
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_CASE_UPDATED_CERTIFICATE);
         mockPreferences.edit().putString(Provider.KEY + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"))).apply();
         mockPreferences.edit().putString(Provider.CA_CERT + ".riseup.net", getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"))).apply();

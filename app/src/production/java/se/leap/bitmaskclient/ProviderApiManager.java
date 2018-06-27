@@ -31,6 +31,7 @@ import java.util.List;
 
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.eip.EIP;
+import se.leap.bitmaskclient.utils.ConfigHelper;
 
 import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
