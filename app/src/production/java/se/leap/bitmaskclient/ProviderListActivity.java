@@ -39,34 +39,18 @@ public class ProviderListActivity extends ProviderListBaseActivity {
         setUpProvider();
     }
 
-    @Override
-    public void showAndSelectProvider(String provider_main_url) {
-        try {
-            provider = new Provider(new URL((provider_main_url)));
-            autoSelectProvider(provider);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void autoSelectProvider(Provider provider) {
-        this.provider = provider;
-        onItemSelectedLogic();
-        showProgressBar();
-    }
-
     /**
      * Asks ProviderAPI to download a new provider.json file
      *
      */
     public void setUpProvider() {
-        mConfigState.setAction(SETTING_UP_PROVIDER);
+        configState.setAction(SETTING_UP_PROVIDER);
         ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
     }
 
     @Override
     public void retrySetUpProvider(@NonNull Provider provider) {
-        mConfigState.setAction(SETTING_UP_PROVIDER);
+        configState.setAction(SETTING_UP_PROVIDER);
         ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
     }
 
