@@ -20,7 +20,7 @@
             android:adjustViewBounds="false"
             android:cropToPadding="false"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/ic_colorsquare" />
+            app:srcCompat="@drawable/background_drawer" />
 
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/mask"

@@ -49,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        app:srcCompat="@drawable/ic_colorsquare" />
+        app:srcCompat="@drawable/background_eip" />
 
 
     <android.support.v7.widget.AppCompatTextView
