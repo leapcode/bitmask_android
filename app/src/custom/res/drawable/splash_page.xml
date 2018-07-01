@@ -10,7 +10,7 @@
  <item>
   <!--Rename mask to foreground image name-->
   <bitmap
-      android:src="@drawable/mask"
+      android:src="@drawable/logo"
       android:gravity="center" />
  </item>
 

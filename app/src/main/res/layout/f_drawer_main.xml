@@ -26,7 +26,7 @@
             android:id="@+id/mask"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/mask" />
+            app:srcCompat="@drawable/logo" />
     </FrameLayout>
     <RelativeLayout
         android:layout_width="match_parent"

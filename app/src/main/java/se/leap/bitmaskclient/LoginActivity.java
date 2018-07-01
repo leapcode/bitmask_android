@@ -17,7 +17,7 @@ public class LoginActivity extends ProviderCredentialsBaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setProgressbarText(R.string.logging_in);
-        setProviderHeaderLogo(R.drawable.mask);
+        setProviderHeaderLogo(R.drawable.logo);
         setProviderHeaderText(R.string.login_to_profile);
     }
 
