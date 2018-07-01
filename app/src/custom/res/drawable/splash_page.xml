@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
  <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
- <!--Rename ic_splash_background to background image name-->
+ <!--Replace custom/res/drawable-hdpi/ic_splash_background with background image-->
+ <!--Replace custom/res/drawable-xhdpi/ic_splash_background with background image-->
+ <!--Replace custom/res/drawable-xxxhdpi/ic_splash_background with background image-->
  <!--Change gravity to best fit background image to screen-->
  <item android:drawable="@drawable/ic_splash_background"
      android:gravity="fill_horizontal|fill_vertical" />
 
  <!--If a foreground image is not need remove this <item> tag-->
  <item>
-  <!--Rename mask to foreground image name-->
+  <!--Replace custom/res/drawable/logo with foreground image-->
+  <!--Replace custom/res/drawable-ldpi/logo with foreground image-->
+  <!--Replace custom/res/drawable-xxxhdpi/logo with foreground image-->
   <bitmap
       android:src="@drawable/logo"
       android:gravity="center" />
