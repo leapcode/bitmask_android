@@ -2,21 +2,28 @@ package se.leap.bitmaskclient;
 
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.Guideline;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import butterknife.InjectView;
+import butterknife.Optional;
+import se.leap.bitmaskclient.views.ProviderHeaderView;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
@@ -30,27 +37,43 @@ import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
 
+    private static final String TAG = ConfigWizardBaseActivity.class.getName();
+    public static final float GUIDE_LINE_COMPACT_DELTA = 0.1f;
     protected SharedPreferences preferences;
 
-    @InjectView(R.id.provider_header_logo)
-    AppCompatImageView providerHeaderLogo;
+    @InjectView(R.id.header)
+    ProviderHeaderView providerHeaderView;
 
-    @InjectView(R.id.provider_header_text)
-    AppCompatTextView providerHeaderText;
-
+    //Add provider screen has no loading screen
+    @Optional
     @InjectView(R.id.loading_screen)
     protected LinearLayout loadingScreen;
 
+    @Optional
     @InjectView(R.id.progressbar)
     protected ProgressBar progressBar;
 
+    @Optional
     @InjectView(R.id.progressbar_description)
     protected AppCompatTextView progressbarText;
+
+    //Only tablet layouts have guidelines as they are based on a ConstraintLayout
+    @Optional
+    @InjectView(R.id.guideline_top)
+    protected Guideline guideline_top;
+
+    @Optional
+    @InjectView(R.id.guideline_bottom)
+    protected Guideline guideline_bottom;
 
     @InjectView(R.id.content)
     protected LinearLayout content;
 
     protected Provider provider;
+
+    protected boolean isCompactLayout = false;
+    private float defaultGuidelineTopPercentage;
+    private float defaultGuidelineBottomPercentage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,33 +86,44 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     @Override
     public void setContentView(View view) {
         super.setContentView(view);
-        if (provider != null)
-            setProviderHeaderText(provider.getName());
-        setProgressbarColorForPreLollipop();
+        initContentView();
     }
 
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
-        if (provider != null)
-            setProviderHeaderText(provider.getName());
-        setProgressbarColorForPreLollipop();
+        initContentView();
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
         super.setContentView(view, params);
-        if (provider != null)
+        initContentView();
+    }
+
+    private void initContentView() {
+        if (provider != null) {
             setProviderHeaderText(provider.getName());
+        }
         setProgressbarColorForPreLollipop();
+        setDefaultGuidelineValues();
+        setGlobalLayoutChangeListener();
+    }
+
+    private void setDefaultGuidelineValues() {
+        if (isTabletLayout()) {
+            defaultGuidelineTopPercentage = ((ConstraintLayout.LayoutParams) guideline_top.getLayoutParams()).guidePercent;
+            defaultGuidelineBottomPercentage = ((ConstraintLayout.LayoutParams) guideline_bottom.getLayoutParams()).guidePercent;
+        }
     }
 
     private void setProgressbarColorForPreLollipop() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            progressBar.getIndeterminateDrawable().setColorFilter(
-                    ContextCompat.getColor(this, R.color.colorPrimary),
-                    PorterDuff.Mode.SRC_IN);
+        if (progressBar == null || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return;
         }
+        progressBar.getIndeterminateDrawable().setColorFilter(
+                ContextCompat.getColor(this, R.color.colorPrimary),
+                PorterDuff.Mode.SRC_IN);
     }
 
 
@@ -108,33 +142,134 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     }
 
     protected void setProviderHeaderLogo(@DrawableRes int providerHeaderLogo) {
-        this.providerHeaderLogo.setImageResource(providerHeaderLogo);
+        providerHeaderView.setLogo(providerHeaderLogo);
     }
 
     protected void setProviderHeaderText(String providerHeaderText) {
-        this.providerHeaderText.setText(providerHeaderText);
+        providerHeaderView.setTitle(providerHeaderText);
     }
 
     protected void setProviderHeaderText(@StringRes int providerHeaderText) {
-        this.providerHeaderText.setText(providerHeaderText);
+        providerHeaderView.setTitle(providerHeaderText);
     }
 
     protected void hideProgressBar() {
+        if (loadingScreen == null) {
+            return;
+        }
         loadingScreen.setVisibility(GONE);
         content.setVisibility(VISIBLE);
     }
 
     protected void showProgressBar() {
+        if (loadingScreen == null) {
+            return;
+        }
         content.setVisibility(GONE);
         loadingScreen.setVisibility(VISIBLE);
     }
 
-    protected void setProgressbarText(String progressbarText) {
+    protected void setProgressbarText(@StringRes int progressbarText) {
+        if (this.progressbarText == null) {
+            return;
+        }
         this.progressbarText.setText(progressbarText);
     }
 
-    protected void setProgressbarText(@StringRes int progressbarText) {
-        this.progressbarText.setText(progressbarText);
+
+    protected void showCompactLayout() {
+        if (isCompactLayout) {
+            return;
+        }
+
+        if (isTabletLayoutInLandscape() || isPhoneLayout()) {
+            providerHeaderView.showCompactLayout();
+        }
+
+        showIncreasedTabletContentArea();
+        isCompactLayout = true;
+    }
+
+    protected void showStandardLayout() {
+        if (!isCompactLayout) {
+            return;
+        }
+        providerHeaderView.showStandardLayout();
+        showStandardTabletContentArea();
+        isCompactLayout = false;
+    }
+
+    private boolean isTabletLayoutInLandscape() {
+        // TabletLayout is based on a ConstraintLayout and uses Guidelines whereas the phone layout
+        // has no such elements in it's layout xml file
+        return  guideline_top != null &&
+                guideline_bottom != null &&
+                getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE;
+    }
+
+    protected boolean isPhoneLayout() {
+        return guideline_top == null && guideline_bottom == null;
+    }
+
+    protected boolean isTabletLayout() {
+        return guideline_top != null && guideline_bottom != null;
+    }
+
+    /**
+     * Increases the white content area in tablet layouts
+     */
+    private void showIncreasedTabletContentArea() {
+        if (isPhoneLayout()) {
+            return;
+        }
+        ConstraintLayout.LayoutParams guideLineTopParams = (ConstraintLayout.LayoutParams) guideline_top.getLayoutParams();
+        float increasedTopPercentage = defaultGuidelineTopPercentage - GUIDE_LINE_COMPACT_DELTA;
+        guideLineTopParams.guidePercent = increasedTopPercentage > 0f ? increasedTopPercentage : 0f;
+        guideline_top.setLayoutParams(guideLineTopParams);
+
+        ConstraintLayout.LayoutParams guideLineBottomParams = (ConstraintLayout.LayoutParams) guideline_bottom.getLayoutParams();
+        float increasedBottomPercentage = defaultGuidelineBottomPercentage + GUIDE_LINE_COMPACT_DELTA;
+        guideLineBottomParams.guidePercent = increasedBottomPercentage < 1f ? increasedBottomPercentage : 1f;
+        guideline_bottom.setLayoutParams(guideLineBottomParams);
+    }
+
+    /**
+     * Restores the default size of the white content area in tablet layouts
+     */
+    private void showStandardTabletContentArea() {
+        if (isPhoneLayout()) {
+            return;
+        }
+        ConstraintLayout.LayoutParams guideLineTopParams = (ConstraintLayout.LayoutParams) guideline_top.getLayoutParams();
+        guideLineTopParams.guidePercent = defaultGuidelineTopPercentage;
+        guideline_top.setLayoutParams(guideLineTopParams);
+
+        ConstraintLayout.LayoutParams guideLineBottomParams = (ConstraintLayout.LayoutParams) guideline_bottom.getLayoutParams();
+        guideLineBottomParams.guidePercent = defaultGuidelineBottomPercentage;
+        guideline_bottom.setLayoutParams(guideLineBottomParams);
+    }
+
+    /**
+     * Checks if the keyboard is shown and switches between the standard layout and the compact layout
+     */
+    private void setGlobalLayoutChangeListener() {
+        final View rootView = content.getRootView();
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+                //r will be populated with the coordinates of your view that area still visible.
+                rootView.getWindowVisibleDisplayFrame(r);
+
+                float deltaHiddenScreen =  1f - ((float) (r.bottom - r.top) / (float) rootView.getHeight());
+                if (deltaHiddenScreen > 0.25f) {
+                    // if more than 1/4 of the screen is hidden
+                    showCompactLayout();
+                } else {
+                    showStandardLayout();
+                }
+            }
+        });
     }
 
 }

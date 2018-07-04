@@ -6,6 +6,7 @@
 <resources>
     <dimen name="paddingItemsSidebarLog">20dp</dimen>
     <dimen name="stdpadding">8dp</dimen>
+    <dimen name="compact_padding">3dp</dimen>
     <dimen name="standard_margin">8dp</dimen>
     <dimen name="mainbutton_padding">20dp</dimen>
     <bool name="logSildersAlwaysVisible">false</bool>
@@ -32,5 +33,10 @@
     <dimen name="loading_screen_icon_vertical_margin">16dp</dimen>
 
     <dimen name="bitmask_logo">56dp</dimen>
-    <dimen name="bitmask_logo_tablet">72dp</dimen>
+    <dimen name="bitmask_logo_compact">42dp</dimen>
+
+    <dimen name="constraint_top_std">0.15</dimen>
+    <dimen name="constraint_bottom_std">0.85</dimen>
+    <dimen name="constraint_top_compact">0.1</dimen>
+    <dimen name="constraint_bottom_compact">0.9</dimen>
 </resources>
