@@ -1,6 +1,7 @@
 package se.leap.bitmaskclient;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
@@ -9,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 
 import butterknife.InjectView;
+
+import static se.leap.bitmaskclient.ProviderListBaseActivity.EXTRAS_KEY_INVALID_URL;
 
 /**
  * Created by cyberta on 30.06.18.
@@ -27,10 +30,15 @@ public abstract class AddProviderBaseActivity extends ConfigWizardBaseActivity {
     @InjectView(R.id.button_cancel)
     Button cancelButton;
 
+    @InjectView(R.id.button_save)
+    Button saveButton;
+
 
     protected void init() {
-        if (this.getIntent().getExtras() != null) {
-            editUrl.setText(this.getIntent().getExtras().getString(ProviderListBaseActivity.EXTRAS_KEY_INVALID_URL));
+        Bundle extras = this.getIntent().getExtras();
+        if (extras != null && extras.containsKey(EXTRAS_KEY_INVALID_URL)) {
+            editUrl.setText(extras.getString(EXTRAS_KEY_INVALID_URL));
+            saveButton.setEnabled(true);
         }
 
         setupSaveButton();
@@ -82,8 +90,11 @@ public abstract class AddProviderBaseActivity extends ConfigWizardBaseActivity {
             public void afterTextChanged(Editable s) {
                 if (!validURL(getURL())) {
                     urlError.setError(getString(R.string.not_valid_url_entered));
+                    saveButton.setEnabled(false);
+
                 } else {
                     urlError.setError(null);
+                    saveButton.setEnabled(true);
                 }
             }
         });

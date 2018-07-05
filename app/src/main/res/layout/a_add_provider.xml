@@ -76,6 +76,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/add_button_margin"
                     android:layout_marginStart="@dimen/add_button_margin"
+                    android:enabled="false"
                     android:text="@string/save" />
 
             </LinearLayout>
