@@ -25,27 +25,21 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -58,23 +52,17 @@ import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
-import se.leap.bitmaskclient.utils.DateHelper;
+import se.leap.bitmaskclient.fragments.DonationReminderDialog;
 import se.leap.bitmaskclient.views.VpnStateImage;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
-import static se.leap.bitmaskclient.Constants.DONATION_REMINDER_DURATION;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
-import static se.leap.bitmaskclient.Constants.FIRST_TIME_USER_DATE;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.Constants.DONATION_URL;
-import static se.leap.bitmaskclient.Constants.ENABLE_DONATION;
-import static se.leap.bitmaskclient.Constants.ENABLE_DONATION_REMINDER;
-import static se.leap.bitmaskclient.Constants.LAST_DONATION_REMINDER_DATE;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
@@ -84,7 +72,6 @@ public class EipFragment extends Fragment implements Observer {
     public final static String TAG = EipFragment.class.getSimpleName();
 
     public static final String ASK_TO_CANCEL_VPN = "ask_to_cancel_vpn";
-
 
     private SharedPreferences preferences;
     private Provider provider;
@@ -172,8 +159,8 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public void onStart() {
         super.onStart();
-        if (isDonationReminderCallable()) {
-            showDonationReminder();
+        if (DonationReminderDialog.isCallable(getContext())) {
+            showDonationReminderDialog();
         }
     }
 
@@ -509,71 +496,16 @@ public class EipFragment extends Fragment implements Observer {
         }
     }
 
-    private void showDonationReminder() {
-        Activity activity = getActivity();
-        if (activity == null) {
-            Log.e(TAG, "activity is null when triggering donation reminder");
-            return;
-        }
-        String message = TextUtils.isEmpty(activity.getString(R.string.donate_message)) ?
-                activity.getString(R.string.donate_default_message) : activity.getString(R.string.donate_message);
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
-        alertDialog = alertBuilder.setTitle(activity.getString(R.string.donate_title))
-                .setMessage(message)
-                .setPositiveButton(R.string.donate_button_donate, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
-                        startActivity(browserIntent);
-                    }
-                })
-                .setNegativeButton(R.string.donate_button_remind_later, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                }).setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        preferences.edit().putString(LAST_DONATION_REMINDER_DATE,
-                                DateHelper.getCurrentDateString()).apply();
-                    }
-                }).show();
-    }
-
-    private boolean isDonationReminderCallable() {
-        if (!ENABLE_DONATION || !ENABLE_DONATION_REMINDER) {
-            return false;
-        }
-
-        if (preferences == null) {
-            Log.e(TAG, "preferences is null!");
-            return false;
-        }
-
-        String firstTimeUserDate = preferences.getString(FIRST_TIME_USER_DATE, null);
-        if (firstTimeUserDate == null) {
-            preferences.edit().putString(FIRST_TIME_USER_DATE, DateHelper.getCurrentDateString()).apply();
-            return false;
-        }
-
+    public void showDonationReminderDialog() {
         try {
-            long diffDays;
-
-            diffDays = DateHelper.getDateDiffToCurrentDateInDays(firstTimeUserDate);
-            if (diffDays < 1) {
-                return false;
-            }
-
-            String lastDonationReminderDate = preferences.getString(LAST_DONATION_REMINDER_DATE, null);
-            if (lastDonationReminderDate == null) {
-                return true;
-            }
-            diffDays = DateHelper.getDateDiffToCurrentDateInDays(lastDonationReminderDate);
-            return diffDays >= DONATION_REMINDER_DURATION;
-
-        } catch (ParseException e) {
+            FragmentTransaction fragmentTransaction = new FragmentManagerEnhanced(
+                    getActivity().getSupportFragmentManager()).removePreviousFragment(
+                    DonationReminderDialog.TAG);
+            DialogFragment newFragment = new DonationReminderDialog();
+            newFragment.setCancelable(false);
+            newFragment.show(fragmentTransaction, DonationReminderDialog.TAG);
+        } catch (IllegalStateException | NullPointerException e) {
             e.printStackTrace();
-            Log.e(TAG, e.getMessage());
-            return false;
         }
     }
-
 }

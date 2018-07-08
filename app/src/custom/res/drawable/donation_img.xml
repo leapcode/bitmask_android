@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Used to create the image to be shown in the donation popup-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/background_main"
+    android:gravity="fill_horizontal|fill_vertical"/>
+    <item android:drawable="@drawable/logo"
+        android:gravity="center"
+        />
+</layer-list>
