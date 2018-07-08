@@ -200,6 +200,8 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
                 String newUrl = data.getStringExtra(AddProviderActivity.EXTRAS_KEY_NEW_URL);
                 this.provider.setMainUrl(newUrl);
                 showAndSelectProvider(newUrl);
+            } else {
+                stopSettingUpProvider();
             }
         }
     }
@@ -241,7 +243,6 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     }
 
     void handleProviderSetupFailed(Bundle resultData) {
-
         reasonToFail = resultData.getString(ERRORS);
         showDownloadFailedDialog();
     }
