@@ -104,9 +104,6 @@ public class EipFragment extends Fragment implements Observer {
     private IOpenVPNServiceInternal mService;
     private ServiceConnection openVpnConnection;
 
-    private final String DATE_PATTERN = "dd/MM/yyyy";
-    private final int ONE_DAY = 86400000; //1000*60*60*24
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

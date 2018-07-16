@@ -1,6 +1,5 @@
 package se.leap.bitmaskclient.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Looper;
