@@ -201,7 +201,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
                 this.provider.setMainUrl(newUrl);
                 showAndSelectProvider(newUrl);
             } else {
-                stopSettingUpProvider();
+                cancelSettingUpProvider();
             }
         }
     }
@@ -291,14 +291,10 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     public void onBackPressed() {
         if (SETTING_UP_PROVIDER.equals(configState.getAction()) ||
                 SHOW_FAILED_DIALOG.equals(configState.getAction())) {
-            stopSettingUpProvider();
+            cancelSettingUpProvider();
         } else {
             super.onBackPressed();
         }
-    }
-
-    private void stopSettingUpProvider() {
-        cancelSettingUpProvider();
     }
 
     @Override
