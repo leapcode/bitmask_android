@@ -52,7 +52,8 @@ public class ProviderSetupFailedDialog extends DialogFragment {
         DEFAULT,
         ERROR_CORRUPTED_PROVIDER_JSON,
         ERROR_INVALID_CERTIFICATE,
-        ERROR_CERTIFICATE_PINNING
+        ERROR_CERTIFICATE_PINNING,
+        ERROR_NEW_URL_NO_VPN_PROVIDER
     }
 
     /**
@@ -68,7 +69,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
     /**
      * @return a new instance of this DialogFragment.
      */
-    public static DialogFragment newInstance(Provider provider, JSONObject errorJson) {
+    public static DialogFragment newInstance(Provider provider, JSONObject errorJson, boolean testNewURL) {
         ProviderSetupFailedDialog dialogFragment = new ProviderSetupFailedDialog();
         dialogFragment.provider = provider;
         try {
@@ -81,6 +82,8 @@ public class ProviderSetupFailedDialog extends DialogFragment {
 
             if (errorJson.has(ERRORID)) {
                 dialogFragment.downloadError = valueOf(errorJson.getString(ERRORID));
+            } else if (testNewURL) {
+                dialogFragment.downloadError = DOWNLOAD_ERRORS.ERROR_NEW_URL_NO_VPN_PROVIDER;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -123,6 +126,13 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                     }
                 });
                 break;
+            case ERROR_NEW_URL_NO_VPN_PROVIDER:
+                builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        interfaceWithConfigurationWizard.addAndSelectNewProvider(provider.getMainUrlString());
+                    }
+                });
+                break;
             default:
                 builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
@@ -142,6 +152,8 @@ public class ProviderSetupFailedDialog extends DialogFragment {
         void cancelSettingUpProvider();
 
         void updateProviderDetails();
+
+        void addAndSelectNewProvider(String url);
     }
 
     DownloadFailedDialogInterface interfaceWithConfigurationWizard;

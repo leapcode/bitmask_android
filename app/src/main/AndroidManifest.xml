@@ -94,6 +94,10 @@
             android:label="@string/configuration_wizard_title" />
 
         <activity
+            android:name=".AddProviderActivity"
+            android:label="@string/add_provider" />
+
+        <activity
             android:name=".ProviderDetailActivity"
             android:label="@string/provider_details_title"
             android:launchMode="singleTop" />

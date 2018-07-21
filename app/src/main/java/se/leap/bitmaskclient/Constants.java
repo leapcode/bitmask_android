@@ -21,6 +21,7 @@ public interface Constants {
     int REQUEST_CODE_CONFIGURE_LEAP = 0;
     int REQUEST_CODE_SWITCH_PROVIDER = 1;
     int REQUEST_CODE_LOG_IN = 2;
+    int REQUEST_CODE_ADD_PROVIDER = 3;
 
 
     //////////////////////////////////////////////

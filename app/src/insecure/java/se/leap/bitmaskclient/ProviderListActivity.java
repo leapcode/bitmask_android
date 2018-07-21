@@ -50,29 +50,13 @@ public class ProviderListActivity extends ProviderListBaseActivity {
         preferences.edit().remove(ProviderItem.DANGER_ON).apply();
     }
 
-    public void showAndSelectProvider(String provider_main_url, boolean danger_on) {
-        try {
-            provider = new Provider(new URL((provider_main_url)));
-            autoSelectProvider(provider, danger_on);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void autoSelectProvider(Provider provider, boolean danger_on) {
-        preferences.edit().putBoolean(ProviderItem.DANGER_ON, danger_on).apply();
-        this.provider = provider;
-        onItemSelectedLogic();
-        showProgressBar();
-    }
-
     /**
      * Asks ProviderAPI to download a new provider.json file
      *
      * @param danger_on tells if HTTPS client should bypass certificate errors
      */
     public void setUpProvider(boolean danger_on) {
-        mConfigState.setAction(SETTING_UP_PROVIDER);
+        configState.setAction(SETTING_UP_PROVIDER);
 
         Bundle parameters = new Bundle();
         parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
@@ -85,7 +69,7 @@ public class ProviderListActivity extends ProviderListBaseActivity {
      */
     @Override
     public void retrySetUpProvider(@NonNull Provider provider) {
-        mConfigState.setAction(SETTING_UP_PROVIDER);
+        configState.setAction(SETTING_UP_PROVIDER);
         ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
     }
 

@@ -42,5 +42,5 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.725" />
 
-    <include layout="@layout/a_provider_credentials_tablet_linear_layout"/>
+    <include layout="@layout/a_add_provider_tablet_scrollview"/>
 </android.support.constraint.ConstraintLayout>

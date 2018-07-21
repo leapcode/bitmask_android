@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <android.support.v7.widget.AppCompatImageView
@@ -13,10 +15,13 @@
         android:id="@+id/provider_header_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/provider_header_logo"
         android:text=""
+        android:ellipsize="end"
+        android:gravity="center_vertical"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Headline"
         android:layout_marginTop="@dimen/standard_margin"
         android:layout_marginBottom="@dimen/standard_margin"
         />
 
-</merge>
+</RelativeLayout>

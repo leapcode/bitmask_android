@@ -6,5 +6,9 @@
 
 <resources>
     <bool name="logSildersAlwaysVisible">true</bool>
+    <dimen name="bitmask_logo">72dp</dimen>
+    <dimen name="bitmask_logo_compact">56dp</dimen>
+    <dimen name="stdpadding">16dp</dimen>
+    <dimen name="compact_padding">6dp</dimen>
 
 </resources>

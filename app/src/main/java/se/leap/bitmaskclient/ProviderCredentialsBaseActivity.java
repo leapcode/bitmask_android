@@ -16,6 +16,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
 import android.text.Html;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -33,6 +34,7 @@ import se.leap.bitmaskclient.Constants.CREDENTIAL_ERRORS;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.userstatus.User;
 
+import static android.text.TextUtils.isEmpty;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
@@ -94,6 +96,10 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     @InjectView(R.id.button)
     AppCompatButton button;
 
+    private boolean isUsernameError = false;
+    private boolean isPasswordError = false;
+    private boolean isVerificationError = false;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,12 +143,40 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             userMessage.setText(savedInstance.getString(USER_MESSAGE));
             userMessage.setVisibility(VISIBLE);
         }
-        usernameError.setError(savedInstance.getString(USERNAME_ERROR));
-        passwordError.setError(savedInstance.getString(PASSWORD_ERROR));
-        passwordVerificationError.setError(savedInstance.getString(PASSWORD_VERIFICATION_ERROR));
+        updateUsernameError(savedInstance.getString(USERNAME_ERROR));
+        updatePasswordError(savedInstance.getString(PASSWORD_ERROR));
+        updateVerificationError(savedInstance.getString(PASSWORD_VERIFICATION_ERROR));
         if (savedInstance.getString(ACTIVITY_STATE) != null) {
             mConfigState.setAction(savedInstance.getString(ACTIVITY_STATE));
         }
+    }
+
+    private void updateUsernameError(String usernameErrorString) {
+        usernameError.setError(usernameErrorString);
+        isUsernameError = usernameErrorString != null;
+        updateButton();
+    }
+
+    private void updatePasswordError(String passwordErrorString) {
+        passwordError.setError(passwordErrorString);
+        isPasswordError = passwordErrorString != null;
+        updateButton();
+    }
+
+    private void updateVerificationError(String verificationErrorString) {
+        passwordVerificationError.setError(verificationErrorString);
+        isVerificationError = verificationErrorString != null;
+        updateButton();
+    }
+
+    private void updateButton() {
+        button.setEnabled(!isPasswordError &&
+                !isUsernameError &&
+                !isVerificationError &&
+                !isEmpty(passwordField.getText()) &&
+                !isEmpty(usernameField.getText()) &&
+                !(passwordVerificationField.getVisibility() == VISIBLE &&
+                getPasswordVerification().length() == 0));
     }
 
     @Override
@@ -245,9 +279,9 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             public void afterTextChanged(Editable s) {
                 if (getUsername().equalsIgnoreCase("")) {
                     s.clear();
-                    usernameError.setError(getString(R.string.username_ask));
+                    updateUsernameError(getString(R.string.username_ask));
                 } else {
-                    usernameError.setError(null);
+                    updateUsernameError(null);
                     String suffix = "@" + provider.getDomain();
                     if (!usernameField.getText().toString().endsWith(suffix)) {
                         s.append(suffix);
@@ -281,9 +315,9 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             @Override
             public void afterTextChanged(Editable s) {
                 if(getPassword().length() < 8) {
-                    passwordError.setError(getString(R.string.error_not_valid_password_user_message));
+                    updatePasswordError(getString(R.string.error_not_valid_password_user_message));
                 } else {
-                    passwordError.setError(null);
+                    updatePasswordError(null);
                 }
             }
         });
@@ -316,9 +350,9 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             @Override
             public void afterTextChanged(Editable s) {
                 if(getPassword().equals(getPasswordVerification())) {
-                    passwordVerificationError.setError(null);
+                    updateVerificationError(null);
                 } else {
-                    passwordVerificationError.setError(getString(R.string.password_mismatch));
+                    updateVerificationError(getString(R.string.password_mismatch));
                 }
             }
         });
@@ -344,9 +378,9 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     }
 
     private void handleReceivedErrors(Bundle arguments) {
-        if (arguments.containsKey(CREDENTIAL_ERRORS.PASSWORD_INVALID_LENGTH.toString()))
-            passwordError.setError(getString(R.string.error_not_valid_password_user_message));
-        else if (arguments.containsKey(CREDENTIAL_ERRORS.RISEUP_WARNING.toString())) {
+        if (arguments.containsKey(CREDENTIAL_ERRORS.PASSWORD_INVALID_LENGTH.toString())) {
+            updatePasswordError(getString(R.string.error_not_valid_password_user_message));
+        } else if (arguments.containsKey(CREDENTIAL_ERRORS.RISEUP_WARNING.toString())) {
             userMessage.setVisibility(VISIBLE);
             userMessage.setText(R.string.login_riseup_warning);
         }
@@ -355,7 +389,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
             usernameField.setText(username);
         }
         if (arguments.containsKey(CREDENTIAL_ERRORS.USERNAME_MISSING.toString())) {
-            usernameError.setError(getString(R.string.username_ask));
+            updateUsernameError(getString(R.string.username_ask));
         }
         if (arguments.containsKey(USER_MESSAGE)) {
             String userMessageString = arguments.getString(USER_MESSAGE);
