@@ -17,8 +17,6 @@
 
 package se.leap.bitmaskclient;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -48,19 +46,18 @@ import butterknife.OnItemClick;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 
 import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_ADD_PROVIDER;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
-import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
-import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
-import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
+import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PENDING_SHOW_FAILED_DIALOG;
+import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PROVIDER_NOT_SET;
+import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
+import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SHOWING_PROVIDER_DETAILS;
+import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SHOW_FAILED_DIALOG;
 
 /**
  * abstract base Activity that builds and shows the list of known available providers.
@@ -74,7 +71,7 @@ import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
  */
 
 public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
-        implements ProviderSetupFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
+        implements ProviderSetupInterface, ProviderSetupFailedDialog.DownloadFailedDialogInterface, ProviderAPIResultReceiver.Receiver {
 
     @InjectView(R.id.provider_list)
     protected ListView providerListView;
@@ -82,23 +79,17 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     protected ProviderListAdapter adapter;
 
     private ProviderManager providerManager;
-    protected Intent configState = new Intent(PROVIDER_NOT_SET);
 
     final public static String TAG = ProviderListActivity.class.getSimpleName();
 
     final private static String ACTIVITY_STATE = "ACTIVITY STATE";
 
-    final protected static String PROVIDER_NOT_SET = "PROVIDER NOT SET";
-    final protected static String SETTING_UP_PROVIDER = "PROVIDER GETS SET";
-    final private static String SHOWING_PROVIDER_DETAILS = "SHOWING PROVIDER DETAILS";
-    final private static String PENDING_SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG PENDING";
-    final private static String SHOW_FAILED_DIALOG = "SHOW FAILED DIALOG";
+    protected ProviderConfigState providerConfigState = PROVIDER_NOT_SET;
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
-    final protected static String SERVICES_RETRIEVED = "SERVICES RETRIEVED";
     final protected static String EXTRAS_KEY_INVALID_URL = "INVALID_URL";
 
     public ProviderAPIResultReceiver providerAPIResultReceiver;
-    private ProviderAPIBroadcastReceiver providerAPIBroadcastReceiver;
+    private ProviderApiSetupBroadcastReceiver providerAPIBroadcastReceiver;
 
     private FragmentManagerEnhanced fragmentManager;
 
@@ -120,7 +111,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
     @Override
     public void onSaveInstanceState(@NotNull Bundle outState) {
-        outState.putString(ACTIVITY_STATE, configState.getAction());
+        outState.putString(ACTIVITY_STATE, providerConfigState.toString());
         outState.putString(REASON_TO_FAIL, reasonToFail);
 
         super.onSaveInstanceState(outState);
@@ -131,7 +122,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         if (savedInstanceState == null) {
             return;
         }
-        configState.setAction(savedInstanceState.getString(ACTIVITY_STATE, PROVIDER_NOT_SET));
+        this.providerConfigState = ProviderConfigState.valueOf(savedInstanceState.getString(ACTIVITY_STATE, PROVIDER_NOT_SET.toString()));
         if (savedInstanceState.containsKey(REASON_TO_FAIL)) {
             reasonToFail = savedInstanceState.getString(REASON_TO_FAIL);
         }
@@ -140,6 +131,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
         providerManager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
 
@@ -150,19 +142,19 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
     @Override
     protected void onResume() {
-        Log.d(TAG, "resuming with ConfigState: " + configState.getAction());
+        Log.d(TAG, "resuming with ConfigState: " + providerConfigState.toString());
         super.onResume();
         setUpProviderAPIResultReceiver();
         isActivityShowing = true;
-        if (SETTING_UP_PROVIDER.equals(configState.getAction())) {
+        if (SETTING_UP_PROVIDER == providerConfigState) {
             showProgressBar();
             checkProviderSetUp();
-        } else if (PENDING_SHOW_FAILED_DIALOG.equals(configState.getAction())) {
+        } else if (PENDING_SHOW_FAILED_DIALOG == providerConfigState) {
             showProgressBar();
             showDownloadFailedDialog();
-        } else if (SHOW_FAILED_DIALOG.equals(configState.getAction())) {
+        } else if (SHOW_FAILED_DIALOG == providerConfigState) {
             showProgressBar();
-        } else if (SHOWING_PROVIDER_DETAILS.equals(configState.getAction())) {
+        } else if (SHOWING_PROVIDER_DETAILS == providerConfigState) {
             cancelSettingUpProvider();
         }
     }
@@ -223,38 +215,50 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
     private void setUpProviderAPIResultReceiver() {
         providerAPIResultReceiver = new ProviderAPIResultReceiver(new Handler(), this);
-        providerAPIBroadcastReceiver = new ProviderAPIBroadcastReceiver();
+        providerAPIBroadcastReceiver = new ProviderApiSetupBroadcastReceiver(this);
 
         IntentFilter updateIntentFilter = new IntentFilter(BROADCAST_PROVIDER_API_EVENT);
         updateIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         LocalBroadcastManager.getInstance(this).registerReceiver(providerAPIBroadcastReceiver, updateIntentFilter);
     }
 
-    void handleProviderSetUp(Provider handledProvider) {
+    @Override
+    public void handleProviderSetUp(Provider handledProvider) {
         this.provider = handledProvider;
         adapter.add(provider);
         adapter.saveProviders();
         if (provider.allowsAnonymous()) {
-            configState.putExtra(SERVICES_RETRIEVED, true);
+            //FIXME: providerApiBroadcastReceiver.getConfigState().putExtra(SERVICES_RETRIEVED, true); DEAD CODE???
             downloadVpnCertificate();
         } else {
             showProviderDetails();
         }
     }
 
-    void handleProviderSetupFailed(Bundle resultData) {
+    @Override
+    public void handleProviderSetupFailed(Bundle resultData) {
         reasonToFail = resultData.getString(ERRORS);
         showDownloadFailedDialog();
     }
 
-    void handleCorrectlyDownloadedCertificate(Provider handledProvider) {
+    @Override
+    public void handleCorrectlyDownloadedCertificate(Provider handledProvider) {
         this.provider = handledProvider;
         showProviderDetails();
     }
 
-    void handleIncorrectlyDownloadedCertificate() {
+    @Override
+    public void handleIncorrectlyDownloadedCertificate() {
         cancelSettingUpProvider();
-        setResult(RESULT_CANCELED, configState);
+        setResult(RESULT_CANCELED, new Intent(getConfigState().toString()));
+    }
+
+    public Provider getProvider() {
+        return provider;
+    }
+
+    public ProviderConfigState getConfigState() {
+        return providerConfigState;
     }
 
     @Override
@@ -270,8 +274,8 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
     @OnItemClick(R.id.provider_list)
     void onItemSelected(int position) {
-        if (SETTING_UP_PROVIDER.equals(configState.getAction()) ||
-                SHOW_FAILED_DIALOG.equals(configState.getAction())) {
+        if (SETTING_UP_PROVIDER == getConfigState() ||
+                SHOW_FAILED_DIALOG == getConfigState()) {
             return;
         }
 
@@ -279,7 +283,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
         provider = adapter.getItem(position);
         if (provider != null && !provider.isDefault()) {
             //TODO Code 2 pane view
-            configState.setAction(SETTING_UP_PROVIDER);
+            providerConfigState = SETTING_UP_PROVIDER;
             showProgressBar();
             onItemSelectedLogic();
         } else {
@@ -289,8 +293,8 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
     @Override
     public void onBackPressed() {
-        if (SETTING_UP_PROVIDER.equals(configState.getAction()) ||
-                SHOW_FAILED_DIALOG.equals(configState.getAction())) {
+        if (SETTING_UP_PROVIDER == providerConfigState ||
+                SHOW_FAILED_DIALOG == providerConfigState) {
             cancelSettingUpProvider();
         } else {
             super.onBackPressed();
@@ -299,14 +303,14 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
 
     @Override
     public void cancelSettingUpProvider() {
-        configState.setAction(PROVIDER_NOT_SET);
+        providerConfigState = PROVIDER_NOT_SET;
         provider = null;
         hideProgressBar();
     }
 
     @Override
     public void updateProviderDetails() {
-        configState.setAction(SETTING_UP_PROVIDER);
+        providerConfigState = SETTING_UP_PROVIDER;
         ProviderAPICommand.execute(this, UPDATE_PROVIDER_DETAILS, provider);
     }
 
@@ -346,7 +350,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
      */
     public void showDownloadFailedDialog() {
         try {
-            configState.setAction(SHOW_FAILED_DIALOG);
+            providerConfigState = SHOW_FAILED_DIALOG;
             FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(ProviderSetupFailedDialog.TAG);
             DialogFragment newFragment;
             try {
@@ -362,7 +366,7 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
             newFragment.show(fragmentTransaction, ProviderSetupFailedDialog.TAG);
         } catch (IllegalStateException e) {
             e.printStackTrace();
-            configState.setAction(PENDING_SHOW_FAILED_DIALOG);
+            providerConfigState = PENDING_SHOW_FAILED_DIALOG;
         }
     }
 
@@ -373,52 +377,13 @@ public abstract class ProviderListBaseActivity extends ConfigWizardBaseActivity
      */
     public void showProviderDetails() {
         // show only if current activity is shown
-        if (isActivityShowing && configState.getAction() != null &&
-                !configState.getAction().equalsIgnoreCase(SHOWING_PROVIDER_DETAILS)) {
-            configState.setAction(SHOWING_PROVIDER_DETAILS);
+        if (isActivityShowing &&
+                providerConfigState != SHOWING_PROVIDER_DETAILS) {
+            providerConfigState = SHOWING_PROVIDER_DETAILS;
             Intent intent = new Intent(this, ProviderDetailActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             intent.putExtra(PROVIDER_KEY, provider);
             startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
-        }
-    }
-
-    public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "received Broadcast");
-
-            String action = intent.getAction();
-            if (action == null || !action.equalsIgnoreCase(BROADCAST_PROVIDER_API_EVENT)) {
-                return;
-            }
-
-            if (configState.getAction() != null &&
-                    configState.getAction().equalsIgnoreCase(SETTING_UP_PROVIDER)) {
-                int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, RESULT_CANCELED);
-                Log.d(TAG, "Broadcast resultCode: " + Integer.toString(resultCode));
-
-                Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
-                Provider handledProvider = resultData.getParcelable(PROVIDER_KEY);
-
-                if (handledProvider != null && provider != null &&
-                        handledProvider.getDomain().equalsIgnoreCase(provider.getDomain())) {
-                    switch (resultCode) {
-                        case PROVIDER_OK:
-                            handleProviderSetUp(handledProvider);
-                            break;
-                        case PROVIDER_NOK:
-                            handleProviderSetupFailed(resultData);
-                            break;
-                        case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
-                            handleCorrectlyDownloadedCertificate(handledProvider);
-                            break;
-                        case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
-                            handleIncorrectlyDownloadedCertificate();
-                            break;
-                    }
-                }
-            }
         }
     }
 }

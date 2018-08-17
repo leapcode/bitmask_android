@@ -18,10 +18,8 @@ package se.leap.bitmaskclient;
 
 import android.support.annotation.NonNull;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
+import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -44,13 +42,13 @@ public class ProviderListActivity extends ProviderListBaseActivity {
      *
      */
     public void setUpProvider() {
-        configState.setAction(SETTING_UP_PROVIDER);
+        providerConfigState = SETTING_UP_PROVIDER;
         ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
     }
 
     @Override
     public void retrySetUpProvider(@NonNull Provider provider) {
-        configState.setAction(SETTING_UP_PROVIDER);
+        providerConfigState = SETTING_UP_PROVIDER;
         ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
     }
 
