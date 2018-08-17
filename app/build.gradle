@@ -44,7 +44,7 @@ android {
     }
   }
 
-  flavorDimensions "mode","implementation"
+  flavorDimensions "branding", "implementation"
   productFlavors {
     production {
       dimension "implementation"
@@ -53,15 +53,19 @@ android {
       dimension "implementation"
     }
     normal {
-      dimension "mode"
+      dimension "branding"
     }
+
+
+    //**************************************************************************
+    //**************************************************************************
     //Configurations for custom branded app.
     custom {
-      dimension "mode"
+      dimension "branding"
       //Change the package name as needed
-      applicationId "org.sample.custom"
+      applicationId "net.riseup.black"
       //Set app name here
-      appName = "Custom"
+      appName = "Riseup VPN"
       resValue "string", "app_name", appName
       //Change the versionCode as needed
       versionCode 1
@@ -78,8 +82,10 @@ android {
       buildConfigField 'boolean', 'enable_donation_reminder', 'true'
       //The duration in days to trigger the donation reminder
       buildConfigField 'int', 'donation_reminder_duration', '30'
-
     }
+    //**************************************************************************
+    //**************************************************************************
+
   }
 
   buildTypes {
