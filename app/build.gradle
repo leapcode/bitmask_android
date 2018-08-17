@@ -161,6 +161,7 @@ dependencies {
   implementation 'com.android.support:support-fragment:27.0.2'
   implementation 'com.android.support.constraint:constraint-layout:1.0.2'
   implementation 'com.android.support:multidex:1.0.2'
+  implementation 'com.android.support:cardview-v7:27.0.2'
 }
 
 // Ensure the no-op dependency is always used in JVM tests.
