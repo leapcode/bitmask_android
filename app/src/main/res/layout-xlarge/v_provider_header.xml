@@ -9,7 +9,7 @@
         android:layout_width="@dimen/bitmask_logo"
         android:layout_height="@dimen/bitmask_logo"
         android:adjustViewBounds="true"
-        app:srcCompat="@drawable/mask" />
+        app:srcCompat="@drawable/logo" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/provider_header_text"

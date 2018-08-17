@@ -18,7 +18,7 @@ public class SignupActivity extends ProviderCredentialsBaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setProviderHeaderLogo(R.drawable.mask);
+        setProviderHeaderLogo(R.drawable.logo);
         setProviderHeaderText(R.string.create_profile);
 
         setProgressbarText(R.string.signing_up);
