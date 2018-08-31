@@ -11,9 +11,12 @@ android {
 
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
+    versionCode 134
+    versionName "0.9.8"
     resValue "string", "app_name", appName
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
+
 
     //Build Config Fields for default donation details
 
@@ -28,6 +31,11 @@ android {
     buildConfigField 'boolean', 'enable_donation_reminder', 'true'
     //The duration in days to trigger the donation reminder
     buildConfigField 'int', 'donation_reminder_duration', '30'
+    //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
+    buildConfigField 'boolean', 'priotize_anonymous_usage', 'false'
+    //ignore the following config, only used in custom flavor
+    buildConfigField "String", "customProviderUrl", '""'
+
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     dexOptions {
       jumboMode true
@@ -57,20 +65,28 @@ android {
     }
 
 
-    //**************************************************************************
-    //**************************************************************************
-    //Configurations for custom branded app.
     custom {
       dimension "branding"
+
+      //**************************************************************************
+      //**************************************************************************
+      //Configurations for custom branded app.
+
       //Change the package name as needed
       applicationId "net.riseup.black"
       //Set app name here
       appName = "Riseup VPN"
       resValue "string", "app_name", appName
+      //Provider base url, e.g. '"https://example.com"'
+      def customProviderUrl = '"https://riseup.net"'
+      buildConfigField "String", "customProviderUrl", customProviderUrl
       //Change the versionCode as needed
       versionCode 1
       //Change the versionName as needed
       versionName "1.0"
+
+      //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
+      buildConfigField 'boolean', 'priotize_anonymous_usage', 'true'
 
       //Build Config Fields for default donation details
 
@@ -82,10 +98,11 @@ android {
       buildConfigField 'boolean', 'enable_donation_reminder', 'true'
       //The duration in days to trigger the donation reminder
       buildConfigField 'int', 'donation_reminder_duration', '30'
-    }
-    //**************************************************************************
-    //**************************************************************************
 
+      //**************************************************************************
+      //**************************************************************************
+
+    }
   }
 
   buildTypes {

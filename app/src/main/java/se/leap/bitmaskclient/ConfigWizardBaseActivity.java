@@ -12,7 +12,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.constraint.Guideline;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatTextView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -72,6 +71,8 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     protected Provider provider;
 
     protected boolean isCompactLayout = false;
+    protected boolean isActivityShowing;
+
     private float defaultGuidelineTopPercentage;
     private float defaultGuidelineBottomPercentage;
 
@@ -79,7 +80,6 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-
         provider = getIntent().getParcelableExtra(PROVIDER_KEY);
     }
 
@@ -133,6 +133,18 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
         if (provider != null) {
             outState.putParcelable(PROVIDER_KEY, provider);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isActivityShowing = false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isActivityShowing = true;
     }
 
     protected void restoreState(Bundle savedInstanceState) {

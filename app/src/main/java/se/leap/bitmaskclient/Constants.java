@@ -30,6 +30,8 @@ public interface Constants {
 
     String APP_ACTION_QUIT = "quit";
     String APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE = "configure always-on profile";
+    String DEFAULT_BITMASK = "normal";
+    String CUSTOM_BITMASK = "custom";
 
 
     //////////////////////////////////////////////

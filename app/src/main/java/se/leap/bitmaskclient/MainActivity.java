@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
                     EipCommand.stopVPN(this);
                     break;
                 case REQUEST_CODE_CONFIGURE_LEAP:
+                    Log.d(TAG, "REQUEST_CODE_CONFIGURE_LEAP - onActivityResult - MainActivity");
                     break;
                 case REQUEST_CODE_LOG_IN:
                     EipCommand.startVPN(this, true);

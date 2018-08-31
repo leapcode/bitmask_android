@@ -58,14 +58,17 @@ import se.leap.bitmaskclient.views.VpnStateImage;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
+import static se.leap.bitmaskclient.Constants.DEFAULT_BITMASK;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
+import static se.leap.bitmaskclient.utils.ConfigHelper.isDefaultBitmask;
 
 public class EipFragment extends Fragment implements Observer {
 
@@ -113,18 +116,30 @@ public class EipFragment extends Fragment implements Observer {
             if (arguments != null) {
                 provider = arguments.getParcelable(PROVIDER_KEY);
                 if (provider == null) {
-                    activity.startActivityForResult(new Intent(activity, ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
+                    handleNoProvider(activity);
                 } else {
                     Log.d(TAG, provider.getName() + " configured as provider");
                 }
             } else {
-                Log.e(TAG, "no provider given - starting ProviderListActivity");
-                activity.startActivityForResult(new Intent(activity, ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
+                handleNoProvider(activity);
             }
         }
     }
 
-    @Override
+    private void handleNoProvider(Activity activity) {
+        if (isDefaultBitmask()) {
+            activity.startActivityForResult(new Intent(activity, ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
+        } else {
+            Log.e(TAG, "no provider given - try to reconfigure custom provider");
+            startActivityForResult(new Intent(activity, CustomProviderSetupActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
+
+        }
+
+    }
+
+
+
+        @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         openVpnConnection = new EipFragmentServiceConnection();

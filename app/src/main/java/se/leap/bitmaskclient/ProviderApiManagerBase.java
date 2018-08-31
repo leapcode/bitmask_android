@@ -145,6 +145,7 @@ public abstract class ProviderApiManagerBase {
         Provider provider = command.getParcelableExtra(PROVIDER_KEY);
 
         if (provider == null) {
+            //TODO: consider returning error back e.g. NO_PROVIDER
             Log.e(TAG, action +" called without provider!");
             return;
         }

@@ -73,7 +73,7 @@ public class TLSCompatSocketFactory extends SSLSocketFactory {
 
         trustManager = trustManagers[0];
 
-        // Create an SSLContext that uses our TrustManager
+        // Create a SSLContext that uses our TrustManager
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, tmf.getTrustManagers(), null);
         internalSSLSocketFactory = sslContext.getSocketFactory();

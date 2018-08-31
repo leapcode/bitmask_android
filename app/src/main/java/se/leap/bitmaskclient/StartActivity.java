@@ -18,6 +18,7 @@ import se.leap.bitmaskclient.userstatus.User;
 import se.leap.bitmaskclient.utils.ConfigHelper;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
+import static se.leap.bitmaskclient.Constants.DEFAULT_BITMASK;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
@@ -25,6 +26,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
+import static se.leap.bitmaskclient.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.providerInSharedPreferences;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.storeProviderInPreferences;
@@ -181,7 +183,11 @@ public class StartActivity extends Activity{
         if (getIntent().hasExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
             getIntent().removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
         }
-        startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
+        if (isDefaultBitmask()) {
+            startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
+        } else { // custom branded app
+            startActivityForResult(new Intent(this, CustomProviderSetupActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
+        }
     }
 
     @Override

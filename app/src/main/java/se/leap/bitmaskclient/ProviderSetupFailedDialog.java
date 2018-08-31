@@ -171,8 +171,8 @@ public class ProviderSetupFailedDialog extends DialogFragment {
 
     @Override
     public void onCancel(DialogInterface dialog) {
-        interfaceWithConfigurationWizard.cancelSettingUpProvider();
         dialog.dismiss();
+        interfaceWithConfigurationWizard.cancelSettingUpProvider();
     }
 
     @Override

@@ -40,7 +40,10 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.ProviderAPI;
+
+import static se.leap.bitmaskclient.Constants.DEFAULT_BITMASK;
 
 /**
  * Stores constants, and implements auxiliary methods used across all Bitmask Android classes.
@@ -167,4 +170,11 @@ public class ConfigHelper {
         }
     }
 
+    public static boolean isDefaultBitmask() {
+        return BuildConfig.FLAVOR_branding.equals(DEFAULT_BITMASK);
+    }
+
+    public static boolean preferAnonymousUsage() {
+        return BuildConfig.priotize_anonymous_usage;
+    }
 }
