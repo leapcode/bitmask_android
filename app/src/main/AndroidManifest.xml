@@ -15,10 +15,8 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="se.leap.bitmaskclient"
-    android:versionCode="134"
-    android:versionName="0.9.8" >
-
+    package="se.leap.bitmaskclient">
+    <!-- package is overwritten in build.gradle -->
     <uses-sdk
         android:minSdkVersion="16"
         android:targetSdkVersion="27" />
@@ -92,6 +90,10 @@
         <activity
             android:name=".ProviderListActivity"
             android:label="@string/configuration_wizard_title" />
+
+        <activity
+            android:name=".CustomProviderSetupActivity"
+            android:label="@string/setup_provider" />
 
         <activity
             android:name=".AddProviderActivity"

@@ -50,7 +50,6 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 
-import se.leap.bitmaskclient.utils.ConfigHelper;
 import se.leap.bitmaskclient.DrawerSettingsAdapter;
 import se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem;
 import se.leap.bitmaskclient.EipFragment;
@@ -64,11 +63,11 @@ import se.leap.bitmaskclient.fragments.LogFragment;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
+import static se.leap.bitmaskclient.Constants.DONATION_URL;
+import static se.leap.bitmaskclient.Constants.ENABLE_DONATION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.Constants.DONATION_URL;
-import static se.leap.bitmaskclient.Constants.ENABLE_DONATION;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.ABOUT;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.ALWAYS_ON;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.BATTERY_SAVER;
@@ -78,14 +77,15 @@ import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.get
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.LOG;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
+import static se.leap.bitmaskclient.R.string.donate_title;
 import static se.leap.bitmaskclient.R.string.log_fragment_title;
 import static se.leap.bitmaskclient.R.string.switch_provider_menu_option;
+import static se.leap.bitmaskclient.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getProviderName;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSaveBattery;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.saveBattery;
-import static se.leap.bitmaskclient.R.string.donate_title;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -286,7 +286,9 @@ public class NavigationDrawerFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             settingsListAdapter.addItem(getSimpleTextInstance(getString(R.string.always_on_vpn), ALWAYS_ON));
         }
-        settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
+        if (isDefaultBitmask()) {
+            settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
+        }
         settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
         if (ENABLE_DONATION) {
             settingsListAdapter.addItem(getSimpleTextInstance(getString(donate_title), DONATE));

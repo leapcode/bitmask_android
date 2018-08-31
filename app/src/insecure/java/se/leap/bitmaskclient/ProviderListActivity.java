@@ -27,6 +27,7 @@ import java.net.URL;
 import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
 import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
+import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
 
 /**
  * Activity that builds and shows the list of known available providers.
@@ -56,7 +57,7 @@ public class ProviderListActivity extends ProviderListBaseActivity {
      * @param danger_on tells if HTTPS client should bypass certificate errors
      */
     public void setUpProvider(boolean danger_on) {
-        configState.setAction(SETTING_UP_PROVIDER);
+        providerConfigState = SETTING_UP_PROVIDER;
 
         Bundle parameters = new Bundle();
         parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
@@ -69,7 +70,7 @@ public class ProviderListActivity extends ProviderListBaseActivity {
      */
     @Override
     public void retrySetUpProvider(@NonNull Provider provider) {
-        configState.setAction(SETTING_UP_PROVIDER);
+        providerConfigState = SETTING_UP_PROVIDER;
         ProviderAPICommand.execute(this, SET_UP_PROVIDER, provider);
     }
 
