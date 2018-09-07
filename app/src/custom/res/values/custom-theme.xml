@@ -2,11 +2,11 @@
 <resources>
     <!--Colors-->
     <!--Color of the action bar-->
-    <color name="colorPrimary">#b39ddb</color>
+    <color name="colorPrimary">#5e9ee3</color>
     <!--Color of the status bar-->
-    <color name="colorPrimaryDark">#ac97d2</color>
+    <color name="colorPrimaryDark">#5c7ce1</color>
     <!--Font color of the action bar title-->
     <color name="colorActionBarTitleFont">#ffffff</color>
     <!--Font color of the action bar subtitle-->
-    <color name="colorActionBarSubtitleFont">#000000</color>
+    <color name="colorActionBarSubtitleFont">#cccccc</color>
 </resources>

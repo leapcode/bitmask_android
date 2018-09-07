@@ -23,6 +23,15 @@
             android:layout_height="12sp" />
 
         <TextView
+            android:id="@+id/terms_of_service"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoLink="all"
+            android:visibility="gone"
+            android:paddingBottom="12dp"
+            />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp"

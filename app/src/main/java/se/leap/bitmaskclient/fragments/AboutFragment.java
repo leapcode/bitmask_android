@@ -11,7 +11,10 @@ import android.widget.TextView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
+
+import static android.view.View.VISIBLE;
 
 public class AboutFragment extends Fragment {
 
@@ -20,6 +23,9 @@ public class AboutFragment extends Fragment {
 
     @InjectView(R.id.version)
     TextView versionTextView;
+
+    @InjectView(R.id.terms_of_service)
+    TextView termsOfService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,6 +49,19 @@ public class AboutFragment extends Fragment {
         }
 
         versionTextView.setText(getString(R.string.version_info, name, version));
+
+        if (BuildConfig.FLAVOR_branding.equals("custom") && hasTermsOfServiceResource()) {
+            termsOfService.setText(getString(getTermsOfServiceResource()));
+            termsOfService.setVisibility(VISIBLE);
+        }
+    }
+
+    private boolean hasTermsOfServiceResource() {
+        return getTermsOfServiceResource() != 0;
+    }
+
+    private int getTermsOfServiceResource() {
+        return this.getContext().getResources().getIdentifier("terms_of_service", "string", this.getContext().getPackageName());
     }
 
 }
