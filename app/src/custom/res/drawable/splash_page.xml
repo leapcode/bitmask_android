@@ -9,13 +9,13 @@
      android:gravity="fill_horizontal|fill_vertical" />
 
  <!--If a foreground image is not need remove this <item> tag-->
- <item>
+ <!--<item> -->
   <!--Replace custom/res/drawable/logo with foreground image-->
   <!--Replace custom/res/drawable-ldpi/logo with foreground image-->
   <!--Replace custom/res/drawable-xxxhdpi/logo with foreground image-->
-  <bitmap
+  <!--<bitmap
       android:src="@drawable/logo"
-      android:gravity="center" />
- </item>
+      android:gravity="center" /> -->
+<!--</item>-->
 
 </layer-list>

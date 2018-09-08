@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
         *****************************************************
-        Background image for the main vpn screem
-        example: <item android:drawable="@drawable/mybackground" />
+        Foreground logo for the drawer header
+        example: <item android:drawable="@drawable/mylogo" />
         *****************************************************
 -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/background_main" />
+    <item android:drawable="@drawable/logo" />
 </layer-list>

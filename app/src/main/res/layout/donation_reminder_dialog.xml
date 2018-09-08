@@ -38,20 +38,12 @@
             android:innerRadius="0dp"
             android:shape="ring"
             app:cardCornerRadius="60dp">
-            <FrameLayout
+            <ImageView
+                android:id="@+id/donation_logo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/background_main"
-                >
-                <ImageView
-                    android:id="@+id/ivImg"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:scaleType="centerInside"
-                    android:layout_marginBottom="@dimen/add_button_margin"
-                    android:layout_marginTop="@dimen/add_button_margin"
-                    android:src="@drawable/logo" />
-            </FrameLayout>
+                android:scaleType="centerCrop"
+                android:src="@drawable/donation_img" />
         </android.support.v7.widget.CardView>
 
 

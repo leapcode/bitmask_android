@@ -72,7 +72,7 @@ android {
       //**************************************************************************
       //Configurations for custom branded app.
 
-      //Change the package name as needed
+      //Change the package name as needed, e.g. "org.example.myapp"
       applicationId "net.riseup.black"
       //Set app name here
       appName = "Riseup VPN"
@@ -91,7 +91,7 @@ android {
       //Build Config Fields for default donation details
 
       //This is the donation URL and should be set to the relevant donation page.
-      buildConfigField 'String', 'donation_url', '"https://leap.se/en/about-us/donate"'
+      buildConfigField 'String', 'donation_url', '"https://riseup.net/vpn/donate"'
       //The field to enable donations in the app.
       buildConfigField 'boolean', 'enable_donation', 'true'
       //The field to enable donation reminder popup in the app if enable_donation is set to 'false' this will be disabled.

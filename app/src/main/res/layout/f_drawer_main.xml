@@ -11,7 +11,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="150dp">
 
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/background"
@@ -23,10 +23,11 @@
             app:srcCompat="@drawable/background_drawer" />
 
         <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/mask"
+            android:id="@+id/foreground"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/logo" />
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/drawer_logo" />
     </FrameLayout>
     <RelativeLayout
         android:layout_width="match_parent"
