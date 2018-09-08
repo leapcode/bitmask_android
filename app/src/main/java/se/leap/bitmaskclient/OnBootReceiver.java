@@ -36,14 +36,14 @@ public class OnBootReceiver extends BroadcastReceiver {
             }
             if (startOnBoot) {
                 Log.d("OpenVpn", "start StartActivity!");
-                Intent startActivityIntent = new Intent(context, StartActivity.class);
+                Intent startActivityIntent = new Intent(context.getApplicationContext(), StartActivity.class);
                 startActivityIntent.putExtra(EIP_RESTART_ON_BOOT, true);
                 startActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(startActivityIntent);
             }
         } else {
             if (isAlwaysOnConfigured) {
-                Intent dashboardIntent = new Intent(context, StartActivity.class);
+                Intent dashboardIntent = new Intent(context.getApplicationContext(), StartActivity.class);
                 dashboardIntent.putExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE, true);
                 dashboardIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(dashboardIntent);
