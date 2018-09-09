@@ -116,16 +116,3 @@ build_release:
     paths:
     - app/build/outputs/
   when: manual
-
-  build_custom_release:
-    image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
-    stage: build
-    script:
-      - ./cleanProject.sh
-      - ./build_deps.sh
-      - ./gradlew assembleCustomRelease --stacktrace
-      - ./gradlew assembleCustomBeta --stacktrace
-    artifacts:
-      paths:
-      - app/build/outputs/
-    when: manual
