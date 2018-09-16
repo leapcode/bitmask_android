@@ -85,7 +85,7 @@
   <string name="vpn.button.turn.off">Turn off</string>
   <string name="vpn_button_turn_off_blocking">Stop blocking</string>
   <string name="vpn_securely_routed">Your traffic is securely routed through:</string>
-  <string name="vpn_securely_routed_no_internet">No internet connection. Your traffic will be securely routed through:</string>
+  <string name="vpn_securely_routed_no_internet">No internet connection detected, when it comes back we'll route your traffic securely through:</string>
   <string name="bitmask_log">Bitmask Log</string>
   <string name="title_activity_main">Bitmask</string>
   <string name="log_fragment_title">Log</string>
