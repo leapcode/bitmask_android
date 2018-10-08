@@ -85,6 +85,7 @@
   <string name="vpn.button.turn.off">Apagar</string>
   <string name="vpn_button_turn_off_blocking">Deixar de bloquear</string>
   <string name="vpn_securely_routed">O seu tráfico está securizado a través de:</string>
+  <string name="vpn_securely_routed_no_internet">Non se detectou conexión a internet, cando volte enrutaremos o seu tráfico de xeito seguro a través de:</string>
   <string name="bitmask_log">Rexistro Bitmask</string>
   <string name="title_activity_main">Bitmask</string>
   <string name="log_fragment_title">Rexistro</string>
@@ -107,4 +108,14 @@
   <string name="downloading_vpn_certificate_failed">Fallou a descarga do certificado do VPN. Inténteo de novo ou escolla outro provedor.</string>
   <string name="vpn_certificate_is_invalid">O certificado do VPN non é válido. Intente descargar un novo.</string>
   <string name="vpn_certificate_user_message">O certificado VPN non é válido. Por favor conéctese para descargar un novo.</string>
+  <string name="save_battery">Aforro de batería</string>
+  <string name="save_battery_message">As conexións de datos en segundo plano hibernarán cando o móbil estea inactivo.</string>
+  <string name="always_on_vpn">VPN sempre activa</string>
+  <string name="do_not_show_again">Non mostrar de novo.</string>
+  <string name="always_on_vpn_user_message">Para activar VPN sempre-activa nos Axustes Android VPN pulse na icona de configuración [img src] e active a opción\".</string>
+  <string name="donate_title">Doar</string>
+  <string name="donate_default_message">Considere doar agora si valora a comunicación segura que é sinxela para a usuaria final e a proveedora do servizo.</string>
+  <string name="donate_message">LEAP depende das doazóns e contribucións. Por favor, doe agroa si valora a comunicación segura que é sinxela tanto para a usuaria final como a proveedora do servizo.</string>
+  <string name="donate_button_remind_later">Lembramo máis tarde</string>
+  <string name="donate_button_donate">Doar</string>
 </resources>

@@ -17,7 +17,7 @@
   <string name="eip_service_label">دسترسی کدگزاری شده به اینترنت با وی‌پی‌ان</string>
   <string name="configuration_wizard_title">انتخاب سرویس ارائه‌دهنده</string>
   <string name="add_provider">اضافه کردن ارائه‌دهنده جدید</string>
-  <string name="introduce_new_provider">ارائه‌دهنده‌ی سروریس جدید وارد کنید</string>
+  <string name="introduce_new_provider">ارائه‌دهنده‌ی سرویس جدید وارد کنید</string>
   <string name="save">ذخیره</string>
   <string name="new_provider_uri">نام دامنه</string>
   <string name="valid_url_entered">URL معتبر است</string>
@@ -85,6 +85,7 @@
   <string name="vpn.button.turn.off">خاموش کردن</string>
   <string name="vpn_button_turn_off_blocking">توقف مسدود کردن</string>
   <string name="vpn_securely_routed">ترافیک شما به صورت امن از اینجا گذشته است:</string>
+  <string name="vpn_securely_routed_no_internet">ارتباط با اینترنت وجود ندارد. پس از برقراری مجدد، ما ترافیک شما را به شکل امن از این مسیر هدایت خواهیم کرد:</string>
   <string name="bitmask_log">لاگ بیتمسک</string>
   <string name="title_activity_main">بیتمسک</string>
   <string name="log_fragment_title">لاگ</string>
@@ -107,4 +108,14 @@
   <string name="downloading_vpn_certificate_failed">ناموفق در دریافت گواهی وی‌پی‌ان. لطفا دوباره تلاش کنید و یا ارائه‌دهنده دیگری را انتخاب کنید.</string>
   <string name="vpn_certificate_is_invalid">گواهی وی‌پی‌ان نامعتبر است. تلاش کنید که گواهی جدیدی دریافت کنید.</string>
   <string name="vpn_certificate_user_message">گواهی وی‌پی‌ان نامعتبر است. لطفا برای دریافت گواهی جدید وارد شوید. </string>
+  <string name="save_battery">صرفه جویی در باطری</string>
+  <string name="save_battery_message">هنگامی که تلفن شما غیر فعال است، ارتباط اطلاعات پشت صحنه غیر فعال می‌شود.</string>
+  <string name="always_on_vpn">وی پی ان در حالت همیشه روشن</string>
+  <string name="do_not_show_again">دوباره نشان نده</string>
+  <string name="always_on_vpn_user_message">برای روشن کردن VPN همیشه فعال، در تنظیمات VPN آندروید روی آیکون [img src] کلیک کنید و آن را به حالت روشن تغییر دهید.</string>
+  <string name="donate_title">کمک مالی</string>
+  <string name="donate_default_message">اگر برای ارتباطات امن که برای کاربر نهایی و ارائه دهنده سرویس آسان است ارزش قائل هستید، لطفا کمک مالی کنید.</string>
+  <string name="donate_message">LEAP به کمک‌های مالی و وام‌های بلاعوض متکی است. اگر برای ارتباطات امن که برای کاربر نهایی و ارائه دهنده سرویس آسان است ارزش قائل هستید، لطفا کمک مالی کنید.</string>
+  <string name="donate_button_remind_later">بعداً به من یادآوری کن</string>
+  <string name="donate_button_donate">کمک مالی</string>
 </resources>

@@ -9,7 +9,11 @@
   <string name="new_provider_uri">網域名</string>
   <string name="username_hint">用戶名</string>
   <string name="password_hint">密碼</string>
+  <string name="about_fragment_title">關於</string>
   <string name="login_button">登入</string>
   <string name="setup_error_configure_button">設定</string>
   <string name="setup_error_close_button">離開</string>
+  <string name="action_settings">設定</string>
+  <string name="donate_title">捐贈</string>
+  <string name="donate_button_donate">捐贈</string>
 </resources>

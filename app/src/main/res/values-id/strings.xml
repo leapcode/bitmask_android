@@ -17,6 +17,7 @@
   <string name="username_ask">Silakan masukkan nama pengguna anda</string>
   <string name="password_hint">Pasword</string>
   <string name="user_message">Pesan pengguna</string>
+  <string name="about_fragment_title">Tentang</string>
   <string name="error_bad_user_password_user_message">Nama pengguna atau pasword salah</string>
   <string name="error_client_http_user_message">Coba lagi: client HTTP eror</string>
   <string name="error_io_exception_user_message">Coba lagi: kesalahan I/O</string>
@@ -35,4 +36,8 @@
   <string name="eip_cancel_connect_title">Membatalkan sambungan</string>
   <string name="eip_cancel_connect_text">Upaya penyambungan sedang berlangsung. Apakah anda berharap untuk membatalkannya?</string>
   <string name="eip_state_connected">Koneksi aman</string>
+  <string name="log_fragment_title">Log</string>
+  <string name="action_settings">Pengaturan</string>
+  <string name="donate_title">Donasi</string>
+  <string name="donate_button_donate">Donasi</string>
 </resources>

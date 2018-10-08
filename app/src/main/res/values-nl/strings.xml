@@ -66,9 +66,9 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="authentication_failed_message">Authenticatie mislukt.</string>
   <string name="registration_failed_message">Registratie mislukt.</string>
   <string name="eip_status_start_pending">Verbinding wordt geïnitialiseerd</string>
-  <string name="eip_cancel_connect_title">Verbinding annuleren?</string>
+  <string name="eip_cancel_connect_title">Verbinding verbreken?</string>
   <string name="eip_cancel_connect_text">We proberen een verbinding tot stand te brengen. Wil je dit annuleren?</string>
-  <string name="eip.warning.browser_inconsistency">VPN verbinding uitzetten? Wanneer de VPN uitstaat, kan je persoonlijke data lekken naar je internet provider of je lokale netwerk.</string>
+  <string name="eip.warning.browser_inconsistency">VPN verbinding verbreken? Wanneer de VPN uitstaat, kan je persoonlijke data lekken naar je internetprovider of je lokale netwerk.</string>
   <string name="eip_state_not_connected">Uitgeschakeld! Onbeveiligde verbinding!</string>
   <string name="eip_state_connected">Verbinding beveiligd.</string>
   <string name="provider_problem">Het lijkt er op dat er een probleem is met de provider.</string>
@@ -86,7 +86,8 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="vpn.button.turn.on">Aanzetten</string>
   <string name="vpn.button.turn.off">Uitschakelen</string>
   <string name="vpn_button_turn_off_blocking">Stop blokkeren</string>
-  <string name="vpn_securely_routed">Je verkeer wordt veilig geroute door:</string>
+  <string name="vpn_securely_routed">Je verkeer wordt beveiligd gerouteerd door:</string>
+  <string name="vpn_securely_routed_no_internet">Geen internetverbinding gevonden, wanneer deze terugkomt, routeren we uw verkeer veilig via:</string>
   <string name="bitmask_log">Bitmask Log</string>
   <string name="title_activity_main">Bitmask</string>
   <string name="log_fragment_title">Log</string>
@@ -95,7 +96,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="navigation_drawer_close">Sluit navigatiemenu</string>
   <string name="action_example">Voorbeeld</string>
   <string name="action_settings">Instellingen</string>
-  <string name="void_vpn_establish">Bitmaks blokkert alle uitgaande internetverkeer.</string>
+  <string name="void_vpn_establish">Bitmask blokkeert alle uitgaande internetverkeer.</string>
   <string name="void_vpn_error_establish">Niet gelukt om een blokkerende VPN op te zetten.</string>
   <string name="void_vpn_stopped">Gestopt met blokkkeren van alle uitgaande internetverkeer.</string>
   <string name="void_vpn_title">Blokkeert verkeer</string>
@@ -110,5 +111,13 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="vpn_certificate_is_invalid">VPN certificaat is ongeldig. Probeer een nieuw te downloaden.</string>
   <string name="vpn_certificate_user_message">Het VPN certificaat in ongeldig. Gelieve opnieuw in te loggen om een nieuw te downloaden.</string>
   <string name="save_battery">Batterij besparen</string>
-  <string name="save_battery_message">Achtergrond dataverbindingen worden in slaapstand gezet wanneer uw telefoon inactief is. Deze functionaliteit is nog experimenteel.</string>
+  <string name="save_battery_message">Dataverbindingen in de achtergrond worden in slaapstand gezet wanneer uw telefoon inactief is.</string>
+  <string name="always_on_vpn">VPN altijd aan</string>
+  <string name="do_not_show_again">Laat niet meer zien.</string>
+  <string name="always_on_vpn_user_message">Om \"Always-on VPN\" te activeren in de Android VPN instellingen, klik op het configureer pictogram [img src] en schakel aan.</string>
+  <string name="donate_title">Doneren</string>
+  <string name="donate_default_message">Doneer vandaag als je beveiligde communicatie op prijs stelt die zowel eenvoudig is voor de eindgebruikers als de provider. </string>
+  <string name="donate_message">LEAP is afhankelijk van donaties en schenkingen. Doneer nu als je beveiligde communicatie op prijs stelt die zowel eenvoudig is voor de eindgebruikers als de provider. </string>
+  <string name="donate_button_remind_later">Herinner mij later</string>
+  <string name="donate_button_donate">Doneren</string>
 </resources>

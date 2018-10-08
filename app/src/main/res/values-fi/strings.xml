@@ -17,6 +17,7 @@
   <string name="username_ask">Kirjoita käyttäjätunnuksesi</string>
   <string name="password_hint">salasana</string>
   <string name="user_message">Käyttäjäviesti</string>
+  <string name="about_fragment_title">Tietoja</string>
   <string name="error_bad_user_password_user_message">Virheellinen käyttäjätunnus tai salasana.</string>
   <string name="error_client_http_user_message">Yritä uudelleen: Asiakasohjelman HTTP-virhe</string>
   <string name="error_io_exception_user_message">Yritä uudelleen: Siirräntävirhe</string>
@@ -35,4 +36,7 @@
   <string name="eip_cancel_connect_title">Perutaanko yhteys?</string>
   <string name="eip_cancel_connect_text">Yhteysyritys on käynnissä. Haluatko perua sen?</string>
   <string name="eip_state_connected">Yhteys turvattu.</string>
+  <string name="action_settings">Asetukset</string>
+  <string name="donate_title">Lahjoita</string>
+  <string name="donate_button_donate">Lahjoita</string>
 </resources>

@@ -17,6 +17,7 @@
   <string name="username_ask">Unesite Vaše korisničko ime</string>
   <string name="password_hint">Lozinka</string>
   <string name="user_message">Poruka korisnika</string>
+  <string name="about_fragment_title">O nama</string>
   <string name="error_bad_user_password_user_message">Netočno korisničko ime ili lozinka</string>
   <string name="error_client_http_user_message">Pokušajte ponovo: Client HTTP error</string>
   <string name="error_io_exception_user_message">Pokušajte ponovo: I/O error</string>
@@ -35,4 +36,8 @@
   <string name="eip_cancel_connect_title">Prekinuti vezu?</string>
   <string name="eip_cancel_connect_text">U tijeku je pokušaj povezivanja. Želite li ga prekinuti?</string>
   <string name="eip_state_connected">Veza osigurana.</string>
+  <string name="action_settings">Postavke</string>
+  <string name="donate_title">Donirajte</string>
+  <string name="donate_button_remind_later">Podsjeti me kasnije</string>
+  <string name="donate_button_donate">Donirajte</string>
 </resources>

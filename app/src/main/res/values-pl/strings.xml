@@ -16,7 +16,9 @@
   <string name="username_hint">użytkownik</string>
   <string name="username_ask">Wpisz swoją nazwę użytkownika</string>
   <string name="password_hint">hasło</string>
+  <string name="password_mismatch">Hasła się nie zgadzają</string>
   <string name="user_message">Wiadomość użytkownika</string>
+  <string name="about_fragment_title">O aplikacji</string>
   <string name="error_bad_user_password_user_message">Nieprawidłowa nazwa użytkownika lub hasło.</string>
   <string name="error_client_http_user_message">Spróbuj ponownie: błąd klienta HTTP</string>
   <string name="error_io_exception_user_message">Spróbuj ponownie: Błąd I/O </string>
@@ -35,4 +37,9 @@
   <string name="eip_cancel_connect_title">Anulować połączenie?</string>
   <string name="eip_cancel_connect_text">Próba połączenia jest już w toku. Czy chcesz ją anulować?</string>
   <string name="eip_state_connected">Połączenie jest zabezpieczone.</string>
+  <string name="log_fragment_title">Logi</string>
+  <string name="action_settings">Ustawienia</string>
+  <string name="donate_title">Wpłać darowiznę</string>
+  <string name="donate_button_remind_later">Przypomnij później</string>
+  <string name="donate_button_donate">Wpłać darowiznę</string>
 </resources>

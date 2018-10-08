@@ -85,6 +85,7 @@
   <string name="vpn.button.turn.off">Désactiver</string>
   <string name="vpn_button_turn_off_blocking">Arrêter le blocage</string>
   <string name="vpn_securely_routed">Votre trafic est acheminé en toute sécurité par :</string>
+  <string name="vpn_securely_routed_no_internet">Aucune connexion à Internet n’a été détectée. Une fois que vous serez connecté, nous acheminerons votre trafic de façon sécuritaire par :</string>
   <string name="bitmask_log">Journal Bitmask</string>
   <string name="title_activity_main">Bitmask</string>
   <string name="log_fragment_title">Journal</string>
@@ -107,6 +108,14 @@
   <string name="downloading_vpn_certificate_failed">Échec de téléchargement du certificat du RPV. Ressayez ou choisissez un autre fournisseur.</string>
   <string name="vpn_certificate_is_invalid">Le certificat du RPV est invalide. Essayez d’en télécharger un nouveau.</string>
   <string name="vpn_certificate_user_message">Le certificat du RPV est invalide. Veuillez vous connecter pour en télécharger un nouveau.</string>
-  <string name="save_battery">Économiser la batterie</string>
-  <string name="save_battery_message">Les communications de données d’arrière-plan seront mises en veille quand votre téléphone sera inactif. Cette fonction est encore expérimentale.</string>
+  <string name="save_battery">Économiser la pile</string>
+  <string name="save_battery_message">Les connexions de données d’arrière-plan seront mises en veille quand votre téléphone sera inactif.</string>
+  <string name="always_on_vpn">RPV permanent</string>
+  <string name="do_not_show_again">Ne plus afficher.</string>
+  <string name="always_on_vpn_user_message">Pour activer l’option « RPV permanent » ou « VPN permanent » des paramètres RPV d’Android, cliquez sur l’icône de configuration [img src] et basculez l’interrupteur pour l’activer.</string>
+  <string name="donate_title">Faire un don</string>
+  <string name="donate_default_message">Veuillez faire un don aujourd’hui si des communications sécurisées faciles à mettre en place pour l’utilisateur final et le fournisseur de services sont importantes à vous yeux.</string>
+  <string name="donate_message">LEAP dépend de dons et de subventions. Veuillez faire un don aujourd’hui si des communications sécurisées faciles à mettre en place pour l’utilisateur final et le fournisseur de services sont importantes à vous yeux.</string>
+  <string name="donate_button_remind_later">Me rappeler plus tard</string>
+  <string name="donate_button_donate">Faire un don</string>
 </resources>

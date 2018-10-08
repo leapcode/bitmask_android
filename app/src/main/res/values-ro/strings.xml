@@ -16,7 +16,9 @@
   <string name="username_hint">Nume utilizator</string>
   <string name="username_ask">Vă rugăm introduceți numele dumneavoastră de utilizator</string>
   <string name="password_hint">parola</string>
+  <string name="password_mismatch">Parolele nu se potrivesc</string>
   <string name="user_message">Mesaj utilizator</string>
+  <string name="about_fragment_title">Despre</string>
   <string name="error_bad_user_password_user_message">Nume de utilizator sau parolă incorect.</string>
   <string name="error_client_http_user_message">Încercați din nou: Eroare client HTTP</string>
   <string name="error_io_exception_user_message">Încercați din nou: Eroare I/O</string>
@@ -35,4 +37,7 @@
   <string name="eip_cancel_connect_title">Anulare conexiune?</string>
   <string name="eip_cancel_connect_text">Există o încercare de conexiune în progres. Doriți să o anulați?</string>
   <string name="eip_state_connected">Conexiune Sigură.</string>
+  <string name="action_settings">Setări</string>
+  <string name="donate_title">Donează</string>
+  <string name="donate_button_donate">Donează</string>
 </resources>

@@ -17,6 +17,7 @@
   <string name="username_ask">Prosím zadejte své uživatelské jméno</string>
   <string name="password_hint">heslo</string>
   <string name="user_message">Zpráva uživatele</string>
+  <string name="about_fragment_title">O programu</string>
   <string name="error_bad_user_password_user_message">Nesprávné uživatelské jméno nebo heslo.</string>
   <string name="error_client_http_user_message">Zkuste znovu: chyba HTTP klienta.</string>
   <string name="error_io_exception_user_message">Zkuste znovu: I/O chyba</string>
@@ -35,4 +36,8 @@
   <string name="eip_cancel_connect_title">Zrušit připojení?</string>
   <string name="eip_cancel_connect_text">Probíhá pokus o přihlášení. Přejete si jej zrušit?</string>
   <string name="eip_state_connected">Připojení jsou bezpečná.</string>
+  <string name="log_fragment_title">Log</string>
+  <string name="action_settings">Nastavení</string>
+  <string name="donate_title">Darujte</string>
+  <string name="donate_button_donate">Darujte</string>
 </resources>

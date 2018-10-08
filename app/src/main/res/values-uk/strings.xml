@@ -13,4 +13,8 @@
   <string name="login_button">Вхід у систему</string>
   <string name="setup_error_configure_button">Налаштування</string>
   <string name="setup_error_close_button">Вихід</string>
+  <string name="action_settings">Налаштування</string>
+  <string name="donate_title">Пожертвування</string>
+  <string name="donate_button_remind_later">Нагадайте мені пізніше</string>
+  <string name="donate_button_donate">Пожертвування</string>
 </resources>

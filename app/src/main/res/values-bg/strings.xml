@@ -10,6 +10,7 @@
   <string name="username_ask">Моля въведете потребителско име</string>
   <string name="password_hint">Парола</string>
   <string name="user_message">Съобщение за потребителя</string>
+  <string name="about_fragment_title">Относно</string>
   <string name="error_bad_user_password_user_message">Неправилно потребителско име или парола.</string>
   <string name="login_button">Влизане</string>
   <string name="logout_button">Излизане</string>
@@ -18,4 +19,8 @@
   <string name="setup_error_close_button">Изход</string>
   <string name="eip_status_start_pending">Започване на връзка</string>
   <string name="eip_state_connected">Защитенa Връзка</string>
+  <string name="log_fragment_title">Лог</string>
+  <string name="action_settings">Настройки</string>
+  <string name="donate_title">Дарете</string>
+  <string name="donate_button_donate">Дарете</string>
 </resources>

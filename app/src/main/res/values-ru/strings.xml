@@ -17,6 +17,7 @@
   <string name="username_ask">Пожалуйста, введите имя пользователя</string>
   <string name="password_hint">пароль</string>
   <string name="user_message">Сообщение пользователя</string>
+  <string name="about_fragment_title">О нас</string>
   <string name="error_bad_user_password_user_message">Неправильное имя пользователя или пароль.</string>
   <string name="error_client_http_user_message">Попытайтесь снова: ошибка HTTP клиента</string>
   <string name="error_io_exception_user_message">Попытайтесь снова: ошибка ввода/вывода</string>
@@ -35,4 +36,9 @@
   <string name="eip_cancel_connect_title">Отменить соединение?</string>
   <string name="eip_cancel_connect_text">Производится попытка установить соединение. Вы хотите её отменить?</string>
   <string name="eip_state_connected">Соединение защищено.</string>
+  <string name="log_fragment_title">Журнал</string>
+  <string name="navigation_drawer_open">Открыть навигационный ящик</string>
+  <string name="action_settings">Настройки</string>
+  <string name="donate_title">Пожертвование</string>
+  <string name="donate_button_donate">Пожертвование</string>
 </resources>

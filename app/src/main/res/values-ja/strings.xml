@@ -19,6 +19,7 @@
   <string name="username_ask">ユーザ名を入力してください</string>
   <string name="password_hint">パスワード</string>
   <string name="user_message">ユーザメッセージ</string>
+  <string name="about_fragment_title">アプリについて</string>
   <string name="error_bad_user_password_user_message">ユーザ名またはパスワードが正しくありません</string>
   <string name="error_client_http_user_message">再度実行してください: クライアントHTTPエラー</string>
   <string name="error_io_exception_user_message">再度実行してください: I/Oエラー</string>
@@ -56,6 +57,8 @@
   <string name="vpn.button.turn.off">オフにする</string>
   <string name="vpn_button_turn_off_blocking">ブロックを停止</string>
   <string name="bitmask_log">Bitmaskログ</string>
+  <string name="log_fragment_title">履歴</string>
+  <string name="action_settings">設定</string>
   <string name="void_vpn_establish">Bitmask はすべての送信インターネット通信をブロックします</string>
   <string name="void_vpn_error_establish">VPNのブロックの確立に失敗しました。</string>
   <string name="void_vpn_stopped">すべての送信インターネット通信のブロックを停止しました。</string>
@@ -65,4 +68,6 @@
   <string name="warning_corrupted_provider_details">保存されたプロバイダーの詳細が壊れています。 Bitmaskを更新する (推奨) か、商用CA証明書を使用してプロバイダーの詳細をアップデートすることができます。</string>
   <string name="warning_corrupted_provider_cert">保存されたプロバイダーの証明書が無効です。 商用CA証明書を使用してBitmaskを更新する (推奨) か、プロバイダーの証明書を更新することができます。</string>
   <string name="warning_expired_provider_cert">保存されたプロバイダーの証明書が有効期限切れです。 商用CA証明書を使用してBitmaskを更新する (推奨) か、プロバイダー証明書を更新することができます。</string>
+  <string name="donate_title">寄付</string>
+  <string name="donate_button_donate">寄付</string>
 </resources>

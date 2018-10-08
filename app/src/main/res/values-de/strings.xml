@@ -7,7 +7,7 @@
   <string name="switch_provider_menu_option">Provider wechseln</string>
   <string name="info">Info</string>
   <string name="show_connection_details">Zeige Verbindungsdetails</string>
-  <string name="routes_info">Routen IPv4: %s</string>
+  <string name="routes_info">Routen: %s</string>
   <string name="routes_info6">IPv6 Routen: %s</string>
   <string name="error_empty_username">Der Benutzername darf nicht leer sein</string>
   <string name="cert_from_keystore">Zertifikat aus dem Keystore: \'%s\' </string>
@@ -25,7 +25,7 @@
   <string name="provider_details_title">Provider Details</string>
   <string name="use_anonymously_button">Anonym benutzen</string>
   <string name="username_hint">Benutzer*innenname</string>
-  <string name="username_ask">Bitte geben Sie Ihr Benutzer*innenname ein</string>
+  <string name="username_ask">Bitte geben Sie Ihren Benutzer*innennamen ein</string>
   <string name="password_ask">Bitte Passwort eingeben</string>
   <string name="password_hint">Passwort</string>
   <string name="password_match">Passwörter stimmen überein</string>
@@ -85,6 +85,7 @@
   <string name="vpn.button.turn.off">Ausschalten</string>
   <string name="vpn_button_turn_off_blocking">Blocken beenden.</string>
   <string name="vpn_securely_routed">Dein Internetverkehr wird sicher durchgeleitet durch:</string>
+  <string name="vpn_securely_routed_no_internet">Keine Internetverbindung vorhanden. Sobald du wieder online bist verbindest du dich automatisch mit:</string>
   <string name="bitmask_log">Bitmask Log</string>
   <string name="title_activity_main">Bitmask</string>
   <string name="log_fragment_title">Log</string>
@@ -108,5 +109,13 @@
   <string name="vpn_certificate_is_invalid">Das VPN Zertifikat ist ungültig. Versuche ein neues herunterzuladen.</string>
   <string name="vpn_certificate_user_message">Das VPN Zertifikat ist ungültig. Bitte melde dich an, um ein neues herunterzuladen.</string>
   <string name="save_battery">Batteriesparmodus</string>
-  <string name="save_battery_message">Hintergrunddaten werden nicht übertragen während das Telefon inaktiv ist. Diese Funktion ist noch experimentell.</string>
+  <string name="save_battery_message">Datenverbindungen im Hintergrund bleiben inaktiv solange dein Handy inaktiv ist.</string>
+  <string name="always_on_vpn">VPN immer anlassen</string>
+  <string name="do_not_show_again">Nicht erneut anzeigen.</string>
+  <string name="always_on_vpn_user_message">Um VPN immer anzulassen drücke auf das Einstellungs Icon [img src] und stelle den Schalter auf an.</string>
+  <string name="donate_title">Spenden</string>
+  <string name="donate_default_message">Spende noch heute, wenn du sichere Kommunikation wertschätzt, die sowohl für Endnutzer*innen als auch Menschen die den Service bereit stellen leicht nutzbar ist.</string>
+  <string name="donate_message">LEAP benötigt Spenden und Stipendien. Spende noch heute wenn du sichere Kommunikation wertschätzt, die sowohl für Enandwender*innen als auch Menschen die den Dienst anbieten leicht nutzbar ist.</string>
+  <string name="donate_button_remind_later">Später erinnern</string>
+  <string name="donate_button_donate">Spenden</string>
 </resources>

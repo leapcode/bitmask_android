@@ -17,6 +17,7 @@
   <string name="username_ask">Lütfen kullanıcı adınızı girin</string>
   <string name="password_hint">şifre</string>
   <string name="user_message">Kullanıcı iletisi</string>
+  <string name="about_fragment_title">Hakkında</string>
   <string name="error_bad_user_password_user_message">Hatalı kullanıcı adı ya da şifre.</string>
   <string name="error_client_http_user_message">Tekrar deneyin: İstemci HTTP hatası</string>
   <string name="error_io_exception_user_message">Tekrar deneyin: G/Ç hatası</string>
@@ -35,4 +36,8 @@
   <string name="eip_cancel_connect_title">Bağlantı iptal edilsin mi?</string>
   <string name="eip_cancel_connect_text">Devam eden bir bağlantı girişimi var. İptal etmek istediğinize emin misiniz?</string>
   <string name="eip_state_connected">Bağlantı Güvenli.</string>
+  <string name="log_fragment_title">Günlük</string>
+  <string name="action_settings">Ayarlar</string>
+  <string name="donate_title">Bağışta bulun</string>
+  <string name="donate_button_donate">Bağışta bulun</string>
 </resources>
