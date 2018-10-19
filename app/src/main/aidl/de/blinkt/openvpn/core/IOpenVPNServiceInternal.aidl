@@ -22,4 +22,5 @@ interface IOpenVPNServiceInternal {
     boolean stopVPN(boolean replaceConnection);
 
     boolean isVpnRunning();
+
 }
