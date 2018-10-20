@@ -16,8 +16,8 @@ android {
 
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
-    versionCode 134
-    versionName "0.9.8"
+    versionCode 135
+    versionName "0.9.9RC1"
     resValue "string", "app_name", appName
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
@@ -78,7 +78,7 @@ android {
       //Configurations for custom branded app.
 
       //Change the package name as needed, e.g. "org.example.myapp"
-      applicationId "net.riseup.black"
+      applicationId "se.leap.riseupvpn"
       //Set app name here
       appName = "Riseup VPN"
       resValue "string", "app_name", appName
@@ -86,9 +86,9 @@ android {
       def customProviderUrl = '"https://riseup.net"'
       buildConfigField "String", "customProviderUrl", customProviderUrl
       //Change the versionCode as needed
-      versionCode 1
+      //versionCode 1
       //Change the versionName as needed
-      versionName "1.0"
+      //versionName "0.9.9RC1"
 
       //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
       buildConfigField 'boolean', 'priotize_anonymous_usage', 'true'
