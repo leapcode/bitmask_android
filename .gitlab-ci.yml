@@ -97,6 +97,7 @@ build:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
+    - ./cleanGit.sh
     - ./cleanProject.sh
     - ./build_deps.sh
     - ./gradlew clean assembleDebug --stacktrace
@@ -108,6 +109,7 @@ build_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
+    - ./cleanGit.sh
     - ./cleanProject.sh
     - ./build_deps.sh
     - ./gradlew assembleNormalProductionRelease --stacktrace
@@ -121,6 +123,7 @@ build_custom_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
+    - ./cleanGit.sh
     - ./cleanProject.sh
     - ./build_deps.sh
     - ./gradlew assembleCustomProductionRelease --stacktrace
