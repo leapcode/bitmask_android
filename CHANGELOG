@@ -1,3 +1,12 @@
+0.9.9 - custom branded apps
+Features:
+- allows Providers to create an own version of Bitmask without knowing much about Android development
+-> Credits goes to janak, a GSOC 2018 participant for LEAP!
+- direct link to Android's VPN settings to allow always-on vpn
+- updated crypto libraries
+- new translations
+
+
 0.9.8 - the UI overhaul
 Bugs:
 - fixes notification channel bug on Android 8+
