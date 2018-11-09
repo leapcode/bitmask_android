@@ -16,12 +16,14 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
+import android.system.OsConstants;
 import android.util.Log;
 
 import java.io.IOException;
@@ -122,12 +124,25 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
     private Builder prepareBlockingVpnProfile() {
         Builder builder = new Builder();
         builder.setSession("Blocking until running");
-        builder.addRoute("0.0.0.0", 1);
+        builder.addRoute("0.0.0.0", 0);
         builder.addRoute("192.168.1.0", 24);
         builder.addDnsServer("10.42.0.1");
         builder.addAddress("10.42.0.8", 16);
+        builder.addRoute("::",0);
+        builder.addAddress("fc00::", 7);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            allowAllAFFamilies(builder);
+        }
+
         return builder;
 
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void allowAllAFFamilies(Builder builder) {
+        builder.allowFamily(OsConstants.AF_INET);
+        builder.allowFamily(OsConstants.AF_INET6);
     }
 
     private void establishBlockingVpn() {
