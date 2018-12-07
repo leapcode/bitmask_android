@@ -10,10 +10,13 @@ import android.support.annotation.VisibleForTesting;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import se.leap.bitmaskclient.Provider;
+
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
 import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
+import static se.leap.bitmaskclient.Constants.EIP_N_CLOSEST_GATEWAY;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 
 /**
@@ -22,7 +25,7 @@ import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 
 public class EipCommand {
 
-    public static void execute(@NotNull Context context, @NotNull String action) {
+    private static void execute(@NotNull Context context, @NotNull String action) {
         execute(context, action, null, null);
     }
 
@@ -33,7 +36,7 @@ public class EipCommand {
      *               filter for the EIP class
      * @param resultReceiver The resultreceiver to reply to
      */
-    public static void execute(@NotNull Context context, @NotNull String action, @Nullable ResultReceiver resultReceiver, @Nullable Intent vpnIntent) {
+    private static void execute(@NotNull Context context, @NotNull String action, @Nullable ResultReceiver resultReceiver, @Nullable Intent vpnIntent) {
         // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
         if (vpnIntent == null) {
             vpnIntent = new Intent();
@@ -48,6 +51,14 @@ public class EipCommand {
     public static void startVPN(@NonNull Context context, boolean earlyRoutes) {
         Intent baseIntent = new Intent();
         baseIntent.putExtra(EIP_EARLY_ROUTES, earlyRoutes);
+        baseIntent.putExtra(EIP_N_CLOSEST_GATEWAY, 0);
+        execute(context, EIP_ACTION_START, null, baseIntent);
+    }
+
+    public static void startVPN(@NonNull Context context, boolean earlyRoutes, int nClosestGateway) {
+        Intent baseIntent = new Intent();
+        baseIntent.putExtra(EIP_EARLY_ROUTES, earlyRoutes);
+        baseIntent.putExtra(EIP_N_CLOSEST_GATEWAY, nClosestGateway);
         execute(context, EIP_ACTION_START, null, baseIntent);
     }
 

@@ -18,6 +18,7 @@ package se.leap.bitmaskclient.eip;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -46,6 +47,8 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
  */
 public class GatewaysManager {
 
+    private static final String TAG = GatewaysManager.class.getSimpleName();
+
     private Context context;
     private SharedPreferences preferences;
     private List<Gateway> gateways = new ArrayList<>();
@@ -60,11 +63,11 @@ public class GatewaysManager {
 
     /**
      * select closest Gateway
-      * @return the closest Gateway
+      * @return the n closest Gateway
      */
-    public Gateway select() {
+    public Gateway select(int nClosest) {
         GatewaySelector gatewaySelector = new GatewaySelector(gateways);
-        return gatewaySelector.select();
+        return gatewaySelector.select(nClosest);
     }
 
     /**

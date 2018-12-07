@@ -27,6 +27,7 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -35,10 +36,13 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -58,17 +62,20 @@ import se.leap.bitmaskclient.views.VpnStateImage;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
-import static se.leap.bitmaskclient.Constants.DEFAULT_BITMASK;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.EipSetupObserver.connectionRetry;
+import static se.leap.bitmaskclient.EipSetupObserver.gatewayOrder;
+import static se.leap.bitmaskclient.EipSetupObserver.reconnectingWithDifferentGateway;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 import static se.leap.bitmaskclient.utils.ConfigHelper.isDefaultBitmask;
+import static se.leap.bitmaskclient.utils.ViewHelper.convertDimensionToPx;
 
 public class EipFragment extends Fragment implements Observer {
 
@@ -93,6 +100,8 @@ public class EipFragment extends Fragment implements Observer {
 
     @InjectView(R.id.vpn_route)
     AppCompatTextView vpnRoute;
+
+
 
     private EipStatus eipStatus;
 
@@ -193,7 +202,6 @@ public class EipFragment extends Fragment implements Observer {
         if (activity != null) {
             getActivity().unbindService(openVpnConnection);
         }
-        Log.d(TAG, "broadcast unregistered");
     }
 
     @Override
@@ -289,7 +297,7 @@ public class EipFragment extends Fragment implements Observer {
             Log.e(TAG, "context is null when trying to start VPN");
             return;
         }
-        EipCommand.startVPN(context, false);
+        EipCommand.startVPN(context.getApplicationContext(), false);
         vpnStateImage.showProgress();
         routedText.setVisibility(GONE);
         vpnRoute.setVisibility(GONE);
@@ -302,7 +310,7 @@ public class EipFragment extends Fragment implements Observer {
             Log.e(TAG, "context is null when trying to stop EIP");
             return;
         }
-        EipCommand.stopVPN(context);
+        EipCommand.stopVPN(context.getApplicationContext());
     }
 
     private void askPendingStartCancellation() {
@@ -378,6 +386,8 @@ public class EipFragment extends Fragment implements Observer {
             } else {
                 Log.e("EipFragment", "activity is null");
             }
+        } else if (observable instanceof ProviderObservable) {
+            provider = ((ProviderObservable) observable).getCurrentProvider();
         }
     }
 
@@ -388,13 +398,16 @@ public class EipFragment extends Fragment implements Observer {
             return;
         }
 
-        if (eipStatus.isConnecting()) {
-            mainButton.setText(activity.getString(android.R.string.cancel));
-            vpnStateImage.setStateIcon(R.drawable.vpn_connecting);
-            vpnStateImage.showProgress();
-            routedText.setVisibility(GONE);
-            vpnRoute.setVisibility(GONE);
-            colorBackgroundALittle();
+        Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
+
+
+        if (eipStatus.isConnecting() ) {
+            showConnectingLayout(activity);
+            Log.d(TAG, "eip show connecting layout");
+            if (eipStatus.isReconnecting()) {
+                Log.d(TAG, "eip show reconnecting toast!");
+                showReconnectToast(activity);
+            }
         } else if (eipStatus.isConnected() ) {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
             vpnStateImage.setStateIcon(R.drawable.vpn_connected);
@@ -413,7 +426,11 @@ public class EipFragment extends Fragment implements Observer {
             vpnRoute.setVisibility(VISIBLE);
             setVpnRouteText();
             colorBackgroundALittle();
-        } else {
+        } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
+            showConnectingLayout(activity);
+            showRetryToast(activity);
+        }
+        else {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
             vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
             vpnStateImage.stopProgress(false);
@@ -421,6 +438,48 @@ public class EipFragment extends Fragment implements Observer {
             vpnRoute.setVisibility(GONE);
             greyscaleBackground();
         }
+    }
+
+    private void showToast(Activity activity, String message, boolean vibrateLong) {
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.custom_toast,
+                (ViewGroup) activity.findViewById(R.id.custom_toast_container));
+
+        TextView text = (TextView) layout.findViewById(R.id.text);
+        text.setText(message);
+
+        Vibrator v = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrateLong) {
+            v.vibrate(100);
+            v.vibrate(200);
+        } else {
+            v.vibrate(100);
+        }
+
+        Toast toast = new Toast(activity.getApplicationContext());
+        toast.setGravity(Gravity.BOTTOM, 0, convertDimensionToPx(this.getContext(), R.dimen.stdpadding));
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(layout);
+        toast.show();
+    }
+    private void showReconnectToast(Activity activity) {
+        String message = (String.format("Retry %d of %d before the next closest gateway will be selected.", connectionRetry()+1, 5));
+        showToast(activity, message, false);
+    }
+
+    private void showRetryToast(Activity activity) {
+        int nClosestGateway = gatewayOrder();
+        String message = String.format("Server number " + nClosestGateway + " not reachable. Trying next gateway.");
+        showToast(activity, message, true );
+    }
+
+    private void showConnectingLayout(Context activity) {
+        mainButton.setText(activity.getString(android.R.string.cancel));
+        vpnStateImage.setStateIcon(R.drawable.vpn_connecting);
+        vpnStateImage.showProgress();
+        routedText.setVisibility(GONE);
+        vpnRoute.setVisibility(GONE);
+        colorBackgroundALittle();
     }
 
     private boolean isOpenVpnRunningWithoutNetwork() {

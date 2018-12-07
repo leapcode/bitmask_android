@@ -39,4 +39,6 @@
     <dimen name="constraint_bottom_std">0.85</dimen>
     <dimen name="constraint_top_compact">0.1</dimen>
     <dimen name="constraint_bottom_compact">0.9</dimen>
+
+    <dimen name="toast_bottom_padding">20dp</dimen>
 </resources>

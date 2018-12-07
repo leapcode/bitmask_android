@@ -214,6 +214,7 @@ public class VpnStatus {
     }
 
     public interface StateListener {
+        String STATE_CONNECTRETRY = "CONNECTRETRY";
         void updateState(String state, String logmessage, int localizedResId, ConnectionStatus level);
 
         void setConnectedVPN(String uuid);
@@ -267,10 +268,12 @@ public class VpnStatus {
 
 
     public synchronized static void addStateListener(StateListener sl) {
-        if (!stateListener.contains(sl)) {
-            stateListener.add(sl);
-            if (mLaststate != null)
-                sl.updateState(mLaststate, mLaststatemsg, mLastStateresid, mLastLevel);
+        synchronized (stateListener) {
+            if (!stateListener.contains(sl)) {
+                stateListener.add(sl);
+                if (mLaststate != null)
+                    sl.updateState(mLaststate, mLaststatemsg, mLastStateresid, mLastLevel);
+            }
         }
     }
 
@@ -351,7 +354,9 @@ public class VpnStatus {
 
 
     public synchronized static void removeStateListener(StateListener sl) {
-        stateListener.remove(sl);
+        synchronized (stateListener) {
+            stateListener.remove(sl);
+        }
     }
 
 
@@ -384,8 +389,10 @@ public class VpnStatus {
         mLastLevel = level;
 
 
-        for (StateListener sl : stateListener) {
-            sl.updateState(state, msg, resid, level);
+        synchronized (stateListener) {
+            for (StateListener sl : stateListener) {
+                sl.updateState(state, msg, resid, level);
+            }
         }
         //newLogItem(new LogItem((LogLevel.DEBUG), String.format("New OpenVPN Status (%s->%s): %s",state,level.toString(),msg)));
     }

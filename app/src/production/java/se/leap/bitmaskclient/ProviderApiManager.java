@@ -158,7 +158,6 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             String eipServiceUrl = providerJson.getString(Provider.API_URL) + "/" + providerJson.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
             eipServiceJsonString = downloadWithProviderCA(provider.getCaCert(), eipServiceUrl);
             JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
-            eipServiceJson.getInt(Provider.API_RETURN_SERIAL);
 
             provider.setEipServiceJson(eipServiceJson);
 

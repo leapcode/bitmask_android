@@ -53,7 +53,9 @@ import se.leap.bitmaskclient.OnBootReceiver;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.CATEGORY_DEFAULT;
+import static de.blinkt.openvpn.LaunchVPN.EXTRA_TEMP_VPN_PROFILE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
@@ -63,6 +65,7 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
+import static se.leap.bitmaskclient.Constants.EIP_N_CLOSEST_GATEWAY;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
@@ -150,10 +153,12 @@ public final class EIP extends JobIntentService implements Observer {
         if (intent.getParcelableExtra(EIP_RECEIVER) != null) {
             mResultRef = new WeakReference<>((ResultReceiver) intent.getParcelableExtra(EIP_RECEIVER));
         }
+        int nClosestGateway;
         switch (action) {
             case EIP_ACTION_START:
                 boolean earlyRoutes = intent.getBooleanExtra(EIP_EARLY_ROUTES, true);
-                startEIP(earlyRoutes);
+                nClosestGateway = intent.getIntExtra(EIP_N_CLOSEST_GATEWAY, 0);
+                startEIP(earlyRoutes, nClosestGateway);
                 break;
             case EIP_ACTION_START_ALWAYS_ON_VPN:
                 startEIPAlwaysOnVpn();
@@ -170,13 +175,17 @@ public final class EIP extends JobIntentService implements Observer {
         }
     }
 
+
     /**
      * Initiates an EIP connection by selecting a gateway and preparing and sending an
      * Intent to {@link de.blinkt.openvpn.LaunchVPN}.
      * It also sets up early routes.
+     * @param earlyRoutes if true, a void vpn gets set up
+     * @param nClosestGateway the gateway that is the n nearest one to the users place
      */
     @SuppressLint("ApplySharedPref")
-    private void startEIP(boolean earlyRoutes) {
+    private void startEIP(boolean earlyRoutes, int nClosestGateway) {
+        Log.d(TAG, "start EIP with early routes: " +  earlyRoutes + " and nClosest Gateway: " + nClosestGateway);
         if (!eipStatus.isBlockingVpnEstablished() && earlyRoutes) {
             earlyRoutes();
         }
@@ -186,16 +195,17 @@ public final class EIP extends JobIntentService implements Observer {
             preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, true).commit();
         }
 
-        GatewaysManager gatewaysManager = gatewaysFromPreferences();
         if (!isVPNCertificateValid()) {
             setErrorResult(result, vpn_certificate_is_invalid, ERROR_INVALID_VPN_CERTIFICATE.toString());
-            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED);
+            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED, result);
             return;
         }
 
-        Gateway gateway = gatewaysManager.select();
+        GatewaysManager gatewaysManager = gatewaysFromPreferences();
+        Gateway gateway = gatewaysManager.select(nClosestGateway);
+
         if (gateway != null && gateway.getProfile() != null) {
-            launchActiveGateway(gateway);
+            launchActiveGateway(gateway, nClosestGateway);
             tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_OK);
         } else
             tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED);
@@ -209,11 +219,11 @@ public final class EIP extends JobIntentService implements Observer {
         Log.d(TAG, "startEIPAlwaysOnVpn vpn");
 
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
-        Gateway gateway = gatewaysManager.select();
+        Gateway gateway = gatewaysManager.select(0);
 
         if (gateway != null && gateway.getProfile() != null) {
-            Log.d(TAG, "startEIPAlwaysOnVpn eip launch avtive gateway vpn");
-            launchActiveGateway(gateway);
+            Log.d(TAG, "startEIPAlwaysOnVpn eip launch closest gateway.");
+            launchActiveGateway(gateway, 0);
         } else {
             Log.d(TAG, "startEIPAlwaysOnVpn no active profile available!");
         }
@@ -234,13 +244,21 @@ public final class EIP extends JobIntentService implements Observer {
      *
      * @param gateway to connect to
      */
-    private void launchActiveGateway(Gateway gateway) {
-        Intent intent = new Intent(this, LaunchVPN.class);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
-        intent.putExtra(LaunchVPN.EXTRA_TEMP_VPN_PROFILE, gateway.getProfile());
-        startActivity(intent);
+    private void launchActiveGateway(@NonNull Gateway gateway, int nClosestGateway) {
+        /*Intent gatewaySetupWatcherIntent = new Intent(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT);
+        gatewaySetupWatcherIntent.putExtra(EIP_REQUEST, )
+        gatewaySetupWatcherIntent.putExtra(LaunchVPN.EXTRA_TEMP_VPN_PROFILE, gateway.getProfile());*/
+
+
+        Intent intent = new Intent(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT); //new Intent(this, LaunchVPN.class);
+        //intent.setAction(Intent.ACTION_MAIN);
+        //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
+        intent.putExtra(EXTRA_TEMP_VPN_PROFILE, gateway.getProfile());
+        intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, nClosestGateway);
+        //startActivity(intent);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+
     }
 
     /**
@@ -274,6 +292,14 @@ public final class EIP extends JobIntentService implements Observer {
         GatewaysManager gatewaysManager = new GatewaysManager(this, preferences);
         gatewaysManager.configureFromPreferences();
         return gatewaysManager;
+    }
+
+    /**
+     * Updates the eip.json. It containes information about the vpn service of a provider such as
+     * available gateways, supported protocols and open ports.
+     */
+    private void updateEipJson() {
+
     }
 
     /**

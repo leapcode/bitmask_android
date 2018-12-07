@@ -1,20 +1,42 @@
 package se.leap.bitmaskclient.eip;
 
+import android.util.Log;
+
 import java.util.*;
 
 public class GatewaySelector {
+    private final static String TAG = GatewaySelector.class.getSimpleName();
     List<Gateway> gateways;
+    TreeMap<Integer, Set<Gateway>> offsets;
 
     public GatewaySelector(List<Gateway> gateways) {
         this.gateways = gateways;
+        this.offsets = calculateOffsets();
+
     }
 
     public Gateway select() {
         return closestGateway();
     }
 
+    public Gateway select(int nClosest) throws IndexOutOfBoundsException{
+        int i = 0;
+        for (Map.Entry<Integer,Set<Gateway>> entrySet : offsets.entrySet()) {
+            Iterator<Gateway> iterator = entrySet.getValue().iterator();
+            while (iterator.hasNext()) {
+                Gateway gateway = iterator.next();
+                if (i == nClosest)  {
+                    return gateway;
+                }
+                i = i+1;
+            }
+        }
+
+        Log.e(TAG, "There are less than " + nClosest + " Gateways available.");
+        return null;
+    }
+
     private Gateway closestGateway() {
-        TreeMap<Integer, Set<Gateway>> offsets = calculateOffsets();
         return offsets.isEmpty() ? null : offsets.firstEntry().getValue().iterator().next();
     }
 

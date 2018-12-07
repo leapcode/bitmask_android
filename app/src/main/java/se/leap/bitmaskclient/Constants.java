@@ -51,6 +51,7 @@ public interface Constants {
     String EIP_RESTART_ON_BOOT = "EIP.RESTART_ON_BOOT";
     String EIP_IS_ALWAYS_ON = "EIP.EIP_IS_ALWAYS_ON";
     String EIP_EARLY_ROUTES = "EIP.EARLY_ROUTES";
+    String EIP_N_CLOSEST_GATEWAY = "EIP.N_CLOSEST_GATEWAY";
 
 
     //////////////////////////////////////////////
@@ -64,6 +65,7 @@ public interface Constants {
     String PROVIDER_KEY = "Constants.PROVIDER_KEY";
     String PROVIDER_CONFIGURED = "Constants.PROVIDER_CONFIGURED";
     String PROVIDER_EIP_DEFINITION = "Constants.EIP_DEFINITION";
+    String PROVIDER_PROFILE_UUID = "Constants.PROVIDER_PROFILE_UUID";
 
     //////////////////////////////////////////////
     // CREDENTIAL CONSTANTS
@@ -84,6 +86,7 @@ public interface Constants {
 
     String BROADCAST_EIP_EVENT = "BROADCAST.EIP_EVENT";
     String BROADCAST_PROVIDER_API_EVENT = "BROADCAST.PROVIDER_API_EVENT";
+    String BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT = "BROADCAST.GATEWAY_SETUP_WATCHER_EVENT";
     String BROADCAST_RESULT_CODE = "BROADCAST.RESULT_CODE";
     String BROADCAST_RESULT_KEY = "BROADCAST.RESULT_KEY";
 

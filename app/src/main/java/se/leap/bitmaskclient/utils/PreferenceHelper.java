@@ -31,6 +31,7 @@ import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE_UUID;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
@@ -239,6 +240,29 @@ public class PreferenceHelper {
         return result;
     }
 
+    /*public static void saveLastProfile(Context context, String uuid) {
+        if (context == null) {
+            return;
+        }
+        putString(context, PROVIDER_PROFILE_UUID, uuid);
+    }
+
+    public static void clearLastProfile(Context context) {
+        if (context == null) {
+            return;
+        }
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        preferences.edit().remove(PROVIDER_PROFILE_UUID).apply();
+    }
+
+    public static String getLastProfile(Context context){
+        return getString(context, PROVIDER_PROFILE_UUID, null);
+    }
+
+    public static void saveLastGatewayNumber(Context context, int number) {
+
+    }
+*/
     public static String getString(Context context, String key, String defValue) {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
         return preferences.getString(key, defValue);

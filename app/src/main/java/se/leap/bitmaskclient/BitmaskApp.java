@@ -1,10 +1,21 @@
 package se.leap.bitmaskclient;
 
 import android.content.Context;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.support.multidex.MultiDexApplication;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
+
+import static android.content.Intent.CATEGORY_DEFAULT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
+import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
+import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 
 /**
  * Created by cyberta on 24.10.17.
@@ -12,7 +23,11 @@ import com.squareup.leakcanary.RefWatcher;
 
 public class BitmaskApp extends MultiDexApplication {
 
+    private final static String TAG = BitmaskApp.class.getSimpleName();
     private RefWatcher refWatcher;
+    private ProviderObservable providerObservable;
+    private SharedPreferences preferences;
+
 
     @Override
     public void onCreate() {
@@ -25,6 +40,10 @@ public class BitmaskApp extends MultiDexApplication {
         refWatcher = LeakCanary.install(this);
         // Normal app init code...*/
         PRNGFixes.apply();
+        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        providerObservable = ProviderObservable.getInstance();
+        providerObservable.updateProvider(getSavedProviderFromSharedPreferences(preferences));
+        EipSetupObserver.init(this, preferences);
     }
 
     /**

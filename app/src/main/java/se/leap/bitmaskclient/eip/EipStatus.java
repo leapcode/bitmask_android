@@ -19,6 +19,7 @@ package se.leap.bitmaskclient.eip;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import java.util.Observable;
 
@@ -26,6 +27,7 @@ import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.Provider;
 
 /**
  * EipStatus is a Singleton that represents a reduced set of a vpn's ConnectionStatus.
@@ -76,7 +78,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         currentStatus.setLocalizedResId(localizedResId);
         currentStatus.setLevel(level);
         currentStatus.setEipLevel(level);
-        if (tmp != currentStatus.getLevel()) {
+        if (tmp != currentStatus.getLevel() || "RECONNECTING".equals(state)) {
             currentStatus.setChanged();
             currentStatus.notifyObservers();
         }
@@ -86,6 +88,10 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     public void setConnectedVPN(String uuid) {
     }
 
+    public boolean isReconnecting() {
+        Log.d(TAG, "eip currentVPNStatus : " + currentStatus.getState() );
+        return "RECONNECTING".equals(currentStatus.getState());
+    }
 
     private void setEipLevel(ConnectionStatus level) {
         switch (level) {

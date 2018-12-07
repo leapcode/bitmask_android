@@ -216,31 +216,31 @@ def processFileInplace(file, Closure processText) {
 
 task copyIcsOpenVPNClasses( type: Copy ) {
   println "copyIcsOpenVPNClasses"
-  from ('../ics-openvpn/main/') {
-    include '**/LaunchVPN.java'
-    include '**/OpenVPNSservice.java'
-    include '**/VpnProfile.java'
-    include '**/DisconnectVPN.java'
-    include '**/VpnProfile.java'
-    include '**/SeekBarTicks.java'
-    include '**/core/**.java'
-    include '**/activities/BaseActivity.java'
-    include '**/APIVpnProfile.java'
-    include '**/aidl/**/api/**.aidl'
-    include '**/aidl/**/core/**.aidl'
-
-    includeEmptyDirs = false
-
-    filter {
-      line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
-    }
-    filter {
-      line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
-    }
-    filter {
-      line -> line.replace('package de.blinkt.openvpn;', 'package de.blinkt.openvpn;\n\nimport se.leap.bitmaskclient.R;')
-    }
-  } into '.'
+//  from ('../ics-openvpn/main/') {
+//    include '**/LaunchVPN.java'
+//    include '**/OpenVPNSservice.java'
+//    include '**/VpnProfile.java'
+//    include '**/DisconnectVPN.java'
+//    include '**/VpnProfile.java'
+//    include '**/SeekBarTicks.java'
+//    include '**/core/**.java'
+//    include '**/activities/BaseActivity.java'
+//    include '**/APIVpnProfile.java'
+//    include '**/aidl/**/api/**.aidl'
+//    include '**/aidl/**/core/**.aidl'
+//
+//    includeEmptyDirs = false
+//
+//    filter {
+//      line -> line.replaceAll('de.blinkt.openvpn.R', 'se.leap.bitmaskclient.R')
+//    }
+//    filter {
+//      line -> line.replaceAll('de.blinkt.openvpn.BuildConfig', 'se.leap.bitmaskclient.BuildConfig')
+//    }
+//    filter {
+//      line -> line.replace('package de.blinkt.openvpn;', 'package de.blinkt.openvpn;\n\nimport se.leap.bitmaskclient.R;')
+//    }
+//  } into '.'
 }
 
 task copyIcsOpenVPNXml( type: Copy )  {
@@ -262,31 +262,31 @@ task copyIcsOpenVPNXml( type: Copy )  {
 
 task copyIcsOpenVPNImages( type: Copy ) {
   println "copyIcsOpenVPNImages"
-  from ('../ics-openvpn/main/') {
-    include '**/ic_filter*.png'
-    include '**/ic_delete*.png'
-    include '**/ic_share*.png'
-    include '**/ic_close*.png'
-    include '**/ic_edit*.png'
-    include '**/ic_check*.png'
-    include '**/ic_pause*.png'
-    include '**/ic_play*.png'
-    include '**/ic_content_copy_white_*.png'
-    include '**/ic_add_circle_outline_white_*.png'
-    include '**/ic_warning_black_*.png'
-    include '**/ic_add_circle_outline_grey600_*.png'
-    include '**/ic_archive_grey600_*.png'
-    include '**/ic_receipt_white_*.png'
-    include '**/ic_sort_white_*.png'
-    include '**/ic_content_copy_white_*.png'
-    include '**/ic_archive_white_*.png'
-    include '**/ic_menu_archive*.png'
-    include '**/vpn_item_settings*.png'
-    include '**/ic_menu_log*.png'
-    include '**/ic_menu_copy_holo_light*.png'
-
-    includeEmptyDirs = false
-  } into '.'
+//  from ('../ics-openvpn/main/') {
+//    include '**/ic_filter*.png'
+//    include '**/ic_delete*.png'
+//    include '**/ic_share*.png'
+//    include '**/ic_close*.png'
+//    include '**/ic_edit*.png'
+//    include '**/ic_check*.png'
+//    include '**/ic_pause*.png'
+//    include '**/ic_play*.png'
+//    include '**/ic_content_copy_white_*.png'
+//    include '**/ic_add_circle_outline_white_*.png'
+//    include '**/ic_warning_black_*.png'
+//    include '**/ic_add_circle_outline_grey600_*.png'
+//    include '**/ic_archive_grey600_*.png'
+//    include '**/ic_receipt_white_*.png'
+//    include '**/ic_sort_white_*.png'
+//    include '**/ic_content_copy_white_*.png'
+//    include '**/ic_archive_white_*.png'
+//    include '**/ic_menu_archive*.png'
+//    include '**/vpn_item_settings*.png'
+//    include '**/ic_menu_log*.png'
+//    include '**/ic_menu_copy_holo_light*.png'
+//
+//    includeEmptyDirs = false
+//  } into '.'
 }
 
 // thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html

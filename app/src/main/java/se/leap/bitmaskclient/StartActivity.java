@@ -25,16 +25,17 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.userstatus.User;
-import se.leap.bitmaskclient.utils.ConfigHelper;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
-import static se.leap.bitmaskclient.Constants.DEFAULT_BITMASK;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
@@ -98,6 +99,9 @@ public class StartActivity extends Activity{
         // initialize app necessities
         VpnStatus.initLogCache(getApplicationContext().getCacheDir());
         User.init(getString(R.string.default_username));
+
+        fakeSetup();
+
 
         prepareEIP();
 
@@ -184,7 +188,7 @@ public class StartActivity extends Activity{
             } else {
                 Log.d(TAG, "vpn provider is configured");
                 if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
-                    EipCommand.startVPN(this, true);
+                    EipCommand.startVPN(this.getApplicationContext(), true);
                     finish();
                     return;
                 }
@@ -213,7 +217,8 @@ public class StartActivity extends Activity{
             if (resultCode == RESULT_OK && data != null && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
                 storeProviderInPreferences(preferences, provider);
-                EipCommand.startVPN(this, false);
+                ProviderObservable.getInstance().updateProvider(provider);
+                EipCommand.startVPN(this.getApplicationContext(), false);
                 showMainActivity();
             } else if (resultCode == RESULT_CANCELED) {
                 finish();
@@ -227,6 +232,147 @@ public class StartActivity extends Activity{
         intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
         startActivity(intent);
         finish();
+    }
+
+    private void fakeSetup() {
+        PreferenceHelper.putString(this, "Constants.EIP_DEFINITION.riseup.net", getRiseupEipJson());
+        PreferenceHelper.putString(this, "Constants.EIP_DEFINITION", getRiseupEipJson());
+        SharedPreferences prefs = Preferences.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor prefsedit = prefs.edit();
+        prefsedit.remove("lastConnectedProfile").commit();
+        File f  = new File(this.getCacheDir().getAbsolutePath() + "/android.conf");
+        if (f.exists()) {
+            Log.d(TAG, "android.conf exists -> delete:" + f.delete());
+        }
+
+        File filesDirectory = new File(this.getFilesDir().getAbsolutePath());
+        if (filesDirectory.exists() && filesDirectory.isDirectory()) {
+           File[] filesInDirectory = filesDirectory.listFiles();
+           for (File file : filesInDirectory) {
+               Log.d(TAG, "delete profile: " + file.getName() + ": "+ file.delete());
+
+           }
+        } else Log.d(TAG, "file folder doesn't exist");
+
+
+        Log.d(TAG, "faked eipjson: " + PreferenceHelper.getString(this, "Constants.EIP_DEFINITION", ""));
+        Log.d(TAG, "lastConnectedProfile is emty: " + (prefs.getString("lastConnectedProfile", null) == null));
+    }
+
+    private String getRiseupEipJson() {
+        return "{\n" +
+                "   \"gateways\":[\n" +
+                "      {\n" +
+                "         \"capabilities\":{\n" +
+                "            \"adblock\":false,\n" +
+                "            \"filter_dns\":false,\n" +
+                "            \"limited\":false,\n" +
+                "            \"ports\":[\n" +
+                "               \"443\"\n" +
+                "            ],\n" +
+                "            \"protocols\":[\n" +
+                "               \"tcp\"\n" +
+                "            ],\n" +
+                "            \"transport\":[\n" +
+                "               \"openvpn\"\n" +
+                "            ],\n" +
+                "            \"user_ips\":false\n" +
+                "         },\n" +
+                "         \"host\":\"garza.riseup.net\",\n" +
+                "         \"ip_address\":\"198.252.153.28\",\n" +
+                "         \"location\":\"seattle\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "         \"capabilities\":{\n" +
+                "            \"adblock\":false,\n" +
+                "            \"filter_dns\":false,\n" +
+                "            \"limited\":false,\n" +
+                "            \"ports\":[\n" +
+                "               \"443\"\n" +
+                "            ],\n" +
+                "            \"protocols\":[\n" +
+                "               \"tcp\"\n" +
+                "            ],\n" +
+                "            \"transport\":[\n" +
+                "               \"openvpn\"\n" +
+                "            ],\n" +
+                "            \"user_ips\":false\n" +
+                "         },\n" +
+                "         \"host\":\"no.giraffe.riseup.net\",\n" +
+                "         \"ip_address\":\"37.218.242.212\",\n" +
+                "         \"location\":\"amsterdam\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "         \"capabilities\":{\n" +
+                "            \"adblock\":false,\n" +
+                "            \"filter_dns\":false,\n" +
+                "            \"limited\":false,\n" +
+                "            \"ports\":[\n" +
+                "               \"443\"\n" +
+                "            ],\n" +
+                "            \"protocols\":[\n" +
+                "               \"tcp\"\n" +
+                "            ],\n" +
+                "            \"transport\":[\n" +
+                "               \"openvpn\"\n" +
+                "            ],\n" +
+                "            \"user_ips\":false\n" +
+                "         },\n" +
+                "         \"host\":\"no.tenca.riseup.net\",\n" +
+                "         \"ip_address\":\"5.79.86.181\",\n" +
+                "         \"location\":\"amsterdam\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "         \"capabilities\":{\n" +
+                "            \"adblock\":false,\n" +
+                "            \"filter_dns\":false,\n" +
+                "            \"limited\":false,\n" +
+                "            \"ports\":[\n" +
+                "               \"443\"\n" +
+                "            ],\n" +
+                "            \"protocols\":[\n" +
+                "               \"tcp\"\n" +
+                "            ],\n" +
+                "            \"transport\":[\n" +
+                "               \"openvpn\"\n" +
+                "            ],\n" +
+                "            \"user_ips\":false\n" +
+                "         },\n" +
+                "         \"host\":\"yal.riseup.net\",\n" +
+                "         \"ip_address\":\"199.58.81.145\",\n" +
+                "         \"location\":\"montreal\"\n" +
+                "      }\n" +
+                "   ],\n" +
+                "   \"locations\":{\n" +
+                "      \"amsterdam\":{\n" +
+                "         \"country_code\":\"NL\",\n" +
+                "         \"hemisphere\":\"N\",\n" +
+                "         \"name\":\"Amsterdam\",\n" +
+                "         \"timezone\":\"+2\"\n" +
+                "      },\n" +
+                "      \"montreal\":{\n" +
+                "         \"country_code\":\"CA\",\n" +
+                "         \"hemisphere\":\"N\",\n" +
+                "         \"name\":\"Montreal\",\n" +
+                "         \"timezone\":\"-5\"\n" +
+                "      },\n" +
+                "      \"seattle\":{\n" +
+                "         \"country_code\":\"US\",\n" +
+                "         \"hemisphere\":\"N\",\n" +
+                "         \"name\":\"Seattle\",\n" +
+                "         \"timezone\":\"-7\"\n" +
+                "      }\n" +
+                "   },\n" +
+                "   \"openvpn_configuration\":{\n" +
+                "      \"auth\":\"SHA1\",\n" +
+                "      \"cipher\":\"AES-128-CBC\",\n" +
+                "      \"keepalive\":\"10 30\",\n" +
+                "      \"tls-cipher\":\"DHE-RSA-AES128-SHA\",\n" +
+                "      \"tun-ipv6\":true\n" +
+                "   },\n" +
+                "   \"serial\":1,\n" +
+                "   \"version\":1\n" +
+                "}";
     }
 
 }
