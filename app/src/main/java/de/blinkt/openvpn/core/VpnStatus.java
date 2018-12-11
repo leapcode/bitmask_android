@@ -15,12 +15,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.Locale;
-import java.util.Queue;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import se.leap.bitmaskclient.R;
-import de.blinkt.openvpn.VpnProfile;
 
 public class VpnStatus {
 
@@ -28,7 +26,7 @@ public class VpnStatus {
     private static final LinkedList<LogItem> logbuffer;
 
     private static Vector<LogListener> logListener;
-    private static Vector<StateListener> stateListener;
+    private static CopyOnWriteArrayList<StateListener> stateListener;
     private static Vector<ByteCountListener> byteCountListener;
 
     private static String mLaststatemsg = "";
@@ -200,7 +198,7 @@ public class VpnStatus {
     static {
         logbuffer = new LinkedList<>();
         logListener = new Vector<>();
-        stateListener = new Vector<>();
+        stateListener = new CopyOnWriteArrayList<>();
         byteCountListener = new Vector<>();
         trafficHistory = new TrafficHistory();
 
@@ -268,12 +266,10 @@ public class VpnStatus {
 
 
     public synchronized static void addStateListener(StateListener sl) {
-        synchronized (stateListener) {
-            if (!stateListener.contains(sl)) {
-                stateListener.add(sl);
-                if (mLaststate != null)
+        if (!stateListener.contains(sl)) {
+            stateListener.add(sl);
+            if (mLaststate != null)
                     sl.updateState(mLaststate, mLaststatemsg, mLastStateresid, mLastLevel);
-            }
         }
     }
 
@@ -354,9 +350,7 @@ public class VpnStatus {
 
 
     public synchronized static void removeStateListener(StateListener sl) {
-        synchronized (stateListener) {
-            stateListener.remove(sl);
-        }
+        stateListener.remove(sl);
     }
 
 
@@ -388,11 +382,8 @@ public class VpnStatus {
         mLastStateresid = resid;
         mLastLevel = level;
 
-
-        synchronized (stateListener) {
-            for (StateListener sl : stateListener) {
-                sl.updateState(state, msg, resid, level);
-            }
+        for (StateListener sl : stateListener) {
+            sl.updateState(state, msg, resid, level);
         }
         //newLogItem(new LogItem((LogLevel.DEBUG), String.format("New OpenVPN Status (%s->%s): %s",state,level.toString(),msg)));
     }
