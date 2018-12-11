@@ -16,8 +16,8 @@ android {
 
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
-    versionCode 135
-    versionName "0.9.9RC1"
+    versionCode 136
+    versionName "0.9.9"
     resValue "string", "app_name", appName
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'

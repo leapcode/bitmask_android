@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="notifcation_title_bitmask">Bitmask - %s</string>
+    <string name="notifcation_title_bitmask">%s - %s</string>
     <string name="copyright_leapgui" translatable="false">Copyright 2012-2018\nLEAP Encryption Access Project &lt;info@leap.se></string>
     <string name="opevpn_copyright" translatable="false">Copyright © 2002–2010 OpenVPN Technologies, Inc. &lt;sales@openvpn.net>\n
 	  "OpenVPN" is a trademark of OpenVPN Technologies, Inc.</string>

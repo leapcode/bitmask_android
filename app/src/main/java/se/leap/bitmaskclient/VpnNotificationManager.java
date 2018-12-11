@@ -127,10 +127,11 @@ public class VpnNotificationManager {
         NotificationCompat.Action.Builder actionBuilder = new NotificationCompat.Action.
                 Builder(R.drawable.ic_menu_close_clear_cancel, cancelString, getDisconnectIntent());
         String title;
+        String appName = context.getString(R.string.app_name);
         if (isEmpty(profileName)) {
-            title = context.getString(R.string.app_name);
+            title = appName;
        } else {
-            title = context.getString(R.string.notifcation_title_bitmask, profileName);
+            title = context.getString(R.string.notifcation_title_bitmask, appName, profileName);
         }
 
         PendingIntent contentIntent;
