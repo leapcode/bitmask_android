@@ -67,7 +67,6 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
         updateIntentFilter.addAction(BROADCAST_PROVIDER_API_EVENT);
         updateIntentFilter.addCategory(CATEGORY_DEFAULT);
         LocalBroadcastManager.getInstance(context.getApplicationContext()).registerReceiver(this, updateIntentFilter);
-        Log.d(TAG, "broadcast registered");
         instance = this;
     }
 
@@ -78,7 +77,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
     }
 
     public static boolean reconnectingWithDifferentGateway() {
-        return instance.reconnectTry.get() > 0;
+        return instance.setupNClosestGateway.get() > 0;
     }
 
     public static int connectionRetry() {
@@ -238,6 +237,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
         if ("CONNECTRETRY".equals(state) && LEVEL_CONNECTING_NO_SERVER_REPLY_YET.equals(level)) {
             if (TIMEOUT.equals(logmessage)) {
                 Log.e(TAG, "Timeout reached! Try next gateway!");
+                VpnStatus.logError("Timeout reached! Try next gateway!");
                 selectNextGateway();
                 return;
             }
