@@ -32,7 +32,6 @@ import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
 import android.text.Html;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -47,7 +46,6 @@ import org.json.JSONException;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import se.leap.bitmaskclient.Constants.CREDENTIAL_ERRORS;
-import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.userstatus.User;
 
 import static android.text.TextUtils.isEmpty;
@@ -60,9 +58,7 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_PASSWORD;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
-import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.ProviderAPI.SIGN_UP;
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
@@ -442,6 +438,7 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
         finish();
     }
 
+    //TODO: replace with EipSetupObserver
     public class ProviderAPIBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

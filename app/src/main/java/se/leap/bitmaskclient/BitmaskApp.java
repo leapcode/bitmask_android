@@ -1,19 +1,12 @@
 package se.leap.bitmaskclient;
 
 import android.content.Context;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.support.multidex.MultiDexApplication;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
-import static android.content.Intent.CATEGORY_DEFAULT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 

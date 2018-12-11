@@ -18,21 +18,11 @@
 package se.leap.bitmaskclient;
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.widget.ListView;
 
 import com.pedrogomez.renderers.Renderer;
-
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,17 +35,9 @@ import butterknife.InjectView;
 import butterknife.OnItemClick;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 
-import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
-import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_ADD_PROVIDER;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
-import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
-import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
-import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
-import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PENDING_SHOW_FAILED_DIALOG;
-import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PROVIDER_NOT_SET;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
-import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SHOWING_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SHOW_FAILED_DIALOG;
 
 /**
