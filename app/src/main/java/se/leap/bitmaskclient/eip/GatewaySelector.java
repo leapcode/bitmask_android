@@ -2,7 +2,13 @@ package se.leap.bitmaskclient.eip;
 
 import android.util.Log;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import static se.leap.bitmaskclient.utils.ConfigHelper.getCurrentTimezone;
 
 public class GatewaySelector {
     private final static String TAG = GatewaySelector.class.getSimpleName();
@@ -19,16 +25,14 @@ public class GatewaySelector {
         return closestGateway();
     }
 
-    public Gateway select(int nClosest) throws IndexOutOfBoundsException{
+    public Gateway select(int nClosest) {
         int i = 0;
         for (Map.Entry<Integer,Set<Gateway>> entrySet : offsets.entrySet()) {
-            Iterator<Gateway> iterator = entrySet.getValue().iterator();
-            while (iterator.hasNext()) {
-                Gateway gateway = iterator.next();
-                if (i == nClosest)  {
+            for (Gateway gateway : entrySet.getValue()) {
+                if (i == nClosest) {
                     return gateway;
                 }
-                i = i+1;
+                i = i + 1;
             }
         }
 
@@ -42,7 +46,7 @@ public class GatewaySelector {
 
     private TreeMap<Integer, Set<Gateway>> calculateOffsets() {
         TreeMap<Integer, Set<Gateway>> offsets = new TreeMap<Integer, Set<Gateway>>();
-        int localOffset = Calendar.getInstance().get(Calendar.ZONE_OFFSET) / 3600000;
+        int localOffset = getCurrentTimezone();
         for (Gateway gateway : gateways) {
             int dist = timezoneDistance(localOffset, gateway.getTimezone());
             Set<Gateway> set = (offsets.get(dist) != null) ?

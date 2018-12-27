@@ -39,6 +39,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Calendar;
 
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.ProviderAPI;
@@ -176,5 +177,9 @@ public class ConfigHelper {
 
     public static boolean preferAnonymousUsage() {
         return BuildConfig.priotize_anonymous_usage;
+    }
+
+    public static int getCurrentTimezone() {
+        return Calendar.getInstance().get(Calendar.ZONE_OFFSET) / 3600000;
     }
 }

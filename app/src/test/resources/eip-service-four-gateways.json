@@ -1,0 +1,123 @@
+{
+  "gateways": [
+    {
+      "capabilities": {
+        "adblock": false,
+        "filter_dns": false,
+        "limited": false,
+        "ports": [
+          "443"
+        ],
+        "protocols": [
+          "tcp",
+          "udp"
+        ],
+        "transport": [
+          "openvpn"
+        ],
+        "user_ips": false
+      },
+      "host": "millipede.demo.bitmask.net",
+      "ip_address": "198.252.153.84",
+      "location": "seattle__wa"
+    },
+    {
+      "capabilities": {
+        "adblock": false,
+        "filter_dns": false,
+        "limited": false,
+        "ports": [
+          "443"
+        ],
+        "protocols": [
+          "tcp",
+          "udp"
+        ],
+        "transport": [
+          "openvpn"
+        ],
+        "user_ips": false
+      },
+      "host": "otter.demo.bitmask.net",
+      "ip_address": "46.165.242.169",
+      "location": "frankfurt"
+    },
+    {
+      "capabilities": {
+        "adblock": false,
+        "filter_dns": false,
+        "limited": false,
+        "ports": [
+          "443"
+        ],
+        "protocols": [
+          "tcp",
+          "udp"
+        ],
+        "transport": [
+          "openvpn"
+        ],
+        "user_ips": false
+      },
+      "host": "orca.demo.bitmask.net",
+      "ip_address": "46.172.242.101",
+      "location": "moscow"
+    },
+    {
+      "capabilities": {
+        "adblock": false,
+        "filter_dns": false,
+        "limited": false,
+        "ports": [
+          "443"
+        ],
+        "protocols": [
+          "tcp",
+          "udp"
+        ],
+        "transport": [
+          "openvpn"
+        ],
+        "user_ips": false
+      },
+      "host": "duck.demo.bitmask.net",
+      "ip_address": "104.165.142.132",
+      "location": "manila"
+    }
+  ],
+  "locations": {
+    "seattle__wa": {
+      "country_code": "US",
+      "hemisphere": "N",
+      "name": "Seattle, WA",
+      "timezone": "-7"
+    },
+    "frankfurt": {
+      "country_code": "DE",
+      "hemisphere": "N",
+      "name": "Frankfurt",
+      "timezone": "+1"
+    },
+    "moscow": {
+      "country_code": "RU",
+      "hemisphere": "N",
+      "name": "Moscow",
+      "timezone": "+3"
+    },
+    "manila": {
+      "country_code": "PH",
+      "hemisphere": "N",
+      "name": "Manila",
+      "timezone": "+8"
+    }
+  },
+  "openvpn_configuration": {
+    "auth": "SHA1",
+    "cipher": "AES-128-CBC",
+    "keepalive": "10 30",
+    "tls-cipher": "DHE-RSA-AES128-SHA",
+    "tun-ipv6": true
+  },
+  "serial": 1,
+  "version": 1
+}
