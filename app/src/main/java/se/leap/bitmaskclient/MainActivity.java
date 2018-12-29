@@ -38,6 +38,7 @@ import se.leap.bitmaskclient.drawer.NavigationDrawerFragment;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.fragments.LogFragment;
 
+import static se.leap.bitmaskclient.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
@@ -47,7 +48,6 @@ import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.EipFragment.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;

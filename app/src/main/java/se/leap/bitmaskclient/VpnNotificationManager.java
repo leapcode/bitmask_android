@@ -44,7 +44,7 @@ import static android.text.TextUtils.isEmpty;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
-import static se.leap.bitmaskclient.EipFragment.ASK_TO_CANCEL_VPN;
+import static se.leap.bitmaskclient.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 
 /**

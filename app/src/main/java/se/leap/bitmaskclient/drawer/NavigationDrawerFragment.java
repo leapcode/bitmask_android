@@ -382,31 +382,18 @@ public class NavigationDrawerFragment extends Fragment {
             alertDialog = alertBuilder
                     .setTitle(activity.getString(R.string.save_battery))
                     .setMessage(activity.getString(R.string.save_battery_message))
-                    .setPositiveButton((android.R.string.yes), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            DrawerSettingsItem item = settingsListAdapter.getDrawerItem(BATTERY_SAVER);
-                            item.setChecked(true);
-                            settingsListAdapter.notifyDataSetChanged();
-                            saveBattery(getContext(), item.isChecked());
-                        }
+                    .setPositiveButton((android.R.string.yes), (dialog, which) -> {
+                        DrawerSettingsItem item = settingsListAdapter.getDrawerItem(BATTERY_SAVER);
+                        item.setChecked(true);
+                        settingsListAdapter.notifyDataSetChanged();
+                        saveBattery(getContext(), item.isChecked());
                     })
-                    .setNegativeButton(activity.getString(android.R.string.no), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            disableSwitch(BATTERY_SAVER);
-                        }
-                    }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> disableSwitch(BATTERY_SAVER)).setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
                             showEnableExperimentalFeature = false;
                         }
-                    }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            disableSwitch(BATTERY_SAVER);
-                        }
-                    }).show();
+                    }).setOnCancelListener(dialog -> disableSwitch(BATTERY_SAVER)).show();
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }

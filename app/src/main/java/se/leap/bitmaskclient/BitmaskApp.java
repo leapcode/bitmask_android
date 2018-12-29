@@ -19,7 +19,6 @@ public class BitmaskApp extends MultiDexApplication {
     private final static String TAG = BitmaskApp.class.getSimpleName();
     private RefWatcher refWatcher;
     private ProviderObservable providerObservable;
-    private SharedPreferences preferences;
 
 
     @Override
@@ -33,7 +32,7 @@ public class BitmaskApp extends MultiDexApplication {
         refWatcher = LeakCanary.install(this);
         // Normal app init code...*/
         PRNGFixes.apply();
-        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         providerObservable = ProviderObservable.getInstance();
         providerObservable.updateProvider(getSavedProviderFromSharedPreferences(preferences));
         EipSetupObserver.init(this, preferences);

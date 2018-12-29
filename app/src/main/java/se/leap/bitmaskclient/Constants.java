@@ -33,6 +33,8 @@ public interface Constants {
     String DEFAULT_BITMASK = "normal";
     String CUSTOM_BITMASK = "custom";
 
+    String ASK_TO_CANCEL_VPN = "ask_to_cancel_vpn";
+
 
     //////////////////////////////////////////////
     // EIP CONSTANTS

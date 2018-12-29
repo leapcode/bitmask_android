@@ -1,7 +1,7 @@
 FROM 0xacab.org:4567/leap/docker/debian:stretch_amd64
 
 MAINTAINER LEAP Encryption Access Project <info@leap.se>
-LABEL Description="Android SDK baseimage based on debian:stretch" Vendor="LEAP" Version="26.0.0"
+LABEL Description="Android SDK baseimage based on debian:stretch" Vendor="LEAP" Version="27.0.0"
 
 # ------------------------------------------------------
 # --- Install System Dependencies
@@ -59,11 +59,13 @@ RUN echo y | sdkmanager "platform-tools" # echo y to accept google licenses
 RUN sdkmanager "extras;android;m2repository"
 
 # Install Build Tools (Please keep in descending order)
+RUN sdkmanager "build-tools;28.0.3"
 RUN sdkmanager "build-tools;27.0.3"
 RUN sdkmanager "build-tools;25.0.2"
 RUN sdkmanager "build-tools;23.0.3"
 
 # Install Target SDK Packages (Please keep in descending order)
+RUN sdkmanager "platforms;android-28"
 RUN sdkmanager "platforms;android-27"
 RUN sdkmanager "platforms;android-25"
 RUN sdkmanager "platforms;android-23"
