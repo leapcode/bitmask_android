@@ -2,7 +2,6 @@ package se.leap.bitmaskclient.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,12 +9,6 @@ import android.support.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -31,7 +24,6 @@ import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
-import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE_UUID;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
