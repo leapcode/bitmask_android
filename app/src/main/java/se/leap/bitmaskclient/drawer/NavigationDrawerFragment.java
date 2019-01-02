@@ -47,7 +47,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.ListView;
 
 import se.leap.bitmaskclient.DrawerSettingsAdapter;
@@ -201,12 +200,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         // Defer code dependent on restoration of previous instance state.
-        this.drawerLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                drawerToggle.syncState();
-            }
-        });
+        this.drawerLayout.post(() -> drawerToggle.syncState());
         this.drawerLayout.addDrawerListener(drawerToggle);
     }
 
@@ -261,12 +255,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void setupSettingsListView() {
         ListView drawerSettingsListView = drawerView.findViewById(R.id.settingsList);
-        drawerSettingsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(parent, position);
-            }
-        });
+        drawerSettingsListView.setOnItemClickListener((parent, view, position, id) -> selectItem(parent, position));
         drawerSettingsListView.setAdapter(settingsListAdapter);
     }
 
@@ -276,12 +265,7 @@ public class NavigationDrawerFragment extends Fragment {
             settingsListAdapter.addItem(getSwitchInstance(getString(R.string.save_battery),
                     getSaveBattery(getContext()),
                     BATTERY_SAVER,
-                    new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean newStateIsChecked) {
-                            onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked);
-                        }
-                    }));
+                    (buttonView, newStateIsChecked) -> onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked)));
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             settingsListAdapter.addItem(getSimpleTextInstance(getString(R.string.always_on_vpn), ALWAYS_ON));
@@ -318,31 +302,25 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void showDottedIconWithDelay() {
         final Handler navigationDrawerHandler = new Handler();
-        navigationDrawerHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!wasPaused) {
-                    toolbar.setNavigationIcon(R.drawable.ic_menu_color_point);
-                    toolbar.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-                }
-
+        navigationDrawerHandler.postDelayed(() -> {
+            if (!wasPaused) {
+                toolbar.setNavigationIcon(R.drawable.ic_menu_color_point);
+                toolbar.playSoundEffect(android.view.SoundEffectConstants.CLICK);
             }
+
         }, THREE_SECONDS);
     }
 
     @NonNull
     private void closeDrawerWithDelay() {
         final Handler navigationDrawerHandler = new Handler();
-        navigationDrawerHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!wasPaused) {
-                    drawerLayout.closeDrawer(fragmentContainerView, true);
-                } else {
-                    shouldCloseOnResume = true;
-                }
-
+        navigationDrawerHandler.postDelayed(() -> {
+            if (!wasPaused) {
+                drawerLayout.closeDrawer(fragmentContainerView, true);
+            } else {
+                shouldCloseOnResume = true;
             }
+
         }, TWO_SECONDS);
     }
 
