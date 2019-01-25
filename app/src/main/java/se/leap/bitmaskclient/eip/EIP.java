@@ -175,7 +175,6 @@ public final class EIP extends JobIntentService implements Observer {
         }
     }
 
-
     /**
      * Initiates an EIP connection by selecting a gateway and preparing and sending an
      * Intent to {@link de.blinkt.openvpn.LaunchVPN}.
@@ -245,18 +244,9 @@ public final class EIP extends JobIntentService implements Observer {
      * @param gateway to connect to
      */
     private void launchActiveGateway(@NonNull Gateway gateway, int nClosestGateway) {
-        /*Intent gatewaySetupWatcherIntent = new Intent(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT);
-        gatewaySetupWatcherIntent.putExtra(EIP_REQUEST, )
-        gatewaySetupWatcherIntent.putExtra(LaunchVPN.EXTRA_TEMP_VPN_PROFILE, gateway.getProfile());*/
-
-
-        Intent intent = new Intent(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT); //new Intent(this, LaunchVPN.class);
-        //intent.setAction(Intent.ACTION_MAIN);
-        //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        //intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
+        Intent intent = new Intent(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT);
         intent.putExtra(EXTRA_TEMP_VPN_PROFILE, gateway.getProfile());
         intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, nClosestGateway);
-        //startActivity(intent);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
     }
@@ -292,14 +282,6 @@ public final class EIP extends JobIntentService implements Observer {
         GatewaysManager gatewaysManager = new GatewaysManager(this, preferences);
         gatewaysManager.configureFromPreferences();
         return gatewaysManager;
-    }
-
-    /**
-     * Updates the eip.json. It containes information about the vpn service of a provider such as
-     * available gateways, supported protocols and open ports.
-     */
-    private void updateEipJson() {
-
     }
 
     /**
@@ -408,7 +390,6 @@ public final class EIP extends JobIntentService implements Observer {
         stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
         startService(stopVoidVpnIntent);
     }
-
 
     /**
      * creates a OpenVpnServiceConnection if necessary
