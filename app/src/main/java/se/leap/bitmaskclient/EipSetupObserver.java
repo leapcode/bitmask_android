@@ -25,6 +25,7 @@ import se.leap.bitmaskclient.utils.PreferenceHelper;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET;
+import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NOTCONNECTED;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
@@ -162,7 +163,8 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
 
     private void handleEipEvent(Intent intent) {
         int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, RESULT_CANCELED);
-        String eipRequest = intent.getStringExtra(EIP_REQUEST);
+        Bundle result = intent.getBundleExtra(BROADCAST_RESULT_KEY);
+        String eipRequest = result.getString(EIP_REQUEST);
         if (eipRequest == null) {
             return;
         }
@@ -243,7 +245,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
             }
             int current = reconnectTry.get();
             reconnectTry.set(current + 1);
-        } else if ("NOPROCESS".equals(state) && ConnectionStatus.LEVEL_NOTCONNECTED == level) {
+        } else if ("NOPROCESS".equals(state) && LEVEL_NOTCONNECTED == level) {
             //??
         } else if ("CONNECTED".equals(state)) {
             //saveLastProfile(context.getApplicationContext(), setupVpnProfile.getUUIDString());
