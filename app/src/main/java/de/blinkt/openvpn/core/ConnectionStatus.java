@@ -21,7 +21,8 @@ public enum ConnectionStatus implements Parcelable {
     LEVEL_START,
     LEVEL_AUTH_FAILED,
     LEVEL_WAITING_FOR_USER_INPUT,
-    LEVEL_BLOCKING,                 // used for Bitmask's VoidVPN
+    LEVEL_BLOCKING, // used for Bitmask's VoidVPN
+    LEVEL_STOPPING,
     UNKNOWN_LEVEL;
 
     @Override

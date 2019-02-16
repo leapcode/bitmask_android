@@ -102,8 +102,6 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "received Broadcast");
-
         String action = intent.getAction();
         if (action == null) {
             return;
@@ -125,8 +123,6 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
     }
 
     private void handleProviderApiEvent(Intent intent) {
-
-
         int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, RESULT_CANCELED);
         Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
         if (resultData == null) {
@@ -152,12 +148,9 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                 break;
         }
 
-
-
         for (EipSetupListener listener : listeners) {
             listener.handleProviderApiEvent(intent);
         }
-
     }
 
 
@@ -175,10 +168,6 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                     //setup failed
                     finishGatewaySetup(false);
                 }
-                break;
-            case EIP_ACTION_STOP:
-                //setup was manually cancelled
-                finishGatewaySetup(false);
                 break;
             default:
                 break;
@@ -234,9 +223,10 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
             return;
         }
 
-        Log.d(TAG, "trying gateway: " + setupVpnProfile.getName());
-
-        if ("CONNECTRETRY".equals(state) && LEVEL_CONNECTING_NO_SERVER_REPLY_YET.equals(level)) {
+        if (ConnectionStatus.LEVEL_STOPPING == level) {
+            finishGatewaySetup(false);
+        } else if ("CONNECTRETRY".equals(state) && LEVEL_CONNECTING_NO_SERVER_REPLY_YET.equals(level)) {
+            Log.d(TAG, "trying gateway: " + setupVpnProfile.getName());
             if (TIMEOUT.equals(logmessage)) {
                 Log.e(TAG, "Timeout reached! Try next gateway!");
                 VpnStatus.logError("Timeout reached! Try next gateway!");

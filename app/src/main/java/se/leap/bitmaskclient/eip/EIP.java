@@ -43,12 +43,13 @@ import java.util.Observer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import de.blinkt.openvpn.LaunchVPN;
+import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.OnBootReceiver;
+import se.leap.bitmaskclient.R;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -215,13 +216,10 @@ public final class EIP extends JobIntentService implements Observer {
      * The {@link OnBootReceiver} will care if there is no profile.
      */
     private void startEIPAlwaysOnVpn() {
-        Log.d(TAG, "startEIPAlwaysOnVpn vpn");
-
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
         Gateway gateway = gatewaysManager.select(0);
 
         if (gateway != null && gateway.getProfile() != null) {
-            Log.d(TAG, "startEIPAlwaysOnVpn eip launch closest gateway.");
             launchActiveGateway(gateway, 0);
         } else {
             Log.d(TAG, "startEIPAlwaysOnVpn no active profile available!");
@@ -257,6 +255,7 @@ public final class EIP extends JobIntentService implements Observer {
      * terminates EIP if currently connected or connecting
      */
     private void stopEIP() {
+        VpnStatus.updateStateString("STOPPING", "STOPPING VPN", R.string.state_exiting, ConnectionStatus.LEVEL_STOPPING);
         int resultCode = stop() ? RESULT_OK : RESULT_CANCELED;
         tellToReceiverOrBroadcast(EIP_ACTION_STOP, resultCode);
     }

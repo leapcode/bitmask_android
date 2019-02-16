@@ -7,12 +7,8 @@ package de.blinkt.openvpn.core;
 
 import android.Manifest.permission;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.UiModeManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -20,17 +16,14 @@ import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.net.VpnService;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.system.OsConstants;
 import android.text.TextUtils;
@@ -39,7 +32,6 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -47,8 +39,6 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Vector;
 
-import de.blinkt.openvpn.LaunchVPN;
-import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
@@ -248,10 +238,14 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @Override
     public boolean stopVPN(boolean replaceConnection) throws RemoteException {
-        if (getManagement() != null)
-            return getManagement().stopVPN(replaceConnection);
-        else
-            return false;
+       if (getManagement() != null && getManagement().stopVPN(replaceConnection)) {
+           if (!replaceConnection) {
+               VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
+           }
+           return true;
+       } else {
+           return false;
+       }
     }
 
     /**

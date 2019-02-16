@@ -350,7 +350,7 @@ public class EipFragment extends Fragment implements Observer {
             eipStatus = (EipStatus) observable;
             Activity activity = getActivity();
             if (activity != null) {
-                activity.runOnUiThread(() -> handleNewState());
+                activity.runOnUiThread(this::handleNewState);
             } else {
                 Log.e("EipFragment", "activity is null");
             }

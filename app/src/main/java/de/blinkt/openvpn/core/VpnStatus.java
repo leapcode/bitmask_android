@@ -212,7 +212,6 @@ public class VpnStatus {
     }
 
     public interface StateListener {
-        String STATE_CONNECTRETRY = "CONNECTRETRY";
         void updateState(String state, String logmessage, int localizedResId, ConnectionStatus level);
 
         void setConnectedVPN(String uuid);
@@ -328,21 +327,28 @@ public class VpnStatus {
         String[] connected = {"CONNECTED"};
         String[] notconnected = {"DISCONNECTED", "EXITING"};
 
+        /**
+         * ignore incoming connection/reconnecting states if vpn is about to shut down
+         */
         for (String x : noreplyet)
-            if (state.equals(x))
+            if (state.equals(x) && !mLaststate.equals("STOPPING"))
                 return ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET;
 
         for (String x : reply)
-            if (state.equals(x))
+            if (state.equals(x)  && !mLaststate.equals("STOPPING"))
                 return ConnectionStatus.LEVEL_CONNECTING_SERVER_REPLIED;
 
         for (String x : connected)
-            if (state.equals(x))
+            if (state.equals(x) && !mLaststate.equals("STOPPING"))
                 return ConnectionStatus.LEVEL_CONNECTED;
 
         for (String x : notconnected)
             if (state.equals(x))
                 return ConnectionStatus.LEVEL_NOTCONNECTED;
+
+        if (mLaststate.equals("STOPPING")) {
+            return ConnectionStatus.LEVEL_STOPPING;
+        }
 
         return ConnectionStatus.UNKNOWN_LEVEL;
 
@@ -374,6 +380,11 @@ public class VpnStatus {
         if (mLastLevel == ConnectionStatus.LEVEL_CONNECTED &&
                 (state.equals("WAIT") || state.equals("AUTH"))) {
             newLogItem(new LogItem((LogLevel.DEBUG), String.format("Ignoring OpenVPN Status in CONNECTED state (%s->%s): %s", state, level.toString(), msg)));
+            return;
+        }
+
+        if (mLaststate.equals("STOPPING") && !state.equals("DISCONNECTED") && !state.equals("EXITING")) {
+            newLogItem(new LogItem((LogLevel.DEBUG), String.format("Ignoring OpenVPN Status while exiting (%s->%s)", mLastLevel.toString(), level.toString())));
             return;
         }
 
