@@ -383,7 +383,7 @@ public class VpnStatus {
             return;
         }
 
-        if (mLaststate.equals("STOPPING") && !state.equals("DISCONNECTED") && !state.equals("EXITING")) {
+        if (mLaststate.equals("STOPPING") && !state.equals("DISCONNECTED") && !state.equals("EXITING") && !state.equals("NOPROCESS")) {
             newLogItem(new LogItem((LogLevel.DEBUG), String.format("Ignoring OpenVPN Status while exiting (%s->%s)", mLastLevel.toString(), level.toString())));
             return;
         }
