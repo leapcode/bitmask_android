@@ -34,6 +34,7 @@ RUN curl -L $ANDROID_NDK_URL -o ndk.zip  \
 
 ENV PATH ${PATH}:${ANDROID_NDK_HOME}
 
+RUN echo "accept all licenses"
 # Accept all licenses
 RUN yes | sdkmanager --licenses
 RUN sdkmanager --list

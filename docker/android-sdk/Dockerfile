@@ -70,5 +70,6 @@ RUN sdkmanager "platforms;android-27"
 RUN sdkmanager "platforms;android-25"
 RUN sdkmanager "platforms;android-23"
 
+RUN echo "accept all licenses"
 # Accept all licenses
 RUN yes | sdkmanager --licenses
