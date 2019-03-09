@@ -142,6 +142,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
             case CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
                 provider = resultData.getParcelable(PROVIDER_KEY);
                 ProviderObservable.getInstance().updateProvider(provider);
+                PreferenceHelper.storeProviderInPreferences(preferences, provider);
                 EipCommand.startVPN(context.getApplicationContext(), true);
                 break;
             default:
