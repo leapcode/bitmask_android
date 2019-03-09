@@ -1,3 +1,11 @@
+0.9.10 - a hotfix release
+Bugs:
+- fixes error handling of invalid vpn client certificates
+
+Features:
+- updates on languages (thanks to Localization Lab!!!)
+- improved gateway selection: if the app cannot connect to the nearest gateway it will choose the next closest one
+
 0.9.9 - custom branded apps
 Features:
 - allows Providers to create an own version of Bitmask without knowing much about Android development
