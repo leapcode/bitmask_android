@@ -61,7 +61,7 @@
   <string name="updating_certificate_message">به‌روز رسانی گواهی وی‌پی‌ان</string>
   <string name="login.riseup.warning">کاربران Riseup نیاز به ساختن حساب کاربری جداگانه‌ای برای استفاده از وی‌پی‌ان دارند</string>
   <string name="succesful_authentication_message">احراز هویت</string>
-  <string name="authentication_failed_message">احراز هویت ناموفق بود.</string>
+  <string name="authentication_failed_message">احراز هویت ناموفق بود</string>
   <string name="registration_failed_message">ثبت‌ ناموفق</string>
   <string name="eip_status_start_pending">آماده‌سازی اتصال</string>
   <string name="eip_cancel_connect_title">انصراف از اتصال؟</string>

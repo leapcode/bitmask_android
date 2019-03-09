@@ -9,10 +9,14 @@
   <string name="new_provider_uri">Назва домена</string>
   <string name="username_hint">ім\'я користувача</string>
   <string name="password_hint">пароль</string>
+  <string name="password_mismatch">Паролі не співпадають</string>
   <string name="about_fragment_title">Про</string>
+  <string name="error_bad_user_password_user_message">Неправильний логін або пароль</string>
   <string name="login_button">Вхід у систему</string>
   <string name="setup_error_configure_button">Налаштування</string>
   <string name="setup_error_close_button">Вихід</string>
+  <string name="succesful_authentication_message">Автентифіковано</string>
+  <string name="authentication_failed_message">Збій автентифікації</string>
   <string name="action_settings">Налаштування</string>
   <string name="donate_title">Пожертвування</string>
   <string name="donate_button_remind_later">Нагадайте мені пізніше</string>

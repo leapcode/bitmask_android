@@ -8,8 +8,11 @@
   <string name="save">저장</string>
   <string name="password_match">비밀번호 일치</string>
   <string name="about_fragment_title">About</string>
+  <string name="error_bad_user_password_user_message">비밀번호나 이름이 올바르지 않습니다</string>
   <string name="setup_error_configure_button">구성</string>
   <string name="setup_error_close_button">종료</string>
+  <string name="succesful_authentication_message">인증됨</string>
+  <string name="authentication_failed_message">인증 실패</string>
   <string name="log_fragment_title">로그</string>
   <string name="action_settings">설정</string>
   <string name="donate_title">기부</string>

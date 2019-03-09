@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="retry">Tekrar dene</string>
+  <string name="repository_url_text">Kaynak kodu aşağıda ki bağlantıda mevcut
+https://0xacab.org/leap/bitmask_android</string>
   <string name="switch_provider_menu_option">Sağlayıcı değiştir</string>
   <string name="info">bilgi</string>
   <string name="show_connection_details">Bağlantı ayrıntılarını göster</string>
@@ -9,6 +11,8 @@
   <string name="provider_label">Sağlayıcı:</string>
   <string name="provider_label_none">Sağlayıcı yapılandırılmadı</string>
   <string name="status_unknown">Durum bilinmiyor.</string>
+  <string name="eip_service_label">Şifrelenmiş VPN Bağlantısı</string>
+  <string name="configuration_wizard_title">Bir servis sağlayıcı seçin</string>
   <string name="introduce_new_provider">Yeni bir servis sağlayıcı ekle</string>
   <string name="save">Kaydet</string>
   <string name="new_provider_uri">Etki alanı adı</string>
@@ -18,26 +22,36 @@
   <string name="password_hint">şifre</string>
   <string name="user_message">Kullanıcı iletisi</string>
   <string name="about_fragment_title">Hakkında</string>
-  <string name="error_bad_user_password_user_message">Hatalı kullanıcı adı ya da şifre.</string>
+  <string name="error_bad_user_password_user_message">Yanlış kullanıcı adı ya da parola</string>
   <string name="error_client_http_user_message">Tekrar deneyin: İstemci HTTP hatası</string>
   <string name="error_io_exception_user_message">Tekrar deneyin: G/Ç hatası</string>
   <string name="error_json_exception_user_message">Tekrar deneyin: Sunucudan olumsuz yanıt</string>
   <string name="login_button">Giriş Yap</string>
   <string name="logout_button">Çıkış Yap</string>
+  <string name="signup_button">Kayıt Olun</string>
   <string name="setup_error_title">Yapılandırma Hatası</string>
   <string name="setup_error_configure_button">Yapılandır</string>
   <string name="setup_error_close_button">Çıkış</string>
   <string name="malformed_url">Bu bir Bitmask sağlayıcısı olarak görünmüyor.</string>
   <string name="certificate_error">Bu güvenilen bir Bitmask sağlayıcısı değil.</string>
   <string name="configuring_provider">Sağlayıcı yapılandırılıyor</string>
-  <string name="incorrectly_downloaded_certificate_message">Anonim serfifikanız indirilmedi</string>
-  <string name="authentication_failed_message">Doğrulama başarısız.</string>
+  <string name="succesful_authentication_message">Kimliği doğrulanmış</string>
+  <string name="authentication_failed_message">Kimlik Doğrulama Başarısız</string>
   <string name="eip_status_start_pending">Bağlantı kuruluyor</string>
   <string name="eip_cancel_connect_title">Bağlantı iptal edilsin mi?</string>
   <string name="eip_cancel_connect_text">Devam eden bir bağlantı girişimi var. İptal etmek istediğinize emin misiniz?</string>
-  <string name="eip_state_connected">Bağlantı Güvenli.</string>
+  <string name="not_logged_in_user_status">Giriş yapmamışsın.</string>
+  <string name="logging_in_user_status">Giriş yapmışsın.</string>
+  <string name="logging_in">Giriş yapılıyor</string>
+  <string name="signing_up">Kayıt ol</string>
+  <string name="logging_out_user_status">Çıkış yapmışsın.</string>
+  <string name="vpn.button.turn.on">Aç</string>
+  <string name="vpn.button.turn.off">Kapat</string>
   <string name="log_fragment_title">Günlük</string>
+  <string name="vpn_fragment_title">VPN , Sanal özel ağ</string>
   <string name="action_settings">Ayarlar</string>
+  <string name="save_battery">Güç tasarrufu</string>
   <string name="donate_title">Bağışta bulun</string>
+  <string name="donate_button_remind_later">Beni hatırla</string>
   <string name="donate_button_donate">Bağışta bulun</string>
 </resources>

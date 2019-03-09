@@ -3,6 +3,7 @@
   <string name="save">I-save</string>
   <string name="about_fragment_title">Tungkol</string>
   <string name="setup_error_close_button">Lumabas</string>
+  <string name="succesful_authentication_message">Napatunayan</string>
   <string name="log_fragment_title">Tala</string>
   <string name="action_settings">Settings</string>
 </resources>

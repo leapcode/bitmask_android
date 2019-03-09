@@ -60,8 +60,8 @@
   <string name="downloading_certificate_message">Descargando certificado de VPN</string>
   <string name="updating_certificate_message">Actualizando certificado de VPN</string>
   <string name="login.riseup.warning">Los usuarios de Riseup necesitarán crear una cuenta aparte para usar el servicio VPN</string>
-  <string name="succesful_authentication_message">Autentificado.</string>
-  <string name="authentication_failed_message">Autentificación fallida.</string>
+  <string name="succesful_authentication_message">Autenticado</string>
+  <string name="authentication_failed_message">Autentificación fallida</string>
   <string name="registration_failed_message">El registro falló.</string>
   <string name="eip_status_start_pending">Iniciando conexión</string>
   <string name="eip_cancel_connect_title">¿Cancelar conexión?</string>
@@ -112,7 +112,7 @@
   <string name="save_battery_message">Las conexiones de datos de segundo plano hibernarán cuando tu teléfono esté inactivo.</string>
   <string name="always_on_vpn">VPN siempre activa</string>
   <string name="do_not_show_again">No mostrar de nuevo.</string>
-  <string name="always_on_vpn_user_message">Para habilitar VPN siempre activa en las configuraciones de VPN de Android, haz clic en el ícono de configuración [img src] y activa el selector.</string>
+  <string name="always_on_vpn_user_message">Para habilitar Always-on VPN en las configuraciones de VPN de Android, haz clic en el ícono de configuración [img src] y activa el selector.</string>
   <string name="donate_title">Donar</string>
   <string name="donate_default_message">Por favor haz una donación hoy si valoras la comunicación segura que es fácil tanto para el usuario final como para el proveedor de servicio.</string>
   <string name="donate_message">LEAP depende de donaciones y subvenciones. Por favor haz una donación hoy si valoras la comunicación segura que es fácil tanto para el usuario final como para el proveedor de servicio.</string>

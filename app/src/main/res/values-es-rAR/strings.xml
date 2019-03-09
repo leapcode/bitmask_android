@@ -56,7 +56,7 @@
   <string name="certificate_error">Este no es un proveedor de Bitmask de confianza.</string>
   <string name="service_is_down_error">El servicio está caído.</string>
   <string name="configuring_provider">Configurando proveedor.</string>
-  <string name="incorrectly_downloaded_certificate_message">Tu certificado de anonimato no fue descargado</string>
+  <string name="incorrectly_downloaded_certificate_message">Tu certificado anónimo no fue descargado</string>
   <string name="downloading_certificate_message">Descargando certificado de RPV</string>
   <string name="updating_certificate_message">Actualizando certificado de RPV</string>
   <string name="login.riseup.warning">Usuarios de Riseup necesitarán crear una cuenta separada para usar el servicio de RPV.</string>
@@ -112,7 +112,7 @@
   <string name="save_battery_message">Conexiones de datos en segundo plano hibernarán cuando tu teléfono esté inactivo.</string>
   <string name="always_on_vpn">RPV siempre activa</string>
   <string name="do_not_show_again">No mostrar de nuevo.</string>
-  <string name="always_on_vpn_user_message">Para habilitar RPV siempre activa en los ajustes de RPV de Android cliqueá en el icono de configuración [img src] y activá el selector.</string>
+  <string name="always_on_vpn_user_message">Para habilitar always-on VPN en los ajustes de VPN de Android cliqueá en el icono de configuración [img src] y activá el selector.</string>
   <string name="donate_title">Doná</string>
   <string name="donate_default_message">Por favor doná hoy si valorás las comunicaciones seguras que son fáciles tanto para el usuario final como para el proveedor de servicio.</string>
   <string name="donate_message">LEAP depende de donaciones y becas. Por favor doná hoy si valorás las comunicaciones seguras que son fáciles tanto para el usuario final como para el proveedor de servicio.</string>
