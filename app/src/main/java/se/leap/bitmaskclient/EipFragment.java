@@ -366,15 +366,14 @@ public class EipFragment extends Fragment implements Observer {
             return;
         }
 
-        Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
+        //Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
 
 
         if (eipStatus.isConnecting() ) {
             showConnectingLayout(activity);
-            Log.d(TAG, "eip show connecting layout");
             if (eipStatus.isReconnecting()) {
-                Log.d(TAG, "eip show reconnecting toast!");
-                showReconnectToast(activity);
+                //Log.d(TAG, "eip show reconnecting toast!");
+                //showReconnectToast(activity);
             }
         } else if (eipStatus.isConnected() ) {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
@@ -396,7 +395,7 @@ public class EipFragment extends Fragment implements Observer {
             colorBackgroundALittle();
         } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
             showConnectingLayout(activity);
-            showRetryToast(activity);
+            // showRetryToast(activity);
         }
         else {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
