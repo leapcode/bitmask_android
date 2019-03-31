@@ -3,6 +3,7 @@ package se.leap.bitmaskclient;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.multidex.MultiDexApplication;
+import android.support.v7.app.AppCompatDelegate;
 
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
@@ -36,6 +37,7 @@ public class BitmaskApp extends MultiDexApplication {
         providerObservable = ProviderObservable.getInstance();
         providerObservable.updateProvider(getSavedProviderFromSharedPreferences(preferences));
         EipSetupObserver.init(this, preferences);
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
     /**

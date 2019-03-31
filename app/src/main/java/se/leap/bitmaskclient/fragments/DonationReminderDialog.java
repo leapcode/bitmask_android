@@ -55,23 +55,17 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
         isShown = true;
 
         builder.setView(view);
-        btnDonate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
-                startActivity(browserIntent);
-                PreferenceHelper.putString(getContext(), LAST_DONATION_REMINDER_DATE,
-                        DateHelper.getCurrentDateString());
-                dismiss();
-            }
+        btnDonate.setOnClickListener(v -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
+            startActivity(browserIntent);
+            PreferenceHelper.putString(getContext(), LAST_DONATION_REMINDER_DATE,
+                    DateHelper.getCurrentDateString());
+            dismiss();
         });
-        btnLater.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PreferenceHelper.putString(getContext(), LAST_DONATION_REMINDER_DATE,
-                        DateHelper.getCurrentDateString());
-                dismiss();
-            }
+        btnLater.setOnClickListener(v -> {
+            PreferenceHelper.putString(getContext(), LAST_DONATION_REMINDER_DATE,
+                    DateHelper.getCurrentDateString());
+            dismiss();
         });
 
         return builder.create();
@@ -90,7 +84,7 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
             Log.e(TAG, "context is null!");
             return false;
         }
-
+        
         String firstTimeUserDate = PreferenceHelper.getString(context, FIRST_TIME_USER_DATE, null);
         if (firstTimeUserDate == null) {
             PreferenceHelper.putString(context, FIRST_TIME_USER_DATE, DateHelper.getCurrentDateString());
