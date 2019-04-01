@@ -144,7 +144,7 @@ public class StartActivityDrawerTest {
         onView(withId(drawer_layout)).perform(DrawerActions.open());
         onView(withId(drawer_layout)).check(matches(isOpen()));
 
-        onData(anything()).inAdapterView(withId(settingsList)).atPosition(3).perform(click());
+        onData(anything()).inAdapterView(withId(settingsList)).atPosition(2).perform(click());
         onView(withId(provider_list_layout)).check(matches(isDisplayed()));
     }
 
