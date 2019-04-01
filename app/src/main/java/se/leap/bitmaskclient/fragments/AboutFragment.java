@@ -18,7 +18,7 @@ import static android.view.View.VISIBLE;
 
 public class AboutFragment extends Fragment {
 
-    final public static String TAG = "aboutFragment";
+    final public static String TAG = AboutFragment.class.getSimpleName();
     final public static int VIEWED = 0;
 
     @InjectView(R.id.version)

@@ -29,7 +29,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -38,7 +37,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,6 +51,7 @@ import se.leap.bitmaskclient.DrawerSettingsAdapter;
 import se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem;
 import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.FragmentManagerEnhanced;
+import se.leap.bitmaskclient.MainActivity;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.R;
@@ -461,20 +460,17 @@ public class NavigationDrawerFragment extends Fragment {
 
     public void onTextItemSelected(AdapterView<?> parent, int position) {
         // update the main content by replacing fragments
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
         Fragment fragment = null;
-        String fragmentTag = null;
 
         if (parent == drawerAccountsListView) {
             title = getString(R.string.vpn_fragment_title);
             fragment = new EipFragment();
-            fragmentTag = EipFragment.TAG;
             Bundle arguments = new Bundle();
             Provider currentProvider = getSavedProviderFromSharedPreferences(preferences);
             arguments.putParcelable(PROVIDER_KEY, currentProvider);
             fragment.setArguments(arguments);
         } else {
-            Log.d(TAG, String.format("Selected position %d", position));
             DrawerSettingsItem settingsItem = settingsListAdapter.getItem(position);
             switch (settingsItem.getItemType()) {
                 case SWITCH_PROVIDER:
@@ -507,9 +503,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         if (fragment != null) {
-            fragmentManager.beginTransaction()
-                    .replace(R.id.container, fragment, fragmentTag)
-                    .commit();
+            fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         }
 
         restoreActionBar();

@@ -40,9 +40,17 @@ public class FragmentManagerEnhanced {
     }
 
     public void replace(int containerViewId, Fragment fragment, String tag) {
-        FragmentTransaction transaction = genericFragmentManager.beginTransaction();
+        try {
+            if (genericFragmentManager.findFragmentByTag(tag) != null) {
+                FragmentTransaction transaction = genericFragmentManager.beginTransaction();
+                transaction.replace(containerViewId, fragment, tag).commit();
+            } else {
+                genericFragmentManager.beginTransaction().add(containerViewId, fragment, tag).commit();
+            }
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
 
-        transaction.replace(containerViewId, fragment, tag).commit();
     }
 
     public FragmentTransaction beginTransaction() {

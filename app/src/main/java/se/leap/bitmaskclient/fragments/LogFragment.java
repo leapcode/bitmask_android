@@ -68,6 +68,7 @@ import se.leap.bitmaskclient.R;
 import static de.blinkt.openvpn.core.OpenVPNService.humanReadableByteCount;
 
 public class LogFragment extends ListFragment implements StateListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, VpnStatus.ByteCountListener {
+    public static final String TAG = LogFragment.class.getSimpleName();
     private static final String LOGTIMEFORMAT = "logtimeformat";
     private static final int START_VPN_CONFIG = 0;
     private static final String VERBOSITYLEVEL = "verbositylevel";

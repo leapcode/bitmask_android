@@ -101,14 +101,13 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     @Override
     public void onBackPressed() {
         FragmentManagerEnhanced fragmentManagerEnhanced = new FragmentManagerEnhanced(getSupportFragmentManager());
-        if (fragmentManagerEnhanced.findFragmentByTag(EipFragment.TAG) == null) {
-            Fragment fragment = new EipFragment();
+        Fragment fragment = fragmentManagerEnhanced.findFragmentByTag(MainActivity.TAG);
+        if (fragment == null || !(fragment instanceof EipFragment)) {
+            Fragment eipFragment = new EipFragment();
             Bundle bundle = new Bundle();
             bundle.putParcelable(PROVIDER_KEY, provider);
-            fragment.setArguments(bundle);
-            fragmentManagerEnhanced.beginTransaction()
-                    .replace(R.id.container, fragment, EipFragment.TAG)
-                    .commit();
+            eipFragment.setArguments(bundle);
+            fragmentManagerEnhanced.replace(R.id.main_container, eipFragment, MainActivity.TAG);
         } else {
             super.onBackPressed();
         }
@@ -126,12 +125,10 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
             return;
         }
 
-        String fragmentTag = null;
         Fragment fragment = null;
         switch (intent.getAction()) {
             case ACTION_SHOW_VPN_FRAGMENT:
                 fragment = new EipFragment();
-                fragmentTag = EipFragment.TAG;
                 Bundle bundle = new Bundle();
                 if (intent.hasExtra(ASK_TO_CANCEL_VPN)) {
                     bundle.putBoolean(ASK_TO_CANCEL_VPN, true);
@@ -150,9 +147,8 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         intent.setAction(null);
 
         if (fragment != null) {
-            new FragmentManagerEnhanced(getSupportFragmentManager()).beginTransaction()
-                    .replace(R.id.container, fragment, fragmentTag)
-                    .commit();
+            new FragmentManagerEnhanced(getSupportFragmentManager())
+                    .replace(R.id.main_container, fragment, MainActivity.TAG);
         }
     }
 
