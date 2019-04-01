@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.content.res.Resources.NotFoundException;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -265,6 +266,11 @@ public class LogItem implements Parcelable {
                     return str;
                 }
             }
+        } catch (NotFoundException e) {
+            String str = "Log resid not found: " + mRessourceId;
+            if (mArgs != null)
+                str += join("|", mArgs);
+            return str;
         } catch (UnknownFormatConversionException e) {
             if (c != null)
                 throw new UnknownFormatConversionException(e.getLocalizedMessage() + getString(null));
