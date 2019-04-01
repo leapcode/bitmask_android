@@ -534,6 +534,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         //Debug.startMethodTracing(getExternalFilesDir(null).toString() + "/opentun.trace", 40* 1024 * 1024);
 
+        if (mProfile == null) {
+            VpnStatus.logError("Refusing to open tun device without profile.");
+            return null;
+        }
+
         Builder builder = new Builder();
 
         VpnStatus.logInfo(R.string.last_openvpn_tun_config);
