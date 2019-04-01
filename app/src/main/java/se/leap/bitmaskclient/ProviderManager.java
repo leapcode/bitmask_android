@@ -110,7 +110,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         this.externalFilesDir = externalFilesDir;
         customProviders = externalFilesDir != null && externalFilesDir.isDirectory() ?
                 providersFromFiles(externalFilesDir.list()) :
-                new HashSet<Provider>();
+                new HashSet<>();
         customProviderURLs = getProviderUrlSetFromProviderSet(customProviders);
     }
 
@@ -121,7 +121,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                 String mainUrl = extractMainUrlFromInputStream(getInputStreamFrom(externalFilesDir.getAbsolutePath() + "/" + file));
                 providers.add(new Provider(new URL(mainUrl)));
             }
-        } catch (MalformedURLException | FileNotFoundException e) {
+        } catch (MalformedURLException | FileNotFoundException | NullPointerException e) {
             e.printStackTrace();
         }
 
