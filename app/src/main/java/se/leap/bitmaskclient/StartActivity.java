@@ -54,12 +54,11 @@ public class StartActivity extends Activity{
     public static final String TAG = StartActivity.class.getSimpleName();
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({FIRST, NORMAL, UPGRADE, DOWNGRADE})
+    @IntDef({FIRST, NORMAL, UPGRADE})
     private @interface StartupMode {}
     private static final int FIRST = 0;
     private static final int NORMAL = 1;
     private static final int UPGRADE = 2;
-    private static final int DOWNGRADE = 3;
 
     private int versionCode;
     private int previousVersionCode;
@@ -86,10 +85,6 @@ public class StartActivity extends Activity{
             case UPGRADE:
                 executeUpgrade();
                 // TODO show donation dialog
-                break;
-
-            case DOWNGRADE:
-                // TODO think how and why this should happen and what todo
                 break;
         }
 
@@ -127,11 +122,6 @@ public class StartActivity extends Activity{
             if (versionCode > previousVersionCode) {
                 Log.d(TAG, "UPGRADE");
                 return UPGRADE;
-            }
-            // version has decreased -> downgrade
-            if (versionCode < previousVersionCode) {
-                Log.d(TAG, "DOWNGRADE");
-                return DOWNGRADE;
             }
 
         } catch (PackageManager.NameNotFoundException e) {
