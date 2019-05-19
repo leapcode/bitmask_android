@@ -18,6 +18,8 @@ android {
     applicationId "se.leap.bitmaskclient"
     versionCode 137
     versionName "0.9.10"
+    minSdkVersion 16
+    targetSdkVersion 27
     resValue "string", "app_name", appName
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
@@ -226,7 +228,7 @@ def processFileInplace(file, Closure processText) {
   file.write(processText(text))
 }
 
-task copyIcsOpenVPNClasses( type: Copy ) {
+task copyIcsOpenVPNClasses(dependsOn: 'copyIcsOpenVPNFiles', type: Copy  ) {
   println "copyIcsOpenVPNClasses"
 //  from ('../ics-openvpn/main/') {
 //    include '**/LaunchVPN.java'
@@ -255,7 +257,7 @@ task copyIcsOpenVPNClasses( type: Copy ) {
 //  } into '.'
 }
 
-task copyIcsOpenVPNXml( type: Copy )  {
+task copyIcsOpenVPNXml(dependsOn: 'copyIcsOpenVPNFiles', type: Copy )  {
   println "copyIcsOpenVPNXml"
   from ('../ics-openvpn/main/') {
     include '**/strings.xml'
@@ -272,7 +274,7 @@ task copyIcsOpenVPNXml( type: Copy )  {
   } into '.'
 }
 
-task copyIcsOpenVPNImages( type: Copy ) {
+task copyIcsOpenVPNImages(dependsOn: 'copyIcsOpenVPNFiles', type: Copy ) {
   println "copyIcsOpenVPNImages"
 //  from ('../ics-openvpn/main/') {
 //    include '**/ic_filter*.png'
@@ -302,7 +304,7 @@ task copyIcsOpenVPNImages( type: Copy ) {
 }
 
 // thanks to http://pleac.sourceforge.net/pleac_groovy/fileaccess.html
-task removeDuplicatedStrings() {
+def removeDuplicatedStrings() {
   println "removeDuplicatedStrings"
   new File('.').eachFileRecurse {
     if(it.name.equals('strings.xml') || it.name.equals('plurals.xml')) {
@@ -325,7 +327,7 @@ def replaceDuplicatesForSource(File it, String type) {
   }
 }
 
-task mergeUntranslatable( type: Copy ) {
+task mergeUntranslatable(dependsOn: 'copyIcsOpenVPNFiles',  type: Copy ) {
   println "mergeUntranslatable"
   from ('../ics-openvpn/main/') {
     include '**/untranslatable.xml'
@@ -358,19 +360,20 @@ task mergeUntranslatable( type: Copy ) {
   delete ics_openvpn_untranslatable
 }
 
-task copyIcsOpenVPNFiles( type: Copy ) {
+task copyIcsOpenVPNFiles(dependsOn: 'updateIcsOpenVpn') {
   println "copyIcsOpenVPNFiles"
-  copyIcsOpenVPNClasses.execute()
-  copyIcsOpenVPNXml.execute()
-  copyIcsOpenVPNImages.execute()
+
+/*  copyIcsOpenVPNClasses
+  copyIcsOpenVPNXml
+  copyIcsOpenVPNImages
   //mergeUntranslatable.execute()
-  removeDuplicatedStrings.execute()
+  removeDuplicatedStrings()*/
 }
 
 task updateIcsOpenVpn( type: Exec ) {
   commandLine 'git', 'submodule', 'sync'
   commandLine 'git', 'submodule', 'update', '--init', '--recursive'
-  copyIcsOpenVPNFiles.execute()
+
 }
 
 
