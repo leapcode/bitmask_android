@@ -84,13 +84,13 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         getPersistedProviderUpdates(provider);
         currentDownload = validateProviderDetails(provider);
 
-        //provider details invalid
+        //provider certificate invalid
         if (currentDownload.containsKey(ERRORS)) {
             currentDownload.putParcelable(PROVIDER_KEY, provider);
             return currentDownload;
         }
 
-        //no provider certificate available
+        //no provider json or certificate available
         if (currentDownload.containsKey(BROADCAST_RESULT_KEY) && !currentDownload.getBoolean(BROADCAST_RESULT_KEY)) {
             resetProviderDetails(provider);
         }

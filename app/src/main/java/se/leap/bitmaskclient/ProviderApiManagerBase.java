@@ -54,7 +54,6 @@ import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.Constants.CREDENTIAL_ERRORS;
 import se.leap.bitmaskclient.utils.ConfigHelper;
 
-import static se.leap.bitmaskclient.utils.ConfigHelper.getFingerprintFromCertificate;
 import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
@@ -107,6 +106,7 @@ import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
 import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
+import static se.leap.bitmaskclient.utils.ConfigHelper.getFingerprintFromCertificate;
 import static se.leap.bitmaskclient.utils.ConfigHelper.parseRsaKeyFromString;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getFromPersistedProvider;
@@ -270,9 +270,6 @@ public abstract class ProviderApiManagerBase {
             e.printStackTrace();
         }
     }
-
-
-
 
     private Bundle tryToRegister(Provider provider, Bundle task) {
         Bundle result = new Bundle();
@@ -697,7 +694,14 @@ public abstract class ProviderApiManagerBase {
     }
 
     Bundle validateProviderDetails(Provider provider) {
-        Bundle result = validateCertificateForProvider(provider);
+        Bundle result = new Bundle();
+        result.putBoolean(BROADCAST_RESULT_KEY, false);
+
+        if (!provider.hasDefinition()) {
+            return result;
+        }
+
+        result = validateCertificateForProvider(result, provider);
 
         //invalid certificate or no certificate
         if (result.containsKey(ERRORS) || (result.containsKey(BROADCAST_RESULT_KEY) && !result.getBoolean(BROADCAST_RESULT_KEY)) ) {
@@ -709,10 +713,7 @@ public abstract class ProviderApiManagerBase {
         return result;
     }
 
-    protected Bundle validateCertificateForProvider(Provider provider) {
-        Bundle result = new Bundle();
-        result.putBoolean(BROADCAST_RESULT_KEY, false);
-
+    protected Bundle validateCertificateForProvider(Bundle result, Provider provider) {
         String caCert = provider.getCaCert();
 
         if (ConfigHelper.checkErroneousDownload(caCert)) {
