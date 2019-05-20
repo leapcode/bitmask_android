@@ -559,7 +559,7 @@ public abstract class ProviderApiManagerBase {
 
         try {
             responseJson = new JSONObject(plain_response);
-        } catch (JSONException e) {
+        } catch (NullPointerException | JSONException e) {
             e.printStackTrace();
             responseJson = getErrorMessageAsJson(error_json_exception_user_message);
         }
