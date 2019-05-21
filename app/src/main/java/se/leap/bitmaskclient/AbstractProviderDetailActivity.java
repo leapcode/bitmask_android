@@ -48,10 +48,13 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
         if (provider.allowsRegistered()) {
             optionsList.add(getString(R.string.login_to_profile));
             optionsList.add(getString(R.string.create_profile));
+            if (provider.allowsAnonymous()) {
+                optionsList.add(getString(R.string.use_anonymously_button));
+            }
+        } else {
+            onAnonymouslySelected();
         }
-        if (provider.allowsAnonymous()) {
-            optionsList.add(getString(R.string.use_anonymously_button));
-        }
+
 
         options.setAdapter(new ArrayAdapter<>(
                 this,
@@ -71,11 +74,7 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
                     Log.d(TAG, "signup selected");
                     intent = new Intent(getApplicationContext(), SignupActivity.class);
                 } else {
-                    Log.d(TAG, "use anonymously selected");
-                    intent = new Intent();
-                    intent.putExtra(Provider.KEY, provider);
-                    setResult(RESULT_OK, intent);
-                    finish();
+                    onAnonymouslySelected();
                     return;
                 }
                 intent.putExtra(PROVIDER_KEY, provider);
@@ -99,6 +98,15 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
                 finish();
             }
         }
+    }
+
+    private void onAnonymouslySelected() {
+        Intent intent;
+        Log.d(TAG, "use anonymously selected");
+        intent = new Intent();
+        intent.putExtra(Provider.KEY, provider);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
 }

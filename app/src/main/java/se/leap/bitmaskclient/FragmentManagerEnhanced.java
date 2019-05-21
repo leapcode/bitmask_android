@@ -53,10 +53,6 @@ public class FragmentManagerEnhanced {
 
     }
 
-    public FragmentTransaction beginTransaction() {
-        return genericFragmentManager.beginTransaction();
-    }
-
     public Fragment findFragmentByTag(String tag) {
         return genericFragmentManager.findFragmentByTag(tag);
     }

@@ -182,14 +182,14 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                     break;
             }
         }
-        //TODO: Why do we want this --v? legacy and redundant?
+
+        // on switch provider we need to set the EIP fragment
         Fragment fragment = new EipFragment();
         Bundle arguments = new Bundle();
         arguments.putParcelable(PROVIDER_KEY, provider);
         fragment.setArguments(arguments);
-        new FragmentManagerEnhanced(getSupportFragmentManager()).beginTransaction()
-                .replace(R.id.container, fragment, EipFragment.TAG)
-                .commit();
+        new FragmentManagerEnhanced(getSupportFragmentManager())
+                .replace(R.id.main_container, fragment, EipFragment.TAG);
     }
 
     @Override
