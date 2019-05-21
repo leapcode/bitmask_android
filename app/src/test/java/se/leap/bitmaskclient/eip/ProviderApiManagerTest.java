@@ -38,14 +38,13 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 
-import se.leap.bitmaskclient.testutils.MockHelper;
-import se.leap.bitmaskclient.utils.ConfigHelper;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.ProviderApiConnector;
 import se.leap.bitmaskclient.ProviderApiManager;
 import se.leap.bitmaskclient.ProviderApiManagerBase;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
+import se.leap.bitmaskclient.utils.ConfigHelper;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
@@ -53,6 +52,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
+import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_MICONFIGURED_PROVIDER;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_UPDATED_CERTIFICATE;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBundle;
@@ -353,6 +353,53 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
 
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
+
+        providerApiManager.handleIntent(providerApiCommand);
+    }
+
+    @Test
+    public void test_handleIntentSetupProvider_preseededProviderAndCA_failedConfiguration() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+
+        Provider provider = getConfiguredProvider();
+
+        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockProviderApiConnector(ERROR_CASE_MICONFIGURED_PROVIDER);
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
+        Bundle expectedResult = mockBundle();
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
+        expectedResult.putString(ERRORS, "{\"errors\":\"There was an error configuring Bitmask with your chosen provider.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
+
+
+        Intent providerApiCommand = mockIntent();
+
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+
+        providerApiManager.handleIntent(providerApiCommand);
+    }
+
+    @Test
+    public void test_handleIntentSetupProvider_outdatedPreseededProviderAndCA_successfulConfiguration() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+
+        Provider provider = getProvider(null, null, "riseup_net_outdated_config.json");
+
+        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockProviderApiConnector(NO_ERROR);
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
+        Bundle expectedResult = mockBundle();
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, true);
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
+
+
+        Intent providerApiCommand = mockIntent();
+
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
 
         providerApiManager.handleIntent(providerApiCommand);
     }

@@ -451,6 +451,8 @@ public class MockHelper {
                 thenReturn(errorMessages.getString("warning_corrupted_provider_cert"));
         when(mockedResources.getString(R.string.warning_expired_provider_cert)).
                 thenReturn(errorMessages.getString("warning_expired_provider_cert"));
+        when(mockedResources.getString(R.string.setup_error_text)).
+                thenReturn(errorMessages.getString("setup_error_text"));
         return mockedResources;
     }
 }

@@ -48,6 +48,9 @@ public class ProviderSetupFailedDialog extends DialogFragment {
 
     private Provider provider;
 
+    /**
+     * Represent error types that need different error handling actions
+     */
     public enum DOWNLOAD_ERRORS {
         DEFAULT,
         ERROR_CORRUPTED_PROVIDER_JSON,
@@ -103,42 +106,25 @@ public class ProviderSetupFailedDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(reasonToFail)
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                interfaceWithConfigurationWizard.cancelSettingUpProvider();
-            }
-        });
+                .setNegativeButton(R.string.cancel, (dialog, id)
+                        -> interfaceWithConfigurationWizard.cancelSettingUpProvider());
         switch (downloadError) {
             case ERROR_CORRUPTED_PROVIDER_JSON:
-                builder.setPositiveButton(R.string.update_provider_details, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        interfaceWithConfigurationWizard.updateProviderDetails();
-                    }
-                });
+                builder.setPositiveButton(R.string.update_provider_details, (dialog, which)
+                        -> interfaceWithConfigurationWizard.updateProviderDetails());
                 break;
             case ERROR_CERTIFICATE_PINNING:
             case ERROR_INVALID_CERTIFICATE:
-                builder.setPositiveButton(R.string.update_certificate, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        interfaceWithConfigurationWizard.updateProviderDetails();
-                    }
-                });
+                builder.setPositiveButton(R.string.update_certificate, (dialog, which)
+                        -> interfaceWithConfigurationWizard.updateProviderDetails());
                 break;
             case ERROR_NEW_URL_NO_VPN_PROVIDER:
-                builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        interfaceWithConfigurationWizard.addAndSelectNewProvider(provider.getMainUrlString());
-                    }
-                });
+                builder.setPositiveButton(R.string.retry, (dialog, id)
+                        -> interfaceWithConfigurationWizard.addAndSelectNewProvider(provider.getMainUrlString()));
                 break;
             default:
-                builder.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                interfaceWithConfigurationWizard.retrySetUpProvider(provider);
-                            }
-                        });
+                builder.setPositiveButton(R.string.retry, (dialog, id)
+                        -> interfaceWithConfigurationWizard.retrySetUpProvider(provider));
                 break;
         }
 

@@ -17,8 +17,6 @@
 
 package se.leap.bitmaskclient.testutils;
 
-import junit.framework.Test;
-
 import org.json.JSONException;
 
 import java.io.BufferedReader;

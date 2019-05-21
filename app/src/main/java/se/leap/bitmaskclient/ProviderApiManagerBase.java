@@ -595,7 +595,7 @@ public abstract class ProviderApiManagerBase {
 
     private boolean canConnect(String caCert, JSONObject providerDefinition, Bundle result) {
         JSONObject errorJson = new JSONObject();
-        String baseUrl = getApiUrl(providerDefinition);
+        String providerUrl = getApiUrl(providerDefinition) + "/provider.json";
 
         OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, errorJson);
         if (okHttpClient == null) {
@@ -605,7 +605,7 @@ public abstract class ProviderApiManagerBase {
 
         try {
 
-            return ProviderApiConnector.canConnect(okHttpClient, baseUrl);
+            return ProviderApiConnector.canConnect(okHttpClient, providerUrl);
 
         }  catch (UnknownHostException | SocketTimeoutException e) {
             setErrorResult(result, server_unreachable_message, null);

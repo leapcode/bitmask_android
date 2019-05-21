@@ -30,6 +30,7 @@ public class BackendMockProvider {
     public enum TestBackendErrorCase {
         NO_ERROR,
         ERROR_CASE_UPDATED_CERTIFICATE,
+        ERROR_CASE_MICONFIGURED_PROVIDER,
         ERROR_NO_RESPONSE_BODY,         // => NullPointerException
         ERROR_DNS_RESOLUTION_ERROR,     // => UnkownHostException
         ERROR_SOCKET_TIMEOUT,           // => SocketTimeoutException
@@ -54,6 +55,9 @@ public class BackendMockProvider {
                 break;
             case ERROR_CASE_UPDATED_CERTIFICATE:
                 new UpdatedCertificateBackendResponse();
+                break;
+            case ERROR_CASE_MICONFIGURED_PROVIDER:
+                new MisconfiguredProviderBackendResponse();
                 break;
             case ERROR_NO_RESPONSE_BODY:
                 break;

@@ -73,7 +73,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
                 if (unfoundExpectedInteger.get(key) == null) {
                     description.appendText("\n unfound Integer in actual Bundle: ").appendValue(iterator.next());
                 } else {
-                    description.appendText("\n expected Integer for key " + key).appendValue(expectedIntegers.get(key)).
+                    description.appendText("\n expected Integer for key " + key + ": ").appendValue(expectedIntegers.get(key)).
                             appendText("\n found Integer was: ").appendValue(unfoundExpectedInteger.get(key));
                 }
             }
@@ -85,7 +85,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
                 if (unfoundExpectedBoolean.get(key) == null) {
                     description.appendText("\n unfound Boolean in actual Bundle: ").appendValue(iterator.next());
                 } else {
-                    description.appendText("\n expected Boolean for key " + key).appendValue(expectedBooleans.get(key)).
+                    description.appendText("\n expected Boolean for key " + key + ": ").appendValue(expectedBooleans.get(key)).
                             appendText("\n found Boolean was: ").appendValue(unfoundExpectedBoolean.get(key));
                 }
             }
@@ -97,7 +97,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
                 if (unfoundExpectedString.get(key) == null) {
                     description.appendText("\n unfound String in actual Bundle: ").appendValue(iterator.next());
                 } else {
-                    description.appendText("\n expected String for key " + key).appendValue(expectedStrings.get(key)).
+                    description.appendText("\n expected String for key " + key + ": ").appendValue(expectedStrings.get(key)).
                             appendText("\n found String was: ").appendValue(unfoundExpectedString.get(key));
                 }
             }
@@ -109,7 +109,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
                 if (unfoundExpectedParcelable.get(key) == null) {
                     description.appendText("\n unfound Parcelable in actual Bundle: ").appendValue(iterator.next());
                 } else {
-                    description.appendText("\n expected Parcelable or key " + key).appendValue(expectedParcelables.get(key)).
+                    description.appendText("\n expected Parcelable or key " + key + ": ").appendValue(expectedParcelables.get(key)).
                             appendText("\n found Parcelable was: ").appendValue(unfoundExpectedParcelable.get(key));
                 }
             }
@@ -139,8 +139,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
         Set<String> booleanKeys = expectedBooleans.keySet();
         for (String key : booleanKeys) {
             Object valueObject = actualBundle.get(key);
-            if (valueObject == null ||
-                    !(valueObject instanceof Boolean) ||
+            if (!(valueObject instanceof Boolean) ||
                     valueObject != expectedBooleans.get(key)) {
                 unfoundExpectedBoolean.put(key, (Boolean) valueObject);
                 return false;
@@ -153,8 +152,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
         Set<String> stringKeys = expectedStrings.keySet();
         for (String key : stringKeys) {
             Object valueObject = actualBundle.get(key);
-            if (valueObject == null ||
-                    !(valueObject instanceof String) ||
+            if (!(valueObject instanceof String) ||
                     !valueObject.equals(expectedStrings.get(key))) {
                 unfoundExpectedString.put(key, (String) valueObject);
                 return false;
@@ -167,8 +165,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
         Set<String> stringKeys = expectedIntegers.keySet();
         for (String key : stringKeys) {
             Object valueObject = actualBundle.get(key);
-            if (valueObject == null ||
-                    !(valueObject instanceof Integer) ||
+            if (!(valueObject instanceof Integer) ||
                     ((Integer) valueObject).compareTo(expectedIntegers.get(key)) != 0) {
                 unfoundExpectedInteger.put(key, (Integer) valueObject);
                 return false;
@@ -181,8 +178,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
         Set<String> stringKeys = expectedParcelables.keySet();
         for (String key : stringKeys) {
             Object valueObject = actualBundle.get(key);
-            if (valueObject == null ||
-                    !(valueObject instanceof Parcelable) ||
+            if (!(valueObject instanceof Parcelable) ||
                     !valueObject.equals(expectedParcelables.get(key))) {
                 unfoundExpectedParcelable.put(key, (Parcelable) valueObject);
                 return false;

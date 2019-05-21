@@ -43,6 +43,7 @@ import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ER
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.malformed_url;
+import static se.leap.bitmaskclient.R.string.setup_error_text;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
 
@@ -95,14 +96,17 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             resetProviderDetails(provider);
         }
 
-        if (!provider.hasDefinition()) {
-            currentDownload = getAndSetProviderJson(provider);
-        }
+        currentDownload = getAndSetProviderJson(provider);
         if (provider.hasDefinition() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
-            if (!provider.hasCaCert())
+            if (!provider.hasCaCert()) {
                 currentDownload = downloadCACert(provider);
+            }
             if (provider.hasCaCert() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
                 currentDownload = getAndSetEipServiceJson(provider);
+            }
+
+            if (provider.hasEIP() && !provider.allowsRegistered() && !provider.allowsAnonymous()) {
+                setErrorResult(currentDownload, setup_error_text, null);
             }
         }
 

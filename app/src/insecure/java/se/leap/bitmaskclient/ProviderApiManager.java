@@ -52,13 +52,14 @@ import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
-import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.R.string.certificate_error;
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.malformed_url;
+import static se.leap.bitmaskclient.R.string.setup_error_text;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
 
@@ -115,13 +116,15 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             resetProviderDetails(provider);
         }
 
-        if (!provider.hasDefinition())
-            currentDownload = getAndSetProviderJson(provider, lastDangerOn);
+        currentDownload = getAndSetProviderJson(provider, lastDangerOn);
         if (provider.hasDefinition() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
             if (!provider.hasCaCert())
                 currentDownload = downloadCACert(provider, lastDangerOn);
             if (provider.hasCaCert() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
                 currentDownload = getAndSetEipServiceJson(provider);
+            }
+            if (provider.hasEIP() && !provider.allowsRegistered() && !provider.allowsAnonymous()) {
+                setErrorResult(currentDownload, setup_error_text, null);
             }
         }
         currentDownload.putParcelable(PROVIDER_KEY, provider);
