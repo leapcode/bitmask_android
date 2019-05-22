@@ -176,6 +176,7 @@ public class VpnNotificationManager {
         mChannel.enableLights(true);
 
         mChannel.setLightColor(Color.BLUE);
+        mChannel.setSound(null, null);
         notificationManager.createNotificationChannel(mChannel);
     }
 
@@ -206,6 +207,7 @@ public class VpnNotificationManager {
         mChannel.enableLights(true);
 
         mChannel.setLightColor(Color.BLUE);
+        mChannel.setSound(null, null);
         notificationManager.createNotificationChannel(mChannel);
     }
 
