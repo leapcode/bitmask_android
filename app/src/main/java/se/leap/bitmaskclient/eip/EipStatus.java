@@ -115,8 +115,10 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
                 break;
             case LEVEL_AUTH_FAILED:
             case LEVEL_NOTCONNECTED:
-            case LEVEL_STOPPING:
                 currentEipLevel = EipLevel.DISCONNECTED;
+                break;
+            case LEVEL_STOPPING:
+                currentEipLevel = EipLevel.DISCONNECTING;
                 break;
             case LEVEL_NONETWORK:
             case LEVEL_BLOCKING:
@@ -205,6 +207,10 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
 
     public boolean isDisconnected() {
         return currentEipLevel == EipLevel.DISCONNECTED;
+    }
+
+    public boolean isDisconnecting() {
+        return currentEipLevel == EipLevel.DISCONNECTING;
     }
 
     /**

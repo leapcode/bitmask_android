@@ -33,7 +33,6 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
@@ -251,7 +250,6 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
             changingGateway.set(false);
         }
     }
-
 
     private void selectNextGateway() {
         changingGateway.set(true);

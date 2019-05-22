@@ -289,6 +289,11 @@ public class EipFragment extends Fragment implements Observer {
         }
     }
 
+    private void setMainButtonEnabled(boolean enabled) {
+        mainButton.setEnabled(enabled);
+        vpnStateImage.setEnabled(enabled);
+    }
+
     public void startEipFromScratch() {
         saveStatus(true);
         Context context = getContext();
@@ -370,6 +375,7 @@ public class EipFragment extends Fragment implements Observer {
 
 
         if (eipStatus.isConnecting() ) {
+            setMainButtonEnabled(true);
             showConnectingLayout(activity);
             if (eipStatus.isReconnecting()) {
                 //Log.d(TAG, "eip show reconnecting toast!");
@@ -377,6 +383,7 @@ public class EipFragment extends Fragment implements Observer {
             }
         } else if (eipStatus.isConnected() ) {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
+            setMainButtonEnabled(true);
             vpnStateImage.setStateIcon(R.drawable.vpn_connected);
             vpnStateImage.stopProgress(true);
             routedText.setText(R.string.vpn_securely_routed);
@@ -386,6 +393,7 @@ public class EipFragment extends Fragment implements Observer {
             colorBackground();
         } else if(isOpenVpnRunningWithoutNetwork()){
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
+            setMainButtonEnabled(true);
             vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
             vpnStateImage.stopProgress(true);
             routedText.setText(R.string.vpn_securely_routed_no_internet);
@@ -396,9 +404,12 @@ public class EipFragment extends Fragment implements Observer {
         } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
             showConnectingLayout(activity);
             // showRetryToast(activity);
-        }
-        else {
+        } else if (eipStatus.isDisconnecting()) {
+            setMainButtonEnabled(false);
+            showDisconnectingLayout(activity);
+        } else {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
+            setMainButtonEnabled(true);
             vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
             vpnStateImage.stopProgress(false);
             routedText.setVisibility(GONE);
@@ -410,9 +421,9 @@ public class EipFragment extends Fragment implements Observer {
     private void showToast(Activity activity, String message, boolean vibrateLong) {
         LayoutInflater inflater = getLayoutInflater();
         View layout = inflater.inflate(R.layout.custom_toast,
-                (ViewGroup) activity.findViewById(R.id.custom_toast_container));
+                activity.findViewById(R.id.custom_toast_container));
 
-        TextView text = (TextView) layout.findViewById(R.id.text);
+        TextView text = layout.findViewById(R.id.text);
         text.setText(message);
 
         Vibrator v = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
@@ -441,12 +452,24 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void showConnectingLayout(Context activity) {
+        showConnectionTransitionLayout(activity, true);
+    }
+
+    private void showDisconnectingLayout(Activity activity) {
+        showConnectionTransitionLayout(activity, false);
+    }
+
+    private void showConnectionTransitionLayout(Context activity, boolean isConnecting) {
         mainButton.setText(activity.getString(android.R.string.cancel));
         vpnStateImage.setStateIcon(R.drawable.vpn_connecting);
         vpnStateImage.showProgress();
         routedText.setVisibility(GONE);
         vpnRoute.setVisibility(GONE);
-        colorBackgroundALittle();
+        if (isConnecting) {
+            colorBackgroundALittle();
+        } else {
+            greyscaleBackground();
+        }
     }
 
     private boolean isOpenVpnRunningWithoutNetwork() {

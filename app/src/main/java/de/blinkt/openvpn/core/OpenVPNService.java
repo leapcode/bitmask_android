@@ -237,15 +237,22 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     @Override
-    public boolean stopVPN(boolean replaceConnection) throws RemoteException {
-       if (getManagement() != null && getManagement().stopVPN(replaceConnection)) {
-           if (!replaceConnection) {
-               VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
-           }
-           return true;
-       } else {
-           return false;
-       }
+    public boolean stopVPN(boolean replaceConnection) {
+        if(isVpnRunning()) {
+            if (getManagement() != null && getManagement().stopVPN(replaceConnection)) {
+                if (!replaceConnection) {
+                    VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
+                }
+                return true;
+            }
+            return false;
+        } else {
+            if (!replaceConnection) {
+                VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
+                return true;
+            }
+            return false;
+        }
     }
 
     /**
