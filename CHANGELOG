@@ -1,3 +1,13 @@
+0.9.11 - another consolidation release
+Bugs:
+- fixes app crashes
+- make Bitmask usable for Android 4.X again
+- improve setup if provider changes its config
+- improve vpn start
+- fix notification sound bug on Android O
+features:
+- new translations
+
 0.9.10 - a hotfix release
 Bugs:
 - fixes error handling of invalid vpn client certificates
