@@ -5,6 +5,11 @@
 
 package de.blinkt.openvpn;
 
+import de.blinkt.openvpn.core.connection.Connection;
+import de.blinkt.openvpn.core.connection.OpenvpnConnection;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.BuildConfig;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -189,7 +194,7 @@ public class VpnProfile implements Serializable, Cloneable {
         mProfileVersion = CURRENT_PROFILE_VERSION;
 
         mConnections = new Connection[1];
-        mConnections[0] = new Connection();
+        mConnections[0] = new OpenvpnConnection();
         mLastUsed = System.currentTimeMillis();
     }
 
@@ -314,8 +319,8 @@ public class VpnProfile implements Serializable, Cloneable {
         }
         if (mProfileVersion < 7) {
             for (Connection c : mConnections)
-                if (c.mProxyType == null)
-                    c.mProxyType = Connection.ProxyType.NONE;
+                if (c.getProxyType() == null)
+                    c.setProxyType(Connection.ProxyType.NONE);
         }
 
         mProfileVersion = CURRENT_PROFILE_VERSION;
@@ -324,12 +329,12 @@ public class VpnProfile implements Serializable, Cloneable {
 
     private void moveOptionsToConnection() {
         mConnections = new Connection[1];
-        Connection conn = new Connection();
+        Connection conn = new OpenvpnConnection();
 
-        conn.mServerName = mServerName;
-        conn.mServerPort = mServerPort;
-        conn.mUseUdp = mUseUdp;
-        conn.mCustomConfiguration = "";
+        conn.setServerName(mServerName);
+        conn.setServerPort(mServerPort);
+        conn.setUseUdp(mUseUdp);
+        conn.setCustomConfiguration("");
 
         mConnections[0] = conn;
 
@@ -425,7 +430,7 @@ public class VpnProfile implements Serializable, Cloneable {
 
             if (canUsePlainRemotes) {
                 for (Connection conn : mConnections) {
-                    if (conn.mEnabled) {
+                    if (conn.isEnabled()) {
                         cfg.append(conn.getConnectionBlock(configForOvpn3));
                     }
                 }
@@ -586,7 +591,7 @@ public class VpnProfile implements Serializable, Cloneable {
         if (mAuthenticationType != TYPE_STATICKEYS) {
             if (mCheckRemoteCN) {
                 if (mRemoteCN == null || mRemoteCN.equals(""))
-                    cfg.append("verify-x509-name ").append(openVpnEscape(mConnections[0].mServerName)).append(" name\n");
+                    cfg.append("verify-x509-name ").append(openVpnEscape(mConnections[0].getServerName())).append(" name\n");
                 else
                     switch (mX509AuthType) {
 
@@ -660,7 +665,7 @@ public class VpnProfile implements Serializable, Cloneable {
         if (!canUsePlainRemotes) {
             cfg.append("# Connection Options are at the end to allow global options (and global custom options) to influence connection blocks\n");
             for (Connection conn : mConnections) {
-                if (conn.mEnabled) {
+                if (conn.isEnabled()) {
                     cfg.append("<connection>\n");
                     cfg.append(conn.getConnectionBlock(configForOvpn3));
                     cfg.append("</connection>\n");
@@ -985,7 +990,7 @@ public class VpnProfile implements Serializable, Cloneable {
 
         boolean noRemoteEnabled = true;
         for (Connection c : mConnections) {
-            if (c.mEnabled)
+            if (c.isEnabled())
                 noRemoteEnabled = false;
 
         }
@@ -1000,12 +1005,12 @@ public class VpnProfile implements Serializable, Cloneable {
                 return R.string.openvpn3_pkcs12;
             }
             for (Connection conn : mConnections) {
-                if (conn.mProxyType == Connection.ProxyType.ORBOT || conn.mProxyType == Connection.ProxyType.SOCKS5)
+                if (conn.getProxyType() == Connection.ProxyType.ORBOT || conn.getProxyType() == Connection.ProxyType.SOCKS5)
                     return R.string.openvpn3_socksproxy;
             }
         }
         for (Connection c : mConnections) {
-            if (c.mProxyType == Connection.ProxyType.ORBOT) {
+            if (c.getProxyType() == Connection.ProxyType.ORBOT) {
                 if (usesExtraProxyOptions())
                     return R.string.error_orbot_and_proxy_options;
                 if (!OrbotHelper.checkTorReceier(context))

@@ -42,9 +42,13 @@ import java.util.Vector;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnNotificationManager;
+import se.leap.bitmaskclient.pluggableTransports.Dispatcher;
+import de.blinkt.openvpn.core.connection.Obfs4Connection;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
@@ -52,6 +56,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 
 
 public class OpenVPNService extends VpnService implements StateListener, Callback, ByteCountListener, IOpenVPNServiceInternal, VpnNotificationManager.VpnServiceCallback {
+    public static final String TAG = OpenVPNService.class.getSimpleName();
     public static final String START_SERVICE = "de.blinkt.openvpn.START_SERVICE";
     public static final String START_SERVICE_STICKY = "de.blinkt.openvpn.START_SERVICE_STICKY";
     public static final String ALWAYS_SHOW_NOTIFICATION = "de.blinkt.openvpn.NOTIFICATION_ALWAYS_VISIBLE";
@@ -85,6 +90,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Toast mlastToast;
     private Runnable mOpenVPNThread;
     private VpnNotificationManager notificationManager;
+    private Dispatcher dispatcher;
 
     private static final int PRIORITY_MIN = -2;
     private static final int PRIORITY_DEFAULT = 0;
@@ -242,6 +248,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if(isVpnRunning()) {
             if (getManagement() != null && getManagement().stopVPN(replaceConnection)) {
                 if (!replaceConnection) {
+                    if (dispatcher.isRunning()) {
+                        dispatcher.stop();
+                    }
                     VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 }
                 return true;
@@ -249,6 +258,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return false;
         } else {
             if (!replaceConnection) {
+                if (dispatcher.isRunning()) {
+                    dispatcher.stop();
+                }
                 VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 return true;
             }
@@ -366,6 +378,36 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         /**
          * see change above (l. 292 ff)
          */
+        //TODO: investigate how connections[n] with n>0 get called during vpn setup (on connection refused?)
+        // Do we need to check if there's any obfs4 connection in mProfile.mConnections and start
+        // the dispatcher here? Can we start the dispatcher at a later point of execution, e.g. when
+        // connections[n], n>0 gets choosen?
+
+        VpnStatus.logInfo("Setting up dispatcher.");
+        Connection connection = mProfile.mConnections[0];
+
+        if (connection.getTransportType() == OBFS4) {
+            Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
+            dispatcher = new Dispatcher(this,
+                    obfs4Connection.getmObfs4RemoteProxyName(),
+                    obfs4Connection.getmObfs4RemoteProxyPort(),
+                    obfs4Connection.getmObfs4Certificate(),
+                    obfs4Connection.getmObfs4IatMode());
+            dispatcher.initSync();
+
+            if (dispatcher.getPort() != null && dispatcher.getPort().length() > 0) {
+                connection.setServerPort(dispatcher.getPort());
+                Log.d(TAG, "Dispatcher running. Profile server name and port: " +
+                        connection.getServerName() + ":" + connection.getServerPort());
+                VpnStatus.logInfo("Dispatcher running. Profile server name and port: " +
+                        connection.getServerName() + ":" + connection.getServerPort());
+            } else {
+                Log.e(TAG, "Cannot initialize dispatcher for obfs4 connection. Shutting down.");
+                VpnStatus.logError("Cannot initialize dispatcher for obfs4 connection. Shutting down.");
+            }
+        }
+
+
         VpnStatus.logInfo(R.string.building_configration);
         VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);
 
@@ -743,7 +785,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         boolean profileUsesOrBot = false;
 
         for (Connection c : mProfile.mConnections) {
-            if (c.mProxyType == Connection.ProxyType.ORBOT)
+            if (c.getProxyType() == Connection.ProxyType.ORBOT)
                 profileUsesOrBot = true;
         }
 

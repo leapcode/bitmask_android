@@ -30,11 +30,18 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
+import static se.leap.bitmaskclient.Constants.CAPABILITIES;
+import static se.leap.bitmaskclient.Constants.GATEWAYS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.Constants.TRANSPORT;
+import static se.leap.bitmaskclient.Constants.TYPE;
+import static se.leap.bitmaskclient.Constants.VERSION;
 
 /**
  * @author parmegv
@@ -88,10 +95,11 @@ public class GatewaysManager {
      */
     void fromEipServiceJson(JSONObject eipDefinition) {
         try {
-            JSONArray gatewaysDefined = eipDefinition.getJSONArray("gateways");
+            JSONArray gatewaysDefined = eipDefinition.getJSONArray(GATEWAYS);
+            int apiVersion = eipDefinition.getInt(VERSION);
             for (int i = 0; i < gatewaysDefined.length(); i++) {
                 JSONObject gw = gatewaysDefined.getJSONObject(i);
-                if (isOpenVpnGateway(gw)) {
+                if (isOpenVpnGateway(gw, apiVersion)) {
                     JSONObject secrets = secretsConfiguration();
                     Gateway aux = new Gateway(eipDefinition, secrets, gw);
                     if (!gateways.contains(aux)) {
@@ -110,12 +118,29 @@ public class GatewaysManager {
      * @param gateway to check
      * @return true if gateway is an OpenVpn gateway otherwise false
      */
-    private boolean isOpenVpnGateway(JSONObject gateway) {
-        try {
-            String transport = gateway.getJSONObject("capabilities").getJSONArray("transport").toString();
-            return transport.contains("openvpn");
-        } catch (JSONException e) {
-            return false;
+    private boolean isOpenVpnGateway(JSONObject gateway, int apiVersion) {
+        switch (apiVersion) {
+            default:
+            case 1:
+                try {
+                    String transport = gateway.getJSONObject(CAPABILITIES).getJSONArray(TRANSPORT).toString();
+                    return transport.contains("openvpn");
+                } catch (JSONException e) {
+                    return false;
+                }
+            case 2:
+                try {
+                    JSONArray transports = gateway.getJSONObject(CAPABILITIES).getJSONArray(TRANSPORT);
+                    for (int i = 0; i < transports.length(); i++) {
+                        JSONObject transport = transports.getJSONObject(i);
+                        if (transport.optString(TYPE).equals("openvpn")) {
+                            return true;
+                        }
+                    }
+                    return false;
+                } catch (JSONException e) {
+                    return false;
+                }
         }
     }
 

@@ -1,7 +1,10 @@
 package se.leap.bitmaskclient.testutils;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -459,5 +462,14 @@ public class MockHelper {
         when(mockedResources.getString(R.string.app_name)).
                 thenReturn("Bitmask");
         return mockedResources;
+    }
+
+    public static Context mockContext() throws PackageManager.NameNotFoundException {
+        Context context = mock(Context.class, RETURNS_DEEP_STUBS);
+        when(context.getPackageName()).thenReturn("se.leap.bitmaskclient");
+        PackageInfo mockPackageInfo = new PackageInfo();
+        mockPackageInfo.versionName = "0.9.10";
+        when(context.getPackageManager().getPackageInfo(anyString(), anyInt())).thenReturn(mockPackageInfo);
+        return context;
     }
 }

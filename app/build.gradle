@@ -21,6 +21,9 @@ android {
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
 
+    // USE PROTOTYPE DEMO SERVER CONFIG
+    buildConfigField 'boolean', 'useDemoConfig', 'false'
+
 
     //Build Config Fields for default donation details
 
@@ -81,11 +84,11 @@ android {
       //Configurations for custom branded app.
 
       //Change the package name as needed, e.g. "org.example.myapp"
-      applicationId "se.leap.riseupvpn"
+      applicationId "se.leap.pluggableTransportsDemo"
       //Set app name here
-      appName = "Riseup VPN"
+      appName = "Bitmask Pluggable Transports"
       //Provider base url, e.g. '"https://example.com"'
-      def customProviderUrl = '"https://riseup.net"'
+      def customProviderUrl = '"https://demo.bitmask.net"'
       buildConfigField "String", "customProviderUrl", customProviderUrl
       //Change the versionCode as needed
       //versionCode 1
@@ -98,13 +101,16 @@ android {
       //Build Config Fields for default donation details
 
       //This is the donation URL and should be set to the relevant donation page.
-      buildConfigField 'String', 'donation_url', '"https://riseup.net/vpn/donate"'
+      buildConfigField 'String', 'donation_url', '""'
       //The field to enable donations in the app.
-      buildConfigField 'boolean', 'enable_donation', 'true'
+      buildConfigField 'boolean', 'enable_donation', 'false'
       //The field to enable donation reminder popup in the app if enable_donation is set to 'false' this will be disabled.
       buildConfigField 'boolean', 'enable_donation_reminder', 'true'
       //The duration in days to trigger the donation reminder
       buildConfigField 'int', 'donation_reminder_duration', '30'
+
+      // USE PROTOTYPE DEMO SERVER CONFIG
+      buildConfigField 'boolean', 'useDemoConfig', 'true'
 
       //**************************************************************************
       //**************************************************************************
@@ -137,12 +143,17 @@ android {
 
   sourceSets {
     main {
-      assets.srcDirs = ['assets', 'ovpnlibs/assets', '../ics-openvpn/main/build/ovpnassets']
+      assets.srcDirs = ['assets',
+                        'ovpnlibs/assets',
+                        '../ics-openvpn/main/build/ovpnassets',
+                        // '../go/out' TODO: uncomment this line as soon as we want to use PT in production
+                        ]
       jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/noovpn3/release/obj']
       jni.srcDirs = [] //disable automatic ndk-build
     }
     debug {
-      assets.srcDirs = ['src/debug/assets']
+      assets.srcDirs = ['src/debug/assets',
+                        '../go/out']
     }
 
     test {

@@ -25,20 +25,36 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
+import static se.leap.bitmaskclient.BuildConfig.useDemoConfig;
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
+import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
+import static se.leap.bitmaskclient.Provider.CA_CERT;
+import static se.leap.bitmaskclient.Provider.MAIN_URL;
 import static se.leap.bitmaskclient.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.providerInSharedPreferences;
@@ -89,6 +105,10 @@ public class StartActivity extends Activity{
 
         // initialize app necessities
         VpnStatus.initLogCache(getApplicationContext().getCacheDir());
+
+        if (useDemoConfig) {
+            demoSetup();
+        }
 
         prepareEIP();
 
@@ -162,8 +182,8 @@ public class StartActivity extends Activity{
     }
 
     private void prepareEIP() {
-        boolean provider_exists = providerInSharedPreferences(preferences);
-        if (provider_exists) {
+        boolean providerExists = providerInSharedPreferences(preferences);
+        if (providerExists) {
             Provider provider = getSavedProviderFromSharedPreferences(preferences);
             if(!provider.isConfigured()) {
                 configureLeapProvider();
@@ -214,6 +234,67 @@ public class StartActivity extends Activity{
         intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
         startActivity(intent);
         finish();
+    }
+
+    private String getInputAsString(InputStream fileAsInputStream) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(fileAsInputStream));
+        StringBuilder sb = new StringBuilder();
+        String line = br.readLine();
+        while (line != null) {
+            sb.append(line);
+            line = br.readLine();
+        }
+
+        return sb.toString();
+    }
+
+    private void demoSetup() {
+        try {
+            //set demo data
+            String demoEipServiceJson = getInputAsString(getAssets().open("ptdemo.bitmask.eip-service.json"));
+            String secrets = getInputAsString(getAssets().open("ptdemo.bitmask.secrets.json"));
+            String provider = getInputAsString(getAssets().open("ptdemo.bitmask.net.json"));
+
+            Log.d(TAG, "setup provider: " + provider);
+            Log.d(TAG, "setup eip json: " + demoEipServiceJson);
+            JSONObject secretsJson = new JSONObject(secrets);
+
+            preferences.edit().putString(PROVIDER_EIP_DEFINITION+".demo.bitmask.net", demoEipServiceJson).
+                    putString(PROVIDER_EIP_DEFINITION, demoEipServiceJson).
+                    putString(CA_CERT, secretsJson.getString(CA_CERT)).
+                    putString(PROVIDER_PRIVATE_KEY, secretsJson.getString(PROVIDER_PRIVATE_KEY)).
+                    putString(PROVIDER_VPN_CERTIFICATE, secretsJson.getString(PROVIDER_VPN_CERTIFICATE)).
+                    putString(Provider.KEY, provider).
+                    putString(MAIN_URL, "https://demo.bitmask.net").
+                    putBoolean(PROVIDER_CONFIGURED, true).commit();
+
+            PreferenceHelper.getSavedProviderFromSharedPreferences(preferences);
+            ProviderObservable.getInstance().updateProvider(PreferenceHelper.getSavedProviderFromSharedPreferences(preferences));
+
+            // remove last used profiles
+            SharedPreferences prefs = Preferences.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor prefsedit = prefs.edit();
+            prefsedit.remove("lastConnectedProfile").commit();
+            File f  = new File(this.getCacheDir().getAbsolutePath() + "/android.conf");
+            if (f.exists()) {
+                Log.d(TAG, "android.conf exists -> delete:" + f.delete());
+            }
+
+            File filesDirectory = new File(this.getFilesDir().getAbsolutePath());
+            if (filesDirectory.exists() && filesDirectory.isDirectory()) {
+                File[] filesInDirectory = filesDirectory.listFiles();
+                for (File file : filesInDirectory) {
+                    Log.d(TAG, "delete profile: " + file.getName() + ": "+ file.delete());
+
+                }
+            } else Log.d(TAG, "file folder doesn't exist");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

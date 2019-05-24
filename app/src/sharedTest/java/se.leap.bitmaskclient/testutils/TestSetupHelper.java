@@ -40,6 +40,9 @@ public class TestSetupHelper {
         while (line != null) {
             sb.append(line);
             line = br.readLine();
+            if (line != null) {
+                sb.append("\n");
+            }
         }
 
         return sb.toString();

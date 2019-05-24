@@ -6,16 +6,24 @@
 package de.blinkt.openvpn.core;
 
 import android.os.Build;
-import android.support.v4.util.Pair;
 import android.text.TextUtils;
+import android.support.v4.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Vector;
 
 import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.core.connection.Connection;
+import de.blinkt.openvpn.core.connection.OpenvpnConnection;
 
 //! Openvpn Config FIle Parser, probably not 100% accurate but close enough
 
@@ -142,9 +150,9 @@ public class ConfigParser {
         String data = VpnProfile.getEmbeddedContent(inlinedata);
         String[] parts = data.split("\n");
         if (parts.length >= 2) {
-            c.mProxyAuthUser = parts[0];
-            c.mProxyAuthPassword = parts[1];
-            c.mUseProxyAuth = true;
+            c.setProxyAuthUser(parts[0]);
+            c.setProxyAuthPassword(parts[1]);
+            c.setUseProxyAuth(true);
         }
     }
 
@@ -605,7 +613,7 @@ public class ConfigParser {
         }
 
 
-        if (getOption("nobind", 0, 0) != null)
+        if (getOption("nobind", 0, 1) != null)
             np.mNobind = true;
 
         if (getOption("persist-tun", 0, 0) != null)
@@ -713,8 +721,8 @@ public class ConfigParser {
                 throw new ConfigParseError(String.format("Unknown protocol %s in proto-force", protoToDisable));
 
             for (Connection conn : np.mConnections)
-                if (conn.mUseUdp == disableUDP)
-                    conn.mEnabled = false;
+                if (conn.isUseUdp() == disableUDP)
+                    conn.setEnabled(false);
         }
 
         // Parse OpenVPN Access Server extra
@@ -763,27 +771,27 @@ public class ConfigParser {
                 return null;
             }
         else
-            conn = new Connection();
+            conn = new OpenvpnConnection();
 
         Vector<String> port = getOption("port", 1, 1);
         if (port != null) {
-            conn.mServerPort = port.get(1);
+            conn.setServerPort(port.get(1));
         }
 
         Vector<String> rport = getOption("rport", 1, 1);
         if (rport != null) {
-            conn.mServerPort = rport.get(1);
+            conn.setServerPort(rport.get(1));
         }
 
         Vector<String> proto = getOption("proto", 1, 1);
         if (proto != null) {
-            conn.mUseUdp = isUdpProto(proto.get(1));
+            conn.setUseUdp(isUdpProto(proto.get(1)));
         }
 
         Vector<String> connectTimeout = getOption("connect-timeout", 1, 1);
         if (connectTimeout != null) {
             try {
-                conn.mConnectTimeout = Integer.parseInt(connectTimeout.get(1));
+                conn.setConnectTimeout(Integer.parseInt(connectTimeout.get(1)));
             } catch (NumberFormatException nfe) {
                 throw new ConfigParseError(String.format("Argument to connect-timeout (%s) must to be an integer: %s",
                         connectTimeout.get(1), nfe.getLocalizedMessage()));
@@ -797,16 +805,16 @@ public class ConfigParser {
 
         if (proxy != null) {
             if (proxy.get(0).equals("socks-proxy")) {
-                conn.mProxyType = Connection.ProxyType.SOCKS5;
+                conn.setProxyType(Connection.ProxyType.SOCKS5);
                 // socks defaults to 1080, http always sets port
-                conn.mProxyPort = "1080";
+                conn.setProxyPort("1080");
             } else {
-                conn.mProxyType = Connection.ProxyType.HTTP;
+                conn.setProxyType(Connection.ProxyType.HTTP);
             }
 
-            conn.mProxyName = proxy.get(1);
+            conn.setProxyName(proxy.get(1));
             if (proxy.size() >= 3)
-                conn.mProxyPort = proxy.get(2);
+                conn.setProxyPort(proxy.get(2));
         }
 
         Vector<String> httpproxyauthhttp = getOption("http-proxy-user-pass", 1, 1);
@@ -823,15 +831,15 @@ public class ConfigParser {
         // Assume that we need custom options if connectionDefault are set or in the connection specific set
         for (Map.Entry<String, Vector<Vector<String>>> option : options.entrySet()) {
             if (connDefault != null || connectionOptionsSet.contains(option.getKey())) {
-                conn.mCustomConfiguration += getOptionStrings(option.getValue());
+                conn.setCustomConfiguration(conn.getCustomConfiguration() + getOptionStrings(option.getValue()));
                 optionsToRemove.add(option.getKey());
             }
         }
         for (String o: optionsToRemove)
             options.remove(o);
 
-        if (!(conn.mCustomConfiguration == null || "".equals(conn.mCustomConfiguration.trim())))
-            conn.mUseCustomConfig = true;
+        if (!(conn.getCustomConfiguration() == null || "".equals(conn.getCustomConfiguration().trim())))
+            conn.setUseCustomConfig(true);
 
         // Make remotes empty to simplify code
         if (remotes == null)
@@ -849,11 +857,11 @@ public class ConfigParser {
             }
             switch (remote.size()) {
                 case 4:
-                    connections[i].mUseUdp = isUdpProto(remote.get(3));
+                    connections[i].setUseUdp(isUdpProto(remote.get(3)));
                 case 3:
-                    connections[i].mServerPort = remote.get(2);
+                    connections[i].setServerPort(remote.get(2));
                 case 2:
-                    connections[i].mServerName = remote.get(1);
+                    connections[i].setServerName(remote.get(1));
             }
             i++;
         }
