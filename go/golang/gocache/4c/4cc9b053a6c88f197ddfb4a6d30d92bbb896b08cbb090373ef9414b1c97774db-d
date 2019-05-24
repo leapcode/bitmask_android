@@ -1,0 +1,7 @@
+./bexport.go
+./bimport.go
+./exportdata.go
+./gcimporter.go
+./iimport.go
+./isAlias19.go
+./newInterface11.go

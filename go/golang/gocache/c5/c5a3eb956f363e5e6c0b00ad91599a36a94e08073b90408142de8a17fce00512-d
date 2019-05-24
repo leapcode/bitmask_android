@@ -1,0 +1,6 @@
+./aes_gcm.go
+./block.go
+./cipher.go
+./cipher_asm.go
+./const.go
+./modes.go

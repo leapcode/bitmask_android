@@ -1,0 +1,5 @@
+./doc.go
+./external.go
+./golist.go
+./golist_fallback.go
+./packages.go

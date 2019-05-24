@@ -1,0 +1,3 @@
+./popcnt_amd64.go
+./sparse.go
+./util.go

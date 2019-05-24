@@ -1,0 +1,8 @@
+./elf.go
+./label.go
+./map.go
+./pprof.go
+./proto.go
+./protobuf.go
+./protomem.go
+./runtime.go

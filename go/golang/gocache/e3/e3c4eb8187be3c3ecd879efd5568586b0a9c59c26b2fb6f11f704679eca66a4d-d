@@ -1,0 +1,3 @@
+./fastwalk.go
+./fastwalk_dirent_ino.go
+./fastwalk_unix.go

@@ -1,0 +1,2 @@
+./cgo.go
+./cgo_pkgconfig.go

@@ -1,0 +1,3 @@
+./cpu.go
+./cpu_amd64.go
+./cpu_x86.go

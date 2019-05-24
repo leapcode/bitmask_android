@@ -1,0 +1,5 @@
+./allpackages.go
+./fakecontext.go
+./overlay.go
+./tags.go
+./util.go

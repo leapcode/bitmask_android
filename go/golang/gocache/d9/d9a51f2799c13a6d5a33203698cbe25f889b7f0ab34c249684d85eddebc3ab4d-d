@@ -1,0 +1,4 @@
+./plugin.go
+_cgo_gotypes.go
+plugin_dlopen.cgo1.go
+_cgo_import.go

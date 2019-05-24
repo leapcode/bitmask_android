@@ -1,0 +1,3 @@
+./testenv.go
+./testenv_cgo.go
+./testenv_notwin.go

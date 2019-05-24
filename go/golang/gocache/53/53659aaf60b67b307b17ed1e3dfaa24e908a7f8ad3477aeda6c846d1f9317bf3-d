@@ -1,0 +1,3 @@
+./crc32.go
+./crc32_amd64.go
+./crc32_generic.go
