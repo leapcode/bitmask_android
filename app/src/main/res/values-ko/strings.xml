@@ -7,6 +7,7 @@
   <string name="error_empty_username">사용자 이름이 비어 있지 않아야 합니다.</string>
   <string name="save">저장</string>
   <string name="password_match">비밀번호 일치</string>
+  <string name="password_mismatch">비밀번호가 일치하지 않습니다</string>
   <string name="about_fragment_title">About</string>
   <string name="error_bad_user_password_user_message">비밀번호나 이름이 올바르지 않습니다</string>
   <string name="setup_error_configure_button">구성</string>
