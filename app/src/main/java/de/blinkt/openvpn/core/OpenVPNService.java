@@ -248,7 +248,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if(isVpnRunning()) {
             if (getManagement() != null && getManagement().stopVPN(replaceConnection)) {
                 if (!replaceConnection) {
-                    if (dispatcher.isRunning()) {
+                    if (dispatcher != null && dispatcher.isRunning()) {
                         dispatcher.stop();
                     }
                     VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
@@ -258,7 +258,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return false;
         } else {
             if (!replaceConnection) {
-                if (dispatcher.isRunning()) {
+                if (dispatcher != null && dispatcher.isRunning()) {
                     dispatcher.stop();
                 }
                 VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
@@ -395,7 +395,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     obfs4Connection.getmObfs4IatMode());
             dispatcher.initSync();
 
-            if (dispatcher.getPort() != null && dispatcher.getPort().length() > 0) {
+            if (dispatcher.isRunning()) {
                 connection.setServerPort(dispatcher.getPort());
                 Log.d(TAG, "Dispatcher running. Profile server name and port: " +
                         connection.getServerName() + ":" + connection.getServerPort());
