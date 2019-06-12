@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 
@@ -33,6 +34,7 @@ import java.util.StringTokenizer;
 
 public class Dispatcher {
     private static final String ASSET_KEY = "piedispatcher";
+    private static final String DISPATCHER_PORT = "4430";
     private static final String TAG = Dispatcher.class.getName();
     private final String remoteIP;
     private final String remotePort;
@@ -40,7 +42,6 @@ public class Dispatcher {
     private final String iatMode;
     private File fileDispatcher;
     private Context context;
-    private String port = "";
     private Thread dispatcherThread = null;
     private int dipatcherPid = -1;
 
@@ -68,8 +69,10 @@ public class Dispatcher {
                             " -target " + remoteIP + ":" + remotePort +
                             " -transports obfs4" +
                             " -options \"" + String.format("{\\\"cert\\\": \\\"%s\\\", \\\"iatMode\\\": \\\"%s\\\"}\"", certificate, iatMode) +
-                            " -logLevel DEBUG -enableLogging";
+                            " -logLevel DEBUG -enableLogging" +
+                            " -proxylistenaddr 127.0.0.1:" + DISPATCHER_PORT;
 
+                    Log.d(TAG, "dispatcher command: " + dispatcherCommand);
                     runBlockingCmd(new String[]{dispatcherCommand}, dispatcherLog);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -81,37 +84,12 @@ public class Dispatcher {
 
             // get pid of dispatcher
             StringBuilder log = new StringBuilder();
-            String pidCommand = "ps | grep " + fileDispatcher.getCanonicalPath();
+            String pidCommand = "ps | grep piedispatcher";
             runBlockingCmd(new String[]{pidCommand}, log);
             String output  = log.toString();
             StringTokenizer st = new StringTokenizer(output, " ");
             st.nextToken(); // proc owner
             dipatcherPid = Integer.parseInt(st.nextToken().trim());
-
-            // get open port of dispatcher
-            String getPortCommand = "cat " + context.getFilesDir().getCanonicalPath() + "/state/dispatcher.log | grep \"obfs4 - registered listener\"";
-            long timeout = System.currentTimeMillis() + 5000;
-            int i = 1;
-            while (this.port.length() == 0 && System.currentTimeMillis() < timeout) {
-                log = new StringBuilder();
-                Log.d(TAG, i + ". try to get port");
-                runBlockingCmd(new String[]{getPortCommand}, log);
-                output = log.toString();
-                if (output.length() > 0) {
-                    Log.d(TAG, "dispatcher log: \n =================\n" + output);
-                }
-
-                String dispatcherLog[] = output.split(" ");
-                if (dispatcherLog.length > 0) {
-                    String localAddressAndPort = dispatcherLog[dispatcherLog.length - 1];
-                    if (localAddressAndPort.contains(":")) {
-                        this.port = localAddressAndPort.split(":")[1].replace(System.getProperty("line.separator"), "");
-                        Log.d(TAG, "local port is: " + this.port);
-                    }
-                }
-                i += 1;
-            }
-
         } catch(Exception e){
             if (dispatcherThread.isAlive()) {
                 Log.e(TAG, e.getMessage() + ". Shutting down Dispatcher thread.");
@@ -121,7 +99,7 @@ public class Dispatcher {
     }
 
     public String getPort() {
-        return port;
+        return DISPATCHER_PORT;
     }
 
     public void stop() {
@@ -151,7 +129,7 @@ public class Dispatcher {
 
         String arch = System.getProperty("os.arch");
         if (arch.contains("arm"))
-            arch = "arm";
+            arch = "armeabi-v7a";
         else
             arch = "x86";
 
