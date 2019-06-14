@@ -18,13 +18,13 @@ package se.leap.bitmaskclient.pluggableTransports;
 
 import android.content.Context;
 import android.support.annotation.WorkerThread;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 
@@ -34,7 +34,8 @@ import java.util.StringTokenizer;
 
 public class Dispatcher {
     private static final String ASSET_KEY = "piedispatcher";
-    private static final String DISPATCHER_PORT = "4430";
+    public static final String DISPATCHER_PORT = "4430";
+    public static final String DISPATCHER_IP = "127.0.0.1";
     private static final String TAG = Dispatcher.class.getName();
     private final String remoteIP;
     private final String remotePort;
@@ -43,14 +44,14 @@ public class Dispatcher {
     private File fileDispatcher;
     private Context context;
     private Thread dispatcherThread = null;
-    private int dipatcherPid = -1;
+    private int dispatcherPid = -1;
 
-    public Dispatcher(Context context, String remoteIP, String remotePort, String certificate, String iatMode) {
+    public Dispatcher(Context context, DispatcherOptions dispatcherOptions) {
         this.context = context.getApplicationContext();
-        this.remoteIP = remoteIP;
-        this.remotePort = remotePort;
-        this.certificate = certificate;
-        this.iatMode = iatMode;
+        this.remoteIP = dispatcherOptions.remoteIP;
+        this.remotePort = dispatcherOptions.remotePort;
+        this.certificate = dispatcherOptions.cert;
+        this.iatMode = dispatcherOptions.iatMode;
     }
 
     @WorkerThread
@@ -70,7 +71,7 @@ public class Dispatcher {
                             " -transports obfs4" +
                             " -options \"" + String.format("{\\\"cert\\\": \\\"%s\\\", \\\"iatMode\\\": \\\"%s\\\"}\"", certificate, iatMode) +
                             " -logLevel DEBUG -enableLogging" +
-                            " -proxylistenaddr 127.0.0.1:" + DISPATCHER_PORT;
+                            " -proxylistenaddr "+ DISPATCHER_IP + ":" + DISPATCHER_PORT;
 
                     Log.d(TAG, "dispatcher command: " + dispatcherCommand);
                     runBlockingCmd(new String[]{dispatcherCommand}, dispatcherLog);
@@ -82,14 +83,22 @@ public class Dispatcher {
             });
             dispatcherThread.start();
 
-            // get pid of dispatcher
+            // get pid of dispatcher, try several times in case the dispatcher
+            // process is not spawned yet
             StringBuilder log = new StringBuilder();
             String pidCommand = "ps | grep piedispatcher";
-            runBlockingCmd(new String[]{pidCommand}, log);
+            for (int i = 0; i < 5; i++) {
+                runBlockingCmd(new String[]{pidCommand}, log);
+                if (!TextUtils.isEmpty(log))  {
+                    break;
+                }
+                Thread.sleep(100);
+            }
+
             String output  = log.toString();
             StringTokenizer st = new StringTokenizer(output, " ");
             st.nextToken(); // proc owner
-            dipatcherPid = Integer.parseInt(st.nextToken().trim());
+            dispatcherPid = Integer.parseInt(st.nextToken().trim());
         } catch(Exception e){
             if (dispatcherThread.isAlive()) {
                 Log.e(TAG, e.getMessage() + ". Shutting down Dispatcher thread.");
@@ -106,7 +115,7 @@ public class Dispatcher {
         Log.d(TAG, "Shutting down Dispatcher thread.");
         if (dispatcherThread != null && dispatcherThread.isAlive()) {
             try {
-                killProcess(dipatcherPid);
+                killProcess(dispatcherPid);
             } catch (Exception e) {
                 e.printStackTrace();
             }

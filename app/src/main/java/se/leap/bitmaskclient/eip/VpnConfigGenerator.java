@@ -27,9 +27,11 @@ import java.util.Iterator;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
-import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.pluggableTransports.DispatcherOptions;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.Constants.CAPABILITIES;
 import static se.leap.bitmaskclient.Constants.IP_ADDRESS;
 import static se.leap.bitmaskclient.Constants.OPTIONS;
@@ -40,9 +42,10 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.REMOTE;
 import static se.leap.bitmaskclient.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.Constants.TYPE;
+import static se.leap.bitmaskclient.pluggableTransports.Dispatcher.DISPATCHER_IP;
+import static se.leap.bitmaskclient.pluggableTransports.Dispatcher.DISPATCHER_PORT;
 
 public class VpnConfigGenerator {
-
     private JSONObject generalConfiguration;
     private JSONObject gateway;
     private JSONObject secrets;
@@ -66,18 +69,14 @@ public class VpnConfigGenerator {
     public void checkCapabilities() {
 
         try {
-            switch (apiVersion) {
-                case 2:
-                    JSONArray supportedTransports = gateway.getJSONObject(CAPABILITIES).getJSONArray(TRANSPORT);
-                    for (int i = 0; i < supportedTransports.length(); i++) {
-                        JSONObject transport = supportedTransports.getJSONObject(i);
-                        if (transport.getString(TYPE).equals("obfs4")) {
-                            obfs4Transport = transport;
-                        }
+            if (apiVersion == 2) {
+                JSONArray supportedTransports = gateway.getJSONObject(CAPABILITIES).getJSONArray(TRANSPORT);
+                for (int i = 0; i < supportedTransports.length(); i++) {
+                    JSONObject transport = supportedTransports.getJSONObject(i);
+                    if (transport.getString(TYPE).equals(OBFS4.toString())) {
+                        obfs4Transport = transport;
                     }
-                    break;
-                default:
-                    break;
+                }
             }
 
         } catch (JSONException e) {
@@ -88,54 +87,45 @@ public class VpnConfigGenerator {
     public VpnProfile generateVpnProfile() throws IllegalStateException,
             IOException,
             ConfigParser.ConfigParseError,
-            CloneNotSupportedException,
-            JSONException,
-            NumberFormatException {
+            NumberFormatException, JSONException {
 
-        VpnProfile profile = createOvpnProfile();
         if (supportsObfs4()) {
-            addPluggableTransportConnections(profile);
+            return createProfile(OBFS4);
         }
-        return profile;
+
+        return createProfile(OPENVPN);
     }
 
     private boolean supportsObfs4(){
         return obfs4Transport != null;
     }
 
-    private void addPluggableTransportConnections(VpnProfile profile) throws JSONException, CloneNotSupportedException {
-        JSONArray ports = obfs4Transport.getJSONArray(PORTS);
-        Connection[] updatedConnections = new Connection[profile.mConnections.length + ports.length()];
-
-        for (int i = 0; i < ports.length(); i++) {
-            String port = ports.getString(i);
-            Obfs4Connection obfs4Connection = new Obfs4Connection();
-            obfs4Connection.setObfs4RemoteProxyName(gateway.getString(IP_ADDRESS));
-            obfs4Connection.setObfs4RemoteProxyPort(port);
-            obfs4Connection.setTransportOptions(obfs4Transport.optJSONObject(OPTIONS));
-            updatedConnections[i] = obfs4Connection;
-        }
-        int k = 0;
-        for (int i = ports.length(); i < updatedConnections.length; i++, k++) {
-            updatedConnections[i] = profile.mConnections[k].clone();
-        }
-        profile.mConnections = updatedConnections;
-    }
-
-    private String getConfigurationString() {
+    private String getConfigurationString(Connection.TransportType transportType) {
         return generalConfiguration()
-                        + newLine
-                        + ovpnGatewayConfiguration()
-                        + newLine
-                        + secretsConfiguration()
-                        + newLine
-                        + androidCustomizations();
+                + newLine
+                + gatewayConfiguration(transportType)
+                + newLine
+                + androidCustomizations()
+                + newLine
+                + secretsConfiguration();
     }
 
-    private VpnProfile createOvpnProfile() throws IOException, ConfigParser.ConfigParseError {
-        String configuration = getConfigurationString();
+    private VpnProfile createProfile(Connection.TransportType transportType) throws IOException, ConfigParser.ConfigParseError, JSONException {
+        String configuration = getConfigurationString(transportType);
         icsOpenvpnConfigParser.parseConfig(new StringReader(configuration));
-        return icsOpenvpnConfigParser.convertProfile();
+        if (transportType == OBFS4) {
+            icsOpenvpnConfigParser.setDispatcherOptions(getDispatcherOptions());
+        }
+        return icsOpenvpnConfigParser.convertProfile(transportType);
+    }
+
+    private DispatcherOptions getDispatcherOptions() throws JSONException {
+        JSONObject transportOptions = obfs4Transport.getJSONObject(OPTIONS);
+        String iatMode = transportOptions.getString("iat-mode");
+        String cert = transportOptions.getString("cert");
+        String port = obfs4Transport.getJSONArray(PORTS).getString(0);
+        String ip = gateway.getString(IP_ADDRESS);
+        return new DispatcherOptions(ip, port, cert, iatMode);
     }
 
     private String generalConfiguration() {
@@ -161,21 +151,21 @@ public class VpnConfigGenerator {
         return commonOptions;
     }
 
-    private String ovpnGatewayConfiguration() {
+    private String gatewayConfiguration(Connection.TransportType transportType) {
         String remotes = "";
 
         StringBuilder stringBuilder = new StringBuilder();
         try {
             String ipAddress = gateway.getString(IP_ADDRESS);
             JSONObject capabilities = gateway.getJSONObject(CAPABILITIES);
-            JSONArray transports = capabilities.getJSONArray(TRANSPORT);
             switch (apiVersion) {
                 default:
                 case 1:
-                    ovpnGatewayConfigApiv1(stringBuilder, ipAddress, capabilities);
+                    gatewayConfigApiv1(stringBuilder, ipAddress, capabilities);
                     break;
                 case 2:
-                    ovpnGatewayConfigApiv2(stringBuilder, ipAddress, transports);
+                    JSONArray transports = capabilities.getJSONArray(TRANSPORT);
+                    gatewayConfigApiv2(transportType, stringBuilder, ipAddress, transports);
                     break;
             }
         } catch (JSONException e) {
@@ -190,10 +180,17 @@ public class VpnConfigGenerator {
         return remotes;
     }
 
-    private void ovpnGatewayConfigApiv1(StringBuilder stringBuilder, String ipAddress, JSONObject capabilities) throws JSONException {
+    private void gatewayConfigApiv2(Connection.TransportType transportType, StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
+        if (transportType == OBFS4) {
+            obfs4GatewayConfigApiv2(stringBuilder, ipAddress, transports);
+        } else {
+            ovpnGatewayConfigApi2(stringBuilder, ipAddress, transports);
+        }
+    }
+
+    private void gatewayConfigApiv1(StringBuilder stringBuilder, String ipAddress, JSONObject capabilities) throws JSONException {
         int port;
         String protocol;
-
         JSONArray ports = capabilities.getJSONArray(PORTS);
         for (int i = 0; i < ports.length(); i++) {
             port = ports.getInt(i);
@@ -206,27 +203,41 @@ public class VpnConfigGenerator {
         }
     }
 
-    private void ovpnGatewayConfigApiv2(StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
+    private void ovpnGatewayConfigApi2(StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
         String port;
         String protocol;
-        for (int i = 0; i < transports.length(); i++) {
-            JSONObject transport = transports.getJSONObject(i);
-            if (!transport.getString(TYPE).equals("openvpn")) {
-                continue;
-            }
-            JSONArray ports = transport.getJSONArray(PORTS);
-            for (int j = 0; j < ports.length(); j++) {
-                port = ports.getString(j);
-                JSONArray protocols = transport.getJSONArray(PROTOCOLS);
-                for (int k = 0; k < protocols.length(); k++) {
-                    protocol = protocols.optString(k);
-                    String newRemote = REMOTE + " " + ipAddress + " " + port + " " + protocol + newLine;
-                    stringBuilder.append(newRemote);
-                }
+        JSONObject openvpnTransport = getTransport(transports, OPENVPN);
+        JSONArray ports = openvpnTransport.getJSONArray(PORTS);
+        for (int j = 0; j < ports.length(); j++) {
+            port = ports.getString(j);
+            JSONArray protocols = openvpnTransport.getJSONArray(PROTOCOLS);
+            for (int k = 0; k < protocols.length(); k++) {
+                protocol = protocols.optString(k);
+                String newRemote = REMOTE + " " + ipAddress + " " + port + " " + protocol + newLine;
+                stringBuilder.append(newRemote);
             }
         }
     }
 
+    private JSONObject getTransport(JSONArray transports, Connection.TransportType transportType) throws JSONException {
+        JSONObject selectedTransport = new JSONObject();
+        for (int i = 0; i < transports.length(); i++) {
+            JSONObject transport = transports.getJSONObject(i);
+            if (transport.getString(TYPE).equals(transportType.toString())) {
+                selectedTransport = transport;
+                break;
+            }
+        }
+        return selectedTransport;
+    }
+
+    private void obfs4GatewayConfigApiv2(StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
+        JSONObject obfs4Transport = getTransport(transports, OBFS4);
+        String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
+        stringBuilder.append(route);
+        String remote = REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " " + obfs4Transport.getJSONArray(PROTOCOLS).getString(0) + newLine;
+        stringBuilder.append(remote);
+    }
 
     private String secretsConfiguration() {
         try {

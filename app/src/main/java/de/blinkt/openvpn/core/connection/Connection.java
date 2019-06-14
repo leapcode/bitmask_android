@@ -35,9 +35,21 @@ public abstract class Connection implements Serializable, Cloneable {
     }
 
     public enum TransportType {
-        OBFS4,
-        OPENVPN
+        OBFS4("obfs4"),
+        OPENVPN("openvpn");
+
+        String transport;
+
+        TransportType(String transportType) {
+            this.transport = transportType;
+        }
+
+        @Override
+        public String toString() {
+            return transport;
+        }
     }
+
 
     private static final long serialVersionUID = 92031902903829089L;
 

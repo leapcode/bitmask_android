@@ -99,12 +99,10 @@ public class GatewaysManager {
             int apiVersion = eipDefinition.getInt(VERSION);
             for (int i = 0; i < gatewaysDefined.length(); i++) {
                 JSONObject gw = gatewaysDefined.getJSONObject(i);
-                if (isOpenVpnGateway(gw, apiVersion)) {
-                    JSONObject secrets = secretsConfiguration();
-                    Gateway aux = new Gateway(eipDefinition, secrets, gw);
-                    if (!gateways.contains(aux)) {
-                        addGateway(aux);
-                    }
+                JSONObject secrets = secretsConfiguration();
+                Gateway aux = new Gateway(eipDefinition, secrets, gw);
+                if (!gateways.contains(aux)) {
+                    addGateway(aux);
                 }
             }
         } catch (JSONException e) {

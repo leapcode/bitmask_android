@@ -48,7 +48,6 @@ import se.leap.bitmaskclient.VpnNotificationManager;
 import se.leap.bitmaskclient.pluggableTransports.Dispatcher;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
 
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
@@ -386,13 +385,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.logInfo("Setting up dispatcher.");
         Connection connection = mProfile.mConnections[0];
 
-        if (connection.getTransportType() == OBFS4) {
+        if (mProfile.mUsePluggableTransports) {
             Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
-            dispatcher = new Dispatcher(this,
-                    obfs4Connection.getmObfs4RemoteProxyName(),
-                    obfs4Connection.getmObfs4RemoteProxyPort(),
-                    obfs4Connection.getmObfs4Certificate(),
-                    obfs4Connection.getmObfs4IatMode());
+            dispatcher = new Dispatcher(this, obfs4Connection.getDispatcherOptions());
             dispatcher.initSync();
 
             if (dispatcher.isRunning()) {

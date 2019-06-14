@@ -114,7 +114,7 @@ public class Gateway {
         try {
             VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway, apiVersion);
             return vpnConfigurationGenerator.generateVpnProfile();
-        } catch (ConfigParser.ConfigParseError | IOException | CloneNotSupportedException | JSONException e) {
+        } catch (ConfigParser.ConfigParseError | IOException | JSONException e) {
             // FIXME We didn't get a VpnProfile!  Error handling! and log level
             e.printStackTrace();
             return null;

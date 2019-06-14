@@ -6,8 +6,8 @@
 package de.blinkt.openvpn.core;
 
 import android.os.Build;
-import android.text.TextUtils;
 import android.support.v4.util.Pair;
+import android.text.TextUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,7 +23,11 @@ import java.util.Vector;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.connection.Connection;
+import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import de.blinkt.openvpn.core.connection.OpenvpnConnection;
+import se.leap.bitmaskclient.pluggableTransports.DispatcherOptions;
+
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 
 //! Openvpn Config FIle Parser, probably not 100% accurate but close enough
 
@@ -136,6 +140,7 @@ public class ConfigParser {
     private HashMap<String, Vector<Vector<String>>> options = new HashMap<>();
     private HashMap<String, Vector<String>> meta = new HashMap<String, Vector<String>>();
     private String auth_user_pass_file;
+    private DispatcherOptions dispatcherOptions;
 
     static public void useEmbbedUserAuth(VpnProfile np, String inlinedata) {
         String data = VpnProfile.getEmbeddedContent(inlinedata);
@@ -346,9 +351,9 @@ public class ConfigParser {
 
     // This method is far too long
     @SuppressWarnings("ConstantConditions")
-    public VpnProfile convertProfile() throws ConfigParseError, IOException {
+    public VpnProfile convertProfile(Connection.TransportType transportType) throws ConfigParseError, IOException {
         boolean noauthtypeset = true;
-        VpnProfile np = new VpnProfile(CONVERTED_PROFILE);
+        VpnProfile np = new VpnProfile(CONVERTED_PROFILE, transportType);
         // Pull, client, tls-client
         np.clearDefaults();
 
@@ -451,6 +456,7 @@ public class ConfigParser {
         if (redirectPrivate != null) {
             checkRedirectParameters(np, redirectPrivate, false);
         }
+
         Vector<String> dev = getOption("dev", 1, 1);
         Vector<String> devtype = getOption("dev-type", 1, 1);
 
@@ -476,7 +482,6 @@ public class ConfigParser {
             }
         }
 
-
         Vector<String> tunmtu = getOption("tun-mtu", 1, 1);
 
         if (tunmtu != null) {
@@ -487,13 +492,11 @@ public class ConfigParser {
             }
         }
 
-
         Vector<String> mode = getOption("mode", 1, 1);
         if (mode != null) {
             if (!mode.get(1).equals("p2p"))
                 throw new ConfigParseError("Invalid mode for --mode specified, need p2p");
         }
-
 
         Vector<Vector<String>> dhcpoptions = getAllOption("dhcp-option", 2, 2);
         if (dhcpoptions != null) {
@@ -529,8 +532,10 @@ public class ConfigParser {
         if (getOption("float", 0, 0) != null)
             np.mUseFloat = true;
 
-        if (getOption("comp-lzo", 0, 1) != null)
-            np.mUseLzo = true;
+        Vector<String> useLzo = getOption("comp-lzo", 0, 1);
+        if (useLzo != null) {
+            np.mUseLzo = Boolean.valueOf(useLzo.get(1));
+        }
 
         Vector<String> cipher = getOption("cipher", 1, 1);
         if (cipher != null)
@@ -539,7 +544,6 @@ public class ConfigParser {
         Vector<String> auth = getOption("auth", 1, 1);
         if (auth != null)
             np.mAuth = auth.get(1);
-
 
         Vector<String> ca = getOption("ca", 1, 1);
         if (ca != null) {
@@ -552,6 +556,7 @@ public class ConfigParser {
             np.mAuthenticationType = VpnProfile.TYPE_CERTIFICATES;
             noauthtypeset = false;
         }
+
         Vector<String> key = getOption("key", 1, 1);
         if (key != null)
             np.mClientKeyFilename = key.get(1);
@@ -611,7 +616,6 @@ public class ConfigParser {
         if (verb != null) {
             np.mVerb = verb.get(1);
         }
-
 
         if (getOption("nobind", 0, 1) != null)
             np.mNobind = true;
@@ -682,8 +686,7 @@ public class ConfigParser {
 
         }
 
-
-        Pair<Connection, Connection[]> conns = parseConnectionOptions(null);
+        Pair<Connection, Connection[]> conns = parseConnectionOptions(null, transportType);
         np.mConnections = conns.second;
 
         Vector<Vector<String>> connectionBlocks = getAllOption("connection", 1, 1);
@@ -706,6 +709,7 @@ public class ConfigParser {
                 connIndex++;
             }
         }
+
         if (getOption("remote-random", 0, 0) != null)
             np.mRemoteRandom = true;
 
@@ -748,20 +752,21 @@ public class ConfigParser {
             return TextUtils.join(s, str);
     }
 
+    public void setDispatcherOptions(DispatcherOptions dispatcherOptions) {
+        this.dispatcherOptions = dispatcherOptions;
+    }
+
     private Pair<Connection, Connection[]> parseConnection(String connection, Connection defaultValues) throws IOException, ConfigParseError {
         // Parse a connection Block as a new configuration file
-
 
         ConfigParser connectionParser = new ConfigParser();
         StringReader reader = new StringReader(connection.substring(VpnProfile.INLINE_TAG.length()));
         connectionParser.parseConfig(reader);
 
-        Pair<Connection, Connection[]> conn = connectionParser.parseConnectionOptions(defaultValues);
-
-        return conn;
+        return connectionParser.parseConnectionOptions(defaultValues, defaultValues.getTransportType());
     }
 
-    private Pair<Connection, Connection[]> parseConnectionOptions(Connection connDefault) throws ConfigParseError {
+    private Pair<Connection, Connection[]> parseConnectionOptions(Connection connDefault, Connection.TransportType transportType) throws ConfigParseError {
         Connection conn;
         if (connDefault != null)
             try {
@@ -771,7 +776,7 @@ public class ConfigParser {
                 return null;
             }
         else
-            conn = new OpenvpnConnection();
+            conn = transportType == OBFS4 ? new Obfs4Connection(dispatcherOptions) : new OpenvpnConnection();
 
         Vector<String> port = getOption("port", 1, 1);
         if (port != null) {
@@ -824,8 +829,6 @@ public class ConfigParser {
 
         // Parse remote config
         Vector<Vector<String>> remotes = getAllOption("remote", 1, 3);
-
-
 
         Vector <String> optionsToRemove = new Vector<>();
         // Assume that we need custom options if connectionDefault are set or in the connection specific set

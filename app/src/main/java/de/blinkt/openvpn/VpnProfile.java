@@ -5,11 +5,6 @@
 
 package de.blinkt.openvpn;
 
-import de.blinkt.openvpn.core.connection.Connection;
-import de.blinkt.openvpn.core.connection.OpenvpnConnection;
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.BuildConfig;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -58,7 +53,6 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import de.blinkt.openvpn.core.Connection;
 import de.blinkt.openvpn.core.ExtAuthHelper;
 import de.blinkt.openvpn.core.NativeUtils;
 import de.blinkt.openvpn.core.OpenVPNService;
@@ -68,9 +62,13 @@ import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.X509Utils;
+import de.blinkt.openvpn.core.connection.Connection;
+import de.blinkt.openvpn.core.connection.Obfs4Connection;
+import de.blinkt.openvpn.core.connection.OpenvpnConnection;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 
 public class VpnProfile implements Serializable, Cloneable {
@@ -121,7 +119,7 @@ public class VpnProfile implements Serializable, Cloneable {
     public String mTLSAuthFilename;
     public String mClientKeyFilename;
     public String mCaFilename;
-    public boolean mUseLzo = true;
+    public boolean mUseLzo = false;
     public String mPKCS12Filename;
     public String mPKCS12Password;
     public boolean mUseTLSAuth = false;
@@ -186,16 +184,16 @@ public class VpnProfile implements Serializable, Cloneable {
     // set members to default values
     private UUID mUuid;
     private int mProfileVersion;
+    public boolean mUsePluggableTransports;
 
-
-    public VpnProfile(String name) {
+    public VpnProfile(String name, Connection.TransportType transportType) {
         mUuid = UUID.randomUUID();
         mName = name;
         mProfileVersion = CURRENT_PROFILE_VERSION;
 
         mConnections = new Connection[1];
-        mConnections[0] = new OpenvpnConnection();
         mLastUsed = System.currentTimeMillis();
+        mUsePluggableTransports = transportType == OBFS4;
     }
 
     public static String openVpnEscape(String unescaped) {
@@ -297,6 +295,7 @@ public class VpnProfile implements Serializable, Cloneable {
         return mName;
     }
 
+    @Deprecated
     public void upgradeProfile() {
         if (mProfileVersion < 2) {
             /* default to the behaviour the OS used */
@@ -327,9 +326,10 @@ public class VpnProfile implements Serializable, Cloneable {
 
     }
 
+    @Deprecated
     private void moveOptionsToConnection() {
         mConnections = new Connection[1];
-        Connection conn = new OpenvpnConnection();
+        Connection conn = mUsePluggableTransports ? new Obfs4Connection() : new OpenvpnConnection();
 
         conn.setServerName(mServerName);
         conn.setServerPort(mServerPort);
@@ -499,7 +499,8 @@ public class VpnProfile implements Serializable, Cloneable {
         if (!TextUtils.isEmpty(mCrlFilename))
             cfg.append(insertFileData("crl-verify", mCrlFilename));
 
-        if (mUseLzo) {
+        // compression does not work in conjunction with shapeshifter-dispatcher so far
+        if (mUseLzo && !mUsePluggableTransports) {
             cfg.append("comp-lzo\n");
         }
 
