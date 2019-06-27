@@ -25,14 +25,14 @@
               "tcp"
             ],
             "ports":[
-              "1195"
+              "443"
             ]
           }
         ],
         "user_ips":false
       },
       "host":"pt.demo.bitmask.net",
-      "ip_address":"37.218.247.60",
+      "ip_address":"5.79.86.180",
       "location":"Amsterdam"
     }
   ],
@@ -55,7 +55,7 @@
     "rcvbuf" : "0",
     "nobind" : true,
     "persist-key" : true,
-    "comp-lzo" : true,
+    "comp-lzo" : false,
     "key-direction" : "1",
     "verb" : "3"
   },
