@@ -58,7 +58,7 @@ public class VpnConfigGenerator {
     public final static String TAG = VpnConfigGenerator.class.getSimpleName();
     private final String newLine = System.getProperty("line.separator"); // Platform new line
 
-    public VpnConfigGenerator(JSONObject generalConfiguration, JSONObject secrets, JSONObject gateway, int apiVersion) {
+    public VpnConfigGenerator(JSONObject generalConfiguration, JSONObject secrets, JSONObject gateway, int apiVersion) throws ConfigParser.ConfigParseError {
         this.generalConfiguration = generalConfiguration;
         this.gateway = gateway;
         this.secrets = secrets;
@@ -66,21 +66,22 @@ public class VpnConfigGenerator {
         checkCapabilities();
     }
 
-    public void checkCapabilities() {
+    public void checkCapabilities() throws ConfigParser.ConfigParseError {
 
         try {
-            if (apiVersion == 2) {
+            if (apiVersion == 3) {
                 JSONArray supportedTransports = gateway.getJSONObject(CAPABILITIES).getJSONArray(TRANSPORT);
                 for (int i = 0; i < supportedTransports.length(); i++) {
                     JSONObject transport = supportedTransports.getJSONObject(i);
                     if (transport.getString(TYPE).equals(OBFS4.toString())) {
                         obfs4Transport = transport;
+                        break;
                     }
                 }
             }
 
         } catch (JSONException e) {
-            e.printStackTrace();
+            throw new ConfigParser.ConfigParseError("Api version ("+ apiVersion +") did not match required JSON fields");
         }
     }
 
@@ -161,9 +162,10 @@ public class VpnConfigGenerator {
             switch (apiVersion) {
                 default:
                 case 1:
+                case 2:
                     gatewayConfigApiv1(stringBuilder, ipAddress, capabilities);
                     break;
-                case 2:
+                case 3:
                     JSONArray transports = capabilities.getJSONArray(TRANSPORT);
                     gatewayConfigApiv2(transportType, stringBuilder, ipAddress, transports);
                     break;
