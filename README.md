@@ -75,7 +75,7 @@ sudo apt install default-jdk
 These are necessary to make sure the program cross-compiles to 32-bit architectures successfully from 64-bit GNU/Linux machines:
 
 ```
-sudo apt make gcc file install lib32stdc++ lib32z1
+sudo apt install make gcc file install lib32stdc++ lib32z1
 ```
 
 ### Android SDK <a name="android-sdk"></a>
