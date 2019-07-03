@@ -167,7 +167,7 @@ public class VpnConfigGenerator {
                     break;
                 case 3:
                     JSONArray transports = capabilities.getJSONArray(TRANSPORT);
-                    gatewayConfigApiv2(transportType, stringBuilder, ipAddress, transports);
+                    gatewayConfigApiv3(transportType, stringBuilder, ipAddress, transports);
                     break;
             }
         } catch (JSONException e) {
@@ -182,11 +182,11 @@ public class VpnConfigGenerator {
         return remotes;
     }
 
-    private void gatewayConfigApiv2(Connection.TransportType transportType, StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
+    private void gatewayConfigApiv3(Connection.TransportType transportType, StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
         if (transportType == OBFS4) {
-            obfs4GatewayConfigApiv2(stringBuilder, ipAddress, transports);
+            obfs4GatewayConfigApiv3(stringBuilder, ipAddress, transports);
         } else {
-            ovpnGatewayConfigApi2(stringBuilder, ipAddress, transports);
+            ovpnGatewayConfigApi3(stringBuilder, ipAddress, transports);
         }
     }
 
@@ -205,7 +205,7 @@ public class VpnConfigGenerator {
         }
     }
 
-    private void ovpnGatewayConfigApi2(StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
+    private void ovpnGatewayConfigApi3(StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
         String port;
         String protocol;
         JSONObject openvpnTransport = getTransport(transports, OPENVPN);
@@ -233,7 +233,7 @@ public class VpnConfigGenerator {
         return selectedTransport;
     }
 
-    private void obfs4GatewayConfigApiv2(StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
+    private void obfs4GatewayConfigApiv3(StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
         JSONObject obfs4Transport = getTransport(transports, OBFS4);
         String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
         stringBuilder.append(route);
