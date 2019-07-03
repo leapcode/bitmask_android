@@ -318,6 +318,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);
         notificationManager.buildOpenVpnNotification(
                 mProfile != null ? mProfile.mName : "",
+                mProfile != null && mProfile.mUsePluggableTransports,
                 VpnStatus.getLastCleanLogMessage(this),
                 VpnStatus.getLastCleanLogMessage(this),
                 ConnectionStatus.LEVEL_START,
@@ -988,6 +989,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             // Does not work :(
             notificationManager.buildOpenVpnNotification(
                     mProfile != null ? mProfile.mName : "",
+                    mProfile != null && mProfile.mUsePluggableTransports,
                     VpnStatus.getLastCleanLogMessage(this),
                     VpnStatus.getLastCleanLogMessage(this),
                     level,
@@ -1019,6 +1021,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     humanReadableByteCount(diffOut / OpenVPNManagement.mBytecountInterval, true, getResources()));
             notificationManager.buildOpenVpnNotification(
                     mProfile != null ? mProfile.mName : "",
+                    mProfile != null && mProfile.mUsePluggableTransports,
                     netstat,
                     null,
                     LEVEL_CONNECTED,
@@ -1062,6 +1065,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.updateStateString("NEED", "need " + needed, resid, LEVEL_WAITING_FOR_USER_INPUT);
         notificationManager.buildOpenVpnNotification(
                 mProfile != null ? mProfile.mName : "",
+                mProfile != null && mProfile.mUsePluggableTransports,
                 getString(resid),
                 getString(resid),
                 LEVEL_WAITING_FOR_USER_INPUT,

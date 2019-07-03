@@ -110,4 +110,6 @@
   <string name="donate_message">LEAP depends on donations and grants. Please donate today if you value secure communication that is easy for both the end-user and the service provider.</string>
   <string name="donate_button_remind_later">Remind me later</string>
   <string name="donate_button_donate">Donate</string>
+  <string name="obfuscated_connection">Using an obfuscated connection.</string>
+  <string name="obfuscated_connection_try">Trying an obfuscated connection.</string>
 </resources>

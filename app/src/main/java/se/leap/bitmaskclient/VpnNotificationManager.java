@@ -43,8 +43,8 @@ import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.text.TextUtils.isEmpty;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.ASK_TO_CANCEL_VPN;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
 import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 
 /**
@@ -83,6 +83,7 @@ public class VpnNotificationManager {
         buildVpnNotification(
                 context.getString(R.string.void_vpn_title),
                 msg,
+                null,
                 tickerText,
                 status,
                 VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
@@ -110,8 +111,11 @@ public class VpnNotificationManager {
      * @param status
      * @param when
      */
-    public void buildOpenVpnNotification(String profileName, final String msg, String tickerText, ConnectionStatus status, long when, String notificationChannelNewstatusId) {
+    public void buildOpenVpnNotification(String profileName, boolean isObfuscated, String msg, String tickerText, ConnectionStatus status, long when, String notificationChannelNewstatusId) {
         String cancelString;
+        String bigmessage = null;
+        String ghostIcon = new String(Character.toChars(0x1F47B));
+
         switch (status) {
             // show cancel if no connection
             case LEVEL_START:
@@ -119,11 +123,24 @@ public class VpnNotificationManager {
             case LEVEL_CONNECTING_SERVER_REPLIED:
             case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
                 cancelString = context.getString(R.string.cancel);
+                if (isObfuscated && Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                    bigmessage = context.getString(R.string.obfuscated_connection_try) + " " + ghostIcon + "\n" + msg;
+                }
                 break;
+
             // show disconnect if connection exists
+            case LEVEL_CONNECTED:
+                if (isObfuscated && Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                    bigmessage = context.getString(R.string.obfuscated_connection) + " " + ghostIcon + "\n" + msg;
+                }
             default:
                 cancelString = context.getString(R.string.cancel_connection);
         }
+
+        if (isObfuscated) {
+            msg =  ghostIcon + " " + msg;
+        }
+
         NotificationCompat.Action.Builder actionBuilder = new NotificationCompat.Action.
                 Builder(R.drawable.ic_menu_close_clear_cancel, cancelString, getDisconnectIntent());
         String title;
@@ -151,6 +168,7 @@ public class VpnNotificationManager {
         buildVpnNotification(
                 title,
                 msg,
+                bigmessage,
                 tickerText,
                 status,
                 notificationChannelNewstatusId,
@@ -224,28 +242,30 @@ public class VpnNotificationManager {
         return remoteViews;
     }
 
-    private void buildVpnNotification(String title, final String msg, String tickerText, ConnectionStatus status, String notificationChannelNewstatusId, int priority, long when, PendingIntent contentIntent, NotificationCompat.Action notificationAction) {
+    private void buildVpnNotification(String title, String message, String bigMessage, String tickerText, ConnectionStatus status, String notificationChannelNewstatusId, int priority, long when, PendingIntent contentIntent, NotificationCompat.Action notificationAction) {
         NotificationCompat.Builder nCompatBuilder = new NotificationCompat.Builder(context, notificationChannelNewstatusId);
         int icon = getIconByConnectionStatus(status);
 
         // this is a workaround to avoid confusion between the Android's system vpn notification
         // showing a filled out key icon and the bitmask icon indicating a different state.
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT &&
-                notificationChannelNewstatusId.equals(OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID) &&
-                status != LEVEL_NONETWORK
-                ) {
-            // removes the icon from the system status bar
-            icon = android.R.color.transparent;
-            // adds the icon to the notification in the notification drawer
-            nCompatBuilder.setContent(getKitkatCustomRemoteView(status, title, msg));
+                notificationChannelNewstatusId.equals(OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID)) {
+            if (status != LEVEL_NONETWORK) {
+                // removes the icon from the system status bar
+                icon = android.R.color.transparent;
+                // adds the icon to the notification in the notification drawer
+                nCompatBuilder.setContent(getKitkatCustomRemoteView(status, title, message));
+            }
         } else {
-            nCompatBuilder.addAction(notificationAction);
+            nCompatBuilder.setStyle(new NotificationCompat.BigTextStyle().
+                    setBigContentTitle(title).
+                    bigText(bigMessage));
         }
-
+        nCompatBuilder.addAction(notificationAction);
         nCompatBuilder.setContentTitle(title);
         nCompatBuilder.setCategory(NotificationCompat.CATEGORY_SERVICE);
         nCompatBuilder.setLocalOnly(true);
-        nCompatBuilder.setContentText(msg);
+        nCompatBuilder.setContentText(message);
         nCompatBuilder.setOnlyAlertOnce(true);
         nCompatBuilder.setSmallIcon(icon);
         nCompatBuilder.setPriority(priority);
