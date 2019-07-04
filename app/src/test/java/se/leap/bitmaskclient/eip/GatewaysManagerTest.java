@@ -57,6 +57,15 @@ public class GatewaysManagerTest {
             assertEquals(0, gatewaysManager.size());
     }
 
+    @Test
+    public void testFromEipServiceJson_ignoreDuplicateGateways_apiv3() throws Exception {
+        String eipServiceJson = TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_three_mixed_gateways.json"));
+        gatewaysManager.fromEipServiceJson(new JSONObject(eipServiceJson));
+        assertEquals(3, gatewaysManager.size());
+        eipServiceJson = TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service.json"));
+        gatewaysManager.fromEipServiceJson(new JSONObject(eipServiceJson));
+        assertEquals(3, gatewaysManager.size());
+    }
 
     @Test
     public void testFromEipServiceJson_ignoreDuplicateGateways() throws Exception {

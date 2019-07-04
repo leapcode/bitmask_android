@@ -53,6 +53,8 @@ import se.leap.bitmaskclient.R;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.CATEGORY_DEFAULT;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
@@ -203,7 +205,7 @@ public final class EIP extends JobIntentService implements Observer {
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
         Gateway gateway = gatewaysManager.select(nClosestGateway);
 
-        if (gateway != null && gateway.getProfile() != null) {
+        if (gateway != null && !gateway.getProfiles().isEmpty()) {
             launchActiveGateway(gateway, nClosestGateway);
             tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_OK);
         } else
@@ -218,7 +220,7 @@ public final class EIP extends JobIntentService implements Observer {
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
         Gateway gateway = gatewaysManager.select(0);
 
-        if (gateway != null && gateway.getProfile() != null) {
+        if (gateway != null && !gateway.getProfiles().isEmpty()) {
             launchActiveGateway(gateway, 0);
         } else {
             Log.d(TAG, "startEIPAlwaysOnVpn no active profile available!");
@@ -242,7 +244,7 @@ public final class EIP extends JobIntentService implements Observer {
      */
     private void launchActiveGateway(@NonNull Gateway gateway, int nClosestGateway) {
         Intent intent = new Intent(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT);
-        intent.putExtra(PROVIDER_PROFILE, gateway.getProfile());
+        intent.putExtra(PROVIDER_PROFILE, gateway.getProfile(OPENVPN));
         intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, nClosestGateway);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 

@@ -22,6 +22,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import de.blinkt.openvpn.VpnProfile;
@@ -51,8 +52,6 @@ public class VpnConfigGenerator {
     private JSONObject secrets;
     private JSONObject obfs4Transport;
     private int apiVersion;
-
-    private ConfigParser icsOpenvpnConfigParser = new ConfigParser();
 
 
     public final static String TAG = VpnConfigGenerator.class.getSimpleName();
@@ -85,16 +84,17 @@ public class VpnConfigGenerator {
         }
     }
 
-    public VpnProfile generateVpnProfile() throws IllegalStateException,
-            IOException,
+    public HashMap<Connection.TransportType, VpnProfile> generateVpnProfiles() throws
             ConfigParser.ConfigParseError,
-            NumberFormatException, JSONException {
-
+            NumberFormatException,
+            JSONException,
+            IOException {
+        HashMap<Connection.TransportType, VpnProfile> profiles = new HashMap<>();
+        profiles.put(OPENVPN, createProfile(OPENVPN));
         if (supportsObfs4()) {
-            return createProfile(OBFS4);
+            profiles.put(OBFS4, createProfile(OBFS4));
         }
-
-        return createProfile(OPENVPN);
+        return profiles;
     }
 
     private boolean supportsObfs4(){
@@ -113,6 +113,7 @@ public class VpnConfigGenerator {
 
     private VpnProfile createProfile(Connection.TransportType transportType) throws IOException, ConfigParser.ConfigParseError, JSONException {
         String configuration = getConfigurationString(transportType);
+        ConfigParser icsOpenvpnConfigParser = new ConfigParser();
         icsOpenvpnConfigParser.parseConfig(new StringReader(configuration));
         if (transportType == OBFS4) {
             icsOpenvpnConfigParser.setDispatcherOptions(getDispatcherOptions());

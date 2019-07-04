@@ -16,11 +16,16 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.util.HashMap;
 
 import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.testutils.MockHelper;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -44,7 +49,7 @@ public class VpnConfigGeneratorTest {
     private JSONObject gateway;
     private JSONObject secrets;
 
-    String expectedVPNConfig_tcp_udp = "# Config for OpenVPN 2.x\n" +
+    String expectedVPNConfig_v1_tcp_udp = "# Config for OpenVPN 2.x\n" +
             "# Enables connection to GUI\n" +
             "management /data/data/se.leap.bitmask/mgmtsocket unix\n" +
             "management-client\n" +
@@ -162,7 +167,7 @@ public class VpnConfigGeneratorTest {
             "keepalive 10 30 \n" +
             "tls-cipher DHE-RSA-AES128-SHA";
 
-    String expectedVPNConfig_udp_tcp = "# Config for OpenVPN 2.x\n" +
+    String expectedVPNConfig_v1_udp_tcp = "# Config for OpenVPN 2.x\n" +
             "# Enables connection to GUI\n" +
             "management /data/data/se.leap.bitmask/mgmtsocket unix\n" +
             "management-client\n" +
@@ -280,7 +285,7 @@ public class VpnConfigGeneratorTest {
             "keepalive 10 30 \n" +
             "tls-cipher DHE-RSA-AES128-SHA";
 
-    String expectedVPNConfig_pt_tcp = "# Config for OpenVPN 2.x\n" +
+    String expectedVPNConfig_v3_obfs4 = "# Config for OpenVPN 2.x\n" +
             "# Enables connection to GUI\n" +
             "management /data/data/se.leap.bitmask/mgmtsocket unix\n" +
             "management-client\n" +
@@ -297,8 +302,7 @@ public class VpnConfigGeneratorTest {
             "connect-retry 2 300\n" +
             "resolv-retry 60\n" +
             "dev tun\n" +
-            "remote 127.0.0.1 1234 tcp-client\n" +
-            "remote 37.218.247.60 1195 tcp-client\n" +
+            "remote 127.0.0.1 4430 tcp-client\n" +
             "<ca>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIFbzCCA1egAwIBAgIBATANBgkqhkiG9w0BAQ0FADBKMRgwFgYDVQQDDA9CaXRt\n" +
@@ -386,6 +390,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "crl-verify file missing in config profile\n" +
+            "route 37.218.247.60  255.255.255.255 net_gateway\n"+
             "remote-cert-tls server\n" +
             "cipher AES-128-CBC\n" +
             "auth SHA1\n" +
@@ -398,7 +403,7 @@ public class VpnConfigGeneratorTest {
             "keepalive 10 30 \n" +
             "tls-cipher DHE-RSA-AES128-SHA \n";
 
-    String expectedVPNConfig_pt_tcp_udp = "# Config for OpenVPN 2.x\n" +
+    String expectedVPNConfig_v3_ovpn_tcp_udp = "# Config for OpenVPN 2.x\n" +
             "# Enables connection to GUI\n" +
             "management /data/data/se.leap.bitmask/mgmtsocket unix\n" +
             "management-client\n" +
@@ -415,7 +420,6 @@ public class VpnConfigGeneratorTest {
             "connect-retry 2 300\n" +
             "resolv-retry 60\n" +
             "dev tun\n" +
-            "remote 127.0.0.1 1234 tcp-client\n" +
             "remote 37.218.247.60 1195 tcp-client\n" +
             "remote 37.218.247.60 1195 udp\n" +
             "<ca>\n" +
@@ -517,7 +521,7 @@ public class VpnConfigGeneratorTest {
             "keepalive 10 30 \n" +
             "tls-cipher DHE-RSA-AES128-SHA \n";
 
-    String expectedVPNConfig_pt_udp_tcp = "# Config for OpenVPN 2.x\n" +
+    String expectedVPNConfig_v3_ovpn_udp_tcp = "# Config for OpenVPN 2.x\n" +
             "# Enables connection to GUI\n" +
             "management /data/data/se.leap.bitmask/mgmtsocket unix\n" +
             "management-client\n" +
@@ -534,7 +538,6 @@ public class VpnConfigGeneratorTest {
             "connect-retry 2 300\n" +
             "resolv-retry 60\n" +
             "dev tun\n" +
-            "remote 127.0.0.1 1234 tcp-client\n" +
             "remote 37.218.247.60 1195 udp\n" +
             "remote 37.218.247.60 1195 tcp-client\n" +
             "<ca>\n" +
@@ -655,45 +658,69 @@ public class VpnConfigGeneratorTest {
     public void testGenerateVpnProfile_v1_tcp_udp() throws Exception {
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("gateway_tcp_udp.json")));
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 1);
-        VpnProfile vpnProfile = vpnConfigGenerator.generateVpnProfile();
-        assertTrue(vpnProfile.getConfigFile(context, false).trim().equals(expectedVPNConfig_tcp_udp.trim()));
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertFalse(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v1_tcp_udp.trim()));
     }
 
     @Test
     public void testGenerateVpnProfile_v1_udp_tcp() throws Exception {
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("gateway_udp_tcp.json")));
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 1);
-        VpnProfile vpnConfig = vpnConfigGenerator.generateVpnProfile();
-        assertTrue(vpnConfig.getConfigFile(context, false).trim().equals(expectedVPNConfig_udp_tcp.trim()));
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertFalse(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v1_udp_tcp.trim()));
     }
 
     @Test
-    public void testGenerateVpnProfile_v2_pt_tcp() throws Exception {
+    public void testGenerateVpnProfile_v2_tcp_udp() throws Exception {
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("gateway_tcp_udp.json")));
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 2);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertFalse(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v1_tcp_udp.trim()));
+    }
+
+    @Test
+    public void testGenerateVpnProfile_v2_udp_tcp() throws Exception {
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("gateway_udp_tcp.json")));
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 2);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertFalse(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v1_udp_tcp.trim()));
+    }
+
+
+    @Test
+    public void testGenerateVpnProfile_v3_obfs4() throws Exception {
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service.json"))).getJSONArray("gateways").getJSONObject(0);
-        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 2);
-        VpnProfile vpnProfile = vpnConfigGenerator.generateVpnProfile();
-        vpnProfile.mConnections[0].setServerPort("1234");
-        System.out.println(vpnProfile.getConfigFile(context, false));
-        assertTrue(vpnProfile.getConfigFile(context, false).trim().equals(expectedVPNConfig_pt_tcp.trim()));
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 3);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertTrue(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.containsKey(OPENVPN));
+        System.out.println(vpnProfiles.get(OBFS4).getConfigFile(context, false));
+        assertTrue(vpnProfiles.get(OBFS4).getConfigFile(context, false).trim().equals(expectedVPNConfig_v3_obfs4.trim()));
     }
 
     @Test
-    public void testGenerateVpnProfile_v2_pt_tcp_udp() throws Exception {
+    public void testGenerateVpnProfile_v3_ovpn_tcp_udp() throws Exception {
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_pt_tcp_udp.eip-service.json"))).getJSONArray("gateways").getJSONObject(0);
-        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 2);
-        VpnProfile vpnProfile = vpnConfigGenerator.generateVpnProfile();
-        vpnProfile.mConnections[0].setServerPort("1234");
-        System.out.println(vpnProfile.getConfigFile(context, false));
-        assertTrue(vpnProfile.getConfigFile(context, false).trim().equals(expectedVPNConfig_pt_tcp_udp.trim()));
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 3);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertTrue(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.containsKey(OPENVPN));
+        System.out.println(vpnProfiles.get(OPENVPN).getConfigFile(context, false));
+        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v3_ovpn_tcp_udp.trim()));
     }
 
     @Test
-    public void testGenerateVpnProfile_v2_pt_udp_tcp() throws Exception {
+    public void testGenerateVpnProfile_v3_ovpn_udp_tcp() throws Exception {
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_pt_udp_tcp.eip-service.json"))).getJSONArray("gateways").getJSONObject(0);
-        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 2);
-        VpnProfile vpnProfile = vpnConfigGenerator.generateVpnProfile();
-        vpnProfile.mConnections[0].setServerPort("1234");
-        System.out.println(vpnProfile.getConfigFile(context, false));
-        assertTrue(vpnProfile.getConfigFile(context, false).trim().equals(expectedVPNConfig_pt_udp_tcp.trim()));
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 3);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertTrue(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.containsKey(OPENVPN));
+        System.out.println(vpnProfiles.get(OPENVPN).getConfigFile(context, false));
+        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v3_ovpn_udp_tcp.trim()));
     }
 }

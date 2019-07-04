@@ -16,16 +16,21 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
+import de.blinkt.openvpn.core.connection.Connection;
 
+import static se.leap.bitmaskclient.Constants.IP_ADDRESS;
 import static se.leap.bitmaskclient.Constants.LOCATION;
 import static se.leap.bitmaskclient.Constants.LOCATIONS;
 import static se.leap.bitmaskclient.Constants.NAME;
@@ -54,7 +59,7 @@ public class Gateway {
     private String name;
     private int timezone;
     private int apiVersion;
-    private VpnProfile vpnProfile;
+    private HashMap<Connection.TransportType, VpnProfile> vpnProfiles;
 
     /**
      * Build a gateway object from a JSON OpenVPN gateway definition in eip-service.json
@@ -69,9 +74,13 @@ public class Gateway {
         timezone = getTimezone(eipDefinition);
         name = locationAsName(eipDefinition);
         apiVersion = getApiVersion(eipDefinition);
-        vpnProfile = createVPNProfile();
-        if (vpnProfile != null) {
-            vpnProfile.mName = name;
+        vpnProfiles = createVPNProfiles();
+    }
+
+    private void addProfileInfos(HashMap<Connection.TransportType, VpnProfile> profiles) {
+        for (VpnProfile profile : profiles.values()) {
+            profile.mName = name;
+            profile.mGatewayIp = gateway.optString(IP_ADDRESS);
         }
     }
 
@@ -92,6 +101,10 @@ public class Gateway {
         return eipDefinition.optInt(VERSION);
     }
 
+    public String getRemoteIP() {
+        return gateway.optString(IP_ADDRESS);
+    }
+
     private String locationAsName(JSONObject eipDefinition) {
         JSONObject location = getLocationInfo(eipDefinition);
         return location.optString(NAME);
@@ -110,23 +123,29 @@ public class Gateway {
     /**
      * Create and attach the VpnProfile to our gateway object
      */
-    private VpnProfile createVPNProfile() {
+    private @NonNull HashMap<Connection.TransportType, VpnProfile> createVPNProfiles() {
+        HashMap<Connection.TransportType, VpnProfile> profiles = new HashMap<>();
         try {
             VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway, apiVersion);
-            return vpnConfigurationGenerator.generateVpnProfile();
+            profiles = vpnConfigurationGenerator.generateVpnProfiles();
+            addProfileInfos(profiles);
         } catch (ConfigParser.ConfigParseError | IOException | JSONException e) {
             // FIXME We didn't get a VpnProfile!  Error handling! and log level
             e.printStackTrace();
-            return null;
         }
+        return profiles;
     }
 
     public String getName() {
         return name;
     }
 
-    public VpnProfile getProfile() {
-        return vpnProfile;
+    public HashMap<Connection.TransportType, VpnProfile> getProfiles() {
+        return vpnProfiles;
+    }
+
+    public VpnProfile getProfile(Connection.TransportType transportType) {
+        return vpnProfiles.get(transportType);
     }
 
     public int getTimezone() {

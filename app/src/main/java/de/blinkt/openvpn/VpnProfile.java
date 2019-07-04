@@ -174,6 +174,7 @@ public class VpnProfile implements Serializable, Cloneable {
     // timestamp when the profile was last used
     public long mLastUsed;
     public String importedProfileHash;
+    //TODO: cleanup here
     /* Options no longer used in new profiles */
     public String mServerName = "openvpn.example.com";
     public String mServerPort = "1194";
@@ -184,6 +185,7 @@ public class VpnProfile implements Serializable, Cloneable {
     // set members to default values
     private UUID mUuid;
     private int mProfileVersion;
+    public String mGatewayIp;
     public boolean mUsePluggableTransports;
 
     public VpnProfile(String name, Connection.TransportType transportType) {

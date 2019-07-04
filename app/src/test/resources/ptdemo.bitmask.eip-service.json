@@ -15,7 +15,7 @@
               "23049"
             ],
             "options": {
-              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1",
               "iat-mode": "0"
             }
           },
@@ -60,5 +60,5 @@
     "verb" : "3"
   },
   "serial":2,
-  "version":2
+  "version":3
 }
