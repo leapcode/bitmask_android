@@ -24,11 +24,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.widget.RemoteViews;
 
 import de.blinkt.openvpn.LaunchVPN;
@@ -113,7 +119,7 @@ public class VpnNotificationManager {
      */
     public void buildOpenVpnNotification(String profileName, boolean isObfuscated, String msg, String tickerText, ConnectionStatus status, long when, String notificationChannelNewstatusId) {
         String cancelString;
-        String bigmessage = null;
+        CharSequence bigmessage = null;
         String ghostIcon = new String(Character.toChars(0x1F47B));
 
         switch (status) {
@@ -124,14 +130,18 @@ public class VpnNotificationManager {
             case LEVEL_CONNECTING_NO_SERVER_REPLY_YET:
                 cancelString = context.getString(R.string.cancel);
                 if (isObfuscated && Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                    bigmessage = context.getString(R.string.obfuscated_connection_try) + " " + ghostIcon + "\n" + msg;
+                    Spannable spannable = new SpannableString(context.getString(R.string.obfuscated_connection_try));
+                    spannable.setSpan(new StyleSpan(Typeface.ITALIC), 0, spannable.length() -1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    bigmessage = TextUtils.concat(spannable, " " + ghostIcon + "\n" + msg);
                 }
                 break;
 
             // show disconnect if connection exists
             case LEVEL_CONNECTED:
                 if (isObfuscated && Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                    bigmessage = context.getString(R.string.obfuscated_connection) + " " + ghostIcon + "\n" + msg;
+                    Spannable spannable = new SpannableString(context.getString(R.string.obfuscated_connection));
+                    spannable.setSpan(new StyleSpan(Typeface.ITALIC), 0, spannable.length() -1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    bigmessage = TextUtils.concat(spannable, " " + ghostIcon + "\n" + msg);
                 }
             default:
                 cancelString = context.getString(R.string.cancel_connection);
@@ -242,7 +252,7 @@ public class VpnNotificationManager {
         return remoteViews;
     }
 
-    private void buildVpnNotification(String title, String message, String bigMessage, String tickerText, ConnectionStatus status, String notificationChannelNewstatusId, int priority, long when, PendingIntent contentIntent, NotificationCompat.Action notificationAction) {
+    private void buildVpnNotification(String title, String message, CharSequence bigMessage, String tickerText, ConnectionStatus status, String notificationChannelNewstatusId, int priority, long when, PendingIntent contentIntent, NotificationCompat.Action notificationAction) {
         NotificationCompat.Builder nCompatBuilder = new NotificationCompat.Builder(context, notificationChannelNewstatusId);
         int icon = getIconByConnectionStatus(status);
 

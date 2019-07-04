@@ -244,7 +244,7 @@ public final class EIP extends JobIntentService implements Observer {
      */
     private void launchActiveGateway(@NonNull Gateway gateway, int nClosestGateway) {
         Intent intent = new Intent(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT);
-        intent.putExtra(PROVIDER_PROFILE, gateway.getProfile(OPENVPN));
+        intent.putExtra(PROVIDER_PROFILE, gateway.getProfile(OBFS4));
         intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, nClosestGateway);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
