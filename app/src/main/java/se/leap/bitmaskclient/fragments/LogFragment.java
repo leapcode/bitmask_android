@@ -8,16 +8,12 @@ package se.leap.bitmaskclient.fragments;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.DataSetObserver;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -27,7 +23,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.text.SpannableString;
 import android.text.format.DateFormat;
-import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,7 +32,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -52,17 +46,16 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Vector;
 
-import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.OpenVPNManagement;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.Preferences;
-import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.VpnStatus.LogListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
+import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.R;
 
 import static de.blinkt.openvpn.core.OpenVPNService.humanReadableByteCount;
@@ -70,7 +63,6 @@ import static de.blinkt.openvpn.core.OpenVPNService.humanReadableByteCount;
 public class LogFragment extends ListFragment implements StateListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, VpnStatus.ByteCountListener {
     public static final String TAG = LogFragment.class.getSimpleName();
     private static final String LOGTIMEFORMAT = "logtimeformat";
-    private static final int START_VPN_CONFIG = 0;
     private static final String VERBOSITYLEVEL = "verbositylevel";
 
 
@@ -242,7 +234,6 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
 
             SpannableString t = new SpannableString(msg);
 
-            //t.setSpan(getSpanImage(le,(int)v.getTextSize()),spanStart,spanStart+1, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
             v.setText(t);
             return v;
         }
@@ -262,34 +253,6 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
                 return "";
             }
 
-        }
-
-        private ImageSpan getSpanImage(LogItem li, int imageSize) {
-            int imageRes = android.R.drawable.ic_menu_call;
-
-            switch (li.getLogLevel()) {
-                case ERROR:
-                    imageRes = android.R.drawable.ic_notification_clear_all;
-                    break;
-                case INFO:
-                    imageRes = android.R.drawable.ic_menu_compass;
-                    break;
-                case VERBOSE:
-                    imageRes = android.R.drawable.ic_menu_info_details;
-                    break;
-                case WARNING:
-                    imageRes = android.R.drawable.ic_menu_camera;
-                    break;
-            }
-
-            Drawable d = getResources().getDrawable(imageRes);
-
-
-            //d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
-            d.setBounds(0, 0, imageSize, imageSize);
-            ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BOTTOM);
-
-            return span;
         }
 
         @Override
@@ -488,39 +451,6 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == START_VPN_CONFIG && resultCode == Activity.RESULT_OK) {
-            String configuredVPN = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
-
-            final VpnProfile profile = ProfileManager.get(getActivity(), configuredVPN);
-            ProfileManager.getInstance(getActivity()).saveProfile(getActivity(), profile);
-            // Name could be modified, reset List adapter
-
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-            dialog.setTitle(R.string.configuration_changed);
-            dialog.setMessage(R.string.restart_vpn_after_change);
-
-
-            dialog.setPositiveButton(R.string.restart,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(getActivity(), LaunchVPN.class);
-                            intent.putExtra(LaunchVPN.EXTRA_KEY, profile.getUUIDString());
-                            intent.setAction(Intent.ACTION_MAIN);
-                            startActivity(intent);
-                        }
-
-
-                    });
-            dialog.setNegativeButton(R.string.ignore, null);
-            dialog.create().show();
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-
-    @Override
     public void onStop() {
         super.onStop();
         VpnStatus.removeStateListener(this);
@@ -566,7 +496,7 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
 
         setListAdapter(ladapter);
 
-        mTimeRadioGroup = (RadioGroup) v.findViewById(R.id.timeFormatRadioGroup);
+        mTimeRadioGroup = v.findViewById(R.id.timeFormatRadioGroup);
         mTimeRadioGroup.setOnCheckedChangeListener(this);
 
         if (ladapter.mTimeFormat == LogWindowListAdapter.TIME_FORMAT_ISO) {
@@ -577,19 +507,15 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
             mTimeRadioGroup.check(R.id.radioShort);
         }
 
-        mClearLogCheckBox = (CheckBox) v.findViewById(R.id.clearlogconnect);
-        mClearLogCheckBox.setChecked(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(LaunchVPN.CLEARLOG, true));
-        mClearLogCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Preferences.getDefaultSharedPreferences(getActivity()).edit().putBoolean(LaunchVPN.CLEARLOG, isChecked).apply();
-            }
-        });
+        mClearLogCheckBox = v.findViewById(R.id.clearlogconnect);
+        mClearLogCheckBox.setChecked(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(Constants.CLEARLOG, true));
+        mClearLogCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->
+                Preferences.getDefaultSharedPreferences(getActivity()).edit().putBoolean(Constants.CLEARLOG, isChecked).apply());
 
-        mSpeedView = (TextView) v.findViewById(R.id.speed);
+        mSpeedView = v.findViewById(R.id.speed);
 
-        mOptionsLayout = (LinearLayout) v.findViewById(R.id.logOptionsLayout);
-        mLogLevelSlider = (SeekBar) v.findViewById(R.id.LogLevelSlider);
+        mOptionsLayout = v.findViewById(R.id.logOptionsLayout);
+        mLogLevelSlider = v.findViewById(R.id.LogLevelSlider);
         mLogLevelSlider.setMax(VpnProfile.MAXLOGLEVEL - 1);
         mLogLevelSlider.setProgress(logLevel - 1);
 
@@ -598,9 +524,9 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
         if (getResources().getBoolean(R.bool.logSildersAlwaysVisible))
             mOptionsLayout.setVisibility(View.VISIBLE);
 
-        mUpStatus = (TextView) v.findViewById(R.id.speedUp);
-        mDownStatus = (TextView) v.findViewById(R.id.speedDown);
-        mConnectStatus = (TextView) v.findViewById(R.id.speedStatus);
+        mUpStatus = v.findViewById(R.id.speedUp);
+        mDownStatus = v.findViewById(R.id.speedDown);
+        mConnectStatus = v.findViewById(R.id.speedStatus);
         if (mShowOptionsLayout)
             mOptionsLayout.setVisibility(View.VISIBLE);
         return v;
@@ -635,17 +561,13 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
         if (isAdded()) {
             final String cleanLogMessage = VpnStatus.getLastCleanLogMessage(getActivity());
 
-            getActivity().runOnUiThread(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (isAdded()) {
-                        if (mSpeedView != null) {
-                            mSpeedView.setText(cleanLogMessage);
-                        }
-                        if (mConnectStatus != null)
-                            mConnectStatus.setText(cleanLogMessage);
+            getActivity().runOnUiThread(() -> {
+                if (isAdded()) {
+                    if (mSpeedView != null) {
+                        mSpeedView.setText(cleanLogMessage);
                     }
+                    if (mConnectStatus != null)
+                        mConnectStatus.setText(cleanLogMessage);
                 }
             });
         }
