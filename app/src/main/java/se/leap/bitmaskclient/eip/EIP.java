@@ -401,7 +401,6 @@ public final class EIP extends JobIntentService implements Observer {
             return false;
         }
 
-        ProfileManager.setConntectedVpnProfileDisconnected(this);
         try {
             return openVpnServiceConnection.getService().stopVPN(false);
         } catch (RemoteException e) {

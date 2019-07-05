@@ -75,7 +75,7 @@ public class ProfileManager {
         SharedPreferences prefs = Preferences.getDefaultSharedPreferences(c);
         Editor prefsedit = prefs.edit();
 
-        prefsedit.putString(LAST_CONNECTED_PROFILE, connectedProfile.getUUIDString());
+        prefsedit.putString(LAST_CONNECTED_PROFILE, connectedProfile.toJson());
         prefsedit.apply();
         mLastConnectedVpn = connectedProfile;
 
@@ -87,11 +87,8 @@ public class ProfileManager {
     public static VpnProfile getLastConnectedProfile(Context c) {
         SharedPreferences prefs = Preferences.getDefaultSharedPreferences(c);
 
-        String lastConnectedProfile = prefs.getString(LAST_CONNECTED_PROFILE, null);
-        if (lastConnectedProfile != null)
-            return get(c, lastConnectedProfile);
-        else
-            return null;
+        String lastConnectedProfileJson = prefs.getString(LAST_CONNECTED_PROFILE, null);
+        return VpnProfile.fromJson(lastConnectedProfileJson);
     }
 
 
@@ -255,7 +252,6 @@ public class ProfileManager {
 
         String uuid = prefs.getString("alwaysOnVpn", null);
         return get(uuid);
-
     }
 
     public static void updateLRU(Context c, VpnProfile profile) {

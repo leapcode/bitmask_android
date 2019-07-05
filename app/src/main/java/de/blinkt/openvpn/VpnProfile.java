@@ -5,9 +5,6 @@
 
 package de.blinkt.openvpn;
 
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.BuildConfig;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +12,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.security.KeyChain;
 import android.security.KeyChainException;
@@ -24,7 +20,8 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import de.blinkt.openvpn.core.*;
+import com.google.gson.Gson;
+
 import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
 
@@ -37,7 +34,11 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -51,6 +52,21 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+
+import de.blinkt.openvpn.core.Connection;
+import de.blinkt.openvpn.core.ExtAuthHelper;
+import de.blinkt.openvpn.core.NativeUtils;
+import de.blinkt.openvpn.core.OpenVPNService;
+import de.blinkt.openvpn.core.OrbotHelper;
+import de.blinkt.openvpn.core.PasswordCache;
+import de.blinkt.openvpn.core.Preferences;
+import de.blinkt.openvpn.core.VPNLaunchHelper;
+import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.core.X509Utils;
+import se.leap.bitmaskclient.BuildConfig;
+import se.leap.bitmaskclient.R;
+
+import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 
 public class VpnProfile implements Serializable, Cloneable {
     // Note that this class cannot be moved to core where it belongs since
@@ -755,11 +771,8 @@ public class VpnProfile implements Serializable, Cloneable {
     }
 
     public Intent getStartServiceIntent(Context context) {
-        String prefix = context.getPackageName();
-
         Intent intent = new Intent(context, OpenVPNService.class);
-        intent.putExtra(prefix + ".profileUUID", mUuid.toString());
-        intent.putExtra(prefix + ".profileVersion", mVersion);
+        intent.putExtra(PROVIDER_PROFILE, this);
         return intent;
     }
 
@@ -1111,6 +1124,25 @@ public class VpnProfile implements Serializable, Cloneable {
     @Override
     public String toString() {
         return mName;
+    }
+
+    public String toJson() {
+        Gson gson = new Gson();
+        try {
+            return gson.toJson(this);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static VpnProfile fromJson(String json) {
+        try {
+            Gson gson = new Gson();
+            return gson.fromJson(json, VpnProfile.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public String getUUIDString() {
