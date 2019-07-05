@@ -34,14 +34,14 @@
         android:logo="@mipmap/ic_launcher"
         android:theme="@style/BitmaskTheme">
         <service
-            android:name=".eip.VoidVpnService"
+            android:name="de.blinkt.openvpn.core.OpenVPNService"
             android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
         <service
-            android:name="de.blinkt.openvpn.core.OpenVPNService"
+            android:name=".eip.VoidVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
