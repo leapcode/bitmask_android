@@ -5,10 +5,6 @@
 
 package de.blinkt.openvpn;
 
-import se.leap.bitmaskclient.R;
-
-import se.leap.bitmaskclient.R;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,10 +21,12 @@ import java.io.IOException;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.Preferences;
-import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.MainActivity;
+import se.leap.bitmaskclient.R;
+
+import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 
 /**
  * This Activity actually handles two stages of a launcher shortcut's life cycle.
@@ -61,7 +59,6 @@ public class LaunchVPN extends Activity {
     public static final String EXTRA_NAME = "de.blinkt.openvpn.shortcutProfileName";
     public static final String EXTRA_HIDELOG = "de.blinkt.openvpn.showNoLogWindow";
     public static final String CLEARLOG = "clearlogconnect";
-    public static final String EXTRA_TEMP_VPN_PROFILE = "se.leap.bitmask.tempVpnProfile";
 
 
     private static final int START_VPN_PROFILE = 70;
@@ -94,15 +91,8 @@ public class LaunchVPN extends Activity {
                 VpnStatus.clearLog();
 
             // we got called to be the starting point, most likely a shortcut
-            String shortcutUUID = intent.getStringExtra(EXTRA_KEY);
-            String shortcutName = intent.getStringExtra(EXTRA_NAME);
             mhideLog = intent.getBooleanExtra(EXTRA_HIDELOG, false);
-            VpnProfile profileToConnect = (VpnProfile) intent.getExtras().getSerializable(EXTRA_TEMP_VPN_PROFILE);
-            if (profileToConnect ==  null)
-                profileToConnect = ProfileManager.get(this, shortcutUUID);
-
-            if (shortcutName != null && profileToConnect == null)
-                profileToConnect = ProfileManager.getInstance(this).getProfileByName(shortcutName);
+            VpnProfile profileToConnect = (VpnProfile) intent.getExtras().getSerializable(PROVIDER_PROFILE);
 
             if (profileToConnect == null) {
                 VpnStatus.logError(R.string.shortcut_profile_notfound);
@@ -126,7 +116,6 @@ public class LaunchVPN extends Activity {
 
             if(!mhideLog && showLogWindow)
                 showLogWindow();
-            ProfileManager.updateLRU(this, mSelectedProfile);
             VPNLaunchHelper.startOpenVpn(mSelectedProfile, getBaseContext());
             finish();
 

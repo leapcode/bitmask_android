@@ -322,7 +322,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             PreferenceHelper.setAlwaysOn(this, false);
         } else {
             /* The intent is null when we are set as always-on or the service has been restarted. */
-            mProfile = ProfileManager.getLastConnectedProfile(this);
+            mProfile = VpnStatus.getLastConnectedVpnProfile(this);
             VpnStatus.logInfo(R.string.service_restarted);
 
             if (mProfile != null) {
@@ -344,9 +344,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         /* start the OpenVPN process itself in a background thread */
         new Thread(this::startOpenVPN).start();
 
-
-        ProfileManager.setConnectedVpnProfile(this, mProfile);
-        VpnStatus.setConnectedVPNProfile(mProfile.getUUIDString());
+        VpnStatus.setLastConnectedVpnProfile(getApplicationContext(), mProfile);
 
         return START_STICKY;
     }

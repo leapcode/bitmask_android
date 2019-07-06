@@ -18,7 +18,9 @@ import java.util.Locale;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.utils.ConfigHelper.getProviderFormattedString;
 
@@ -39,10 +41,10 @@ public class VpnStatus {
 
     private static HandlerThread mHandlerThread;
 
-    private static String mLastConnectedVPNUUID;
     static boolean readFileLog =false;
     final static java.lang.Object readFileLock = new Object();
 
+    private static VpnProfile lastConnectedProfile;
 
     public static TrafficHistory trafficHistory;
 
@@ -136,16 +138,39 @@ public class VpnStatus {
     }
 
     public static void setConnectedVPNProfile(String uuid) {
-        mLastConnectedVPNUUID = uuid;
         for (StateListener sl: stateListener)
             sl.setConnectedVPN(uuid);
     }
 
 
-    public static String getLastConnectedVPNProfile()
+    public static String getLastConnectedVPNProfileId()
     {
-        return mLastConnectedVPNUUID;
+        return lastConnectedProfile != null ? lastConnectedProfile.getUUIDString() : null;
     }
+
+    public static VpnProfile getLastConnectedVpnProfile() {
+        return lastConnectedProfile;
+    }
+
+    public static VpnProfile getLastConnectedVpnProfile(Context context) {
+        return PreferenceHelper.getLastConnectedVpnProfile(context);
+    }
+
+
+    /**
+     * Sets the profile that is connected (to connect if the service restarts)
+     */
+    public static void setLastConnectedVpnProfile(Context context, VpnProfile connectedProfile) {
+        PreferenceHelper.setLastUsedVpnProfile(context, connectedProfile);
+        lastConnectedProfile = connectedProfile;
+        setConnectedVPNProfile(lastConnectedProfile.getUUIDString());
+    }
+
+
+    public static String getLastConnectedVpnName() {
+        return lastConnectedProfile != null ? lastConnectedProfile.mName : null;
+    }
+
 
     public static void setTrafficHistory(TrafficHistory trafficHistory) {
         VpnStatus.trafficHistory = trafficHistory;

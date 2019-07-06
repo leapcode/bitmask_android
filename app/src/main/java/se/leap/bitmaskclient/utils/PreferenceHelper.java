@@ -16,12 +16,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.core.Preferences;
 import se.leap.bitmaskclient.Provider;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.Constants.ALWAYS_ON_SHOW_DIALOG;
 import static se.leap.bitmaskclient.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
 import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
+import static se.leap.bitmaskclient.Constants.LAST_USED_PROFILE;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
@@ -142,6 +145,27 @@ public class PreferenceHelper {
                 apply();
     }
 
+    /**
+     * Sets the profile that is connected (to connect if the service restarts)
+     */
+    public static void setLastUsedVpnProfile(Context c, VpnProfile connectedProfile) {
+        SharedPreferences prefs = Preferences.getDefaultSharedPreferences(c);
+        SharedPreferences.Editor prefsedit = prefs.edit();
+        prefsedit.putString(LAST_USED_PROFILE, connectedProfile.toJson());
+        prefsedit.apply();
+    }
+
+    /**
+     * Returns the profile that was last connected (to connect if the service restarts)
+     */
+    public static VpnProfile getLastConnectedVpnProfile(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        String lastConnectedProfileJson = preferences.getString(LAST_USED_PROFILE, null);
+        return VpnProfile.fromJson(lastConnectedProfileJson);
+    }
+
+
+
 
     public static void clearDataOfLastProvider(SharedPreferences preferences) {
         clearDataOfLastProvider(preferences, false);
@@ -248,29 +272,6 @@ public class PreferenceHelper {
         return preferences.getBoolean(EIP_IS_ALWAYS_ON, false);
     }
 
-    /*public static void saveLastProfile(Context context, String uuid) {
-        if (context == null) {
-            return;
-        }
-        putString(context, PROVIDER_PROFILE_UUID, uuid);
-    }
-
-    public static void clearLastProfile(Context context) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
-        preferences.edit().remove(PROVIDER_PROFILE_UUID).apply();
-    }
-
-    public static String getLastProfile(Context context){
-        return getString(context, PROVIDER_PROFILE_UUID, null);
-    }
-
-    public static void saveLastGatewayNumber(Context context, int number) {
-
-    }
-*/
     public static String getString(Context context, String key, String defValue) {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         return preferences.getString(key, defValue);
