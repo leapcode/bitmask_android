@@ -32,6 +32,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.Log;
@@ -39,7 +40,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,12 +61,12 @@ import se.leap.bitmaskclient.views.VpnStateImage;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
+import static se.leap.bitmaskclient.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
-import static se.leap.bitmaskclient.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.EipSetupObserver.connectionRetry;
 import static se.leap.bitmaskclient.EipSetupObserver.gatewayOrder;
@@ -92,7 +92,7 @@ public class EipFragment extends Fragment implements Observer {
     VpnStateImage vpnStateImage;
 
     @InjectView(R.id.vpn_main_button)
-    Button mainButton;
+    AppCompatButton mainButton;
 
     @InjectView(R.id.routed_text)
     AppCompatTextView routedText;
