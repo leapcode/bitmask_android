@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-<item>
-    <shape android:shape="oval">
-        <solid android:color="@color/black800"/>
-        <size android:width="250dp" android:height="250dp"/>
-    </shape>
-</item>
+    <item android:drawable="@drawable/black_circle_pressed" android:state_pressed="true"/>
+    <item android:drawable="@drawable/black_circle_released"/>
 </selector>

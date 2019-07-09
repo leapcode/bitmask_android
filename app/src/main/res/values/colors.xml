@@ -7,6 +7,8 @@
     <color name="colorSuccess">#a5d6a7</color>
 
     <color name="black800">#424242</color>
+    <color name="black800_secondary">#3b3b3b</color>
+    <color name="black800_transparent">#AA424242</color>
 
     <color name="red200">#ef9a9a</color>
     <color name="pink200">#f48fb1</color>
