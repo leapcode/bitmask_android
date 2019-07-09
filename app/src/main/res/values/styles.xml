@@ -69,8 +69,9 @@
 
     <style name="BitmaskButtonBlack" parent="android:Widget.Button">
         <item name="android:textAllCaps">true</item>
-        <item name="android:background">@color/black800</item>
+        <item name="android:background">@drawable/cust_button_primary_black</item>
         <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>
