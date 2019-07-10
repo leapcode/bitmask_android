@@ -244,12 +244,7 @@ public class NavigationDrawerFragment extends Fragment {
     private void setupAccountsListView() {
         drawerAccountsListView = drawerView.findViewById(R.id.accountList);
         drawerAccountsListView.setAdapter(accountListAdapter);
-        drawerAccountsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(parent, position);
-            }
-        });
+        drawerAccountsListView.setOnItemClickListener((parent, view, position, id) -> selectItem(parent, position));
     }
 
     private void setupSettingsListView() {
@@ -261,22 +256,24 @@ public class NavigationDrawerFragment extends Fragment {
     private void setupSettingsListAdapter() {
         settingsListAdapter = new DrawerSettingsAdapter(getLayoutInflater());
         if (getContext() != null) {
-            settingsListAdapter.addItem(getSwitchInstance(getString(R.string.save_battery),
+            settingsListAdapter.addItem(getSwitchInstance(getContext(),
+                    getString(R.string.save_battery),
+                    R.drawable.ic_battery_36,
                     getSaveBattery(getContext()),
                     BATTERY_SAVER,
                     (buttonView, newStateIsChecked) -> onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked)));
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            settingsListAdapter.addItem(getSimpleTextInstance(getString(R.string.always_on_vpn), ALWAYS_ON));
+            settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(R.string.always_on_vpn), R.drawable.ic_always_on_36, ALWAYS_ON));
         }
         if (isDefaultBitmask()) {
-            settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
+            settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(switch_provider_menu_option), R.drawable.ic_switch_provider_36, SWITCH_PROVIDER));
         }
-        settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
+        settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(log_fragment_title), R.drawable.ic_log_36, LOG));
         if (ENABLE_DONATION) {
-            settingsListAdapter.addItem(getSimpleTextInstance(getString(donate_title), DONATE));
+            settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(donate_title), R.drawable.ic_donate_36, DONATE));
         }
-        settingsListAdapter.addItem(getSimpleTextInstance(getString(about_fragment_title), ABOUT));
+        settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(about_fragment_title), R.drawable.ic_about_36, ABOUT));
     }
 
     private ActionBar setupActionBar() {

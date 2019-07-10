@@ -16,6 +16,9 @@
  */
 package se.leap.bitmaskclient;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
@@ -23,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -52,21 +56,27 @@ public class DrawerSettingsAdapter extends BaseAdapter {
         private boolean isChecked = false;
         private int itemType = NONE;
         private CompoundButton.OnCheckedChangeListener callback;
+        private Drawable iconResource;
 
-        private DrawerSettingsItem(String description, int viewType, boolean isChecked, int itemType, CompoundButton.OnCheckedChangeListener callback) {
+        private DrawerSettingsItem(Context context, String description, @DrawableRes int iconResource, int viewType, boolean isChecked, int itemType, CompoundButton.OnCheckedChangeListener callback) {
             this.description = description;
             this.viewType = viewType;
             this.isChecked = isChecked;
             this.itemType = itemType;
             this.callback = callback;
+            try {
+                this.iconResource = context.getResources().getDrawable(iconResource);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
         }
 
-        public static DrawerSettingsItem getSimpleTextInstance(String description, int itemType) {
-            return new DrawerSettingsItem(description, VIEW_SIMPLE_TEXT, false, itemType, null);
+        public static DrawerSettingsItem getSimpleTextInstance(Context context, String description, @DrawableRes int iconResource, int itemType) {
+            return new DrawerSettingsItem(context, description, iconResource, VIEW_SIMPLE_TEXT, false, itemType, null);
         }
 
-        public static DrawerSettingsItem getSwitchInstance(String description, boolean isChecked, int itemType, CompoundButton.OnCheckedChangeListener callback) {
-            return new DrawerSettingsItem(description, VIEW_SWITCH, isChecked, itemType, callback);
+        public static DrawerSettingsItem getSwitchInstance(Context context, String description, @DrawableRes int iconResource,  boolean isChecked, int itemType, CompoundButton.OnCheckedChangeListener callback) {
+            return new DrawerSettingsItem(context, description, iconResource, VIEW_SWITCH, isChecked, itemType, callback);
         }
 
         public int getItemType() {
@@ -138,7 +148,7 @@ public class DrawerSettingsAdapter extends BaseAdapter {
             switch(type) {
                 case VIEW_SIMPLE_TEXT:
                     convertView = initTextViewBinding(holder);
-                    holder.textView.setText(drawerSettingsItem.description);
+                    bindSimpleText(drawerSettingsItem, holder);
                     break;
                 case VIEW_SWITCH:
                     convertView = initSwitchBinding(holder);
@@ -154,7 +164,7 @@ public class DrawerSettingsAdapter extends BaseAdapter {
                         holder.resetSwitchView();
                         convertView = initTextViewBinding(holder);
                     }
-                    holder.textView.setText(drawerSettingsItem.description);
+                    bindSimpleText(drawerSettingsItem, holder);
                     break;
                 case VIEW_SWITCH:
                     if (!holder.isSwitchViewHolder()) {
@@ -169,23 +179,36 @@ public class DrawerSettingsAdapter extends BaseAdapter {
         return convertView;
     }
 
+    private void bindSimpleText(DrawerSettingsItem drawerSettingsItem, ViewHolder holder) {
+        holder.textView.setText(drawerSettingsItem.description);
+        if (drawerSettingsItem.iconResource != null) {
+            holder.iconView.setImageDrawable(drawerSettingsItem.iconResource);
+        }
+    }
+
     private void bindSwitch(DrawerSettingsItem drawerSettingsItem, ViewHolder holder) {
         holder.switchView.setChecked(drawerSettingsItem.isChecked);
-        holder.switchView.setText(drawerSettingsItem.description);
+        holder.textView.setText(drawerSettingsItem.description);
         holder.switchView.setOnCheckedChangeListener(drawerSettingsItem.callback);
+        if (drawerSettingsItem.iconResource != null) {
+            holder.iconView.setImageDrawable(drawerSettingsItem.iconResource);
+        }
     }
 
     @NonNull
     private View initSwitchBinding(ViewHolder holder) {
         View convertView = mInflater.inflate(R.layout.v_switch_list_item, null);
-        holder.switchView = convertView.findViewById(android.R.id.text1);
+        holder.switchView = convertView.findViewById(R.id.option_switch);
+        holder.textView = convertView.findViewById(android.R.id.text1);
+        holder.iconView = convertView.findViewById(R.id.material_icon);
         return convertView;
     }
 
     @NonNull
     private View initTextViewBinding(ViewHolder holder) {
-        View convertView = mInflater.inflate(R.layout.v_single_list_item, null);
+        View convertView = mInflater.inflate(R.layout.v_icon_text_list_item, null);
         holder.textView = convertView.findViewById(android.R.id.text1);
+        holder.iconView = convertView.findViewById(R.id.material_icon);
         return convertView;
     }
 
@@ -200,6 +223,7 @@ public class DrawerSettingsAdapter extends BaseAdapter {
 
     static class ViewHolder {
         TextView textView;
+        ImageView iconView;
         SwitchCompat switchView;
 
         boolean isSwitchViewHolder() {
