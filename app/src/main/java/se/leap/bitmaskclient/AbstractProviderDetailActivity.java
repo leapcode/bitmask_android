@@ -62,25 +62,22 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
                 android.R.id.text1,
                 optionsList.toArray(new String[optionsList.size()])
         ));
-        options.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String text = ((TextView) view).getText().toString();
-                Intent intent;
-                if (text.equals(getString(R.string.login_to_profile))) {
-                    Log.d(TAG, "login selected");
-                    intent = new Intent(getApplicationContext(), LoginActivity.class);
-                } else if (text.equals(getString(R.string.create_profile))) {
-                    Log.d(TAG, "signup selected");
-                    intent = new Intent(getApplicationContext(), SignupActivity.class);
-                } else {
-                    onAnonymouslySelected();
-                    return;
-                }
-                intent.putExtra(PROVIDER_KEY, provider);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
+        options.setOnItemClickListener((parent, view, position, id) -> {
+            String text = ((TextView) view).getText().toString();
+            Intent intent;
+            if (text.equals(getString(R.string.login_to_profile))) {
+                Log.d(TAG, "login selected");
+                intent = new Intent(getApplicationContext(), LoginActivity.class);
+            } else if (text.equals(getString(R.string.create_profile))) {
+                Log.d(TAG, "signup selected");
+                intent = new Intent(getApplicationContext(), SignupActivity.class);
+            } else {
+                onAnonymouslySelected();
+                return;
             }
+            intent.putExtra(PROVIDER_KEY, provider);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
         });
     }
 
