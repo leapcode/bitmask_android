@@ -188,7 +188,7 @@ public class NavigationDrawerFragment extends Fragment {
         setupSettingsListAdapter();
         setupSettingsListView();
         accountListAdapter = new ArrayAdapter<>(actionBar.getThemedContext(),
-                R.layout.v_single_list_item,
+                R.layout.v_icon_text_list_item,
                 android.R.id.text1);
         refreshAccountListAdapter();
         setupAccountsListView();
