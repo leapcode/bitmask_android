@@ -35,6 +35,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -537,7 +538,7 @@ public class EipFragment extends Fragment implements Observer {
     private void setVpnRouteText() {
         String vpnRouteString = provider.getName();
         VpnProfile vpnProfile = ProfileManager.getLastConnectedVpn();
-        if (vpnProfile != null && vpnProfile.mName != null) {
+        if (vpnProfile != null && !TextUtils.isEmpty(vpnProfile.mName)) {
             vpnRouteString += " (" + vpnProfile.mName + ")";
         }
         vpnRoute.setText(vpnRouteString);
