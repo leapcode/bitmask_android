@@ -74,4 +74,9 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="error_appearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/colorError</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
 </resources>
