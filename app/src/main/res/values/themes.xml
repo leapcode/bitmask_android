@@ -11,6 +11,7 @@
 
         <!-- button and controls -->
         <item name="android:buttonStyle">@style/BitmaskButton</item>
+        <item name="buttonStyle">@style/BitmaskButton</item>
     </style>
 
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
