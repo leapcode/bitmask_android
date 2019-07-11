@@ -1,83 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item android:id="@+id/progress1">
-        <rotate
-            android:fromDegrees="-90"
-            android:pivotX="50%"
-            android:pivotY="50%"
-            android:toDegrees="90">
-
+    <item>
+        <scale
+            android:scaleHeight="125%"
+            android:scaleWidth="125%"
+            android:scaleGravity="center"
+            >
             <shape
-                android:shape="ring"
-                android:useLevel="true">
+                android:shape="oval"
+                android:useLevel="true"
+                >
                 <gradient
-                    android:endColor="#00c5e1a5"
-                    android:centerColor="#c5e1a5"
-                    android:startColor="#00ffe082"
-                    android:type="sweep"
+                    android:startColor="@color/colorPrimaryDark"
+                    android:centerColor="@color/colorPrimary"
+                    android:endColor="@color/black800_high_transparent"
+                    android:gradientRadius="100dp"
+                    android:type="radial"
                     />
             </shape>
-        </rotate>
+        </scale>
     </item>
-
-    <item android:id="@+id/progress2">
-        <rotate
-            android:fromDegrees="0"
-            android:pivotX="50%"
-            android:pivotY="50%"
-            android:toDegrees="180">
-
-            <shape
-                android:shape="ring"
-                android:useLevel="true">
-                <gradient
-                    android:endColor="#00ffcc80"
-                    android:centerColor="#ffcc80"
-                    android:startColor="#00ffcc80"
-                    android:type="sweep"
-                    />
-            </shape>
-        </rotate>
-    </item>
-
-    <item android:id="@+id/progress3">
-        <rotate
-            android:fromDegrees="90"
-            android:pivotX="50%"
-            android:pivotY="50%"
-            android:toDegrees="270">
-            <shape
-                android:shape="ring"
-                android:useLevel="true">
-                <gradient
-                    android:endColor="#00ce93d8"
-                    android:centerColor="#ce93d8"
-                    android:startColor="#00ce93d8"
-                    android:type="sweep"
-                    />
-            </shape>
-        </rotate>
-    </item>
-
-    <item android:id="@+id/progress4">
-        <rotate
-            android:fromDegrees="180"
-            android:pivotX="50%"
-            android:pivotY="50%"
-            android:toDegrees="0">
-            <shape
-                android:shape="ring"
-                android:useLevel="true">
-                <gradient
-                    android:endColor="#0081d4fa"
-                    android:centerColor="#81d4fa"
-                    android:startColor="#0081d4fa"
-                    android:type="sweep"
-                    />
-            </shape>
-        </rotate>
-    </item>
-
 </layer-list>
