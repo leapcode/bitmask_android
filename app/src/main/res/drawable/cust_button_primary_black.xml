@@ -1,18 +1,4 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true">
-        <shape android:shape="rectangle">
-            <corners android:radius="16dp"/>
-            <solid android:color="@color/black800_secondary"/>
-        </shape>
-    </item>
-
-    <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="16dp"/>
-            <solid android:color="@color/black800"/>
-        </shape>
-    </item>
-
-
-
+    <item android:state_pressed="true" android:drawable="@drawable/cust_button_primary_black_pressed"/>
+    <item android:drawable="@drawable/cust_button_primary_black_released"/>
 </selector>
