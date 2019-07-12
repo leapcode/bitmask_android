@@ -1131,8 +1131,9 @@ public class VpnProfile implements Serializable, Cloneable {
         try {
             return gson.toJson(this);
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
         }
+        return null;
     }
 
     public static VpnProfile fromJson(String json) {
