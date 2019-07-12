@@ -46,7 +46,6 @@ import org.json.JSONException;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import se.leap.bitmaskclient.Constants.CREDENTIAL_ERRORS;
-import se.leap.bitmaskclient.userstatus.User;
 
 import static android.text.TextUtils.isEmpty;
 import static android.view.View.GONE;
@@ -250,14 +249,12 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     }
 
     void login(String username, String password) {
-        User.setUserName(username);
 
         Bundle parameters = bundleUsernameAndPassword(username, password);
         ProviderAPICommand.execute(this, LOG_IN, parameters, provider);
     }
 
     public void signUp(String username, String password) {
-        User.setUserName(username);
 
         Bundle parameters = bundleUsernameAndPassword(username, password);
         ProviderAPICommand.execute(this, SIGN_UP, parameters, provider);
