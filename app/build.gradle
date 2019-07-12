@@ -16,8 +16,8 @@ android {
 
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
-    versionCode 138
-    versionName "0.9.11"
+    versionCode 139
+    versionName "1.0.0RC1"
     minSdkVersion 16
     targetSdkVersion 27
     resValue "string", "app_name", appName
