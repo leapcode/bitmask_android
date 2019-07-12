@@ -44,7 +44,6 @@ import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnNotificationManager;
-import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
@@ -319,14 +318,15 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
                 updateShortCutUsage(mProfile);
             }
-            PreferenceHelper.setAlwaysOn(this, false);
+            VpnStatus.setAlwaysOn(false);
+
         } else {
             /* The intent is null when we are set as always-on or the service has been restarted. */
             mProfile = VpnStatus.getLastConnectedVpnProfile(this);
             VpnStatus.logInfo(R.string.service_restarted);
 
             if (mProfile != null) {
-                PreferenceHelper.setAlwaysOn(this, true);
+                VpnStatus.setAlwaysOn(true);
             }
         }
 
@@ -542,13 +542,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (mProfile.mAllowLocalLAN) {
                 allowAllAFFamilies(builder);
-            }
-            if (PreferenceHelper.isAlwaysOn(this)) {
-                try {
-                    builder.addDisallowedApplication(this.getPackageName());
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                }
             }
         }
 

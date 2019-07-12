@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.R;
@@ -32,6 +33,8 @@ public class VpnStatus {
     private static Vector<LogListener> logListener;
     private static CopyOnWriteArrayList<StateListener> stateListener;
     private static Vector<ByteCountListener> byteCountListener;
+
+    private static AtomicBoolean isAlwaysOnBooting = new AtomicBoolean(false);
 
     private static String mLaststatemsg = "";
 
@@ -504,12 +507,19 @@ public class VpnStatus {
 
     }
 
-
     public static synchronized void updateByteCount(long in, long out) {
         TrafficHistory.LastDiff diff = trafficHistory.add(in, out);
 
         for (ByteCountListener bcl : byteCountListener) {
             bcl.updateByteCount(in, out, diff.getDiffIn(), diff.getDiffOut());
         }
+    }
+
+    public static void setAlwaysOn(boolean alwaysOn) {
+        isAlwaysOnBooting.set(alwaysOn);
+    }
+
+    public static boolean isAlwaysOn() {
+        return isAlwaysOnBooting.get();
     }
 }
