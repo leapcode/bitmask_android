@@ -148,8 +148,8 @@ public class PreferenceHelper {
     /**
      * Sets the profile that is connected (to connect if the service restarts)
      */
-    public static void setLastUsedVpnProfile(Context c, VpnProfile connectedProfile) {
-        SharedPreferences prefs = Preferences.getDefaultSharedPreferences(c);
+    public static void setLastUsedVpnProfile(Context context, VpnProfile connectedProfile) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         SharedPreferences.Editor prefsedit = prefs.edit();
         prefsedit.putString(LAST_USED_PROFILE, connectedProfile.toJson());
         prefsedit.apply();
