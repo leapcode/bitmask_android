@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
+
 import static android.content.Intent.ACTION_BOOT_COMPLETED;
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
@@ -27,7 +30,7 @@ public class OnBootReceiver extends BroadcastReceiver {
         preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
         boolean providerConfigured = !preferences.getString(PROVIDER_VPN_CERTIFICATE, "").isEmpty();
         boolean startOnBoot = preferences.getBoolean(EIP_RESTART_ON_BOOT, false);
-        boolean isAlwaysOnConfigured = preferences.getBoolean(EIP_IS_ALWAYS_ON, false);
+        boolean isAlwaysOnConfigured = VpnStatus.isAlwaysOn();
         Log.d("OpenVPN", "OpenVPN onBoot intent received. Provider configured? " + providerConfigured + "  Start on boot? " + startOnBoot + "  isAlwaysOn feature configured: " + isAlwaysOnConfigured);
         if (providerConfigured) {
             if (isAlwaysOnConfigured) {

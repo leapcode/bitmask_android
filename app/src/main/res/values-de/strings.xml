@@ -113,6 +113,7 @@
   <string name="always_on_vpn">VPN immer anlassen</string>
   <string name="do_not_show_again">Nicht erneut anzeigen</string>
   <string name="always_on_vpn_user_message">Um durchgehend aktives VPN in den Android VPN Einstellungen einzuschalten, klicke auf das Zahnrad [img src] und aktiviere den Schalter.</string>
+  <string name="always_on_blocking_vpn_user_message">Aktiviere zusätzlich die Option \"Verbindungen nur über VPN zulassen\", um deine Privatsphäre optimal zu schützen.</string>
   <string name="donate_title">Spenden</string>
   <string name="donate_default_message">Spende noch heute, wenn du sichere Kommunikation wertschätzt, die sowohl für Endnutzer*innen als auch Menschen die den Service bereit stellen leicht nutzbar ist.</string>
   <string name="donate_message">LEAP benötigt Spenden und Stipendien. Spende noch heute wenn du sichere Kommunikation wertschätzt, die sowohl für Enandwender*innen als auch Menschen die den Dienst anbieten leicht nutzbar ist.</string>

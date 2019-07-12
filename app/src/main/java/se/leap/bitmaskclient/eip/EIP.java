@@ -46,7 +46,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
-import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.OnBootReceiver;
 import se.leap.bitmaskclient.R;
@@ -54,7 +53,6 @@ import se.leap.bitmaskclient.R;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.CATEGORY_DEFAULT;
-import static de.blinkt.openvpn.LaunchVPN.EXTRA_TEMP_VPN_PROFILE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
@@ -70,6 +68,7 @@ import static se.leap.bitmaskclient.Constants.EIP_N_CLOSEST_GATEWAY;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.ERROR_INVALID_VPN_CERTIFICATE;
@@ -243,7 +242,7 @@ public final class EIP extends JobIntentService implements Observer {
      */
     private void launchActiveGateway(@NonNull Gateway gateway, int nClosestGateway) {
         Intent intent = new Intent(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT);
-        intent.putExtra(EXTRA_TEMP_VPN_PROFILE, gateway.getProfile());
+        intent.putExtra(PROVIDER_PROFILE, gateway.getProfile());
         intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, nClosestGateway);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
@@ -401,7 +400,6 @@ public final class EIP extends JobIntentService implements Observer {
             return false;
         }
 
-        ProfileManager.setConntectedVpnProfileDisconnected(this);
         try {
             return openVpnServiceConnection.getService().stopVPN(false);
         } catch (RemoteException e) {

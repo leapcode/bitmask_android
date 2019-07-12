@@ -11,6 +11,8 @@ public interface Constants {
     String SHARED_PREFERENCES = "LEAPPreferences";
     String PREFERENCES_APP_VERSION = "bitmask version";
     String ALWAYS_ON_SHOW_DIALOG = "DIALOG.ALWAYS_ON_SHOW_DIALOG";
+    String CLEARLOG = "clearlogconnect";
+    String LAST_USED_PROFILE = "last_used_profile";
 
 
      //////////////////////////////////////////////
@@ -68,6 +70,7 @@ public interface Constants {
     String PROVIDER_CONFIGURED = "Constants.PROVIDER_CONFIGURED";
     String PROVIDER_EIP_DEFINITION = "Constants.EIP_DEFINITION";
     String PROVIDER_PROFILE_UUID = "Constants.PROVIDER_PROFILE_UUID";
+    String PROVIDER_PROFILE = "Constants.PROVIDER_PROFILE";
 
     //////////////////////////////////////////////
     // CREDENTIAL CONSTANTS

@@ -132,4 +132,18 @@ public class Gateway {
     public String toString() {
         return new Gson().toJson(this, Gateway.class);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Gateway &&
+                (this.mVpnProfile != null &&
+                        ((Gateway) obj).mVpnProfile != null &&
+                        this.mVpnProfile.mConnections != null &&
+                        ((Gateway) obj).mVpnProfile != null &&
+                        this.mVpnProfile.mConnections.length > 0 &&
+                        ((Gateway) obj).mVpnProfile.mConnections.length > 0 &&
+                        this.mVpnProfile.mConnections[0].mServerName != null &&
+                        this.mVpnProfile.mConnections[0].mServerName.equals(((Gateway) obj).mVpnProfile.mConnections[0].mServerName)) ||
+                        this.mVpnProfile == null && ((Gateway) obj).mVpnProfile == null;
+    }
 }

@@ -114,7 +114,7 @@ public class OpenVPNStatusService extends Service implements VpnStatus.LogListen
 
         @Override
         public String getLastConnectedVPN() throws RemoteException {
-            return VpnStatus.getLastConnectedVPNProfile();
+            return VpnStatus.getLastConnectedVPNProfileId();
         }
 
         @Override

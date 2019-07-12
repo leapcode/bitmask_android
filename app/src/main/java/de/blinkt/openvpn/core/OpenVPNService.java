@@ -48,6 +48,7 @@ import se.leap.bitmaskclient.VpnNotificationManager;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
+import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 
 
 public class OpenVPNService extends VpnService implements StateListener, Callback, ByteCountListener, IOpenVPNServiceInternal, VpnNotificationManager.VpnServiceCallback {
@@ -61,6 +62,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     public final static String ORBOT_PACKAGE_NAME = "org.torproject.android";
     private static final String PAUSE_VPN = "de.blinkt.openvpn.PAUSE_VPN";
     private static final String RESUME_VPN = "se.leap.bitmaskclient.RESUME_VPN";
+    private static final String TAG = OpenVPNService.class.getSimpleName();
     private static boolean mNotificationAlwaysVisible = false;
     private final Vector<String> mDnslist = new Vector<>();
     private final NetworkSpace mRoutes = new NetworkSpace();
@@ -177,7 +179,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         }
         VpnStatus.removeByteCountListener(this);
         unregisterDeviceStateReceiver();
-        ProfileManager.setConntectedVpnProfileDisconnected(this);
         mOpenVPNThread = null;
         if (!mStarting) {
             stopForeground(!mNotificationAlwaysVisible);
@@ -312,51 +313,38 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 0,
                 NOTIFICATION_CHANNEL_NEWSTATUS_ID);
 
-        if (intent != null && intent.hasExtra(getPackageName() + ".profileUUID")) {
-            String profileUUID = intent.getStringExtra(getPackageName() + ".profileUUID");
-            int profileVersion = intent.getIntExtra(getPackageName() + ".profileVersion", 0);
-            // Try for 10s to get current version of the profile
-            mProfile = ProfileManager.get(this, profileUUID, profileVersion, 100);
+        if (intent != null && intent.hasExtra(PROVIDER_PROFILE)) {
+            mProfile = (VpnProfile) intent.getSerializableExtra(PROVIDER_PROFILE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
                 updateShortCutUsage(mProfile);
             }
+            VpnStatus.setAlwaysOn(false);
 
         } else {
             /* The intent is null when we are set as always-on or the service has been restarted. */
-            mProfile = ProfileManager.getLastConnectedProfile(this);
+            mProfile = VpnStatus.getLastConnectedVpnProfile(this);
             VpnStatus.logInfo(R.string.service_restarted);
 
-            /* Got no profile, just stop */
-            if (mProfile == null) {
-                Log.d("OpenVPN", "Got no last connected profile on null intent. Assuming always on.");
-                mProfile = ProfileManager.getAlwaysOnVPN(this);
-
-                if (mProfile == null) {
-                    stopSelf(startId);
-                    return START_NOT_STICKY;
-                }
+            if (mProfile != null) {
+                VpnStatus.setAlwaysOn(true);
             }
+        }
+
+        if (mProfile == null) {
+            stopService(startId);
+            Log.d(TAG, "Stopping service, no profile found");
+            return START_NOT_STICKY;
+        } else {
+            Log.d(TAG, "Found profile: " + mProfile.mName);
             /* Do the asynchronous keychain certificate stuff */
             mProfile.checkForRestart(this);
         }
 
-        if (mProfile == null) {
-            stopSelf(startId);
-            return START_NOT_STICKY;
-        }
-
 
         /* start the OpenVPN process itself in a background thread */
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                startOpenVPN();
-            }
-        }).start();
+        new Thread(this::startOpenVPN).start();
 
-
-        ProfileManager.setConnectedVpnProfile(this, mProfile);
-        VpnStatus.setConnectedVPNProfile(mProfile.getUUIDString());
+        VpnStatus.setLastConnectedVpnProfile(getApplicationContext(), mProfile);
 
         return START_STICKY;
     }
@@ -367,6 +355,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return;
         ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
         shortcutManager.reportShortcutUsed(profile.getUUIDString());
+    }
+
+    private void stopService(int startId) {
+        VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
+        stopSelf(startId);
     }
 
     private void startOpenVPN() {
@@ -428,21 +421,17 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         }
 
         synchronized (mProcessLock)
-
         {
             mProcessThread = new Thread(processThread, "OpenVPNProcessThread");
             mProcessThread.start();
         }
 
-        new Handler(getMainLooper()).post(new Runnable() {
-                                              @Override
-                                              public void run() {
-                                                  if (mDeviceStateReceiver != null)
-                                                      unregisterDeviceStateReceiver();
-
-                                                  registerDeviceStateReceiver(mManagement);
-                                              }
-                                          }
+        new Handler(getMainLooper()).post(() -> {
+            if (mDeviceStateReceiver != null) {
+                unregisterDeviceStateReceiver();
+            }
+            registerDeviceStateReceiver(mManagement);
+        }
 
         );
     }

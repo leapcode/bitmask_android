@@ -25,9 +25,7 @@ import java.util.Observable;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
-import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.Provider;
 
 /**
  * EipStatus is a Singleton that represents a reduced set of a vpn's ConnectionStatus.
@@ -37,6 +35,7 @@ import se.leap.bitmaskclient.Provider;
 public class EipStatus extends Observable implements VpnStatus.StateListener {
     public static String TAG = EipStatus.class.getSimpleName();
     private static EipStatus currentStatus;
+
     public enum EipLevel {
         CONNECTING,
         DISCONNECTING,
@@ -99,7 +98,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
                 currentEipLevel = EipLevel.CONNECTED;
                 break;
             case LEVEL_VPNPAUSED:
-                if (ProfileManager.getLastConnectedVpn() != null && ProfileManager.getLastConnectedVpn().mPersistTun) {
+                if (VpnStatus.getLastConnectedVpnProfile() != null && VpnStatus.getLastConnectedVpnProfile().mPersistTun) {
                     //if persistTun is enabled, treat EipLevel as connecting as it *shouldn't* allow passing traffic in the clear...
                     currentEipLevel = EipLevel.CONNECTING;
                 } else {

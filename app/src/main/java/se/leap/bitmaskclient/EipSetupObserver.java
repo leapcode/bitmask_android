@@ -35,6 +35,7 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
@@ -186,7 +187,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
             finishGatewaySetup(true);
         }
 
-        VpnProfile vpnProfile = (VpnProfile) event.getSerializableExtra(LaunchVPN.EXTRA_TEMP_VPN_PROFILE);
+        VpnProfile vpnProfile = (VpnProfile) event.getSerializableExtra(PROVIDER_PROFILE);
         if (vpnProfile == null) {
             Log.e(TAG, "Tried to setup non existing vpn profile.");
             return;
@@ -204,7 +205,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
         intent.setAction(Intent.ACTION_MAIN);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
-        intent.putExtra(LaunchVPN.EXTRA_TEMP_VPN_PROFILE, vpnProfile);
+        intent.putExtra(PROVIDER_PROFILE, vpnProfile);
         intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, setupNClosestGateway.get());
         context.startActivity(intent);
     }

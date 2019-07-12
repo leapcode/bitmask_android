@@ -50,10 +50,9 @@ import java.util.Observer;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
-import de.blinkt.openvpn.core.ProfileManager;
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.fragments.DonationReminderDialog;
@@ -537,9 +536,9 @@ public class EipFragment extends Fragment implements Observer {
 
     private void setVpnRouteText() {
         String vpnRouteString = provider.getName();
-        VpnProfile vpnProfile = ProfileManager.getLastConnectedVpn();
-        if (vpnProfile != null && !TextUtils.isEmpty(vpnProfile.mName)) {
-            vpnRouteString += " (" + vpnProfile.mName + ")";
+        String profileName = VpnStatus.getLastConnectedVpnName();
+        if (!TextUtils.isEmpty(profileName)) {
+            vpnRouteString += " (" + profileName + ")";
         }
         vpnRoute.setText(vpnRouteString);
     }

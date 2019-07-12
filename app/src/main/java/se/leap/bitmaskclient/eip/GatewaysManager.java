@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013, 2014, 2015 LEAP Encryption Access Project and contributers
+ * Copyright (c) 2013 - 2019 LEAP Encryption Access Project and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@ package se.leap.bitmaskclient.eip;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -29,13 +28,8 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.core.Connection;
-import de.blinkt.openvpn.core.ProfileManager;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
@@ -52,13 +46,11 @@ public class GatewaysManager {
     private Context context;
     private SharedPreferences preferences;
     private List<Gateway> gateways = new ArrayList<>();
-    private ProfileManager profileManager;
     private Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
 
     GatewaysManager(Context context, SharedPreferences preferences) {
         this.context = context;
         this.preferences = preferences;
-        profileManager = ProfileManager.getInstance(context);
     }
 
     /**
@@ -102,7 +94,7 @@ public class GatewaysManager {
                 if (isOpenVpnGateway(gw)) {
                     JSONObject secrets = secretsConfiguration();
                     Gateway aux = new Gateway(eipDefinition, secrets, gw);
-                    if (!containsProfileWithSecrets(aux.getProfile())) {
+                    if (!gateways.contains(aux)) {
                         addGateway(aux);
                     }
                 }
@@ -139,85 +131,19 @@ public class GatewaysManager {
         return result;
     }
 
-    private boolean containsProfileWithSecrets(VpnProfile profile) {
-        boolean result = false;
 
-        Collection<VpnProfile> profiles = profileManager.getProfiles();
-        for (VpnProfile aux : profiles) {
-            result = result || sameConnections(profile.mConnections, aux.mConnections)
-                    && profile.mClientCertFilename.equalsIgnoreCase(aux.mClientCertFilename)
-                    && profile.mClientKeyFilename.equalsIgnoreCase(aux.mClientKeyFilename);
-        }
-        return result;
-    }
-
-    void clearGatewaysAndProfiles() {
+    void clearGateways() {
         gateways.clear();
-        ArrayList<VpnProfile> profiles = new ArrayList<>(profileManager.getProfiles());
-        for (VpnProfile profile : profiles) {
-            profileManager.removeProfile(context, profile);
-        }
     }
 
     private void addGateway(Gateway gateway) {
-        removeDuplicatedGateway(gateway);
         gateways.add(gateway);
-
-        VpnProfile profile = gateway.getProfile();
-        profileManager.addProfile(profile);
-    }
-
-    private void removeDuplicatedGateway(Gateway gateway) {
-        Iterator<Gateway> it = gateways.iterator();
-        List<Gateway> gatewaysToRemove = new ArrayList<>();
-        while (it.hasNext()) {
-            Gateway aux = it.next();
-            if (sameConnections(aux.getProfile().mConnections, gateway.getProfile().mConnections)) {
-                gatewaysToRemove.add(aux);
-            }
-        }
-        gateways.removeAll(gatewaysToRemove);
-        removeDuplicatedProfiles(gateway.getProfile());
-    }
-
-    private void removeDuplicatedProfiles(VpnProfile original) {
-        Collection<VpnProfile> profiles = profileManager.getProfiles();
-        List<VpnProfile> removeList = new ArrayList<>();
-        for (VpnProfile aux : profiles) {
-            if (sameConnections(original.mConnections, aux.mConnections)) {
-                removeList.add(aux);
-            }
-        }
-        for (VpnProfile profile : removeList) {
-            profileManager.removeProfile(context, profile);
-        }
-    }
-
-    /**
-     * check if all connections in c1 are also in c2
-     * @param c1 array of connections
-     * @param c2 array of connections
-     * @return true if all connections of c1 exist in c2 and vice versa
-     */
-    private boolean sameConnections(Connection[] c1, Connection[] c2) {
-        int sameConnections = 0;
-        for (Connection c1_aux : c1) {
-            for (Connection c2_aux : c2)
-                if (c2_aux.mServerName.equals(c1_aux.mServerName)) {
-                    sameConnections++;
-                    break;
-                }
-        }
-        return c1.length == c2.length && c1.length == sameConnections;
     }
 
     /**
      * read EipServiceJson from preferences and set gateways
      */
     void configureFromPreferences() {
-        //TODO: THIS IS A QUICK FIX - it deletes all profiles in ProfileManager, thus it's possible
-        // to add all gateways from prefs without duplicates, but this should be refactored.
-        clearGatewaysAndProfiles();
         fromEipServiceJson(
                 PreferenceHelper.getEipDefinitionFromPreferences(preferences)
         );

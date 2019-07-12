@@ -46,7 +46,6 @@ public class GatewaysManagerTest {
         when(sharedPreferences.getString(eq(Constants.PROVIDER_PRIVATE_KEY), anyString())).thenReturn(secrets.getString(Constants.PROVIDER_PRIVATE_KEY));
         when(sharedPreferences.getString(eq(Provider.CA_CERT), anyString())).thenReturn(secrets.getString(Provider.CA_CERT));
         when(sharedPreferences.getString(eq(Constants.PROVIDER_VPN_CERTIFICATE), anyString())).thenReturn(secrets.getString(Constants.PROVIDER_VPN_CERTIFICATE));
-        when(mockContext.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
 
 
         gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
@@ -74,7 +73,7 @@ public class GatewaysManagerTest {
         String eipServiceJson = TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-two-gateways.json"));
         gatewaysManager.fromEipServiceJson(new JSONObject(eipServiceJson));
         assertEquals(2, gatewaysManager.size());
-        gatewaysManager.clearGatewaysAndProfiles();
+        gatewaysManager.clearGateways();
         assertEquals(0, gatewaysManager.size());
     }
 
