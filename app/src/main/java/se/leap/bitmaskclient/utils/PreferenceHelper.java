@@ -17,13 +17,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import de.blinkt.openvpn.VpnProfile;
-import de.blinkt.openvpn.core.Preferences;
 import se.leap.bitmaskclient.Provider;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.Constants.ALWAYS_ON_SHOW_DIALOG;
 import static se.leap.bitmaskclient.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
-import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
 import static se.leap.bitmaskclient.Constants.LAST_USED_PROFILE;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
@@ -256,20 +254,6 @@ public class PreferenceHelper {
             e.printStackTrace();
         }
         return result;
-    }
-
-    public static void setAlwaysOn(Context context, boolean alwaysOn) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        //needs to be blocking here
-        preferences.edit().putBoolean(EIP_IS_ALWAYS_ON, false).commit();
-    }
-
-    public static boolean isAlwaysOn(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        return preferences.getBoolean(EIP_IS_ALWAYS_ON, false);
     }
 
     public static String getString(Context context, String key, String defValue) {
