@@ -1,31 +1,24 @@
 package se.leap.bitmaskclient.fragments;
 
 import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.text.TextUtilsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.support.v7.widget.AppCompatTextView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.views.IconTextView;
 
 import static se.leap.bitmaskclient.utils.PreferenceHelper.saveShowAlwaysOnDialog;
-import static se.leap.bitmaskclient.utils.ViewHelper.convertDimensionToPx;
 
 
 /**
@@ -68,23 +61,16 @@ public class AlwaysOnDialog extends AppCompatDialogFragment {
             blockVpnUserMessage.setVisibility(View.VISIBLE);
         }
 
-        builder.setView(view);
+        builder.setView(view)
+                .setPositiveButton(android.R.string.ok, (dialog, id) -> {
+                    if (doNotShowAgainCheckBox.isChecked()) {
+                        saveShowAlwaysOnDialog(getContext(), false);
+                    }
+                    Intent intent = new Intent("android.net.vpn.SETTINGS");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                })
+                .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
         return builder.create();
-    }
-
-    @OnClick(R.id.button_ok)
-    public void onOkClicked() {
-        if (doNotShowAgainCheckBox.isChecked()) {
-            saveShowAlwaysOnDialog(getContext(), false);
-        }
-        Intent intent = new Intent("android.net.vpn.SETTINGS");
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        dismiss();
-    }
-
-    @OnClick(R.id.button_cancel)
-    public void onCancelClicked() {
-        dismiss();
     }
 }
