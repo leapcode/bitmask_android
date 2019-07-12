@@ -83,17 +83,21 @@
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/vpn_main_button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
+        android:minWidth="200dp"
         android:layout_marginBottom="@dimen/stdpadding"
         android:layout_marginEnd="@dimen/stdpadding"
         android:layout_marginStart="@dimen/stdpadding"
         android:layout_marginTop="@dimen/stdpadding"
         android:layout_marginLeft="@dimen/stdpadding"
         android:layout_marginRight="@dimen/stdpadding"
+        android:paddingLeft="@dimen/stdpadding"
+        android:paddingRight="@dimen/stdpadding"
         app:layout_constraintBottom_toBottomOf="@+id/background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:text="@string/vpn.button.turn.on"
+        tools:text="Turn on in another language"
         style="@style/BitmaskButtonBlack"
         />
 

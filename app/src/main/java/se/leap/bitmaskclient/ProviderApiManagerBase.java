@@ -107,6 +107,7 @@ import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
 import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
 import static se.leap.bitmaskclient.utils.ConfigHelper.getFingerprintFromCertificate;
+import static se.leap.bitmaskclient.utils.ConfigHelper.getProviderFormattedString;
 import static se.leap.bitmaskclient.utils.ConfigHelper.parseRsaKeyFromString;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getFromPersistedProvider;
@@ -237,8 +238,8 @@ public abstract class ProviderApiManagerBase {
         deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
     }
 
-    String formatErrorMessage(final int toastStringId) {
-        return formatErrorMessage(resources.getString(toastStringId));
+    String formatErrorMessage(final int errorStringId) {
+        return formatErrorMessage(getProviderFormattedString(resources, errorStringId));
     }
 
     private String formatErrorMessage(String errorMessage) {
@@ -751,10 +752,11 @@ public abstract class ProviderApiManagerBase {
 
     Bundle setErrorResult(Bundle result, int errorMessageId, String errorId) {
         JSONObject errorJson = new JSONObject();
+        String errorMessage = getProviderFormattedString(resources, errorMessageId);
         if (errorId != null) {
-            addErrorMessageToJson(errorJson, resources.getString(errorMessageId), errorId);
+            addErrorMessageToJson(errorJson, errorMessage, errorId);
         } else {
-            addErrorMessageToJson(errorJson, resources.getString(errorMessageId));
+            addErrorMessageToJson(errorJson, errorMessage);
         }
         result.putString(ERRORS, errorJson.toString());
         result.putBoolean(BROADCAST_RESULT_KEY, false);

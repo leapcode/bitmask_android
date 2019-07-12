@@ -103,9 +103,9 @@
         app:layout_constraintStart_toStartOf="@id/border_guideline_left"
         app:layout_constraintTop_toTopOf="@id/border_guideline_top"
         android:indeterminate="true"
-        android:indeterminateDuration="2000"
+        android:indeterminateDuration="800"
         android:indeterminateDrawable="@drawable/progressbar_circle"
-        android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+        android:interpolator="@android:anim/decelerate_interpolator"
         android:indeterminateBehavior="cycle"
         />
 

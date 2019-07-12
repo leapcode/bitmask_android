@@ -62,6 +62,9 @@
 
     <style name="BitmaskButton" parent="android:Widget.Button">
         <item name="android:textAllCaps">true</item>
+        <item name="android:background">@drawable/cust_button_primary</item>
+        <item name="android:height">36dp</item>
+        <item name="android:minWidth">75dp</item>
     </style>
 
     <style name="BitmaskActivity">
@@ -69,8 +72,14 @@
 
     <style name="BitmaskButtonBlack" parent="android:Widget.Button">
         <item name="android:textAllCaps">true</item>
-        <item name="android:background">@color/black800</item>
+        <item name="android:background">@drawable/cust_button_primary_black</item>
         <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="error_appearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/colorError</item>
+        <item name="android:textSize">11sp</item>
     </style>
 
 </resources>

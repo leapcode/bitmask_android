@@ -1,0 +1,8 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/button_radius"/>
+            <solid android:color="@color/black800_secondary"/>
+        </shape>
+    </item>
+</layer-list>

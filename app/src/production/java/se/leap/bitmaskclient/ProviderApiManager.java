@@ -46,6 +46,7 @@ import static se.leap.bitmaskclient.R.string.malformed_url;
 import static se.leap.bitmaskclient.R.string.setup_error_text;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
+import static se.leap.bitmaskclient.utils.ConfigHelper.getProviderFormattedString;
 
 /**
  * Implements the logic of the provider api http requests. The methods of this class need to be called from
@@ -248,7 +249,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             try {
                 // try to download with provider CA on certificate error
                 JSONObject responseErrorJson = new JSONObject(responseString);
-                if (responseErrorJson.getString(ERRORS).equals(resources.getString(R.string.certificate_error))) {
+                if (responseErrorJson.getString(ERRORS).equals(getProviderFormattedString(resources, R.string.certificate_error))) {
                     responseString = downloadWithProviderCA(provider.getCaCert(), stringUrl);
                 }
             } catch (JSONException e) {

@@ -62,6 +62,7 @@ import static se.leap.bitmaskclient.R.string.malformed_url;
 import static se.leap.bitmaskclient.R.string.setup_error_text;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
+import static se.leap.bitmaskclient.utils.ConfigHelper.getProviderFormattedString;
 
 /**
  * Created by cyberta on 04.01.18.
@@ -281,7 +282,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             try {
                 // try to download with provider CA on certificate error
                 JSONObject responseErrorJson = new JSONObject(responseString);
-                if (dangerOn && responseErrorJson.getString(ERRORS).equals(resources.getString(R.string.certificate_error))) {
+                if (dangerOn && responseErrorJson.getString(ERRORS).equals(
+                        getProviderFormattedString(resources, R.string.certificate_error))) {
                     responseString = downloadWithoutCA(stringUrl);
                 }
             } catch (JSONException e) {
@@ -309,7 +311,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             try {
                 // try to download with provider CA on certificate error
                 JSONObject responseErrorJson = new JSONObject(responseString);
-                if (dangerOn && responseErrorJson.getString(ERRORS).equals(resources.getString(R.string.certificate_error))) {
+                if (dangerOn && responseErrorJson.getString(ERRORS).equals(
+                        getProviderFormattedString(resources, R.string.certificate_error))) {
                     responseString = downloadWithCommercialCA(urlString, dangerOn);
                 }
             } catch (JSONException e) {
@@ -344,7 +347,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             try {
                 // danger danger: try to download without CA on certificate error
                 JSONObject responseErrorJson = new JSONObject(responseString);
-                if (dangerOn && responseErrorJson.getString(ERRORS).equals(resources.getString(R.string.certificate_error))) {
+                if (dangerOn && responseErrorJson.getString(ERRORS).equals(
+                        getProviderFormattedString(resources, R.string.certificate_error))) {
                     responseString = downloadWithoutCA(urlString);
                 }
             } catch (JSONException e) {

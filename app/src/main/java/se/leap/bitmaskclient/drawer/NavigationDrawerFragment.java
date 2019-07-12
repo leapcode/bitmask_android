@@ -27,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -118,8 +119,6 @@ public class NavigationDrawerFragment extends Fragment {
     private volatile boolean wasPaused;
     private volatile boolean shouldCloseOnResume;
 
-    private String title;
-
     private SharedPreferences preferences;
 
     private final static String KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE = "KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE";
@@ -188,7 +187,7 @@ public class NavigationDrawerFragment extends Fragment {
         setupSettingsListAdapter();
         setupSettingsListView();
         accountListAdapter = new ArrayAdapter<>(actionBar.getThemedContext(),
-                R.layout.v_single_list_item,
+                R.layout.v_icon_text_list_item,
                 android.R.id.text1);
         refreshAccountListAdapter();
         setupAccountsListView();
@@ -244,12 +243,7 @@ public class NavigationDrawerFragment extends Fragment {
     private void setupAccountsListView() {
         drawerAccountsListView = drawerView.findViewById(R.id.accountList);
         drawerAccountsListView.setAdapter(accountListAdapter);
-        drawerAccountsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(parent, position);
-            }
-        });
+        drawerAccountsListView.setOnItemClickListener((parent, view, position, id) -> selectItem(parent, position));
     }
 
     private void setupSettingsListView() {
@@ -261,22 +255,24 @@ public class NavigationDrawerFragment extends Fragment {
     private void setupSettingsListAdapter() {
         settingsListAdapter = new DrawerSettingsAdapter(getLayoutInflater());
         if (getContext() != null) {
-            settingsListAdapter.addItem(getSwitchInstance(getString(R.string.save_battery),
+            settingsListAdapter.addItem(getSwitchInstance(getContext(),
+                    getString(R.string.save_battery),
+                    R.drawable.ic_battery_36,
                     getSaveBattery(getContext()),
                     BATTERY_SAVER,
                     (buttonView, newStateIsChecked) -> onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked)));
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            settingsListAdapter.addItem(getSimpleTextInstance(getString(R.string.always_on_vpn), ALWAYS_ON));
+            settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(R.string.always_on_vpn), R.drawable.ic_always_on_36, ALWAYS_ON));
         }
         if (isDefaultBitmask()) {
-            settingsListAdapter.addItem(getSimpleTextInstance(getString(switch_provider_menu_option), SWITCH_PROVIDER));
+            settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(switch_provider_menu_option), R.drawable.ic_switch_provider_36, SWITCH_PROVIDER));
         }
-        settingsListAdapter.addItem(getSimpleTextInstance(getString(log_fragment_title), LOG));
+        settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(log_fragment_title), R.drawable.ic_log_36, LOG));
         if (ENABLE_DONATION) {
-            settingsListAdapter.addItem(getSimpleTextInstance(getString(donate_title), DONATE));
+            settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(donate_title), R.drawable.ic_donate_36, DONATE));
         }
-        settingsListAdapter.addItem(getSimpleTextInstance(getString(about_fragment_title), ABOUT));
+        settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(about_fragment_title), R.drawable.ic_about_36, ABOUT));
     }
 
     private ActionBar setupActionBar() {
@@ -285,6 +281,7 @@ public class NavigationDrawerFragment extends Fragment {
         final ActionBar actionBar = activity.getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
         return actionBar;
     }
 
@@ -464,12 +461,12 @@ public class NavigationDrawerFragment extends Fragment {
         Fragment fragment = null;
 
         if (parent == drawerAccountsListView) {
-            title = getString(R.string.vpn_fragment_title);
             fragment = new EipFragment();
             Bundle arguments = new Bundle();
             Provider currentProvider = getSavedProviderFromSharedPreferences(preferences);
             arguments.putParcelable(PROVIDER_KEY, currentProvider);
             fragment.setArguments(arguments);
+            hideActionBarSubTitle();
         } else {
             DrawerSettingsItem settingsItem = settingsListAdapter.getItem(position);
             switch (settingsItem.getItemType()) {
@@ -477,12 +474,12 @@ public class NavigationDrawerFragment extends Fragment {
                     getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
                     break;
                 case LOG:
-                    title = getString(log_fragment_title);
                     fragment = new LogFragment();
+                    setActionBarTitle(log_fragment_title);
                     break;
                 case ABOUT:
-                    title = getString(about_fragment_title);
                     fragment = new AboutFragment();
+                    setActionBarTitle(about_fragment_title);
                     break;
                 case ALWAYS_ON:
                     if (getShowAlwaysOnDialog(getContext())) {
@@ -506,14 +503,19 @@ public class NavigationDrawerFragment extends Fragment {
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         }
 
-        restoreActionBar();
     }
 
-    public void restoreActionBar() {
+    private void setActionBarTitle(@StringRes int resId) {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setSubtitle(title);
+            actionBar.setSubtitle(resId);
+        }
+    }
+
+    private void hideActionBarSubTitle() {
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setSubtitle(null);
         }
     }
 

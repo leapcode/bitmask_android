@@ -41,4 +41,6 @@
     <dimen name="constraint_bottom_compact">0.9</dimen>
 
     <dimen name="toast_bottom_padding">20dp</dimen>
+    <dimen name="button_bevel">3dp</dimen>
+    <dimen name="button_radius">16dp</dimen>
 </resources>

@@ -46,6 +46,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -373,6 +374,7 @@ public class MockHelper {
         when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
         when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
         when(ConfigHelper.parseX509CertificateFromString(anyString())).thenCallRealMethod();
+        when(ConfigHelper.getProviderFormattedString(any(Resources.class), anyInt())).thenCallRealMethod();
     }
 
     public static void mockPreferenceHelper(final Provider providerFromPrefs) {
@@ -402,6 +404,7 @@ public class MockHelper {
         when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
         when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
         when(ConfigHelper.parseX509CertificateFromString(anyString())).thenCallRealMethod();
+        when(ConfigHelper.getProviderFormattedString(any(Resources.class), anyInt())).thenCallRealMethod();
     }
 
     public static void mockProviderApiConnector(final BackendMockProvider.TestBackendErrorCase errorCase) throws IOException {
@@ -421,16 +424,16 @@ public class MockHelper {
         JSONObject errorMessages = new JSONObject(TestSetupHelper.getInputAsString(inputStream));
 
 
-        when(mockedResources.getString(R.string.warning_corrupted_provider_details)).
-                thenReturn(errorMessages.getString("warning_corrupted_provider_details"));
+        when(mockedResources.getString(eq(R.string.warning_corrupted_provider_details), anyString())).
+                thenReturn(String.format(errorMessages.getString("warning_corrupted_provider_details"), "Bitmask"));
         when(mockedResources.getString(R.string.server_unreachable_message)).
                 thenReturn(errorMessages.getString("server_unreachable_message"));
         when(mockedResources.getString(R.string.error_security_pinnedcertificate)).
                 thenReturn(errorMessages.getString("error.security.pinnedcertificate"));
-        when(mockedResources.getString(R.string.malformed_url)).
-                thenReturn(errorMessages.getString("malformed_url"));
-        when(mockedResources.getString(R.string.certificate_error)).
-                thenReturn(errorMessages.getString("certificate_error"));
+        when(mockedResources.getString(eq(R.string.malformed_url), anyString())).
+                thenReturn(String.format(errorMessages.getString("malformed_url"), "Bitmask"));
+        when(mockedResources.getString(eq(R.string.certificate_error), anyString())).
+                thenReturn(String.format(errorMessages.getString("certificate_error"), "Bitmask"));
         when(mockedResources.getString(R.string.error_srp_math_error_user_message)).
                 thenReturn(errorMessages.getString("error_srp_math_error_user_message"));
         when(mockedResources.getString(R.string.error_bad_user_password_user_message)).
@@ -445,14 +448,16 @@ public class MockHelper {
                 thenReturn(errorMessages.getString("error_json_exception_user_message"));
         when(mockedResources.getString(R.string.error_no_such_algorithm_exception_user_message)).
                 thenReturn(errorMessages.getString("error_no_such_algorithm_exception_user_message"));
-        when(mockedResources.getString(R.string.warning_corrupted_provider_details)).
-                thenReturn(errorMessages.getString("warning_corrupted_provider_details"));
-        when(mockedResources.getString(R.string.warning_corrupted_provider_cert)).
-                thenReturn(errorMessages.getString("warning_corrupted_provider_cert"));
-        when(mockedResources.getString(R.string.warning_expired_provider_cert)).
-                thenReturn(errorMessages.getString("warning_expired_provider_cert"));
-        when(mockedResources.getString(R.string.setup_error_text)).
-                thenReturn(errorMessages.getString("setup_error_text"));
+        when(mockedResources.getString(eq(R.string.warning_corrupted_provider_details), anyString())).
+                thenReturn(String.format(errorMessages.getString("warning_corrupted_provider_details"), "Bitmask"));
+        when(mockedResources.getString(eq(R.string.warning_corrupted_provider_cert), anyString())).
+                thenReturn(String.format(errorMessages.getString("warning_corrupted_provider_cert"), "Bitmask"));
+        when(mockedResources.getString(eq(R.string.warning_expired_provider_cert), anyString())).
+                thenReturn(String.format(errorMessages.getString("warning_expired_provider_cert"), "Bitmask"));
+        when(mockedResources.getString(eq(R.string.setup_error_text), anyString())).
+                thenReturn(String.format(errorMessages.getString("setup_error_text"), "Bitmask"));
+        when(mockedResources.getString(R.string.app_name)).
+                thenReturn("Bitmask");
         return mockedResources;
     }
 }

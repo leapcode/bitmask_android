@@ -7,4 +7,6 @@
     <dimen name="bitmask_logo_compact">56dp</dimen>
     <dimen name="compact_padding">6dp</dimen>
     <dimen name="stdpadding">16dp</dimen>
+    <dimen name="button_radius">20dp</dimen>
+
 </resources>

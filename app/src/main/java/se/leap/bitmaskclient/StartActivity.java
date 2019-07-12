@@ -30,7 +30,6 @@ import java.lang.annotation.RetentionPolicy;
 
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipCommand;
-import se.leap.bitmaskclient.userstatus.User;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
@@ -90,7 +89,6 @@ public class StartActivity extends Activity{
 
         // initialize app necessities
         VpnStatus.initLogCache(getApplicationContext().getCacheDir());
-        User.init(getString(R.string.default_username));
 
         prepareEIP();
 
