@@ -10,7 +10,7 @@
     <android.support.v7.widget.AppCompatImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:srcCompat="@drawable/background_onboarding_tablet"
+        app:srcCompat="@drawable/background_main"
         android:scaleType="centerCrop"
         />
 
