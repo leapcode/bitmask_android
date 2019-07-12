@@ -27,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -117,8 +118,6 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean userLearnedDrawer;
     private volatile boolean wasPaused;
     private volatile boolean shouldCloseOnResume;
-
-    private String title;
 
     private SharedPreferences preferences;
 
@@ -282,6 +281,7 @@ public class NavigationDrawerFragment extends Fragment {
         final ActionBar actionBar = activity.getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
         return actionBar;
     }
 
@@ -461,12 +461,12 @@ public class NavigationDrawerFragment extends Fragment {
         Fragment fragment = null;
 
         if (parent == drawerAccountsListView) {
-            title = getString(R.string.vpn_fragment_title);
             fragment = new EipFragment();
             Bundle arguments = new Bundle();
             Provider currentProvider = getSavedProviderFromSharedPreferences(preferences);
             arguments.putParcelable(PROVIDER_KEY, currentProvider);
             fragment.setArguments(arguments);
+            hideActionBarSubTitle();
         } else {
             DrawerSettingsItem settingsItem = settingsListAdapter.getItem(position);
             switch (settingsItem.getItemType()) {
@@ -474,12 +474,12 @@ public class NavigationDrawerFragment extends Fragment {
                     getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
                     break;
                 case LOG:
-                    title = getString(log_fragment_title);
                     fragment = new LogFragment();
+                    setActionBarTitle(log_fragment_title);
                     break;
                 case ABOUT:
-                    title = getString(about_fragment_title);
                     fragment = new AboutFragment();
+                    setActionBarTitle(about_fragment_title);
                     break;
                 case ALWAYS_ON:
                     if (getShowAlwaysOnDialog(getContext())) {
@@ -503,14 +503,19 @@ public class NavigationDrawerFragment extends Fragment {
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         }
 
-        restoreActionBar();
     }
 
-    public void restoreActionBar() {
+    private void setActionBarTitle(@StringRes int resId) {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setSubtitle(title);
+            actionBar.setSubtitle(resId);
+        }
+    }
+
+    private void hideActionBarSubTitle() {
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setSubtitle(null);
         }
     }
 

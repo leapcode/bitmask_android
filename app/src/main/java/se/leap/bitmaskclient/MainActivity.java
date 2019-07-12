@@ -20,10 +20,12 @@ package se.leap.bitmaskclient;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
             bundle.putParcelable(PROVIDER_KEY, provider);
             eipFragment.setArguments(bundle);
             fragmentManagerEnhanced.replace(R.id.main_container, eipFragment, MainActivity.TAG);
+            hideActionBarSubTitle();
         } else {
             super.onBackPressed();
         }
@@ -135,9 +138,11 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 }
                 bundle.putParcelable(PROVIDER_KEY, provider);
                 fragment.setArguments(bundle);
+                hideActionBarSubTitle();
                 break;
             case ACTION_SHOW_LOG_FRAGMENT:
                 fragment = new LogFragment();
+                setActionBarTitle(R.string.log_fragment_title);
                 break;
             default:
                 break;
@@ -149,6 +154,19 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         if (fragment != null) {
             new FragmentManagerEnhanced(getSupportFragmentManager())
                     .replace(R.id.main_container, fragment, MainActivity.TAG);
+        }
+    }
+
+    private void hideActionBarSubTitle() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setSubtitle(null);
+        }
+    }
+    private void setActionBarTitle(@StringRes int stringId) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setSubtitle(stringId);
         }
     }
 
@@ -190,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         fragment.setArguments(arguments);
         new FragmentManagerEnhanced(getSupportFragmentManager())
                 .replace(R.id.main_container, fragment, EipFragment.TAG);
+        hideActionBarSubTitle();
     }
 
     @Override
