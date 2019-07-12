@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/eipServiceFragment">
 
     <android.support.constraint.Guideline
@@ -83,18 +84,22 @@
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/vpn_main_button"
-        android:layout_width="150dp"
+        android:layout_width="wrap_content"
         android:layout_height="32dp"
+        android:minWidth="150dp"
         android:layout_marginBottom="@dimen/stdpadding"
         android:layout_marginEnd="@dimen/stdpadding"
         android:layout_marginStart="@dimen/stdpadding"
         android:layout_marginTop="@dimen/stdpadding"
         android:layout_marginLeft="@dimen/stdpadding"
         android:layout_marginRight="@dimen/stdpadding"
+        android:paddingLeft="@dimen/stdpadding"
+        android:paddingRight="@dimen/stdpadding"
         app:layout_constraintBottom_toBottomOf="@+id/background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:text="@string/vpn.button.turn.on"
+        tools:text="Turn on in another language"
         style="@style/BitmaskButtonBlack"
         />
 
