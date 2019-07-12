@@ -20,6 +20,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import se.leap.bitmaskclient.R;
 
+import static se.leap.bitmaskclient.utils.ConfigHelper.getProviderFormattedString;
+
 public class VpnStatus {
 
 
@@ -103,6 +105,8 @@ public class VpnStatus {
 
         if (mLastStateresid == R.string.state_waitconnectretry) {
             return c.getString(R.string.state_waitconnectretry, mLaststatemsg);
+        } else if (mLastStateresid == R.string.void_vpn_establish) {
+            return getProviderFormattedString(c.getResources(), R.string.void_vpn_establish);
         }
 
         String prefix = c.getString(mLastStateresid);

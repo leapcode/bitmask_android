@@ -17,8 +17,10 @@
 package se.leap.bitmaskclient.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,6 +45,7 @@ import java.util.Calendar;
 
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.ProviderAPI;
+import se.leap.bitmaskclient.R;
 
 import static se.leap.bitmaskclient.Constants.DEFAULT_BITMASK;
 
@@ -181,5 +184,10 @@ public class ConfigHelper {
 
     public static int getCurrentTimezone() {
         return Calendar.getInstance().get(Calendar.ZONE_OFFSET) / 3600000;
+    }
+
+    public static String getProviderFormattedString(Resources resources, @StringRes int resourceId) {
+        String appName = resources.getString(R.string.app_name);
+        return resources.getString(resourceId, appName);
     }
 }

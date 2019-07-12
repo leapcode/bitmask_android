@@ -40,6 +40,7 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.utils.ConfigHelper.getProviderFormattedString;
 
 
 public class VoidVpnService extends VpnService implements Observer, VpnNotificationManager.VpnServiceCallback {
@@ -147,7 +148,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
 
     private void establishBlockingVpn() {
         try {
-            VpnStatus.logInfo(getString(R.string.void_vpn_establish));
+            VpnStatus.logInfo(getProviderFormattedString(getResources(), R.string.void_vpn_establish));
             VpnStatus.updateStateString(STATE_ESTABLISH, "",
                     R.string.void_vpn_establish, ConnectionStatus.LEVEL_BLOCKING);
             Builder builder = prepareBlockingVpnProfile();
@@ -180,9 +181,10 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
         }
 
         if (eipStatus.isBlockingVpnEstablished()) {
+            String blockingMessage = getProviderFormattedString(getResources(), eipStatus.getLocalizedResId());
             notificationManager.buildVoidVpnNotification(
-                    getString(eipStatus.getLocalizedResId()),
-                    getString(eipStatus.getLocalizedResId()),
+                    blockingMessage,
+                    blockingMessage,
                     eipStatus.getLevel());
         } else {
             notificationManager.stopNotifications(NOTIFICATION_CHANNEL_NEWSTATUS_ID);
