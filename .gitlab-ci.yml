@@ -97,38 +97,40 @@ build:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./cleanGit.sh
     - ./cleanProject.sh
     - ./build_deps.sh
-    - ./gradlew clean assembleDebug --stacktrace
+    - ./gradlew clean assembleDebug --stacktrace >> build.log 2>&1
   artifacts:
     paths:
     - app/build/outputs/
+    - build.log
 
 build_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./cleanGit.sh
     - ./cleanProject.sh
     - ./build_deps.sh
-    - ./gradlew assembleNormalProductionRelease --stacktrace
-    - ./gradlew assembleNormalProductionBeta --stacktrace
+    - ./gradlew clean assembleNormalProductionRelease --stacktrace >> productionRelease.log 2>&1
+    - ./gradlew clean assembleNormalProductionBeta --stacktrace >> productionBeta.log 2>&1
   artifacts:
     paths:
     - app/build/outputs/
+    - productionRelease.log
+    - productionBeta.log
   when: manual
 
 build_custom_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./cleanGit.sh
     - ./cleanProject.sh
     - ./build_deps.sh
-    - ./gradlew assembleCustomProductionRelease --stacktrace
-    - ./gradlew assembleCustomProductionBeta --stacktrace
+    - ./gradlew clean assembleCustomProductionRelease --stacktrace >> productionRelease.log 2>&1
+    - ./gradlew clean assembleCustomProductionBeta --stacktrace >> productionBeta.log 2>&1
   artifacts:
     paths:
     - app/build/outputs/
+    - productionRelease.log
+    - productionBeta.log
   when: manual
