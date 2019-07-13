@@ -98,11 +98,12 @@ build:
   stage: build
   script:
     - ./cleanProject.sh
-    - ./build_deps.sh
+    - ./build_deps.sh >> build_deps.log 2>&1
     - ./gradlew clean assembleDebug --stacktrace >> build.log 2>&1
   artifacts:
     paths:
     - app/build/outputs/
+    - build_deps.log
     - build.log
 
 build_release:
@@ -110,7 +111,7 @@ build_release:
   stage: build
   script:
     - ./cleanProject.sh
-    - ./build_deps.sh
+    - ./build_deps.sh >> build_deps.log 2>&1
     - ./gradlew clean assembleNormalProductionRelease --stacktrace >> productionRelease.log 2>&1
     - ./gradlew clean assembleNormalProductionBeta --stacktrace >> productionBeta.log 2>&1
   artifacts:
@@ -118,6 +119,7 @@ build_release:
     - app/build/outputs/
     - productionRelease.log
     - productionBeta.log
+    - build_deps.log
   when: manual
 
 build_custom_release:
@@ -125,7 +127,7 @@ build_custom_release:
   stage: build
   script:
     - ./cleanProject.sh
-    - ./build_deps.sh
+    - ./build_deps.sh >> build_deps.log 2>&1
     - ./gradlew clean assembleCustomProductionRelease --stacktrace >> productionRelease.log 2>&1
     - ./gradlew clean assembleCustomProductionBeta --stacktrace >> productionBeta.log 2>&1
   artifacts:
@@ -133,4 +135,5 @@ build_custom_release:
     - app/build/outputs/
     - productionRelease.log
     - productionBeta.log
+    - build_deps.log
   when: manual
