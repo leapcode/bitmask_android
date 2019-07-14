@@ -23,9 +23,12 @@ function cleanUp {
 DO_BUILD=false
 DO_SIGN=false
 BETA=false
+NO_TAG=false
 APP_NAME="Bitmask"
 FLAVOR="Normal"
 FLAVOR_LOWERCASE="normal"
+EXPECTED_FINGERPRINT="SHA256:9C:94:DB:F8:46:FD:95:97:47:57:17:2A:6A:8D:9A:9B:DF:8C:40:21:A6:6C:15:11:28:28:D1:72:39:1B:81:AA"
+
 
 
 # check global vars
@@ -69,7 +72,10 @@ do
             echo "ERROR: Version name has to be a git tag!"
             exit
         fi
-
+    elif [[ ${!i} = "-k" || ${!i} = "-key" ]];
+    then 
+        ((i++)) 
+        GPG_KEY=${!i}    
     elif [[ ${!i} = "-k" || ${!i} = "-key" ]];
     then 
         ((i++)) 
@@ -78,10 +84,12 @@ do
     then 
         ((i++)) 
         GPG_KEY_USER=${!i}
-        
     elif [[ ${!i} = "-b" || ${!i} = "-beta" ]];
     then 
         BETA=true
+    elif [[ ${!i} = "-no-tag" ]];
+    then 
+        NO_TAG=true
     elif [[  ${!i} = "-c" || ${!i} = "-custom" ]]
     then
         ((i++))
@@ -91,49 +99,61 @@ do
     elif [[ ${!i} = "-h" || ${!i} = "-help" ]];
     then 
         echo -e "
-        sign [-ks, -f, -b, -c] ---- sign a given apk
-        -b / -beta ---------------- add 'Beta' to filename of resulting apk (optional)
-        -c / -custom [appName] ---- mark build as custom branded Bitmask client and add 
-                                    custom app name to resulting apk (required for custom
-                                    branded builds)
-        -ks / -keystore [path] ---- define path to keystore for signing (required)
-        -f / -file [inputfile] ---- define path to apk going to be signed (required if 
-                                    sign command is not used in conjuction with build)
-        -v / -version [gittag] ---- define app version as part of the resulting apk file
-                                    name (required)
+        sign [-ks -fp -f -b -c -u -k]         sign a given apk (both app signing and GPG signing)
+        -b / -beta -------------------------- add 'Beta' to filename of resulting apk (optional)
+        -c / -custom [appName] -------------- mark build as custom branded Bitmask client and add 
+                                              custom app name to resulting apk (required for custom
+                                              branded builds)
+        -ks / -keystore [path] -------------- define path to keystore for signing (required)
+        -fp / -fingerprint [fingerprint] ---- define the fingerprint for the app (required for non-LEAP
+                                              signed apps)
+        -f / -file [inputfile] -------------- define path to apk going to be signed (required if 
+                                              sign command is not used in conjuction with build)
+        -v / -version [gittag] -------------- define app version as part of the resulting apk file
+                                              name. If not used, 'latest' will be added instead
+        -u / -user [gpguser] ---------------- define the gpg user whose key will be used for GPG signing
+                                              (optional)
+        -k / -key [gpgkey] ------------------ define the key used for GPG signing. Using this option,
+                                              -u will be ignored (optional)                           
         
-        build [-v, -c, -b]
-        -v / -version [gittag] ---- define the git version tag that needs to be checked out 
-                                    for building. It's also part of the resulting apk file 
-                                    name. (required)
-        -c / -custom -------------- build custom Bitmask client instead of main Bitmask client 
-                                    (optional)
-        -b / -beta ---------------- add 'Beta' to filename (optional)
+        
+        build [-v, -c, -b, -no-tag]
+        -v / -version [gittag] -------------- define the git version tag that needs to be checked out 
+                                              for building. It's also part of the resulting apk file 
+                                              name. (required if you don't use -no-tag)
+        -c / -custom ------------------------ build custom Bitmask client instead of main Bitmask client 
+                                              (optional)
+        -b / -beta -------------------------- add 'Beta' to filename (optional)
+        -no-tag ----------------------------- force to build current checked out git commit instead of an
+                                              official release version
 
         
-        -h / -help                  print out this help
+        -h / -help                            print out this help
         
         
         example Usages:
         ---------------
         
         * jarsign only:
-        ./prepareForDistribution.sh sign -f app/build/outputs/apk/app-production-beta.apk -ks ~/path/to/bitmask-android.keystore -v 0.9.7 \n
+        ./prepareForDistribution.sh sign -f app/build/outputs/apk/app-production-beta.apk -ks ~/path/to/bitmask-android.keystore -v 0.9.7
         
         * jarsign and gpg sign only:
-        ./prepareForDistribution.sh sign -f app/build/outputs/apk/app-production-beta.apk -ks ~/path/to/bitmask-android.keystore -u GPG_USER -v 0.9.7 \n
+        ./prepareForDistribution.sh sign -f app/build/outputs/apk/app-production-beta.apk -ks ~/path/to/bitmask-android.keystore -u GPG_USER -v 0.9.7
         
-        build custom stable
-        ./prepareForDistribution.sh build -v 0.9.7 -c RiseupVPN \n
+        * build custom stable
+        ./prepareForDistribution.sh build -v 0.9.7 -c RiseupVPN
         
-        build and sign custom stable:
-        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -v 0.9.7 -c RiseupVPN \n
+        * build and sign custom stable:
+        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -v 0.9.7 -c RiseupVPN
         
-        build and sign custom beta:
-        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -b -v 0.9.7RC2 -c RiseupVPN \n
+        * build and sign custom beta:
+        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -b -v 0.9.7RC2 -c RiseupVPN
 
-        build and sign stable:
-        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -v 0.9.7"
+        * build and sign stable:
+        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -v 0.9.7
+        
+        * build and sign current git HEAD
+        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -no-tag"
         exit
 
     else
@@ -153,13 +173,21 @@ fi
 
 if [[ ${DO_BUILD} == true ]]
 then
-    #---- COMPARE TAG COMMIT WITH CURRENT COMMIT AND CHECK OUT TAG COMMIT IF NECESSARY ----
-    TAG_COMMIT=$(git log -n 1 ${VERSION_NAME} --format="%H")
-    CURRENT_COMMIT=$(git log -n 1 --format="%H")
-    if [[ ${TAG_COMMIT} != ${CURRENT_COMMIT} ]]
+    if [[ ${NO_TAG} == false && -z ${VERSION_NAME} ]]
     then
-        echo "CHECKING OUT VERSION: ${VERSION_NAME} ..."
-        git checkout ${VERSION_NAME} || quit
+        echo "ERROR: You didn't enter the version (git tag) to be built. If you really want to force building the current checked out commit, use -no-tag."
+        quit
+    fi
+    if [[ ${NO_TAG} == false ]] 
+    then
+        #---- COMPARE TAG COMMIT WITH CURRENT COMMIT AND CHECK OUT TAG COMMIT IF NECESSARY ----
+        TAG_COMMIT=$(git log -n 1 ${VERSION_NAME} --format="%H")
+        CURRENT_COMMIT=$(git log -n 1 --format="%H")
+        if [[ ${TAG_COMMIT} != ${CURRENT_COMMIT} ]]
+        then
+            echo "CHECKING OUT VERSION: ${VERSION_NAME} ..."
+            git checkout ${VERSION_NAME} || quit
+        fi
     fi
 
     ./cleanProject.sh || quit
@@ -220,7 +248,6 @@ then
     rm ${ALIGNED_UNSIGNED_APK}
     
     FINGERPRINT=$(unzip -p ${ALIGNED_SIGNED_APK} META-INF/*.RSA | keytool -printcert | grep "SHA256" | tr -d '[:space:]') || quit
-    EXPECTED_FINGERPRINT="SHA256:9C:94:DB:F8:46:FD:95:97:47:57:17:2A:6A:8D:9A:9B:DF:8C:40:21:A6:6C:15:11:28:28:D1:72:39:1B:81:AA"
     
     if [[ ${FINGERPRINT} == ${EXPECTED_FINGERPRINT} ]] 
     then
@@ -232,18 +259,21 @@ then
     
     #---- RENAME TO VERSION_NAME ----
     FINAL_APK=${ALIGNED_SIGNED_APK}
-    if [[ -n ${VERSION_NAME} ]]
+    if [[ -z ${VERSION_NAME} ]] 
     then
-        if [[ ${BETA} == true ]]
-        then
-            FINAL_FILE_NAME="${APP_NAME}-Android-Beta-${VERSION_NAME}.apk"
-        else 
-            FINAL_FILE_NAME="${APP_NAME}-Android-${VERSION_NAME}.apk"
-        fi
-        FINAL_APK="${FILE_DIR}/${FINAL_FILE_NAME}"
-        cp ${ALIGNED_SIGNED_APK} ${FINAL_APK} || quit
-        cleanUp
+        VERSION_NAME="latest"
     fi
+
+    if [[ ${BETA} == true ]]
+    then
+        FINAL_FILE_NAME="${APP_NAME}-Android-Beta-${VERSION_NAME}.apk"
+    else 
+        FINAL_FILE_NAME="${APP_NAME}-Android-${VERSION_NAME}.apk"
+    fi
+    FINAL_APK="${FILE_DIR}/${FINAL_FILE_NAME}"
+    cp ${ALIGNED_SIGNED_APK} ${FINAL_APK} || quit
+    cleanUp
+
     
     #---- GPG SIGNING ----
     if [[ -z ${GPG_KEY} && -z ${GPG_KEY_USER} ]] 
