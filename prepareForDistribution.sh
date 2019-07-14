@@ -116,7 +116,7 @@ do
                                               name. (required if you don't use -no-tag)
         -c / -custom ------------------------ build custom Bitmask client instead of main Bitmask client 
                                               (optional)
-        -b / -beta -------------------------- add 'Beta' to filename (optional)
+        -b / -beta -------------------------- build beta version with .beta appended to applicationId (optional)
         -no-tag ----------------------------- force to build current checked out git commit instead of an
                                               official release version
 
