@@ -23,6 +23,9 @@ function cleanUp {
 DO_BUILD=false
 DO_SIGN=false
 BETA=false
+APP_NAME="Bitmask"
+FLAVOR="Normal"
+FLAVOR_LOWERCASE="normal"
 
 
 # check global vars
@@ -79,21 +82,57 @@ do
     elif [[ ${!i} = "-b" || ${!i} = "-beta" ]];
     then 
         BETA=true
-
+    elif [[  ${!i} = "-c" || ${!i} = "-custom" ]]
+    then
+        ((i++))
+        APP_NAME=${!i}
+        FLAVOR="Custom"
+        FLAVOR_LOWERCASE="custom"
     elif [[ ${!i} = "-h" || ${!i} = "-help" ]];
     then 
-        echo -e "example Usages: \n
-        jarsign only:
-        -------------
-        ./prepareForDistribution.sh sign -f app/build/outputs/apk/app-production-beta.apk -ks ~/path/to/bitmask-android.keystore -b -v 0.9.7RC2 \n
-        jarsign and gpg sign only:
-        --------------------------
-        ./prepareForDistribution.sh sign -f app/build/outputs/apk/app-production-beta.apk -ks ~/path/to/bitmask-android.keystore -u GPG_USER -b -v 0.9.7RC2 \n
-        build and sign beta:
-        --------------------
-        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -b -v 0.9.7RC2 \n
+        echo -e "
+        sign [-ks, -f, -b, -c] ---- sign a given apk
+        -b / -beta ---------------- add 'Beta' to filename of resulting apk (optional)
+        -c / -custom [appName] ---- mark build as custom branded Bitmask client and add 
+                                    custom app name to resulting apk (required for custom
+                                    branded builds)
+        -ks / -keystore [path] ---- define path to keystore for signing (required)
+        -f / -file [inputfile] ---- define path to apk going to be signed (required if 
+                                    sign command is not used in conjuction with build)
+        -v / -version [gittag] ---- define app version as part of the resulting apk file
+                                    name (required)
+        
+        build [-v, -c, -b]
+        -v / -version [gittag] ---- define the git version tag that needs to be checked out 
+                                    for building. It's also part of the resulting apk file 
+                                    name. (required)
+        -c / -custom -------------- build custom Bitmask client instead of main Bitmask client 
+                                    (optional)
+        -b / -beta ---------------- add 'Beta' to filename (optional)
+
+        
+        -h / -help                  print out this help
+        
+        
+        example Usages:
+        ---------------
+        
+        * jarsign only:
+        ./prepareForDistribution.sh sign -f app/build/outputs/apk/app-production-beta.apk -ks ~/path/to/bitmask-android.keystore -v 0.9.7 \n
+        
+        * jarsign and gpg sign only:
+        ./prepareForDistribution.sh sign -f app/build/outputs/apk/app-production-beta.apk -ks ~/path/to/bitmask-android.keystore -u GPG_USER -v 0.9.7 \n
+        
+        build custom stable
+        ./prepareForDistribution.sh build -v 0.9.7 -c RiseupVPN \n
+        
+        build and sign custom stable:
+        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -v 0.9.7 -c RiseupVPN \n
+        
+        build and sign custom beta:
+        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -b -v 0.9.7RC2 -c RiseupVPN \n
+
         build and sign stable:
-        ----------------------
         ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -v 0.9.7"
         exit
 
@@ -123,11 +162,14 @@ then
         git checkout ${VERSION_NAME} || quit
     fi
 
+    ./cleanProject.sh || quit
+    ./build_deps.sh || quit
+    
     if [[ ${BETA} == true ]]
     then
-        ./gradlew clean assembleProductionBeta --stacktrace || quit
+        ./gradlew clean assemble${FLAVOR}ProductionBeta --stacktrace || quit
     else
-        ./gradlew clean assembleProductionRelease --stacktrace || quit
+        ./gradlew clean assemble${FLAVOR}ProductionRelease --stacktrace || quit
     fi
 fi
 
@@ -151,13 +193,22 @@ then
     #---- OPT: SELECT APK FROM LAST BUILD ----
     if [[ ${DO_BUILD} == true ]]
     then
-        FILE_DIR="$(pwd)/app/build/outputs/apk/"
+        BASE_FILE_DIR="$(pwd)/app/build/outputs/apk"
         if [[ ${BETA} == true ]]
         then
-            FILE_NAME="app-production-beta.apk"
+            FILE_NAME="app-${FLAVOR_LOWERCASE}-production-beta.apk"
+            BUILD_TYPE_DIR="beta"
         else
-            FILE_NAME="app-production-release.apk"
+            FILE_NAME="app-${FLAVOR_LOWERCASE}-production-release.apk"
+            BUILD_TYPE_DIR="release"
         fi
+        if [[ ${FLAVOR_LOWERCASE} == "normal" ]] 
+        then
+            FLAVOR_DIR="normalProduction"
+        else
+            FLAVOR_DIR="customProduction"
+        fi
+        FILE_DIR="${BASE_FILE_DIR}/${FLAVOR_DIR}/${BUILD_TYPE_DIR}"
     fi
     
     #---- ALIGN AND JARSIGN APK  -----
@@ -185,9 +236,9 @@ then
     then
         if [[ ${BETA} == true ]]
         then
-            FINAL_FILE_NAME="Bitmask-Android-Beta-${VERSION_NAME}.apk"
+            FINAL_FILE_NAME="${APP_NAME}-Android-Beta-${VERSION_NAME}.apk"
         else 
-            FINAL_FILE_NAME="Bitmask-Android-${VERSION_NAME}.apk"
+            FINAL_FILE_NAME="${APP_NAME}-Android-${VERSION_NAME}.apk"
         fi
         FINAL_APK="${FILE_DIR}/${FINAL_FILE_NAME}"
         cp ${ALIGNED_SIGNED_APK} ${FINAL_APK} || quit
