@@ -31,13 +31,6 @@ EXPECTED_FINGERPRINT="SHA256:9C:94:DB:F8:46:FD:95:97:47:57:17:2A:6A:8D:9A:9B:DF:
 
 
 
-# check global vars
-if [[ -z ${ANDROID_BUILD_TOOLS} ]] 
-then
-    echo "ERROR: Environment variable ANDROID_BUILD_TOOLS not set! Please add it to your .bashrc file. Exiting."
-    exit 
-fi
-
 # init parameters
 for ((i=1;i<=$#;i++)); 
 do
@@ -203,6 +196,13 @@ fi
 
 if [[ ${DO_SIGN} == true ]]
 then
+    # check global vars
+    if [[ -z ${ANDROID_BUILD_TOOLS} ]] 
+    then
+        echo "ERROR: Environment variable ANDROID_BUILD_TOOLS not set! Please add it to your environment variables. Exiting."
+        exit 
+    fi
+
     if [[ -z ${FILE_NAME} && ${DO_BUILD} == false ]] 
     then
         echo -e "ERROR: Sign only needs a file name. Please check ./prepareForDistribution -help!"
