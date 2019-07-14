@@ -66,7 +66,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     public final static String ORBOT_PACKAGE_NAME = "org.torproject.android";
     private static final String PAUSE_VPN = "de.blinkt.openvpn.PAUSE_VPN";
     private static final String RESUME_VPN = "se.leap.bitmaskclient.RESUME_VPN";
-    private static final String TAG = OpenVPNService.class.getSimpleName();
     private static boolean mNotificationAlwaysVisible = false;
     private final Vector<String> mDnslist = new Vector<>();
     private final NetworkSpace mRoutes = new NetworkSpace();
