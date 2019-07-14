@@ -112,16 +112,24 @@ build_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./cleanProject.sh
-    - ./build_deps.sh >> build_deps.log 2>&1
-    - ./gradlew clean assembleNormalProductionRelease --stacktrace >> productionRelease.log 2>&1
-    - ./gradlew clean assembleNormalProductionBeta --stacktrace >> productionBeta.log 2>&1
+    - ./prepareForDistribution.sh build -no-tag >> normalRelease.log 2>&1
   artifacts:
     paths:
-    - app/build/outputs/
-    - productionRelease.log
-    - productionBeta.log
-    - build_deps.log
+      - app/build/outputs/
+      - normalRelease.log
+    when: always
+    expire_in: 1 week
+  when: manual
+
+build_fdroid_beta_release:
+  image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
+  stage: build
+  script:
+    - ./prepareForDistribution.sh build -no-tag -beta >> normalBeta.log 2>&1
+  artifacts:
+    paths:
+      - app/build/outputs/
+      - normalBeta.log
     when: always
     expire_in: 1 week
   when: manual
@@ -130,16 +138,24 @@ build_custom_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./cleanProject.sh
-    - ./build_deps.sh >> build_deps.log 2>&1
-    - ./gradlew clean assembleCustomProductionRelease --stacktrace >> productionRelease.log 2>&1
-    - ./gradlew clean assembleCustomProductionBeta --stacktrace >> productionBeta.log 2>&1
+    - ./prepareForDistribution.sh build -no-tag -custom RiseupVPN >> customRelease.log 2>&1
   artifacts:
     paths:
     - app/build/outputs/
-    - productionRelease.log
-    - productionBeta.log
-    - build_deps.log
+    - customRelease.log
+    when: always
+    expire_in: 1 week
+  when: manual
+
+build_fdroid_custom_beta_release:
+  image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
+  stage: build
+  script:
+    - ./prepareForDistribution.sh build -no-tag -beta -custom RiseupVPN >> customBeta.log 2>&1
+  artifacts:
+    paths:
+      - app/build/outputs/
+      - customBeta.log
     when: always
     expire_in: 1 week
   when: manual
