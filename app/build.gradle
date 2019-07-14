@@ -1,4 +1,3 @@
-import java.util.concurrent.ExecutionException
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -426,42 +425,4 @@ def getCurrentFlavorForBetaOrRelease() {
   {
     return "";
   }
-}
-
-def getCurrentFlavor() {
-  Gradle gradle = getGradle()
-  String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
-
-  Pattern pattern;
-
-  if (tskReqStr.contains("assemble"))
-    pattern = Pattern.compile("assemble(\\w+)(Beta|Release|Debug)")
-  else
-    pattern = Pattern.compile("generate(\\w+)(Beta|Release|Debug)")
-
-  Matcher matcher = pattern.matcher(tskReqStr)
-
-  if (matcher.find())
-    return matcher.group(1).toLowerCase()
-  else {
-    return "";
-  }
-}
-
-task checkApplicationIdForCustomFlavor(type: Exec) {
-  def currFlavor = getCurrentFlavor()
-  if (currFlavor.contains("custom")) {
-    android.applicationVariants.all { variant ->
-      def mergedFlavor = variant.mergedFlavor
-      if (variant.flavorName.toString().equalsIgnoreCase(currFlavor) &&
-              mergedFlavor.getApplicationId().equalsIgnoreCase("org.sample.custom"))
-        throw new ExecutionException("ERROR: please change the applicationId(org.sample.custom) if you want to build a custom branded app!")
-    }
-  }
-}
-
-task checkAppNameForCustomFlavor(type: Exec) {
-  def currFlavor = getCurrentFlavor()
-  if (currFlavor.contains("custom") && appName.equalsIgnoreCase("custom"))
-    throw new ExecutionException("ERROR: please change the appName(Custom) if you want to build a custom branded app!")
 }
