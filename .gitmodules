@@ -63,3 +63,6 @@
     path = go/src/golang.org/x/sys
     url = https://github.com/golang/sys.git
     ignore = untracked
+[submodule "go/src/se.leap.bitmaskclient/shapeshifter"]
+	path = go/src/se.leap.bitmaskclient/shapeshifter
+	url = https://0xacab.org/leap/shapeshifter.git
