@@ -120,7 +120,7 @@ public class VpnNotificationManager {
     public void buildOpenVpnNotification(String profileName, boolean isObfuscated, String msg, String tickerText, ConnectionStatus status, long when, String notificationChannelNewstatusId) {
         String cancelString;
         CharSequence bigmessage = null;
-        String ghostIcon = new String(Character.toChars(0x1F47B));
+        String ghostIcon = new String(Character.toChars(0x1f309));
 
         switch (status) {
             // show cancel if no connection
