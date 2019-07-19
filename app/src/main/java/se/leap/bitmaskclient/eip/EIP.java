@@ -223,9 +223,7 @@ public final class EIP extends JobIntentService implements Observer {
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
         Gateway gateway = gatewaysManager.select(0);
 
-        if (gateway != null && !gateway.getProfiles().isEmpty()) {
-            launchActiveGateway(gateway, 0);
-        } else {
+        if (!launchActiveGateway(gateway, 0)) {
             Log.d(TAG, "startEIPAlwaysOnVpn no active profile available!");
         }
     }
