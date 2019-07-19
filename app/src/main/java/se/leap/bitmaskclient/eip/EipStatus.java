@@ -78,8 +78,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         currentStatus.setLevel(level);
         currentStatus.setEipLevel(level);
         if (tmp != currentStatus.getLevel() || "RECONNECTING".equals(state)) {
-            currentStatus.setChanged();
-            currentStatus.notifyObservers();
+            refresh();
         }
     }
 
@@ -174,8 +173,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
                     default:
                         break;
                 }
-                currentStatus.setChanged();
-                currentStatus.notifyObservers();
+                refresh();
             }
         }
     }
@@ -284,6 +282,11 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     @Override
     public String toString() {
         return "State: " + state + " Level: " + vpnLevel.toString();
+    }
+
+    public static void refresh() {
+        currentStatus.setChanged();
+        currentStatus.notifyObservers();
     }
 
 }

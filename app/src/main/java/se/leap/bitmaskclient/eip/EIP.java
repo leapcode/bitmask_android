@@ -43,6 +43,7 @@ import java.util.Observer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
@@ -53,7 +54,6 @@ import se.leap.bitmaskclient.R;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.CATEGORY_DEFAULT;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
@@ -205,11 +205,11 @@ public final class EIP extends JobIntentService implements Observer {
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
         Gateway gateway = gatewaysManager.select(nClosestGateway);
 
-        if (gateway != null && !gateway.getProfiles().isEmpty()) {
-            launchActiveGateway(gateway, nClosestGateway);
+        if (launchActiveGateway(gateway, nClosestGateway)) {
             tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_OK);
-        } else
+        } else {
             tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED);
+        }
     }
 
     /**
@@ -242,11 +242,18 @@ public final class EIP extends JobIntentService implements Observer {
      *
      * @param gateway to connect to
      */
-    private void launchActiveGateway(@NonNull Gateway gateway, int nClosestGateway) {
+    private boolean launchActiveGateway(Gateway gateway, int nClosestGateway) {
+        VpnProfile profile;
+        if (gateway == null ||
+                (profile = gateway.getProfile(OPENVPN)) == null) {
+            return false;
+        }
+
         Intent intent = new Intent(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT);
-        intent.putExtra(PROVIDER_PROFILE, gateway.getProfile(OBFS4));
+        intent.putExtra(PROVIDER_PROFILE, profile);
         intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, nClosestGateway);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        return true;
 
     }
 
