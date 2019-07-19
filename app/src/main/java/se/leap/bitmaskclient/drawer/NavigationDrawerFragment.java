@@ -55,10 +55,12 @@ import se.leap.bitmaskclient.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.MainActivity;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderListActivity;
+import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.LogFragment;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
@@ -74,6 +76,7 @@ import static se.leap.bitmaskclient.DrawerSettingsAdapter.DONATE;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSimpleTextInstance;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSwitchInstance;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.LOG;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.PLUGGABLE_TRANSPORTS;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
 import static se.leap.bitmaskclient.R.string.donate_title;
@@ -84,7 +87,9 @@ import static se.leap.bitmaskclient.utils.PreferenceHelper.getProviderName;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSaveBattery;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getShowAlwaysOnDialog;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.saveBattery;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.usePluggableTransports;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -254,14 +259,26 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void setupSettingsListAdapter() {
         settingsListAdapter = new DrawerSettingsAdapter(getLayoutInflater());
-        if (getContext() != null) {
-            settingsListAdapter.addItem(getSwitchInstance(getContext(),
-                    getString(R.string.save_battery),
-                    R.drawable.ic_battery_36,
-                    getSaveBattery(getContext()),
-                    BATTERY_SAVER,
-                    (buttonView, newStateIsChecked) -> onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked)));
+        if (getContext() == null) {
+            return;
         }
+
+        Provider currentProvider = ProviderObservable.getInstance().getCurrentProvider();
+        if (currentProvider.supportsPluggableTransports()) {
+            settingsListAdapter.addItem(getSwitchInstance(getContext(),
+                    getString(R.string.nav_drawer_obfuscated_connection),
+                    R.drawable.ic_bridge_36,
+                    getUsePluggableTransports(getContext()),
+                    PLUGGABLE_TRANSPORTS,
+                    (buttonView, newStateIsChecked) -> onSwitchItemSelected(PLUGGABLE_TRANSPORTS, newStateIsChecked)));
+        }
+
+        settingsListAdapter.addItem(getSwitchInstance(getContext(),
+                getString(R.string.save_battery),
+                R.drawable.ic_battery_36,
+                getSaveBattery(getContext()),
+                BATTERY_SAVER,
+                (buttonView, newStateIsChecked) -> onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked)));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(R.string.always_on_vpn), R.drawable.ic_always_on_36, ALWAYS_ON));
         }
@@ -440,10 +457,16 @@ public class NavigationDrawerFragment extends Fragment {
                 if (newStateIsChecked) {
                     showExperimentalFeatureAlert();
                 } else {
-                    saveBattery(this.getContext(), false);
+                    saveBattery(getContext(), false);
                     disableSwitch(BATTERY_SAVER);
                 }
                 break;
+            case PLUGGABLE_TRANSPORTS:
+                if (getUsePluggableTransports(getContext()) == newStateIsChecked) {
+                    //initial ui setup, ignore
+                    return;
+                }
+                usePluggableTransports(getContext(), newStateIsChecked);
             default:
                 break;
         }

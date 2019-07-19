@@ -45,6 +45,7 @@ public class DrawerSettingsAdapter extends BaseAdapter {
     public static final int BATTERY_SAVER = 3;
     public static final int ALWAYS_ON = 4;
     public static final int DONATE = 5;
+    public static final int PLUGGABLE_TRANSPORTS = 6;
 
     //view types
     public final static int VIEW_SIMPLE_TEXT = 0;

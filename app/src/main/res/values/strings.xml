@@ -112,4 +112,5 @@
   <string name="donate_button_donate">Donate</string>
   <string name="obfuscated_connection">Using an obfuscated connection.</string>
   <string name="obfuscated_connection_try">Trying an obfuscated connection.</string>
+  <string name="nav_drawer_obfuscated_connection">Using Bridges</string>
 </resources>

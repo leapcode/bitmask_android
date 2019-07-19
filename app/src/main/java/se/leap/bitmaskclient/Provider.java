@@ -119,6 +119,11 @@ public final class Provider implements Parcelable {
                 hasPrivateKey();
     }
 
+    //TODO: implement me!
+    public boolean supportsPluggableTransports() {
+       return true;
+    }
+
     public void setMainUrl(URL url) {
         mainUrl.setUrl(url);
     }
