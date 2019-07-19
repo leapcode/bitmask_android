@@ -29,6 +29,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.Constants.USE_PLUGGABLE_TRANSPORTS;
 
 /**
  * Created by cyberta on 18.03.18.
@@ -208,6 +209,22 @@ public class PreferenceHelper {
                 remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
                 remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
                 apply();
+    }
+
+    public static boolean getUsePluggableTransports(Context context) {
+        if (context == null) {
+            return false;
+        }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(USE_PLUGGABLE_TRANSPORTS, false);
+    }
+
+    public static void usePluggableTransports(Context context, boolean isEnabled) {
+        if (context == null) {
+            return;
+        }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(USE_PLUGGABLE_TRANSPORTS, isEnabled).apply();
     }
 
     public static void saveBattery(Context context, boolean isEnabled) {
