@@ -80,3 +80,5 @@ jniLibs
 app/ovpnlibs
 app/.externalNativeBuild
 releases
+
+go/golang/go
