@@ -4,6 +4,8 @@
 # Convenience script for generating shapeshifter-dispatcher binaries for Android devices
 # adapted for Bitmask by cyberta
 
+BUILD_LIBRARY=false;
+
 function quit {
     echo "$1."
     exit 1
@@ -49,6 +51,10 @@ elif [ "$1" == "clean" ]; then
         fi
         echo "Done!"
 else
+        if [[ "$1" == "--library" ]]; then
+            BUILD_LIBRARY=true;
+        fi;
+
         if [ -z $ANDROID_NDK_HOME ]; then
                 echo "Android NDK path not specified!"
                 echo "Please set \$ANDROID_NDK_HOME before starting this script!"
@@ -114,7 +120,12 @@ else
 
                 export CC=$NDK_TOOLCHAIN/bin/clang
                 echo "Starting compilation for $suffix..."
-                ./golang/go/bin/go build -buildmode=pie -ldflags '-w -s -extldflags=-pie' -o ./out/${suffix}/piedispatcher github.com/OperatorFoundation/shapeshifter-dispatcher/shapeshifter-dispatcher || quit "Failed to cross-compile shapeshifter-dispatcher"
+
+                if [[ BUILD_LIBRARY ]]; then
+                    ./golang/go/bin/go build -buildmode=pie -ldflags '-w -s -extldflags=-pie' -o ./out/${suffix}/piedispatcherlib se.leap.bitmaskclient/shapeshifter || quit "Failed to cross-compile shapeshifter-dispatcher-library"
+                else
+                    ./golang/go/bin/go build -buildmode=pie -ldflags '-w -s -extldflags=-pie' -o ./out/${suffix}/piedispatcher github.com/OperatorFoundation/shapeshifter-dispatcher/shapeshifter-dispatcher || quit "Failed to cross-compile shapeshifter-dispatcher"
+                fi
                 echo "Build succeeded!"
 
         done
