@@ -13,7 +13,9 @@
   "enrollment_policy": "open",
   "languages": [
     "de",
-    "en"
+    "en",
+    "es",
+    "pt"
   ],
   "name": {
     "de": "Bitmask Pluggable Transports",
