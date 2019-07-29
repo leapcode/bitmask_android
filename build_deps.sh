@@ -8,8 +8,7 @@ function quit {
 
 DIR_OVPNASSETS=./ics-openvpn/main/build/ovpnassets
 DIR_OVPNLIBS=./ics-openvpn/main/build/intermediates/cmake/noovpn3/release/obj
-DIR_GOLANG=./go/golang/
-DIR_SHAPESHIFTER_DISPATCHER=./go/src/
+DIR_GOLIBS=./go/lib/
 FILE_X86=./go/out/x86/piedispatcherlib
 FILE_ARM=./go/out/armeabi-v7a/piedispatcherlib
 
@@ -26,13 +25,13 @@ else
     cd ..
 fi
 
-if [[ $(ls -A ${FILE_X86}) && $(ls -A ${FILE_ARM}) ]]
+if [[ $(ls -A ${DIR_GOLIBS}) ]]
 then
     echo "Dirty build: Reusing go libraries"
 else
     echo "Clean build: compiling Go libraries"
     cd ./go || quit "Directory go not found"
-    ./android_build_shapeshifter.sh clean || quit "android_build_shapeshifter_dispatcher.sh clean failed"
     ./install_go.sh || quit "install_go.sh failed"
-    ./android_build_shapeshifter.sh --library || quit "android_build_shapeshifter_dispatcher.sh failed"
+    ./android_build_shapeshifter_lib.sh || quit "android_build_shapeshifter_dispatcher.sh failed"
+    cd ..
 fi
