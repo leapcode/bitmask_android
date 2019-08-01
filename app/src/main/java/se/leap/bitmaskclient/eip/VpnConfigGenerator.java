@@ -29,7 +29,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.Provider;
-import se.leap.bitmaskclient.pluggableTransports.DispatcherOptions;
+import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
@@ -116,18 +116,18 @@ public class VpnConfigGenerator {
         ConfigParser icsOpenvpnConfigParser = new ConfigParser();
         icsOpenvpnConfigParser.parseConfig(new StringReader(configuration));
         if (transportType == OBFS4) {
-            icsOpenvpnConfigParser.setDispatcherOptions(getDispatcherOptions());
+            icsOpenvpnConfigParser.setObfs4Options(getObfs4Options());
         }
         return icsOpenvpnConfigParser.convertProfile(transportType);
     }
 
-    private DispatcherOptions getDispatcherOptions() throws JSONException {
+    private Obfs4Options getObfs4Options() throws JSONException {
         JSONObject transportOptions = obfs4Transport.getJSONObject(OPTIONS);
         String iatMode = transportOptions.getString("iat-mode");
         String cert = transportOptions.getString("cert");
         String port = obfs4Transport.getJSONArray(PORTS).getString(0);
         String ip = gateway.getString(IP_ADDRESS);
-        return new DispatcherOptions(ip, port, cert, iatMode);
+        return new Obfs4Options(ip, port, cert, iatMode);
     }
 
     private String generalConfiguration() {

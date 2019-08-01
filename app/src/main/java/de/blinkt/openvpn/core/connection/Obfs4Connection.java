@@ -1,6 +1,6 @@
 package de.blinkt.openvpn.core.connection;
 
-import se.leap.bitmaskclient.pluggableTransports.DispatcherOptions;
+import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
 
 import static se.leap.bitmaskclient.pluggableTransports.Dispatcher.DISPATCHER_IP;
 import static se.leap.bitmaskclient.pluggableTransports.Dispatcher.DISPATCHER_PORT;
@@ -12,9 +12,9 @@ import static se.leap.bitmaskclient.pluggableTransports.Dispatcher.DISPATCHER_PO
 public class Obfs4Connection extends Connection {
 
     private static final String TAG = Obfs4Connection.class.getName();
-    private DispatcherOptions options;
+    private Obfs4Options options;
 
-    public Obfs4Connection(DispatcherOptions options) {
+    public Obfs4Connection(Obfs4Options options) {
         setUseUdp(false);
         setServerName(DISPATCHER_IP);
         setServerPort(DISPATCHER_PORT);
@@ -52,7 +52,7 @@ public class Obfs4Connection extends Connection {
     }
 
 
-    public DispatcherOptions getDispatcherOptions() {
+    public Obfs4Options getDispatcherOptions() {
         return options;
     }
 

@@ -25,7 +25,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import de.blinkt.openvpn.core.connection.OpenvpnConnection;
-import se.leap.bitmaskclient.pluggableTransports.DispatcherOptions;
+import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 
@@ -140,7 +140,7 @@ public class ConfigParser {
     private HashMap<String, Vector<Vector<String>>> options = new HashMap<>();
     private HashMap<String, Vector<String>> meta = new HashMap<String, Vector<String>>();
     private String auth_user_pass_file;
-    private DispatcherOptions dispatcherOptions;
+    private Obfs4Options obfs4Options;
 
     static public void useEmbbedUserAuth(VpnProfile np, String inlinedata) {
         String data = VpnProfile.getEmbeddedContent(inlinedata);
@@ -752,8 +752,8 @@ public class ConfigParser {
             return TextUtils.join(s, str);
     }
 
-    public void setDispatcherOptions(DispatcherOptions dispatcherOptions) {
-        this.dispatcherOptions = dispatcherOptions;
+    public void setObfs4Options(Obfs4Options obfs4Options) {
+        this.obfs4Options = obfs4Options;
     }
 
     private Pair<Connection, Connection[]> parseConnection(String connection, Connection defaultValues) throws IOException, ConfigParseError {
@@ -776,7 +776,7 @@ public class ConfigParser {
                 return null;
             }
         else
-            conn = transportType == OBFS4 ? new Obfs4Connection(dispatcherOptions) : new OpenvpnConnection();
+            conn = transportType == OBFS4 ? new Obfs4Connection(obfs4Options) : new OpenvpnConnection();
 
         Vector<String> port = getOption("port", 1, 1);
         if (port != null) {

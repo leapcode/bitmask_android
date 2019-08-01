@@ -46,12 +46,12 @@ public class Dispatcher {
     private Thread dispatcherThread = null;
     private int dispatcherPid = -1;
 
-    public Dispatcher(Context context, DispatcherOptions dispatcherOptions) {
+    public Dispatcher(Context context, Obfs4Options obfs4Options) {
         this.context = context.getApplicationContext();
-        this.remoteIP = dispatcherOptions.remoteIP;
-        this.remotePort = dispatcherOptions.remotePort;
-        this.certificate = dispatcherOptions.cert;
-        this.iatMode = dispatcherOptions.iatMode;
+        this.remoteIP = obfs4Options.remoteIP;
+        this.remotePort = obfs4Options.remotePort;
+        this.certificate = obfs4Options.cert;
+        this.iatMode = obfs4Options.iatMode;
     }
 
     @WorkerThread
