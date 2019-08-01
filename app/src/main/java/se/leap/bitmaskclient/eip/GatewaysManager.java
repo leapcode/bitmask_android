@@ -44,13 +44,11 @@ public class GatewaysManager {
 
     private static final String TAG = GatewaysManager.class.getSimpleName();
 
-    private Context context;
     private SharedPreferences preferences;
     private LinkedHashMap<String, Gateway> gateways = new LinkedHashMap<>();
     private Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
 
-    GatewaysManager(Context context, SharedPreferences preferences) {
-        this.context = context;
+    GatewaysManager(SharedPreferences preferences) {
         this.preferences = preferences;
     }
 
