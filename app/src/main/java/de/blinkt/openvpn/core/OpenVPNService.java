@@ -43,10 +43,9 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import de.blinkt.openvpn.core.connection.Connection;
+import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnNotificationManager;
-import se.leap.bitmaskclient.pluggableTransports.Dispatcher;
-import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
@@ -250,9 +249,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     if (shapeshifter != null) {
                         shapeshifter.stop();
                     }
-                    /*if (dispatcher != null && dispatcher.isRunning()) {
-                        dispatcher.stop();
-                    }*/
                     VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 }
                 return true;
@@ -263,9 +259,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 if (shapeshifter != null) {
                     shapeshifter.stop();
                 }
-                /*if (dispatcher != null && dispatcher.isRunning()) {
-                    dispatcher.stop();
-                }*/
                 VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 return true;
             }
@@ -389,27 +382,20 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         // the dispatcher here? Can we start the dispatcher at a later point of execution, e.g. when
         // connections[n], n>0 gets choosen?
 
-        VpnStatus.logInfo("Setting up dispatcher.");
         Connection connection = mProfile.mConnections[0];
 
         if (mProfile.mUsePluggableTransports) {
             Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
-            //dispatcher = new Dispatcher(this, obfs4Connection.getDispatcherOptions());
-            //dispatcher.initSync();
             shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
-            if (shapeshifter.start()) {
-                // FIXME: we already know the shapeshifter port earlier!
-                connection.setServerPort(Shapeshifter.DISPATCHER_PORT);
-            } else {
-                Log.e(TAG, "Cannot initialize dispatcher for obfs4 connection. Shutting down.");
-                VpnStatus.logError("Cannot initialize dispatcher for obfs4 connection. Shutting down.");
+            if (!shapeshifter.start()) {
+                //TODO: implement useful error handling
+                Log.e(TAG, "Cannot initialize shapeshifter dispatcher for obfs4 connection. Shutting down.");
+                VpnStatus.logError("Cannot initialize shapeshifter dispatcher for obfs4 connection. Shutting down.");
             }
         }
 
-
         VpnStatus.logInfo(R.string.building_configration);
         VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);
-
 
         try {
             mProfile.writeConfigFile(this);
