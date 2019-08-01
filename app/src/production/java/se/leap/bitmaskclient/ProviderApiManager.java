@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.utils.ConfigHelper;
@@ -134,6 +135,9 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             return result;
         }
 
+        if (BuildConfig.DEBUG) {
+            VpnStatus.logDebug("PROVIDER JSON: " + providerDotJsonString);
+        }
         try {
             JSONObject providerJson = new JSONObject(providerDotJsonString);
             if (provider.define(providerJson)) {
@@ -163,7 +167,9 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             String eipServiceUrl = providerJson.getString(Provider.API_URL) + "/" + providerJson.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
             eipServiceJsonString = downloadWithProviderCA(provider.getCaCert(), eipServiceUrl);
             JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
-
+            if (BuildConfig.DEBUG) {
+                VpnStatus.logDebug("EIP SERVICE JSON: " + eipServiceJsonString);
+            }
             provider.setEipServiceJson(eipServiceJson);
 
             result.putBoolean(BROADCAST_RESULT_KEY, true);
@@ -187,6 +193,9 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             URL newCertStringUrl = new URL(provider.getApiUrlWithVersion() + "/" + PROVIDER_VPN_CERTIFICATE);
 
             String certString = downloadWithProviderCA(provider.getCaCert(), newCertStringUrl.toString());
+            if (BuildConfig.DEBUG) {
+                VpnStatus.logDebug("VPN CERT: " + certString);
+            }
             if (ConfigHelper.checkErroneousDownload(certString)) {
                 if (certString == null || certString.isEmpty()) {
                     // probably 204
@@ -217,6 +226,9 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             if (validCertificate(provider, certString)) {
                 provider.setCaCert(certString);
                 preferences.edit().putString(Provider.CA_CERT + "." + providerDomain, certString).apply();
+                if (BuildConfig.DEBUG) {
+                    VpnStatus.logDebug("CA CERT: " + certString);
+                }
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             } else {
                 setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
