@@ -51,13 +51,13 @@
     "cipher": "AES-256-CBC",
     "dev": "tun",
     "keepalive": "10 30",
-    "key-direction": 1,
+    "key-direction": "1",
     "nobind": true,
     "persist-key": true,
-    "rcvbuf": 0,
-    "sndbuf": 0,
+    "rcvbuf": "0",
+    "sndbuf": "0",
     "tls-cipher": "DHE-RSA-AES128-SHA",
     "tun-ipv6": true,
-    "verb": 3
+    "verb": "3"
   }
 }
