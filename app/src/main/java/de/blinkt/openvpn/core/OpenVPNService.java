@@ -47,6 +47,7 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnNotificationManager;
 import se.leap.bitmaskclient.pluggableTransports.Dispatcher;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
+import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
@@ -88,7 +89,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Toast mlastToast;
     private Runnable mOpenVPNThread;
     private VpnNotificationManager notificationManager;
-    private Dispatcher dispatcher;
+    private Shapeshifter shapeshifter;
 
     private static final int PRIORITY_MIN = -2;
     private static final int PRIORITY_DEFAULT = 0;
@@ -246,9 +247,12 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if(isVpnRunning()) {
             if (getManagement() != null && getManagement().stopVPN(replaceConnection)) {
                 if (!replaceConnection) {
-                    if (dispatcher != null && dispatcher.isRunning()) {
-                        dispatcher.stop();
+                    if (shapeshifter != null) {
+                        shapeshifter.stop();
                     }
+                    /*if (dispatcher != null && dispatcher.isRunning()) {
+                        dispatcher.stop();
+                    }*/
                     VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 }
                 return true;
@@ -256,9 +260,12 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return false;
         } else {
             if (!replaceConnection) {
-                if (dispatcher != null && dispatcher.isRunning()) {
-                    dispatcher.stop();
+                if (shapeshifter != null) {
+                    shapeshifter.stop();
                 }
+                /*if (dispatcher != null && dispatcher.isRunning()) {
+                    dispatcher.stop();
+                }*/
                 VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 return true;
             }
@@ -387,15 +394,12 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         if (mProfile.mUsePluggableTransports) {
             Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
-            dispatcher = new Dispatcher(this, obfs4Connection.getDispatcherOptions());
-            dispatcher.initSync();
-
-            if (dispatcher.isRunning()) {
-                connection.setServerPort(dispatcher.getPort());
-                Log.d(TAG, "Dispatcher running. Profile server name and port: " +
-                        connection.getServerName() + ":" + connection.getServerPort());
-                VpnStatus.logInfo("Dispatcher running. Profile server name and port: " +
-                        connection.getServerName() + ":" + connection.getServerPort());
+            //dispatcher = new Dispatcher(this, obfs4Connection.getDispatcherOptions());
+            //dispatcher.initSync();
+            shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
+            if (shapeshifter.start()) {
+                // FIXME: we already know the shapeshifter port earlier!
+                connection.setServerPort(Shapeshifter.DISPATCHER_PORT);
             } else {
                 Log.e(TAG, "Cannot initialize dispatcher for obfs4 connection. Shutting down.");
                 VpnStatus.logError("Cannot initialize dispatcher for obfs4 connection. Shutting down.");
