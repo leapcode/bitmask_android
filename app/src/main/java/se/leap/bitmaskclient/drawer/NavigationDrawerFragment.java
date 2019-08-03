@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018 LEAP Encryption Access Project and contributers
+ * Copyright (c) 2019 LEAP Encryption Access Project and contributers
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@ package se.leap.bitmaskclient.drawer;
 
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -44,12 +43,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
-import se.leap.bitmaskclient.DrawerSettingsAdapter;
-import se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem;
 import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.MainActivity;
@@ -60,32 +54,22 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.LogFragment;
-import se.leap.bitmaskclient.utils.PreferenceHelper;
+import se.leap.bitmaskclient.views.IconSwitchEntry;
+import se.leap.bitmaskclient.views.IconTextEntry;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
 import static se.leap.bitmaskclient.Constants.DONATION_URL;
 import static se.leap.bitmaskclient.Constants.ENABLE_DONATION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.DrawerSettingsAdapter.ABOUT;
-import static se.leap.bitmaskclient.DrawerSettingsAdapter.ALWAYS_ON;
-import static se.leap.bitmaskclient.DrawerSettingsAdapter.BATTERY_SAVER;
-import static se.leap.bitmaskclient.DrawerSettingsAdapter.DONATE;
-import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSimpleTextInstance;
-import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSwitchInstance;
-import static se.leap.bitmaskclient.DrawerSettingsAdapter.LOG;
-import static se.leap.bitmaskclient.DrawerSettingsAdapter.PLUGGABLE_TRANSPORTS;
-import static se.leap.bitmaskclient.DrawerSettingsAdapter.SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
-import static se.leap.bitmaskclient.R.string.donate_title;
 import static se.leap.bitmaskclient.R.string.log_fragment_title;
-import static se.leap.bitmaskclient.R.string.switch_provider_menu_option;
 import static se.leap.bitmaskclient.utils.ConfigHelper.isDefaultBitmask;
-import static se.leap.bitmaskclient.utils.PreferenceHelper.getProviderName;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSaveBattery;
-import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.saveBattery;
@@ -114,11 +98,10 @@ public class NavigationDrawerFragment extends Fragment {
 
     private DrawerLayout drawerLayout;
     private View drawerView;
-    private ListView drawerAccountsListView;
     private View fragmentContainerView;
-    private ArrayAdapter<String> accountListAdapter;
-    private DrawerSettingsAdapter settingsListAdapter;
     private Toolbar toolbar;
+    private IconTextEntry account;
+    private IconSwitchEntry saveBattery;
 
     private boolean userLearnedDrawer;
     private volatile boolean wasPaused;
@@ -188,14 +171,8 @@ public class NavigationDrawerFragment extends Fragment {
         this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         toolbar = this.drawerLayout.findViewById(R.id.toolbar);
 
-        final ActionBar actionBar = setupActionBar();
-        setupSettingsListAdapter();
-        setupSettingsListView();
-        accountListAdapter = new ArrayAdapter<>(actionBar.getThemedContext(),
-                R.layout.v_icon_text_list_item,
-                android.R.id.text1);
-        refreshAccountListAdapter();
-        setupAccountsListView();
+        setupActionBar();
+        setupEntries();
         setupActionBarDrawerToggle(activity);
 
         if (!userLearnedDrawer) {
@@ -245,51 +222,123 @@ public class NavigationDrawerFragment extends Fragment {
         };
     }
 
-    private void setupAccountsListView() {
-        drawerAccountsListView = drawerView.findViewById(R.id.accountList);
-        drawerAccountsListView.setAdapter(accountListAdapter);
-        drawerAccountsListView.setOnItemClickListener((parent, view, position, id) -> selectItem(parent, position));
+    private void setupEntries() {
+        initAccountEntry();
+        initSwitchProviderEntry();
+        initUseBridgesEntry();
+        initSaveBatteryEntry();
+        initAlwaysOnVpnEntry();
+        initDonateEntry();
+        initLogEntry();
+        initAboutEntry();
     }
 
-    private void setupSettingsListView() {
-        ListView drawerSettingsListView = drawerView.findViewById(R.id.settingsList);
-        drawerSettingsListView.setOnItemClickListener((parent, view, position, id) -> selectItem(parent, position));
-        drawerSettingsListView.setAdapter(settingsListAdapter);
-    }
-
-    private void setupSettingsListAdapter() {
-        settingsListAdapter = new DrawerSettingsAdapter(getLayoutInflater());
-        if (getContext() == null) {
-            return;
-        }
-
+    private void initAccountEntry() {
+        account = drawerView.findViewById(R.id.account);
+        FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
         Provider currentProvider = ProviderObservable.getInstance().getCurrentProvider();
-        if (currentProvider.supportsPluggableTransports()) {
-            settingsListAdapter.addItem(getSwitchInstance(getContext(),
-                    getString(R.string.nav_drawer_obfuscated_connection),
-                    R.drawable.ic_bridge_36,
-                    getUsePluggableTransports(getContext()),
-                    PLUGGABLE_TRANSPORTS,
-                    (buttonView, newStateIsChecked) -> onSwitchItemSelected(PLUGGABLE_TRANSPORTS, newStateIsChecked)));
-        }
+        account.setText(currentProvider.getName());
+        account.setOnClickListener((buttonView) -> {
+            Fragment fragment = new EipFragment();
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(PROVIDER_KEY, currentProvider);
+            fragment.setArguments(arguments);
+            hideActionBarSubTitle();
+            fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
+            closeDrawer();
+        });
+    }
 
-        settingsListAdapter.addItem(getSwitchInstance(getContext(),
-                getString(R.string.save_battery),
-                R.drawable.ic_battery_36,
-                getSaveBattery(getContext()),
-                BATTERY_SAVER,
-                (buttonView, newStateIsChecked) -> onSwitchItemSelected(BATTERY_SAVER, newStateIsChecked)));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(R.string.always_on_vpn), R.drawable.ic_always_on_36, ALWAYS_ON));
-        }
+    private void initSwitchProviderEntry() {
         if (isDefaultBitmask()) {
-            settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(switch_provider_menu_option), R.drawable.ic_switch_provider_36, SWITCH_PROVIDER));
+            IconTextEntry switchProvider = drawerView.findViewById(R.id.switch_provider);
+            switchProvider.setVisibility(VISIBLE);
+            switchProvider.setOnClickListener(v ->
+                    getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER));
         }
-        settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(log_fragment_title), R.drawable.ic_log_36, LOG));
+    }
+
+    private void initUseBridgesEntry() {
+        IconSwitchEntry useBridges = drawerView.findViewById(R.id.bridges_switch);
+        if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
+            useBridges.setVisibility(VISIBLE);
+            useBridges.setChecked(getUsePluggableTransports(getContext()));
+            useBridges.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    usePluggableTransports(getContext(), isChecked));
+        } else {
+            useBridges.setVisibility(GONE);
+        }
+    }
+
+    private void initSaveBatteryEntry() {
+        saveBattery = drawerView.findViewById(R.id.battery_switch);
+        saveBattery.setChecked(getSaveBattery(getContext()));
+        saveBattery.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+            if (isChecked) {
+                showExperimentalFeatureAlert();
+            } else {
+                saveBattery(getContext(), false);
+            }
+        }));
+    }
+
+    private void initAlwaysOnVpnEntry() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            IconTextEntry alwaysOnVpn = drawerView.findViewById(R.id.always_on_vpn);
+            alwaysOnVpn.setVisibility(VISIBLE);
+            alwaysOnVpn.setOnClickListener((buttonView) -> {
+                closeDrawer();
+                if (getShowAlwaysOnDialog(getContext())) {
+                    showAlwaysOnDialog();
+                } else {
+                    Intent intent = new Intent("android.net.vpn.SETTINGS");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+
+    private void initDonateEntry() {
         if (ENABLE_DONATION) {
-            settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(donate_title), R.drawable.ic_donate_36, DONATE));
+            IconTextEntry donate = drawerView.findViewById(R.id.donate);
+            donate.setVisibility(VISIBLE);
+            donate.setOnClickListener((buttonView) -> {
+                closeDrawer();
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
+                startActivity(browserIntent);
+
+            });
         }
-        settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(about_fragment_title), R.drawable.ic_about_36, ABOUT));
+    }
+
+    private void initLogEntry() {
+        IconTextEntry log = drawerView.findViewById(R.id.log);
+        FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
+        log.setOnClickListener((buttonView) -> {
+            closeDrawer();
+            Fragment fragment = new LogFragment();
+            setActionBarTitle(log_fragment_title);
+            fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
+        });
+
+    }
+
+    private void initAboutEntry() {
+        IconTextEntry about = drawerView.findViewById(R.id.about);
+        FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
+        about.setOnClickListener((buttonView) -> {
+            closeDrawer();
+            Fragment fragment = new AboutFragment();
+            setActionBarTitle(about_fragment_title);
+            fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
+        });
+    }
+
+    private void closeDrawer() {
+        if (drawerLayout != null) {
+            drawerLayout.closeDrawer(fragmentContainerView);
+        }
     }
 
     private ActionBar setupActionBar() {
@@ -337,16 +386,6 @@ public class NavigationDrawerFragment extends Fragment {
         }, TWO_SECONDS);
     }
 
-    private void selectItem(AdapterView<?> list, int position) {
-        if (list != null) {
-            ((ListView) list).setItemChecked(position, true);
-        }
-        if (drawerLayout != null) {
-            drawerLayout.closeDrawer(fragmentContainerView);
-        }
-        onTextItemSelected(list, position);
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -374,17 +413,11 @@ public class NavigationDrawerFragment extends Fragment {
                     .setTitle(activity.getString(R.string.save_battery))
                     .setMessage(activity.getString(R.string.save_battery_message))
                     .setPositiveButton((android.R.string.yes), (dialog, which) -> {
-                        DrawerSettingsItem item = settingsListAdapter.getDrawerItem(BATTERY_SAVER);
-                        item.setChecked(true);
-                        settingsListAdapter.notifyDataSetChanged();
-                        saveBattery(getContext(), item.isChecked());
+                        saveBattery(getContext(), true);
                     })
-                    .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> disableSwitch(BATTERY_SAVER)).setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            showEnableExperimentalFeature = false;
-                        }
-                    }).setOnCancelListener(dialog -> disableSwitch(BATTERY_SAVER)).show();
+                    .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> saveBattery.setCheckedQuietly(false))
+                    .setOnDismissListener(dialog -> showEnableExperimentalFeature = false)
+                    .setOnCancelListener(dialog -> saveBattery.setCheckedQuietly(false)).show();
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
@@ -447,87 +480,6 @@ public class NavigationDrawerFragment extends Fragment {
         return ((AppCompatActivity) getActivity()).getSupportActionBar();
     }
 
-    private void onSwitchItemSelected(int elementType, boolean newStateIsChecked) {
-        switch (elementType) {
-            case BATTERY_SAVER:
-                if (getSaveBattery(getContext()) == newStateIsChecked) {
-                    //initial ui setup, ignore
-                    return;
-                }
-                if (newStateIsChecked) {
-                    showExperimentalFeatureAlert();
-                } else {
-                    saveBattery(getContext(), false);
-                    disableSwitch(BATTERY_SAVER);
-                }
-                break;
-            case PLUGGABLE_TRANSPORTS:
-                if (getUsePluggableTransports(getContext()) == newStateIsChecked) {
-                    //initial ui setup, ignore
-                    return;
-                }
-                usePluggableTransports(getContext(), newStateIsChecked);
-            default:
-                break;
-        }
-    }
-
-    private void disableSwitch(int elementType) {
-        DrawerSettingsItem item = settingsListAdapter.getDrawerItem(elementType);
-        item.setChecked(false);
-        settingsListAdapter.notifyDataSetChanged();
-    }
-
-    public void onTextItemSelected(AdapterView<?> parent, int position) {
-        // update the main content by replacing fragments
-        FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
-        Fragment fragment = null;
-
-        if (parent == drawerAccountsListView) {
-            fragment = new EipFragment();
-            Bundle arguments = new Bundle();
-            Provider currentProvider = getSavedProviderFromSharedPreferences(preferences);
-            arguments.putParcelable(PROVIDER_KEY, currentProvider);
-            fragment.setArguments(arguments);
-            hideActionBarSubTitle();
-        } else {
-            DrawerSettingsItem settingsItem = settingsListAdapter.getItem(position);
-            switch (settingsItem.getItemType()) {
-                case SWITCH_PROVIDER:
-                    getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
-                    break;
-                case LOG:
-                    fragment = new LogFragment();
-                    setActionBarTitle(log_fragment_title);
-                    break;
-                case ABOUT:
-                    fragment = new AboutFragment();
-                    setActionBarTitle(about_fragment_title);
-                    break;
-                case ALWAYS_ON:
-                    if (getShowAlwaysOnDialog(getContext())) {
-                        showAlwaysOnDialog();
-                    } else {
-                        Intent intent = new Intent("android.net.vpn.SETTINGS");
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                    }
-                    break;
-                case DONATE:
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
-                    startActivity(browserIntent);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if (fragment != null) {
-            fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
-        }
-
-    }
-
     private void setActionBarTitle(@StringRes int resId) {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
@@ -542,22 +494,10 @@ public class NavigationDrawerFragment extends Fragment {
         }
     }
 
-
     public void refresh() {
-        refreshAccountListAdapter();
-        accountListAdapter.notifyDataSetChanged();
-        drawerAccountsListView.setAdapter(accountListAdapter);
-    }
-
-    private void refreshAccountListAdapter() {
-        accountListAdapter.clear();
-        String providerName = getProviderName(preferences);
-        if (providerName == null) {
-            //TODO: ADD A header to the ListView containing a useful message.
-            //TODO 2: disable switchProvider
-        } else {
-            accountListAdapter.add(providerName);
-        }
+        Provider currentProvider = ProviderObservable.getInstance().getCurrentProvider();
+        account.setText(currentProvider.getName());
+        initUseBridgesEntry();
     }
 
 }
