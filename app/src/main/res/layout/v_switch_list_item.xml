@@ -45,4 +45,11 @@
         android:minHeight="?android:attr/listPreferredItemHeightSmall"
         android:checked="false"
         tools:text="" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@android:color/darker_gray"
+        android:layout_alignParentBottom="true"
+        />
 </RelativeLayout>

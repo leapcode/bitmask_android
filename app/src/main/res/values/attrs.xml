@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--TODO: check that it's not needed and throw it out!-->
     <declare-styleable name="foo">
         <attr name="textColorError" format="color" />
+    </declare-styleable>
+
+    <attr name="text" format="string|reference"/>
+    <attr name="icon" format="reference"/>
+    <declare-styleable name="IconSwitchEntry">
+        <attr name="text"/>
+        <attr name="icon"/>
+    </declare-styleable>
+
+    <declare-styleable name="IconTextEntry">
+        <attr name="text"/>
+        <attr name="icon"/>
     </declare-styleable>
 </resources>

@@ -1,6 +1,6 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/item_container"
-    android:layout_height="wrap_content"
+    android:layout_height="?android:attr/listPreferredItemHeight"
     android:layout_width="match_parent"
     android:orientation="horizontal"
     xmlns:tools="http://schemas.android.com/tools">
@@ -27,6 +27,14 @@
         android:paddingRight="?android:attr/listPreferredItemPaddingRight"
         android:minHeight="?android:attr/listPreferredItemHeight"
         tools:text="TEST"
+        android:layout_toEndOf="@id/material_icon"
+        android:layout_toRightOf="@+id/material_icon"
         />
 
-</LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@android:color/darker_gray"
+        android:layout_alignParentBottom="true"
+        />
+</RelativeLayout>
