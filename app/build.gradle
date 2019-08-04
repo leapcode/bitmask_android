@@ -17,7 +17,7 @@ android {
     versionCode 139
     versionName "1.0.0RC1"
     minSdkVersion 16
-    targetSdkVersion 27
+    targetSdkVersion 28
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
 
