@@ -2,9 +2,9 @@
 host = https://www.transifex.com
 
 [bitmask-android.strings]
+file_filter = app/src/main/res/values-<lang>/strings.xml
+minimum_perc = 0
+source_file = app/src/main/res/values/strings.xml
 source_lang = en
-source_file = res/values/strings.xml
-file_filter = res/values-<lang>/strings.xml
-trans.zh_CN = res/values-zh-rCN/strings.xml
-trans.zh_TW = res/values-zh-rTW/strings.xml
+type = ANDROID
 
