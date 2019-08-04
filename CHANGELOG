@@ -1,4 +1,4 @@
-1.0.0RC1
+1.0.0
 Bugs:
 - fix tablet layouts in portrait
 - fix bug that leads to inability to turn off vpn on Android 8+
@@ -8,6 +8,7 @@ features:
 - improve visibility of connecting state by changing the progress animation
 - update ics-openvpn, openssl and openvpn
 - a lot of small UI improvements
+- updated translations (thanks to Localization Lab and all translators!)
 
 0.9.11 - another consolidation release
 Bugs:
