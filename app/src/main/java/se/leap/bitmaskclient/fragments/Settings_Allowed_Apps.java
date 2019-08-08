@@ -39,8 +39,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import de.blinkt.openvpn.VpnProfile;
-import se.leap.bitmaskclient.EipSetupListener;
-import se.leap.bitmaskclient.EipSetupObserver;
+
 import se.leap.bitmaskclient.R;
 
 /**
@@ -274,7 +273,7 @@ public class Settings_Allowed_Apps extends Fragment implements AdapterView.OnIte
 
         allow_apps = this.getContext().getSharedPreferences("BITMASK", Context.MODE_MULTI_PROCESS);
         allow_apps_editor = allow_apps.edit();
-        apps = new HashSet<String>(allow_apps.getStringSet("ALLOW_APPS", new HashSet<String>()));
+        apps = allow_apps.getStringSet("ALLOW_APPS", new HashSet<String>());
 
 //        /String profileUuid = getArguments().getString(getActivity().getPackageName() + ".profileUUID");
 //        mProfile = EipSetupObserver.getProfile();
@@ -322,18 +321,19 @@ public class Settings_Allowed_Apps extends Fragment implements AdapterView.OnIte
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.allowed_vpn_apps, container, false);
 
-        mDefaultAllowTextView = (TextView) v.findViewById(R.id.default_allow_text);
+//        mDefaultAllowTextView = (TextView) v.findViewById(R.id.default_allow_text);
 
-        Switch vpnOnDefaultSwitch = (Switch) v.findViewById(R.id.default_allow);
 
-        vpnOnDefaultSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                changeDisallowText(isChecked);
-                mProfile.mAllowedAppsVpnAreDisallowed = isChecked;
-            }
-        });
+//        Switch vpnOnDefaultSwitch = (Switch) v.findViewById(R.id.default_allow);
+//
+//        vpnOnDefaultSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//
+//                changeDisallowText(isChecked);
+//                mProfile.mAllowedAppsVpnAreDisallowed = isChecked;
+//            }
+//        });
 
 //        vpnOnDefaultSwitch.setChecked(mProfile.mAllowedAppsVpnAreDisallowed);
 

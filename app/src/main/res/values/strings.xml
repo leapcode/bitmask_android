@@ -32,6 +32,7 @@
   <string name="password_mismatch">Passwords do not match</string>
   <string name="user_message">User message</string>
   <string name="about_fragment_title">About</string>
+  <string name="allow_apps_fragment_title">Select Apps</string>
   <string name="error_srp_math_error_user_message">Try again: Server math error</string>
   <string name="error_bad_user_password_user_message">Incorrect username or password</string>
   <string name="error_not_valid_password_user_message">It must be at least 8 characters long</string>
