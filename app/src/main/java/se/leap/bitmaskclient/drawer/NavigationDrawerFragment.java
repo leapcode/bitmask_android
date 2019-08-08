@@ -59,6 +59,8 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.LogFragment;
+import se.leap.bitmaskclient.fragments.SelectAppsFragment;
+import se.leap.bitmaskclient.fragments.Settings_Allowed_Apps;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
@@ -74,6 +76,7 @@ import static se.leap.bitmaskclient.DrawerSettingsAdapter.DONATE;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSimpleTextInstance;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSwitchInstance;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.LOG;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.SELECT_APPS;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
 import static se.leap.bitmaskclient.R.string.donate_title;
@@ -273,6 +276,7 @@ public class NavigationDrawerFragment extends Fragment {
             settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(donate_title), R.drawable.ic_donate_36, DONATE));
         }
         settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(about_fragment_title), R.drawable.ic_about_36, ABOUT));
+        settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(about_fragment_title), R.drawable.ic_about_36, SELECT_APPS));
     }
 
     private ActionBar setupActionBar() {
@@ -493,6 +497,10 @@ public class NavigationDrawerFragment extends Fragment {
                 case DONATE:
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
                     startActivity(browserIntent);
+                    break;
+                case SELECT_APPS:
+                    fragment = new Settings_Allowed_Apps();
+                    setActionBarTitle(about_fragment_title);
                     break;
                 default:
                     break;
