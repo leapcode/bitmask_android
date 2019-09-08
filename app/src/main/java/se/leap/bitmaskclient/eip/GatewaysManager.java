@@ -93,7 +93,7 @@ public class GatewaysManager {
                 JSONObject gw = gatewaysDefined.getJSONObject(i);
                 if (isOpenVpnGateway(gw)) {
                     JSONObject secrets = secretsConfiguration();
-                    Gateway aux = new Gateway(eipDefinition, secrets, gw, context);
+                    Gateway aux = new Gateway(eipDefinition, secrets, gw, this.context);
                     if (!gateways.contains(aux)) {
                         addGateway(aux);
                     }

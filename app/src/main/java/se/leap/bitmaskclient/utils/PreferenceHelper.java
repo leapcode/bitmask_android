@@ -12,9 +12,11 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.Provider;
@@ -29,6 +31,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.Constants.EXCLUDED_APPS;
 
 /**
  * Created by cyberta on 18.03.18.
@@ -256,6 +259,21 @@ public class PreferenceHelper {
         return result;
     }
 
+    public static void setExcludedApps(Context context, Set<String> apps) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences.Editor prefsedit = prefs.edit();
+        prefsedit.putStringSet(EXCLUDED_APPS, apps);
+        prefsedit.apply();
+    }
+
+    public static Set<String> getExcludedApps(Context context) {
+        if (context == null) {
+            return null;
+        }
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        return preferences.getStringSet(EXCLUDED_APPS, new HashSet<>());
+    }
+
     public static String getString(Context context, String key, String defValue) {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         return preferences.getString(key, defValue);
@@ -265,5 +283,6 @@ public class PreferenceHelper {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putString(key, value).apply();
     }
+
 
 }

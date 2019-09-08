@@ -9,33 +9,20 @@
     android:layout_width="match_parent"
     tools:ignore="RtlCompat"
     android:layout_height="match_parent">
-<!--
-    <RelativeLayout
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="?android:attr/actionBarSize"
-        android:background="@drawable/bg_switchbar"
-        android:paddingStart="@dimen/switchbar_pad"
-        android:elevation="1dp"
-        android:paddingEnd="@dimen/switchbar_pad"
-        tools:ignore="NewApi">
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="@color/colorWarning"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/warning_exclude_apps_message" />
 
-        <Switch
-            android:id="@+id/default_allow"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-             />
-        <TextView
-            android:id="@+id/default_allow_text"
-            style="@android:style/TextAppearance.Medium.Inverse"
-            tools:text="@string/vpn_disallow_radio"
-            android:layout_toStartOf="@id/default_allow"
-            android:layout_width="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_height="wrap_content" />
-        </RelativeLayout>-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"/>
 
     <ListView
         android:visibility="gone"
@@ -45,8 +32,6 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:scrollbarStyle="outsideOverlay" />
-
-
 
     <LinearLayout
         android:id="@+id/loading_container"

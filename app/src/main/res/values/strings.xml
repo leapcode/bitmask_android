@@ -32,7 +32,7 @@
   <string name="password_mismatch">Passwords do not match</string>
   <string name="user_message">User message</string>
   <string name="about_fragment_title">About</string>
-  <string name="allow_apps_fragment_title">Select Apps</string>
+  <string name="exclude_apps_fragment_title">Exclude apps from VPN</string>
   <string name="error_srp_math_error_user_message">Try again: Server math error</string>
   <string name="error_bad_user_password_user_message">Incorrect username or password</string>
   <string name="error_not_valid_password_user_message">It must be at least 8 characters long</string>
@@ -111,4 +111,6 @@
   <string name="donate_message">LEAP depends on donations and grants. Please donate today if you value secure communication that is easy for both the end-user and the service provider.</string>
   <string name="donate_button_remind_later">Remind me later</string>
   <string name="donate_button_donate">Donate</string>
+  <string name="warning_exclude_apps_message">Be careful of excluding apps from VPN. This will reveal your identity and compromise your security.</string>
+
 </resources>

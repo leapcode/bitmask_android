@@ -32,6 +32,7 @@ import java.util.Set;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import se.leap.bitmaskclient.BitmaskApp;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 /**
  * Gateway provides objects defining gateways and their metadata.
@@ -71,8 +72,14 @@ public class Gateway {
         System.out.println("###########" + mName + "###########");
         mVpnProfile.mName = mName;
 
-        SharedPreferences allow_apps = context.getSharedPreferences("BITMASK", Context.MODE_MULTI_PROCESS);
-        mVpnProfile.mAllowedAppsVpn = new HashSet<String>(allow_apps.getStringSet("ALLOW_APPS", new HashSet<String>()));
+        Set<String> excludedAppsVpn = PreferenceHelper.getExcludedApps(context);
+        if (excludedAppsVpn != null) {
+            mVpnProfile.mAllowedAppsVpn = new HashSet<>(excludedAppsVpn);
+        }
+        else {
+            mVpnProfile.mAllowedAppsVpn = null;
+        }
+
     }
 
     private JSONObject getGeneralConfiguration(JSONObject eip_definition) {

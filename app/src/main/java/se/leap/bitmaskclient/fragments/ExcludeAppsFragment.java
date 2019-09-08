@@ -28,7 +28,6 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.Collections;
@@ -41,14 +40,14 @@ import java.util.Vector;
 import de.blinkt.openvpn.VpnProfile;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 /**
  * Created by arne on 16.11.14.
  */
-public class Settings_Allowed_Apps extends Fragment implements AdapterView.OnItemClickListener, CompoundButton.OnCheckedChangeListener, View.OnClickListener {
+public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemClickListener, CompoundButton.OnCheckedChangeListener, View.OnClickListener {
     private ListView mListView;
     private VpnProfile mProfile;
-    private TextView mDefaultAllowTextView;
     private PackageAdapter mListAdapter;
 
     private SharedPreferences allow_apps;
@@ -85,8 +84,6 @@ public class Settings_Allowed_Apps extends Fragment implements AdapterView.OnIte
                 holder.rootView = convertView;
                 holder.appName = (TextView) convertView.findViewById(R.id.app_name);
                 holder.appIcon = (ImageView) convertView.findViewById(R.id.app_icon);
-                //holder.appSize = (TextView) convertView.findViewById(R.id.app_size);
-                //holder.disabled = (TextView) convertView.findViewById(R.id.app_disabled);
                 holder.checkBox = (CompoundButton) convertView.findViewById(R.id.app_selected);
                 convertView.setTag(holder);
 
@@ -111,13 +108,11 @@ public class Settings_Allowed_Apps extends Fragment implements AdapterView.OnIte
 
         } else {
             Log.d("openvpn", "removing from allowed apps" + packageName);
-            //Log.d("eneko", this.getContext().getSharedPreferences("BITMASK", Context.MODE_MULTI_PROCESS).getString("ALLOW_APPS", ""));
 
             apps.remove(packageName);
         }
-        allow_apps_editor.clear();
-        allow_apps_editor.putStringSet("ALLOW_APPS", apps);
-        allow_apps_editor.apply();
+
+        PreferenceHelper.setExcludedApps(this.getContext(), apps);
     }
 
 
@@ -235,7 +230,7 @@ public class Settings_Allowed_Apps extends Fragment implements AdapterView.OnIte
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             AppViewHolder viewHolder = AppViewHolder.createOrRecycle(mInflater, convertView, parent);
-            convertView = viewHolder.rootView;
+
             viewHolder.mInfo = mFilteredData.get(position);
             final ApplicationInfo mInfo = mFilteredData.get(position);
 
@@ -247,11 +242,9 @@ public class Settings_Allowed_Apps extends Fragment implements AdapterView.OnIte
             viewHolder.appName.setText(appName);
             viewHolder.appIcon.setImageDrawable(mInfo.loadIcon(mPm));
             viewHolder.checkBox.setTag(mInfo.packageName);
-            viewHolder.checkBox.setOnCheckedChangeListener(Settings_Allowed_Apps.this);
+            viewHolder.checkBox.setOnCheckedChangeListener(ExcludeAppsFragment.this);
             viewHolder.checkBox.setChecked(apps.contains(mInfo.packageName));
 
-
-    //            viewHolder.checkBox.setChecked(mProfile.mAllowedAppsVpn.contains(mInfo.packageName));
             return viewHolder.rootView;
         }
 
@@ -264,20 +257,14 @@ public class Settings_Allowed_Apps extends Fragment implements AdapterView.OnIte
     @Override
     public void onResume() {
         super.onResume();
-//        changeDisallowText(mProfile.mAllowedAppsVpnAreDisallowed);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        allow_apps = this.getContext().getSharedPreferences("BITMASK", Context.MODE_MULTI_PROCESS);
-        allow_apps_editor = allow_apps.edit();
-        apps = allow_apps.getStringSet("ALLOW_APPS", new HashSet<String>());
+        apps = PreferenceHelper.getExcludedApps(this.getContext());
 
-//        /String profileUuid = getArguments().getString(getActivity().getPackageName() + ".profileUUID");
-//        mProfile = EipSetupObserver.getProfile();
-//        getActivity().setTitle(getString(R.string.edit_profile_title, mProfile.getName()));
         setHasOptionsMenu(true);
     }
 
@@ -321,23 +308,7 @@ public class Settings_Allowed_Apps extends Fragment implements AdapterView.OnIte
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.allowed_vpn_apps, container, false);
 
-//        mDefaultAllowTextView = (TextView) v.findViewById(R.id.default_allow_text);
-
-
-//        Switch vpnOnDefaultSwitch = (Switch) v.findViewById(R.id.default_allow);
-//
-//        vpnOnDefaultSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//
-//                changeDisallowText(isChecked);
-//                mProfile.mAllowedAppsVpnAreDisallowed = isChecked;
-//            }
-//        });
-
-//        vpnOnDefaultSwitch.setChecked(mProfile.mAllowedAppsVpnAreDisallowed);
-
-        mListView = (ListView) v.findViewById(android.R.id.list);
+        mListView = v.findViewById(android.R.id.list);
 
         mListAdapter = new PackageAdapter(getActivity(), mProfile);
         mListView.setAdapter(mListAdapter);
@@ -355,10 +326,4 @@ public class Settings_Allowed_Apps extends Fragment implements AdapterView.OnIte
         return v;
     }
 
-    private void changeDisallowText(boolean selectedAreDisallowed) {
-        if (selectedAreDisallowed)
-            mDefaultAllowTextView.setText(R.string.vpn_disallow_radio);
-        else
-            mDefaultAllowTextView.setText(R.string.vpn_allow_radio);
-    }
 }
