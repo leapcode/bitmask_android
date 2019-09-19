@@ -21,6 +21,7 @@ public class IconTextEntry extends LinearLayout {
 
     private TextView textView;
     private ImageView iconView;
+    private TextView subtitleView;
 
     public IconTextEntry(Context context) {
         super(context);
@@ -48,6 +49,7 @@ public class IconTextEntry extends LinearLayout {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rootview = inflater.inflate(R.layout.v_icon_text_list_item, this, true);
         textView = rootview.findViewById(android.R.id.text1);
+        subtitleView = rootview.findViewById(R.id.subtitle);
         iconView = rootview.findViewById(R.id.material_icon);
 
         if (attrs != null) {
@@ -56,6 +58,12 @@ public class IconTextEntry extends LinearLayout {
             String entryText = typedArray.getString(R.styleable.IconTextEntry_text);
             if (entryText != null) {
                 textView.setText(entryText);
+            }
+
+            String subtitle = typedArray.getString(R.styleable.IconTextEntry_subtitle);
+            if (subtitle != null) {
+                subtitleView.setText(subtitle);
+                subtitleView.setVisibility(VISIBLE);
             }
 
             Drawable drawable = typedArray.getDrawable(R.styleable.IconTextEntry_icon);

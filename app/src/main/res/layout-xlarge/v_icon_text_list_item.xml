@@ -29,6 +29,25 @@
         tools:text="TEST"
         android:layout_toEndOf="@id/material_icon"
         android:layout_toRightOf="@+id/material_icon"
+        android:layout_above="@+id/subtitle"
+        />
+
+    <TextView
+        android:id="@+id/subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_alignParentBottom="true"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+        android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
+        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+        android:paddingRight="?android:attr/listPreferredItemPaddingRight"
+        android:paddingBottom="8dp"
+        tools:text="TEST"
+        android:visibility="gone"
+        android:layout_toEndOf="@id/material_icon"
+        android:layout_toRightOf="@+id/material_icon"
         />
 
     <View

@@ -64,6 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:text="@string/nav_drawer_obfuscated_connection"
+            app:subtitle="@string/nav_drawer_subtitle_obfuscated_connection"
             app:icon="@drawable/ic_bridge_36"
             android:visibility="gone"
             />
@@ -81,6 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:text="@string/always_on_vpn"
+            app:subtitle="@string/subtitle_always_on_vpn"
             app:icon="@drawable/ic_always_on_36"
             android:visibility="gone"
             />

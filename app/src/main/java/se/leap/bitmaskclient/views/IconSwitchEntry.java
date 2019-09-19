@@ -21,6 +21,7 @@ import se.leap.bitmaskclient.R;
 public class IconSwitchEntry extends LinearLayout {
 
     private TextView textView;
+    private TextView subtitleView;
     private ImageView iconView;
     private SwitchCompat switchView;
     private CompoundButton.OnCheckedChangeListener checkedChangeListener;
@@ -51,6 +52,7 @@ public class IconSwitchEntry extends LinearLayout {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rootview = inflater.inflate(R.layout.v_switch_list_item, this, true);
         textView = rootview.findViewById(android.R.id.text1);
+        subtitleView = rootview.findViewById(R.id.subtitle);
         iconView = rootview.findViewById(R.id.material_icon);
         switchView = rootview.findViewById(R.id.option_switch);
 
@@ -60,6 +62,12 @@ public class IconSwitchEntry extends LinearLayout {
             String entryText = typedArray.getString(R.styleable.IconTextEntry_text);
             if (entryText != null) {
                 textView.setText(entryText);
+            }
+
+            String subtitle = typedArray.getString(R.styleable.IconTextEntry_subtitle);
+            if (subtitle != null) {
+                subtitleView.setText(subtitle);
+                subtitleView.setVisibility(VISIBLE);
             }
 
             Drawable drawable = typedArray.getDrawable(R.styleable.IconTextEntry_icon);
