@@ -21,6 +21,7 @@ import android.os.Parcelable;
 
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,8 +29,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static se.leap.bitmaskclient.Constants.CAPABILITIES;
+import static se.leap.bitmaskclient.Constants.GATEWAYS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOWED_REGISTERED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_ALLOW_ANONYMOUS;
+import static se.leap.bitmaskclient.Constants.TRANSPORT;
+import static se.leap.bitmaskclient.Constants.TYPE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 
 /**
@@ -119,9 +125,23 @@ public final class Provider implements Parcelable {
                 hasPrivateKey();
     }
 
-    //TODO: implement me!
     public boolean supportsPluggableTransports() {
-       return true;
+        try {
+            JSONArray gatewayJsons = eipServiceJson.getJSONArray(GATEWAYS);
+            for (int i = 0; i < gatewayJsons.length(); i++) {
+                JSONArray transports = gatewayJsons.getJSONObject(i).
+                        getJSONObject(CAPABILITIES).
+                        getJSONArray(TRANSPORT);
+                for (int j = 0; j < transports.length(); j++) {
+                    if (OBFS4.toString().equals(transports.getJSONObject(j).getString(TYPE))) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+       return false;
     }
 
     public void setMainUrl(URL url) {

@@ -46,4 +46,25 @@ public class ProviderTest {
         assertTrue(defaultProviders.contains(p2));
         assertFalse(defaultProviders.contains(p3));
     }
+
+    @Test
+    public void testIsPluggableTransportsSupported_Obfs4_returnsTrue() throws Exception {
+        Provider p1 = TestSetupHelper.getProvider(
+                "https://pt.demo.bitmask.net",
+                null,
+                null,
+                "ptdemo.bitmask.eip-service.json");
+        assertTrue(p1.supportsPluggableTransports());
+    }
+
+    @Test
+    public void testIsPluggableTransportsSupported_noObfs4_returnsFalse() throws Exception {
+        Provider p1 = TestSetupHelper.getProvider(
+                null,
+                null,
+                null,
+                "eip-service-two-gateways.json");
+        assertFalse(p1.supportsPluggableTransports());
+    }
+
 }
