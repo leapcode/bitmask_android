@@ -44,6 +44,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.MainActivity;
@@ -51,6 +52,7 @@ import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.LogFragment;
@@ -263,8 +265,15 @@ public class NavigationDrawerFragment extends Fragment {
         if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
             useBridges.setVisibility(VISIBLE);
             useBridges.setChecked(getUsePluggableTransports(getContext()));
-            useBridges.setOnCheckedChangeListener((buttonView, isChecked) ->
-                    usePluggableTransports(getContext(), isChecked));
+            useBridges.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                usePluggableTransports(getContext(), isChecked);
+                if (VpnStatus.isVPNActive()) {
+                    EipCommand.startVPN(getContext(), false);
+                    closeDrawerWithDelay();
+                }
+            });
+
+
         } else {
             useBridges.setVisibility(GONE);
         }
