@@ -35,4 +35,6 @@
     <color name="colorActionBarTitleFont">@color/white</color>
     <color name="colorActionBarSubtitleFont">@color/black800</color>
 
+    <color name="colorWarning">#B33A3A</color>
+
 </resources>

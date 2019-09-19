@@ -119,7 +119,7 @@ public class TestGatewaysManager extends InstrumentationTestCase {
             eip_definition = new JSONObject(assets.toString(TestConstants.EIP_DEFINITION_FILE));
             JSONObject secrets = new JSONObject(assets.toString(TestConstants.SECRETS_FILE));
             JSONObject gateway = new JSONObject(assets.toString(TestConstants.GATEWAY_FILE));
-            this.gateway = new Gateway(eip_definition, secrets, gateway);
+            this.gateway = new Gateway(eip_definition, secrets, gateway, context);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -137,7 +137,7 @@ public class TestGatewaysManager extends InstrumentationTestCase {
                 capabilitiesJson.put("protocols", protocolJsonArray);
                 gatewayJson.put("protocols", protocolJsonArray);
             }
-            this.gateway = new Gateway(eip_definition, secrets, gateways.getJSONObject(0));
+            this.gateway = new Gateway(eip_definition, secrets, gateways.getJSONObject(0), context);
         } catch (JSONException e) {
             e.printStackTrace();
             assertFalse(true);
@@ -153,7 +153,7 @@ public class TestGatewaysManager extends InstrumentationTestCase {
             eip_definition = new JSONObject(assets.toString(TestConstants.EIP_DEFINITION_FILE));
             JSONObject secrets = new JSONObject(assets.toString(TestConstants.SECRETS_FILE).replace("6u6", "7u7"));
             JSONObject gateway = new JSONObject(assets.toString(TestConstants.GATEWAY_FILE));
-            this.gateway = new Gateway(eip_definition, secrets, gateway);
+            this.gateway = new Gateway(eip_definition, secrets, gateway, context);
         } catch (Exception e) {
             e.printStackTrace();
         }

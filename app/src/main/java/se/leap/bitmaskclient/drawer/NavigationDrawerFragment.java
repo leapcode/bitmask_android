@@ -59,6 +59,7 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.LogFragment;
+import se.leap.bitmaskclient.fragments.ExcludeAppsFragment;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.BitmaskApp.getRefWatcher;
@@ -74,8 +75,10 @@ import static se.leap.bitmaskclient.DrawerSettingsAdapter.DONATE;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSimpleTextInstance;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.DrawerSettingsItem.getSwitchInstance;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.LOG;
+import static se.leap.bitmaskclient.DrawerSettingsAdapter.SELECT_APPS;
 import static se.leap.bitmaskclient.DrawerSettingsAdapter.SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
+import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
 import static se.leap.bitmaskclient.R.string.donate_title;
 import static se.leap.bitmaskclient.R.string.log_fragment_title;
 import static se.leap.bitmaskclient.R.string.switch_provider_menu_option;
@@ -268,6 +271,7 @@ public class NavigationDrawerFragment extends Fragment {
         if (isDefaultBitmask()) {
             settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(switch_provider_menu_option), R.drawable.ic_switch_provider_36, SWITCH_PROVIDER));
         }
+        settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(exclude_apps_fragment_title), R.drawable.ic_shield_remove_grey600_36dp, SELECT_APPS));
         settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(log_fragment_title), R.drawable.ic_log_36, LOG));
         if (ENABLE_DONATION) {
             settingsListAdapter.addItem(getSimpleTextInstance(getContext(), getString(donate_title), R.drawable.ic_donate_36, DONATE));
@@ -493,6 +497,10 @@ public class NavigationDrawerFragment extends Fragment {
                 case DONATE:
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
                     startActivity(browserIntent);
+                    break;
+                case SELECT_APPS:
+                    fragment = new ExcludeAppsFragment();
+                    setActionBarTitle(exclude_apps_fragment_title);
                     break;
                 default:
                     break;

@@ -13,6 +13,7 @@ public interface Constants {
     String ALWAYS_ON_SHOW_DIALOG = "DIALOG.ALWAYS_ON_SHOW_DIALOG";
     String CLEARLOG = "clearlogconnect";
     String LAST_USED_PROFILE = "last_used_profile";
+    String EXCLUDED_APPS = "excluded_apps";
 
 
      //////////////////////////////////////////////

@@ -16,6 +16,9 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -23,9 +26,13 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashSet;
+import java.util.Set;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
+import se.leap.bitmaskclient.BitmaskApp;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 /**
  * Gateway provides objects defining gateways and their metadata.
@@ -52,7 +59,7 @@ public class Gateway {
      * Build a gateway object from a JSON OpenVPN gateway definition in eip-service.json
      * and create a VpnProfile belonging to it.
      */
-    public Gateway(JSONObject eip_definition, JSONObject secrets, JSONObject gateway) {
+    public Gateway(JSONObject eip_definition, JSONObject secrets, JSONObject gateway, Context context) {
 
         this.gateway = gateway;
         this.secrets = secrets;
@@ -62,7 +69,17 @@ public class Gateway {
         mName = locationAsName(eip_definition);
 
         mVpnProfile = createVPNProfile();
+        System.out.println("###########" + mName + "###########");
         mVpnProfile.mName = mName;
+
+        Set<String> excludedAppsVpn = PreferenceHelper.getExcludedApps(context);
+        if (excludedAppsVpn != null) {
+            mVpnProfile.mAllowedAppsVpn = new HashSet<>(excludedAppsVpn);
+        }
+        else {
+            mVpnProfile.mAllowedAppsVpn = null;
+        }
+
     }
 
     private JSONObject getGeneralConfiguration(JSONObject eip_definition) {
