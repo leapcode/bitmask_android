@@ -268,8 +268,8 @@ public class NavigationDrawerFragment extends Fragment {
             useBridges.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 usePluggableTransports(getContext(), isChecked);
                 if (VpnStatus.isVPNActive()) {
-                    EipCommand.startVPN(getContext(), false);
-                    closeDrawerWithDelay();
+                    EipCommand.startVPN(getContext(), true);
+                    closeDrawer();
                 }
             });
 
