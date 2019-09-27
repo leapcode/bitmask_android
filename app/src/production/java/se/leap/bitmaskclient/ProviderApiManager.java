@@ -141,6 +141,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         }
         try {
             JSONObject providerJson = new JSONObject(providerDotJsonString);
+
             if (provider.define(providerJson)) {
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             } else {
@@ -148,9 +149,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             }
 
         } catch (JSONException e) {
-            String reason_to_fail = pickErrorMessage(providerDotJsonString);
-            result.putString(ERRORS, reason_to_fail);
-            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            setErrorResult(result, providerDotJsonString);
         }
         return result;
     }
@@ -171,13 +170,14 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             if (BuildConfig.DEBUG) {
                 VpnStatus.logDebug("EIP SERVICE JSON: " + eipServiceJsonString);
             }
-            provider.setEipServiceJson(eipServiceJson);
-
-            result.putBoolean(BROADCAST_RESULT_KEY, true);
+            if (eipServiceJson.has(ERRORS)) {
+                setErrorResult(result, eipServiceJsonString);
+            } else {
+                provider.setEipServiceJson(eipServiceJson);
+                result.putBoolean(BROADCAST_RESULT_KEY, true);
+            }
         } catch (NullPointerException | JSONException e) {
-            String reasonToFail = pickErrorMessage(eipServiceJsonString);
-            result.putString(ERRORS, reasonToFail);
-            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            setErrorResult(result, eipServiceJsonString);
         }
         return result;
     }
@@ -202,9 +202,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                     // probably 204
                     setErrorResult(result, error_io_exception_user_message, null);
                 } else {
-                    String reasonToFail = pickErrorMessage(certString);
-                    result.putString(ERRORS, reasonToFail);
-                    result.putBoolean(BROADCAST_RESULT_KEY, false);
+                    setErrorResult(result, certString);
                     return result;
                 }
             }

@@ -750,6 +750,13 @@ public abstract class ProviderApiManagerBase {
         return result;
     }
 
+    protected Bundle setErrorResult(Bundle result, String stringJsonErrorMessage) {
+        String reasonToFail = pickErrorMessage(stringJsonErrorMessage);
+        result.putString(ERRORS, reasonToFail);
+        result.putBoolean(BROADCAST_RESULT_KEY, false);
+        return result;
+    }
+
     Bundle setErrorResult(Bundle result, int errorMessageId, String errorId) {
         JSONObject errorJson = new JSONObject();
         String errorMessage = getProviderFormattedString(resources, errorMessageId);

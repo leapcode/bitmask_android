@@ -135,8 +135,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     private Bundle getAndSetProviderJson(Provider provider, boolean dangerOn) {
         Bundle result = new Bundle();
 
-        JSONObject providerDefinition = provider.getDefinition();
         String caCert = provider.getCaCert();
+        JSONObject providerDefinition = provider.getDefinition();
         String providerMainUrl = provider.getMainUrlString();
 
         String providerDotJsonString;
@@ -161,10 +161,9 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
             result.putBoolean(BROADCAST_RESULT_KEY, true);
         } catch (JSONException e) {
-            String reason_to_fail = pickErrorMessage(providerDotJsonString);
-            result.putString(ERRORS, reason_to_fail);
-            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            setErrorResult(result, providerDotJsonString);
         }
+        //TODO: check why the following line is not in production
         result.putParcelable(PROVIDER_KEY, provider);
         return result;
     }
@@ -185,18 +184,15 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
 
             if (eipServiceJson.has(ERRORS)) {
-                String reasonToFail = pickErrorMessage(eipServiceJsonString);
-                result.putString(ERRORS, reasonToFail);
-                result.putBoolean(BROADCAST_RESULT_KEY, false);
+                setErrorResult(result, eipServiceJsonString);
             } else{
                 provider.setEipServiceJson(eipServiceJson);
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             }
         } catch (NullPointerException | JSONException e) {
-            String reasonToFail = pickErrorMessage(eipServiceJsonString);
-            result.putString(ERRORS, reasonToFail);
-            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            setErrorResult(result, eipServiceJsonString);
         }
+        //TODO: check why the following line is not in production
         result.putParcelable(PROVIDER_KEY, provider);
         return result;
     }
@@ -218,9 +214,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                     // probably 204
                     setErrorResult(result, error_io_exception_user_message, null);
                 } else {
-                    String reasonToFail = pickErrorMessage(certString);
-                    result.putString(ERRORS, reasonToFail);
-                    result.putBoolean(BROADCAST_RESULT_KEY, false);
+                    setErrorResult(result, certString);
                     return result;
                 }
             }
@@ -229,6 +223,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             setErrorResult(result, downloading_vpn_certificate_failed, null);
             e.printStackTrace();
         }
+        //TODO: check why the following line is not in production
         result.putParcelable(PROVIDER_KEY, provider);
         return result;
     }
