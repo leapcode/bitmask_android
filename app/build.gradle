@@ -88,7 +88,7 @@ android {
       //Set app name here
       appName = "Bitmask Pluggable Transports"
       //Provider base url, e.g. '"https://example.com"'
-      def customProviderUrl = '"https://demo.bitmask.net"'
+      def customProviderUrl = '"https://pt.demo.bitmask.net"'
       buildConfigField "String", "customProviderUrl", customProviderUrl
       //Change the versionCode as needed
       //versionCode 1
@@ -110,7 +110,7 @@ android {
       buildConfigField 'int', 'donation_reminder_duration', '30'
 
       // USE PROTOTYPE DEMO SERVER CONFIG
-      buildConfigField 'boolean', 'useDemoConfig', 'true'
+      buildConfigField 'boolean', 'useDemoConfig', 'false'
 
       //**************************************************************************
       //**************************************************************************
