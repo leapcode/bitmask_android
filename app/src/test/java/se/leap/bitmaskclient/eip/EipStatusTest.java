@@ -10,6 +10,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.testutils.MockHelper;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
@@ -23,6 +24,7 @@ import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_START;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_VPNPAUSED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static de.blinkt.openvpn.core.ConnectionStatus.UNKNOWN_LEVEL;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
@@ -61,7 +63,7 @@ public class EipStatusTest {
     public void testUpdateState_LEVEL_VPNPAUSED_hasPersistentTun() throws Exception {
 
         mockStatic(PreferenceHelper.class);
-        VpnProfile mockVpnProfile = new VpnProfile("mockProfile");
+        VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OPENVPN);
         mockVpnProfile.mPersistTun = true;
         doNothing().when(PreferenceHelper.class);
         VpnStatus.setLastConnectedVpnProfile(null, mockVpnProfile);
@@ -74,7 +76,7 @@ public class EipStatusTest {
     public void testUpdateState_LEVEL_VPNPAUSED_hasNotPersistentTun() throws Exception {
 
         mockStatic(PreferenceHelper.class);
-        VpnProfile mockVpnProfile = new VpnProfile("mockProfile");
+        VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OPENVPN);
         mockVpnProfile.mPersistTun = false;
         doNothing().when(PreferenceHelper.class);
         VpnStatus.setLastConnectedVpnProfile(null, mockVpnProfile);

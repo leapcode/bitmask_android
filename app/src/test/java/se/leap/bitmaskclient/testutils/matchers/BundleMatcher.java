@@ -73,7 +73,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
                 if (unfoundExpectedInteger.get(key) == null) {
                     description.appendText("\n unfound Integer in actual Bundle: ").appendValue(iterator.next());
                 } else {
-                    description.appendText("\n expected Integer for key " + key + ": ").appendValue(expectedIntegers.get(key)).
+                    description.appendText("\n expected Integer for key \"" + key + "\": ").appendValue(expectedIntegers.get(key)).
                             appendText("\n found Integer was: ").appendValue(unfoundExpectedInteger.get(key));
                 }
             }
@@ -85,7 +85,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
                 if (unfoundExpectedBoolean.get(key) == null) {
                     description.appendText("\n unfound Boolean in actual Bundle: ").appendValue(iterator.next());
                 } else {
-                    description.appendText("\n expected Boolean for key " + key + ": ").appendValue(expectedBooleans.get(key)).
+                    description.appendText("\n expected Boolean for key \"" + key + "\": ").appendValue(expectedBooleans.get(key)).
                             appendText("\n found Boolean was: ").appendValue(unfoundExpectedBoolean.get(key));
                 }
             }
@@ -97,8 +97,8 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
                 if (unfoundExpectedString.get(key) == null) {
                     description.appendText("\n unfound String in actual Bundle: ").appendValue(iterator.next());
                 } else {
-                    description.appendText("\n expected String for key " + key + ": ").appendValue(expectedStrings.get(key)).
-                            appendText("\n found String was: ").appendValue(unfoundExpectedString.get(key));
+                    description.appendText("\n expected String for key \"" + key + "\": ").appendValue(expectedStrings.get(key)).
+                            appendText("\n but found String was: ").appendValue(unfoundExpectedString.get(key));
                 }
             }
         }
@@ -109,7 +109,7 @@ public class BundleMatcher extends BaseMatcher<Bundle> {
                 if (unfoundExpectedParcelable.get(key) == null) {
                     description.appendText("\n unfound Parcelable in actual Bundle: ").appendValue(iterator.next());
                 } else {
-                    description.appendText("\n expected Parcelable or key " + key + ": ").appendValue(expectedParcelables.get(key)).
+                    description.appendText("\n expected Parcelable or key \"" + key + "\": ").appendValue(expectedParcelables.get(key)).
                             appendText("\n found Parcelable was: ").appendValue(unfoundExpectedParcelable.get(key));
                 }
             }

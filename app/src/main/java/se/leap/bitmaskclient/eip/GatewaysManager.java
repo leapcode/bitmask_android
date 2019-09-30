@@ -28,11 +28,12 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
+import static se.leap.bitmaskclient.Constants.GATEWAYS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 
@@ -45,11 +46,10 @@ public class GatewaysManager {
 
     private Context context;
     private SharedPreferences preferences;
-    private List<Gateway> gateways = new ArrayList<>();
+    private LinkedHashMap<String, Gateway> gateways = new LinkedHashMap<>();
     private Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
 
-    GatewaysManager(Context context, SharedPreferences preferences) {
-        this.context = context;
+    GatewaysManager(SharedPreferences preferences) {
         this.preferences = preferences;
     }
 
@@ -58,7 +58,7 @@ public class GatewaysManager {
       * @return the n closest Gateway
      */
     public Gateway select(int nClosest) {
-        GatewaySelector gatewaySelector = new GatewaySelector(gateways);
+        GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
         return gatewaySelector.select(nClosest);
     }
 
@@ -88,34 +88,18 @@ public class GatewaysManager {
      */
     void fromEipServiceJson(JSONObject eipDefinition) {
         try {
-            JSONArray gatewaysDefined = eipDefinition.getJSONArray("gateways");
+            JSONArray gatewaysDefined = eipDefinition.getJSONArray(GATEWAYS);
             for (int i = 0; i < gatewaysDefined.length(); i++) {
                 JSONObject gw = gatewaysDefined.getJSONObject(i);
-                if (isOpenVpnGateway(gw)) {
-                    JSONObject secrets = secretsConfiguration();
-                    Gateway aux = new Gateway(eipDefinition, secrets, gw, this.context);
-                    if (!gateways.contains(aux)) {
-                        addGateway(aux);
-                    }
+                JSONObject secrets = secretsConfiguration();
+                Gateway aux = new Gateway(eipDefinition, secrets, gw, this.context);
+                if (gateways.get(aux.getRemoteIP()) == null) {
+                    addGateway(aux);
                 }
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-    }
-
-    /**
-     * check if a gateway is an OpenVpn gateway
-     * @param gateway to check
-     * @return true if gateway is an OpenVpn gateway otherwise false
-     */
-    private boolean isOpenVpnGateway(JSONObject gateway) {
-        try {
-            String transport = gateway.getJSONObject("capabilities").getJSONArray("transport").toString();
-            return transport.contains("openvpn");
-        } catch (JSONException e) {
-            return false;
         }
     }
 
@@ -137,7 +121,7 @@ public class GatewaysManager {
     }
 
     private void addGateway(Gateway gateway) {
-        gateways.add(gateway);
+        gateways.put(gateway.getRemoteIP(), gateway);
     }
 
     /**

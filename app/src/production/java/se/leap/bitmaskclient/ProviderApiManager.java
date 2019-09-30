@@ -20,6 +20,7 @@ package se.leap.bitmaskclient;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.multidex.BuildConfig;
 import android.util.Pair;
 
 import org.json.JSONException;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.utils.ConfigHelper;
@@ -134,8 +136,12 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             return result;
         }
 
+        if (BuildConfig.DEBUG) {
+            VpnStatus.logDebug("PROVIDER JSON: " + providerDotJsonString);
+        }
         try {
             JSONObject providerJson = new JSONObject(providerDotJsonString);
+
             if (provider.define(providerJson)) {
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             } else {
@@ -143,9 +149,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             }
 
         } catch (JSONException e) {
-            String reason_to_fail = pickErrorMessage(providerDotJsonString);
-            result.putString(ERRORS, reason_to_fail);
-            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            setErrorResult(result, providerDotJsonString);
         }
         return result;
     }
@@ -163,14 +167,17 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             String eipServiceUrl = providerJson.getString(Provider.API_URL) + "/" + providerJson.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
             eipServiceJsonString = downloadWithProviderCA(provider.getCaCert(), eipServiceUrl);
             JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
-
-            provider.setEipServiceJson(eipServiceJson);
-
-            result.putBoolean(BROADCAST_RESULT_KEY, true);
+            if (BuildConfig.DEBUG) {
+                VpnStatus.logDebug("EIP SERVICE JSON: " + eipServiceJsonString);
+            }
+            if (eipServiceJson.has(ERRORS)) {
+                setErrorResult(result, eipServiceJsonString);
+            } else {
+                provider.setEipServiceJson(eipServiceJson);
+                result.putBoolean(BROADCAST_RESULT_KEY, true);
+            }
         } catch (NullPointerException | JSONException e) {
-            String reasonToFail = pickErrorMessage(eipServiceJsonString);
-            result.putString(ERRORS, reasonToFail);
-            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            setErrorResult(result, eipServiceJsonString);
         }
         return result;
     }
@@ -187,14 +194,15 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             URL newCertStringUrl = new URL(provider.getApiUrlWithVersion() + "/" + PROVIDER_VPN_CERTIFICATE);
 
             String certString = downloadWithProviderCA(provider.getCaCert(), newCertStringUrl.toString());
+            if (BuildConfig.DEBUG) {
+                VpnStatus.logDebug("VPN CERT: " + certString);
+            }
             if (ConfigHelper.checkErroneousDownload(certString)) {
                 if (certString == null || certString.isEmpty()) {
                     // probably 204
                     setErrorResult(result, error_io_exception_user_message, null);
                 } else {
-                    String reasonToFail = pickErrorMessage(certString);
-                    result.putString(ERRORS, reasonToFail);
-                    result.putBoolean(BROADCAST_RESULT_KEY, false);
+                    setErrorResult(result, certString);
                     return result;
                 }
             }
@@ -217,6 +225,9 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             if (validCertificate(provider, certString)) {
                 provider.setCaCert(certString);
                 preferences.edit().putString(Provider.CA_CERT + "." + providerDomain, certString).apply();
+                if (BuildConfig.DEBUG) {
+                    VpnStatus.logDebug("CA CERT: " + certString);
+                }
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             } else {
                 setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());

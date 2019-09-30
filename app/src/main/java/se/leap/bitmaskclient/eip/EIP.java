@@ -43,16 +43,20 @@ import java.util.Observer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.OnBootReceiver;
 import se.leap.bitmaskclient.R;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.CATEGORY_DEFAULT;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
@@ -74,6 +78,7 @@ import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.utils.ConfigHelper.ensureNotOnMainThread;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -203,11 +208,11 @@ public final class EIP extends JobIntentService implements Observer {
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
         Gateway gateway = gatewaysManager.select(nClosestGateway);
 
-        if (gateway != null && gateway.getProfile() != null) {
-            launchActiveGateway(gateway, nClosestGateway);
+        if (launchActiveGateway(gateway, nClosestGateway)) {
             tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_OK);
-        } else
+        } else {
             tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED);
+        }
     }
 
     /**
@@ -218,9 +223,7 @@ public final class EIP extends JobIntentService implements Observer {
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
         Gateway gateway = gatewaysManager.select(0);
 
-        if (gateway != null && gateway.getProfile() != null) {
-            launchActiveGateway(gateway, 0);
-        } else {
+        if (!launchActiveGateway(gateway, 0)) {
             Log.d(TAG, "startEIPAlwaysOnVpn no active profile available!");
         }
     }
@@ -240,11 +243,19 @@ public final class EIP extends JobIntentService implements Observer {
      *
      * @param gateway to connect to
      */
-    private void launchActiveGateway(@NonNull Gateway gateway, int nClosestGateway) {
+    private boolean launchActiveGateway(Gateway gateway, int nClosestGateway) {
+        VpnProfile profile;
+        Connection.TransportType transportType = getUsePluggableTransports(this) ? OBFS4 : OPENVPN;
+        if (gateway == null ||
+                (profile = gateway.getProfile(transportType)) == null) {
+            return false;
+        }
+
         Intent intent = new Intent(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT);
-        intent.putExtra(PROVIDER_PROFILE, gateway.getProfile());
+        intent.putExtra(PROVIDER_PROFILE, profile);
         intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, nClosestGateway);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        return true;
 
     }
 
@@ -277,7 +288,7 @@ public final class EIP extends JobIntentService implements Observer {
      * @return GatewaysManager
      */
     private GatewaysManager gatewaysFromPreferences() {
-        GatewaysManager gatewaysManager = new GatewaysManager(this, preferences);
+        GatewaysManager gatewaysManager = new GatewaysManager(preferences);
         gatewaysManager.configureFromPreferences();
         return gatewaysManager;
     }

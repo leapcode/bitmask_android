@@ -162,8 +162,8 @@ public class StartActivity extends Activity{
     }
 
     private void prepareEIP() {
-        boolean provider_exists = providerInSharedPreferences(preferences);
-        if (provider_exists) {
+        boolean providerExists = providerInSharedPreferences(preferences);
+        if (providerExists) {
             Provider provider = getSavedProviderFromSharedPreferences(preferences);
             if(!provider.isConfigured()) {
                 configureLeapProvider();
@@ -215,5 +215,4 @@ public class StartActivity extends Activity{
         startActivity(intent);
         finish();
     }
-
 }

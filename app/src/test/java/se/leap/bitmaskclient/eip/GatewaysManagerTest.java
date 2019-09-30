@@ -48,7 +48,7 @@ public class GatewaysManagerTest {
         when(sharedPreferences.getString(eq(Constants.PROVIDER_VPN_CERTIFICATE), anyString())).thenReturn(secrets.getString(Constants.PROVIDER_VPN_CERTIFICATE));
 
 
-        gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
+        gatewaysManager = new GatewaysManager(sharedPreferences);
     }
 
     @Test
@@ -57,6 +57,15 @@ public class GatewaysManagerTest {
             assertEquals(0, gatewaysManager.size());
     }
 
+    @Test
+    public void testFromEipServiceJson_ignoreDuplicateGateways_apiv3() throws Exception {
+        String eipServiceJson = TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_three_mixed_gateways.json"));
+        gatewaysManager.fromEipServiceJson(new JSONObject(eipServiceJson));
+        assertEquals(3, gatewaysManager.size());
+        eipServiceJson = TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service.json"));
+        gatewaysManager.fromEipServiceJson(new JSONObject(eipServiceJson));
+        assertEquals(3, gatewaysManager.size());
+    }
 
     @Test
     public void testFromEipServiceJson_ignoreDuplicateGateways() throws Exception {

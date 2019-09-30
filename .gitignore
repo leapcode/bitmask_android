@@ -79,3 +79,6 @@ jniLibs
 /ics-openvpn-stripped
 app/ovpnlibs
 app/.externalNativeBuild
+releases
+
+go/golang/go

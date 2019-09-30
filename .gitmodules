@@ -2,3 +2,70 @@
 	path = ics-openvpn
 	branch = new_master
 	url =  https://leap.se/git/ics_openvpn.git
+
+[submodule "go/src/github.com/OperatorFoundation/obfs4"]
+    path = go/src/github.com/OperatorFoundation/obfs4
+    url = https://github.com/OperatorFoundation/obfs4.git
+    ignore = untracked
+
+[submodule "go/src/github.com/OperatorFoundation/shapeshifter-dispatcher"]
+    path = go/src/github.com/OperatorFoundation/shapeshifter-dispatcher
+    url = https://github.com/OperatorFoundation/shapeshifter-dispatcher.git
+    ignore = untracked
+
+[submodule "go/src/github.com/OperatorFoundation/shapeshifter-ipc"]
+    path = go/src/github.com/OperatorFoundation/shapeshifter-ipc
+    url = https://github.com/OperatorFoundation/shapeshifter-ipc.git
+    ignore = untracked
+
+[submodule "go/src/github.com/OperatorFoundation/shapeshifter-transports"]
+    path = go/src/github.com/OperatorFoundation/shapeshifter-transports
+    url = https://github.com/OperatorFoundation/shapeshifter-transports.git
+    ignore = untracked
+
+[submodule "go/src/github.com/aead/chacha20"]
+    path = go/src/github.com/aead/chacha20
+    url = https://github.com/aead/chacha20.git
+    ignore = untracked
+
+[submodule "go/src/github.com/agl/ed25519"]
+    path = go/src/github.com/agl/ed25519
+    url = https://github.com/agl/ed25519.git
+    ignore = untracked
+
+[submodule "go/src/github.com/dchest/siphash"]
+    path = go/src/github.com/dchest/siphash
+    url = https://github.com/dchest/siphash.git
+    ignore = untracked
+
+[submodule "go/src/github.com/shadowsocks/shadowsocks-go"]
+    path = go/src/github.com/shadowsocks/shadowsocks-go
+    url = https://github.com/shadowsocks/shadowsocks-go.git
+    ignore = untracked
+
+[submodule "go/src/github.com/willscott/goturn"]
+    path = go/src/github.com/willscott/goturn
+    url = https://github.com/willscott/goturn.git
+    ignore = untracked
+
+
+[submodule "go/src/golang.org/x/crypto"]
+    path = go/src/golang.org/x/crypto
+    url = https://github.com/golang/crypto.git
+    ignore = untracked
+
+[submodule "go/src/golang.org/x/net"]
+    path = go/src/golang.org/x/net
+    url = https://github.com/golang/net.git
+    ignore = untracked
+
+[submodule "go/src/golang.org/x/sys"]
+    path = go/src/golang.org/x/sys
+    url = https://github.com/golang/sys.git
+    ignore = untracked
+[submodule "go/src/se.leap.bitmaskclient/shapeshifter"]
+	path = go/src/se.leap.bitmaskclient/shapeshifter
+	url = https://0xacab.org/leap/shapeshifter.git
+[submodule "go/src/golang.org/x/tools"]
+	path = go/src/golang.org/x/tools
+	url = https://github.com/golang/tools.git

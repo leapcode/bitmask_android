@@ -18,6 +18,7 @@
 package se.leap.bitmaskclient.testutils;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,6 +41,9 @@ public class TestSetupHelper {
         while (line != null) {
             sb.append(line);
             line = br.readLine();
+            if (line != null) {
+                sb.append("\n");
+            }
         }
 
         return sb.toString();
@@ -47,25 +51,32 @@ public class TestSetupHelper {
 
 
     public static Provider getConfiguredProvider() throws IOException, JSONException {
-        return getProvider(null, null, null);
+        return getProvider(null, null, null, null);
     }
 
-    public static Provider getProvider(String domain, String caCertFile, String jsonFile) {
+    public static Provider getProvider(String domain, String caCertFile, String providerJson, String eipServiceJson) {
         if (domain == null)
             domain = "https://riseup.net";
         if (caCertFile == null)
             caCertFile = "riseup.net.pem";
-        if (jsonFile == null)
-            jsonFile = "riseup.net.json";
+        if (providerJson == null)
+            providerJson = "riseup.net.json";
+        if (eipServiceJson == null) {
+            eipServiceJson = "riseup.service.json";
+        }
 
         try {
-            return new Provider(
+            Provider p = new Provider(
                     new URL(domain),
                     getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(caCertFile)),
-                    getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(jsonFile))
+                    getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(providerJson))
 
             );
-        } catch (IOException e) {
+            JSONObject eipServiceJsonObject = new JSONObject(
+                    getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(eipServiceJson)));
+            p.setEipServiceJson(eipServiceJsonObject);
+            return p;
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
         return null;

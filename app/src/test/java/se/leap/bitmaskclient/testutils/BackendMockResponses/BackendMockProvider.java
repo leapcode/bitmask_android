@@ -31,6 +31,7 @@ public class BackendMockProvider {
         NO_ERROR,
         ERROR_CASE_UPDATED_CERTIFICATE,
         ERROR_CASE_MICONFIGURED_PROVIDER,
+        ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID,
         ERROR_NO_RESPONSE_BODY,         // => NullPointerException
         ERROR_DNS_RESOLUTION_ERROR,     // => UnkownHostException
         ERROR_SOCKET_TIMEOUT,           // => SocketTimeoutException
@@ -59,6 +60,8 @@ public class BackendMockProvider {
             case ERROR_CASE_MICONFIGURED_PROVIDER:
                 new MisconfiguredProviderBackendResponse();
                 break;
+            case ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID:
+                new EipSerivceJsonInvalidCertificateBackendResponse();
             case ERROR_NO_RESPONSE_BODY:
                 break;
             case ERROR_DNS_RESOLUTION_ERROR:

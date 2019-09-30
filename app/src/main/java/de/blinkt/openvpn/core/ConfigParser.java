@@ -13,9 +13,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Vector;
 
 import de.blinkt.openvpn.VpnProfile;
+import de.blinkt.openvpn.core.connection.Connection;
+import de.blinkt.openvpn.core.connection.Obfs4Connection;
+import de.blinkt.openvpn.core.connection.OpenvpnConnection;
+import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
+
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 
 //! Openvpn Config FIle Parser, probably not 100% accurate but close enough
 
@@ -128,6 +140,7 @@ public class ConfigParser {
     private HashMap<String, Vector<Vector<String>>> options = new HashMap<>();
     private HashMap<String, Vector<String>> meta = new HashMap<String, Vector<String>>();
     private String auth_user_pass_file;
+    private Obfs4Options obfs4Options;
 
     static public void useEmbbedUserAuth(VpnProfile np, String inlinedata) {
         String data = VpnProfile.getEmbeddedContent(inlinedata);
@@ -142,9 +155,9 @@ public class ConfigParser {
         String data = VpnProfile.getEmbeddedContent(inlinedata);
         String[] parts = data.split("\n");
         if (parts.length >= 2) {
-            c.mProxyAuthUser = parts[0];
-            c.mProxyAuthPassword = parts[1];
-            c.mUseProxyAuth = true;
+            c.setProxyAuthUser(parts[0]);
+            c.setProxyAuthPassword(parts[1]);
+            c.setUseProxyAuth(true);
         }
     }
 
@@ -338,9 +351,9 @@ public class ConfigParser {
 
     // This method is far too long
     @SuppressWarnings("ConstantConditions")
-    public VpnProfile convertProfile() throws ConfigParseError, IOException {
+    public VpnProfile convertProfile(Connection.TransportType transportType) throws ConfigParseError, IOException {
         boolean noauthtypeset = true;
-        VpnProfile np = new VpnProfile(CONVERTED_PROFILE);
+        VpnProfile np = new VpnProfile(CONVERTED_PROFILE, transportType);
         // Pull, client, tls-client
         np.clearDefaults();
 
@@ -443,6 +456,7 @@ public class ConfigParser {
         if (redirectPrivate != null) {
             checkRedirectParameters(np, redirectPrivate, false);
         }
+
         Vector<String> dev = getOption("dev", 1, 1);
         Vector<String> devtype = getOption("dev-type", 1, 1);
 
@@ -468,7 +482,6 @@ public class ConfigParser {
             }
         }
 
-
         Vector<String> tunmtu = getOption("tun-mtu", 1, 1);
 
         if (tunmtu != null) {
@@ -479,13 +492,11 @@ public class ConfigParser {
             }
         }
 
-
         Vector<String> mode = getOption("mode", 1, 1);
         if (mode != null) {
             if (!mode.get(1).equals("p2p"))
                 throw new ConfigParseError("Invalid mode for --mode specified, need p2p");
         }
-
 
         Vector<Vector<String>> dhcpoptions = getAllOption("dhcp-option", 2, 2);
         if (dhcpoptions != null) {
@@ -521,8 +532,10 @@ public class ConfigParser {
         if (getOption("float", 0, 0) != null)
             np.mUseFloat = true;
 
-        if (getOption("comp-lzo", 0, 1) != null)
-            np.mUseLzo = true;
+        Vector<String> useLzo = getOption("comp-lzo", 0, 1);
+        if (useLzo != null) {
+            np.mUseLzo = Boolean.valueOf(useLzo.get(1));
+        }
 
         Vector<String> cipher = getOption("cipher", 1, 1);
         if (cipher != null)
@@ -531,7 +544,6 @@ public class ConfigParser {
         Vector<String> auth = getOption("auth", 1, 1);
         if (auth != null)
             np.mAuth = auth.get(1);
-
 
         Vector<String> ca = getOption("ca", 1, 1);
         if (ca != null) {
@@ -544,6 +556,7 @@ public class ConfigParser {
             np.mAuthenticationType = VpnProfile.TYPE_CERTIFICATES;
             noauthtypeset = false;
         }
+
         Vector<String> key = getOption("key", 1, 1);
         if (key != null)
             np.mClientKeyFilename = key.get(1);
@@ -604,8 +617,7 @@ public class ConfigParser {
             np.mVerb = verb.get(1);
         }
 
-
-        if (getOption("nobind", 0, 0) != null)
+        if (getOption("nobind", 0, 1) != null)
             np.mNobind = true;
 
         if (getOption("persist-tun", 0, 0) != null)
@@ -674,8 +686,7 @@ public class ConfigParser {
 
         }
 
-
-        Pair<Connection, Connection[]> conns = parseConnectionOptions(null);
+        Pair<Connection, Connection[]> conns = parseConnectionOptions(null, transportType);
         np.mConnections = conns.second;
 
         Vector<Vector<String>> connectionBlocks = getAllOption("connection", 1, 1);
@@ -698,6 +709,7 @@ public class ConfigParser {
                 connIndex++;
             }
         }
+
         if (getOption("remote-random", 0, 0) != null)
             np.mRemoteRandom = true;
 
@@ -713,8 +725,8 @@ public class ConfigParser {
                 throw new ConfigParseError(String.format("Unknown protocol %s in proto-force", protoToDisable));
 
             for (Connection conn : np.mConnections)
-                if (conn.mUseUdp == disableUDP)
-                    conn.mEnabled = false;
+                if (conn.isUseUdp() == disableUDP)
+                    conn.setEnabled(false);
         }
 
         // Parse OpenVPN Access Server extra
@@ -740,20 +752,21 @@ public class ConfigParser {
             return TextUtils.join(s, str);
     }
 
+    public void setObfs4Options(Obfs4Options obfs4Options) {
+        this.obfs4Options = obfs4Options;
+    }
+
     private Pair<Connection, Connection[]> parseConnection(String connection, Connection defaultValues) throws IOException, ConfigParseError {
         // Parse a connection Block as a new configuration file
-
 
         ConfigParser connectionParser = new ConfigParser();
         StringReader reader = new StringReader(connection.substring(VpnProfile.INLINE_TAG.length()));
         connectionParser.parseConfig(reader);
 
-        Pair<Connection, Connection[]> conn = connectionParser.parseConnectionOptions(defaultValues);
-
-        return conn;
+        return connectionParser.parseConnectionOptions(defaultValues, defaultValues.getTransportType());
     }
 
-    private Pair<Connection, Connection[]> parseConnectionOptions(Connection connDefault) throws ConfigParseError {
+    private Pair<Connection, Connection[]> parseConnectionOptions(Connection connDefault, Connection.TransportType transportType) throws ConfigParseError {
         Connection conn;
         if (connDefault != null)
             try {
@@ -763,27 +776,27 @@ public class ConfigParser {
                 return null;
             }
         else
-            conn = new Connection();
+            conn = transportType == OBFS4 ? new Obfs4Connection(obfs4Options) : new OpenvpnConnection();
 
         Vector<String> port = getOption("port", 1, 1);
         if (port != null) {
-            conn.mServerPort = port.get(1);
+            conn.setServerPort(port.get(1));
         }
 
         Vector<String> rport = getOption("rport", 1, 1);
         if (rport != null) {
-            conn.mServerPort = rport.get(1);
+            conn.setServerPort(rport.get(1));
         }
 
         Vector<String> proto = getOption("proto", 1, 1);
         if (proto != null) {
-            conn.mUseUdp = isUdpProto(proto.get(1));
+            conn.setUseUdp(isUdpProto(proto.get(1)));
         }
 
         Vector<String> connectTimeout = getOption("connect-timeout", 1, 1);
         if (connectTimeout != null) {
             try {
-                conn.mConnectTimeout = Integer.parseInt(connectTimeout.get(1));
+                conn.setConnectTimeout(Integer.parseInt(connectTimeout.get(1)));
             } catch (NumberFormatException nfe) {
                 throw new ConfigParseError(String.format("Argument to connect-timeout (%s) must to be an integer: %s",
                         connectTimeout.get(1), nfe.getLocalizedMessage()));
@@ -797,16 +810,16 @@ public class ConfigParser {
 
         if (proxy != null) {
             if (proxy.get(0).equals("socks-proxy")) {
-                conn.mProxyType = Connection.ProxyType.SOCKS5;
+                conn.setProxyType(Connection.ProxyType.SOCKS5);
                 // socks defaults to 1080, http always sets port
-                conn.mProxyPort = "1080";
+                conn.setProxyPort("1080");
             } else {
-                conn.mProxyType = Connection.ProxyType.HTTP;
+                conn.setProxyType(Connection.ProxyType.HTTP);
             }
 
-            conn.mProxyName = proxy.get(1);
+            conn.setProxyName(proxy.get(1));
             if (proxy.size() >= 3)
-                conn.mProxyPort = proxy.get(2);
+                conn.setProxyPort(proxy.get(2));
         }
 
         Vector<String> httpproxyauthhttp = getOption("http-proxy-user-pass", 1, 1);
@@ -817,21 +830,19 @@ public class ConfigParser {
         // Parse remote config
         Vector<Vector<String>> remotes = getAllOption("remote", 1, 3);
 
-
-
         Vector <String> optionsToRemove = new Vector<>();
         // Assume that we need custom options if connectionDefault are set or in the connection specific set
         for (Map.Entry<String, Vector<Vector<String>>> option : options.entrySet()) {
             if (connDefault != null || connectionOptionsSet.contains(option.getKey())) {
-                conn.mCustomConfiguration += getOptionStrings(option.getValue());
+                conn.setCustomConfiguration(conn.getCustomConfiguration() + getOptionStrings(option.getValue()));
                 optionsToRemove.add(option.getKey());
             }
         }
         for (String o: optionsToRemove)
             options.remove(o);
 
-        if (!(conn.mCustomConfiguration == null || "".equals(conn.mCustomConfiguration.trim())))
-            conn.mUseCustomConfig = true;
+        if (!(conn.getCustomConfiguration() == null || "".equals(conn.getCustomConfiguration().trim())))
+            conn.setUseCustomConfig(true);
 
         // Make remotes empty to simplify code
         if (remotes == null)
@@ -849,11 +860,11 @@ public class ConfigParser {
             }
             switch (remote.size()) {
                 case 4:
-                    connections[i].mUseUdp = isUdpProto(remote.get(3));
+                    connections[i].setUseUdp(isUdpProto(remote.get(3)));
                 case 3:
-                    connections[i].mServerPort = remote.get(2);
+                    connections[i].setServerPort(remote.get(2));
                 case 2:
-                    connections[i].mServerName = remote.get(1);
+                    connections[i].setServerName(remote.get(1));
             }
             i++;
         }

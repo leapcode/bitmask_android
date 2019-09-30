@@ -168,6 +168,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                 if (resultCode == RESULT_CANCELED) {
                     //setup failed
                     finishGatewaySetup(false);
+                    EipStatus.refresh();
                 }
                 break;
             default:

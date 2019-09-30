@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.Constants.CREDENTIAL_ERRORS;
@@ -578,7 +579,7 @@ public abstract class ProviderApiManagerBase {
             plainResponseBody = formatErrorMessage(server_unreachable_message);
         } catch (MalformedURLException e) {
             plainResponseBody = formatErrorMessage(malformed_url);
-        } catch (SSLHandshakeException e) {
+        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
             plainResponseBody = formatErrorMessage(certificate_error);
         } catch (ConnectException e) {
             plainResponseBody = formatErrorMessage(service_is_down_error);
@@ -747,6 +748,13 @@ public abstract class ProviderApiManagerBase {
         }
 
         result.putBoolean(BROADCAST_RESULT_KEY, true);
+        return result;
+    }
+
+    protected Bundle setErrorResult(Bundle result, String stringJsonErrorMessage) {
+        String reasonToFail = pickErrorMessage(stringJsonErrorMessage);
+        result.putString(ERRORS, reasonToFail);
+        result.putBoolean(BROADCAST_RESULT_KEY, false);
         return result;
     }
 

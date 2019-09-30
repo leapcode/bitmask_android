@@ -36,7 +36,7 @@ public class GatewaySelector {
             }
         }
 
-        Log.e(TAG, "There are less than " + nClosest + " Gateways available.");
+        Log.e(TAG, "There are less than " + (nClosest + 1) + " Gateways available.");
         return null;
     }
 

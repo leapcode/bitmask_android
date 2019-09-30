@@ -15,9 +15,10 @@ import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
+
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
 
@@ -452,10 +453,10 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
         if (mProfile.mConnections.length > connectionEntryNumber) {
             Connection connection = mProfile.mConnections[connectionEntryNumber];
-            proxyType = connection.mProxyType;
-            proxyname = connection.mProxyName;
-            proxyport = connection.mProxyPort;
-            proxyUseAuth = connection.mUseProxyAuth;
+            proxyType = connection.getProxyType();
+            proxyname = connection.getProxyName();
+            proxyport = connection.getProxyPort();
+            proxyUseAuth = connection.isUseProxyAuth();
 
             // Use transient variable to remember http user/password
             mCurrentProxyConnection = connection;
@@ -696,8 +697,8 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
         } else if (needed.equals("HTTP Proxy")) {
             if( mCurrentProxyConnection != null) {
-                pw = mCurrentProxyConnection.mProxyAuthPassword;
-                username = mCurrentProxyConnection.mProxyAuthUser;
+                pw = mCurrentProxyConnection.getProxyAuthPassword();
+                username = mCurrentProxyConnection.getProxyAuthUser();
             }
         }
         if (pw != null) {
@@ -782,7 +783,6 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
         boolean stopSucceed = stopOpenVPN();
         if (stopSucceed) {
             mShuttingDown = true;
-
         }
         return stopSucceed;
     }

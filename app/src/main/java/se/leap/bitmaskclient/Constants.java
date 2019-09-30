@@ -14,6 +14,7 @@ public interface Constants {
     String CLEARLOG = "clearlogconnect";
     String LAST_USED_PROFILE = "last_used_profile";
     String EXCLUDED_APPS = "excluded_apps";
+    String USE_PLUGGABLE_TRANSPORTS = "usePluggableTransports";
 
 
      //////////////////////////////////////////////
@@ -114,4 +115,22 @@ public interface Constants {
     String FIRST_TIME_USER_DATE = "first_time_user_date";
 
 
+    //////////////////////////////////////////////
+    // JSON KEYS
+    /////////////////////////////////////////////
+    String IP_ADDRESS = "ip_address";
+    String REMOTE = "remote";
+    String PORTS = "ports";
+    String PROTOCOLS = "protocols";
+    String CAPABILITIES = "capabilities";
+    String TRANSPORT = "transport";
+    String TYPE = "type";
+    String OPTIONS = "options";
+    String VERSION = "version";
+    String NAME = "name";
+    String TIMEZONE = "timezone";
+    String LOCATIONS = "locations";
+    String LOCATION = "location";
+    String OPENVPN_CONFIGURATION = "openvpn_configuration";
+    String GATEWAYS = "gateways";
 }

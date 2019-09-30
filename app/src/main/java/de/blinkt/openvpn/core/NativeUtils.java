@@ -20,6 +20,8 @@ public class NativeUtils {
     {
         if (isRoboUnitTest())
             return "ROBO";
+        else if (isUnitTest())
+            return "JUNIT";
         else
             return getJNIAPI();
     }
@@ -34,7 +36,7 @@ public class NativeUtils {
     public static native double[] getOpenSSLSpeed(String algorithm, int testnum);
 
     static {
-        if (!isRoboUnitTest()) {
+        if (!isRoboUnitTest() && !isUnitTest()) {
             System.loadLibrary("opvpnutil");
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN)
                 System.loadLibrary("jbcrypto");
@@ -43,5 +45,14 @@ public class NativeUtils {
 
     public static boolean isRoboUnitTest() {
         return "robolectric".equals(Build.FINGERPRINT);
+    }
+
+    public static boolean isUnitTest() {
+        try {
+            Class.forName("se.leap.bitmaskclient.testutils.MockHelper");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }
