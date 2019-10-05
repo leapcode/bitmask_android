@@ -295,7 +295,7 @@ public final class EIP extends JobIntentService implements Observer {
      * @return GatewaysManager
      */
     private GatewaysManager gatewaysFromPreferences() {
-        GatewaysManager gatewaysManager = new GatewaysManager(preferences);
+        GatewaysManager gatewaysManager = new GatewaysManager(getApplicationContext(), preferences);
         gatewaysManager.configureFromPreferences();
         return gatewaysManager;
     }

@@ -103,16 +103,13 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
 
         if (isChecked) {
             Log.d("openvpn", "adding to allowed apps" + packageName);
-
             apps.add(packageName);
 
         } else {
             Log.d("openvpn", "removing from allowed apps" + packageName);
-
             apps.remove(packageName);
         }
 
-        PreferenceHelper.setExcludedApps(this.getContext(), apps);
     }
 
 
@@ -257,6 +254,12 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        PreferenceHelper.setExcludedApps(this.getActivity().getApplicationContext(), apps);
+        super.onDestroy();
     }
 
     @Override

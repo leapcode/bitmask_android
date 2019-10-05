@@ -52,8 +52,9 @@ public class GatewaysManager {
     private LinkedHashMap<String, Gateway> gateways = new LinkedHashMap<>();
     private Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
 
-    GatewaysManager(SharedPreferences preferences) {
+    GatewaysManager(Context context, SharedPreferences preferences) {
         this.preferences = preferences;
+        this.context = context;
     }
 
     /**
