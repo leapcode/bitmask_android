@@ -14,12 +14,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -65,6 +67,15 @@ public class GatewaysManagerTest {
         eipServiceJson = TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service.json"));
         gatewaysManager.fromEipServiceJson(new JSONObject(eipServiceJson));
         assertEquals(3, gatewaysManager.size());
+    }
+
+    @Test
+    public void testFromEipServiceJson_ignoreGatewaysWithMisconfiguredTransportsWhileAddingValidOnes() throws Exception {
+        String eipServiceJson = TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_mixed_gateways.json"));
+        gatewaysManager.fromEipServiceJson(new JSONObject(eipServiceJson));
+        assertEquals(1, gatewaysManager.size());
+        assertNull(gatewaysManager.select(0).getProfile(Connection.TransportType.OBFS4));
+        assertNotNull(gatewaysManager.select(0).getProfile(Connection.TransportType.OPENVPN));
     }
 
     @Test

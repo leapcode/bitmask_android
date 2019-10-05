@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import de.blinkt.openvpn.core.ConfigParser;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.utils.ConfigHelper;
 
@@ -99,7 +100,7 @@ public class GatewaySelectorTest {
     ArrayList<Gateway> gatewayList = new ArrayList<>();
 
     @Before
-    public void setup() throws IOException, JSONException {
+    public void setup() throws IOException, JSONException, ConfigParser.ConfigParseError {
         mockStatic(ConfigHelper.class);
         eipDefinition = new JSONObject(getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-four-gateways.json")));
         JSONArray gateways = eipDefinition.getJSONArray("gateways");

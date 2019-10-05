@@ -17,7 +17,6 @@
 package se.leap.bitmaskclient.eip;
 
 import android.content.Context;
-
 import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
@@ -26,14 +25,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.HashMap;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
-import se.leap.bitmaskclient.utils.PreferenceHelper;
 import de.blinkt.openvpn.core.connection.Connection;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.Constants.IP_ADDRESS;
 import static se.leap.bitmaskclient.Constants.LOCATION;
@@ -70,7 +69,8 @@ public class Gateway {
      * Build a gateway object from a JSON OpenVPN gateway definition in eip-service.json
      * and create a VpnProfile belonging to it.
      */
-    public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway, Context context) {
+    public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway, Context context)
+            throws ConfigParser.ConfigParseError, JSONException, IOException {
 
         this.gateway = gateway;
         this.secrets = secrets;
@@ -132,16 +132,11 @@ public class Gateway {
     /**
      * Create and attach the VpnProfile to our gateway object
      */
-    private @NonNull HashMap<Connection.TransportType, VpnProfile> createVPNProfiles(Context context) {
-        HashMap<Connection.TransportType, VpnProfile> profiles = new HashMap<>();
-        try {
-            VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway, apiVersion);
-            profiles = vpnConfigurationGenerator.generateVpnProfiles();
-            addProfileInfos(context, profiles);
-        } catch (ConfigParser.ConfigParseError | IOException | JSONException e) {
-            // FIXME We didn't get a VpnProfile!  Error handling! and log level
-            e.printStackTrace();
-        }
+    private @NonNull HashMap<Connection.TransportType, VpnProfile> createVPNProfiles(Context context)
+            throws ConfigParser.ConfigParseError, IOException, JSONException {
+        VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway, apiVersion);
+        HashMap<Connection.TransportType, VpnProfile> profiles = vpnConfigurationGenerator.generateVpnProfiles();
+        addProfileInfos(context, profiles);
         return profiles;
     }
 

@@ -26,10 +26,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import de.blinkt.openvpn.core.ConfigParser;
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
@@ -87,19 +90,25 @@ public class GatewaysManager {
      * @param eipDefinition eipServiceJson
      */
     void fromEipServiceJson(JSONObject eipDefinition) {
+        JSONArray gatewaysDefined = new JSONArray();
         try {
-            JSONArray gatewaysDefined = eipDefinition.getJSONArray(GATEWAYS);
-            for (int i = 0; i < gatewaysDefined.length(); i++) {
+            gatewaysDefined = eipDefinition.getJSONArray(GATEWAYS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < gatewaysDefined.length(); i++) {
+            try {
                 JSONObject gw = gatewaysDefined.getJSONObject(i);
                 JSONObject secrets = secretsConfiguration();
                 Gateway aux = new Gateway(eipDefinition, secrets, gw, this.context);
                 if (gateways.get(aux.getRemoteIP()) == null) {
                     addGateway(aux);
                 }
+            } catch (JSONException | ConfigParser.ConfigParseError | IOException e) {
+                e.printStackTrace();
+                VpnStatus.logError("Unable to parse gateway config!");
             }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
