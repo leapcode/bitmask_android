@@ -11,8 +11,9 @@ if [ -z $ANDROID_NDK_HOME ]; then
         exit 1;
 fi
 
+./golang/go/bin/go env
 ./golang/go/bin/go get golang.org/x/mobile/cmd/gomobile
 
-gomobile init
-gomobile bind -target=android -o ./lib/shapeshifter.aar se.leap.bitmaskclient/shapeshifter/
+./bin/gomobile init
+./bin/gomobile bind -target=android -o ./lib/shapeshifter.aar se.leap.bitmaskclient/shapeshifter/
 cp lib/shapeshifter* ../shapeshifter/.
