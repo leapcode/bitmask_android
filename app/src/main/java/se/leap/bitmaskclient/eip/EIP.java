@@ -77,6 +77,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
+import static se.leap.bitmaskclient.R.string.warning_client_parsing_error_gateways;
 import static se.leap.bitmaskclient.utils.ConfigHelper.ensureNotOnMainThread;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
 
@@ -206,6 +207,12 @@ public final class EIP extends JobIntentService implements Observer {
         }
 
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
+        if (gatewaysManager.isEmpty()) {
+            setErrorResult(result, warning_client_parsing_error_gateways, null);
+            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED, result);
+            return;
+        }
+
         Gateway gateway = gatewaysManager.select(nClosestGateway);
 
         if (launchActiveGateway(gateway, nClosestGateway)) {
@@ -376,7 +383,6 @@ public final class EIP extends JobIntentService implements Observer {
         result.putString(ERRORS, errorJson.toString());
         result.putBoolean(BROADCAST_RESULT_KEY, false);
     }
-
 
     /**
      * disable Bitmask starting on after phone reboot

@@ -94,6 +94,7 @@
   <string name="update_certificate">Update certificate</string>
   <string name="warning_eip_json_corrupted">Updating provider configuration failed.</string>
   <string name="eip_json_corrupted_user_message">Updating provider configuration failed. Please log in to try again.</string>
+  <string name="warning_client_parsing_error_gateways">The provider gateways could not be recognized. They may be configured incorrectly.</string>
   <string name="warning_corrupted_provider_details">Stored provider details are corrupted. You can either update %s (recommended) or update the provider details using a commercial CA certificate.</string>
   <string name="warning_corrupted_provider_cert">Stored provider certificate is invalid. You can either update %s (recommended) or update the provider certificate using a commercial CA certificate.</string>
   <string name="warning_expired_provider_cert">Stored provider certificate is expired. You can either update %s (recommended) or update the provider certificate using a commercial CA certificate.</string>
