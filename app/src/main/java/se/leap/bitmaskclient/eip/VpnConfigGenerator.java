@@ -123,7 +123,7 @@ public class VpnConfigGenerator {
 
     private Obfs4Options getObfs4Options() throws JSONException {
         JSONObject transportOptions = obfs4Transport.getJSONObject(OPTIONS);
-        String iatMode = transportOptions.getString("iat-mode");
+        String iatMode = transportOptions.getString("iatMode");
         String cert = transportOptions.getString("cert");
         String port = obfs4Transport.getJSONArray(PORTS).getString(0);
         String ip = gateway.getString(IP_ADDRESS);

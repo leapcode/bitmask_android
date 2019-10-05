@@ -16,7 +16,7 @@
             ],
             "options": {
               "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1",
-              "iat-mode": "0"
+              "iatMode": "0"
             }
           },
           {
@@ -51,7 +51,7 @@
             ],
             "options": {
               "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX2",
-              "iat-mode": "0"
+              "iatMode": "0"
             }
           },
           {
