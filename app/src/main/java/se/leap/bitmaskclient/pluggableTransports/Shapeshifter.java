@@ -17,8 +17,10 @@
 
 package se.leap.bitmaskclient.pluggableTransports;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import shapeshifter.ShapeShifter;
 
 public class Shapeshifter {
@@ -28,25 +30,25 @@ public class Shapeshifter {
     private static final String TAG = Shapeshifter.class.getSimpleName();
 
     ShapeShifter shapeShifter;
+    ShapeshifterErrorListner shapeshifterErrorListner;
 
     public  Shapeshifter(Obfs4Options options) {
         shapeShifter = new ShapeShifter();
-        shapeShifter.setIatMode(Long.valueOf(options.iatMode));
         shapeShifter.setSocksAddr(DISPATCHER_IP+":"+DISPATCHER_PORT);
         shapeShifter.setTarget(options.remoteIP+":"+options.remotePort);
         shapeShifter.setCert(options.cert);
-        Log.d(TAG, "shapeshifter initialized with: iat - " + shapeShifter.getIatMode() +
-                "; socksAddr - " + shapeShifter.getSocksAddr() +
-                "; target addr - " + shapeShifter.getTarget() +
-                "; cert - " + shapeShifter.getCert());
+        Log.d(TAG, "shapeshifter initialized with: \n" + shapeShifter.toString());
     }
 
     public boolean start() {
         try {
+            shapeshifterErrorListner = new ShapeshifterErrorListner();
+            shapeshifterErrorListner.execute(shapeShifter);
             shapeShifter.open();
             Log.d(TAG, "shapeshifter opened");
             return true;
         } catch (Exception e) {
+            VpnStatus.logError("SHAPESHIFTER ERROR " + e.getLocalizedMessage());
             e.printStackTrace();
         }
         return false;
@@ -59,7 +61,34 @@ public class Shapeshifter {
             return true;
         } catch (Exception e) {
             e.printStackTrace();
+            VpnStatus.logError("SHAPESHIFTER ERROR " + e.getLocalizedMessage());
         }
         return false;
     }
+
+    static class ShapeshifterErrorListner extends AsyncTask<ShapeShifter, Void, Void> {
+        @Override
+        protected Void doInBackground(ShapeShifter... shapeShifters) {
+            ShapeShifter shapeshifter = shapeShifters[0];
+            try {
+                shapeshifter.getLastError();
+            } catch (Exception e) {
+                e.printStackTrace();
+                VpnStatus.logError("SHAPESHIFTER ERROR " + e.getLocalizedMessage());
+                try {
+                    shapeshifter.close();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    VpnStatus.logError("SHAPESHIFTER ERROR " + e.getLocalizedMessage());
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+    }
+
 }
