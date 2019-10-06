@@ -10,8 +10,13 @@ else
     curl -o $GO_VERSION.tar.gz https://dl.google.com/go/$GO_VERSION.tar.gz
 fi
 
-if [[ $(ls -A ./golang/*) ]]
+if [[ -d ./golang ]]
 then
-    rm -r ./golang/*
+    if [[ $(ls -A ./golang/*) ]]
+    then
+        rm -r ./golang/*
+    fi
+else
+    mkdir ./golang
 fi
 tar -C ./golang -xzf $GO_VERSION.tar.gz
