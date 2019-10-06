@@ -312,7 +312,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void initExcludeAppsEntry() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             IconTextEntry excludeApps = drawerView.findViewById(R.id.exclude_apps);
             excludeApps.setVisibility(VISIBLE);
             FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
