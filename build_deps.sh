@@ -32,6 +32,6 @@ else
     echo "Clean build: compiling Go libraries"
     cd ./go || quit "Directory go not found"
     ./install_go.sh || quit "install_go.sh failed"
-    ./android_build_shapeshifter_lib.sh || quit "android_build_shapeshifter_dispatcher.sh failed"
+    ./android_build_shapeshifter.sh createLibrary || quit "android_build_shapeshifter_dispatcher.sh failed"
     cd ..
 fi

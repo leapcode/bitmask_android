@@ -11,7 +11,7 @@ function quit {
     exit 1
 }
 
-if [ "$1" == "removeall" ]; then
+if [ "$1" == "removeAll" ]; then
         echo "removing golang, sources and generated files"
         for folder in /tmp/android-toolchain-*; do
                 if [[ -d $folder ]]; then
@@ -51,9 +51,9 @@ elif [ "$1" == "clean" ]; then
         fi
         echo "Done!"
 else
-        if [[ "$1" == "--library" ]]; then
-            BUILD_LIBRARY=true;
-        fi;
+        if [[ "$1" == "createLibrary" ]]; then
+            BUILD_LIBRARY=true
+        fi
 
         if [ -z $ANDROID_NDK_HOME ]; then
                 echo "Android NDK path not specified!"
@@ -122,7 +122,8 @@ else
                 echo "Starting compilation for $suffix..."
 
                 if [[ BUILD_LIBRARY ]]; then
-                    ./golang/go/bin/go build -buildmode=pie -ldflags '-w -s -extldflags=-pie' -o ./out/${suffix}/piedispatcherlib se.leap.bitmaskclient/shapeshifter || quit "Failed to cross-compile shapeshifter-dispatcher-library"
+                    ./android_build_shapeshifter_lib.sh || quit "Failed to cross-compile shapeshifter-dispatcher-library"
+
                 else
                     ./golang/go/bin/go build -buildmode=pie -ldflags '-w -s -extldflags=-pie' -o ./out/${suffix}/piedispatcher github.com/OperatorFoundation/shapeshifter-dispatcher/shapeshifter-dispatcher || quit "Failed to cross-compile shapeshifter-dispatcher"
                 fi
