@@ -12,8 +12,10 @@ if [ -z $ANDROID_NDK_HOME ]; then
 fi
 
 ./golang/go/bin/go env
+echo "getting gomobile..."
 ./golang/go/bin/go get golang.org/x/mobile/cmd/gomobile
-
+echo "initiating gomobile..."
 ./bin/gomobile init
+echo "cross compiling shapeshifter lib..."
 ./bin/gomobile bind -target=android -o ./lib/shapeshifter.aar se.leap.bitmaskclient/shapeshifter/
 cp lib/shapeshifter* ../shapeshifter/.
