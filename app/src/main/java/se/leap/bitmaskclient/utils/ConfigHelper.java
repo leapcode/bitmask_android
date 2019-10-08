@@ -116,7 +116,7 @@ public class ConfigHelper {
     public static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {
         RSAPrivateKey key;
         try {
-            KeyFactory kf = KeyFactory.getInstance("RSA", "BC");
+            KeyFactory kf = KeyFactory.getInstance("RSA");
             rsaKeyString = rsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(rsaKeyString));
             key = (RSAPrivateKey) kf.generatePrivate(keySpec);
@@ -125,10 +125,6 @@ public class ConfigHelper {
             e.printStackTrace();
             return null;
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        } catch (NoSuchProviderException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return null;
