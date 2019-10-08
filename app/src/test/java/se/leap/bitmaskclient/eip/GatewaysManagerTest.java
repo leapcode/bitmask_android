@@ -50,7 +50,7 @@ public class GatewaysManagerTest {
         when(sharedPreferences.getString(eq(Constants.PROVIDER_VPN_CERTIFICATE), anyString())).thenReturn(secrets.getString(Constants.PROVIDER_VPN_CERTIFICATE));
 
 
-        gatewaysManager = new GatewaysManager(sharedPreferences);
+        gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
     }
 
     @Test
