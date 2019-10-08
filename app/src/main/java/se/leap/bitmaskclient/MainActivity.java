@@ -39,6 +39,7 @@ import java.util.Observer;
 import se.leap.bitmaskclient.drawer.NavigationDrawerFragment;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.fragments.LogFragment;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
@@ -186,6 +187,9 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
 
             storeProviderInPreferences(preferences, provider);
             ProviderObservable.getInstance().updateProvider(provider);
+            if (!provider.supportsPluggableTransports()) {
+                PreferenceHelper.usePluggableTransports(this, false);
+            }
             navigationDrawerFragment.refresh();
 
             switch (requestCode) {
