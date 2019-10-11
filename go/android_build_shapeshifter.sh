@@ -61,6 +61,12 @@ else
                 exit 1;
         fi
 
+        if [[ ! -f ./bin/gomobile && $BUILD_LIBRARY == true ]]; then
+            echo "gomobile not installed"
+            echo please run "install_go.sh first"
+            exit 1
+        fi
+
         # Our targets are x86, x86_64, armeabi, armeabi-v7a, armv8;
         # To remove targets, simply delete them from the bracket.
         # NOTE: We are only currently shipping the armeabi-v7a binary
@@ -122,7 +128,10 @@ else
                 echo "Starting compilation for $suffix..."
 
                 if [[ BUILD_LIBRARY ]]; then
-                    ./android_build_shapeshifter_lib.sh || quit "Failed to cross-compile shapeshifter-dispatcher-library"
+                echo "cross compiling shapeshifter lib..."
+                ./bin/gomobile bind -target=android -o ./lib/shapeshifter.aar se.leap.bitmaskclient/shapeshifter/
+                cp lib/shapeshifter* ../shapeshifter/.
+                    #./android_build_shapeshifter_lib.sh || quit "Failed to cross-compile shapeshifter-dispatcher-library"
 
                 else
                     ./golang/go/bin/go build -buildmode=pie -ldflags '-w -s -extldflags=-pie' -o ./out/${suffix}/piedispatcher github.com/OperatorFoundation/shapeshifter-dispatcher/shapeshifter-dispatcher || quit "Failed to cross-compile shapeshifter-dispatcher"
