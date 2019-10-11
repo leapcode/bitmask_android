@@ -44,6 +44,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Set;
+
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.FragmentManagerEnhanced;
@@ -57,6 +59,7 @@ import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.ExcludeAppsFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconSwitchEntry;
 import se.leap.bitmaskclient.views.IconTextEntry;
 
@@ -315,6 +318,10 @@ public class NavigationDrawerFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             IconTextEntry excludeApps = drawerView.findViewById(R.id.exclude_apps);
             excludeApps.setVisibility(VISIBLE);
+            Set<String> apps = PreferenceHelper.getExcludedApps(this.getContext());
+            if (apps != null) {
+                updateExcludeAppsSubtitle(excludeApps, apps.size());
+            }
             FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
             excludeApps.setOnClickListener((buttonView) -> {
                 closeDrawer();
@@ -525,4 +532,19 @@ public class NavigationDrawerFragment extends Fragment {
         initUseBridgesEntry();
     }
 
+    private void updateExcludeAppsSubtitle(IconTextEntry excludeApps, int number) {
+        if (number > 0) {
+            excludeApps.setSubtitle(getContext().getResources().getQuantityString(R.plurals.subtitle_exclude_apps, number, number));
+            excludeApps.setSubtitleColor(R.color.colorError);
+        } else {
+            excludeApps.hideSubtitle();
+        }
+    }
+
+    public void onAppsExcluded(int number) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            IconTextEntry excludeApps = drawerView.findViewById(R.id.exclude_apps);
+            updateExcludeAppsSubtitle(excludeApps, number);
+        }
+    }
 }

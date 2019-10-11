@@ -118,5 +118,8 @@
   <string name="nav_drawer_obfuscated_connection">Using Bridges</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">Circumvent VPN filtering</string>
   <string name="warning_exclude_apps_message">Be careful of excluding apps from VPN. This will reveal your identity and compromise your security.</string>
-
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d unprotected app</item>
+    <item quantity="other">%d unprotected apps</item>
+  </plurals>
 </resources>

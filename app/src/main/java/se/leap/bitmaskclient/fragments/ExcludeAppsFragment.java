@@ -7,12 +7,11 @@ package se.leap.bitmaskclient.fragments;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,14 +30,12 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
 
 import de.blinkt.openvpn.VpnProfile;
-
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
@@ -50,9 +47,21 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     private VpnProfile mProfile;
     private PackageAdapter mListAdapter;
 
-    private SharedPreferences allow_apps;
-    private SharedPreferences.Editor allow_apps_editor;
     private Set<String> apps;
+
+    public interface ExcludedAppsCallback {
+        void onAppsExcluded(int number);
+    }
+
+    private ExcludedAppsCallback callback;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof ExcludedAppsCallback) {
+            callback = (ExcludedAppsCallback) context;
+        }
+    }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -82,9 +91,9 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
                 // we want to bind data to.
                 AppViewHolder holder = new AppViewHolder();
                 holder.rootView = convertView;
-                holder.appName = (TextView) convertView.findViewById(R.id.app_name);
-                holder.appIcon = (ImageView) convertView.findViewById(R.id.app_icon);
-                holder.checkBox = (CompoundButton) convertView.findViewById(R.id.app_selected);
+                holder.appName = convertView.findViewById(R.id.app_name);
+                holder.appIcon = convertView.findViewById(R.id.app_icon);
+                holder.checkBox = convertView.findViewById(R.id.app_selected);
                 convertView.setTag(holder);
 
                 return holder;
@@ -110,8 +119,10 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
             apps.remove(packageName);
         }
 
+        if (callback != null) {
+            callback.onAppsExcluded(apps.size());
+        }
     }
-
 
     class PackageAdapter extends BaseAdapter implements Filterable {
         private Vector<ApplicationInfo> mPackages;
@@ -295,13 +306,10 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
                 return true;
             }
         });
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                mListView.clearTextFilter();
-                mListAdapter.getFilter().filter("");
-                return false;
-            }
+        searchView.setOnCloseListener(() -> {
+            mListView.clearTextFilter();
+            mListAdapter.getFilter().filter("");
+            return false;
         });
 
         super.onCreateOptionsMenu(menu, inflater);
@@ -319,12 +327,7 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
 
         mListView.setEmptyView(v.findViewById(R.id.loading_container));
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mListAdapter.populateList(getActivity());
-            }
-        }).start();
+        new Thread(() -> mListAdapter.populateList(getActivity())).start();
 
         return v;
     }

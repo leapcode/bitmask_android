@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -79,6 +80,19 @@ public class IconTextEntry extends LinearLayout {
 
     public void setText(@StringRes int id) {
         textView.setText(id);
+    }
+
+    public void setSubtitle(String text) {
+        subtitleView.setText(text);
+        subtitleView.setVisibility(VISIBLE);
+    }
+
+    public void hideSubtitle() {
+        subtitleView.setVisibility(GONE);
+    }
+
+    public void setSubtitleColor(@ColorRes int color) {
+        subtitleView.setTextColor(getContext().getResources().getColor(color));
     }
 
     public void setText(CharSequence text) {

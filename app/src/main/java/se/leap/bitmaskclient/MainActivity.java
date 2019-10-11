@@ -24,10 +24,8 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -38,6 +36,7 @@ import java.util.Observer;
 
 import se.leap.bitmaskclient.drawer.NavigationDrawerFragment;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.fragments.ExcludeAppsFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
@@ -60,7 +59,7 @@ import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.storeProviderInPreferences;
 
 
-public class MainActivity extends AppCompatActivity implements EipSetupListener, Observer {
+public class MainActivity extends AppCompatActivity implements EipSetupListener, Observer, ExcludeAppsFragment.ExcludedAppsCallback {
 
     public final static String TAG = MainActivity.class.getSimpleName();
 
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_main);
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.toolbar));
 
         navigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -88,10 +87,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         provider = ProviderObservable.getInstance().getCurrentProvider();
 
         // Set up the drawer.
-        navigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
-
+        navigationDrawerFragment.setUp(R.id.navigation_drawer, findViewById(R.id.drawer_layout));
         handleIntentAction(getIntent());
     }
 
@@ -306,5 +302,11 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
             intent.putExtra(USER_MESSAGE, userMessage);
         }
         startActivityForResult(intent, REQUEST_CODE_LOG_IN);
+    }
+
+
+    @Override
+    public void onAppsExcluded(int number) {
+        navigationDrawerFragment.onAppsExcluded(number);
     }
 }
