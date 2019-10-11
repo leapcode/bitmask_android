@@ -17,6 +17,10 @@
         android:textStyle="bold"
         android:textColor="@color/colorWarning"
         android:textAppearance="?android:attr/textAppearanceMedium"
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
         android:text="@string/warning_exclude_apps_message" />
 
     <View
