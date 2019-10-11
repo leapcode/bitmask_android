@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.ProviderApiConnector;
@@ -407,6 +408,10 @@ public class ProviderApiManagerTest {
 
     @Test
     public void test_handleIntentSetupProvider_failingEipServiceFetch_failedConfiguration() throws IOException, NoSuchAlgorithmException, CertificateEncodingException {
+        if ("insecure".equals(BuildConfig.FLAVOR_implementation )) {
+            return;
+        }
+
         Provider provider = new Provider("https://riseup.net");
 
         mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
