@@ -55,6 +55,11 @@ unit_test:
   stage: test
   script:
     - ./gradlew test
+  artifacts:
+    paths:
+      - app/build/reports/tests
+    when: on_failure
+    expire_in: 3 days
 
 #ui_test:
 #  image: "0xacab.org:4567/leap/bitmask_android/android-emulator:latest"
