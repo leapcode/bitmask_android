@@ -216,6 +216,11 @@ public class VpnStatus {
         }
     }
 
+    public enum ErrorType {
+        UNKNOWN,
+        SHAPESHIFTER
+    }
+
     // keytool -printcert -jarfile de.blinkt.openvpn_85.apk
     static final byte[] officalkey = {-58, -42, -44, -106, 90, -88, -87, -88, -52, -124, 84, 117, 66, 79, -112, -111, -46, 86, -37, 109};
     static final byte[] officaldebugkey = {-99, -69, 45, 71, 114, -116, 82, 66, -99, -122, 50, -70, -56, -111, 98, -35, -65, 105, 82, 43};
@@ -500,6 +505,10 @@ public class VpnStatus {
 
     public static void logError(int resourceId, Object... args) {
         newLogItem(new LogItem(LogLevel.ERROR, resourceId, args));
+    }
+
+    public static void logError(ErrorType errorType) {
+        newLogItem(new LogItem(errorType));
     }
 
     public static void logMessageOpenVPN(LogLevel level, int ovpnlevel, String message) {

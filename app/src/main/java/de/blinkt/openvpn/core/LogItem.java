@@ -39,6 +39,7 @@ public class LogItem implements Parcelable {
     private int mRessourceId;
     // Default log priority
     VpnStatus.LogLevel mLevel = VpnStatus.LogLevel.INFO;
+    private VpnStatus.ErrorType errorType = VpnStatus.ErrorType.UNKNOWN;
     private long logtime = System.currentTimeMillis();
     private int mVerbosityLevel = -1;
 
@@ -246,6 +247,11 @@ public class LogItem implements Parcelable {
         mLevel = loglevel;
     }
 
+    public LogItem(VpnStatus.ErrorType errorType) {
+        mLevel = VpnStatus.LogLevel.ERROR;
+        this.errorType = errorType;
+    }
+
     public String getString(Context c) {
         try {
             if (mMessage != null) {
@@ -304,6 +310,10 @@ public class LogItem implements Parcelable {
 
     public VpnStatus.LogLevel getLogLevel() {
         return mLevel;
+    }
+
+    public VpnStatus.ErrorType getErrorType() {
+        return errorType;
     }
 
 
