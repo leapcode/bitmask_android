@@ -75,9 +75,10 @@ import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.R.string.warning_client_parsing_error_gateways;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.NO_MORE_GATEWAYS;
 import static se.leap.bitmaskclient.utils.ConfigHelper.ensureNotOnMainThread;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
 
@@ -109,6 +110,12 @@ public final class EIP extends JobIntentService implements Observer {
      * Unique job ID for this service.
      */
     static final int JOB_ID = 1312;
+
+    public enum EIPErrors {
+        UNKNOWN,
+        ERROR_INVALID_VPN_CERTIFICATE,
+        NO_MORE_GATEWAYS
+    }
 
     /**
      * Convenience method for enqueuing work in to this service.
@@ -218,7 +225,8 @@ public final class EIP extends JobIntentService implements Observer {
         if (launchActiveGateway(gateway, nClosestGateway)) {
             tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_OK);
         } else {
-            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED);
+            setErrorResult(result, NO_MORE_GATEWAYS.toString());
+            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED, result);
         }
     }
 
@@ -263,7 +271,6 @@ public final class EIP extends JobIntentService implements Observer {
         intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, nClosestGateway);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         return true;
-
     }
 
     /**
@@ -295,9 +302,7 @@ public final class EIP extends JobIntentService implements Observer {
      * @return GatewaysManager
      */
     private GatewaysManager gatewaysFromPreferences() {
-        GatewaysManager gatewaysManager = new GatewaysManager(getApplicationContext(), preferences);
-        gatewaysManager.configureFromPreferences();
-        return gatewaysManager;
+        return new GatewaysManager(getApplicationContext(), preferences);
     }
 
     /**
@@ -385,7 +390,28 @@ public final class EIP extends JobIntentService implements Observer {
     }
 
     /**
-     * disable Bitmask starting on after phone reboot
+     * Helper function to add an error to result bundle.
+     * Error results set by this method will be handled as
+     * internal errors without any user interaction
+     * (Setting only ERROR_ID but no ERRORS in the errorjson
+     * will be ignored in MainActivity)
+     *
+     * @param result         - result of an action
+     * @param errorId        - error identifier
+     */
+    void setErrorResult(Bundle result, String errorId) {
+        JSONObject errorJson = new JSONObject();
+        try {
+            errorJson.put(ERROR_ID, errorId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        result.putString(ERRORS, errorJson.toString());
+        result.putBoolean(BROADCAST_RESULT_KEY, false);
+    }
+
+    /**
+     * disable Bitmask starting after phone reboot
      * then stop VPN
      */
     private boolean stop() {

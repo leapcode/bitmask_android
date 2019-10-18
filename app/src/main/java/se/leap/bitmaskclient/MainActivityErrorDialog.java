@@ -17,7 +17,6 @@
 package se.leap.bitmaskclient;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,9 +25,11 @@ import android.support.v7.app.AlertDialog;
 
 import org.json.JSONObject;
 
-import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.DEFAULT;
-import static se.leap.bitmaskclient.MainActivityErrorDialog.DOWNLOAD_ERRORS.valueOf;
+import se.leap.bitmaskclient.eip.EIP;
+
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.UNKNOWN;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.valueOf;
 import static se.leap.bitmaskclient.eip.EIP.ERRORS;
 import static se.leap.bitmaskclient.eip.EIP.ERROR_ID;
 
@@ -44,14 +45,9 @@ public class MainActivityErrorDialog extends DialogFragment {
     final private static String KEY_REASON_TO_FAIL = "key reason to fail";
     final private static String KEY_PROVIDER = "key provider";
     private String reasonToFail;
-    private DOWNLOAD_ERRORS downloadError = DEFAULT;
+    private EIP.EIPErrors downloadError = UNKNOWN;
 
     private Provider provider;
-
-    public enum DOWNLOAD_ERRORS {
-        DEFAULT,
-        ERROR_INVALID_VPN_CERTIFICATE,
-    }
 
     /**
      * @return a new instance of this DialogFragment.
@@ -98,18 +94,12 @@ public class MainActivityErrorDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(reasonToFail)
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            }
-        });
+                .setNegativeButton(R.string.cancel, (dialog, id) -> {
+                });
         switch (downloadError) {
             case ERROR_INVALID_VPN_CERTIFICATE:
-                builder.setPositiveButton(R.string.update_certificate, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider);
-                    }
-                });
+                builder.setPositiveButton(R.string.update_certificate, (dialog, which) ->
+                        ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider));
                 break;
             default:
                 break;
