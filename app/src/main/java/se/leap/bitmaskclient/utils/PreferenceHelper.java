@@ -218,7 +218,7 @@ public class PreferenceHelper {
         if (context == null) {
             return false;
         }
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         return preferences.getBoolean(USE_PLUGGABLE_TRANSPORTS, false);
     }
 
@@ -226,7 +226,7 @@ public class PreferenceHelper {
         if (context == null) {
             return;
         }
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putBoolean(USE_PLUGGABLE_TRANSPORTS, isEnabled).apply();
     }
 
@@ -234,7 +234,7 @@ public class PreferenceHelper {
         if (context == null) {
             return;
         }
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putBoolean(DEFAULT_SHARED_PREFS_BATTERY_SAVER, isEnabled).apply();
     }
 
@@ -242,7 +242,7 @@ public class PreferenceHelper {
         if (context == null) {
             return false;
         }
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         return preferences.getBoolean(DEFAULT_SHARED_PREFS_BATTERY_SAVER, false);
     }
 
