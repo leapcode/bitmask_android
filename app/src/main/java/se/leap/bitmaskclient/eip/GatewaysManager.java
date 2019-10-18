@@ -33,12 +33,15 @@ import java.util.LinkedHashMap;
 
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.Constants.GATEWAYS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
 
 /**
  * @author parmegv
@@ -52,8 +55,14 @@ public class GatewaysManager {
     private LinkedHashMap<String, Gateway> gateways = new LinkedHashMap<>();
     private Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
 
-    GatewaysManager(Context context, SharedPreferences preferences) {
+    public GatewaysManager(Context context, SharedPreferences preferences) {
         this.preferences = preferences;
+        this.context = context;
+        configureFromPreferences();
+    }
+
+    public GatewaysManager(Context context) {
+        configureFromCurrentProvider();
         this.context = context;
     }
 
@@ -90,7 +99,7 @@ public class GatewaysManager {
      * parse gateways from eipDefinition
      * @param eipDefinition eipServiceJson
      */
-    void fromEipServiceJson(JSONObject eipDefinition) {
+     private void fromEipServiceJson(JSONObject eipDefinition, JSONObject secrets) {
         JSONArray gatewaysDefined = new JSONArray();
         try {
             gatewaysDefined = eipDefinition.getJSONArray(GATEWAYS);
@@ -101,7 +110,6 @@ public class GatewaysManager {
         for (int i = 0; i < gatewaysDefined.length(); i++) {
             try {
                 JSONObject gw = gatewaysDefined.getJSONObject(i);
-                JSONObject secrets = secretsConfiguration();
                 Gateway aux = new Gateway(eipDefinition, secrets, gw, this.context);
                 if (gateways.get(aux.getRemoteIP()) == null) {
                     addGateway(aux);
@@ -113,12 +121,26 @@ public class GatewaysManager {
         }
     }
 
-    private JSONObject secretsConfiguration() {
+    private JSONObject secretsConfigurationFromPreferences() {
         JSONObject result = new JSONObject();
         try {
             result.put(Provider.CA_CERT, preferences.getString(Provider.CA_CERT, ""));
             result.put(PROVIDER_PRIVATE_KEY, preferences.getString(PROVIDER_PRIVATE_KEY, ""));
             result.put(PROVIDER_VPN_CERTIFICATE, preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private JSONObject secretsConfigurationFromCurrentProvider() {
+        JSONObject result = new JSONObject();
+        Provider provider = ProviderObservable.getInstance().getCurrentProvider();
+
+        try {
+            result.put(Provider.CA_CERT, provider.getCaCert());
+            result.put(PROVIDER_PRIVATE_KEY, provider.getPrivateKey());
+            result.put(PROVIDER_VPN_CERTIFICATE, provider.getVpnCertificate());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -137,9 +159,19 @@ public class GatewaysManager {
     /**
      * read EipServiceJson from preferences and set gateways
      */
-    void configureFromPreferences() {
+    private void configureFromPreferences() {
         fromEipServiceJson(
-                PreferenceHelper.getEipDefinitionFromPreferences(preferences)
+                PreferenceHelper.getEipDefinitionFromPreferences(preferences), secretsConfigurationFromPreferences()
         );
+    }
+
+    private void configureFromCurrentProvider() {
+        try {
+            JSONObject json = ProviderObservable.getInstance().getCurrentProvider().getEipServiceJson();
+            fromEipServiceJson(json, secretsConfigurationFromCurrentProvider());
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+        }
+
     }
 }
