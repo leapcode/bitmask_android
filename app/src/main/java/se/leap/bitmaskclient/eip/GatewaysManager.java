@@ -31,6 +31,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
@@ -38,6 +39,8 @@ import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.Constants.GATEWAYS;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
@@ -71,8 +74,35 @@ public class GatewaysManager {
       * @return the n closest Gateway
      */
     public Gateway select(int nClosest) {
+        Connection.TransportType transportType = getUsePluggableTransports(context) ? OBFS4 : OPENVPN;
         GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
-        return gatewaySelector.select(nClosest);
+        Gateway gateway;
+        while ((gateway = gatewaySelector.select(nClosest)) != null) {
+            if (gateway.getProfile(transportType) != null) {
+                return gateway;
+            }
+            nClosest++;
+        }
+        return null;
+    }
+
+    /**
+     * Get position of the gateway from a sorted set (along the distance of the gw to your time zone)
+     * @param profile profile belonging to a gateway
+     * @return position of the gateway owning to the profile
+     */
+    public int getPosition(VpnProfile profile) {
+        Connection.TransportType transportType = getUsePluggableTransports(context) ? OBFS4 : OPENVPN;
+        GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
+        Gateway gateway;
+        int nClosest = 0;
+        while ((gateway = gatewaySelector.select(nClosest)) != null) {
+            if (profile.equals(gateway.getProfile(transportType))) {
+                return nClosest;
+            }
+            nClosest++;
+        }
+        return -1;
     }
 
     /**
