@@ -70,6 +70,7 @@ import se.leap.bitmaskclient.R;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
+import static se.leap.bitmaskclient.utils.ConfigHelper.stringEqual;
 
 public class VpnProfile implements Serializable, Cloneable {
     // Note that this class cannot be moved to core where it belongs since
@@ -259,11 +260,11 @@ public class VpnProfile implements Serializable, Cloneable {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof VpnProfile) {
-            VpnProfile vpnProfile = (VpnProfile) obj;
-            return mUuid.equals(vpnProfile.mUuid);
-        } else {
-            return false;
+            VpnProfile vp = (VpnProfile) obj;
+            return stringEqual(vp.mGatewayIp, mGatewayIp) &&
+                    vp.mUsePluggableTransports == mUsePluggableTransports;
         }
+        return false;
     }
 
     public void clearDefaults() {

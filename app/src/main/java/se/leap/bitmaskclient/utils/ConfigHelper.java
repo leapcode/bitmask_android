@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
 import org.json.JSONException;
@@ -185,5 +186,10 @@ public class ConfigHelper {
     public static String getProviderFormattedString(Resources resources, @StringRes int resourceId) {
         String appName = resources.getString(R.string.app_name);
         return resources.getString(resourceId, appName);
+    }
+
+    public static boolean stringEqual(@Nullable String string1, @Nullable String string2) {
+        return (string1 == null && string2 == null) ||
+                (string1 != null && string1.equals(string2));
     }
 }
