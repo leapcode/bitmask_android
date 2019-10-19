@@ -387,11 +387,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if (mProfile.mUsePluggableTransports) {
             Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
             shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
-            if (!shapeshifter.start()) {
-                //TODO: implement useful error handling
-                Log.e(TAG, "Cannot initialize shapeshifter dispatcher for obfs4 connection. Shutting down.");
-                VpnStatus.logError("Cannot initialize shapeshifter dispatcher for obfs4 connection. Shutting down.");
-            }
+            shapeshifter.start();
         }
 
         VpnStatus.logInfo(R.string.building_configration);
