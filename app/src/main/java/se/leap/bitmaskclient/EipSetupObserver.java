@@ -16,13 +16,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
+import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.Gateway;
+import se.leap.bitmaskclient.eip.GatewaysManager;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
+import static android.content.Context.MODE_PRIVATE;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NOTCONNECTED;
@@ -44,7 +47,7 @@ import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromS
 /**
  * Created by cyberta on 05.12.18.
  */
-class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListener {
+class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListener, VpnStatus.LogListener {
 
     private static final String TAG = EipSetupObserver.class.getName();
 
@@ -69,6 +72,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
         updateIntentFilter.addCategory(CATEGORY_DEFAULT);
         LocalBroadcastManager.getInstance(context.getApplicationContext()).registerReceiver(this, updateIntentFilter);
         instance = this;
+        VpnStatus.addLogListener(this);
     }
 
     public static void init(Context context, SharedPreferences preferences) {
@@ -243,7 +247,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
             //saveLastProfile(context.getApplicationContext(), setupVpnProfile.getUUIDString());
             if (setupNClosestGateway.get() > 0) {
                 //at least one failed gateway -> did the provider change it's gateways?
-                SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
                 Provider provider = getSavedProviderFromSharedPreferences(preferences);
                 ProviderAPICommand.execute(context, ProviderAPI.DOWNLOAD_SERVICE_JSON, provider);
             }
@@ -276,5 +280,27 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
     @Override
     public void setConnectedVPN(String uuid) {
         observedProfileFromVpnStatus = uuid;
+    }
+
+    @Override
+    public void newLog(LogItem logItem) {
+        if (logItem.getLogLevel() == VpnStatus.LogLevel.ERROR) {
+            switch (logItem.getErrorType()) {
+                case SHAPESHIFTER:
+                    VpnProfile profile = VpnStatus.getLastConnectedVpnProfile();
+                    if (profile == null) {
+                        EipCommand.startVPN(context.getApplicationContext(), false, 0);
+                    } else {
+                        GatewaysManager gatewaysManager = new GatewaysManager(context.getApplicationContext());
+                        int position = gatewaysManager.getPosition(profile);
+                        setupNClosestGateway.set(position >= 0 ? position : 0);
+                        selectNextGateway();
+                    }
+                    break;
+                default:
+                    break;
+
+            }
+        }
     }
 }
