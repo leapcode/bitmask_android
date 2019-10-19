@@ -50,12 +50,14 @@ import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORID;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.storeProviderInPreferences;
 
 
@@ -234,9 +236,13 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
             case EIP_ACTION_START:
                 if (resultCode == RESULT_CANCELED) {
                     String error = resultData.getString(ERRORS);
+                    if (isInternalErrorHandling(error)) {
+                        return;
+                    }
+
                     if (LeapSRPSession.loggedIn() || provider.allowsAnonymous()) {
                         showMainActivityErrorDialog(error);
-                    } else {
+                    } else if (isInvalidCertificateForLoginOnlyProvider(error)) {
                         askUserToLogIn(getString(vpn_certificate_user_message));
                     }
                 }
@@ -294,6 +300,33 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
 
     }
 
+    /**
+     *
+     * @param errorJsonString
+     * @return true if errorJson is a valid json and contains only ERRORID but
+     * not an ERRORS field containing an error message
+     */
+    public boolean isInternalErrorHandling(String errorJsonString) {
+        try {
+            JSONObject errorJson = new JSONObject(errorJsonString);
+            return !errorJson.has(ERRORS) && errorJson.has(ERRORID);
+        } catch (JSONException | NullPointerException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isInvalidCertificateForLoginOnlyProvider(String errorJsonString) {
+        try {
+            JSONObject errorJson = new JSONObject(errorJsonString);
+            return  ERROR_INVALID_VPN_CERTIFICATE.toString().equals(errorJson.getString(ERRORID)) &&
+                    !LeapSRPSession.loggedIn() &&
+                    !provider.allowsAnonymous();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     private void askUserToLogIn(String userMessage) {
         Intent intent = new Intent(this, LoginActivity.class);
