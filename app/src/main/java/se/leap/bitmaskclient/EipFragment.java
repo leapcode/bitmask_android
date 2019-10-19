@@ -385,7 +385,7 @@ public class EipFragment extends Fragment implements Observer {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
             setMainButtonEnabled(true);
             vpnStateImage.setStateIcon(R.drawable.vpn_connected);
-            vpnStateImage.stopProgress(true);
+            vpnStateImage.stopProgress(false);
             routedText.setText(R.string.vpn_securely_routed);
             routedText.setVisibility(VISIBLE);
             vpnRoute.setVisibility(VISIBLE);
@@ -395,7 +395,7 @@ public class EipFragment extends Fragment implements Observer {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_off));
             setMainButtonEnabled(true);
             vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
-            vpnStateImage.stopProgress(true);
+            vpnStateImage.stopProgress(false);
             routedText.setText(R.string.vpn_securely_routed_no_internet);
             routedText.setVisibility(VISIBLE);
             vpnRoute.setVisibility(VISIBLE);
