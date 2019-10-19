@@ -18,15 +18,6 @@
               "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX2",
               "iat-mode": "0"
             }
-          },
-          {
-            "type":"openvpn",
-            "protocols":[
-              "tcp"
-            ],
-            "ports":[
-              "1195"
-            ]
           }
         ],
         "user_ips":false
@@ -34,29 +25,6 @@
       "host":"moscow.bitmask.net",
       "ip_address":"3.21.247.89",
       "location":"moscow"
-    },
-    {
-      "capabilities":{
-        "adblock":false,
-        "filter_dns":false,
-        "limited":false,
-        "transport":[
-          {
-            "type":"openvpn",
-            "protocols":[
-              "tcp",
-              "udp"
-            ],
-            "ports":[
-              "1195"
-            ]
-          }
-        ],
-        "user_ips":false
-      },
-      "host":"manila.bitmask.net",
-      "ip_address":"37.12.247.10",
-      "location":"manila"
     }
   ],
   "locations":{
@@ -65,12 +33,6 @@
       "hemisphere":"N",
       "name":"Amsterdam",
       "timezone":"-1"
-    },
-    "moscow": {
-      "country_code": "RU",
-      "hemisphere": "N",
-      "name": "Moscow",
-      "timezone": "+3"
     }
   },
   "openvpn_configuration":{

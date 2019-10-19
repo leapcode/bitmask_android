@@ -16,6 +16,8 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import android.support.annotation.VisibleForTesting;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -111,7 +113,8 @@ public class VpnConfigGenerator {
                 + secretsConfiguration();
     }
 
-    private VpnProfile createProfile(Connection.TransportType transportType) throws IOException, ConfigParser.ConfigParseError, JSONException {
+    @VisibleForTesting
+    protected VpnProfile createProfile(Connection.TransportType transportType) throws IOException, ConfigParser.ConfigParseError, JSONException {
         String configuration = getConfigurationString(transportType);
         ConfigParser icsOpenvpnConfigParser = new ConfigParser();
         icsOpenvpnConfigParser.parseConfig(new StringReader(configuration));

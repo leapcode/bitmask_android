@@ -35,6 +35,7 @@ import java.util.Set;
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.OkHttpClientGenerator;
 import se.leap.bitmaskclient.Provider;
+import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider;
 import se.leap.bitmaskclient.testutils.matchers.BundleMatcher;
@@ -58,6 +59,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.utils.FileHelper.createFile;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getEipDefinitionFromPreferences;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getFromPersistedProvider;
 
 /**
@@ -400,6 +402,24 @@ public class MockHelper {
                 return null;
             }
         });
+    }
+
+    public static void mockPreferenceHelper(MockSharedPreferences preferences) {
+        mockStatic(PreferenceHelper.class);
+
+        when(getEipDefinitionFromPreferences(any(SharedPreferences.class))).thenAnswer(new Answer<JSONObject>() {
+            @Override
+            public JSONObject answer(InvocationOnMock invocation) throws Throwable {
+                return getEipDefinitionFromPreferences(preferences);
+            }
+        });
+    }
+
+    public static void mockProviderObserver(Provider provider) {
+        ProviderObservable observable = ProviderObservable.getInstance();
+        observable.updateProvider(provider);
+        mockStatic(ProviderObservable.class);
+        when(ProviderObservable.getInstance()).thenAnswer((Answer<ProviderObservable>) invocation -> observable);
     }
 
     public static void mockFingerprintForCertificate(String mockedFingerprint) throws CertificateEncodingException, NoSuchAlgorithmException {
