@@ -168,6 +168,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                 if (resultCode == RESULT_CANCELED) {
                     //setup failed
                     finishGatewaySetup(false);
+                    EipCommand.stopVPN(context);
                     EipStatus.refresh();
                 }
                 break;
@@ -178,7 +179,6 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
         for (EipSetupListener listener : listeners) {
             listener.handleEipEvent(intent);
         }
-
     }
 
     private void handleGatewaySetupObserverEvent(Intent event) {
