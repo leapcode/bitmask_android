@@ -289,6 +289,9 @@ public class NavigationDrawerFragment extends Fragment {
         saveBattery = drawerView.findViewById(R.id.battery_switch);
         saveBattery.setChecked(getSaveBattery(getContext()));
         saveBattery.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+            if (!buttonView.isPressed()) {
+                return;
+            }
             if (isChecked) {
                 showExperimentalFeatureAlert();
             } else {
