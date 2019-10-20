@@ -18,6 +18,7 @@ package se.leap.bitmaskclient.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -117,7 +118,12 @@ public class ConfigHelper {
     public static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {
         RSAPrivateKey key;
         try {
-            KeyFactory kf = KeyFactory.getInstance("RSA");
+            KeyFactory kf;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+               kf = KeyFactory.getInstance("RSA", "BC");
+            } else {
+                kf = KeyFactory.getInstance("RSA");
+            }
             rsaKeyString = rsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(rsaKeyString));
             key = (RSAPrivateKey) kf.generatePrivate(keySpec);
@@ -130,6 +136,9 @@ public class ConfigHelper {
             e.printStackTrace();
             return null;
         } catch (NullPointerException e) {
+            e.printStackTrace();
+            return null;
+        } catch (NoSuchProviderException e) {
             e.printStackTrace();
             return null;
         }
