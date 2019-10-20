@@ -47,6 +47,7 @@ import android.view.ViewGroup;
 import java.util.Set;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.MainActivity;
@@ -87,7 +88,7 @@ import static se.leap.bitmaskclient.utils.PreferenceHelper.usePluggableTransport
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
@@ -127,6 +128,7 @@ public class NavigationDrawerFragment extends Fragment {
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         userLearnedDrawer = preferences.getBoolean(PREF_USER_LEARNED_DRAWER, false);
+        preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -163,6 +165,8 @@ public class NavigationDrawerFragment extends Fragment {
         super.onPause();
         wasPaused = true;
     }
+
+
 
     /**
      * Users of this fragment must call this method to set up the navigation drawer interactions.
@@ -272,6 +276,9 @@ public class NavigationDrawerFragment extends Fragment {
             useBridges.setVisibility(VISIBLE);
             useBridges.setChecked(getUsePluggableTransports(getContext()));
             useBridges.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (!buttonView.isPressed()) {
+                    return;
+                }
                 usePluggableTransports(getContext(), isChecked);
                 if (VpnStatus.isVPNActive()) {
                     EipCommand.startVPN(getContext(), true);
@@ -499,6 +506,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         getRefWatcher(getActivity()).watch(this);
+        preferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     /**
@@ -548,6 +556,13 @@ public class NavigationDrawerFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             IconTextEntry excludeApps = drawerView.findViewById(R.id.exclude_apps);
             updateExcludeAppsSubtitle(excludeApps, number);
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(Constants.USE_PLUGGABLE_TRANSPORTS)) {
+            initUseBridgesEntry();
         }
     }
 }

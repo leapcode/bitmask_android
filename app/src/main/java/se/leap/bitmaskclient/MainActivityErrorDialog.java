@@ -17,6 +17,7 @@
 package se.leap.bitmaskclient;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,12 +27,17 @@ import android.support.v7.app.AlertDialog;
 import org.json.JSONObject;
 
 import se.leap.bitmaskclient.eip.EIP;
+import se.leap.bitmaskclient.eip.EipCommand;
 
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.R.string.warning_option_try_ovpn;
+import static se.leap.bitmaskclient.R.string.warning_option_try_pt;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.UNKNOWN;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.valueOf;
 import static se.leap.bitmaskclient.eip.EIP.ERRORS;
 import static se.leap.bitmaskclient.eip.EIP.ERROR_ID;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.usePluggableTransports;
 
 /**
  * Implements an error dialog for the main activity.
@@ -101,6 +107,29 @@ public class MainActivityErrorDialog extends DialogFragment {
                 builder.setPositiveButton(R.string.update_certificate, (dialog, which) ->
                         ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider));
                 break;
+            case NO_MORE_GATEWAYS:
+                Context context = getContext();
+                if (context != null) {
+                    Context applicationContext = context.getApplicationContext();
+                    if (provider.supportsPluggableTransports()) {
+                        if (getUsePluggableTransports(applicationContext)) {
+                            builder.setPositiveButton(warning_option_try_ovpn, ((dialog, which) -> {
+                                usePluggableTransports(applicationContext, false);
+                                EipCommand.startVPN(applicationContext.getApplicationContext(), false);
+                            }));
+                        } else {
+                            builder.setPositiveButton(warning_option_try_pt, ((dialog, which) -> {
+                                usePluggableTransports(applicationContext, true);
+                                EipCommand.startVPN(applicationContext.getApplicationContext(), false);
+                            }));
+                        }
+                    } else {
+                        builder.setPositiveButton(R.string.retry,(dialog, which) -> {
+                            EipCommand.startVPN(applicationContext.getApplicationContext(), false);
+                        });
+                    }
+                }
+
             default:
                 break;
         }

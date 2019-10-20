@@ -122,4 +122,9 @@
     <item quantity="one">%d unprotected app</item>
     <item quantity="other">%d unprotected apps</item>
   </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s could not connect. It might be that vpn connections get blocked. Do you want to try to connect using obfuscated connections?</string>
+  <string name="warning_no_more_gateways_no_pt">%s could not connect. Do you want to retry?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s could not connect using obfuscated vpn connections. Do you want to try to connect using a standard vpn?</string>
+  <string name="warning_option_try_pt">Try obfuscated connection</string>
+  <string name="warning_option_try_ovpn">Try standard connection</string>
 </resources>

@@ -50,7 +50,10 @@ import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.OnBootReceiver;
+import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.utils.ConfigHelper;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -225,7 +228,7 @@ public final class EIP extends JobIntentService implements Observer {
         if (launchActiveGateway(gateway, nClosestGateway)) {
             tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_OK);
         } else {
-            setErrorResult(result, NO_MORE_GATEWAYS.toString());
+            setErrorResult(result, NO_MORE_GATEWAYS.toString(), getStringResourceForNoMoreGateways(), getString(R.string.app_name));
             tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED, result);
         }
     }
@@ -378,30 +381,25 @@ public final class EIP extends JobIntentService implements Observer {
      * @param errorId        - MainActivityErrorDialog DownloadError id
      */
     void setErrorResult(Bundle result, @StringRes int errorMessageId, String errorId) {
-        JSONObject errorJson = new JSONObject();
-        try {
-            errorJson.put(ERRORS, getResources().getString(errorMessageId));
-            errorJson.put(ERROR_ID, errorId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        result.putString(ERRORS, errorJson.toString());
-        result.putBoolean(BROADCAST_RESULT_KEY, false);
+        setErrorResult(result, errorId, errorMessageId, (Object[]) null);
     }
 
+
     /**
-     * Helper function to add an error to result bundle.
-     * Error results set by this method will be handled as
-     * internal errors without any user interaction
-     * (Setting only ERROR_ID but no ERRORS in the errorjson
-     * will be ignored in MainActivity)
+     * helper function to add error to result bundle
      *
      * @param result         - result of an action
-     * @param errorId        - error identifier
+     * @param errorMessageId - id of string resource describing the error
+     * @param errorId        - MainActivityErrorDialog DownloadError id
      */
-    void setErrorResult(Bundle result, String errorId) {
+    void setErrorResult(Bundle result, String errorId, @StringRes int errorMessageId, Object... args) {
         JSONObject errorJson = new JSONObject();
         try {
+            if (args != null) {
+                errorJson.put(ERRORS, getResources().getString(errorMessageId, args));
+            } else {
+                errorJson.put(ERRORS, getResources().getString(errorMessageId));
+            }
             errorJson.put(ERROR_ID, errorId);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -449,6 +447,19 @@ public final class EIP extends JobIntentService implements Observer {
             VpnStatus.logException(e);
         }
         return false;
+    }
+
+
+    private @StringRes int getStringResourceForNoMoreGateways() {
+        if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
+            if (PreferenceHelper.getUsePluggableTransports(getApplicationContext())) {
+                return R.string.warning_no_more_gateways_use_ovpn;
+            } else {
+                return R.string.warning_no_more_gateways_use_pt;
+            }
+        } else {
+            return R.string.warning_no_more_gateways_no_pt;
+        }
     }
 
     /**
