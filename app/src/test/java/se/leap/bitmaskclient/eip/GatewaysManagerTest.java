@@ -52,8 +52,6 @@ import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
 @PrepareForTest({ProviderObservable.class, Log.class, PreferenceHelper.class, ConfigHelper.class})
 public class GatewaysManagerTest {
 
-    private GatewaysManager gatewaysManager;
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Context mockContext;
 
@@ -78,14 +76,14 @@ public class GatewaysManagerTest {
 
     @Test
     public void testFromEipServiceJson_emptyJson() throws Exception {
-        gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
         assertEquals(0, gatewaysManager.size());
     }
 
     @Test
     public void testFromEipServiceJson_ignoreGatewaysWithMisconfiguredTransportsWhileAddingValidOnes() throws Exception {
         updateEipServiceJson("ptdemo_misconfigured_mixed_gateways.json");
-        gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
         assertEquals(1, gatewaysManager.size());
         assertNull(gatewaysManager.select(0).getProfile(OBFS4));
         assertNotNull(gatewaysManager.select(0).getProfile(Connection.TransportType.OPENVPN));
@@ -94,7 +92,7 @@ public class GatewaysManagerTest {
     @Test
     public void testClearGatewaysAndProfiles_resetGateways() throws Exception {
         updateEipServiceJson("eip-service-two-gateways.json");
-        gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
         assertEquals(2, gatewaysManager.size());
         gatewaysManager.clearGateways();
         assertEquals(0, gatewaysManager.size());
@@ -102,7 +100,7 @@ public class GatewaysManagerTest {
 
     @Test
     public void testGatewayManagerFromCurrentProvider_noProvider_noGateways() {
-        gatewaysManager = new GatewaysManager(mockContext);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(0, gatewaysManager.size());
     }
 
@@ -110,7 +108,7 @@ public class GatewaysManagerTest {
     public void testGatewayManagerFromCurrentProvider_misconfiguredProvider_noGateways() throws IOException, NullPointerException {
         Provider provider = getProvider(null, null, null, "ptdemo_misconfigured_gateway.json");
         MockHelper.mockProviderObserver(provider);
-        gatewaysManager = new GatewaysManager(mockContext);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(0, gatewaysManager.size());
     }
 
@@ -118,7 +116,7 @@ public class GatewaysManagerTest {
     public void testGatewayManagerFromCurrentProvider_threeGateways() {
         Provider provider = getProvider(null, null, null, "ptdemo_three_mixed_gateways.json");
         MockHelper.mockProviderObserver(provider);
-        gatewaysManager = new GatewaysManager(mockContext);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(3, gatewaysManager.size());
     }
 
@@ -130,7 +128,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
-        gatewaysManager = new GatewaysManager(mockContext);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
@@ -147,7 +145,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
-        gatewaysManager = new GatewaysManager(mockContext);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
         VpnProfile profile = configGenerator.createProfile(OPENVPN);
@@ -164,7 +162,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
-        gatewaysManager = new GatewaysManager(mockContext);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
@@ -181,7 +179,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
-        gatewaysManager = new GatewaysManager(mockContext);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
@@ -199,7 +197,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
-        gatewaysManager = new GatewaysManager(mockContext);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         assertEquals("37.12.247.10", gatewaysManager.select(0).getRemoteIP());
     }
