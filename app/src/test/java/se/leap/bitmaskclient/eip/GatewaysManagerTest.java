@@ -100,8 +100,8 @@ public class GatewaysManagerTest {
 
     @Test
     public void testGatewayManagerFromCurrentProvider_noProvider_noGateways() {
-        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         MockHelper.mockProviderObserver(null);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(0, gatewaysManager.size());
     }
 
