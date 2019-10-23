@@ -25,7 +25,7 @@ tar -C ./golang -xzf $GO_VERSION.tar.gz
 export GOPATH=`pwd`
 export GO_LANG=`pwd`/golang/go/bin
 export GO_COMPILED=`pwd`/bin
-PATH="${GO_LANG}:${GO_COMPILED}:${PATH}"
+export PATH="${GO_LANG}:${GO_COMPILED}:${PATH}"
 
 ./golang/go/bin/go get golang.org/x/mobile/cmd/gomobile
 ./golang/go/bin/go env
