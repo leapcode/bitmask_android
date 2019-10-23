@@ -10,7 +10,7 @@
 
 [submodule "go/src/github.com/OperatorFoundation/shapeshifter-dispatcher"]
     path = go/src/github.com/OperatorFoundation/shapeshifter-dispatcher
-    url = https://github.com/OperatorFoundation/shapeshifter-dispatcher.git
+    url = https://0xacab.org/leap/shapeshifter-dispatcher.git
     ignore = untracked
 
 [submodule "go/src/github.com/OperatorFoundation/shapeshifter-ipc"]
