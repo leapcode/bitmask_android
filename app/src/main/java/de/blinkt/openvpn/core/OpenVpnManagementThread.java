@@ -12,6 +12,7 @@ import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -21,6 +22,7 @@ import android.util.Log;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
+import se.leap.bitmaskclient.utils.ConfigHelper;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
@@ -43,7 +46,6 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
     private LinkedList<FileDescriptor> mFDList = new LinkedList<>();
     private LocalServerSocket mServerSocket;
     private boolean mWaitingForRelease = false;
-    private long mLastHoldRelease = 0;
     private LocalSocket mServerSocketLocal;
 
     private pauseReason lastPauseReason = pauseReason.noNetwork;
@@ -421,15 +423,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
     private void releaseHoldCmd() {
         mResumeHandler.removeCallbacks(mResumeHoldRunnable);
-        if ((System.currentTimeMillis() - mLastHoldRelease) < 5000) {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException ignored) {
-            }
-
-        }
         mWaitingForRelease = false;
-        mLastHoldRelease = System.currentTimeMillis();
         managmentCommand("hold release\n");
         managmentCommand("bytecount " + mBytecountInterval + "\n");
         managmentCommand("state on\n");
