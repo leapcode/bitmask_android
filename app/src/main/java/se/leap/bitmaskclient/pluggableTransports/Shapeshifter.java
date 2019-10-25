@@ -33,8 +33,8 @@ public class Shapeshifter  {
     public static final String DISPATCHER_IP = "127.0.0.1";
     private static final String TAG = Shapeshifter.class.getSimpleName();
 
-    ShapeShifter shapeShifter;
-    ShapeshifterErrorListner shapeshifterErrorListner;
+    private ShapeShifter shapeShifter;
+    private ShapeshifterErrorListner shapeshifterErrorListner;
 
     public interface ShapeshifterErrorListenerCallback {
         void onStarted();
@@ -53,25 +53,22 @@ public class Shapeshifter  {
     }
 
     public void start() {
-        try {
-            ShapeshifterErrorListenerCallback errorListenerCallback = () -> {
-                ;
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.postDelayed(() -> {
-                    try {
-                        Log.d(TAG, "shapeshifter open");
-                        shapeShifter.open();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }, 200);
-            };
-            shapeshifterErrorListner = new ShapeshifterErrorListner(errorListenerCallback);
-            shapeshifterErrorListner.execute(shapeShifter);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ShapeshifterErrorListenerCallback errorListenerCallback = () -> {
+            ;
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(() -> {
+                try {
+                    Log.d(TAG, "shapeshifter open");
+                    shapeShifter.open();
+                } catch (Exception e) {
+                    Log.e(TAG, "SHAPESHIFTER ERROR: " + e.getLocalizedMessage());
+                    VpnStatus.logError(VpnStatus.ErrorType.SHAPESHIFTER);
+                    VpnStatus.logError(e.getLocalizedMessage());
+                }
+            }, 200);
+        };
+        shapeshifterErrorListner = new ShapeshifterErrorListner(errorListenerCallback);
+        shapeshifterErrorListner.execute(shapeShifter);
     }
 
     public boolean stop() {
