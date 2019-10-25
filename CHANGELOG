@@ -1,3 +1,13 @@
+1.0.2 - the anti-censorship release
+features:
+- implement Pluggable Transports to circumvent VPN blocking
+- exclude apps from VPN >> credits to Akuma
+- improved gateway setup error handling
+
+bugfixes:
+- fix performance issues on UI thread if VPN (re-)connects
+- fix several crashes
+
 1.0.0
 Bugs:
 - fix tablet layouts in portrait
