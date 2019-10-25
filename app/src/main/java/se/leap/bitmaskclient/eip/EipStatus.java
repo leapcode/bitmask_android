@@ -154,7 +154,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         }
         protected Void doInBackground(Void... levels) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 Thread.interrupted();
             }
