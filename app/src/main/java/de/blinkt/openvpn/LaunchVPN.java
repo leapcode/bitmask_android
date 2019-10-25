@@ -26,7 +26,9 @@ import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.MainActivity;
 import se.leap.bitmaskclient.R;
 
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
+import static se.leap.bitmaskclient.eip.EipResultBroadcast.tellToReceiverOrBroadcast;
 
 /**
  * This Activity actually handles two stages of a launcher shortcut's life cycle.
@@ -62,6 +64,7 @@ public class LaunchVPN extends Activity {
 
 
     private static final int START_VPN_PROFILE = 70;
+    private static final String TAG = LaunchVPN.class.getName();
 
 
     private VpnProfile mSelectedProfile;
@@ -180,7 +183,15 @@ public class LaunchVPN extends Activity {
             return;
         }
 
-        Intent intent = VpnService.prepare(this);
+        Intent intent = null;
+        try {
+            intent = VpnService.prepare(this.getApplicationContext());
+        } catch (NullPointerException npe) {
+            tellToReceiverOrBroadcast(this.getApplicationContext(), EIP_ACTION_PREPARE_VPN, RESULT_CANCELED);
+            finish();
+            return;
+        }
+
         // Check if we want to fix /dev/tun
         SharedPreferences prefs = Preferences.getDefaultSharedPreferences(this);
         boolean usecm9fix = prefs.getBoolean("useCM9Fix", false);

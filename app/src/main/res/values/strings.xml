@@ -127,4 +127,5 @@
   <string name="warning_no_more_gateways_use_ovpn">%s could not connect using obfuscated vpn connections. Do you want to try to connect using a standard vpn?</string>
   <string name="warning_option_try_pt">Try obfuscated connection</string>
   <string name="warning_option_try_ovpn">Try standard connection</string>
+  <string name="vpn_error_establish">Android failed to establish the VPN service.</string>
 </resources>

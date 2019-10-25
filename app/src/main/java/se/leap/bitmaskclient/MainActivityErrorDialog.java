@@ -32,6 +32,7 @@ import se.leap.bitmaskclient.eip.EipCommand;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.R.string.warning_option_try_ovpn;
 import static se.leap.bitmaskclient.R.string.warning_option_try_pt;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.UNKNOWN;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.valueOf;
 import static se.leap.bitmaskclient.eip.EIP.ERRORS;
@@ -59,9 +60,17 @@ public class MainActivityErrorDialog extends DialogFragment {
      * @return a new instance of this DialogFragment.
      */
     public static DialogFragment newInstance(Provider provider, String reasonToFail) {
+        return newInstance(provider, reasonToFail, UNKNOWN);
+    }
+
+    /**
+     * @return a new instance of this DialogFragment.
+     */
+    public static DialogFragment newInstance(Provider provider, String reasonToFail, EIP.EIPErrors error) {
         MainActivityErrorDialog dialogFragment = new MainActivityErrorDialog();
         dialogFragment.reasonToFail = reasonToFail;
         dialogFragment.provider = provider;
+        dialogFragment.downloadError = error;
         return dialogFragment;
     }
 
@@ -99,6 +108,7 @@ public class MainActivityErrorDialog extends DialogFragment {
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        Context applicationContext = getContext().getApplicationContext();
         builder.setMessage(reasonToFail)
                 .setNegativeButton(R.string.cancel, (dialog, id) -> {
                 });
@@ -108,28 +118,29 @@ public class MainActivityErrorDialog extends DialogFragment {
                         ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider));
                 break;
             case NO_MORE_GATEWAYS:
-                Context context = getContext();
-                if (context != null) {
-                    Context applicationContext = context.getApplicationContext();
-                    if (provider.supportsPluggableTransports()) {
-                        if (getUsePluggableTransports(applicationContext)) {
-                            builder.setPositiveButton(warning_option_try_ovpn, ((dialog, which) -> {
-                                usePluggableTransports(applicationContext, false);
-                                EipCommand.startVPN(applicationContext.getApplicationContext(), false);
-                            }));
-                        } else {
-                            builder.setPositiveButton(warning_option_try_pt, ((dialog, which) -> {
-                                usePluggableTransports(applicationContext, true);
-                                EipCommand.startVPN(applicationContext.getApplicationContext(), false);
-                            }));
-                        }
+                if (provider.supportsPluggableTransports()) {
+                    if (getUsePluggableTransports(applicationContext)) {
+                        builder.setPositiveButton(warning_option_try_ovpn, ((dialog, which) -> {
+                            usePluggableTransports(applicationContext, false);
+                            EipCommand.startVPN(applicationContext, false);
+                        }));
                     } else {
-                        builder.setPositiveButton(R.string.retry,(dialog, which) -> {
-                            EipCommand.startVPN(applicationContext.getApplicationContext(), false);
-                        });
+                        builder.setPositiveButton(warning_option_try_pt, ((dialog, which) -> {
+                            usePluggableTransports(applicationContext, true);
+                            EipCommand.startVPN(applicationContext, false);
+                        }));
                     }
+                } else {
+                    builder.setPositiveButton(R.string.retry, (dialog, which) -> {
+                        EipCommand.startVPN(applicationContext, false);
+                    });
                 }
-
+                break;
+            case ERROR_VPN_PREPARE:
+                builder.setPositiveButton(R.string.retry, (dialog, which) -> {
+                    EipCommand.startVPN(applicationContext, false);
+                });
+                break;
             default:
                 break;
         }

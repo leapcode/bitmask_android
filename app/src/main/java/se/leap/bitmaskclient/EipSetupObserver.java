@@ -34,6 +34,7 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_E
 import static se.leap.bitmaskclient.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
@@ -173,6 +174,13 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                     //setup failed
                     finishGatewaySetup(false);
                     EipCommand.stopVPN(context);
+                    EipStatus.refresh();
+                }
+                break;
+            case EIP_ACTION_PREPARE_VPN:
+                if (resultCode == RESULT_CANCELED) {
+                    VpnStatus.logError("Error preparing VpnService.");
+                    finishGatewaySetup(false);
                     EipStatus.refresh();
                 }
                 break;

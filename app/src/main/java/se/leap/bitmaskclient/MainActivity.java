@@ -35,6 +35,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import se.leap.bitmaskclient.drawer.NavigationDrawerFragment;
+import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.fragments.ExcludeAppsFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
@@ -43,6 +44,7 @@ import se.leap.bitmaskclient.utils.PreferenceHelper;
 import static se.leap.bitmaskclient.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
@@ -58,6 +60,7 @@ import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.storeProviderInPreferences;
 
 
@@ -88,15 +91,10 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         provider = ProviderObservable.getInstance().getCurrentProvider();
 
+        EipSetupObserver.addListener(this);
         // Set up the drawer.
         navigationDrawerFragment.setUp(R.id.navigation_drawer, findViewById(R.id.drawer_layout));
         handleIntentAction(getIntent());
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        EipSetupObserver.addListener(this);
     }
 
     @Override
@@ -214,8 +212,8 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         EipSetupObserver.removeListener(this);
     }
 
@@ -245,6 +243,11 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                     } else if (isInvalidCertificateForLoginOnlyProvider(error)) {
                         askUserToLogIn(getString(vpn_certificate_user_message));
                     }
+                }
+                break;
+            case EIP_ACTION_PREPARE_VPN:
+                if (resultCode == RESULT_CANCELED) {
+                    showMainActivityErrorDialog(getString(R.string.vpn_error_establish), ERROR_VPN_PREPARE);
                 }
                 break;
         }
@@ -297,7 +300,22 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
             e.printStackTrace();
             Log.w(TAG, "error dialog leaked!");
         }
+    }
 
+    /**
+     * Shows an error dialog
+     */
+    public void showMainActivityErrorDialog(String reasonToFail, EIP.EIPErrors error) {
+        try {
+            FragmentTransaction fragmentTransaction = new FragmentManagerEnhanced(
+                    this.getSupportFragmentManager()).removePreviousFragment(
+                    MainActivityErrorDialog.TAG);
+            DialogFragment newFragment = MainActivityErrorDialog.newInstance(provider, reasonToFail, error);
+            newFragment.show(fragmentTransaction, MainActivityErrorDialog.TAG);
+        } catch (IllegalStateException | NullPointerException e) {
+            e.printStackTrace();
+            Log.w(TAG, "error dialog leaked!");
+        }
     }
 
     /**

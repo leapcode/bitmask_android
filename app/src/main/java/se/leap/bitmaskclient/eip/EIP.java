@@ -52,17 +52,13 @@ import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.OnBootReceiver;
 import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.utils.ConfigHelper;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
-import static android.content.Intent.CATEGORY_DEFAULT;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
-import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;
@@ -73,7 +69,6 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
 import static se.leap.bitmaskclient.Constants.EIP_N_CLOSEST_GATEWAY;
 import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
-import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
@@ -82,6 +77,7 @@ import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.R.string.warning_client_parsing_error_gateways;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.NO_MORE_GATEWAYS;
+import static se.leap.bitmaskclient.eip.EipResultBroadcast.tellToReceiverOrBroadcast;
 import static se.leap.bitmaskclient.utils.ConfigHelper.ensureNotOnMainThread;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
 
@@ -117,7 +113,8 @@ public final class EIP extends JobIntentService implements Observer {
     public enum EIPErrors {
         UNKNOWN,
         ERROR_INVALID_VPN_CERTIFICATE,
-        NO_MORE_GATEWAYS
+        NO_MORE_GATEWAYS,
+        ERROR_VPN_PREPARE
     }
 
     /**
@@ -212,24 +209,24 @@ public final class EIP extends JobIntentService implements Observer {
 
         if (!isVPNCertificateValid()) {
             setErrorResult(result, vpn_certificate_is_invalid, ERROR_INVALID_VPN_CERTIFICATE.toString());
-            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED, result);
+            tellToReceiverOrBroadcast(this, EIP_ACTION_START, RESULT_CANCELED, result);
             return;
         }
 
         GatewaysManager gatewaysManager = gatewaysFromPreferences();
         if (gatewaysManager.isEmpty()) {
             setErrorResult(result, warning_client_parsing_error_gateways, null);
-            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED, result);
+            tellToReceiverOrBroadcast(this, EIP_ACTION_START, RESULT_CANCELED, result);
             return;
         }
 
         Gateway gateway = gatewaysManager.select(nClosestGateway);
 
         if (launchActiveGateway(gateway, nClosestGateway)) {
-            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_OK);
+            tellToReceiverOrBroadcast(this, EIP_ACTION_START, RESULT_OK);
         } else {
             setErrorResult(result, NO_MORE_GATEWAYS.toString(), getStringResourceForNoMoreGateways(), getString(R.string.app_name));
-            tellToReceiverOrBroadcast(EIP_ACTION_START, RESULT_CANCELED, result);
+            tellToReceiverOrBroadcast(this, EIP_ACTION_START, RESULT_CANCELED, result);
         }
     }
 
@@ -284,7 +281,7 @@ public final class EIP extends JobIntentService implements Observer {
     private void stopEIP() {
         VpnStatus.updateStateString("STOPPING", "STOPPING VPN", R.string.state_exiting, ConnectionStatus.LEVEL_STOPPING);
         int resultCode = stop() ? RESULT_OK : RESULT_CANCELED;
-        tellToReceiverOrBroadcast(EIP_ACTION_STOP, resultCode);
+        tellToReceiverOrBroadcast(this, EIP_ACTION_STOP, resultCode);
     }
 
     /**
@@ -296,7 +293,7 @@ public final class EIP extends JobIntentService implements Observer {
         int resultCode = (eipStatus.isConnected()) ?
                 RESULT_OK :
                 RESULT_CANCELED;
-        tellToReceiverOrBroadcast(EIP_ACTION_IS_RUNNING, resultCode);
+        tellToReceiverOrBroadcast(this, EIP_ACTION_IS_RUNNING, resultCode);
     }
 
     /**
@@ -316,7 +313,7 @@ public final class EIP extends JobIntentService implements Observer {
         int resultCode = isVPNCertificateValid() ?
                 RESULT_OK :
                 RESULT_CANCELED;
-        tellToReceiverOrBroadcast(EIP_ACTION_CHECK_CERT_VALIDITY, resultCode);
+        tellToReceiverOrBroadcast(this, EIP_ACTION_CHECK_CERT_VALIDITY, resultCode);
     }
 
     /**
@@ -328,50 +325,6 @@ public final class EIP extends JobIntentService implements Observer {
         VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
         return validator.isValid();
     }
-
-    /**
-     * send resultCode and resultData to receiver or
-     * broadcast the result if no receiver is defined
-     *
-     * @param action     the action that has been performed
-     * @param resultCode RESULT_OK if action was successful RESULT_CANCELED otherwise
-     * @param resultData other data to broadcast or return to receiver
-     */
-    private void tellToReceiverOrBroadcast(String action, int resultCode, Bundle resultData) {
-        resultData.putString(EIP_REQUEST, action);
-        if (mResultRef.get() != null) {
-            mResultRef.get().send(resultCode, resultData);
-        } else {
-            broadcastEvent(resultCode, resultData);
-        }
-    }
-
-    /**
-     * send resultCode and resultData to receiver or
-     * broadcast the result if no receiver is defined
-     *
-     * @param action     the action that has been performed
-     * @param resultCode RESULT_OK if action was successful RESULT_CANCELED otherwise
-     */
-    private void tellToReceiverOrBroadcast(String action, int resultCode) {
-        tellToReceiverOrBroadcast(action, resultCode, new Bundle());
-    }
-
-    /**
-     * broadcast result
-     *
-     * @param resultCode RESULT_OK if action was successful RESULT_CANCELED otherwise
-     * @param resultData other data to broadcast or return to receiver
-     */
-    private void broadcastEvent(int resultCode, Bundle resultData) {
-        Intent intentUpdate = new Intent(BROADCAST_EIP_EVENT);
-        intentUpdate.addCategory(CATEGORY_DEFAULT);
-        intentUpdate.putExtra(BROADCAST_RESULT_CODE, resultCode);
-        intentUpdate.putExtra(BROADCAST_RESULT_KEY, resultData);
-        Log.d(TAG, "sending broadcast");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intentUpdate);
-    }
-
 
     /**
      * helper function to add error to result bundle
