@@ -17,12 +17,7 @@
 
 package se.leap.bitmaskclient.pluggableTransports;
 
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-
-import java.lang.ref.WeakReference;
 
 import de.blinkt.openvpn.core.VpnStatus;
 import shapeshifter.ShapeShifter;
@@ -34,14 +29,24 @@ public class Shapeshifter  {
     private static final String TAG = Shapeshifter.class.getSimpleName();
 
     private ShapeShifter shapeShifter;
-    private ShapeshifterErrorListner shapeshifterErrorListner;
 
-    public interface ShapeshifterErrorListenerCallback {
-        void onStarted();
+    public class ShapeshifterLogger implements shapeshifter.Logger {
+        @Override
+        public void log(String s) {
+            Log.e(TAG, "SHAPESHIFTER ERROR: " + s);
+            VpnStatus.logError(VpnStatus.ErrorType.SHAPESHIFTER);
+            VpnStatus.logError(s);
+            try {
+                shapeShifter.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public  Shapeshifter(Obfs4Options options) {
         shapeShifter = new ShapeShifter();
+        shapeShifter.setLogger(new ShapeshifterLogger());
         setup(options);
         Log.d(TAG, "shapeshifter initialized with: \n" + shapeShifter.toString());
     }
@@ -52,69 +57,30 @@ public class Shapeshifter  {
         shapeShifter.setCert(options.cert);
     }
 
+    public void setOptions(Obfs4Options options) {
+        setup(options);
+    }
+
     public void start() {
-        ShapeshifterErrorListenerCallback errorListenerCallback = () -> {
-            ;
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.postDelayed(() -> {
-                try {
-                    Log.d(TAG, "shapeshifter open");
-                    shapeShifter.open();
-                } catch (Exception e) {
-                    Log.e(TAG, "SHAPESHIFTER ERROR: " + e.getLocalizedMessage());
-                    VpnStatus.logError(VpnStatus.ErrorType.SHAPESHIFTER);
-                    VpnStatus.logError(e.getLocalizedMessage());
-                }
-            }, 200);
-        };
-        shapeshifterErrorListner = new ShapeshifterErrorListner(errorListenerCallback);
-        shapeshifterErrorListner.execute(shapeShifter);
+        try {
+            shapeShifter.open();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "SHAPESHIFTER ERROR: " + e.getLocalizedMessage());
+            VpnStatus.logError(VpnStatus.ErrorType.SHAPESHIFTER);
+            VpnStatus.logError(e.getLocalizedMessage());
+        }
     }
 
     public boolean stop() {
         try {
             shapeShifter.close();
-            shapeshifterErrorListner.cancel(true);
-            Log.d(TAG, "shapeshifter closed");
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            VpnStatus.logError("SHAPESHIFTER ERROR " + e.getLocalizedMessage());
+            VpnStatus.logError(e.getLocalizedMessage());
         }
         return false;
-    }
-
-    static class ShapeshifterErrorListner extends AsyncTask<ShapeShifter, Void, Void> {
-
-        WeakReference<ShapeshifterErrorListenerCallback> callbackWeakReference;
-
-        public ShapeshifterErrorListner(ShapeshifterErrorListenerCallback callback) {
-            callbackWeakReference = new WeakReference<>(callback);
-        }
-
-        @Override
-        protected Void doInBackground(ShapeShifter... shapeShifters) {
-            ShapeShifter shapeshifter = shapeShifters[0];
-            Log.d(TAG, "Shapeshifter error listener started");
-            ShapeshifterErrorListenerCallback callback = callbackWeakReference.get();
-            if (callback != null) {
-                callback.onStarted();
-            }
-            try {
-                shapeshifter.getLastError();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.e(TAG, "SHAPESHIFTER ERROR: " + e.getLocalizedMessage());
-                VpnStatus.logError(VpnStatus.ErrorType.SHAPESHIFTER);
-                VpnStatus.logError(e.getLocalizedMessage());
-                try {
-                    shapeshifter.close();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            return null;
-        }
     }
 
 }
