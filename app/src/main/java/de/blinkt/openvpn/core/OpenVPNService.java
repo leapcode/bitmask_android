@@ -248,6 +248,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 if (!replaceConnection) {
                     if (shapeshifter != null) {
                         shapeshifter.stop();
+                        shapeshifter = null;
                     }
                     VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 }
@@ -255,14 +256,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             }
             return false;
         } else {
-            if (!replaceConnection) {
-                if (shapeshifter != null) {
-                    shapeshifter.stop();
-                }
-                VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
-                return true;
-            }
-            return false;
+            VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
+            return true;
         }
     }
 
@@ -384,12 +379,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         Connection connection = mProfile.mConnections[0];
 
-        if (mProfile.mUsePluggableTransports) {
-            Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
-            shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
-            shapeshifter.start();
-        }
-
         VpnStatus.logInfo(R.string.building_configration);
         VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);
 
@@ -413,6 +402,14 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         stopOldOpenVPNProcess();
         // An old running VPN should now be exited
         mStarting = false;
+
+        if (mProfile.mUsePluggableTransports) {
+            Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
+            if (shapeshifter == null) {
+                shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
+                shapeshifter.start();
+            }
+        }
 
         // Start a new session by creating a new thread.
         boolean useOpenVPN3 = VpnProfile.doUseOpenVPN3(this);
@@ -460,11 +457,17 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     private void stopOldOpenVPNProcess() {
+        Log.d(TAG, "stopOldVPNProcess");
         if (mManagement != null) {
             if (mOpenVPNThread != null)
                 ((OpenVPNThread) mOpenVPNThread).setReplaceConnection();
             if (mManagement.stopVPN(true)) {
                 // an old was asked to exit, wait 1s
+                if (shapeshifter != null) {
+                    Log.d(TAG, "-> stop shapeshifter");
+                    shapeshifter.stop();
+                    shapeshifter = null;
+                }
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
