@@ -281,7 +281,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 }
                 usePluggableTransports(getContext(), isChecked);
                 if (VpnStatus.isVPNActive()) {
-                    EipCommand.startVPN(getContext(), true);
+                    EipCommand.startVPN(getContext(), false);
                     closeDrawer();
                 }
             });
