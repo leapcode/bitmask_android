@@ -117,7 +117,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
     private SharedPreferences preferences;
 
-    private final static String KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE = "KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE";
+    private final static String KEY_SHOW_SAVE_BATTERY_ALERT = "KEY_SHOW_SAVE_BATTERY_ALERT";
     private boolean showEnableExperimentalFeature = false;
     AlertDialog alertDialog;
 
@@ -300,7 +300,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 return;
             }
             if (isChecked) {
-                showExperimentalFeatureAlert();
+                showSaveBatteryAlert();
             } else {
                 saveBattery(getContext(), false);
             }
@@ -432,17 +432,17 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (showEnableExperimentalFeature) {
-            outState.putBoolean(KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE, true);
+            outState.putBoolean(KEY_SHOW_SAVE_BATTERY_ALERT, true);
         }
     }
 
     private void restoreFromSavedInstance(Bundle savedInstanceState) {
-        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SHOW_ENABLE_EXPERIMENTAL_FEATURE)) {
-            showExperimentalFeatureAlert();
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SHOW_SAVE_BATTERY_ALERT)) {
+            showSaveBatteryAlert();
         }
     }
 
-    private void showExperimentalFeatureAlert() {
+    private void showSaveBatteryAlert() {
         Activity activity = getActivity();
         if (activity == null) {
             return;
