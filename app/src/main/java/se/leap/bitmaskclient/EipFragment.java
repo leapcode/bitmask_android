@@ -147,7 +147,7 @@ public class EipFragment extends Fragment implements Observer {
 
 
 
-        @Override
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         openVpnConnection = new EipFragmentServiceConnection();
@@ -407,6 +407,14 @@ public class EipFragment extends Fragment implements Observer {
         } else if (eipStatus.isDisconnecting()) {
             setMainButtonEnabled(false);
             showDisconnectingLayout(activity);
+        } else if (eipStatus.isBlocking()) {
+            setMainButtonEnabled(true);
+            vpnStateImage.setStateIcon(R.drawable.vpn_blocking);
+            vpnStateImage.stopProgress(false);
+            routedText.setText(getString(R.string.void_vpn_establish, getString(R.string.app_name)));
+            routedText.setVisibility(VISIBLE);
+            vpnRoute.setVisibility(GONE);
+            colorBackgroundALittle();
         } else {
             mainButton.setText(activity.getString(R.string.vpn_button_turn_on));
             setMainButtonEnabled(true);
