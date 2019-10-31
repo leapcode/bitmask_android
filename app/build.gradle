@@ -21,9 +21,6 @@ android {
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
 
-    // USE PROTOTYPE DEMO SERVER CONFIG
-    buildConfigField 'boolean', 'useDemoConfig', 'false'
-
 
     //Build Config Fields for default donation details
 
@@ -84,11 +81,11 @@ android {
       //Configurations for custom branded app.
 
       //Change the package name as needed, e.g. "org.example.myapp"
-      applicationId "se.leap.pluggableTransportsDemo"
+      applicationId "se.leap.riseupvpn"
       //Set app name here
-      appName = "Bitmask Pluggable Transports"
+      appName = "Riseup VPN"
       //Provider base url, e.g. '"https://example.com"'
-      def customProviderUrl = '"https://pt.demo.bitmask.net"'
+      def customProviderUrl = '"https://riseup.net"'
       buildConfigField "String", "customProviderUrl", customProviderUrl
       //Change the versionCode as needed
       //versionCode 1
@@ -101,16 +98,13 @@ android {
       //Build Config Fields for default donation details
 
       //This is the donation URL and should be set to the relevant donation page.
-      buildConfigField 'String', 'donation_url', '""'
+      buildConfigField 'String', 'donation_url', '"https://riseup.net/vpn/donate"'
       //The field to enable donations in the app.
-      buildConfigField 'boolean', 'enable_donation', 'false'
+      buildConfigField 'boolean', 'enable_donation', 'true'
       //The field to enable donation reminder popup in the app if enable_donation is set to 'false' this will be disabled.
       buildConfigField 'boolean', 'enable_donation_reminder', 'true'
       //The duration in days to trigger the donation reminder
       buildConfigField 'int', 'donation_reminder_duration', '30'
-
-      // USE PROTOTYPE DEMO SERVER CONFIG
-      buildConfigField 'boolean', 'useDemoConfig', 'false'
 
       //**************************************************************************
       //**************************************************************************
