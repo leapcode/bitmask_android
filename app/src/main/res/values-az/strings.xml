@@ -55,8 +55,11 @@
   <string name="configuring_provider">Provayderin konfiqurasiyası</string>
   <string name="updating_certificate_message">VPN sertifikatının yenilənməsi</string>
   <string name="succesful_authentication_message">Tanınmış</string>
+  <string name="authentication_failed_message">Kimlik təsdiqləməsi uğursuzdur</string>
   <string name="default_username">Anonim</string>
   <string name="log_fragment_title">Loq</string>
+  <string name="vpn_fragment_title">VPN</string>
+  <string name="action_settings">Tənzimləmələr</string>
   <string name="save_battery">Enerji qənaəti</string>
   <string name="always_on_vpn">Həmişə VPN-la</string>
   <string name="donate_title">Maddi dəstək</string>

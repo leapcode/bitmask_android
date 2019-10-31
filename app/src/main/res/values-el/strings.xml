@@ -101,7 +101,7 @@
   <string name="vpn_certificate_user_message">Το πιστοποιητικό VPN δεν είναι έγκυρο. Παρακαλούμε συνδεθείτε για να κατεβάσετε ένα καινούργιο.</string>
   <string name="save_battery">Εξοικονόμηση μπαταρίας</string>
   <string name="save_battery_message">Οι συνδέσεις δεδομένων στο υπόβαθρο θα παύονται όταν το τηλέφωνό σας δεν είναι ενεργό.</string>
-  <string name="always_on_vpn">Always-on VPN</string>
+  <string name="always_on_vpn">Πάντα ενεργοποιημένο VPN</string>
   <string name="do_not_show_again">Να μην εμφανιστεί ξανά</string>
   <string name="always_on_vpn_user_message">Για να ενεργοποιηθεί το always-on VPN στις ρυθμίσεις VPN του Android, πατήστε στο εικονίδιο παραμετροποίησης [img src] και ανοίξτε το διακόπτη.</string>
   <string name="always_on_blocking_vpn_user_message">Για βέλτιστη προστασία της ιδιωτικότητάς σας, πρέπει να ενεργοποιήσετε επίσης την επιλογή \"Μπλοκάρισμα συνδέσεων χωρίς VPN\".</string>

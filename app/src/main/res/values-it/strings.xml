@@ -12,10 +12,13 @@
   <string name="provider_label">Provider:</string>
   <string name="provider_label_none">Nessun provider configurato</string>
   <string name="status_unknown">Stato sconosciuto.</string>
+  <string name="configuration_wizard_title">Seleziona un provider di servizi</string>
+  <string name="add_provider">Aggiungi nuovo Provider</string>
   <string name="introduce_new_provider">Aggiungi un nuovo provider di servizi</string>
   <string name="save">Salva</string>
   <string name="new_provider_uri">Nome dominio</string>
   <string name="valid_url_entered">L\'URL è valido</string>
+  <string name="provider_details_title">Dettagli provider</string>
   <string name="use_anonymously_button">Usa in modo anonimo</string>
   <string name="username_hint">nome utente</string>
   <string name="username_ask">Inserire il nome utente</string>
@@ -44,7 +47,12 @@
   <string name="eip_status_start_pending">Iniziazione connessione</string>
   <string name="eip_cancel_connect_title">Annullare la connessione?</string>
   <string name="eip_cancel_connect_text">C\'è un tentativo di connessione in corso. Vuoi annullarlo?</string>
+  <string name="default_username">Anonimo</string>
+  <string name="logging_in">Accesso in corso</string>
   <string name="log_fragment_title">Log</string>
+  <string name="vpn_fragment_title">VPN</string>
+  <string name="navigation_drawer_open">Apri Drawer</string>
+  <string name="navigation_drawer_close">Chiudi drawer</string>
   <string name="action_settings">Impostazioni</string>
   <string name="donate_title">Fai una donazione</string>
   <string name="donate_button_donate">Fai una donazione</string>

@@ -8,7 +8,9 @@
   <string name="save">Зберегти</string>
   <string name="new_provider_uri">Назва домена</string>
   <string name="username_hint">ім\'я користувача</string>
+  <string name="password_ask">Будь ласка, введіть свій пароль</string>
   <string name="password_hint">пароль</string>
+  <string name="password_match">Паролі співпадають</string>
   <string name="password_mismatch">Паролі не співпадають</string>
   <string name="about_fragment_title">Про</string>
   <string name="error_bad_user_password_user_message">Неправильний логін або пароль</string>
@@ -17,7 +19,13 @@
   <string name="setup_error_close_button">Вихід</string>
   <string name="succesful_authentication_message">Автентифіковано</string>
   <string name="authentication_failed_message">Збій автентифікації</string>
+  <string name="default_username">Анонімно</string>
+  <string name="log_fragment_title">Журнал</string>
+  <string name="vpn_fragment_title">VPN</string>
+  <string name="navigation_drawer_open">Відкрити панель навігації</string>
+  <string name="navigation_drawer_close">Закрити панель навігації</string>
   <string name="action_settings">Налаштування</string>
+  <string name="always_on_vpn">Завжди-VPN</string>
   <string name="donate_title">Пожертвування</string>
   <string name="donate_button_remind_later">Нагадайте мені пізніше</string>
   <string name="donate_button_donate">Пожертвування</string>

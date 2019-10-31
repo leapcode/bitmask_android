@@ -5,7 +5,7 @@
   <string name="leap_tracker">Le système de suivi des problèmes se trouve sur https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="translation_project_text">Les traductions sont les bienvenues et nous les valorisons. Consulter notre projet Transifex sur https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="switch_provider_menu_option">Changer de fournisseur</string>
-  <string name="info">infos</string>
+  <string name="info">renseignements</string>
   <string name="show_connection_details">Afficher les détails de connexion</string>
   <string name="routes_info">Routes : %s</string>
   <string name="routes_info6">Routes IPv6 : %s</string>
