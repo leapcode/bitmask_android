@@ -1,12 +1,17 @@
 1.0.2 - the anti-censorship release
 features:
 - implement Pluggable Transports to circumvent VPN blocking
-- exclude apps from VPN >> credits to Akuma
+- exclude apps from VPN
+-> credits to Akuma!
 - improved gateway setup error handling
+- updated translations
 
 bugfixes:
 - fix performance issues on UI thread if VPN (re-)connects
 - fix several crashes
+
+1.0.1
+- fix Android 9 crash
 
 1.0.0
 Bugs:
