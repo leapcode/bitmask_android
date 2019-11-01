@@ -14,6 +14,7 @@ import se.leap.bitmaskclient.Provider;
 
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
 import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
 import static se.leap.bitmaskclient.Constants.EIP_N_CLOSEST_GATEWAY;
@@ -60,6 +61,10 @@ public class EipCommand {
         baseIntent.putExtra(EIP_EARLY_ROUTES, earlyRoutes);
         baseIntent.putExtra(EIP_N_CLOSEST_GATEWAY, nClosestGateway);
         execute(context, EIP_ACTION_START, null, baseIntent);
+    }
+
+    public static void startBlockingVPN(Context context) {
+        execute(context, EIP_ACTION_START_BLOCKING_VPN);
     }
 
     @VisibleForTesting

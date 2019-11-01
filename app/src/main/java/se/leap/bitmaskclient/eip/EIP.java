@@ -64,6 +64,7 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
@@ -184,6 +185,10 @@ public final class EIP extends JobIntentService implements Observer {
                 break;
             case EIP_ACTION_CHECK_CERT_VALIDITY:
                 checkVPNCertificateValidity();
+                break;
+            case EIP_ACTION_START_BLOCKING_VPN:
+                disconnect();
+                earlyRoutes();
                 break;
         }
     }

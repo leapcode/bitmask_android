@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import org.json.JSONObject;
+
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,6 +20,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.Gateway;
@@ -43,6 +46,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 
 /**
@@ -164,6 +168,13 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
         int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, RESULT_CANCELED);
         Bundle result = intent.getBundleExtra(BROADCAST_RESULT_KEY);
         String eipRequest = result.getString(EIP_REQUEST);
+        EIP.EIPErrors error = EIP.EIPErrors.UNKNOWN;
+        try {
+            JSONObject jsonObject = new JSONObject(result.getString(EIP.ERRORS));
+            error = EIP.EIPErrors.valueOf(jsonObject.getString(EIP.ERRORID));
+        } catch (Exception e) {
+            //ignore
+        }
         if (eipRequest == null) {
             return;
         }
@@ -172,9 +183,14 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
             case EIP_ACTION_START_ALWAYS_ON_VPN:
                 if (resultCode == RESULT_CANCELED) {
                     //setup failed
-                    finishGatewaySetup(false);
-                    EipCommand.stopVPN(context);
-                    EipStatus.refresh();
+                    if (error == EIP.EIPErrors.NO_MORE_GATEWAYS) {
+                        finishGatewaySetup(false);
+                        EipCommand.startBlockingVPN(context.getApplicationContext());
+                    } else {
+                        finishGatewaySetup(false);
+                        EipCommand.stopVPN(context);
+                        EipStatus.refresh();
+                    }
                 }
                 break;
             case EIP_ACTION_PREPARE_VPN:
