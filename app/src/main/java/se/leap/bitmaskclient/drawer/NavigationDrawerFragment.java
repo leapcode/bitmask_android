@@ -97,7 +97,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
     private static final String TAG = NavigationDrawerFragment.class.getName();
     public static final int TWO_SECONDS = 2000;
-    public static final int THREE_SECONDS = 3500;
 
     /**
      * Helper component that ties the action bar to the navigation drawer.
@@ -156,7 +155,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         wasPaused = false;
         if (shouldCloseOnResume) {
             closeDrawerWithDelay();
-            showDottedIconWithDelay();
         }
     }
 
@@ -226,7 +224,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                     // the navigation drawer automatically in the future.
                     userLearnedDrawer = true;
                     preferences.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
-                    toolbar.setNavigationIcon(R.drawable.ic_menu_default);
                 }
                 activity.invalidateOptionsMenu();
             }
@@ -400,19 +397,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
         drawerLayout.openDrawer(fragmentContainerView, false);
         closeDrawerWithDelay();
-        showDottedIconWithDelay();
-
-    }
-
-    private void showDottedIconWithDelay() {
-        final Handler navigationDrawerHandler = new Handler();
-        navigationDrawerHandler.postDelayed(() -> {
-            if (!wasPaused) {
-                toolbar.setNavigationIcon(R.drawable.ic_menu_color_point);
-                toolbar.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-            }
-
-        }, THREE_SECONDS);
     }
 
     @NonNull
