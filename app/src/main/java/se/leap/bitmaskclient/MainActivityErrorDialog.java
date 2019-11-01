@@ -32,11 +32,10 @@ import se.leap.bitmaskclient.eip.EipCommand;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.R.string.warning_option_try_ovpn;
 import static se.leap.bitmaskclient.R.string.warning_option_try_pt;
-import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.UNKNOWN;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.valueOf;
 import static se.leap.bitmaskclient.eip.EIP.ERRORS;
-import static se.leap.bitmaskclient.eip.EIP.ERROR_ID;
+import static se.leap.bitmaskclient.eip.EIP.ERRORID;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.usePluggableTransports;
 
@@ -88,8 +87,8 @@ public class MainActivityErrorDialog extends DialogFragment {
                 dialogFragment.reasonToFail = dialogFragment.getString(R.string.error_io_exception_user_message);
             }
 
-            if (errorJson.has(ERROR_ID)) {
-                dialogFragment.downloadError = valueOf(errorJson.getString(ERROR_ID));
+            if (errorJson.has(ERRORID)) {
+                dialogFragment.downloadError = valueOf(errorJson.getString(ERRORID));
             }
         } catch (Exception e) {
             e.printStackTrace();

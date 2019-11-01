@@ -97,7 +97,7 @@ public final class EIP extends JobIntentService implements Observer {
     public final static String TAG = EIP.class.getSimpleName(),
             SERVICE_API_PATH = "config/eip-service.json",
             ERRORS = "errors",
-            ERROR_ID = "errorID";
+            ERRORID = "errorId";
 
     private volatile SharedPreferences preferences;
     private volatile EipStatus eipStatus;
@@ -353,7 +353,7 @@ public final class EIP extends JobIntentService implements Observer {
             } else {
                 errorJson.put(ERRORS, getResources().getString(errorMessageId));
             }
-            errorJson.put(ERROR_ID, errorId);
+            errorJson.put(ERRORID, errorId);
         } catch (JSONException e) {
             e.printStackTrace();
         }
