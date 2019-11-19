@@ -32,6 +32,7 @@
   <string name="password_mismatch">パスワードが一致しません</string>
   <string name="user_message">ユーザメッセージ</string>
   <string name="about_fragment_title">アプリについて</string>
+  <string name="exclude_apps_fragment_title">VPNからアプリを除外する</string>
   <string name="error_srp_math_error_user_message">再度実行してください: サーバー計算エラー</string>
   <string name="error_bad_user_password_user_message">ユーザー名またはパスワードが間違っています</string>
   <string name="error_not_valid_password_user_message">8文字以上入力してください。</string>
@@ -93,6 +94,7 @@
   <string name="update_certificate">証明書をアップデート</string>
   <string name="warning_eip_json_corrupted">プロバイダー設定の更新に失敗しました。</string>
   <string name="eip_json_corrupted_user_message">プロバイダー設定の更新に失敗しました。もう一度ログインし直してください。</string>
+  <string name="warning_client_parsing_error_gateways">プロバイダーゲートウェイを認識できませんでした。正しく設定されていない可能性があります。</string>
   <string name="warning_corrupted_provider_details">保存されたプロバイダーの詳細が壊れています。 %sを更新する (推奨) か、商用CA証明書を使用してプロバイダーの詳細をアップデートすることができます。</string>
   <string name="warning_corrupted_provider_cert">保存されたプロバイダーの証明書が無効です。 商用CA証明書を使用して%sを更新する (推奨) か、プロバイダーの証明書を更新することができます。</string>
   <string name="warning_expired_provider_cert">保存されたプロバイダーの証明書が有効期限切れです。 商用CA証明書を使用して%sを更新する (推奨) か、プロバイダー証明書を更新することができます。</string>
@@ -102,6 +104,7 @@
   <string name="save_battery">バッテリー節約</string>
   <string name="save_battery_message">お使いの携帯電話を使用していない時に、バックグラウンドのデータ接続は休止状態になります。</string>
   <string name="always_on_vpn">常時VPN接続</string>
+  <string name="subtitle_always_on_vpn">Androidのシステム設定を開く</string>
   <string name="do_not_show_again">今後表示しない</string>
   <string name="always_on_vpn_user_message">Android VPNの設定で常時VPN接続を有効にするには、設定アイコン [img src] をクリックしてスイッチをオンにします。</string>
   <string name="always_on_blocking_vpn_user_message">あなたのプライバシーを最適に保護するために、「VPNを使用しない接続をブロックする」オプションも有効にするべきです。</string>
@@ -110,4 +113,18 @@
   <string name="donate_message">LEAPは寄付と助成金に依存しています。 エンドユーザーとサービスプロバイダーの両側に対して簡単で安全な通信を評価するなら、今日寄付してください。</string>
   <string name="donate_button_remind_later">後で知らせる</string>
   <string name="donate_button_donate">寄付</string>
+  <string name="obfuscated_connection">難読化された接続を使用します。</string>
+  <string name="obfuscated_connection_try">難読化された接続を試行します。</string>
+  <string name="nav_drawer_obfuscated_connection">ブリッジを使用します</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">VPNフィルタリングを迂回</string>
+  <string name="warning_exclude_apps_message">注意してVPNからアプリを除外してください。これにより、身元が明らかになり、セキュリティが侵害される可能性があります。</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="other">%d の保護されていないアプリ</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%sは接続できませんでした。 VPN接続がブロックされている可能性があります。難読化された接続を使用して接続を試みますか?</string>
+  <string name="warning_no_more_gateways_no_pt">%s は接続できませんでした。 再試行しますか?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s は難読化されたVPN接続を使用して接続できませんでした。標準VPNを使用して接続を試みますか?</string>
+  <string name="warning_option_try_pt">難読化された接続を試みる</string>
+  <string name="warning_option_try_ovpn">標準接続を試みる</string>
+  <string name="vpn_error_establish">AndroidはVPNサービスを確立できませんでした。</string>
 </resources>

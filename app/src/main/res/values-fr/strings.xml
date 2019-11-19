@@ -32,6 +32,7 @@
   <string name="password_mismatch">Les mots de passe ne correspondent pas</string>
   <string name="user_message">Message utilisateur</string>
   <string name="about_fragment_title">À propos</string>
+  <string name="exclude_apps_fragment_title">Exclure des applis du RPV</string>
   <string name="error_srp_math_error_user_message">Ressayez : erreur mathématique du serveur</string>
   <string name="error_bad_user_password_user_message">Nom d’utilisateur ou mot de passe erroné</string>
   <string name="error_not_valid_password_user_message">ll doit comporter au moins 8 caractères</string>
@@ -93,6 +94,7 @@
   <string name="update_certificate">Mettre le certificat à jour</string>
   <string name="warning_eip_json_corrupted">Échec de mise à jour de la configuration du fournisseur.</string>
   <string name="eip_json_corrupted_user_message">Échec de mise à jour de la configuration du fournisseur. Veuillez vous connecter pour ressayer.</string>
+  <string name="warning_client_parsing_error_gateways">Les passerelles du fournisseur n’ont pas été reconnues. Elles ont peut-être été configurées incorrectement.</string>
   <string name="warning_corrupted_provider_details">Les renseignements de fournisseur enregistrés sont corrompus. Vous pouvez soit mettre %s à jour (recommandé), soit mettre les renseignements de fournisseur à jour en utilisant un certificat CA commercial.</string>
   <string name="warning_corrupted_provider_cert">Le certificat de fournisseur enregistré est invalide. Vous pouvez soit mettre %s à jour (recommandé), soit mettre le certificat de fournisseur à jour en utilisant un certificat CA commercial.</string>
   <string name="warning_expired_provider_cert">Le certificat de fournisseur enregistré est expiré. Vous pouvez soit mettre %s à jour (recommandé), soit mettre le certificat de fournisseur à jour en utilisant un certificat CA commercial.</string>
@@ -102,6 +104,7 @@
   <string name="save_battery">Économiser la pile</string>
   <string name="save_battery_message">Les connexions de données d’arrière-plan seront mises en veille quand votre téléphone sera inactif.</string>
   <string name="always_on_vpn">RPV permanent</string>
+  <string name="subtitle_always_on_vpn">Ouvrir les paramètres système d’Android</string>
   <string name="do_not_show_again">Ne plus afficher</string>
   <string name="always_on_vpn_user_message">Pour activer l’option « RPV permanent » ou « VPN permanent » des paramètres RPV d’Android, cliquez sur l’icône de configuration [img src] et basculez l’interrupteur.</string>
   <string name="always_on_blocking_vpn_user_message">Afin de protéger de façon optimale votre vie privée et vos données personnelles, vous devriez activer l’option « Bloquer les connexions sans RPV ».</string>
@@ -110,4 +113,19 @@
   <string name="donate_message">LEAP dépend de dons et de subventions. Veuillez faire un don aujourd’hui si des communications sécurisées faciles à mettre en place pour l’utilisateur final et le fournisseur de services sont importantes à vous yeux.</string>
   <string name="donate_button_remind_later">Me rappeler plus tard</string>
   <string name="donate_button_donate">Faire un don</string>
+  <string name="obfuscated_connection">Une connexion brouillée est utilisée.</string>
+  <string name="obfuscated_connection_try">Tentative de connexion brouillée.</string>
+  <string name="nav_drawer_obfuscated_connection">Utiliser des ponts</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">Contourner le filtrage du RPV</string>
+  <string name="warning_exclude_apps_message">Soyez prudent en excluant des applis du RPV. Cela divulguera votre identité et compromettra votre sécurité.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d appli non protégée</item>
+    <item quantity="other">%d applis non protégées</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s n’a pas pu se connecter. Les connexions RPV sont peut-être bloquées. Souhaitez-vous tenter de vous connecter en essayant des connexions brouillées ?</string>
+  <string name="warning_no_more_gateways_no_pt">%s n’a pas pu se connecter. Souhaitez-vous ressayer ?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s n’a pas pu se connecter en utilisant des connexions RPV brouillées. Souhaitez-vous tenter de vous connecter en essayant un RPV normal ?</string>
+  <string name="warning_option_try_pt">Essayer une connexion brouillée.</string>
+  <string name="warning_option_try_ovpn">Essayer une connexion normal.</string>
+  <string name="vpn_error_establish">Android n’a pas réussi à établir le service RPV.</string>
 </resources>
