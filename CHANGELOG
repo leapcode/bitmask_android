@@ -9,6 +9,8 @@ features:
 bugfixes:
 - fix performance issues on UI thread if VPN (re-)connects
 - fix several crashes
+- removed annoying dot from navigation drawer menu icon ;)
+- show the correct state on main screen if VPN blocks all outgoing traffic
 
 1.0.1
 - fix Android 9 crash
