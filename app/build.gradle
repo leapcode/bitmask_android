@@ -1,5 +1,6 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import groovy.util.*
 
 apply plugin: 'com.android.application'
 
@@ -56,10 +57,11 @@ android {
     }
   }
 
-  flavorDimensions "branding", "implementation"
+  flavorDimensions "branding", "implementation", "abi"
   productFlavors {
     productFlavors.all {
       ext.appName = null;
+      ext.splitApk = false
     }
     production {
       dimension "implementation"
@@ -67,11 +69,12 @@ android {
     insecure {
       dimension "implementation"
     }
+
     normal {
       dimension "branding"
       appName = "Bitmask"
+      splitApk = true
     }
-
 
     custom {
       dimension "branding"
@@ -106,9 +109,63 @@ android {
       //The duration in days to trigger the donation reminder
       buildConfigField 'int', 'donation_reminder_duration', '30'
 
+      // Build apks for each architecture, in addition to one 'fat' apk containing libraries for all all architectures
+      // enable this if you're publishing in gplay
+      ext {
+        splitApk = false
+      }
+
       //**************************************************************************
       //**************************************************************************
 
+    }
+
+
+    fat {
+      dimension "abi"
+      ext {
+        abiVersionCode = 0
+      }
+    }
+
+    x86 {
+      dimension "abi"
+      ndk {
+        abiFilters "x86"
+      }
+      ext {
+        abiVersionCode = 1
+      }
+    }
+
+    armv7 {
+      dimension "abi"
+      ndk {
+        abiFilters "armeabi-v7a"
+      }
+      ext {
+        abiVersionCode = 2
+      }
+    }
+
+    x86_64 {
+      dimension "abi"
+      ndk {
+        abiFilters "x86_64"
+      }
+      ext {
+        abiVersionCode = 3
+      }
+    }
+
+    arm64 {
+      dimension "abi"
+      ndk {
+        abiFilters "arm64-v8a"
+      }
+      ext {
+        abiVersionCode = 4
+      }
     }
   }
 
@@ -159,7 +216,60 @@ android {
       java.srcDirs += ['src/sharedTest/java']
     }
   }
+
+  /**
+   * BUILD VARAIANTS:
+   * =================
+   * Development builds:
+   * --------------------
+   * customProductionFatDebug -> branded development build, includes all ABIs
+   * normalProductionFatDebug -> Bitmask development build, includes all ABIS
+   * customInsecureFatDebug -> branded development build, doesn't checks certificates (for test server setup w/o valid certificates), includes all ABIs
+   * normalInsecureFatDebug -> Bitmask development build, doesn't checks certificates (for test server setup w/o valid certificates), includes all ABIs
+   *
+   * Branded Releases:
+   * -----------------
+   * customProductionFatBeta -> branded build, includes all ABI's, Beta release
+   * customProductionFatRelease -> branded build, includes all ABI's, stable release (-> F-Droid, GPlay if not splitApk is set to true)
+   *
+   * Bitmask Beta releases:
+   * ----------------------
+   * normalProductionArm64Beta  ->  Bitmask build, only for ABI arm64, for GPlay Beta channel with split apks (1 of 4)
+   * normalProductionArmv7Beta  ->  Bitmask build, only for ABI armeabi-v7a, for GPlay Beta channel with split apks (2 of 4)
+   * normalProductionX86Beta    ->  Bitmask build, only for ABI x86, for GPlay Beta channel with split apks (3 of 4)
+   * normalProductionX86_64Beta ->  Bitmask build, only for ABI x86 64 bit, for GPlay Beta channel with split apks (4 of 4)
+   * normalProductionFatBeta    ->  Bitmask build, including all ABIS, for izzysoft's F-Droid repo and beta link on download page
+   *
+   * Bitmask Stable releases:
+   * ------------------------
+   * normalProductionArm64Release  ->  Bitmask build, only for ABI arm64, for GPlay releases with split apks (1 of 4)
+   * normalProductionArmv7Release  ->  Bitmask build, only for ABI armeabi-v7a, for GPlay releases with split apks (2 of 4)
+   * normalProductionX86Release    ->  Bitmask build, only for ABI x86, for GPlay releases with split apks (3 of 4)
+   * normalProductionX86_64Release ->  Bitmask build, only for ABI x86 64 bit, for GPlay releases with split apks (4 of 4)
+   * normalProductionFatRelease    ->  Bitmask build, including all ABIS, for official F-Droid repo and stable link on download page
+   */
+
+  variantFilter { variant ->
+
+    def names = variant.flavors*.name
+    def buildTypeName = variant.buildType.name
+    // flavorDimensions "branding" -> 0, "implementation" -> 1, "abi" -> 2
+    def supportsSplitApk = variant.flavors[0].splitApk
+    // To check for a certain build type, use variant.buildType.name == "<buildType>"
+    if (((names.contains("insecure") && !names.contains("fat")) ||
+            (names.contains("insecure") && buildTypeName.contains("beta")) ||
+            (names.contains("insecure") && buildTypeName.contains("release")) ||
+            (buildTypeName.contains("debug") && !names.contains("fat")) ||
+            (!supportsSplitApk && !names.contains("fat")))
+    ) {
+      // Gradle ignores any variants that satisfy the conditions above.
+      setIgnore(true)
+    }
+  }
 }
+
+
+
 
 dependencies {
   testImplementation 'junit:junit:4.12'
@@ -205,11 +315,22 @@ dependencies {
 }
 
 android.applicationVariants.all { variant ->
+
+  // configure app name for different build variants
   def flavors = variant.productFlavors
-  // flavorDimensions "branding" -> 0, "implementation" -> 1
+  // flavorDimensions "branding" -> 0, "implementation" -> 1, "abi" -> 2
   def branding = flavors[0]
+  def abiDimension = flavors[2]
   def buildType = variant.buildType
   variant.resValue "string", "app_name",  "\"${branding.appName}${buildType.appSuffix}\""
+
+  // reconfigure version codes for split builds
+  variant.outputs.each { output ->
+    // if not a fat build
+    if (abiDimension.abiVersionCode > 0) {
+      output.versionCodeOverride = android.defaultConfig.versionCode * 1000 + abiDimension.abiVersionCode
+    }
+  }
 }
 
 
