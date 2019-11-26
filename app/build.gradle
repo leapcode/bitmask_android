@@ -60,7 +60,7 @@ android {
   flavorDimensions "branding", "implementation", "abi"
   productFlavors {
     productFlavors.all {
-      ext.appName = null;
+      ext.appName = null
       ext.splitApk = false
     }
     production {
@@ -125,6 +125,7 @@ android {
       dimension "abi"
       ext {
         abiVersionCode = 0
+        abiFilter = ""
       }
     }
 
@@ -135,6 +136,7 @@ android {
       }
       ext {
         abiVersionCode = 1
+        abiFilter = "x86"
       }
     }
 
@@ -145,6 +147,7 @@ android {
       }
       ext {
         abiVersionCode = 2
+        abiFilter = "armeabi-v7a"
       }
     }
 
@@ -155,6 +158,7 @@ android {
       }
       ext {
         abiVersionCode = 3
+        abiFilter = "x86_64"
       }
     }
 
@@ -165,6 +169,7 @@ android {
       }
       ext {
         abiVersionCode = 4
+        abiFilter = "arm64-v8a"
       }
     }
   }
@@ -331,6 +336,19 @@ android.applicationVariants.all { variant ->
     // if not a fat build
     if (abiDimension.abiVersionCode > 0) {
       output.versionCodeOverride = android.defaultConfig.versionCode * 1000 + abiDimension.abiVersionCode
+    }
+  }
+
+  // remove unrelated abi specific assets
+  variant.mergeAssets.doLast {
+    // if not a fat build
+    if (abiDimension.abiVersionCode > 0) {
+      def filesToDelete = fileTree(dir: variant.mergeAssets.outputDir, excludes: ["*pie_openvpn.${abiDimension.abiFilter}",
+                                                                                  'urls/',
+                                                                                  '*.url',
+                                                                                  '*.json',
+                                                                                  '*.pem'])
+      delete(filesToDelete)
     }
   }
 }
