@@ -177,6 +177,8 @@ android {
       //runProguard true
       if(signingConfigs.contains(release))
         signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
+      minifyEnabled = true
+      shrinkResources true
     }
     beta {
       initWith release
