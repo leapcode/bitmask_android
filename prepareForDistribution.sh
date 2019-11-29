@@ -18,6 +18,63 @@ function cleanUp {
     fi
 }
 
+function sign {
+    #---- ALIGN AND JARSIGN APK  -----
+    ALIGNED_UNSIGNED_APK="${FILE_DIR}/aligned-${FILE_NAME}"
+    ALIGNED_SIGNED_APK="${FILE_DIR}/aligned-signed-${FILE_NAME}"
+
+    ${ANDROID_BUILD_TOOLS}/zipalign -v -p 4 "${FILE_DIR}/${FILE_NAME}" ${ALIGNED_UNSIGNED_APK} || quit
+    ${ANDROID_BUILD_TOOLS}/apksigner sign --ks "${KEY_STORE_STRING}" --out ${ALIGNED_SIGNED_APK} ${ALIGNED_UNSIGNED_APK} || quit
+    rm ${ALIGNED_UNSIGNED_APK}
+    
+    FINGERPRINT=$(unzip -p ${ALIGNED_SIGNED_APK} META-INF/*.RSA | keytool -printcert | grep "SHA256" | tr -d '[:space:]') || quit
+    
+    if [[ ${FINGERPRINT} == ${EXPECTED_FINGERPRINT} ]] 
+    then
+        echo "Certificate fingerprint matches: ${FINGERPRINT}"
+    else 
+        echo -e "Certificate fingerprint \n${FINGERPRINT} \ndid not match expected fingerprint \n\t${EXPECTED_FINGERPRINT}"
+        quit
+    fi
+    
+    #---- RENAME TO VERSION_NAME ----
+    FINAL_APK=${ALIGNED_SIGNED_APK}
+    if [[ -z ${VERSION_NAME} ]] 
+    then
+        VERSION_NAME="latest"
+    fi
+
+    if [[ ${BETA} == true ]]
+    then
+        FINAL_FILE_NAME="${APP_NAME}-Android-Beta-${VERSION_NAME}.apk"
+    else 
+        FINAL_FILE_NAME="${APP_NAME}-Android-${VERSION_NAME}.apk"
+    fi
+    FINAL_APK="${FILE_DIR}/${FINAL_FILE_NAME}"
+    cp ${ALIGNED_SIGNED_APK} ${FINAL_APK} || quit
+    cleanUp
+
+    
+    #---- GPG SIGNING ----
+    if [[ -z ${GPG_KEY} && -z ${GPG_KEY_USER} ]] 
+    then
+        echo "WARNING: Could not do gpg signing!"
+        exit
+    fi
+    
+    if [[ ${GPG_KEY} ]] 
+    then
+        gpg --default-key ${GPG_KEY} --armor --output "${FINAL_APK}.sig" --detach-sign ${FINAL_APK} || quit
+        #gpg -u ${GPG_KEY} -sab --output ${FINAL_APK} || quit
+    else 
+        GPG_KEY=$(gpg --list-keys $GPG_KEY_USER | grep pub | cut -d '/' -f 2 | cut -d ' ' -f 1) || quit
+        #gpg -u ${GPG_KEY} -sab --output ${FINAL_APK} || quit
+        gpg --default-key ${GPG_KEY} --armor --output "${FINAL_APK}.sig" --detach-sign ${FINAL_APK} || quit
+    fi
+    
+    gpg --verify "${FINAL_APK}.sig" || quit
+}
+
 # ----Main-----
 
 DO_BUILD=false
@@ -164,6 +221,9 @@ then
     exit
 fi
 
+BASE_FILE_DIR="$(pwd)/app/build/outputs/apk"
+PREPARE_FOR_DISTRIBUTION_FILE_DIR = "$(pwd)/prepareForDistribution"
+
 if [[ ${DO_BUILD} == true ]]
 then
     if [[ ${NO_TAG} == false && -z ${VERSION_NAME} ]]
@@ -186,11 +246,31 @@ then
     ./cleanProject.sh || quit
     ./build_deps.sh || quit
     
+    mkdir $PREPARE_FOR_DISTRIBUTION_FILE_DIR
     if [[ ${BETA} == true ]]
     then
-        ./gradlew clean assemble${FLAVOR}ProductionBeta --stacktrace || quit
+        ./gradlew clean assemble${FLAVOR}ProductionFatBeta --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR}ProductionFat/beta/*.apk $PREPARE_FOR_DISTRIBUTION_FILE_DIR
+        ./gradlew clean assemble${FLAVOR}ProductionX86Beta --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR}ProductionX86/beta/*.apk $PREPARE_FOR_DISTRIBUTION_FILE_DIR
+        ./gradlew clean assemble${FLAVOR}ProductionX86_64Beta --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR}ProductionX86_64/beta/*.apk $PREPARE_FOR_DISTRIBUTION_FILE_DIR
+        ./gradlew clean assemble${FLAVOR}ProductionArmv7Beta --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR}ProductionArmv7/beta/*.apk $PREPARE_FOR_DISTRIBUTION_FILE_DIR
+        ./gradlew clean assemble${FLAVOR}ProductionArm64Beta --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR}ProductionArmv64/beta/*.apk $PREPARE_FOR_DISTRIBUTION_FILE_DIR
+        
     else
-        ./gradlew clean assemble${FLAVOR}ProductionRelease --stacktrace || quit
+        ./gradlew clean assemble${FLAVOR}ProductionFatRelease --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR}ProductionFat/release/*.apk $PREPARE_FOR_DISTRIBUTION_FILE_DIR
+        ./gradlew clean assemble${FLAVOR}ProductionX86Release --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR}ProductionX86/release/*.apk $PREPARE_FOR_DISTRIBUTION_FILE_DIR
+        ./gradlew clean assemble${FLAVOR}ProductionX86_64Release --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR}ProductionX86_64/release/*.apk $PREPARE_FOR_DISTRIBUTION_FILE_DIR
+        ./gradlew clean assemble${FLAVOR}ProductionArmv7Release --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR}ProductionArmv7/release/*.apk $PREPARE_FOR_DISTRIBUTION_FILE_DIR
+        ./gradlew clean assemble${FLAVOR}ProductionArm64Release --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR}ProductionArmv64/beta/*.apk $PREPARE_FOR_DISTRIBUTION_FILE_DIR
     fi
 fi
 
@@ -221,77 +301,26 @@ then
     #---- OPT: SELECT APK FROM LAST BUILD ----
     if [[ ${DO_BUILD} == true ]]
     then
-        BASE_FILE_DIR="$(pwd)/app/build/outputs/apk"
-        if [[ ${BETA} == true ]]
-        then
-            FILE_NAME="app-${FLAVOR_LOWERCASE}-production-beta.apk"
-            BUILD_TYPE_DIR="beta"
-        else
-            FILE_NAME="app-${FLAVOR_LOWERCASE}-production-release.apk"
-            BUILD_TYPE_DIR="release"
-        fi
-        if [[ ${FLAVOR_LOWERCASE} == "normal" ]] 
-        then
-            FLAVOR_DIR="normalProduction"
-        else
-            FLAVOR_DIR="customProduction"
-        fi
-        FILE_DIR="${BASE_FILE_DIR}/${FLAVOR_DIR}/${BUILD_TYPE_DIR}"
-    fi
+    FILE_DIR=$PREPARE_FOR_DISTRIBUTION_FILE_DIR
+#        if [[ ${BETA} == true ]]
+#        then
+#            FILE_NAME="app-${FLAVOR_LOWERCASE}-production-beta.apk"
+#            BUILD_TYPE_DIR="beta"
+#        else
+#            FILE_NAME="app-${FLAVOR_LOWERCASE}-production-release.apk"
+#            BUILD_TYPE_DIR="release"
+#        fi
+#        if [[ ${FLAVOR_LOWERCASE} == "normal" ]] 
+#        then
+#            FLAVOR_DIR="normalProduction"
+#        else
+#            FLAVOR_DIR="customProduction"
+#        fi
+#        FILE_DIR="${BASE_FILE_DIR}/${FLAVOR_DIR}/${BUILD_TYPE_DIR}"
+   fi
     
-    #---- ALIGN AND JARSIGN APK  -----
-    ALIGNED_UNSIGNED_APK="${FILE_DIR}/aligned-${FILE_NAME}"
-    ALIGNED_SIGNED_APK="${FILE_DIR}/aligned-signed-${FILE_NAME}"
 
-    ${ANDROID_BUILD_TOOLS}/zipalign -v -p 4 "${FILE_DIR}/${FILE_NAME}" ${ALIGNED_UNSIGNED_APK} || quit
-    ${ANDROID_BUILD_TOOLS}/apksigner sign --ks "${KEY_STORE_STRING}" --out ${ALIGNED_SIGNED_APK} ${ALIGNED_UNSIGNED_APK} || quit
-    rm ${ALIGNED_UNSIGNED_APK}
-    
-    FINGERPRINT=$(unzip -p ${ALIGNED_SIGNED_APK} META-INF/*.RSA | keytool -printcert | grep "SHA256" | tr -d '[:space:]') || quit
-    
-    if [[ ${FINGERPRINT} == ${EXPECTED_FINGERPRINT} ]] 
-    then
-        echo "Certificate fingerprint matches: ${FINGERPRINT}"
-    else 
-        echo -e "Certificate fingerprint \n${FINGERPRINT} \ndid not match expected fingerprint \n\t${EXPECTED_FINGERPRINT}"
-        quit
-    fi
-    
-    #---- RENAME TO VERSION_NAME ----
-    FINAL_APK=${ALIGNED_SIGNED_APK}
-    if [[ -z ${VERSION_NAME} ]] 
-    then
-        VERSION_NAME="latest"
-    fi
 
-    if [[ ${BETA} == true ]]
-    then
-        FINAL_FILE_NAME="${APP_NAME}-Android-Beta-${VERSION_NAME}.apk"
-    else 
-        FINAL_FILE_NAME="${APP_NAME}-Android-${VERSION_NAME}.apk"
-    fi
-    FINAL_APK="${FILE_DIR}/${FINAL_FILE_NAME}"
-    cp ${ALIGNED_SIGNED_APK} ${FINAL_APK} || quit
-    cleanUp
-
-    
-    #---- GPG SIGNING ----
-    if [[ -z ${GPG_KEY} && -z ${GPG_KEY_USER} ]] 
-    then
-        echo "WARNING: Could not do gpg signing!"
-        exit
-    fi
-    
-    if [[ ${GPG_KEY} ]] 
-    then
-        gpg --default-key ${GPG_KEY} --armor --output "${FINAL_APK}.sig" --detach-sign ${FINAL_APK} || quit
-        #gpg -u ${GPG_KEY} -sab --output ${FINAL_APK} || quit
-    else 
-        GPG_KEY=$(gpg --list-keys $GPG_KEY_USER | grep pub | cut -d '/' -f 2 | cut -d ' ' -f 1) || quit
-        #gpg -u ${GPG_KEY} -sab --output ${FINAL_APK} || quit
-        gpg --default-key ${GPG_KEY} --armor --output "${FINAL_APK}.sig" --detach-sign ${FINAL_APK} || quit
-    fi
-    
-    gpg --verify "${FINAL_APK}.sig" || quit
+    ls $FILE_DIR/*\.apk | xargs -I {} sign {}
     
 fi
