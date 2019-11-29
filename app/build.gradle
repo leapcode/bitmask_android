@@ -1,6 +1,5 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import groovy.util.*
 
 apply plugin: 'com.android.application'
 
@@ -322,21 +321,33 @@ dependencies {
 }
 
 android.applicationVariants.all { variant ->
-
-  // configure app name for different build variants
+  // configure app name and apk file name for different build variants
   def flavors = variant.productFlavors
   // flavorDimensions "branding" -> 0, "implementation" -> 1, "abi" -> 2
   def branding = flavors[0]
   def abiDimension = flavors[2]
+  def abiFilter = abiDimension.abiFilter
+  if (abiFilter.length() > 0) {
+    abiFilter = "_"+abiFilter
+  }
   def buildType = variant.buildType
+  def tag = getTag()
+  if (tag.length() > 0) {
+    tag = "_"+tag
+  }
+
   variant.resValue "string", "app_name",  "\"${branding.appName}${buildType.appSuffix}\""
+
+  variant.outputs.all { output ->
+    output.outputFileName = "${branding.appName}${abiFilter}_${buildType.name}${tag}.apk"
+  }
 
   // reconfigure version codes for split builds
   variant.outputs.each { output ->
-    // if not a fat build
-    if (abiDimension.abiVersionCode > 0) {
-      output.versionCodeOverride = android.defaultConfig.versionCode * 1000 + abiDimension.abiVersionCode
-    }
+      // if not a fat build
+      if (abiDimension.abiVersionCode > 0) {
+          output.versionCodeOverride = android.defaultConfig.versionCode * 1000 + abiDimension.abiVersionCode
+      }
   }
 
   // remove unrelated abi specific assets
@@ -475,7 +486,7 @@ def removeDuplicatedStrings() {
 def replaceDuplicatesForSource(File it, String type) {
   def ics_openvpn_file = file(it.absolutePath.replace(type+'.xml', type+'-icsopenvpn.xml'))
   if(ics_openvpn_file.exists()) {
-    def ics_openvpn_strings_names = (new XmlParser()).parse(ics_openvpn_file)
+    def ics_openvpn_strings_names = new XmlParser().parse(ics_openvpn_file)
     def current_file = it
 
     ics_openvpn_strings_names.string.each {
@@ -522,17 +533,22 @@ task mergeUntranslatable(dependsOn: 'copyIcsOpenVPNFiles',  type: Copy ) {
 task copyIcsOpenVPNFiles(dependsOn: 'updateIcsOpenVpn') {
   println "copyIcsOpenVPNFiles"
 
-/*  copyIcsOpenVPNClasses
+  copyIcsOpenVPNClasses
   copyIcsOpenVPNXml
   copyIcsOpenVPNImages
   //mergeUntranslatable.execute()
-  removeDuplicatedStrings()*/
+  removeDuplicatedStrings()
 }
 
 task updateIcsOpenVpn( type: Exec ) {
   commandLine 'git', 'submodule', 'sync'
   commandLine 'git', 'submodule', 'update', '--init', '--recursive'
 
+}
+
+def getTag() {
+  String commit = "git log --pretty=format:'%h' -n 1".execute().text.trim().replaceAll("'", "")
+  return ("git describe --tags --exact-match "+ commit).execute().text.trim()
 }
 
 
