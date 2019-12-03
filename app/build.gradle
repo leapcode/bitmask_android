@@ -325,6 +325,7 @@ android.applicationVariants.all { variant ->
   def flavors = variant.productFlavors
   // flavorDimensions "branding" -> 0, "implementation" -> 1, "abi" -> 2
   def branding = flavors[0]
+  def trimmedAppName = branding.appName.replaceAll(' ', '')
   def abiDimension = flavors[2]
   def abiFilter = abiDimension.abiFilter
   if (abiFilter.length() > 0) {
@@ -339,7 +340,7 @@ android.applicationVariants.all { variant ->
   variant.resValue "string", "app_name",  "\"${branding.appName}${buildType.appSuffix}\""
 
   variant.outputs.all { output ->
-    output.outputFileName = "${branding.appName}${abiFilter}_${buildType.name}${tag}.apk"
+    output.outputFileName = "${trimmedAppName}${abiFilter}_${buildType.name}${tag}.apk"
   }
 
   // reconfigure version codes for split builds
