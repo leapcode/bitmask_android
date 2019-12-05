@@ -245,6 +245,7 @@ then
 
     ./cleanProject.sh || quit
     ./build_deps.sh || quit
+    ./fix_gradle_lock.sh || quit
 
     if [[ ! -d $PREPARE_FOR_DISTRIBUTION_FILE_DIR ]]
     then
