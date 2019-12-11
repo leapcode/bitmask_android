@@ -324,13 +324,17 @@ public class EipFragment extends Fragment implements Observer {
             return;
         }
 
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-        showPendingStartCancellation = true;
-        alertDialog = alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
-                .setMessage(activity.getString(R.string.eip_cancel_connect_text))
-                .setPositiveButton((android.R.string.yes), (dialog, which) -> stopEipIfPossible())
-                .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> {
-                }).setOnDismissListener(dialog -> showPendingStartCancellation = false).show();
+        try {
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
+            showPendingStartCancellation = true;
+            alertDialog = alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
+                    .setMessage(activity.getString(R.string.eip_cancel_connect_text))
+                    .setPositiveButton((android.R.string.yes), (dialog, which) -> stopEipIfPossible())
+                    .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> {
+                    }).setOnDismissListener(dialog -> showPendingStartCancellation = false).show();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -340,13 +344,18 @@ public class EipFragment extends Fragment implements Observer {
             Log.e(TAG, "activity is null when asking to stop EIP");
             return;
         }
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
-        showAskToStopEip = true;
-        alertDialog = alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
-                .setMessage(activity.getString(R.string.eip_warning_browser_inconsistency))
-                .setPositiveButton((android.R.string.yes), (dialog, which) -> stopEipIfPossible())
-                .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> {
-                }).setOnDismissListener(dialog -> showAskToStopEip = false).show();
+        try {
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
+            showAskToStopEip = true;
+            alertDialog = alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
+                    .setMessage(activity.getString(R.string.eip_warning_browser_inconsistency))
+                    .setPositiveButton((android.R.string.yes), (dialog, which) -> stopEipIfPossible())
+                    .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> {
+                    }).setOnDismissListener(dialog -> showAskToStopEip = false).show();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
