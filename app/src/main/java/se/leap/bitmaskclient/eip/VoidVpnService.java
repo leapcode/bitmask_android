@@ -107,6 +107,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
             thread.interrupt();
         }
         closeFd();
+        VpnStatus.updateStateString("NOPROCESS", "BLOCKING VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
     }
 
     public static boolean isRunning() throws NullPointerException {
