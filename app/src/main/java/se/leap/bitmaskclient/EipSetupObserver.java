@@ -141,6 +141,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
         Provider provider;
         switch (resultCode) {
             case CORRECTLY_DOWNLOADED_EIP_SERVICE:
+                Log.d(TAG, "correctly updated service json");
                 provider = resultData.getParcelable(PROVIDER_KEY);
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
@@ -269,10 +270,9 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
             //??
         } else if ("CONNECTED".equals(state)) {
             //saveLastProfile(context.getApplicationContext(), setupVpnProfile.getUUIDString());
-            if (setupNClosestGateway.get() > 0) {
-                //at least one failed gateway -> did the provider change it's gateways?
-                SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-                Provider provider = getSavedProviderFromSharedPreferences(preferences);
+            Provider provider = ProviderObservable.getInstance().getCurrentProvider();
+            if (setupNClosestGateway.get() > 0 || provider.shouldUpdateEipServiceJson()) {
+                //setupNClostestGateway > 0: at least one failed gateway -> did the provider change it's gateways?
                 ProviderAPICommand.execute(context, ProviderAPI.DOWNLOAD_SERVICE_JSON, provider);
             }
             finishGatewaySetup(false);

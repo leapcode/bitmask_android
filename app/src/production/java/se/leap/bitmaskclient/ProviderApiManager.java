@@ -174,6 +174,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 setErrorResult(result, eipServiceJsonString);
             } else {
                 provider.setEipServiceJson(eipServiceJson);
+                provider.setLastEipServiceUpdate(System.currentTimeMillis());
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             }
         } catch (NullPointerException | JSONException e) {

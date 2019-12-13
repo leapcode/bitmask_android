@@ -216,6 +216,7 @@ public abstract class ProviderApiManagerBase {
                 }
                 break;
             case DOWNLOAD_SERVICE_JSON:
+                Log.d(TAG, "update eip service json");
                 result = getAndSetEipServiceJson(provider);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);

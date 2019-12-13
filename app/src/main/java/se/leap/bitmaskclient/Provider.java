@@ -44,6 +44,7 @@ import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
  */
 public final class Provider implements Parcelable {
 
+    private static long EIP_SERVICE_TIMEOUT = 1000 * 60 * 60 * 24 * 3;
     private JSONObject definition = new JSONObject(); // Represents our Provider's provider.json
     private JSONObject eipServiceJson = new JSONObject();
     private DefaultedURL mainUrl = new DefaultedURL();
@@ -54,6 +55,7 @@ public final class Provider implements Parcelable {
     private String apiVersion = "";
     private String privateKey = "";
     private String vpnCertificate = "";
+    private long lastEipServiceUpdate = 0L;
 
     private boolean allowAnonymous;
     private boolean allowRegistered;
@@ -268,6 +270,7 @@ public final class Provider implements Parcelable {
         parcel.writeString(getEipServiceJsonString());
         parcel.writeString(getPrivateKey());
         parcel.writeString(getVpnCertificate());
+        parcel.writeLong(lastEipServiceUpdate);
     }
 
     @Override
@@ -286,7 +289,8 @@ public final class Provider implements Parcelable {
             privateKey.equals(p.getPrivateKey()) &&
             vpnCertificate.equals(p.getVpnCertificate()) &&
             allowAnonymous == p.allowsAnonymous() &&
-            allowRegistered == p.allowsRegistered();
+            allowRegistered == p.allowsRegistered() &&
+            lastEipServiceUpdate == p.getLastEipServiceUpdate();
         } else return false;
     }
 
@@ -336,6 +340,7 @@ public final class Provider implements Parcelable {
             if (!tmpString.isEmpty()) {
                 this.setVpnCertificate(tmpString);
             }
+            this.lastEipServiceUpdate = in.readLong();
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -366,6 +371,18 @@ public final class Provider implements Parcelable {
 
     public boolean allowsRegistered() {
         return allowRegistered;
+    }
+
+    public void setLastEipServiceUpdate(long timestamp) {
+        lastEipServiceUpdate = timestamp;
+    }
+
+    public long getLastEipServiceUpdate() {
+        return lastEipServiceUpdate;
+    }
+
+    public boolean shouldUpdateEipServiceJson() {
+        return System.currentTimeMillis() - lastEipServiceUpdate >= EIP_SERVICE_TIMEOUT;
     }
 
     public boolean setEipServiceJson(JSONObject eipServiceJson) {
