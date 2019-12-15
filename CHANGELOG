@@ -1,10 +1,11 @@
 1.0.2 - the anti-censorship release
 features:
 - implement Pluggable Transports to circumvent VPN blocking
-- exclude apps from VPN
--> credits to Akuma!
+- exclude apps from VPN (credits to Akuma!)
 - improved gateway setup error handling
-- updated translations
+- faster recognition of newly added providers (leads to improved server load balancing)
+- updated translations (thanks to Localization Lab and all translators!)
+- reduced APK size
 
 bugfixes:
 - fix performance issues on UI thread if VPN (re-)connects
