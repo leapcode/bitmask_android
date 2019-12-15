@@ -32,6 +32,7 @@
   <string name="password_mismatch">Passwörter stimmen nicht überein</string>
   <string name="user_message">Nachricht</string>
   <string name="about_fragment_title">Über</string>
+  <string name="exclude_apps_fragment_title">Apps vom VPN ausschließen</string>
   <string name="error_srp_math_error_user_message">Noch einmal versuchen: Serverrechenfehler</string>
   <string name="error_bad_user_password_user_message">Benutzername oder Passwort falsch</string>
   <string name="error_not_valid_password_user_message">Passwort muss mindestens 8 Zeichen lang sein</string>
@@ -93,6 +94,7 @@
   <string name="update_certificate">Zertifikat aktualisieren</string>
   <string name="warning_eip_json_corrupted">Die Aktualisierung der Providerkonfiguration ist fehlgeschlagen.</string>
   <string name="eip_json_corrupted_user_message">Die Aktualisierung der Providerkonfiguration ist fehlgeschlagen. Bitte einloggen, um es erneut zu versuchen.</string>
+  <string name="warning_client_parsing_error_gateways">Die Gateways des Providers konnten nicht erkannt werden und sind eventuell falsch konfiguriert. </string>
   <string name="warning_corrupted_provider_details">Die gespeicherten Providerdetails sind fehlerhaft. Du kannst entweder %s aktualisieren (Empfehlung) oder die Providerdetails mithilfe eines kommerziellen CA Zertifikates aktualisieren. </string>
   <string name="warning_corrupted_provider_cert">Das gespeicherte Providerzertifikat ist ungültig. Du kannst entweder %s aktualisieren (Empfehlung) oder das Providerzertifikat mithilfe eines kommerziellen CA Zertifikates aktualisieren. </string>
   <string name="warning_expired_provider_cert">Das gespeicherte Providerzertifikat ist abgelaufen. Du kannst entweder %s aktualisieren (Empfehlung) oder das Providerzertifikat mithilfe eines kommerziellen CA Zertifikates aktualisieren. </string>
@@ -102,6 +104,7 @@
   <string name="save_battery">Batteriesparmodus</string>
   <string name="save_battery_message">Datenverbindungen im Hintergrund bleiben inaktiv solange dein Handy inaktiv ist.</string>
   <string name="always_on_vpn">VPN immer anlassen</string>
+  <string name="subtitle_always_on_vpn">Android-Systemeinstellungen öffnen</string>
   <string name="do_not_show_again">Nicht erneut anzeigen</string>
   <string name="always_on_vpn_user_message">Um durchgehend aktives VPN in den Android VPN Einstellungen einzuschalten, klicke auf das Zahnrad [img src] und aktiviere den Schalter.</string>
   <string name="always_on_blocking_vpn_user_message">Aktiviere zusätzlich die Option \"Verbindungen nur über VPN zulassen\", um deine Privatsphäre optimal zu schützen.</string>
@@ -110,4 +113,19 @@
   <string name="donate_message">LEAP benötigt Spenden und Stipendien. Spende noch heute wenn du sichere Kommunikation wertschätzt, die sowohl für Enandwender*innen als auch Menschen die den Dienst anbieten leicht nutzbar ist.</string>
   <string name="donate_button_remind_later">Später erinnern</string>
   <string name="donate_button_donate">Spenden</string>
+  <string name="obfuscated_connection">Mit einer verschleierten Verbindung</string>
+  <string name="obfuscated_connection_try">Versuche eine verschleierte Verbindung</string>
+  <string name="nav_drawer_obfuscated_connection">Brücken nutzen</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">VPN Filterung umgehen</string>
+  <string name="warning_exclude_apps_message">Sei vorsichtig beim Ausschließen von Apps vom VPN. Du verrätst dadurch deine Identität und gefährdest deine Sicherheit.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d ungeschützte App</item>
+    <item quantity="other">%d ungeschützte Apps</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s konnte sich nicht verbinden. Es kann sein, dass VPN Verkehr geblockt wird. Möchtest du versuchen, eine verschleierte Verbindung herzustellen?</string>
+  <string name="warning_no_more_gateways_no_pt">%s konnte sich nicht verbinden. Möchtest du es noch einmal versuchen?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s konnte keine verschleierte Verbindung herstellen. Möchtest du versuchen, eine normale VPN Verbindung herzustellen?</string>
+  <string name="warning_option_try_pt">Teste verschleierte Verbindung</string>
+  <string name="warning_option_try_ovpn">Teste normale Verbindung</string>
+  <string name="vpn_error_establish">Android konnte nicht den VPN Dienst starten.</string>
 </resources>

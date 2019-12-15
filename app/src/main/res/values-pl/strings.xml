@@ -49,13 +49,8 @@
   <string name="setup_error_title">Błąd konfiguracji</string>
   <string name="setup_error_configure_button">Konfiguruj</string>
   <string name="setup_error_close_button">Zamknij</string>
-  <string name="setup_error_text">Wystąpił błąd podczas konfiguracji Bitmask\'a z wybranym dostawcą.
-
-Możesz go ponownie skonfigurować, lub zamknąć aplikację i skonfigurować dostawcę przy następnym uruchomieniu.</string>
   <string name="server_unreachable_message">Serwer jest niedostępny, spróbuj ponownie.</string>
   <string name="error.security.pinnedcertificate">Błąd zabezpieczeń, zaktualizuj aplikację lub wybierz innego dostawcę.</string>
-  <string name="malformed_url">Wygląda na to, ze to nie jest dostawca Bitmask.</string>
-  <string name="certificate_error">To nie jest zaufany dostawca Bitmask.</string>
   <string name="service_is_down_error">Serwis nie działa.</string>
   <string name="configuring_provider">Konfigurowanie dostawcy</string>
   <string name="incorrectly_downloaded_certificate_message">Twój anonimowy certyfikat nie został pobrany </string>
@@ -74,29 +69,19 @@ Możesz go ponownie skonfigurować, lub zamknąć aplikację i skonfigurować do
   <string name="provider_problem">Wygląda na to, że nastąpił problem z dostawcą.</string>
   <string name="try_another_provider">Spróbuj z innym dostawcą lub skontaktuj dotychczasowego.</string>
   <string name="default_username">Używaj anonimowo</string>
-  <string name="logged_in_user_status">zalogowany.</string>
-  <string name="logged_out_user_status">wylogował się.</string>
-  <string name="didnt_log_out_user_status">nie wylogował się. Spróbuj później, może to być problem w sieci lub z dostawcą. Jeśli problem pozostanie, usuń dane aplikacji Bitmask z ustawień Androida.</string>
-  <string name="not_logged_in_user_status">nie zalogował się.</string>
-  <string name="logging_in_user_status">loguje się.</string>
   <string name="logging_in">Logowanie</string>
   <string name="signing_up">Rejestrowanie</string>
-  <string name="logging_out_user_status">wylogowuje się.</string>
-  <string name="signingup_message">jest rejestrowany.</string>
   <string name="vpn.button.turn.on">Włącz</string>
   <string name="vpn.button.turn.off">Wyłącz</string>
   <string name="vpn_button_turn_off_blocking">Przestań blokować</string>
   <string name="vpn_securely_routed">Twoje połączenie jest bezpiecznie przekierowane przez:</string>
   <string name="vpn_securely_routed_no_internet">Nie wykryto połączenia z internetem, gdy zostanie ono przywrócone twoje połączenie zostanie bezpiecznie przekierowane przez:</string>
-  <string name="bitmask_log">Log Bitmask\'a</string>
-  <string name="title_activity_main">Bitmask</string>
   <string name="log_fragment_title">Logi</string>
   <string name="vpn_fragment_title">VPN</string>
   <string name="navigation_drawer_open">Otwórz pasek nawigacyjny</string>
   <string name="navigation_drawer_close">Zamknij pasek nawigacyjny</string>
   <string name="action_example">Przykładowa akcja</string>
   <string name="action_settings">Ustawienia</string>
-  <string name="void_vpn_establish">Bitmask blokuje cały ruch wychodzący.</string>
   <string name="void_vpn_error_establish">Nie udało się ustanowić blokowania VPN.</string>
   <string name="void_vpn_stopped">Zatrzymano blokowanie całego wychodzącego ruchu.</string>
   <string name="void_vpn_title">Blokowanie ruchu</string>
@@ -104,9 +89,6 @@ Możesz go ponownie skonfigurować, lub zamknąć aplikację i skonfigurować do
   <string name="update_certificate">Zaktualizuj certyfikat</string>
   <string name="warning_eip_json_corrupted">Aktualizowanie konfiguracji dostawcy nie udało się.</string>
   <string name="eip_json_corrupted_user_message">Aktualizowanie konfiguracji dostawcy nie udało się. Proszę zaloguj się, aby spróbować ponownie.</string>
-  <string name="warning_corrupted_provider_details">Zapisany certyfikat dostawcy jest uszkodzony. Możesz albo zaktualizować Bitmask\'a (zalecane) lub zaktualizować certyfikat dostawcy używając za pomocą komercyjnego certyfikatu CA. </string>
-  <string name="warning_corrupted_provider_cert">Zapisany certyfikat dostawcy jest nieprawidłowy. Możesz albo zaktualizować Bitmask\'a (zalecane) lub zaktualizować certyfikat dostawcy używając za pomocą komercyjnego certyfikatu CA. </string>
-  <string name="warning_expired_provider_cert">Zapisany certyfikat dostawcy wygasł. Możesz albo zaktualizować Bitmask\'a (zalecane) lub zaktualizować certyfikat dostawcy używając za pomocą komercyjnego certyfikatu CA.</string>
   <string name="downloading_vpn_certificate_failed">Pobieranie certyfikatu VPN nie powiodło się. Spróbuj ponownie lub wybierz innego dostawcę.</string>
   <string name="vpn_certificate_is_invalid">Certyfikat VPN jest nieprawidłowy. Spróbuj pobrać nowy.</string>
   <string name="vpn_certificate_user_message">Certyfikat VPN jest nieprawidłowy. Zaloguj się, aby pobrać nowy.</string>

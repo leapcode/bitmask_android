@@ -32,6 +32,7 @@
   <string name="password_mismatch">Paroolid ei ühti</string>
   <string name="user_message">Kasutaja sõnum</string>
   <string name="about_fragment_title">Teave</string>
+  <string name="exclude_apps_fragment_title">Välista rakendusi VPNist</string>
   <string name="error_srp_math_error_user_message">Proovi uuesti: serveripoolne matemaatika viga.</string>
   <string name="error_bad_user_password_user_message">Sobimatu kasutajanimi või parool.</string>
   <string name="error_not_valid_password_user_message">See peab olema vähemalt 8 tähemärki pikk.</string>

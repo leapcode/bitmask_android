@@ -14,7 +14,7 @@
   <string name="provider_label">مزود الخدمة:</string>
   <string name="provider_label_none">لا مزود خدمة مفعل</string>
   <string name="status_unknown">الحالة غير معروفة.</string>
-  <string name="eip_service_label">اتصال شبكة خاصة افتراضية VPN مشفر بالانترنت</string>
+  <string name="eip_service_label">نفاذ مشفّر إلى الإنترنت عبر الـ VPN</string>
   <string name="configuration_wizard_title">اختر مزود خدمة</string>
   <string name="add_provider">أضف مزود خدمة</string>
   <string name="introduce_new_provider">أضف مزود خدمة جديد</string>
@@ -32,6 +32,7 @@
   <string name="password_mismatch">كلمتا السر غير متطابقتين</string>
   <string name="user_message">رسالة المستخدم</string>
   <string name="about_fragment_title">عن التطبيق</string>
+  <string name="exclude_apps_fragment_title">إقصاء تطبيقات من الـ VPN</string>
   <string name="error_srp_math_error_user_message">أعد المحاولة: خطأ حسابي في الخادم</string>
   <string name="error_bad_user_password_user_message">اسم المستخدم أو كلمة السر غير صحيحة</string>
   <string name="error_not_valid_password_user_message">يجب أن تكون 8 حروف على الأقل</string>
@@ -57,7 +58,7 @@
   <string name="service_is_down_error">الخدمة متوقفة.</string>
   <string name="configuring_provider">جاري ضبط مزود الخدمة</string>
   <string name="incorrectly_downloaded_certificate_message">شهادتك المجهلة لم يتم تحميلها</string>
-  <string name="downloading_certificate_message">جاري تنزيل شهادة الشبكة الافتراضية الخاصة</string>
+  <string name="downloading_certificate_message">جارٍ تنزيل شهادة الشبكة الافتراضية الخاصة</string>
   <string name="updating_certificate_message">جارٍ تحديث شهادة الشبكة الافتراضية الخاصة</string>
   <string name="login.riseup.warning">مستخدمي Riseup سيحتاجون إلى إنشاء حساب منفصل لاستخدام خدمة VPN</string>
   <string name="succesful_authentication_message">تم التحقق بنجاح</string>
@@ -80,7 +81,7 @@
   <string name="vpn_securely_routed">بيانات اتصالاتك يتم تمريرها بأمان من خلال:</string>
   <string name="vpn_securely_routed_no_internet">لم يُعثر على اتصال انترنت، عندما يعود سيتم تمرير اتصالك بأمان من خلال:</string>
   <string name="log_fragment_title">السجل</string>
-  <string name="vpn_fragment_title">الشبكة الخاصة الإفتراضية</string>
+  <string name="vpn_fragment_title">الشبكة الافتراضية الخاصة</string>
   <string name="navigation_drawer_open">افتح راسم التصفح</string>
   <string name="navigation_drawer_close">أغلق راسم التصفح</string>
   <string name="action_example">مثال لإجراء</string>
@@ -93,6 +94,7 @@
   <string name="update_certificate">حدث الشهادة</string>
   <string name="warning_eip_json_corrupted">فشل تحديث ضبط مزود الخدمة.</string>
   <string name="eip_json_corrupted_user_message">فشل تحديث ضبط مزود الخدمة. سجل دخول وأعد المحاولة.</string>
+  <string name="warning_client_parsing_error_gateways">لا يمكن التعرف على بوابة مزود الخدمة. من المحتمل أنها مضبوطة بطريقة خاطئة.</string>
   <string name="warning_corrupted_provider_details">بيانات مزود الخدمة المخزنة فسدت. يمكنك تحديث %s (موصى به) أو تحديث بيانات مزود الخدمة باستخدام شهادة CA تجارية.</string>
   <string name="warning_corrupted_provider_cert">شهادة مزود الخدمة المخزنة غير صالحة. يمكنك تحديث %s (موصى به) أو تحديث بيانات مزود الخدمة باستخدام شهادة CA تجارية.</string>
   <string name="warning_expired_provider_cert">شهادة مزود الخدمة المخزنة انتهت مدتها. يمكنك تحديث %s (موصى به) أو تحديث بيانات مزود الخدمة باستخدام شهادة CA تجارية.</string>
@@ -101,7 +103,8 @@
   <string name="vpn_certificate_user_message">شهادة VPN غير صالحة. سجل دخول لتحميل أخرى جديدة.</string>
   <string name="save_battery">وفّر البطارية</string>
   <string name="save_battery_message">اتصالات البيانات في الخلفية ستتوقف حين يكون هاتفك غير نشط.</string>
-  <string name="always_on_vpn">اتصال دائم بالشبكة الافتراضية الخاصة</string>
+  <string name="always_on_vpn">‏شبكة افتراضية خاصة (VPN) دائمة التشغيل</string>
+  <string name="subtitle_always_on_vpn">افتح إعدادات نظام الأندرويد</string>
   <string name="do_not_show_again">‮لا تظهر مجددا</string>
   <string name="always_on_vpn_user_message">لتفعيل الاتصال الدائم بالشبكة الافتراضية الخاصة في إعدادات آندرويد لل VPN، يجب النقر على أيقونة الضبط [img src] ومن ثمّ تشغيل \"شبكة ظاهريّة خاصّة (VPN) دائمة التشغيل\".</string>
   <string name="always_on_blocking_vpn_user_message">لحماية خصوصيتكم على نحو أمثل ، يجب عليكم أيضا تفعيل خيار \"منع الاتصالات بدون الشبكة الافتراضية الخاصة\".</string>
@@ -109,5 +112,24 @@
   <string name="donate_default_message">فضلا تبرع اليوم إذا كنت تُقدّر الاتصال الآمن المتوفر بسهولة سواءا للمستخدم النهائي ولمزود الخدمة.</string>
   <string name="donate_message">LEAP تعتمد على التبرعات والمنح. فضلا تبرع اليوم إذا كنت تقدر الاتصال الآمن المتوفر بسهولة للمستخدم النهائي ومزود الخدمة.</string>
   <string name="donate_button_remind_later">ذكرني لاحقا</string>
-  <string name="donate_button_donate">ادعم</string>
+  <string name="donate_button_donate">تبرّع</string>
+  <string name="obfuscated_connection">جاري استخدام اتصال مموه.</string>
+  <string name="obfuscated_connection_try">جارى محاولة استخدام اتصال مموه.</string>
+  <string name="nav_drawer_obfuscated_connection">استخدام الجسور</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">تخطى تصفية VPN</string>
+  <string name="warning_exclude_apps_message">خذ حذرك و أنت تستثنى البرامج من VPN. هذا سيكشف هويتك و سيأخذ من تأمينك.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="zero">%d لا يوجد تطبيقات غير محمية</item>
+    <item quantity="one">%d تطبيق واحد غير محمي</item>
+    <item quantity="two">%d تطبيقان غير محميان</item>
+    <item quantity="few">%d تطبيقات غير محمية</item>
+    <item quantity="many">%d تطبيق غير محمي</item>
+    <item quantity="other">%d تطبيق غير محمي</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s لا يمكنه الاتصال. من المحتمل ان اتصالات ال VPN محجوبة. هل تريد أن تحاول الاتصال ياستخدام الاتصالات المموهة؟</string>
+  <string name="warning_no_more_gateways_no_pt">%s لا يمكنه الاتصال. هل تريد اعادة المحاولة؟</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s لا يمكنه الاتصال ياستخدام اتصالات VPN مموهة. هل تريد أن تحاول الاتصال باستخدام VPN عادية؟</string>
+  <string name="warning_option_try_pt">حاول باتصال مموه</string>
+  <string name="warning_option_try_ovpn">حاول باتصال عادي</string>
+  <string name="vpn_error_establish">فشل أندرويد في تأسيس خدمة ال VPN. </string>
 </resources>

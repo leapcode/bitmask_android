@@ -96,6 +96,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="update_certificate">Update certificaat</string>
   <string name="warning_eip_json_corrupted">Updaten providerconfiguratie mislukt</string>
   <string name="eip_json_corrupted_user_message">Updaten providerconfiguratie mislukt. Login of probeer opnieuw.</string>
+  <string name="warning_client_parsing_error_gateways">De provider-gateways werden niet herkend. Ze zijn mogelijk onjuist geconfigureerd.</string>
   <string name="warning_corrupted_provider_details">Opgeslagen providerdetails zijn corrupt. Je kan Bitmask %s (aanbevolen) of de provider details updaten met een commercieel CA-certificaat.</string>
   <string name="warning_corrupted_provider_cert">Opgeslagen providercertificaat is ongeldig. Je kan %s updaten (aanbevolen) of het provider certificaat updaten met een commercieel CA-certificaat.</string>
   <string name="warning_expired_provider_cert">Opgeslagen providercertificaat is verlopen. Je kan %s updaten (aanbevolen) of het provider certificaat updaten met een commercieel CA-certificaat.</string>
@@ -105,12 +106,28 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="save_battery">Batterij besparen</string>
   <string name="save_battery_message">Dataverbindingen in de achtergrond worden in slaapstand gezet wanneer uw telefoon inactief is.</string>
   <string name="always_on_vpn">VPN altijd aan</string>
+  <string name="subtitle_always_on_vpn">Open Android systeeminstellingen</string>
   <string name="do_not_show_again">Laat niet meer zien</string>
-  <string name="always_on_vpn_user_message">Om altijd-aan (always-on) VPN in te schakelen op Android, klik op het configuratie-icoon [img src] en zet de schakelaar om.</string>
+  <string name="always_on_vpn_user_message">Om  always-on VPN (continu verbonden blijven) in te schakelen op Android, klik op het configuratie-icoon [img src] en schakel aan.</string>
   <string name="always_on_blocking_vpn_user_message">Om je privacy optimaal te beschermen, moet je ook de optie \"Verbindingen zonder VPN blokkeren\" activeren.</string>
   <string name="donate_title">Doneren</string>
   <string name="donate_default_message">Doneer vandaag als je beveiligde communicatie op prijs stelt die zowel eenvoudig is voor de eindgebruikers als de provider. </string>
   <string name="donate_message">LEAP is afhankelijk van donaties en schenkingen. Doneer nu als je beveiligde communicatie op prijs stelt die zowel eenvoudig is voor de eindgebruikers als de provider. </string>
   <string name="donate_button_remind_later">Herinner mij later</string>
   <string name="donate_button_donate">Doneren</string>
+  <string name="obfuscated_connection">Gebruikt een versluierde verbinding</string>
+  <string name="obfuscated_connection_try">Probeer een versluierde verbinding op te zetten.</string>
+  <string name="nav_drawer_obfuscated_connection">Gebruik Bridges</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">VPN-filteren omzeilen</string>
+  <string name="warning_exclude_apps_message">Wees voorzichtig met het uitsluiten van apps van de VPN. Dit onthult je identiteit en brengt je veiligheid in gevaar.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d onbeschermde app</item>
+    <item quantity="other">%d onbeschermde apps</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s kon geen verbinding maken. Het kan zijn dat VPN-verbindingen worden geblokkeerd. Wil je je proberen te verbinden met versluierde verbindingen?</string>
+  <string name="warning_no_more_gateways_no_pt">%s kon niet verbinden. Wil je opnieuw proberen?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s kon geen verbinding maken met versluierde VPN-verbindingen. Wil je het opnieuw proberen met een standaard VPN?</string>
+  <string name="warning_option_try_pt">Probeer een versluierde verbinding</string>
+  <string name="warning_option_try_ovpn">Probeer een standaard verbinding</string>
+  <string name="vpn_error_establish">Android is er niet in geslaagd de VPN-dienst op te zetten.</string>
 </resources>

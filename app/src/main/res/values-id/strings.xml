@@ -44,6 +44,7 @@
   <string name="log_fragment_title">Log</string>
   <string name="vpn_fragment_title">VPN</string>
   <string name="action_settings">Pengaturan</string>
+  <string name="always_on_vpn">VPN selalu menyala</string>
   <string name="donate_title">Donasi</string>
   <string name="donate_button_donate">Donasi</string>
 </resources>

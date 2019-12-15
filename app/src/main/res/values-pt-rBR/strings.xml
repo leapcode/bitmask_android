@@ -32,6 +32,7 @@
   <string name="password_mismatch">Senhas não coincidem</string>
   <string name="user_message">Mensagem do usuário</string>
   <string name="about_fragment_title">Sobre</string>
+  <string name="exclude_apps_fragment_title">Excluir apps da VPN</string>
   <string name="error_srp_math_error_user_message">Tente novamente: Erro matemático do servidor</string>
   <string name="error_bad_user_password_user_message">Usuário ou senha incorretos</string>
   <string name="error_not_valid_password_user_message">Deve ter pelo menos 8 caracteres</string>
@@ -44,7 +45,7 @@
   <string name="login_to_profile">Entrar para o perfil</string>
   <string name="logout_button">Desconectar</string>
   <string name="signup_button">Cadastrar-se</string>
-  <string name="create_profile">Criar um perfil</string>
+  <string name="create_profile">Criar perfil</string>
   <string name="setup_provider">Definir provedor</string>
   <string name="setup_error_title">Erro de Configuração</string>
   <string name="setup_error_configure_button">Configurar</string>
@@ -93,6 +94,7 @@
   <string name="update_certificate">Atualizar certificado</string>
   <string name="warning_eip_json_corrupted">Atualização de configurações do provedor falhou.</string>
   <string name="eip_json_corrupted_user_message">Atualização do provedor falhou. Por favor, faça login e tente novamente.</string>
+  <string name="warning_client_parsing_error_gateways">Os gateways fornecidos são inválidos. Eles podem estar configurados incorretamente.</string>
   <string name="warning_corrupted_provider_details">Os dados armazenados do provedor estão corrompidos. Você pode atualizar %s (recomendado) ou atualizar os detalhes do provedor utilizando um certificado CA comercial. </string>
   <string name="warning_corrupted_provider_cert">O certificado armazenado do provedor é invalido. Você pode atualizar %s (recomendado) ou atualizar o certificado do provedor utilizando um certificado CA comercial. </string>
   <string name="warning_expired_provider_cert">O certificado do provedor está expirado. Você pode atualizar %s (recomendado) ou atualizar o certificado do provedor utilizando um certificado CA comercial. </string>
@@ -102,6 +104,7 @@
   <string name="save_battery">Economizar energia</string>
   <string name="save_battery_message">Conexões de dados em segundo plano vão hibernar quando o seu telefone estiver inativo.</string>
   <string name="always_on_vpn">VPN sempre ativa</string>
+  <string name="subtitle_always_on_vpn">Abrir configurações do Android</string>
   <string name="do_not_show_again">Não mostrar novamente</string>
   <string name="always_on_vpn_user_message">Para habilitar VPN sempre ativa nas configurações de VPN clique no ícone de configurar [img src] e mude para ligado. </string>
   <string name="always_on_blocking_vpn_user_message">Para proteger sua privacidade da melhor forma, você deveria ativar também a opção \"Bloqueie conexões sem VPN\"</string>
@@ -110,4 +113,19 @@
   <string name="donate_message">LEAP depende de doações. Por favor doe hoje se você valoriza uma comunicação segura que é simples de usar para o usuário final e para o servidor.</string>
   <string name="donate_button_remind_later">Lembre-me depois</string>
   <string name="donate_button_donate">Doar</string>
+  <string name="obfuscated_connection">Utilizando conexão ofuscada.</string>
+  <string name="obfuscated_connection_try">Tentando conexão ofuscada.</string>
+  <string name="nav_drawer_obfuscated_connection">Utilizando Bridges</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">Contornar filtragem de VPN</string>
+  <string name="warning_exclude_apps_message">Seja cuidadoso ao excluir apps da VPN. Isso pode revelar sua identidade e comprometer sua segurança.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d app desprotegido</item>
+    <item quantity="other">%d apps desprotegidos</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s não pode se conectar. Isso pode ser devido ao bloqueio de conexões via VPN. Você deseja se conectar usando uma conexão ofuscada?</string>
+  <string name="warning_no_more_gateways_no_pt">%s não pode se conectar. Gostaria de tentar novamente?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s não pode se conectar usando uma VPN ofuscada. Voce gostaria de tentar usando uma conexão padrão?</string>
+  <string name="warning_option_try_pt">Tentar conexão ofuscada</string>
+  <string name="warning_option_try_ovpn">Tentar conexão padrão</string>
+  <string name="vpn_error_establish">Android falhou ao estabelecer o serviço VPN.</string>
 </resources>

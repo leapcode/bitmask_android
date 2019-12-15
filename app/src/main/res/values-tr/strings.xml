@@ -1,14 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="retry">Tekrar dene</string>
-  <string name="repository_url_text">Kaynak kod https://0xacab.org/leap/bitmask_android</string>
-  <string name="leap_tracker">Sorun izleyici https://0xacab.org/leap/bitmask_android/issues adresinde mevcuttur.</string>
-  <string name="translation_project_text">Çeviriler memnuniyetle kabul edilir. Transifex projemize bakın https://www.transifex.com/projects/p/bitmask-android/</string>
+  <string name="repository_url_text">Kaynak kodlara https://0xacab.org/leap/bitmask_android adresinden ulaşabilirsiniz.</string>
+  <string name="leap_tracker">Hata takip sistemi https://0xacab.org/leap/bitmask_android/issues adresinde mevcuttur.</string>
+  <string name="translation_project_text">Çeviriler memnuniyetle kabul edilir. Transifex projemize https://www.transifex.com/projects/p/bitmask-android/ adresinden ulaşabilirsiniz.</string>
   <string name="switch_provider_menu_option">Sağlayıcı değiştir</string>
   <string name="info">bilgi</string>
   <string name="show_connection_details">Bağlantı ayrıntılarını göster</string>
   <string name="routes_info">Yollar: %s</string>
+  <string name="routes_info6">IPv6 yolları: %s</string>
   <string name="error_empty_username">Kullanıcı adı boş bırakılamaz.</string>
+  <string name="cert_from_keystore">Anahtar deposundan \'%s\' sertifikası alındı</string>
   <string name="provider_label">Sağlayıcı:</string>
   <string name="provider_label_none">Sağlayıcı yapılandırılmadı</string>
   <string name="status_unknown">Durum bilinmiyor.</string>
@@ -30,6 +32,7 @@
   <string name="password_mismatch">Parolalar uyuşmuyor</string>
   <string name="user_message">Kullanıcı iletisi</string>
   <string name="about_fragment_title">Hakkında</string>
+  <string name="exclude_apps_fragment_title">Uygulamaları VPN\'den dışla</string>
   <string name="error_srp_math_error_user_message">Tekrar dene: Sunucu matematik hatası</string>
   <string name="error_bad_user_password_user_message">Yanlış kullanıcı adı ya da parola</string>
   <string name="error_not_valid_password_user_message">En az 8 karakter uzunluğunda olmalı</string>
@@ -68,6 +71,7 @@
   <string name="eip_state_not_connected">Çalışmıyor! Güvensiz bağlantı!</string>
   <string name="eip_state_connected">Bağlantı Güvenli</string>
   <string name="provider_problem">Sağlayıcı ile ilgili bir sorun var gibi görünüyor.</string>
+  <string name="try_another_provider">Lütfen başka bir sağlayıcı deneyin veya kendinizinkiyle bağlantı kurun.</string>
   <string name="default_username">Anonim</string>
   <string name="logging_in">Giriş yapılıyor</string>
   <string name="signing_up">Kayıt ol</string>
@@ -78,15 +82,19 @@
   <string name="vpn_securely_routed_no_internet">İnternet bağlantısı tespit edilmedi, geri döndüğünde trafiğinizi güvenli bir şekilde yönlendireceğiz:</string>
   <string name="log_fragment_title">Günlük</string>
   <string name="vpn_fragment_title">VPN , Sanal özel ağ</string>
+  <string name="navigation_drawer_open">Gezinti çekmecesini aç</string>
   <string name="navigation_drawer_close">Gezinme çekmecesini kapat</string>
   <string name="action_example">Örnek eylem</string>
   <string name="action_settings">Ayarlar</string>
   <string name="void_vpn_establish">%s tüm giden internet trafiğini engeller.</string>
+  <string name="void_vpn_error_establish">VPN engellemesi oluşturma başarısız oldu</string>
+  <string name="void_vpn_stopped">Dışa dönük internet trafiğinin tümünün engellenmesi durduruldu</string>
   <string name="void_vpn_title">Trafiği engelle</string>
   <string name="update_provider_details">Sağlayıcı bilgilerini güncelle</string>
   <string name="update_certificate">Sertifikayı güncelle</string>
   <string name="warning_eip_json_corrupted">Sağlayıcı yapılandırması güncellenemedi.</string>
   <string name="eip_json_corrupted_user_message">Sağlayıcı yapılandırması güncellenemedi. Lütfen tekrar denemek için giriş yapın.</string>
+  <string name="warning_client_parsing_error_gateways">Sağlayıcı geçitleri tanımlanamıyor. Yanlış yapılandırılmış olabilir.</string>
   <string name="warning_corrupted_provider_details">Depolanan sağlayıcı bilgileri bozuk. Ticari bir CA sertifikası kullanarak sağlayıcı bilgilerini güncelleyebilir (önerilen) veya sağlayıcı ayrıntılarını güncelleyebilirsiniz.</string>
   <string name="warning_corrupted_provider_cert">Depolanan sağlayıcı sertifikası geçersiz. Ticari bir CA sertifikası kullanarak %s (önerilir) güncelleyebilir veya sağlayıcı sertifikasını güncelleyebilirsiniz.</string>
   <string name="warning_expired_provider_cert">Depolanan sağlayıcı sertifikasının süresi dolmuş. Ticari bir CA sertifikası kullanarak %s (önerilir) güncelleyebilir veya sağlayıcı sertifikasını güncelleyebilirsiniz.</string>
@@ -96,11 +104,28 @@
   <string name="save_battery">Güç tasarrufu</string>
   <string name="save_battery_message">Arka plan veri bağlantıları, telefonunuz etkin olmadığında hazırda bekleme moduna geçer.</string>
   <string name="always_on_vpn">Her zaman açık VPN</string>
+  <string name="subtitle_always_on_vpn">Android Sistem Ayarlarını Aç</string>
   <string name="do_not_show_again">Tekrar gösterme</string>
+  <string name="always_on_vpn_user_message">Android VPN ayarlarında Always-on VPN\'i sağlamak için yapılandır simgesine [img src] tıklayın ve seçeneği seçili yapın.  </string>
   <string name="always_on_blocking_vpn_user_message">Gizliliğinizi en iyi şekilde korumak için, \"VPN^siz bağlantıları engelle\" seçeneğini de etkinleştirmelisiniz.</string>
   <string name="donate_title">Bağışta bulun</string>
   <string name="donate_default_message">Hem son kullanıcı hem de servis sağlayıcı için kolay olan güvenli iletişime önem veriyorsanız, lütfen bugün bağış yapın.</string>
   <string name="donate_message">LEAP bağış ve bağışlara bağlıdır. Hem son kullanıcı hem de servis sağlayıcı için kolay olan güvenli iletişime önem veriyorsanız, lütfen bugün bağış yapın.</string>
   <string name="donate_button_remind_later">Beni hatırla</string>
   <string name="donate_button_donate">Bağışta bulun</string>
+  <string name="obfuscated_connection">Karartılmış bağlantı kullanılıyor.</string>
+  <string name="obfuscated_connection_try">Karartılmış bir bağlantı deneniyor.</string>
+  <string name="nav_drawer_obfuscated_connection">Köprüleri Kullanma</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">VPN filtrelemeyi önle</string>
+  <string name="warning_exclude_apps_message">Uygulamaları VPN dışında tutarken dikkatli olun. Bu durum kimliğinizi açığa çıkarabilir ve güvenliğinizi tehlikeye sokabilir.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d korunmasız uygulama</item>
+    <item quantity="other">%d korunmasız uygulama</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s bağlanamıyor. VPN bağlantıları engelleniyor olabilir. Karartılmış bağlantıları kullanarak bağlanmayı denemek istiyor musunuz?</string>
+  <string name="warning_no_more_gateways_no_pt">%s bağlanamıyor. Tekrar denemek ister misiniz?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s karartılmış VPN bağlantılarıyla bağlanamıyor. Standart VPN kullanarak bağlanmayı denemek istiyor musunuz?</string>
+  <string name="warning_option_try_pt">Karartılmış bağlantıyı dene</string>
+  <string name="warning_option_try_ovpn">Standart bağlantıyı dene</string>
+  <string name="vpn_error_establish">Android, VPN hizmetini kurmakta başarısız oldu.</string>
 </resources>

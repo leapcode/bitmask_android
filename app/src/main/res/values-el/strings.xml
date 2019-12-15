@@ -32,6 +32,7 @@
   <string name="password_mismatch">Οι κωδικοί δεν ταιριάζουν</string>
   <string name="user_message">Μήνυμα χρήστη</string>
   <string name="about_fragment_title">Σχετικά</string>
+  <string name="exclude_apps_fragment_title">Αποκλεισμός εφαρμογών από το VPN </string>
   <string name="error_srp_math_error_user_message">Προσπαθήστε ξανά: Μαθηματικό σφάλμα διακομιστή.</string>
   <string name="error_bad_user_password_user_message">Λάθος όνομα χρήστη ή κωδικός πρόσβασης</string>
   <string name="error_not_valid_password_user_message">Πρέπει να είναι τουλάχιστον 8 χαρακτήρες</string>
@@ -102,6 +103,7 @@
   <string name="save_battery">Εξοικονόμηση μπαταρίας</string>
   <string name="save_battery_message">Οι συνδέσεις δεδομένων στο υπόβαθρο θα παύονται όταν το τηλέφωνό σας δεν είναι ενεργό.</string>
   <string name="always_on_vpn">Πάντα ενεργοποιημένο VPN</string>
+  <string name="subtitle_always_on_vpn">Άνοιγμα Ρυθμίσεων Συστήματος Android</string>
   <string name="do_not_show_again">Να μην εμφανιστεί ξανά</string>
   <string name="always_on_vpn_user_message">Για να ενεργοποιηθεί το always-on VPN στις ρυθμίσεις VPN του Android, πατήστε στο εικονίδιο παραμετροποίησης [img src] και ανοίξτε το διακόπτη.</string>
   <string name="always_on_blocking_vpn_user_message">Για βέλτιστη προστασία της ιδιωτικότητάς σας, πρέπει να ενεργοποιήσετε επίσης την επιλογή \"Μπλοκάρισμα συνδέσεων χωρίς VPN\".</string>
@@ -110,4 +112,11 @@
   <string name="donate_message">Το LEAP στηρίζεται από δωρεές και χρηματοδοτήσεις. Αν θεωρείτε πως αν δίνετε αξία στην ασφαλή επικοινωνία που είναι εύκολη τόσο για τον τελικό χρήστη όσο και για τον πάροχο της υπηρεσίας, κάντε μια δωρεά σήμερα.</string>
   <string name="donate_button_remind_later">Υπενθύμιση αργότερα</string>
   <string name="donate_button_donate">Δωρεά</string>
+  <string name="warning_exclude_apps_message">Προσέξτε να αποκλείσετε εφαρμογές από το VPN. Αυτό θα αποκαλύψει την ταυτότητά σας και θα θέσει σε κίνδυνο την ασφάλειά σας.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d απροστάτευτη εφαρμογή</item>
+    <item quantity="other">%d απροστάτευτες εφαρμογές</item>
+  </plurals>
+  <string name="warning_option_try_ovpn">Δοκιμάστε κανονική σύνδεση</string>
+  <string name="vpn_error_establish">Το Android απέτυχε να εγκαθιδρύσει την υπηρεσία VPN.</string>
 </resources>

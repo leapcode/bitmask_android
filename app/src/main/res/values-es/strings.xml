@@ -32,6 +32,7 @@
   <string name="password_mismatch">Las contraseñas no coinciden</string>
   <string name="user_message">Mensaje del usuario</string>
   <string name="about_fragment_title">Acerca de</string>
+  <string name="exclude_apps_fragment_title">Excluir aplicaciones del VPN</string>
   <string name="error_srp_math_error_user_message">Inténtalo de nuevo: Error matemático del servidor.</string>
   <string name="error_bad_user_password_user_message">Nombre de usuario o contraseña incorrectos.</string>
   <string name="error_not_valid_password_user_message">Debe tener al menos 8 caracteres.</string>
@@ -102,6 +103,7 @@
   <string name="save_battery">Ahorrar batería</string>
   <string name="save_battery_message">Las conexiones de datos de segundo plano hibernarán cuando tu teléfono esté inactivo.</string>
   <string name="always_on_vpn">VPN siempre activa</string>
+  <string name="subtitle_always_on_vpn">Abrir Configuración del Sistema de Android</string>
   <string name="do_not_show_again">No mostrar de nuevo.</string>
   <string name="always_on_vpn_user_message">Para habilitar VPN siempre activa en las configuraciones de VPN de Android, haz clic en el ícono de configuración [img src] y activa el selector.</string>
   <string name="always_on_blocking_vpn_user_message">Para proteger tu privacidad de manera óptima, también deberías activar la opción \"Bloquear conexiones sin VPN\". </string>
@@ -110,4 +112,17 @@
   <string name="donate_message">LEAP depende de donaciones y subvenciones. Por favor haz una donación hoy si valoras la comunicación segura que es fácil tanto para el usuario final como para el proveedor de servicio.</string>
   <string name="donate_button_remind_later">Recordármelo más tarde</string>
   <string name="donate_button_donate">Donar</string>
+  <string name="obfuscated_connection">Probando una conexión ofuscada.</string>
+  <string name="obfuscated_connection_try">Probando una conexión ofuscada.</string>
+  <string name="nav_drawer_obfuscated_connection">Usando Puentes</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d aplicación desprotegida</item>
+    <item quantity="other">%d aplicaciones desprotegidas</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s no se pudo conectar. Puede ser que las conexiones al VPN estén bloqueadas. ¿Quieres intentar a conectar usando conexiones ofuscadas?</string>
+  <string name="warning_no_more_gateways_no_pt">%s no se pudo conectar. ¿Quieres intentarlo de nuevo?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s no se pudo conectar al VPN usando conexiones ofuscadas. ¿Quieres intentar a conectar usando el VPN estándar? </string>
+  <string name="warning_option_try_pt">Probar conexión ofuscada</string>
+  <string name="warning_option_try_ovpn">Probar conexión estándar</string>
+  <string name="vpn_error_establish">Android no se pudo establecer el servicio VPN.</string>
 </resources>
