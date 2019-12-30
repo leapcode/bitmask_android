@@ -47,18 +47,18 @@ public class FirewallHelper implements FirewallCallback {
     @Override
     public void onFirewallStarted(boolean success) {
         if (success) {
-            VpnStatus.logInfo("[FIREWALL] custom rules established");
+            VpnStatus.logInfo("[FIREWALL] Custom rules established");
         } else {
-            VpnStatus.logError("[FIREWALL] could not establish custom rules.");
+            VpnStatus.logError("[FIREWALL] Could not establish custom rules.");
         }
     }
 
     @Override
     public void onFirewallStopped(boolean success) {
         if (success) {
-            VpnStatus.logInfo("[FIREWALL] custom rules deleted");
+            VpnStatus.logInfo("[FIREWALL] Custom rules deleted");
         } else {
-            VpnStatus.logError("[FIREWALL] could not delete custom rules");
+            VpnStatus.logError("[FIREWALL] Could not delete custom rules");
         }
     }
 
@@ -66,7 +66,7 @@ public class FirewallHelper implements FirewallCallback {
     public void onSuRequested(boolean success) {
         PreferenceHelper.setSuPermission(context, success);
         if (!success) {
-            VpnStatus.logError("[FIREWALL] Bitmask needs root permission to execute custom firewall rules.");
+            VpnStatus.logError("[FIREWALL] Root permission needed to execute custom firewall rules.");
         }
     }
 
