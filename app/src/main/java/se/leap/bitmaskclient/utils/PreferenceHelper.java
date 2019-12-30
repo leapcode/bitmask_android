@@ -224,51 +224,27 @@ public class PreferenceHelper {
     }
 
     public static boolean getUsePluggableTransports(Context context) {
-        if (context == null) {
-            return false;
-        }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        return preferences.getBoolean(USE_PLUGGABLE_TRANSPORTS, false);
+        return getBoolean(context, USE_PLUGGABLE_TRANSPORTS, false);
     }
 
     public static void usePluggableTransports(Context context, boolean isEnabled) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        preferences.edit().putBoolean(USE_PLUGGABLE_TRANSPORTS, isEnabled).apply();
+        putBoolean(context, USE_PLUGGABLE_TRANSPORTS, isEnabled);
     }
 
     public static void saveBattery(Context context, boolean isEnabled) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        preferences.edit().putBoolean(DEFAULT_SHARED_PREFS_BATTERY_SAVER, isEnabled).apply();
+        putBoolean(context, DEFAULT_SHARED_PREFS_BATTERY_SAVER, isEnabled);
     }
 
     public static boolean getSaveBattery(Context context) {
-        if (context == null) {
-            return false;
-        }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        return preferences.getBoolean(DEFAULT_SHARED_PREFS_BATTERY_SAVER, false);
+        return getBoolean(context, DEFAULT_SHARED_PREFS_BATTERY_SAVER, false);
     }
 
     public static void saveShowAlwaysOnDialog(Context context, boolean showAlwaysOnDialog) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        preferences.edit().putBoolean(ALWAYS_ON_SHOW_DIALOG, showAlwaysOnDialog).apply();
+        putBoolean(context, ALWAYS_ON_SHOW_DIALOG, showAlwaysOnDialog);
     }
 
     public static boolean getShowAlwaysOnDialog(Context context) {
-        if (context == null) {
-            return true;
-        }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        return preferences.getBoolean(ALWAYS_ON_SHOW_DIALOG, true);
+        return getBoolean(context, ALWAYS_ON_SHOW_DIALOG, true);
     }
 
     public static JSONObject getEipDefinitionFromPreferences(SharedPreferences preferences) {
