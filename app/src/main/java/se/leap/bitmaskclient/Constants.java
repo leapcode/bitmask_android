@@ -15,6 +15,7 @@ public interface Constants {
     String LAST_USED_PROFILE = "last_used_profile";
     String EXCLUDED_APPS = "excluded_apps";
     String USE_PLUGGABLE_TRANSPORTS = "usePluggableTransports";
+    String SU_PERMISSION = "su_permission";
 
 
      //////////////////////////////////////////////

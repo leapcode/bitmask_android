@@ -31,6 +31,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.Constants.SU_PERMISSION;
 import static se.leap.bitmaskclient.Constants.USE_PLUGGABLE_TRANSPORTS;
 import static se.leap.bitmaskclient.Constants.EXCLUDED_APPS;
 
@@ -214,6 +215,14 @@ public class PreferenceHelper {
                 apply();
     }
 
+    public static boolean hasSuPermission(Context context) {
+        return getBoolean(context, SU_PERMISSION, false);
+    }
+
+    public static void setSuPermission(Context context, boolean allowed) {
+        putBoolean(context, SU_PERMISSION, allowed);
+    }
+
     public static boolean getUsePluggableTransports(Context context) {
         if (context == null) {
             return false;
@@ -296,9 +305,27 @@ public class PreferenceHelper {
         return preferences.getString(key, defValue);
     }
 
-    public static void putString(Context context, String key, String value){
+    public static void putString(Context context, String key, String value) {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putString(key, value).apply();
+    }
+
+    public static Boolean getBoolean(Context context, String key, Boolean defValue) {
+        if (context == null) {
+            return false;
+        }
+
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        return preferences.getBoolean(key, defValue);
+    }
+
+    public static void putBoolean(Context context, String key, Boolean value) {
+        if (context == null) {
+            return;
+        }
+
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putBoolean(key, value).apply();
     }
 
 }

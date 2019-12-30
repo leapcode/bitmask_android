@@ -518,7 +518,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         super.onCreate();
         notificationManager = new VpnNotificationManager(this, this);
         notificationManager.createOpenVpnNotificationChannel();
-        firewallHelper = new FirewallHelper();
+        firewallHelper = new FirewallHelper(this);
     }
 
     @Override
