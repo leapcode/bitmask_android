@@ -47,6 +47,7 @@ import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnNotificationManager;
 import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
+import se.leap.bitmaskclient.utils.FirewallHelper;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
@@ -89,6 +90,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Runnable mOpenVPNThread;
     private VpnNotificationManager notificationManager;
     private Shapeshifter shapeshifter;
+    private FirewallHelper firewallHelper;
 
     private static final int PRIORITY_MIN = -2;
     private static final int PRIORITY_DEFAULT = 0;
@@ -192,6 +194,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 VpnStatus.removeStateListener(this);
             }
         }
+        firewallHelper.shutdownFirewall();
     }
 
     private boolean runningOnAndroidTV() {
@@ -446,6 +449,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             mProcessThread.start();
         }
 
+        firewallHelper.startFirewall();
+
         new Handler(getMainLooper()).post(() -> {
             if (mDeviceStateReceiver != null) {
                 unregisterDeviceStateReceiver();
@@ -513,6 +518,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         super.onCreate();
         notificationManager = new VpnNotificationManager(this, this);
         notificationManager.createOpenVpnNotificationChannel();
+        firewallHelper = new FirewallHelper(this);
     }
 
     @Override

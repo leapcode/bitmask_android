@@ -71,7 +71,7 @@ else
         # To remove targets, simply delete them from the bracket.
         # NOTE: We are only currently shipping the armeabi-v7a binary
         # on Android, for space reasons.
-        targets=(386 amd64 armv5 armv7 arm64)
+        targets=(386 x86_64 armv7 arm64)
         export GOOS=android
 
         for arch in ${targets[@]}; do
@@ -86,7 +86,7 @@ else
                         ndk_arch="x86"
                         suffix="x86"
                         binary="i686-linux-android-gcc"
-                elif [ "$arch" = "amd64" ]; then
+                elif [ "$arch" = "x86_64" ]; then
                         ndk_platform="android-21"
                         ndk_arch="x86_64"
                         suffix="x86_64"
