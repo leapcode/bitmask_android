@@ -141,7 +141,7 @@ public final class Provider implements Parcelable {
                 }
             }
         } catch (Exception e) {
-           e.printStackTrace();
+           // ignore
         }
        return false;
     }
