@@ -118,7 +118,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private SharedPreferences preferences;
 
     private final static String KEY_SHOW_SAVE_BATTERY_ALERT = "KEY_SHOW_SAVE_BATTERY_ALERT";
-    private boolean showEnableExperimentalFeature = false;
+    private volatile boolean showSaveBattery = false;
     AlertDialog alertDialog;
 
     @Override
@@ -430,8 +430,9 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (showEnableExperimentalFeature) {
+        if (showSaveBattery) {
             outState.putBoolean(KEY_SHOW_SAVE_BATTERY_ALERT, true);
+            alertDialog.dismiss();
         }
     }
 
@@ -449,7 +450,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
         try {
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-            showEnableExperimentalFeature = true;
+            showSaveBattery = true;
             alertDialog = alertBuilder
                     .setTitle(activity.getString(R.string.save_battery))
                     .setMessage(activity.getString(R.string.save_battery_message))
