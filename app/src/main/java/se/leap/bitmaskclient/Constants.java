@@ -16,6 +16,9 @@ public interface Constants {
     String EXCLUDED_APPS = "excluded_apps";
     String USE_PLUGGABLE_TRANSPORTS = "usePluggableTransports";
     String SU_PERMISSION = "su_permission";
+    String TETHERING_BLUETOOTH = "tethering_bluetooth";
+    String TETHERING_WIFI = "tethering_wifi";
+    String TETHERING_USB = "tethering_usb";
 
 
      //////////////////////////////////////////////
@@ -55,6 +58,7 @@ public interface Constants {
     String EIP_ACTION_START_BLOCKING_VPN = "se.leap.bitmaskclient.EIP_ACTION_START_BLOCKING_VPN";
     String EIP_ACTION_STOP_BLOCKING_VPN = "se.leap.bitmaskclient.EIP_ACTION_STOP_BLOCKING_VPN";
     String EIP_ACTION_PREPARE_VPN = "se.leap.bitmaskclient.EIP_ACTION_PREPARE_VPN";
+    String EIP_ACTION_CONFIGURE_TETHERING = "se.leap.bitmaskclient.EIP_ACTION_CONFIGURE_TETHERING";
 
     String EIP_RECEIVER = "EIP.RECEIVER";
     String EIP_REQUEST = "EIP.REQUEST";

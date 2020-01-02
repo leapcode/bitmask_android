@@ -105,6 +105,14 @@
   <string name="save_battery_message">Background data connections will hibernate when your phone is inactive.</string>
   <string name="always_on_vpn">Always-on VPN</string>
   <string name="subtitle_always_on_vpn">Open Android System Settings</string>
+  <string name="tethering">VPN Hotspot</string>
+  <string name="subtitle_tethering">Share your VPN</string>
+  <string name="tethering_enabled_message">Please make sure that you have enabled tethering in the %s first!</string>
+  <string name="tethering_system_settings">system settings</string>
+  <string name="tethering_message">Share your VPN with other devices via:</string>
+  <string name="tethering_wifi">Wifi hotspot</string>
+  <string name="tethering_usb">USB tethering</string>
+  <string name="tethering_bluetooth">Bluetooth tethering</string>
   <string name="do_not_show_again">Do not show again</string>
   <string name="always_on_vpn_user_message">To enable always-on VPN in Android VPN Settings click on the configure icon [img src] and turn the switch on.</string>
   <string name="always_on_blocking_vpn_user_message">To protect your privacy optimally, you should also activate the option \"Block connections without VPN\".</string>
