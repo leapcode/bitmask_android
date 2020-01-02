@@ -15,7 +15,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,8 +83,6 @@ public class TetheringDialog extends AppCompatDialogFragment {
             public boolean checked;
 
             ViewModel(Drawable image, String text, boolean checked) {
-                Log.d(TAG, "init ViewModel with string: " + text + " checked: " + checked);
-
                 this.image = image;
                 this.text = text;
                 this.checked = checked;
@@ -99,8 +96,6 @@ public class TetheringDialog extends AppCompatDialogFragment {
             }
 
             public void bind(ViewModel model, OnItemClickListener onClickListener) {
-                Log.d(TAG, "bind ViewModel");
-
                 ((IconCheckboxEntry) this.itemView).bind(model);
                 this.itemView.setOnClickListener(v -> {
                     model.checked = !model.checked;
