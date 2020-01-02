@@ -60,6 +60,7 @@ import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.ExcludeAppsFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
+import se.leap.bitmaskclient.fragments.TetheringDialog;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconSwitchEntry;
 import se.leap.bitmaskclient.views.IconTextEntry;
@@ -236,6 +237,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         initUseBridgesEntry();
         initSaveBatteryEntry();
         initAlwaysOnVpnEntry();
+        initTetheringEntry();
         initExcludeAppsEntry();
         initDonateEntry();
         initLogEntry();
@@ -319,6 +321,19 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 }
             });
         }
+    }
+
+    private void initTetheringEntry() {
+        IconTextEntry tethering = drawerView.findViewById(R.id.tethering);
+        if (PreferenceHelper.hasSuPermission(getContext())) {
+            tethering.setVisibility(VISIBLE);
+            tethering.setOnClickListener((buttonView) -> {
+                showTetheringAlert();
+            });
+        } else {
+            tethering.setVisibility(GONE);
+        }
+
     }
 
     private void initExcludeAppsEntry() {
@@ -442,9 +457,22 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                         saveBattery(getContext(), true);
                     })
                     .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> saveBattery.setCheckedQuietly(false))
-                    .setOnDismissListener(dialog -> showEnableExperimentalFeature = false)
+                    .setOnDismissListener(dialog -> showSaveBattery = false)
                     .setOnCancelListener(dialog -> saveBattery.setCheckedQuietly(false)).show();
         } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showTetheringAlert() {
+        try {
+
+            FragmentTransaction fragmentTransaction = new FragmentManagerEnhanced(
+                    getActivity().getSupportFragmentManager()).removePreviousFragment(
+                    TetheringDialog.TAG);
+            DialogFragment newFragment = new TetheringDialog();
+            newFragment.show(fragmentTransaction, TetheringDialog.TAG);
+        } catch (IllegalStateException | NullPointerException e) {
             e.printStackTrace();
         }
     }

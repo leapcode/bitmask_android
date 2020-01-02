@@ -61,6 +61,7 @@ import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN
 import static se.leap.bitmaskclient.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_CONFIGURE_TETHERING;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_IS_RUNNING;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
@@ -189,6 +190,9 @@ public final class EIP extends JobIntentService implements Observer {
             case EIP_ACTION_START_BLOCKING_VPN:
                 disconnect();
                 earlyRoutes();
+                break;
+            case EIP_ACTION_CONFIGURE_TETHERING:
+                Log.d(TAG, "TODO: implement tethering configuration");
                 break;
         }
     }

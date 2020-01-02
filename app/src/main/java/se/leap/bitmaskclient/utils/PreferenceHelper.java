@@ -32,6 +32,9 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.Constants.SU_PERMISSION;
+import static se.leap.bitmaskclient.Constants.TETHERING_BLUETOOTH;
+import static se.leap.bitmaskclient.Constants.TETHERING_USB;
+import static se.leap.bitmaskclient.Constants.TETHERING_WIFI;
 import static se.leap.bitmaskclient.Constants.USE_PLUGGABLE_TRANSPORTS;
 
 /**
@@ -144,6 +147,30 @@ public class PreferenceHelper {
 
     public static boolean getSaveBattery(Context context) {
         return getBoolean(context, DEFAULT_SHARED_PREFS_BATTERY_SAVER, false);
+    }
+
+    public static void usbTethering(Context context, boolean isEnabled) {
+        putBoolean(context, TETHERING_USB, isEnabled);
+    }
+
+    public static boolean getUsbTethering(Context context) {
+        return getBoolean(context, TETHERING_USB, false);
+    }
+
+    public static void wifiTethering(Context context, boolean isEnabled) {
+        putBoolean(context, TETHERING_WIFI, isEnabled);
+    }
+
+    public static boolean getWifiTethering(Context context) {
+        return getBoolean(context, TETHERING_WIFI, false);
+    }
+
+    public static void bluetoothTethering(Context context, boolean isEnabled) {
+        putBoolean(context, TETHERING_BLUETOOTH, isEnabled);
+    }
+
+    public static boolean getBluetoothTethering(Context context) {
+        return getBoolean(context, TETHERING_BLUETOOTH, false);
     }
 
     public static void saveShowAlwaysOnDialog(Context context, boolean showAlwaysOnDialog) {

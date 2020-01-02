@@ -5,48 +5,43 @@
     android:orientation="horizontal"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/material_icon"
         android:layout_width="?android:attr/listPreferredItemHeightSmall"
         android:layout_height="?android:attr/listPreferredItemHeightSmall"
+        android:padding="6dp"
         android:layout_gravity="center"
-        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-        android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
-        tools:src="@drawable/ic_add_circle_outline_grey600_24dp"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/ic_bluetooth"
         />
+
     <TextView
         android:id="@android:id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceListItemSmall"
         android:gravity="center_vertical"
-        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-        android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
-        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-        android:paddingRight="?android:attr/listPreferredItemPaddingRight"
+        android:paddingStart="4dp"
+        android:paddingLeft="4dp"
+        android:paddingEnd="4dp"
+        android:paddingRight="4dp"
         android:minHeight="?android:attr/listPreferredItemHeightSmall"
         tools:text="TEST"
         android:layout_toEndOf="@id/material_icon"
         android:layout_toRightOf="@+id/material_icon"
-        android:layout_above="@+id/subtitle"
         />
 
-    <TextView
-        android:id="@+id/subtitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:layout_alignParentBottom="true"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-        android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
-        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-        android:paddingRight="?android:attr/listPreferredItemPaddingRight"
-        android:paddingBottom="4dp"
-        tools:text="TEST"
-        android:visibility="gone"
-        android:layout_toEndOf="@id/material_icon"
-        android:layout_toRightOf="@+id/material_icon"
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/checked_icon"
+        android:layout_width="?android:attr/listPreferredItemHeightSmall"
+        android:layout_height="?android:attr/listPreferredItemHeightSmall"
+        android:layout_gravity="center"
+        android:padding="10dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        tools:src="@drawable/ic_check_bold"
+        android:visibility="visible"
+        tools:visibility="visible"
         />
 
     <View

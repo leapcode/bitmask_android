@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView     xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -18,46 +18,34 @@
             android:layout_marginTop="@dimen/add_button_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:text="@string/always_on_vpn"
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:textStyle="bold"
             />
 
-        <se.leap.bitmaskclient.views.IconTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/user_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginBottom="0dp"
-            android:autoLink="web"
-            tools:text="@string/always_on_vpn_user_message"
+            tools:text="@string/tethering_message"
             android:textSize="17sp"
             />
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/block_vpn_user_message"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/selection_list_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:drawSelectorOnTop="false"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginTop="@dimen/standard_margin"
             android:layout_marginBottom="@dimen/standard_margin"
-            android:text="@string/always_on_blocking_vpn_user_message"
-            android:visibility="gone"
+            android:visibility="visible"
             tools:visibility="visible"
-            android:textSize="17sp"
             />
-
-
-        <CheckBox
-            android:id="@+id/do_not_show_again"
-            android:textAppearance="@style/TextAppearance.AppCompat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/stdpadding"
-            android:text="@string/do_not_show_again" />
 
     </LinearLayout>
 </ScrollView>

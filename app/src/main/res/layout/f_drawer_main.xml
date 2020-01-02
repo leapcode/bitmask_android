@@ -88,6 +88,16 @@
             android:visibility="gone"
             />
 
+
+        <se.leap.bitmaskclient.views.IconTextEntry
+            android:id="@+id/tethering"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:text="@string/tethering"
+            app:icon="@drawable/ic_access_point_36"
+            android:visibility="gone"
+            />
+
         <se.leap.bitmaskclient.views.IconTextEntry
             android:id="@+id/exclude_apps"
             android:layout_width="wrap_content"

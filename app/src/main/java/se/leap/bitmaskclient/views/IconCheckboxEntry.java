@@ -2,45 +2,51 @@ package se.leap.bitmaskclient.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.ColorRes;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.fragments.TetheringDialog;
 
 
-public class IconTextEntry extends LinearLayout {
+public class IconCheckboxEntry extends LinearLayout {
 
-    private TextView textView;
-    private ImageView iconView;
-    private TextView subtitleView;
+    @InjectView(android.R.id.text1)
+    TextView textView;
 
-    public IconTextEntry(Context context) {
+    @InjectView(R.id.material_icon)
+    AppCompatImageView iconView;
+
+    @InjectView(R.id.checked_icon)
+    AppCompatImageView checkedIcon;
+
+    public IconCheckboxEntry(Context context) {
         super(context);
         initLayout(context, null);
     }
 
-    public IconTextEntry(Context context, @Nullable AttributeSet attrs) {
+    public IconCheckboxEntry(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initLayout(context, attrs);
     }
 
-    public IconTextEntry(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public IconCheckboxEntry(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initLayout(context, attrs);
     }
 
     @TargetApi(21)
-    public IconTextEntry(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public IconCheckboxEntry(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initLayout(context, attrs);
     }
@@ -48,59 +54,24 @@ public class IconTextEntry extends LinearLayout {
     void initLayout(Context context, AttributeSet attrs) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rootview = inflater.inflate(R.layout.v_icon_text_list_item, this, true);
-        textView = rootview.findViewById(android.R.id.text1);
-        subtitleView = rootview.findViewById(R.id.subtitle);
-        iconView = rootview.findViewById(R.id.material_icon);
+        View rootview = inflater.inflate(R.layout.v_icon_select_text_list_item, this, true);
+        ButterKnife.inject(this, rootview);
 
-        if (attrs != null) {
-            TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.IconTextEntry);
-
-            String entryText = typedArray.getString(R.styleable.IconTextEntry_text);
-            if (entryText != null) {
-                textView.setText(entryText);
-            }
-
-            String subtitle = typedArray.getString(R.styleable.IconTextEntry_subtitle);
-            if (subtitle != null) {
-                subtitleView.setText(subtitle);
-                subtitleView.setVisibility(VISIBLE);
-            }
-
-            Drawable drawable = typedArray.getDrawable(R.styleable.IconTextEntry_icon);
-            if (drawable != null) {
-                iconView.setImageDrawable(drawable);
-            }
-
-            typedArray.recycle();
-        }
-
+        Drawable checkIcon = DrawableCompat.wrap(getResources().getDrawable(R.drawable.ic_check_bold));
+        DrawableCompat.setTint(checkIcon, ContextCompat.getColor(getContext(), R.color.colorSuccess));
+        checkedIcon.setImageDrawable(checkIcon);
 
     }
 
-    public void setText(@StringRes int id) {
-        textView.setText(id);
+    public void bind(TetheringDialog.DialogListAdapter.ViewModel model) {
+        textView.setText(model.text);
+        iconView.setImageDrawable(model.image);
+        setChecked(model.checked);
     }
 
-    public void setSubtitle(String text) {
-        subtitleView.setText(text);
-        subtitleView.setVisibility(VISIBLE);
-    }
-
-    public void hideSubtitle() {
-        subtitleView.setVisibility(GONE);
-    }
-
-    public void setSubtitleColor(@ColorRes int color) {
-        subtitleView.setTextColor(getContext().getResources().getColor(color));
-    }
-
-    public void setText(CharSequence text) {
-        textView.setText(text);
-    }
-
-    public void setIcon(@DrawableRes int id) {
-        iconView.setImageResource(id);
+    public void setChecked(boolean checked) {
+        checkedIcon.setVisibility(checked ? VISIBLE : GONE);
+        checkedIcon.setContentDescription(checked ? "selected" : "unselected");
     }
 
 }
