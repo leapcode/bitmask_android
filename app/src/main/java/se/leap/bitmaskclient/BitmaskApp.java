@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatDelegate;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
-import se.leap.bitmaskclient.tethering.WifiHotspotObserver;
+import se.leap.bitmaskclient.tethering.TetheringObserver;
 
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
@@ -40,7 +40,7 @@ public class BitmaskApp extends MultiDexApplication {
         providerObservable.updateProvider(getSavedProviderFromSharedPreferences(preferences));
         EipSetupObserver.init(this, preferences);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        WifiHotspotObserver.init(this);
+        TetheringObserver.init(this);
     }
 
     /**

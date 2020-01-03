@@ -23,7 +23,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipCommand;
-import se.leap.bitmaskclient.tethering.WifiHotspotObserver;
+import se.leap.bitmaskclient.tethering.TetheringObserver;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconCheckboxEntry;
 
@@ -142,7 +142,8 @@ public class TetheringDialog extends AppCompatDialogFragment {
     @Override
     public void onResume() {
         super.onResume();
-        dataset[0].enabled = WifiHotspotObserver.getInstance().isEnabled();
+        dataset[0].enabled = TetheringObserver.getInstance().isWifiTetheringEnabled();
+        dataset[1].enabled = TetheringObserver.getInstance().isUsbTetheringEnabled();
         adapter.notifyDataSetChanged();
     }
 
@@ -175,11 +176,11 @@ public class TetheringDialog extends AppCompatDialogFragment {
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_wifi),
                         getContext().getString(R.string.tethering_wifi),
                         PreferenceHelper.getWifiTethering(getContext()),
-                        WifiHotspotObserver.getInstance().isEnabled()),
+                        TetheringObserver.getInstance().isWifiTetheringEnabled()),
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_usb),
                         getContext().getString(R.string.tethering_usb),
                         PreferenceHelper.getUsbTethering(getContext()),
-                        true),
+                        TetheringObserver.getInstance().isUsbTetheringEnabled()),
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_bluetooth),
                         getContext().getString(R.string.tethering_bluetooth),
                         PreferenceHelper.getBluetoothTethering(getContext()),
