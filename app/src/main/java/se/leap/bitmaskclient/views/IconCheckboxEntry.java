@@ -57,15 +57,24 @@ public class IconCheckboxEntry extends LinearLayout {
         View rootview = inflater.inflate(R.layout.v_icon_select_text_list_item, this, true);
         ButterKnife.inject(this, rootview);
 
-        Drawable checkIcon = DrawableCompat.wrap(getResources().getDrawable(R.drawable.ic_check_bold));
-        DrawableCompat.setTint(checkIcon, ContextCompat.getColor(getContext(), R.color.colorSuccess));
-        checkedIcon.setImageDrawable(checkIcon);
+
 
     }
 
     public void bind(TetheringDialog.DialogListAdapter.ViewModel model) {
+        this.setEnabled(model.enabled);
         textView.setText(model.text);
+        textView.setEnabled(model.enabled);
+
+        Drawable checkIcon = DrawableCompat.wrap(getResources().getDrawable(R.drawable.ic_check_bold)).mutate();
+        if (model.enabled) {
+            DrawableCompat.setTint(checkIcon, ContextCompat.getColor(getContext(), R.color.colorSuccess));
+        } else {
+            DrawableCompat.setTint(checkIcon, ContextCompat.getColor(getContext(), R.color.colorDisabled));
+        }
+
         iconView.setImageDrawable(model.image);
+        checkedIcon.setImageDrawable(checkIcon);
         setChecked(model.checked);
     }
 

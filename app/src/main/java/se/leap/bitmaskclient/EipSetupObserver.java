@@ -44,7 +44,6 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 
 /**
  * Created by cyberta on 05.12.18.

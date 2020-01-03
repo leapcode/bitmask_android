@@ -23,6 +23,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.tethering.WifiHotspotObserver;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconCheckboxEntry;
 
@@ -81,11 +82,13 @@ public class TetheringDialog extends AppCompatDialogFragment {
             public Drawable image;
             public String text;
             public boolean checked;
+            public boolean enabled;
 
-            ViewModel(Drawable image, String text, boolean checked) {
+            ViewModel(Drawable image, String text, boolean checked, boolean enabled) {
                 this.image = image;
                 this.text = text;
                 this.checked = checked;
+                this.enabled = enabled;
             }
         }
 
@@ -136,6 +139,13 @@ public class TetheringDialog extends AppCompatDialogFragment {
         return builder.create();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        dataset[0].enabled = WifiHotspotObserver.getInstance().isEnabled();
+        adapter.notifyDataSetChanged();
+    }
+
     public void onItemClick(DialogListAdapter.ViewModel item) {
 
     }
@@ -164,13 +174,16 @@ public class TetheringDialog extends AppCompatDialogFragment {
         dataset = new DialogListAdapter.ViewModel[] {
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_wifi),
                         getContext().getString(R.string.tethering_wifi),
-                        PreferenceHelper.getWifiTethering(getContext())),
+                        PreferenceHelper.getWifiTethering(getContext()),
+                        WifiHotspotObserver.getInstance().isEnabled()),
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_usb),
                         getContext().getString(R.string.tethering_usb),
-                        PreferenceHelper.getUsbTethering(getContext())),
+                        PreferenceHelper.getUsbTethering(getContext()),
+                        true),
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_bluetooth),
                         getContext().getString(R.string.tethering_bluetooth),
-                        PreferenceHelper.getBluetoothTethering(getContext()))
+                        PreferenceHelper.getBluetoothTethering(getContext()),
+                        true)
         };
     }
 
