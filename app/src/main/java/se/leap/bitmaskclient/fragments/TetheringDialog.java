@@ -15,15 +15,19 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.Observable;
+import java.util.Observer;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipCommand;
-import se.leap.bitmaskclient.tethering.TetheringObserver;
+import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconCheckboxEntry;
 
@@ -31,7 +35,7 @@ import se.leap.bitmaskclient.views.IconCheckboxEntry;
  * Created by cyberta on 25.02.18.
  */
 
-public class TetheringDialog extends AppCompatDialogFragment {
+public class TetheringDialog extends AppCompatDialogFragment implements Observer {
 
     public final static String TAG = TetheringDialog.class.getName();
 
@@ -142,9 +146,17 @@ public class TetheringDialog extends AppCompatDialogFragment {
     @Override
     public void onResume() {
         super.onResume();
-        dataset[0].enabled = TetheringObserver.getInstance().isWifiTetheringEnabled();
-        dataset[1].enabled = TetheringObserver.getInstance().isUsbTetheringEnabled();
+        dataset[0].enabled = TetheringObservable.getInstance().isWifiTetheringEnabled();
+        dataset[1].enabled = TetheringObservable.getInstance().isUsbTetheringEnabled();
+        dataset[2].enabled = TetheringObservable.getInstance().isBluetoothTetheringEnabled();
         adapter.notifyDataSetChanged();
+        TetheringObservable.getInstance().addObserver(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        TetheringObservable.getInstance().deleteObserver(this);
     }
 
     public void onItemClick(DialogListAdapter.ViewModel item) {
@@ -176,16 +188,28 @@ public class TetheringDialog extends AppCompatDialogFragment {
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_wifi),
                         getContext().getString(R.string.tethering_wifi),
                         PreferenceHelper.getWifiTethering(getContext()),
-                        TetheringObserver.getInstance().isWifiTetheringEnabled()),
+                        TetheringObservable.getInstance().isWifiTetheringEnabled()),
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_usb),
                         getContext().getString(R.string.tethering_usb),
                         PreferenceHelper.getUsbTethering(getContext()),
-                        TetheringObserver.getInstance().isUsbTetheringEnabled()),
+                        TetheringObservable.getInstance().isUsbTetheringEnabled()),
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_bluetooth),
                         getContext().getString(R.string.tethering_bluetooth),
                         PreferenceHelper.getBluetoothTethering(getContext()),
-                        true)
+                        TetheringObservable.getInstance().isUsbTetheringEnabled())
         };
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o instanceof TetheringObservable) {
+            TetheringObservable observable = (TetheringObservable) o;
+            Log.d(TAG, "TetheringObservable is updated");
+            dataset[0].enabled = observable.isWifiTetheringEnabled();
+            dataset[1].enabled = observable.isUsbTetheringEnabled();
+            dataset[2].enabled = observable.isBluetoothTetheringEnabled();
+            adapter.notifyDataSetChanged();
+        }
     }
 
 }
