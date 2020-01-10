@@ -18,7 +18,6 @@
 package se.leap.bitmaskclient.utils;
 
 import android.support.annotation.WorkerThread;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -43,7 +42,6 @@ public class Cmd {
 
         try {
             for (String cmd : cmds) {
-                Log.d(TAG, "executing CMD: " + cmd);
                 out.write(cmd);
                 out.write("\n");
             }

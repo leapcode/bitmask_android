@@ -1,20 +1,44 @@
+/**
+ * Copyright (c) 2020 LEAP Encryption Access Project and contributers
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.leap.bitmaskclient.tethering;
 
 import android.content.Context;
 import android.content.IntentFilter;
-import android.net.wifi.WifiManager;
 
-import java.lang.reflect.Method;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 
 import se.leap.bitmaskclient.utils.Cmd;
 
+/**
+ * This manager tries to figure out the current tethering states for Wifi, USB and Bluetooth
+ * The default behavior differs for failing attempts to get these states:
+ * Wifi: keeps old state
+ * USB: defaults to false
+ * Bluetooth defaults to false
+ * For Wifi there's a second method to check the current state (see TetheringBroadcastReceiver).
+ * Either of both methods can change the state if they succeed, but are ignored if they fail.
+ * This should avoid any interference between both methods.
+ */
 public class TetheringStateManager {
     private static final String TAG = TetheringStateManager.class.getSimpleName();
     private static TetheringStateManager instance;
 
-    private WifiManager wifiManager;
+    private WifiManagerWrapper wifiManager;
 
     private TetheringStateManager() { }
 
@@ -30,20 +54,14 @@ public class TetheringStateManager {
         IntentFilter intentFilter = new IntentFilter("android.net.conn.TETHER_STATE_CHANGED");
         intentFilter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
         context.getApplicationContext().registerReceiver(broadcastReceiver, intentFilter);
-        instance.wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        instance.wifiManager = new WifiManagerWrapper(context);
         updateWifiTetheringState();
         updateUsbTetheringState();
         updateBluetoothTetheringState();
     }
 
-    private static boolean isWifiApEnabled() {
-        try {
-            Method method = instance.wifiManager.getClass().getMethod("getWifiApState");
-            int tmp = ((Integer) method.invoke(instance.wifiManager));
-            return WifiHotspotState.WIFI_AP_STATE_ENABLED.ordinal() == tmp % 10;
-        } catch (Exception e) {
-            return false;
-        }
+    private static boolean isWifiApEnabled() throws Exception {
+        return instance.wifiManager.isWifiAPEnabled();
     }
 
 
@@ -64,7 +82,6 @@ public class TetheringStateManager {
         return false;
     }
 
-    // Check whether Bluetooth tethering is enabled.
     private static boolean isBluetoothTetheringEnabled() {
         StringBuilder log = new StringBuilder();
         boolean hasBtPan = false;
@@ -87,7 +104,15 @@ public class TetheringStateManager {
     }
 
     static void updateWifiTetheringState() {
-        TetheringObservable.setWifiTethering(isWifiApEnabled());
+        boolean lastState = TetheringObservable.getInstance().isWifiTetheringEnabled();
+        try {
+            boolean currentState = isWifiApEnabled();
+            if (currentState != lastState) {
+                TetheringObservable.setWifiTethering(currentState);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -1,3 +1,20 @@
+/**
+ * Copyright (c) 2020LEAP Encryption Access Project and contributers
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package se.leap.bitmaskclient.tethering;
 
 import android.content.BroadcastReceiver;
@@ -15,9 +32,13 @@ public class TetheringBroadcastReceiver extends BroadcastReceiver {
             Log.d(TAG, "TETHERING WIFI_AP_STATE_CHANGED");
             int apState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
             if (WifiHotspotState.WIFI_AP_STATE_ENABLED.ordinal() == apState % 10) {
-                TetheringObservable.setWifiTethering(true);
+                if (!TetheringObservable.getInstance().isWifiTetheringEnabled()) {
+                    TetheringObservable.setWifiTethering(true);
+                }
             } else {
-                TetheringObservable.setWifiTethering(false);
+                if (TetheringObservable.getInstance().isWifiTetheringEnabled()) {
+                    TetheringObservable.setWifiTethering(false);
+                }
             }
         } else if ("android.net.conn.TETHER_STATE_CHANGED".equals(intent.getAction())) {
             Log.d(TAG, "TETHERING TETHER_STATE_CHANGED");
