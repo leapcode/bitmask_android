@@ -37,6 +37,8 @@ public interface Constants {
     String APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE = "configure always-on profile";
     String DEFAULT_BITMASK = "normal";
     String CUSTOM_BITMASK = "custom";
+    String DANGER_ON = "danger_on";
+
 
     String ASK_TO_CANCEL_VPN = "ask_to_cancel_vpn";
 

@@ -24,8 +24,6 @@ import android.support.v4.app.FragmentTransaction;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
-
 import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
 
