@@ -21,7 +21,7 @@ class DnsResolver implements Dns {
             } else {
                 currentProvider = observable.getCurrentProvider();
             }
-            if (currentProvider != null && currentProvider.hasProviderIp()) {
+            if (currentProvider.hasProviderIp()) {
                 ArrayList<InetAddress> addresses = new ArrayList<>();
                 addresses.add(InetAddress.getByAddress(hostname, currentProvider.getProviderIpAsBytes()));
                 return addresses;
