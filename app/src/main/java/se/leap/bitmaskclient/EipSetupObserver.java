@@ -47,6 +47,7 @@ import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 
 /**
@@ -154,6 +155,9 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
                 EipCommand.startVPN(context.getApplicationContext(), true);
+                break;
+            case PROVIDER_NOK:
+                ProviderObservable.getInstance().setProviderToSetup(null);
                 break;
             default:
                 break;

@@ -121,14 +121,13 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         Bundle result = new Bundle();
 
         String caCert = provider.getCaCert();
-        JSONObject providerDefinition = provider.getDefinition();
 
         String providerDotJsonString;
-        if(providerDefinition.length() == 0 || caCert.isEmpty()) {
+        if(provider.getDefinitionString().length() == 0 || caCert.isEmpty()) {
             String providerJsonUrl = provider.getMainUrlString() + "/provider.json";
             providerDotJsonString = downloadWithCommercialCA(providerJsonUrl, provider);
         } else {
-            providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, providerDefinition);
+            providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, provider);
         }
 
         if (ConfigHelper.checkErroneousDownload(providerDotJsonString) || !isValidJson(providerDotJsonString)) {
@@ -163,8 +162,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         Bundle result = new Bundle();
         String eipServiceJsonString = "";
         try {
-            JSONObject providerJson = provider.getDefinition();
-            String eipServiceUrl = providerJson.getString(Provider.API_URL) + "/" + providerJson.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
+            String eipServiceUrl = provider.getApiUrlWithVersion() + "/" + EIP.SERVICE_API_PATH;
             eipServiceJsonString = downloadWithProviderCA(provider.getCaCert(), eipServiceUrl);
             JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
             if (BuildConfig.DEBUG) {
@@ -278,10 +276,10 @@ public class ProviderApiManager extends ProviderApiManagerBase {
      *
      * @return an empty string if it fails, the response body if not.
      */
-    private String downloadFromApiUrlWithProviderCA(String path, String caCert, JSONObject providerDefinition) {
+    private String downloadFromApiUrlWithProviderCA(String path, String caCert, Provider provider) {
         String responseString;
         JSONObject errorJson = new JSONObject();
-        String baseUrl = getApiUrl(providerDefinition);
+        String baseUrl = provider.getApiUrlString();
         OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, errorJson);
         if (okHttpClient == null) {
             return errorJson.toString();

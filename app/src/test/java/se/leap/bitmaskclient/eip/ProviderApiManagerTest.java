@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,10 +36,13 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 
+import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.BuildConfig;
+import se.leap.bitmaskclient.OkHttpClientGenerator;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.ProviderApiConnector;
@@ -48,6 +52,13 @@ import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.utils.ConfigHelper;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
@@ -56,6 +67,7 @@ import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_MICONFIGURED_PROVIDER;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_UPDATED_CERTIFICATE;
+import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_DNS_RESOLUTION_ERROR;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBundle;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
@@ -269,7 +281,7 @@ public class ProviderApiManagerTest {
 
     @Test
     public void test_handleIntentSetupProvider_preseededProviderAndCA_outdatedCertificate() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
-        Provider provider = getProvider(null ,"outdated_cert.pem", null, null);
+        Provider provider = getProvider(null ,null, "outdated_cert.pem", null, null);
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -386,7 +398,7 @@ public class ProviderApiManagerTest {
     @Test
     public void test_handleIntentSetupProvider_outdatedPreseededProviderAndCA_successfulConfiguration() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
 
-        Provider provider = getProvider(null, null, "riseup_net_outdated_config.json", null);
+        Provider provider = getProvider(null, null, null, "riseup_net_outdated_config.json", null);
 
         mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);

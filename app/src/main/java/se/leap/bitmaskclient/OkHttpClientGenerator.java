@@ -88,6 +88,7 @@ public class OkHttpClientGenerator {
             sslCompatFactory.initSSLSocketFactory(clientBuilder);
             clientBuilder.cookieJar(getCookieJar())
                     .connectionSpecs(Collections.singletonList(spec));
+            clientBuilder.dns(new DnsResolver());
             return clientBuilder.build();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();

@@ -2,7 +2,6 @@ package se.leap.bitmaskclient.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -24,6 +23,7 @@ import se.leap.bitmaskclient.Provider;
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.Constants.ALWAYS_ON_SHOW_DIALOG;
 import static se.leap.bitmaskclient.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
+import static se.leap.bitmaskclient.Constants.EXCLUDED_APPS;
 import static se.leap.bitmaskclient.Constants.LAST_USED_PROFILE;
 import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
@@ -33,7 +33,6 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.Constants.SU_PERMISSION;
 import static se.leap.bitmaskclient.Constants.USE_PLUGGABLE_TRANSPORTS;
-import static se.leap.bitmaskclient.Constants.EXCLUDED_APPS;
 
 /**
  * Created by cyberta on 18.03.18.
@@ -48,6 +47,7 @@ public class PreferenceHelper {
         Provider provider = new Provider();
         try {
             provider.setMainUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
+            provider.setProviderIp(preferences.getString(Provider.PROVIDER_IP, ""));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
             provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
             provider.setVpnCertificate(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
@@ -131,6 +131,7 @@ public class PreferenceHelper {
     //FIXME: don't save private keys in shared preferences! use the keystore
     public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider) {
         preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
+                putString(Provider.PROVIDER_IP, provider.getProviderIp()).
                 putString(Provider.MAIN_URL, provider.getMainUrlString()).
                 putString(Provider.KEY, provider.getDefinitionString()).
                 putString(Provider.CA_CERT, provider.getCaCert()).
@@ -141,6 +142,7 @@ public class PreferenceHelper {
 
         String providerDomain = provider.getDomain();
         preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
+                putString(Provider.PROVIDER_IP + "." + providerDomain, provider.getProviderIp()).
                 putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString()).
                 putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
                 putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
@@ -206,6 +208,7 @@ public class PreferenceHelper {
                 remove(Provider.KEY + "." + providerDomain).
                 remove(Provider.CA_CERT + "." + providerDomain).
                 remove(Provider.CA_CERT_FINGERPRINT + "." + providerDomain).
+                remove(Provider.PROVIDER_IP + "." + providerDomain).
                 remove(Provider.MAIN_URL + "." + providerDomain).
                 remove(Provider.KEY + "." + providerDomain).
                 remove(Provider.CA_CERT + "." + providerDomain).

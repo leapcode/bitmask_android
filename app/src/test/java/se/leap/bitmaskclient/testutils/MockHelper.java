@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -434,12 +435,21 @@ public class MockHelper {
         BackendMockProvider.provideBackendResponsesFor(errorCase);
     }
 
-    public static OkHttpClientGenerator mockClientGenerator() {
+    public static OkHttpClientGenerator mockClientGenerator(boolean resolveDNS) throws UnknownHostException {
         OkHttpClientGenerator mockClientGenerator = mock(OkHttpClientGenerator.class);
-        OkHttpClient mockedOkHttpClient = mock(OkHttpClient.class);
+        OkHttpClient mockedOkHttpClient = mock(OkHttpClient.class, RETURNS_DEEP_STUBS);
         when(mockClientGenerator.initCommercialCAHttpClient(any(JSONObject.class))).thenReturn(mockedOkHttpClient);
         when(mockClientGenerator.initSelfSignedCAHttpClient(anyString(), any(JSONObject.class))).thenReturn(mockedOkHttpClient);
+        if (resolveDNS) {
+            when(mockedOkHttpClient.dns().lookup(anyString())).thenReturn(new ArrayList<>());
+        } else {
+            when(mockedOkHttpClient.dns().lookup(anyString())).thenThrow(new UnknownHostException());
+        }
         return mockClientGenerator;
+    }
+
+    public static OkHttpClientGenerator mockClientGenerator() throws UnknownHostException {
+        return mockClientGenerator(true);
     }
 
     public static Resources mockResources(InputStream inputStream) throws IOException, JSONException {
