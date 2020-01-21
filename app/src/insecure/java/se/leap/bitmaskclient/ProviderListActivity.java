@@ -18,12 +18,8 @@ package se.leap.bitmaskclient;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentTransaction;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
+import static se.leap.bitmaskclient.Constants.DANGER_ON;
 import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
 
@@ -39,14 +35,14 @@ public class ProviderListActivity extends ProviderListBaseActivity {
 
     @Override
     protected void onItemSelectedLogic() {
-        boolean danger_on = preferences.getBoolean(ProviderItem.DANGER_ON, true);
+        boolean danger_on = preferences.getBoolean(DANGER_ON, true);
         setUpProvider(danger_on);
     }
 
     @Override
     public void cancelSettingUpProvider() {
         super.cancelSettingUpProvider();
-        preferences.edit().remove(ProviderItem.DANGER_ON).apply();
+        preferences.edit().remove(DANGER_ON).apply();
     }
 
     /**
@@ -58,7 +54,7 @@ public class ProviderListActivity extends ProviderListBaseActivity {
         providerConfigState = SETTING_UP_PROVIDER;
 
         Bundle parameters = new Bundle();
-        parameters.putBoolean(ProviderItem.DANGER_ON, danger_on);
+        parameters.putBoolean(DANGER_ON, danger_on);
 
         ProviderAPICommand.execute(this, SET_UP_PROVIDER, parameters, provider);
     }
