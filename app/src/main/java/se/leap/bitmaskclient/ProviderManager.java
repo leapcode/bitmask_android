@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import static se.leap.bitmaskclient.Provider.MAIN_URL;
+import static se.leap.bitmaskclient.Provider.PROVIDER_API_IP;
 import static se.leap.bitmaskclient.Provider.PROVIDER_IP;
 import static se.leap.bitmaskclient.utils.FileHelper.createFile;
 import static se.leap.bitmaskclient.utils.FileHelper.persistFile;
@@ -87,6 +87,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
             for (String file : relativeFilePaths) {
                 String mainUrl = null;
                 String providerIp = null;
+                String providerApiIp = null;
                 String certificate = null;
                 String providerDefinition = null;
                 try {
@@ -94,16 +95,13 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                     InputStream providerFile = assetsManager.open(directory + "/" + file);
                     mainUrl = extractKeyFromInputStream(providerFile, MAIN_URL);
                     providerIp = extractKeyFromInputStream(providerFile, PROVIDER_IP);
+                    providerApiIp = extractKeyFromInputStream(providerFile, PROVIDER_API_IP);
                     certificate = loadInputStreamAsString(assetsManager.open(provider + EXT_PEM));
                     providerDefinition = loadInputStreamAsString(assetsManager.open(provider + EXT_JSON));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                try {
-                    providers.add(new Provider(new URL(mainUrl), providerIp, certificate, providerDefinition));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+                providers.add(new Provider(mainUrl, providerIp, providerApiIp, certificate, providerDefinition));
             }
 
         return providers;
@@ -125,9 +123,10 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                 InputStream inputStream = getInputStreamFrom(externalFilesDir.getAbsolutePath() + "/" + file);
                 String mainUrl = extractKeyFromInputStream(inputStream, MAIN_URL);
                 String providerIp = extractKeyFromInputStream(inputStream, PROVIDER_IP);
-                providers.add(new Provider(new URL(mainUrl), providerIp));
+                String providerApiIp = extractKeyFromInputStream(inputStream, PROVIDER_API_IP);
+                providers.add(new Provider(mainUrl, providerIp, providerApiIp));
             }
-        } catch (MalformedURLException | FileNotFoundException | NullPointerException e) {
+        } catch (FileNotFoundException | NullPointerException e) {
             e.printStackTrace();
         }
 

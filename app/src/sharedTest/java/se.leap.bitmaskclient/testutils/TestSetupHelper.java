@@ -70,7 +70,7 @@ public class TestSetupHelper {
 
         try {
             Provider p = new Provider(
-                    new URL(domain),
+                    domain,
                     providerIp,
                     getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(caCertFile)),
                     getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(providerJson))

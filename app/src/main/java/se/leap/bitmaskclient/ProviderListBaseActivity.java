@@ -108,12 +108,8 @@ public abstract class ProviderListBaseActivity extends ProviderSetupBaseActivity
     }
 
     public void showAndSelectProvider(String newURL) {
-        try {
-            provider = new Provider(new URL((newURL)), "");
-            autoSelectProvider();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+        provider = new Provider(newURL, "", "");
+        autoSelectProvider();
     }
 
     private void autoSelectProvider() {

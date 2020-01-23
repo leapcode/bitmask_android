@@ -8,7 +8,7 @@ import java.util.Observable;
 public class ProviderObservable extends Observable {
     private static ProviderObservable instance;
     private Provider currentProvider;
-    private Provider providerToSetup;
+    private Provider providerForDns;
 
     public static ProviderObservable getInstance() {
         if (instance == null) {
@@ -19,7 +19,7 @@ public class ProviderObservable extends Observable {
 
     public synchronized void updateProvider(Provider provider) {
         instance.currentProvider = provider;
-        instance.providerToSetup = null;
+        instance.providerForDns = null;
         instance.setChanged();
         instance.notifyObservers();
     }
@@ -28,12 +28,12 @@ public class ProviderObservable extends Observable {
         return instance.currentProvider;
     }
 
-    public void setProviderToSetup(Provider provider) {
-        this.providerToSetup = provider;
+    public void setProviderForDns(Provider provider) {
+        this.providerForDns = provider;
     }
 
-    public Provider getProviderToSetup() {
-        return instance.providerToSetup;
+    public Provider getProviderForDns() {
+        return instance.providerForDns;
     }
 
 }
