@@ -1,3 +1,5 @@
 {
-	"main_url" : "https://riseup.net"
+	"main_url" : "https://riseup.net",
+	"provider_ip" : "198.252.153.70",
+	"provider_api_ip" : "198.252.153.107"
 }
