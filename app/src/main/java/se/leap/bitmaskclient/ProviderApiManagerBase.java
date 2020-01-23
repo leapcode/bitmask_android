@@ -609,11 +609,11 @@ public abstract class ProviderApiManagerBase {
         return plainResponseBody;
     }
 
-    private boolean canConnect(String caCert, JSONObject providerDefinition, Bundle result) {
+    private boolean canConnect(Provider provider, Bundle result) {
         JSONObject errorJson = new JSONObject();
-        String providerUrl = getApiUrl(providerDefinition) + "/provider.json";
+        String providerUrl = provider.getApiUrlString() + "/provider.json";
 
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), errorJson);
         if (okHttpClient == null) {
             result.putString(ERRORS, errorJson.toString());
             return false;
@@ -752,7 +752,7 @@ public abstract class ProviderApiManagerBase {
                 return setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
             }
 
-            if (!canConnect(caCert, provider.getDefinition(), result)) {
+            if (!canConnect(provider, result)) {
                 return result;
             }
         } catch (NoSuchAlgorithmException e ) {
@@ -785,15 +785,6 @@ public abstract class ProviderApiManagerBase {
         result.putString(ERRORS, errorJson.toString());
         result.putBoolean(BROADCAST_RESULT_KEY, false);
         return result;
-    }
-
-    protected String getApiUrl(JSONObject providerDefinition) {
-        try {
-            return providerDefinition.getString(Provider.API_URL);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return "";
     }
 
     protected String getPersistedPrivateKey(String providerDomain) {
