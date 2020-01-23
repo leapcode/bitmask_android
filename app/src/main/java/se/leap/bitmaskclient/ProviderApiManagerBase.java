@@ -63,6 +63,9 @@ import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.Provider.CA_CERT;
+import static se.leap.bitmaskclient.Provider.PROVIDER_API_IP;
+import static se.leap.bitmaskclient.Provider.PROVIDER_IP;
 import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_MESSAGE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
@@ -159,6 +162,7 @@ public abstract class ProviderApiManagerBase {
         Bundle result = new Bundle();
         switch (action) {
             case UPDATE_PROVIDER_DETAILS:
+                ProviderObservable.getInstance().setProviderForDns(provider);
                 resetProviderDetails(provider);
                 Bundle task = new Bundle();
                 result = setUpProvider(provider, task);
@@ -167,14 +171,17 @@ public abstract class ProviderApiManagerBase {
                 } else {
                     sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
                 }
+                ProviderObservable.getInstance().setProviderForDns(null);
                 break;
             case SET_UP_PROVIDER:
+                ProviderObservable.getInstance().setProviderForDns(provider);
                 result = setUpProvider(provider, parameters);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
                 } else {
                     sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
                 }
+                ProviderObservable.getInstance().setProviderForDns(null);
                 break;
             case SIGN_UP:
                 result = tryToRegister(provider, parameters);
@@ -200,22 +207,27 @@ public abstract class ProviderApiManagerBase {
                 }
                 break;
             case DOWNLOAD_VPN_CERTIFICATE:
+                ProviderObservable.getInstance().setProviderForDns(provider);
                 result = updateVpnCertificate(provider);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);
                 } else {
                     sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);
                 }
+                ProviderObservable.getInstance().setProviderForDns(null);
                 break;
             case UPDATE_INVALID_VPN_CERTIFICATE:
+                ProviderObservable.getInstance().setProviderForDns(provider);
                 result = updateVpnCertificate(provider);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     sendToReceiverOrBroadcast(receiver, CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE, result, provider);
                 } else {
                     sendToReceiverOrBroadcast(receiver, INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE, result, provider);
                 }
+                ProviderObservable.getInstance().setProviderForDns(null);
                 break;
             case DOWNLOAD_SERVICE_JSON:
+                ProviderObservable.getInstance().setProviderForDns(provider);
                 Log.d(TAG, "update eip service json");
                 result = getAndSetEipServiceJson(provider);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
@@ -223,6 +235,7 @@ public abstract class ProviderApiManagerBase {
                 } else {
                     sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
                 }
+                ProviderObservable.getInstance().getProviderForDns();
                 break;
             case PROVIDER_SET_UP:
                 if(provider.hasEIP() && provider.hasCaCert() && provider.hasDefinition()) {
@@ -693,6 +706,8 @@ public abstract class ProviderApiManagerBase {
             provider.define(getPersistedProviderDefinition(providerDomain));
             provider.setPrivateKey(getPersistedPrivateKey(providerDomain));
             provider.setVpnCertificate(getPersistedVPNCertificate(providerDomain));
+            provider.setProviderApiIp(getPersistedProviderApiIp(providerDomain));
+            provider.setProviderIp(getPersistedProviderIp(providerDomain));
         }
     }
 
@@ -799,11 +814,19 @@ public abstract class ProviderApiManagerBase {
     }
 
     protected String getPersistedProviderCA(String providerDomain) {
-        return preferences.getString(Provider.CA_CERT + "." + providerDomain, "");
+        return getFromPersistedProvider(CA_CERT, providerDomain, preferences);
+    }
+
+    protected String getPersistedProviderApiIp(String providerDomain) {
+        return getFromPersistedProvider(PROVIDER_API_IP, providerDomain, preferences);
+    }
+
+    protected String getPersistedProviderIp(String providerDomain) {
+        return getFromPersistedProvider(PROVIDER_IP, providerDomain, preferences);
     }
 
     protected boolean hasUpdatedProviderDetails(String domain) {
-        return preferences.contains(Provider.KEY + "." + domain) && preferences.contains(Provider.CA_CERT + "." + domain);
+        return preferences.contains(Provider.KEY + "." + domain) && preferences.contains(CA_CERT + "." + domain);
     }
 
     protected String getDomainFromMainURL(String mainUrl) {

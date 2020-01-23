@@ -152,9 +152,6 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
                 EipCommand.startVPN(context.getApplicationContext(), true);
                 break;
-            case PROVIDER_NOK:
-                ProviderObservable.getInstance().setProviderToSetup(null);
-                break;
             default:
                 break;
         }

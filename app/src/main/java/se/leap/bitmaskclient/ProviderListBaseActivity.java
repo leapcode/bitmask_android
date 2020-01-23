@@ -161,7 +161,6 @@ public abstract class ProviderListBaseActivity extends ProviderSetupBaseActivity
         if (provider != null && !provider.isDefault()) {
             //TODO Code 2 pane view
             providerConfigState = SETTING_UP_PROVIDER;
-            ProviderObservable.getInstance().setProviderToSetup(provider);
             showProgressBar();
             onItemSelectedLogic();
         } else {
