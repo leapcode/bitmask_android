@@ -37,8 +37,10 @@ android {
     buildConfigField 'int', 'donation_reminder_duration', '30'
     //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
     buildConfigField 'boolean', 'priotize_anonymous_usage', 'false'
-    //ignore the following config, only used in custom flavor
+    //ignore the following configs, only used in custom flavor
     buildConfigField "String", "customProviderUrl", '""'
+    buildConfigField "String", "customProviderIp", '""'
+    buildConfigField "String", "customProviderApiIp", '""'
 
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     dexOptions {
@@ -89,6 +91,12 @@ android {
       //Provider base url, e.g. '"https://example.com"'
       def customProviderUrl = '"https://riseup.net"'
       buildConfigField "String", "customProviderUrl", customProviderUrl
+      //static ip address of provider, using a commercially validated CA certificate to serve the provider.json
+      def customProviderIp = '"198.252.153.70"'
+      buildConfigField "String", "customProviderIp", customProviderIp
+      //static ip address of the provider api, using a self signed certificate to serve provider.json, eip-service.json etc.
+      def customProviderApiIp = '"198.252.153.107"'
+      buildConfigField "String", "customProviderApiIp", customProviderApiIp
       //Change the versionCode as needed
       //versionCode 1
       //Change the versionName as needed
