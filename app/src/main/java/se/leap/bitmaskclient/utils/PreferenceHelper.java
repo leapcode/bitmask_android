@@ -65,69 +65,6 @@ public class PreferenceHelper {
         return preferences.getString(toFetch + "." + providerDomain, "");
     }
 
-    public static String getProviderName(String provider) {
-        return getProviderName(null, provider);
-    }
-
-    public static String getProviderName(@Nullable SharedPreferences preferences) {
-        return getProviderName(preferences,null);
-    }
-
-    public static String getProviderName(@Nullable SharedPreferences preferences, @Nullable String provider) {
-        if (provider == null && preferences != null) {
-            provider = preferences.getString(Provider.KEY, "");
-        }
-        try {
-            JSONObject providerJson = new JSONObject(provider);
-            String lang = Locale.getDefault().getLanguage();
-            return providerJson.getJSONObject(Provider.NAME).getString(lang);
-        } catch (JSONException e) {
-            try {
-                JSONObject providerJson = new JSONObject(provider);
-                return providerJson.getJSONObject(Provider.NAME).getString("en");
-            } catch (JSONException e2) {
-                return null;
-            }
-        } catch (NullPointerException npe) {
-            return null;
-        }
-    }
-
-    public static String getProviderDomain(SharedPreferences preferences) {
-        return getProviderDomain(preferences, null);
-    }
-
-    public static String getProviderDomain(String provider) {
-        return getProviderDomain(null, provider);
-    }
-
-    public static String getProviderDomain(@Nullable SharedPreferences preferences, @Nullable String provider) {
-        if (provider == null && preferences != null) {
-            provider = preferences.getString(Provider.KEY, "");
-        }
-        try {
-            JSONObject providerJson = new JSONObject(provider);
-            return providerJson.getString(Provider.DOMAIN);
-        } catch (JSONException | NullPointerException e) {
-            return null;
-        }
-    }
-
-    public static String getDescription(SharedPreferences preferences) {
-        try {
-            JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
-            String lang = Locale.getDefault().getLanguage();
-            return providerJson.getJSONObject(Provider.DESCRIPTION).getString(lang);
-        } catch (JSONException e) {
-            try {
-                JSONObject providerJson = new JSONObject(preferences.getString(Provider.KEY, ""));
-                return providerJson.getJSONObject(Provider.DESCRIPTION).getString("en");
-            } catch (JSONException e1) {
-                return null;
-            }
-        }
-    }
-
     // TODO: replace commit with apply after refactoring EIP
     //FIXME: don't save private keys in shared preferences! use the keystore
     public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider) {
@@ -170,40 +107,6 @@ public class PreferenceHelper {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         String lastConnectedProfileJson = preferences.getString(LAST_USED_PROFILE, null);
         return VpnProfile.fromJson(lastConnectedProfileJson);
-    }
-
-
-
-
-    public static void clearDataOfLastProvider(SharedPreferences preferences) {
-        clearDataOfLastProvider(preferences, false);
-    }
-
-    @Deprecated
-    public static void clearDataOfLastProvider(SharedPreferences preferences, boolean commit) {
-        Map<String, ?> allEntries = preferences.getAll();
-        List<String> lastProvidersKeys = new ArrayList<>();
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            //sort out all preferences that don't belong to the last provider
-            if (entry.getKey().startsWith(Provider.KEY + ".") ||
-                    entry.getKey().startsWith(Provider.CA_CERT + ".") ||
-                    entry.getKey().startsWith(Provider.CA_CERT_FINGERPRINT + "." )||
-                    entry.getKey().equals(PREFERENCES_APP_VERSION)
-                    ) {
-                continue;
-            }
-            lastProvidersKeys.add(entry.getKey());
-        }
-
-        SharedPreferences.Editor preferenceEditor = preferences.edit();
-        for (String key : lastProvidersKeys) {
-            preferenceEditor.remove(key);
-        }
-        if (commit) {
-            preferenceEditor.commit();
-        } else {
-            preferenceEditor.apply();
-        }
     }
 
     public static void deleteProviderDetailsFromPreferences(@NonNull SharedPreferences preferences, String providerDomain) {
