@@ -48,6 +48,7 @@ public class PreferenceHelper {
         try {
             provider.setMainUrl(new URL(preferences.getString(Provider.MAIN_URL, "")));
             provider.setProviderIp(preferences.getString(Provider.PROVIDER_IP, ""));
+            provider.setProviderApiIp(preferences.getString(Provider.PROVIDER_API_IP, ""));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
             provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
             provider.setVpnCertificate(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
@@ -132,6 +133,7 @@ public class PreferenceHelper {
     public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider) {
         preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
                 putString(Provider.PROVIDER_IP, provider.getProviderIp()).
+                putString(Provider.PROVIDER_API_IP, provider.getProviderApiIp()).
                 putString(Provider.MAIN_URL, provider.getMainUrlString()).
                 putString(Provider.KEY, provider.getDefinitionString()).
                 putString(Provider.CA_CERT, provider.getCaCert()).
@@ -143,6 +145,7 @@ public class PreferenceHelper {
         String providerDomain = provider.getDomain();
         preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
                 putString(Provider.PROVIDER_IP + "." + providerDomain, provider.getProviderIp()).
+                putString(Provider.PROVIDER_API_IP + "." + providerDomain, provider.getProviderApiIp()).
                 putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString()).
                 putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
                 putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
@@ -207,11 +210,9 @@ public class PreferenceHelper {
         preferences.edit().
                 remove(Provider.KEY + "." + providerDomain).
                 remove(Provider.CA_CERT + "." + providerDomain).
-                remove(Provider.CA_CERT_FINGERPRINT + "." + providerDomain).
                 remove(Provider.PROVIDER_IP + "." + providerDomain).
+                remove(Provider.PROVIDER_API_IP + "." + providerDomain).
                 remove(Provider.MAIN_URL + "." + providerDomain).
-                remove(Provider.KEY + "." + providerDomain).
-                remove(Provider.CA_CERT + "." + providerDomain).
                 remove(PROVIDER_EIP_DEFINITION + "." + providerDomain).
                 remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
                 remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
