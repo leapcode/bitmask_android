@@ -399,6 +399,9 @@ public class MockHelper {
                         return providerFromPrefs.getDefinition().toString();
                     case Provider.CA_CERT_FINGERPRINT:
                         return providerFromPrefs.getCaCertFingerprint();
+                    case Provider.CA_CERT:
+                        return providerFromPrefs.getCaCert();
+
                 }
                 return null;
             }

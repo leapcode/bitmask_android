@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,13 +35,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 
-import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.BuildConfig;
-import se.leap.bitmaskclient.OkHttpClientGenerator;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.ProviderApiConnector;
@@ -52,13 +48,6 @@ import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.utils.ConfigHelper;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
@@ -67,7 +56,6 @@ import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_MICONFIGURED_PROVIDER;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_UPDATED_CERTIFICATE;
-import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_DNS_RESOLUTION_ERROR;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBundle;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
