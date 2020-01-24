@@ -54,6 +54,7 @@ public class ProviderTest {
                 null,
                 null,
                 null,
+                null,
                 "ptdemo.bitmask.eip-service.json");
         assertTrue(p1.supportsPluggableTransports());
     }
@@ -61,6 +62,7 @@ public class ProviderTest {
     @Test
     public void testIsPluggableTransportsSupported_noObfs4_returnsFalse() throws Exception {
         Provider p1 = TestSetupHelper.getProvider(
+                null,
                 null,
                 null,
                 null,

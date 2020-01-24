@@ -51,14 +51,17 @@ public class TestSetupHelper {
 
 
     public static Provider getConfiguredProvider() throws IOException, JSONException {
-        return getProvider(null,  null, null, null, null);
+        return getProvider(null,  null, null, null, null, null);
     }
 
-    public static Provider getProvider(String domain, String providerIp, String caCertFile, String providerJson, String eipServiceJson) {
+    public static Provider getProvider(String domain, String providerIp, String providerApiIp, String caCertFile, String providerJson, String eipServiceJson) {
         if (domain == null)
             domain = "https://riseup.net";
         if (providerIp == null) {
             providerIp = "";
+        }
+        if (providerApiIp == null) {
+            providerApiIp = "";
         }
         if (caCertFile == null)
             caCertFile = "riseup.net.pem";
@@ -72,6 +75,7 @@ public class TestSetupHelper {
             Provider p = new Provider(
                     domain,
                     providerIp,
+                    providerApiIp,
                     getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(caCertFile)),
                     getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(providerJson))
 
