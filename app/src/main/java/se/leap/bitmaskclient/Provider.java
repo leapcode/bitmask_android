@@ -18,6 +18,7 @@ package se.leap.bitmaskclient;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
 
@@ -96,8 +97,12 @@ public final class Provider implements Parcelable {
     public Provider(String mainUrl, String providerIp, String providerApiIp) {
         try {
             this.mainUrl.setUrl(new URL(mainUrl));
-            this.providerIp = providerIp;
-            this.providerApiIp = providerApiIp;
+            if (providerIp != null) {
+                this.providerIp = providerIp;
+            }
+            if (providerApiIp != null) {
+                this.providerApiIp = providerApiIp;
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -184,10 +189,12 @@ public final class Provider implements Parcelable {
     }
 
     public void setProviderApiIp(String providerApiIp) {
+        if (providerApiIp == null) return;
         this.providerApiIp = providerApiIp;
     }
 
     public void setProviderIp(String providerIp) {
+        if (providerIp == null) return;
         this.providerIp = providerIp;
     }
 
