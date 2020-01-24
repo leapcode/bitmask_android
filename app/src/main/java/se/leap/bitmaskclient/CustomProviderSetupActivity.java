@@ -37,7 +37,7 @@ public class CustomProviderSetupActivity extends ProviderSetupBaseActivity {
         super.onCreate(savedInstanceState);
         setUpInitialUI();
         restoreState(savedInstanceState);
-        setProvider(new Provider(BuildConfig.customProviderUrl));
+        setProvider(new Provider(BuildConfig.customProviderUrl, BuildConfig.customProviderIp, BuildConfig.customProviderApiIp));
     }
 
     @Override

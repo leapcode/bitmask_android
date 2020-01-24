@@ -18,6 +18,7 @@ package se.leap.bitmaskclient;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
 
@@ -28,6 +29,8 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
+
+import se.leap.bitmaskclient.utils.IPAddress;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static se.leap.bitmaskclient.Constants.CAPABILITIES;
@@ -49,6 +52,8 @@ public final class Provider implements Parcelable {
     private JSONObject eipServiceJson = new JSONObject();
     private DefaultedURL mainUrl = new DefaultedURL();
     private DefaultedURL apiUrl = new DefaultedURL();
+    private String providerIp = "";
+    private String providerApiIp = "";
     private String certificatePin = "";
     private String certificatePinEncoding = "";
     private String caCert = "";
@@ -73,7 +78,9 @@ public final class Provider implements Parcelable {
             NAME = "name",
             DESCRIPTION = "description",
             DOMAIN = "domain",
-            MAIN_URL = "main_url";
+            MAIN_URL = "main_url",
+            PROVIDER_IP = "provider_ip",
+            PROVIDER_API_IP = "provider_api_ip";
 
     private static final String API_TERM_NAME = "name";
 
@@ -87,12 +94,32 @@ public final class Provider implements Parcelable {
         }
     }
 
-    public Provider(URL mainUrl) {
-        this.mainUrl.setUrl(mainUrl);
+    public Provider(String mainUrl, String providerIp, String providerApiIp) {
+        try {
+            this.mainUrl.setUrl(new URL(mainUrl));
+            if (providerIp != null) {
+                this.providerIp = providerIp;
+            }
+            if (providerApiIp != null) {
+                this.providerApiIp = providerApiIp;
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public Provider(URL mainUrl, String caCert, String definition) {
-        this.mainUrl.setUrl(mainUrl);
+    public Provider(String mainUrl, String providerIp, String providerApiIp, String caCert, String definition) {
+        try {
+            this.mainUrl.setUrl(new URL(mainUrl));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        if (this.providerIp != null) {
+            this.providerIp = providerIp;
+        }
+        if (this.providerApiIp != null) {
+            this.providerApiIp = providerApiIp;
+        }
         if (caCert != null) {
             this.caCert = caCert;
         }
@@ -146,6 +173,35 @@ public final class Provider implements Parcelable {
        return false;
     }
 
+    public String getIpForHostname(String host) {
+        if (host != null) {
+            if (host.equals(mainUrl.getUrl().getHost())) {
+                return providerIp;
+            } else if (host.equals(apiUrl.getUrl().getHost())) {
+                return providerApiIp;
+            }
+        }
+        return "";
+    }
+
+    public String getProviderApiIp() {
+        return this.providerApiIp;
+    }
+
+    public void setProviderApiIp(String providerApiIp) {
+        if (providerApiIp == null) return;
+        this.providerApiIp = providerApiIp;
+    }
+
+    public void setProviderIp(String providerIp) {
+        if (providerIp == null) return;
+        this.providerIp = providerIp;
+    }
+
+    public String getProviderIp() {
+        return this.providerIp;
+    }
+
     public void setMainUrl(URL url) {
         mainUrl.setUrl(url);
     }
@@ -192,7 +248,7 @@ public final class Provider implements Parcelable {
     }
 
 
-    protected String getApiUrlString() {
+    public String getApiUrlString() {
         return getApiUrl().toString();
     }
 
@@ -265,6 +321,8 @@ public final class Provider implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(getMainUrlString());
+        parcel.writeString(getProviderIp());
+        parcel.writeString(getProviderApiIp());
         parcel.writeString(getDefinitionString());
         parcel.writeString(getCaCert());
         parcel.writeString(getEipServiceJsonString());
@@ -281,6 +339,8 @@ public final class Provider implements Parcelable {
             definition.toString().equals(p.getDefinition().toString()) &&
             eipServiceJson.toString().equals(p.getEipServiceJson().toString())&&
             mainUrl.equals(p.getMainUrl()) &&
+            providerIp.equals(p.getProviderIp()) &&
+            providerApiIp.equals(p.getProviderApiIp()) &&
             apiUrl.equals(p.getApiUrl()) &&
             certificatePin.equals(p.getCertificatePin()) &&
             certificatePinEncoding.equals(p.getCertificatePinEncoding()) &&
@@ -298,7 +358,6 @@ public final class Provider implements Parcelable {
         JSONObject json = new JSONObject();
         try {
             json.put(Provider.MAIN_URL, mainUrl);
-            //TODO: add other fields here?
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -320,6 +379,14 @@ public final class Provider implements Parcelable {
         try {
             mainUrl.setUrl(new URL(in.readString()));
             String tmpString = in.readString();
+            if (!tmpString.isEmpty()) {
+                providerIp = tmpString;
+            }
+            tmpString = in.readString();
+            if (!tmpString.isEmpty()) {
+                providerApiIp = tmpString;
+            }
+            tmpString = in.readString();
             if (!tmpString.isEmpty()) {
                 definition = new JSONObject((tmpString));
                 parseDefinition(definition);
@@ -445,7 +512,7 @@ public final class Provider implements Parcelable {
     }
 
     /**
-     * resets everything except the main url
+     * resets everything except the main url and the providerIp
      */
     public void reset() {
         definition = new JSONObject();

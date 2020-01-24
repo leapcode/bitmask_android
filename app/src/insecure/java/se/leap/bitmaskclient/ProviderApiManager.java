@@ -50,6 +50,7 @@ import se.leap.bitmaskclient.utils.ConfigHelper;
 
 import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.DANGER_ON;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
@@ -94,7 +95,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         Bundle currentDownload = new Bundle();
 
         if (task != null) {
-            lastDangerOn = task.containsKey(ProviderListContent.ProviderItem.DANGER_ON) && task.getBoolean(ProviderListContent.ProviderItem.DANGER_ON);
+            lastDangerOn = task.containsKey(DANGER_ON) && task.getBoolean(DANGER_ON);
         }
 
         if (isEmpty(provider.getMainUrlString()) || provider.getMainUrl().isDefault()) {

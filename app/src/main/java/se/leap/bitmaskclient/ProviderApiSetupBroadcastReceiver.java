@@ -51,7 +51,7 @@ public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
         if (setupInterface.getConfigState() != null &&
                 setupInterface.getConfigState() == ProviderConfigState.SETTING_UP_PROVIDER) {
             int resultCode = intent.getIntExtra(Constants.BROADCAST_RESULT_CODE, ProviderListBaseActivity.RESULT_CANCELED);
-            Log.d(ProviderListBaseActivity.TAG, "Broadcast resultCode: " + Integer.toString(resultCode));
+            Log.d(ProviderListBaseActivity.TAG, "Broadcast resultCode: " + resultCode);
 
             Bundle resultData = intent.getParcelableExtra(Constants.BROADCAST_RESULT_KEY);
             Provider handledProvider = resultData.getParcelable(Constants.PROVIDER_KEY);

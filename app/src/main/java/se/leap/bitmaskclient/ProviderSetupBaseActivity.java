@@ -153,6 +153,7 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     public void cancelSettingUpProvider() {
         providerConfigState = PROVIDER_NOT_SET;
         provider = null;
+        ProviderObservable.getInstance().setProviderForDns(null);
         hideProgressBar();
     }
 

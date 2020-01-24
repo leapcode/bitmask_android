@@ -28,7 +28,6 @@ import se.leap.bitmaskclient.eip.GatewaysManager;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
-import static android.content.Context.MODE_PRIVATE;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NOTCONNECTED;
@@ -43,11 +42,9 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
-import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
-import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
+import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 
 /**
  * Created by cyberta on 05.12.18.

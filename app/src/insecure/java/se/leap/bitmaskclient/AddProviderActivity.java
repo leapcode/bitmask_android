@@ -9,10 +9,10 @@ import android.widget.RelativeLayout;
 
 import butterknife.InjectView;
 import butterknife.Optional;
-import se.leap.bitmaskclient.ProviderListContent.ProviderItem;
 
 import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.LEFT_OF;
+import static se.leap.bitmaskclient.Constants.DANGER_ON;
 
 public class AddProviderActivity extends AddProviderBaseActivity {
 
@@ -36,14 +36,14 @@ public class AddProviderActivity extends AddProviderBaseActivity {
 
         checkboxDanger.setVisibility(View.VISIBLE);
         checkboxDanger.setText(R.string.danger_checkbox);
-        checkboxDanger.setChecked(preferences.getBoolean(ProviderItem.DANGER_ON, false));
+        checkboxDanger.setChecked(preferences.getBoolean(DANGER_ON, false));
     }
 
     @Override
     public void setupSaveButton() {
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                preferences.edit().putBoolean(ProviderItem.DANGER_ON, checkboxDanger.isChecked()).apply();
+                preferences.edit().putBoolean(DANGER_ON, checkboxDanger.isChecked()).apply();
                 saveProvider();
             }
         });
