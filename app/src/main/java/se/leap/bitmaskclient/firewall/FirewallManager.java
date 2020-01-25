@@ -24,6 +24,8 @@ import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 public class FirewallManager implements FirewallCallback {
     public static String BITMASK_CHAIN = "bitmask_fw";
+    public static String BITMASK_FORWARD = "bitmask_forward";
+    public static String BITMASK_POSTROUTING = "bitmask_postrouting";
     static final String TAG = FirewallManager.class.getSimpleName();
 
     private Context context;
@@ -48,6 +50,15 @@ public class FirewallManager implements FirewallCallback {
             VpnStatus.logInfo("[FIREWALL] Custom rules deleted");
         } else {
             VpnStatus.logError("[FIREWALL] Could not delete custom rules");
+        }
+    }
+
+    @Override
+    public void onTetheringConfigured(boolean success) {
+        if (success) {
+            VpnStatus.logInfo("[FIREWALL] Rules for tethering configured");
+        } else {
+            VpnStatus.logError("[FIREWALL] Could not establish rules for tethering ");
         }
     }
 

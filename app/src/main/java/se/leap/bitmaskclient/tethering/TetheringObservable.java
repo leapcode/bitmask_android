@@ -21,11 +21,11 @@ import java.util.Observable;
 public class TetheringObservable extends Observable {
     private static TetheringObservable instance;
 
-    private boolean isWifiTetheringEnabled;
-    private boolean isUsbTetheringEnabled;
-    private boolean isBluetoothTetheringEnabled;
+    private TetheringState tetheringState;
 
-    private TetheringObservable() { }
+    private TetheringObservable() {
+        tetheringState = new TetheringState();
+    }
 
     public static TetheringObservable getInstance() {
         if (instance == null) {
@@ -35,32 +35,36 @@ public class TetheringObservable extends Observable {
     }
 
     static void setWifiTethering(boolean enabled) {
-        getInstance().isWifiTetheringEnabled = enabled;
+        getInstance().tetheringState.isWifiTetheringEnabled = enabled;
         getInstance().setChanged();
         getInstance().notifyObservers();
     }
 
     static void setUsbTethering(boolean enabled) {
-        getInstance().isUsbTetheringEnabled = enabled;
+        getInstance().tetheringState.isUsbTetheringEnabled = enabled;
         getInstance().setChanged();
         getInstance().notifyObservers();
     }
 
     static void setBluetoothTethering(boolean enabled) {
-        getInstance().isBluetoothTetheringEnabled = enabled;
+        getInstance().tetheringState.isBluetoothTetheringEnabled = enabled;
         getInstance().setChanged();
         getInstance().notifyObservers();
     }
 
     public boolean isBluetoothTetheringEnabled() {
-        return isBluetoothTetheringEnabled;
+        return tetheringState.isBluetoothTetheringEnabled;
     }
 
     public boolean isUsbTetheringEnabled() {
-        return isUsbTetheringEnabled;
+        return tetheringState.isUsbTetheringEnabled;
     }
 
     public boolean isWifiTetheringEnabled() {
-        return isWifiTetheringEnabled;
+        return tetheringState.isWifiTetheringEnabled;
+    }
+
+    public TetheringState getTetheringState() {
+        return tetheringState;
     }
 }
