@@ -28,11 +28,9 @@ class StartFirewallTask extends AsyncTask<Void, Boolean, Boolean> {
         try {
             boolean hasBitmaskChain = runBlockingCmd(bitmaskChain, log) == 0;
             boolean allowSu = log.toString().contains("uid=0");
-            try {
-                callbackWeakReference.get().onSuRequested(allowSu);
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                //ignore
+            callbackWeakReference.get().onSuRequested(allowSu);
+            if (!allowSu) {
+                return false;
             }
 
             boolean success;
