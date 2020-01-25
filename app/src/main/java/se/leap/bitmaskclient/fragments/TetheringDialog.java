@@ -27,7 +27,9 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
+import se.leap.bitmaskclient.tethering.TetheringState;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconCheckboxEntry;
 
@@ -137,7 +139,13 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
                     PreferenceHelper.wifiTethering(getContext(), dataset[0].checked);
                     PreferenceHelper.usbTethering(getContext(), dataset[1].checked);
                     PreferenceHelper.bluetoothTethering(getContext(), dataset[2].checked);
-                    EipCommand.configureTethering(getContext());
+                    FirewallManager firewallManager = new FirewallManager(getContext().getApplicationContext());
+                    TetheringState runningTethering = TetheringObservable.getInstance().getTetheringState();
+                    TetheringState vpnTethering = new TetheringState();
+                    vpnTethering.isWifiTetheringEnabled = runningTethering.isWifiTetheringEnabled && dataset[0].checked;
+                    vpnTethering.isUsbTetheringEnabled = runningTethering.isUsbTetheringEnabled && dataset[1].checked;
+                    vpnTethering.isBluetoothTetheringEnabled = runningTethering.isBluetoothTetheringEnabled && dataset[2].checked;
+                    firewallManager.configureTethering(vpnTethering);
                 })
                 .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
         return builder.create();

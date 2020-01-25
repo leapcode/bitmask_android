@@ -19,6 +19,7 @@ package se.leap.bitmaskclient.firewall;
 import android.content.Context;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.tethering.TetheringState;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 
@@ -79,6 +80,11 @@ public class FirewallManager implements FirewallCallback {
     public void shutdownFirewall() {
         ShutdownFirewallTask task = new ShutdownFirewallTask(this);
         task.execute();
+    }
+
+    public void configureTethering(TetheringState state) {
+        ConfigureTetheringTask task = new ConfigureTetheringTask(this);
+        task.execute(state);
     }
 
 }
