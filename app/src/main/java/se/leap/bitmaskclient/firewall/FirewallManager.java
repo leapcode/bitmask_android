@@ -19,6 +19,7 @@ package se.leap.bitmaskclient.firewall;
 import android.content.Context;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.tethering.TetheringState;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
@@ -72,19 +73,39 @@ public class FirewallManager implements FirewallCallback {
     }
 
 
-    public void startFirewall() {
-        StartFirewallTask task = new StartFirewallTask(this);
-        task.execute();
+    public void start() {
+        startIPv6Firewall();
+        if (TetheringObservable.getInstance().hasAnyTetheringEnabled()) {
+            TetheringState deviceTethering = TetheringObservable.getInstance().getTetheringState();
+            TetheringState vpnTethering = new TetheringState();
+            vpnTethering.isWifiTetheringEnabled = deviceTethering.isWifiTetheringEnabled && PreferenceHelper.getWifiTethering(context);
+            vpnTethering.isUsbTetheringEnabled = deviceTethering.isUsbTetheringEnabled && PreferenceHelper.getUsbTethering(context);
+            vpnTethering.isBluetoothTetheringEnabled = deviceTethering.isBluetoothTetheringEnabled && PreferenceHelper.getBluetoothTethering(context);
+            configureTethering(vpnTethering);
+        }
     }
-
-    public void shutdownFirewall() {
-        ShutdownFirewallTask task = new ShutdownFirewallTask(this);
-        task.execute();
+    public void stop() {
+        shutdownIPv6Firewall();
+        TetheringState allowedTethering = new TetheringState();
+        allowedTethering.isWifiTetheringEnabled = PreferenceHelper.getWifiTethering(context);
+        allowedTethering.isUsbTetheringEnabled = PreferenceHelper.getUsbTethering(context);
+        allowedTethering.isBluetoothTetheringEnabled = PreferenceHelper.getBluetoothTethering(context);
+        configureTethering(allowedTethering);
     }
 
     public void configureTethering(TetheringState state) {
         ConfigureTetheringTask task = new ConfigureTetheringTask(this);
         task.execute(state);
+    }
+
+    private void startIPv6Firewall() {
+        StartIPv6FirewallTask task = new StartIPv6FirewallTask(this);
+        task.execute();
+    }
+
+    private void shutdownIPv6Firewall() {
+        ShutdownIPv6FirewallTask task = new ShutdownIPv6FirewallTask(this);
+        task.execute();
     }
 
 }

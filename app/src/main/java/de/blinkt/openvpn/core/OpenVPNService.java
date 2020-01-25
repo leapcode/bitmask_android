@@ -194,7 +194,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 VpnStatus.removeStateListener(this);
             }
         }
-        firewallManager.shutdownFirewall();
+        firewallManager.stop();
     }
 
     private boolean runningOnAndroidTV() {
@@ -449,7 +449,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             mProcessThread.start();
         }
 
-        firewallManager.startFirewall();
+        firewallManager.start();
 
         new Handler(getMainLooper()).post(() -> {
             if (mDeviceStateReceiver != null) {

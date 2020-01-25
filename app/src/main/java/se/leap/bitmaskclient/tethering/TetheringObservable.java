@@ -67,4 +67,8 @@ public class TetheringObservable extends Observable {
     public TetheringState getTetheringState() {
         return tetheringState;
     }
+
+    public boolean hasAnyTetheringEnabled() {
+        return tetheringState.isBluetoothTetheringEnabled || tetheringState.isUsbTetheringEnabled || tetheringState.isWifiTetheringEnabled;
+    }
 }

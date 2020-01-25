@@ -8,11 +8,11 @@ import java.lang.ref.WeakReference;
 import static se.leap.bitmaskclient.firewall.FirewallManager.BITMASK_CHAIN;
 import static se.leap.bitmaskclient.utils.Cmd.runBlockingCmd;
 
-class StartFirewallTask extends AsyncTask<Void, Boolean, Boolean> {
+class StartIPv6FirewallTask extends AsyncTask<Void, Boolean, Boolean> {
 
    private WeakReference<FirewallCallback> callbackWeakReference;
 
-    StartFirewallTask(FirewallCallback callback) {
+    StartIPv6FirewallTask(FirewallCallback callback) {
         callbackWeakReference = new WeakReference<>(callback);
     }
 
