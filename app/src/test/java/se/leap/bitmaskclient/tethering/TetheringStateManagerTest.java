@@ -39,6 +39,7 @@ import java.util.Enumeration;
 import se.leap.bitmaskclient.utils.Cmd;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -57,7 +58,7 @@ public class TetheringStateManagerTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     IntentFilter intentFilter;
 
-    TetheringObservable observable;
+    private TetheringObservable observable;
 
     @Before
     public void setup() throws Exception {
@@ -233,7 +234,7 @@ public class TetheringStateManagerTest {
         when(mockWrapper.isWifiAPEnabled()).thenThrow(new NoSuchMethodException());
         PowerMockito.whenNew(WifiManagerWrapper.class).withAnyArguments().thenReturn(mockWrapper);
 
-        TetheringObservable.setWifiTethering(true);
+        TetheringObservable.setWifiTethering(true, "192.168.43.0/24", "wlan0");
         TetheringStateManager.getInstance().init(mockContext);
         TetheringStateManager manager = TetheringStateManager.getInstance();
         assertTrue(observable.isWifiTetheringEnabled());
@@ -245,7 +246,7 @@ public class TetheringStateManagerTest {
         when(mockWrapper.isWifiAPEnabled()).thenThrow(new NoSuchMethodException());
         PowerMockito.whenNew(WifiManagerWrapper.class).withAnyArguments().thenReturn(mockWrapper);
 
-        TetheringObservable.setWifiTethering(false);
+        TetheringObservable.setWifiTethering(false, "", "");
         TetheringStateManager.getInstance().init(mockContext);
         TetheringStateManager manager = TetheringStateManager.getInstance();
         assertFalse(observable.isWifiTetheringEnabled());
@@ -257,7 +258,7 @@ public class TetheringStateManagerTest {
         when(mockWrapper.isWifiAPEnabled()).thenReturn(true);
         PowerMockito.whenNew(WifiManagerWrapper.class).withAnyArguments().thenReturn(mockWrapper);
 
-        TetheringObservable.setWifiTethering(false);
+        TetheringObservable.setWifiTethering(false, "", "");
         TetheringStateManager.getInstance().init(mockContext);
         TetheringStateManager manager = TetheringStateManager.getInstance();
         assertTrue(observable.isWifiTetheringEnabled());
@@ -269,11 +270,19 @@ public class TetheringStateManagerTest {
         when(mockWrapper.isWifiAPEnabled()).thenReturn(false);
         PowerMockito.whenNew(WifiManagerWrapper.class).withAnyArguments().thenReturn(mockWrapper);
 
-        TetheringObservable.setWifiTethering(true);
+        TetheringObservable.setWifiTethering(true, "", "");
         TetheringStateManager.getInstance().init(mockContext);
         TetheringStateManager manager = TetheringStateManager.getInstance();
         assertFalse(observable.isWifiTetheringEnabled());
     }
 
+    @Test
+    public void testGetWifiAddressRange() {
+        mockStatic(TetheringStateManager.class);
+        PowerMockito.when(TetheringStateManager.getWifiInterfaceAddress()).thenReturn("192.168.40.217/24");
+        PowerMockito.when(TetheringStateManager.getInstance()).thenCallRealMethod();
+        PowerMockito.when(TetheringStateManager.getWifiAddressRange()).thenCallRealMethod();
+        assertEquals("192.168.40.0/24", TetheringStateManager.getWifiAddressRange());
+    }
 
 }

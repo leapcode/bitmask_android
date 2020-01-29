@@ -155,8 +155,8 @@ public class SetupTetheringTask extends AsyncTask<Void, Boolean, Boolean> {
                 "ip route delete broadcast 255.255.255.255 dev " + state.wifiInterface +" scope link table 61",
                 "ip route delete " + state.lastWifiAddress + " dev " + state.wifiInterface +" scope link table 61",
                 "ip route delete default dev " + getTunName() + " scope link table 61",
-                "if [[ `ip rule show from " + state.wifiAddress+ " lookup 61` ]]; " +
-                        "then ip rule del from " + state.wifiAddress + " lookup 61; " +
+                "if [[ `ip rule show from " + state.lastWifiAddress+ " lookup 61` ]]; " +
+                        "then ip rule del from " + state.lastWifiAddress + " lookup 61; " +
                         "fi",
         };
         return runBlockingCmd(removeRules, log) == 0;

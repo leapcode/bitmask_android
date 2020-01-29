@@ -18,6 +18,7 @@ package se.leap.bitmaskclient.tethering;
 
 import android.content.Context;
 import android.content.IntentFilter;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.net.Inet4Address;
@@ -94,13 +95,13 @@ public class TetheringStateManager {
         if (interfaceAddress.split("\\.").length == 4) {
             String result = interfaceAddress.substring(0, interfaceAddress.lastIndexOf("."));
             result = result + ".0/24";
-            Log.d(TAG, "wifiAddressRange = " + result);
             return result;
         }
         return "";
     }
 
-    private static String getWifiInterfaceAddress() {
+    @VisibleForTesting
+    static String getWifiInterfaceAddress() {
         NetworkInterface networkInterface = getWlanInterface();
         if (networkInterface != null) {
            List<InterfaceAddress> ifaceAddresses = networkInterface.getInterfaceAddresses();
@@ -113,7 +114,7 @@ public class TetheringStateManager {
         return "";
     }
 
-    public static String getWifiInterfaceName() {
+    private static String getWifiInterfaceName() {
         NetworkInterface networkInterface = getWlanInterface();
         if (networkInterface != null) {
             return networkInterface.getName();
