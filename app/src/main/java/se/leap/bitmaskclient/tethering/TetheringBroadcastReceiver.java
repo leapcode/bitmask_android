@@ -30,16 +30,7 @@ public class TetheringBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if ("android.net.wifi.WIFI_AP_STATE_CHANGED".equals(intent.getAction())) {
             Log.d(TAG, "TETHERING WIFI_AP_STATE_CHANGED");
-            int apState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
-            if (WifiHotspotState.WIFI_AP_STATE_ENABLED.ordinal() == apState % 10) {
-                if (!TetheringObservable.getInstance().isWifiTetheringEnabled()) {
-                    TetheringObservable.setWifiTethering(true);
-                }
-            } else {
-                if (TetheringObservable.getInstance().isWifiTetheringEnabled()) {
-                    TetheringObservable.setWifiTethering(false);
-                }
-            }
+            TetheringStateManager.updateWifiTetheringState();
         } else if ("android.net.conn.TETHER_STATE_CHANGED".equals(intent.getAction())) {
             Log.d(TAG, "TETHERING TETHER_STATE_CHANGED");
             TetheringStateManager.updateUsbTetheringState();

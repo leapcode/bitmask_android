@@ -518,7 +518,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         super.onCreate();
         notificationManager = new VpnNotificationManager(this, this);
         notificationManager.createOpenVpnNotificationChannel();
-        firewallManager = new FirewallManager(this);
+        firewallManager = new FirewallManager(this, true);
     }
 
     @Override
@@ -537,6 +537,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.flushLog();
         notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_BG_ID);
         notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_NEWSTATUS_ID);
+        firewallManager.onDestroy();
     }
 
     private String getTunConfigString() {

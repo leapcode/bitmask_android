@@ -18,11 +18,19 @@ package se.leap.bitmaskclient.tethering;
 
 import android.content.Context;
 import android.content.IntentFilter;
+import android.util.Log;
 
+import java.net.Inet4Address;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
+import java.util.List;
 
 import se.leap.bitmaskclient.utils.Cmd;
+
+import static se.leap.bitmaskclient.utils.PreferenceHelper.isBluetoothTetheringAllowed;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.isUsbTetheringAllowed;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.isWifiTetheringAllowed;
 
 /**
  * This manager tries to figure out the current tethering states for Wifi, USB and Bluetooth
@@ -55,13 +63,12 @@ public class TetheringStateManager {
         intentFilter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
         context.getApplicationContext().registerReceiver(broadcastReceiver, intentFilter);
         instance.wifiManager = new WifiManagerWrapper(context);
+        TetheringObservable.allowVpnWifiTethering(isWifiTetheringAllowed(context));
+        TetheringObservable.allowVpnUsbTethering(isUsbTetheringAllowed(context));
+        TetheringObservable.allowVpnBluetoothTethering(isBluetoothTetheringAllowed(context));
         updateWifiTetheringState();
         updateUsbTetheringState();
         updateBluetoothTetheringState();
-    }
-
-    private static boolean isWifiApEnabled() throws Exception {
-        return instance.wifiManager.isWifiAPEnabled();
     }
 
 
@@ -80,6 +87,54 @@ public class TetheringStateManager {
         }
 
         return false;
+    }
+
+    public static String getWifiAddressRange() {
+        String interfaceAddress = getWifiInterfaceAddress();
+        if (interfaceAddress.split("\\.").length == 4) {
+            String result = interfaceAddress.substring(0, interfaceAddress.lastIndexOf("."));
+            result = result + ".0/24";
+            Log.d(TAG, "wifiAddressRange = " + result);
+            return result;
+        }
+        return "";
+    }
+
+    private static String getWifiInterfaceAddress() {
+        NetworkInterface networkInterface = getWlanInterface();
+        if (networkInterface != null) {
+           List<InterfaceAddress> ifaceAddresses = networkInterface.getInterfaceAddresses();
+           for (InterfaceAddress ifaceAddres : ifaceAddresses) {
+               if (ifaceAddres.getAddress() instanceof Inet4Address) {
+                   return ifaceAddres.getAddress().getHostAddress();
+               }
+           }
+        }
+        return "";
+    }
+
+    public static String getWifiInterfaceName() {
+        NetworkInterface networkInterface = getWlanInterface();
+        if (networkInterface != null) {
+            return networkInterface.getName();
+        }
+        return "";
+    }
+
+    private static NetworkInterface getWlanInterface() {
+        try {
+            for(Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface networkInterface = en.nextElement();
+                if(!networkInterface.isLoopback()){
+                    if(networkInterface.getName().contains("wlan") || networkInterface.getName().contains("eth")){
+                        return networkInterface;
+                    }
+                }
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private static boolean isBluetoothTetheringEnabled() {
@@ -104,12 +159,9 @@ public class TetheringStateManager {
     }
 
     static void updateWifiTetheringState() {
-        boolean lastState = TetheringObservable.getInstance().isWifiTetheringEnabled();
+        WifiManagerWrapper manager = getInstance().wifiManager;
         try {
-            boolean currentState = isWifiApEnabled();
-            if (currentState != lastState) {
-                TetheringObservable.setWifiTethering(currentState);
-            }
+            TetheringObservable.setWifiTethering(manager.isWifiAPEnabled(), getWifiAddressRange(), getWifiInterfaceName());
         } catch (Exception e) {
             e.printStackTrace();
         }

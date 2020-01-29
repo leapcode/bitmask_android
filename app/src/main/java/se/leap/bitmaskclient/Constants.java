@@ -16,9 +16,9 @@ public interface Constants {
     String EXCLUDED_APPS = "excluded_apps";
     String USE_PLUGGABLE_TRANSPORTS = "usePluggableTransports";
     String SU_PERMISSION = "su_permission";
-    String TETHERING_BLUETOOTH = "tethering_bluetooth";
-    String TETHERING_WIFI = "tethering_wifi";
-    String TETHERING_USB = "tethering_usb";
+    String ALLOW_TETHERING_BLUETOOTH = "tethering_bluetooth";
+    String ALLOW_TETHERING_WIFI = "tethering_wifi";
+    String ALLOW_TETHERING_USB = "tethering_usb";
 
 
      //////////////////////////////////////////////

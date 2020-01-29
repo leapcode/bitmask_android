@@ -26,10 +26,8 @@ import java.util.Observer;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
-import se.leap.bitmaskclient.tethering.TetheringState;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconCheckboxEntry;
 
@@ -136,16 +134,14 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
 
         builder.setView(view)
                 .setPositiveButton(android.R.string.ok, (dialog, id) -> {
-                    PreferenceHelper.wifiTethering(getContext(), dataset[0].checked);
-                    PreferenceHelper.usbTethering(getContext(), dataset[1].checked);
-                    PreferenceHelper.bluetoothTethering(getContext(), dataset[2].checked);
-                    FirewallManager firewallManager = new FirewallManager(getContext().getApplicationContext());
-                    TetheringState runningTethering = TetheringObservable.getInstance().getTetheringState();
-                    TetheringState vpnTethering = new TetheringState();
-                    vpnTethering.isWifiTetheringEnabled = runningTethering.isWifiTetheringEnabled && dataset[0].checked;
-                    vpnTethering.isUsbTetheringEnabled = runningTethering.isUsbTetheringEnabled && dataset[1].checked;
-                    vpnTethering.isBluetoothTetheringEnabled = runningTethering.isBluetoothTetheringEnabled && dataset[2].checked;
-                    firewallManager.configureTethering(vpnTethering);
+                    PreferenceHelper.allowWifiTethering(getContext(), dataset[0].checked);
+                    PreferenceHelper.allowUsbTethering(getContext(), dataset[1].checked);
+                    PreferenceHelper.allowBluetoothTethering(getContext(), dataset[2].checked);
+                    TetheringObservable.allowVpnWifiTethering(dataset[0].checked);
+                    TetheringObservable.allowVpnUsbTethering(dataset[1].checked);
+                    TetheringObservable.allowVpnBluetoothTethering(dataset[2].checked);
+                    FirewallManager firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
+                    firewallManager.startTethering();
                 })
                 .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
         return builder.create();
@@ -195,15 +191,15 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
         dataset = new DialogListAdapter.ViewModel[] {
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_wifi),
                         getContext().getString(R.string.tethering_wifi),
-                        PreferenceHelper.getWifiTethering(getContext()),
+                        PreferenceHelper.isWifiTetheringAllowed(getContext()),
                         TetheringObservable.getInstance().isWifiTetheringEnabled()),
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_usb),
                         getContext().getString(R.string.tethering_usb),
-                        PreferenceHelper.getUsbTethering(getContext()),
+                        PreferenceHelper.isUsbTetheringAllowed(getContext()),
                         TetheringObservable.getInstance().isUsbTetheringEnabled()),
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_bluetooth),
                         getContext().getString(R.string.tethering_bluetooth),
-                        PreferenceHelper.getBluetoothTethering(getContext()),
+                        PreferenceHelper.isBluetoothTetheringAllowed(getContext()),
                         TetheringObservable.getInstance().isUsbTetheringEnabled())
         };
     }

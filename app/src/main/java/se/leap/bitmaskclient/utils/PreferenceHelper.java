@@ -3,18 +3,13 @@ package se.leap.bitmaskclient.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import de.blinkt.openvpn.VpnProfile;
@@ -25,16 +20,15 @@ import static se.leap.bitmaskclient.Constants.ALWAYS_ON_SHOW_DIALOG;
 import static se.leap.bitmaskclient.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
 import static se.leap.bitmaskclient.Constants.EXCLUDED_APPS;
 import static se.leap.bitmaskclient.Constants.LAST_USED_PROFILE;
-import static se.leap.bitmaskclient.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.Constants.SU_PERMISSION;
-import static se.leap.bitmaskclient.Constants.TETHERING_BLUETOOTH;
-import static se.leap.bitmaskclient.Constants.TETHERING_USB;
-import static se.leap.bitmaskclient.Constants.TETHERING_WIFI;
+import static se.leap.bitmaskclient.Constants.ALLOW_TETHERING_BLUETOOTH;
+import static se.leap.bitmaskclient.Constants.ALLOW_TETHERING_USB;
+import static se.leap.bitmaskclient.Constants.ALLOW_TETHERING_WIFI;
 import static se.leap.bitmaskclient.Constants.USE_PLUGGABLE_TRANSPORTS;
 
 /**
@@ -149,28 +143,28 @@ public class PreferenceHelper {
         return getBoolean(context, DEFAULT_SHARED_PREFS_BATTERY_SAVER, false);
     }
 
-    public static void usbTethering(Context context, boolean isEnabled) {
-        putBoolean(context, TETHERING_USB, isEnabled);
+    public static void allowUsbTethering(Context context, boolean isEnabled) {
+        putBoolean(context, ALLOW_TETHERING_USB, isEnabled);
     }
 
-    public static boolean getUsbTethering(Context context) {
-        return getBoolean(context, TETHERING_USB, false);
+    public static boolean isUsbTetheringAllowed(Context context) {
+        return getBoolean(context, ALLOW_TETHERING_USB, false);
     }
 
-    public static void wifiTethering(Context context, boolean isEnabled) {
-        putBoolean(context, TETHERING_WIFI, isEnabled);
+    public static void allowWifiTethering(Context context, boolean isEnabled) {
+        putBoolean(context, ALLOW_TETHERING_WIFI, isEnabled);
     }
 
-    public static boolean getWifiTethering(Context context) {
-        return getBoolean(context, TETHERING_WIFI, false);
+    public static boolean isWifiTetheringAllowed(Context context) {
+        return getBoolean(context, ALLOW_TETHERING_WIFI, false);
     }
 
-    public static void bluetoothTethering(Context context, boolean isEnabled) {
-        putBoolean(context, TETHERING_BLUETOOTH, isEnabled);
+    public static void allowBluetoothTethering(Context context, boolean isEnabled) {
+        putBoolean(context, ALLOW_TETHERING_BLUETOOTH, isEnabled);
     }
 
-    public static boolean getBluetoothTethering(Context context) {
-        return getBoolean(context, TETHERING_BLUETOOTH, false);
+    public static boolean isBluetoothTetheringAllowed(Context context) {
+        return getBoolean(context, ALLOW_TETHERING_BLUETOOTH, false);
     }
 
     public static void saveShowAlwaysOnDialog(Context context, boolean showAlwaysOnDialog) {

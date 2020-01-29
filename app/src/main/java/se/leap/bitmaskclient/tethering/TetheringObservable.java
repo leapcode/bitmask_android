@@ -34,22 +34,60 @@ public class TetheringObservable extends Observable {
         return instance;
     }
 
-    static void setWifiTethering(boolean enabled) {
-        getInstance().tetheringState.isWifiTetheringEnabled = enabled;
-        getInstance().setChanged();
-        getInstance().notifyObservers();
+    public static void allowVpnWifiTethering(boolean enabled) {
+        if (getInstance().tetheringState.isVpnWifiTetheringAllowed != enabled) {
+            getInstance().tetheringState.isVpnWifiTetheringAllowed = enabled;
+            getInstance().setChanged();
+            getInstance().notifyObservers();
+        }
+    }
+
+    public static void allowVpnUsbTethering(boolean enabled) {
+        if (getInstance().tetheringState.isUsbTetheringEnabled != enabled) {
+            getInstance().tetheringState.isUsbTetheringEnabled = enabled;
+            getInstance().setChanged();
+            getInstance().notifyObservers();
+        }
+    }
+
+    public static void allowVpnBluetoothTethering(boolean enabled) {
+        if (getInstance().tetheringState.isBluetoothTetheringEnabled != enabled) {
+            getInstance().tetheringState.isBluetoothTetheringEnabled = enabled;
+            getInstance().setChanged();
+            getInstance().notifyObservers();
+        }
+    }
+
+    static void setWifiTethering(boolean enabled, String address, String interfaceName) {
+        if (getInstance().tetheringState.isWifiTetheringEnabled != enabled ||
+                !getInstance().tetheringState.wifiInterface.equals(interfaceName) ||
+                !getInstance().tetheringState.wifiAddress.equals(address)) {
+            getInstance().tetheringState.isWifiTetheringEnabled = enabled;
+            getInstance().tetheringState.wifiInterface = interfaceName;
+            getInstance().tetheringState.wifiAddress = address;
+            if ("".equals(address)) {
+                getInstance().tetheringState.lastWifiAddress = address;
+            }
+            getInstance().setChanged();
+            getInstance().notifyObservers();
+        }
+
     }
 
     static void setUsbTethering(boolean enabled) {
-        getInstance().tetheringState.isUsbTetheringEnabled = enabled;
-        getInstance().setChanged();
-        getInstance().notifyObservers();
+        if (getInstance().tetheringState.isUsbTetheringEnabled != enabled) {
+            getInstance().tetheringState.isUsbTetheringEnabled = enabled;
+            getInstance().setChanged();
+            getInstance().notifyObservers();
+        }
     }
 
     static void setBluetoothTethering(boolean enabled) {
-        getInstance().tetheringState.isBluetoothTetheringEnabled = enabled;
-        getInstance().setChanged();
-        getInstance().notifyObservers();
+        if (getInstance().tetheringState.isBluetoothTetheringEnabled != enabled) {
+            getInstance().tetheringState.isBluetoothTetheringEnabled = enabled;
+            getInstance().setChanged();
+            getInstance().notifyObservers();
+        }
     }
 
     public boolean isBluetoothTetheringEnabled() {
@@ -66,9 +104,5 @@ public class TetheringObservable extends Observable {
 
     public TetheringState getTetheringState() {
         return tetheringState;
-    }
-
-    public boolean hasAnyTetheringEnabled() {
-        return tetheringState.isBluetoothTetheringEnabled || tetheringState.isUsbTetheringEnabled || tetheringState.isWifiTetheringEnabled;
     }
 }

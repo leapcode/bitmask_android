@@ -18,13 +18,15 @@ package se.leap.bitmaskclient.firewall;
 
 import android.content.Context;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.tethering.TetheringState;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
-
-public class FirewallManager implements FirewallCallback {
+public class FirewallManager implements FirewallCallback, Observer {
     public static String BITMASK_CHAIN = "bitmask_fw";
     public static String BITMASK_FORWARD = "bitmask_forward";
     public static String BITMASK_POSTROUTING = "bitmask_postrouting";
@@ -32,10 +34,12 @@ public class FirewallManager implements FirewallCallback {
 
     private Context context;
 
-    public FirewallManager(Context context) {
+    public FirewallManager(Context context, boolean observeTethering) {
         this.context = context;
+        if (observeTethering) {
+            TetheringObservable.getInstance().addObserver(this);
+        }
     }
-
 
     @Override
     public void onFirewallStarted(boolean success) {
@@ -56,11 +60,20 @@ public class FirewallManager implements FirewallCallback {
     }
 
     @Override
-    public void onTetheringConfigured(boolean success) {
+    public void onTetheringStarted(boolean success) {
         if (success) {
-            VpnStatus.logInfo("[FIREWALL] Rules for tethering configured");
+            VpnStatus.logInfo("[FIREWALL] Rules for tethering enabled");
         } else {
-            VpnStatus.logError("[FIREWALL] Could not establish rules for tethering ");
+            VpnStatus.logError("[FIREWALL] Could not enable rules for tethering.");
+        }
+    }
+
+    @Override
+    public void onTetheringStopped(boolean success) {
+        if (success) {
+            VpnStatus.logInfo("[FIREWALL] Rules for tethering successfully disabled");
+        } else {
+            VpnStatus.logError("[FIREWALL] Could not disable rules for tethering.");
         }
     }
 
@@ -72,30 +85,32 @@ public class FirewallManager implements FirewallCallback {
         }
     }
 
+    public void onDestroy() {
+        TetheringObservable.getInstance().deleteObserver(this);
+    }
+
 
     public void start() {
         startIPv6Firewall();
-        if (TetheringObservable.getInstance().hasAnyTetheringEnabled()) {
-            TetheringState deviceTethering = TetheringObservable.getInstance().getTetheringState();
-            TetheringState vpnTethering = new TetheringState();
-            vpnTethering.isWifiTetheringEnabled = deviceTethering.isWifiTetheringEnabled && PreferenceHelper.getWifiTethering(context);
-            vpnTethering.isUsbTetheringEnabled = deviceTethering.isUsbTetheringEnabled && PreferenceHelper.getUsbTethering(context);
-            vpnTethering.isBluetoothTetheringEnabled = deviceTethering.isBluetoothTetheringEnabled && PreferenceHelper.getBluetoothTethering(context);
-            configureTethering(vpnTethering);
+        TetheringState tetheringState = TetheringObservable.getInstance().getTetheringState();
+        if (tetheringState.hasAnyDeviceTetheringEnabled() && tetheringState.hasAnyVpnTetheringAllowed()) {
+            startTethering();
         }
     }
+
     public void stop() {
-        shutdownIPv6Firewall();
-        TetheringState allowedTethering = new TetheringState();
-        allowedTethering.isWifiTetheringEnabled = PreferenceHelper.getWifiTethering(context);
-        allowedTethering.isUsbTetheringEnabled = PreferenceHelper.getUsbTethering(context);
-        allowedTethering.isBluetoothTetheringEnabled = PreferenceHelper.getBluetoothTethering(context);
-        configureTethering(allowedTethering);
+        stopIPv6Firewall();
+        stopTethering();
     }
 
-    public void configureTethering(TetheringState state) {
-        ConfigureTetheringTask task = new ConfigureTetheringTask(this);
-        task.execute(state);
+    public void startTethering() {
+        SetupTetheringTask task = new SetupTetheringTask(this);
+        task.execute();
+    }
+
+    private void stopTethering() {
+        ShutdownTetheringTask task = new ShutdownTetheringTask(this);
+        task.execute();
     }
 
     private void startIPv6Firewall() {
@@ -103,9 +118,21 @@ public class FirewallManager implements FirewallCallback {
         task.execute();
     }
 
-    private void shutdownIPv6Firewall() {
+    private void stopIPv6Firewall() {
         ShutdownIPv6FirewallTask task = new ShutdownIPv6FirewallTask(this);
         task.execute();
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o instanceof TetheringObservable) {
+            TetheringObservable observable = (TetheringObservable) o;
+            TetheringState state = observable.getTetheringState();
+            if (state.hasAnyVpnTetheringAllowed() && state.hasAnyDeviceTetheringEnabled()) {
+                startTethering();
+            } else {
+                stopTethering();
+            }
+        }
+    }
 }
