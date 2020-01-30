@@ -52,7 +52,10 @@ public class SetupTetheringTask extends AsyncTask<Void, Boolean, Boolean> {
         try {
             boolean hasBitmaskChain = runBlockingCmd(bitmaskChain, log) == 0;
             boolean allowSu = log.toString().contains("uid=0");
-            callbackWeakReference.get().onSuRequested(allowSu);
+            FirewallCallback callback = callbackWeakReference.get();
+            if (callback != null) {
+                callback.onSuRequested(allowSu);
+            }
             if (!allowSu) {
                 return false;
             }
