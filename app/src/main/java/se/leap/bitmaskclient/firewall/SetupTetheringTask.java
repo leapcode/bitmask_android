@@ -21,6 +21,7 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Enumeration;
 
 import se.leap.bitmaskclient.tethering.TetheringObservable;
@@ -70,20 +71,28 @@ public class SetupTetheringTask extends AsyncTask<Void, Boolean, Boolean> {
             if (tetheringState.tetherWifiVpn()) {
                 log = new StringBuilder();
                 success = addWifiTetheringRules(tetheringState, log);
+                logError(success, log);
             } else if (!tetheringState.isVpnWifiTetheringAllowed){
                 success = removeWifiTetheringRules(tetheringState, log);
+                logError(success, log);
             }
 
+            log = new StringBuilder();
             if (tetheringState.tetherUsbVpn()) {
                 success = success && addUsbTetheringRules(tetheringState, log);
+                logError(success, log);
             } else if (!tetheringState.isVpnUsbTetheringAllowed) {
                 success = success && removeUsbTetheringRules(tetheringState, log);
+                logError(success, log);
             }
 
+            log = new StringBuilder();
             if (tetheringState.tetherBluetoothVpn()) {
                 success = success && addBluetoothTetheringRules(tetheringState, log);
+                logError(success, log);
             } else if (!tetheringState.isVpnBluetoothTetheringAllowed) {
                 success = success && removeBluetoothTetheringRules(tetheringState, log);
+                logError(success, log);
             }
             return success;
         } catch (Exception e) {
@@ -93,22 +102,10 @@ public class SetupTetheringTask extends AsyncTask<Void, Boolean, Boolean> {
         return false;
     }
 
-
-    //TODO: implement the follwing methods -v
-    private boolean removeBluetoothTetheringRules(TetheringState tetheringState, StringBuilder log) {
-        return true;
-    }
-
-    private boolean removeUsbTetheringRules(TetheringState tetheringState, StringBuilder log) {
-        return true;
-    }
-
-    private boolean addBluetoothTetheringRules(TetheringState tetheringState, StringBuilder log) {
-        return true;
-    }
-
-    private boolean addUsbTetheringRules(TetheringState tetheringState, StringBuilder log) {
-        return true;
+    private void logError(boolean success, StringBuilder log) {
+        if (!success) {
+            Log.e(TAG, log.toString());
+        }
     }
 
 
@@ -128,42 +125,75 @@ public class SetupTetheringTask extends AsyncTask<Void, Boolean, Boolean> {
 
     private boolean addWifiTetheringRules(TetheringState state, StringBuilder log) throws Exception {
         Log.d(TAG, "add Wifi tethering Rules");
-        String[] addRules = new String[] {
-                "su",
-                "iptables -t filter --flush " + BITMASK_FORWARD,
-                "iptables -t nat --flush " + BITMASK_POSTROUTING,
-                "iptables -t filter --append " + BITMASK_FORWARD + " --jump ACCEPT",
-                "iptables -t nat --append " + BITMASK_POSTROUTING + " --jump MASQUERADE",
-                "if [[ ! `ip rule show from "+ state.wifiAddress+" lookup 61` ]]; " +
-                        "then ip rule add from " + state.wifiAddress + " lookup 61; " +
-                        "fi",
-                "if [[ ! `ip route list table 61 | grep 'default dev " + getTunName() + " scope link'` ]]; " +
-                        "then ip route add default dev " + getTunName() + " scope link table 61; " +
-                        "fi",
-                "if [[ ! `ip route list table 61 | grep '"+ state.wifiAddress+" dev "+ state.wifiInterface+" scope link'` ]]; " +
-                        "then ip route add " + state.wifiAddress + " dev " + state.wifiInterface + " scope link table 61; " +
-                        "fi",
-                "if [[ ! `ip route list table 61 | grep 'broadcast 255.255.255.255 dev " + state.wifiInterface + " scope link'` ]]; " +
-                        "then ip route add broadcast 255.255.255.255 dev " + state.wifiInterface + " scope link table 61; " +
-                        "fi"
-        };
-
+        String[] addRules = getAdditionRules(state.wifiAddress, state.wifiInterface);
         return runBlockingCmd(addRules, log) == 0;
     }
 
     private boolean removeWifiTetheringRules(TetheringState state, StringBuilder log) throws Exception {
         Log.d(TAG, "add Wifi tethering Rules");
-        String[] removeRules = new String[] {
-                "su",
-                "ip route delete broadcast 255.255.255.255 dev " + state.wifiInterface +" scope link table 61",
-                "ip route delete " + state.lastWifiAddress + " dev " + state.wifiInterface +" scope link table 61",
-                "ip route delete default dev " + getTunName() + " scope link table 61",
-                "if [[ `ip rule show from " + state.lastWifiAddress+ " lookup 61` ]]; " +
-                        "then ip rule del from " + state.lastWifiAddress + " lookup 61; " +
-                        "fi",
-        };
+        String[] removeRules = getDeletionRules(state, state.lastSeenWifiAddress, state.lastSeenWifiInterface);
         return runBlockingCmd(removeRules, log) == 0;
     }
+
+    private boolean addUsbTetheringRules(TetheringState state, StringBuilder log) throws Exception {
+        Log.d(TAG, "add usb tethering rules");
+        String[] addRules = getAdditionRules(state.usbAddress, state.usbInterface);
+        return runBlockingCmd(addRules, log) == 0;
+    }
+
+    private boolean removeUsbTetheringRules(TetheringState state, StringBuilder log) throws Exception {
+        Log.d(TAG, "add usb tethering rules");
+        String[] addRules = getDeletionRules(state, state.lastSeenUsbAddress, state.lastSeenUsbInterface);
+        return runBlockingCmd(addRules, log) == 0;
+    }
+
+    //TODO: implement the follwing methods -v
+    private boolean removeBluetoothTetheringRules(TetheringState state, StringBuilder log) {
+        return true;
+    }
+
+    private boolean addBluetoothTetheringRules(TetheringState state, StringBuilder log) {
+        return true;
+    }
+
+    private String[] getAdditionRules(String addressRange, String interfaceName) {
+        return new String[] {
+                "su",
+                "iptables -t filter --flush " + BITMASK_FORWARD,
+                "iptables -t nat --flush " + BITMASK_POSTROUTING,
+                "iptables -t filter --append " + BITMASK_FORWARD + " --jump ACCEPT",
+                "iptables -t nat --append " + BITMASK_POSTROUTING + " --jump MASQUERADE",
+                "if [[ ! `ip rule show from "+ addressRange+" lookup 61` ]]; " +
+                        "then ip rule add from " + addressRange + " lookup 61; " +
+                        "fi",
+                "if [[ ! `ip route list table 61 | grep 'default dev " + getTunName() + " scope link'` ]]; " +
+                        "then ip route add default dev " + getTunName() + " scope link table 61; " +
+                        "fi",
+                "if [[ ! `ip route list table 61 | grep '"+ addressRange +" dev "+ interfaceName +" scope link'` ]]; " +
+                        "then ip route add " + addressRange + " dev " + interfaceName + " scope link table 61; " +
+                        "fi",
+                "if [[ ! `ip route list table 61 | grep 'broadcast 255.255.255.255 dev " + interfaceName + " scope link'` ]]; " +
+                        "then ip route add broadcast 255.255.255.255 dev " + interfaceName + " scope link table 61; " +
+                        "fi"
+        };
+    }
+
+    private String[] getDeletionRules(TetheringState state, String addressRange, String interfaceName) {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("su");
+        list.add("ip route delete broadcast 255.255.255.255 dev " + addressRange +" scope link table 61");
+        list.add("ip route delete " + addressRange + " dev " + interfaceName +" scope link table 61");
+        if (!state.hasAnyVpnTetheringAllowed() || !state.hasAnyDeviceTetheringEnabled()) {
+            list.add("ip route delete default dev " + getTunName() + " scope link table 61");
+        }
+        list.add("if [[ `ip rule show from " + addressRange + " lookup 61` ]]; " +
+                "then ip rule del from " + addressRange + " lookup 61; " +
+                "fi");
+
+        return list.toArray(new String[0]);
+    }
+
+
 
     private String getTunName() {
         try {

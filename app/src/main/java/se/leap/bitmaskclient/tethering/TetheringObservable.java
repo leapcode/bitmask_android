@@ -16,6 +16,8 @@
  */
 package se.leap.bitmaskclient.tethering;
 
+import android.support.annotation.NonNull;
+
 import java.util.Observable;
 
 public class TetheringObservable extends Observable {
@@ -43,40 +45,47 @@ public class TetheringObservable extends Observable {
     }
 
     public static void allowVpnUsbTethering(boolean enabled) {
-        if (getInstance().tetheringState.isUsbTetheringEnabled != enabled) {
-            getInstance().tetheringState.isUsbTetheringEnabled = enabled;
+        if (getInstance().tetheringState.isVpnUsbTetheringAllowed != enabled) {
+            getInstance().tetheringState.isVpnUsbTetheringAllowed = enabled;
             getInstance().setChanged();
             getInstance().notifyObservers();
         }
     }
 
     public static void allowVpnBluetoothTethering(boolean enabled) {
-        if (getInstance().tetheringState.isBluetoothTetheringEnabled != enabled) {
-            getInstance().tetheringState.isBluetoothTetheringEnabled = enabled;
+        if (getInstance().tetheringState.isVpnBluetoothTetheringAllowed != enabled) {
+            getInstance().tetheringState.isVpnBluetoothTetheringAllowed = enabled;
             getInstance().setChanged();
             getInstance().notifyObservers();
         }
     }
 
-    static void setWifiTethering(boolean enabled, String address, String interfaceName) {
+    static void setWifiTethering(boolean enabled, @NonNull String address, @NonNull String interfaceName) {
         if (getInstance().tetheringState.isWifiTetheringEnabled != enabled ||
                 !getInstance().tetheringState.wifiInterface.equals(interfaceName) ||
                 !getInstance().tetheringState.wifiAddress.equals(address)) {
-            getInstance().tetheringState.isWifiTetheringEnabled = enabled;
-            getInstance().tetheringState.wifiInterface = interfaceName;
-            getInstance().tetheringState.wifiAddress = address;
-            if ("".equals(address)) {
-                getInstance().tetheringState.lastWifiAddress = address;
-            }
+            TetheringState state = getInstance().tetheringState;
+            state.isWifiTetheringEnabled = enabled;
+            state.wifiInterface = interfaceName;
+            state.wifiAddress = address;
+            state.lastSeenWifiAddress = address.isEmpty() ? state.lastSeenWifiAddress : address;
+            state.lastSeenWifiInterface = interfaceName.isEmpty() ? state.lastSeenWifiInterface : interfaceName;
             getInstance().setChanged();
             getInstance().notifyObservers();
         }
 
     }
 
-    static void setUsbTethering(boolean enabled) {
-        if (getInstance().tetheringState.isUsbTetheringEnabled != enabled) {
-            getInstance().tetheringState.isUsbTetheringEnabled = enabled;
+    static void setUsbTethering(boolean enabled, @NonNull String address, @NonNull String interfaceName) {
+        if (getInstance().tetheringState.isUsbTetheringEnabled != enabled ||
+            !getInstance().tetheringState.usbAddress.equals(address) ||
+                !getInstance().tetheringState.usbInterface.equals(interfaceName)) {
+            TetheringState state = getInstance().tetheringState;
+            state.isUsbTetheringEnabled = enabled;
+            state.usbAddress = address;
+            state.usbInterface = interfaceName;
+            state.lastSeenUsbAddress = address.isEmpty() ? state.lastSeenUsbAddress : address;
+            state.lastSeenUsbInterface = interfaceName.isEmpty() ? state.lastSeenUsbInterface : interfaceName;
             getInstance().setChanged();
             getInstance().notifyObservers();
         }

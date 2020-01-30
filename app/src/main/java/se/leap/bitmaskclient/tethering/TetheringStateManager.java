@@ -19,7 +19,6 @@ package se.leap.bitmaskclient.tethering;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import java.net.Inet4Address;
 import java.net.InterfaceAddress;
@@ -72,70 +71,47 @@ public class TetheringStateManager {
         updateBluetoothTetheringState();
     }
 
-
-    private static boolean getUsbTetheringState() {
+    static void updateWifiTetheringState() {
+        WifiManagerWrapper manager = getInstance().wifiManager;
         try {
-            for(Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-                NetworkInterface networkInterface = en.nextElement();
-                if(!networkInterface.isLoopback()){
-                    if(networkInterface.getName().contains("rndis") || networkInterface.getName().contains("usb")){
-                        return true;
-                    }
-                }
-            }
-        } catch(Exception e){
+            TetheringObservable.setWifiTethering(manager.isWifiAPEnabled(), getWifiAddressRange(), getWlanInterfaceName());
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return false;
     }
 
-    public static String getWifiAddressRange() {
-        String interfaceAddress = getWifiInterfaceAddress();
-        if (interfaceAddress.split("\\.").length == 4) {
-            String result = interfaceAddress.substring(0, interfaceAddress.lastIndexOf("."));
-            result = result + ".0/24";
-            return result;
-        }
-        return "";
+    static void updateUsbTetheringState() {
+        TetheringObservable.setUsbTethering(isUsbTetheringEnabled(), getUsbAddressRange(), getUsbInterfaceName());
     }
 
-    @VisibleForTesting
-    static String getWifiInterfaceAddress() {
-        NetworkInterface networkInterface = getWlanInterface();
-        if (networkInterface != null) {
-           List<InterfaceAddress> ifaceAddresses = networkInterface.getInterfaceAddresses();
-           for (InterfaceAddress ifaceAddres : ifaceAddresses) {
-               if (ifaceAddres.getAddress() instanceof Inet4Address) {
-                   return ifaceAddres.getAddress().getHostAddress();
-               }
-           }
-        }
-        return "";
+    static void updateBluetoothTetheringState() {
+        TetheringObservable.setBluetoothTethering(isBluetoothTetheringEnabled());
     }
 
-    private static String getWifiInterfaceName() {
-        NetworkInterface networkInterface = getWlanInterface();
-        if (networkInterface != null) {
-            return networkInterface.getName();
-        }
-        return "";
+    private static String getWifiAddressRange() {
+        String interfaceAddress = getInterfaceAddress(getWlanInterface());
+        return getAddressRange(interfaceAddress);
+    }
+
+    private static String getUsbAddressRange() {
+        String interfaceAddress = getInterfaceAddress(getUsbInterface());
+        return getAddressRange(interfaceAddress);
+    }
+
+    private static String getWlanInterfaceName() {
+        return getInterfaceName(getWlanInterface());
+    }
+
+    private static String getUsbInterfaceName() {
+        return getInterfaceName(getUsbInterface());
     }
 
     private static NetworkInterface getWlanInterface() {
-        try {
-            for(Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-                NetworkInterface networkInterface = en.nextElement();
-                if(!networkInterface.isLoopback()){
-                    if(networkInterface.getName().contains("wlan") || networkInterface.getName().contains("eth")){
-                        return networkInterface;
-                    }
-                }
-            }
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-        return null;
+        return getNetworkInterface(new String[]{"wlan", "eth"});
+    }
+
+    private static NetworkInterface getUsbInterface() {
+        return getNetworkInterface(new String[]{"rndis", "usb"});
     }
 
     private static boolean isBluetoothTetheringEnabled() {
@@ -151,21 +127,56 @@ public class TetheringStateManager {
 
     }
 
-    static void updateUsbTetheringState() {
-        TetheringObservable.setUsbTethering(getUsbTetheringState());
+    private static boolean isUsbTetheringEnabled() {
+        return getUsbInterface() != null;
     }
 
-    static void updateBluetoothTetheringState() {
-        TetheringObservable.setBluetoothTethering(isBluetoothTetheringEnabled());
+    @VisibleForTesting
+    static String getAddressRange(String interfaceAddress) {
+        if (interfaceAddress.split("\\.").length == 4) {
+            String result = interfaceAddress.substring(0, interfaceAddress.lastIndexOf("."));
+            result = result + ".0/24";
+            return result;
+        }
+        return "";
     }
 
-    static void updateWifiTetheringState() {
-        WifiManagerWrapper manager = getInstance().wifiManager;
+    private static String getInterfaceAddress(NetworkInterface networkInterface) {
+        if (networkInterface != null) {
+            List<InterfaceAddress> ifaceAddresses = networkInterface.getInterfaceAddresses();
+            for (InterfaceAddress ifaceAddres : ifaceAddresses) {
+                if (ifaceAddres.getAddress() instanceof Inet4Address) {
+                    return ifaceAddres.getAddress().getHostAddress();
+                }
+            }
+        }
+        return "";
+    }
+
+    private static String getInterfaceName(NetworkInterface networkInterface) {
+        if (networkInterface != null) {
+            return networkInterface.getName();
+        }
+        return "";
+    }
+
+    private static NetworkInterface getNetworkInterface(String[] interfaceNames) {
         try {
-            TetheringObservable.setWifiTethering(manager.isWifiAPEnabled(), getWifiAddressRange(), getWifiInterfaceName());
-        } catch (Exception e) {
+            for(Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface networkInterface = en.nextElement();
+                if(!networkInterface.isLoopback()){
+                    for (String interfaceName : interfaceNames) {
+                        if (networkInterface.getName().contains(interfaceName)) {
+                            return networkInterface;
+                        }
+                    }
+                }
+            }
+        } catch(Exception e){
             e.printStackTrace();
         }
+
+        return null;
     }
 
 }

@@ -20,6 +20,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.tethering.TetheringState;
@@ -50,26 +51,30 @@ public class ShutdownTetheringTask extends AsyncTask<Void, Boolean, Boolean> {
             boolean hasBitmaskChain = runBlockingCmd(bitmaskChain, log) == 0;
             boolean allowSu = log.toString().contains("uid=0");
             callbackWeakReference.get().onSuRequested(allowSu);
-            if (!allowSu || !hasBitmaskChain) {
+            if (!allowSu) {
                 return false;
             }
 
             log = new StringBuilder();
 
-            String[] removeChains = new String[] {
-                    "su",
-                    "ip route flush table 61",
-                    "if [[ `ip rule show from " + tetheringState.wifiAddress+ " lookup 61` ]]; " +
-                            "then ip rule del from " + tetheringState.wifiAddress + " lookup 61; " +
-                            "fi",
-                    "iptables -t filter --delete FORWARD --jump " + BITMASK_FORWARD,
-                    "iptables -t nat --delete POSTROUTING --jump " + BITMASK_POSTROUTING,
-                    "iptables -t filter --flush " + BITMASK_FORWARD,
-                    "iptables -t nat --flush " + BITMASK_POSTROUTING,
-                    "iptables -t filter --delete-chain " + BITMASK_FORWARD,
-                    "iptables -t nat --delete-chain " + BITMASK_POSTROUTING,
-            };
-            return runBlockingCmd(removeChains, log) == 0;
+            ArrayList<String> removeChains = new ArrayList<>();
+            removeChains.add("su");
+            removeChains.add("ip route flush table 61");
+            removeChains.add("if [[ `ip rule show from " + tetheringState.lastSeenWifiAddress+ " lookup 61` ]]; " +
+                    "then ip rule del from " + tetheringState.lastSeenWifiAddress + " lookup 61; " +
+                    "fi");
+            removeChains.add("if [[ `ip rule show from " + tetheringState.lastSeenUsbAddress+ " lookup 61` ]]; " +
+                    "then ip rule del from " + tetheringState.lastSeenUsbAddress + " lookup 61; " +
+                    "fi");
+            if (hasBitmaskChain) {
+                removeChains.add("iptables -t filter --delete FORWARD --jump " + BITMASK_FORWARD);
+                removeChains.add("iptables -t nat --delete POSTROUTING --jump " + BITMASK_POSTROUTING);
+                removeChains.add("iptables -t filter --flush " + BITMASK_FORWARD);
+                removeChains.add("iptables -t nat --flush " + BITMASK_POSTROUTING);
+                removeChains.add("iptables -t filter --delete-chain " + BITMASK_FORWARD);
+                removeChains.add("iptables -t nat --delete-chain " + BITMASK_POSTROUTING);
+            }
+            return runBlockingCmd(removeChains.toArray(new String[0]), log) == 0;
 
         } catch (Exception e) {
             e.printStackTrace();

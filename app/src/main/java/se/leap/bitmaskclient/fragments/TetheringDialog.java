@@ -25,6 +25,7 @@ import java.util.Observer;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
@@ -141,9 +142,15 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
                     TetheringObservable.allowVpnUsbTethering(dataset[1].checked);
                     TetheringObservable.allowVpnBluetoothTethering(dataset[2].checked);
                     FirewallManager firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
-                    firewallManager.startTethering();
-                })
-                .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
+                    if (VpnStatus.isVPNActive()) {
+                        if (TetheringObservable.getInstance().getTetheringState().hasAnyDeviceTetheringEnabled() &&
+                                TetheringObservable.getInstance().getTetheringState().hasAnyVpnTetheringAllowed()) {
+                            firewallManager.startTethering();
+                        } else {
+                            firewallManager.stopTethering();
+                        }
+                    }
+                }).setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
         return builder.create();
     }
 

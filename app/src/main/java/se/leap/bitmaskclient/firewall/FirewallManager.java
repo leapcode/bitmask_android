@@ -108,7 +108,7 @@ public class FirewallManager implements FirewallCallback, Observer {
         task.execute();
     }
 
-    private void stopTethering() {
+    public void stopTethering() {
         ShutdownTetheringTask task = new ShutdownTetheringTask(this);
         task.execute();
     }

@@ -8,12 +8,18 @@ public class TetheringState implements Cloneable {
     public boolean isVpnUsbTetheringAllowed;
     public boolean isVpnBluetoothTetheringAllowed;
     public String wifiInterface = "";
-    public String usbInterface = "";
-    public String bluetoothInterface = "";
+    public String lastSeenWifiInterface = "";
     public String wifiAddress = "";
-    public String lastWifiAddress = "";
+    public String lastSeenWifiAddress = "";
+    public String usbInterface = "";
+    public String lastSeenUsbInterface = "";
     public String usbAddress = "";
+    public String lastSeenUsbAddress = "";
+    public String bluetoothInterface = "";
+    public String lastSeenBluetoothInterface = "";
     public String bluetoothAddress = "";
+    public String lastSeenBluetoothAddress = "";
+
 
     public boolean tetherWifiVpn() {
         return isWifiTetheringEnabled && isVpnWifiTetheringAllowed;
