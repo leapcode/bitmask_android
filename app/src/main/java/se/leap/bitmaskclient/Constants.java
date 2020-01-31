@@ -19,6 +19,8 @@ public interface Constants {
     String ALLOW_TETHERING_BLUETOOTH = "tethering_bluetooth";
     String ALLOW_TETHERING_WIFI = "tethering_wifi";
     String ALLOW_TETHERING_USB = "tethering_usb";
+    String SHOW_EXPERIMENTAL = "show_experimental";
+    String USE_IPv6_FIREWALL = "use_ipv6_firewall";
 
 
      //////////////////////////////////////////////

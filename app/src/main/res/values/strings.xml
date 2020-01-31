@@ -106,8 +106,11 @@
   <string name="always_on_vpn">Always-on VPN</string>
   <string name="subtitle_always_on_vpn">Open Android System Settings</string>
   <string name="tethering">VPN Hotspot</string>
-  <string name="subtitle_tethering">Share your VPN</string>
-  <string name="tethering_enabled_message">Please make sure that you have enabled tethering in the %s first!</string>
+  <string name="ipv6Firewall">Firewall</string>
+  <string name="require_root">Requires root permissions</string>
+  <string name="show_experimental">Show experimental options</string>
+  <string name="hide_experimental">Hide experimental options</string>
+  <string name="tethering_enabled_message">Please make sure to enable tethering in the %s first!</string>
   <string name="tethering_system_settings">system settings</string>
   <string name="tethering_message">Share your VPN with other devices via:</string>
   <string name="tethering_wifi">Wifi hotspot</string>

@@ -43,6 +43,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.Set;
 
@@ -56,6 +57,7 @@ import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.ExcludeAppsFragment;
@@ -82,6 +84,7 @@ import static se.leap.bitmaskclient.utils.PreferenceHelper.getSaveBattery;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.saveBattery;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.showExperimentalFeatures;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.usePluggableTransports;
 
 /**
@@ -110,6 +113,9 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private Toolbar toolbar;
     private IconTextEntry account;
     private IconSwitchEntry saveBattery;
+    private IconTextEntry tethering;
+    private IconSwitchEntry firewall;
+    private View experimentalFeatureFooter;
 
     private boolean userLearnedDrawer;
     private volatile boolean wasPaused;
@@ -237,8 +243,11 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         initUseBridgesEntry();
         initSaveBatteryEntry();
         initAlwaysOnVpnEntry();
-        initTetheringEntry();
         initExcludeAppsEntry();
+        initShowExperimentalHint();
+        initTetheringEntry();
+        initFirewallEntry();
+        initExperimentalFeatureFooter();
         initDonateEntry();
         initLogEntry();
         initAboutEntry();
@@ -323,19 +332,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         }
     }
 
-    private void initTetheringEntry() {
-        IconTextEntry tethering = drawerView.findViewById(R.id.tethering);
-        if (PreferenceHelper.hasSuPermission(getContext())) {
-            tethering.setVisibility(VISIBLE);
-            tethering.setOnClickListener((buttonView) -> {
-                showTetheringAlert();
-            });
-        } else {
-            tethering.setVisibility(GONE);
-        }
-
-    }
-
     private void initExcludeAppsEntry() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             IconTextEntry excludeApps = drawerView.findViewById(R.id.exclude_apps);
@@ -352,6 +348,62 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
             });
         }
+    }
+
+    private void initShowExperimentalHint() {
+        TextView textView = drawerLayout.findViewById(R.id.show_experimental_features);
+        textView.setText(showExperimentalFeatures(getContext()) ? R.string.hide_experimental : R.string.show_experimental);
+        textView.setOnClickListener(v -> {
+            boolean shown = showExperimentalFeatures(getContext());
+            if (shown) {
+                tethering.setVisibility(GONE);
+                firewall.setVisibility(GONE);
+                experimentalFeatureFooter.setVisibility(GONE);
+                ((TextView) v).setText(R.string.show_experimental);
+            } else {
+                tethering.setVisibility(VISIBLE);
+                firewall.setVisibility(VISIBLE);
+                experimentalFeatureFooter.setVisibility(VISIBLE);
+                ((TextView) v).setText(R.string.hide_experimental);
+            }
+            PreferenceHelper.setShowExperimentalFeatures(getContext(), !shown);
+        });
+    }
+
+    private void initFirewallEntry() {
+        firewall = drawerView.findViewById(R.id.enableIPv6Firewall);
+        boolean show = showExperimentalFeatures(getContext());
+        firewall.setVisibility(show ? VISIBLE : GONE);
+        firewall.setChecked(PreferenceHelper.useIpv6Firewall(this.getContext()));
+        firewall.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!buttonView.isPressed()) {
+                return;
+            }
+            PreferenceHelper.setUseIPv6Firewall(getContext(), isChecked);
+            FirewallManager firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
+            if (VpnStatus.isVPNActive()) {
+                if (isChecked) {
+                    firewallManager.startIPv6Firewall();
+                } else {
+                    firewallManager.stopIPv6Firewall();
+                }
+            }
+        });
+    }
+
+    private void initTetheringEntry() {
+        tethering = drawerView.findViewById(R.id.tethering);
+        boolean show = showExperimentalFeatures(getContext());
+        tethering.setVisibility(show ? VISIBLE : GONE);
+        tethering.setOnClickListener((buttonView) -> {
+            showTetheringAlert();
+        });
+    }
+
+    private void initExperimentalFeatureFooter() {
+        experimentalFeatureFooter = drawerView.findViewById(R.id.experimental_features_footer);
+        boolean show = showExperimentalFeatures(getContext());
+        experimentalFeatureFooter.setVisibility(show ? VISIBLE : GONE);
     }
 
     private void initDonateEntry() {

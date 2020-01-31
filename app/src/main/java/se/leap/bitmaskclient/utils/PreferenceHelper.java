@@ -16,6 +16,9 @@ import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.Provider;
 
 import static android.content.Context.MODE_PRIVATE;
+import static se.leap.bitmaskclient.Constants.ALLOW_TETHERING_BLUETOOTH;
+import static se.leap.bitmaskclient.Constants.ALLOW_TETHERING_USB;
+import static se.leap.bitmaskclient.Constants.ALLOW_TETHERING_WIFI;
 import static se.leap.bitmaskclient.Constants.ALWAYS_ON_SHOW_DIALOG;
 import static se.leap.bitmaskclient.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
 import static se.leap.bitmaskclient.Constants.EXCLUDED_APPS;
@@ -25,10 +28,9 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.Constants.SU_PERMISSION;
-import static se.leap.bitmaskclient.Constants.ALLOW_TETHERING_BLUETOOTH;
-import static se.leap.bitmaskclient.Constants.ALLOW_TETHERING_USB;
-import static se.leap.bitmaskclient.Constants.ALLOW_TETHERING_WIFI;
+import static se.leap.bitmaskclient.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.Constants.USE_PLUGGABLE_TRANSPORTS;
 
 /**
@@ -165,6 +167,22 @@ public class PreferenceHelper {
 
     public static boolean isBluetoothTetheringAllowed(Context context) {
         return getBoolean(context, ALLOW_TETHERING_BLUETOOTH, false);
+    }
+
+    public static void setShowExperimentalFeatures(Context context, boolean show) {
+        putBoolean(context, SHOW_EXPERIMENTAL, show);
+    }
+
+    public static boolean showExperimentalFeatures(Context context) {
+        return getBoolean(context, SHOW_EXPERIMENTAL, false);
+    }
+
+    public static void setUseIPv6Firewall(Context context, boolean useFirewall) {
+        putBoolean(context, USE_IPv6_FIREWALL, useFirewall);
+    }
+
+    public static boolean useIpv6Firewall(Context context) {
+        return getBoolean(context, USE_IPv6_FIREWALL, false);
     }
 
     public static void saveShowAlwaysOnDialog(Context context, boolean showAlwaysOnDialog) {
