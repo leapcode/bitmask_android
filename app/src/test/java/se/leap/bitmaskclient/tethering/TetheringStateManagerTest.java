@@ -93,7 +93,7 @@ public class TetheringStateManagerTest {
             }
         });
 
-        TetheringObservable.setUsbTethering(false);
+        TetheringObservable.setUsbTethering(false, "192.168.42.0/24", "rndis0");
         TetheringStateManager.getInstance().init(mockContext);
         TetheringStateManager manager = TetheringStateManager.getInstance();
         assertTrue(observable.isUsbTetheringEnabled());
@@ -124,7 +124,7 @@ public class TetheringStateManagerTest {
             }
         });
 
-        TetheringObservable.setUsbTethering(true);
+        TetheringObservable.setUsbTethering(true, "192.168.42.0/24", "rndis0");
         TetheringStateManager.getInstance().init(mockContext);
         TetheringStateManager manager = TetheringStateManager.getInstance();
         assertFalse(observable.isUsbTetheringEnabled());
@@ -139,7 +139,7 @@ public class TetheringStateManagerTest {
         PowerMockito.mockStatic(NetworkInterface.class);
         PowerMockito.when(NetworkInterface.getNetworkInterfaces()).thenThrow(new SocketException());
 
-        TetheringObservable.setUsbTethering(true);
+        TetheringObservable.setUsbTethering(true, "192.168.42.0/24", "rndis0");
         TetheringStateManager.getInstance().init(mockContext);
         TetheringStateManager manager = TetheringStateManager.getInstance();
         assertFalse(observable.isUsbTetheringEnabled());
@@ -277,12 +277,45 @@ public class TetheringStateManagerTest {
     }
 
     @Test
-    public void testGetWifiAddressRange() {
-        mockStatic(TetheringStateManager.class);
-        PowerMockito.when(TetheringStateManager.getWifiInterfaceAddress()).thenReturn("192.168.40.217/24");
-        PowerMockito.when(TetheringStateManager.getInstance()).thenCallRealMethod();
-        PowerMockito.when(TetheringStateManager.getWifiAddressRange()).thenCallRealMethod();
-        assertEquals("192.168.40.0/24", TetheringStateManager.getWifiAddressRange());
+    public void testGetWifiAddressRangee_keepsLastSeenAddressAndInterface() throws Exception {
+        WifiManagerWrapper mockWrapper = mock(WifiManagerWrapper.class);
+        when(mockWrapper.isWifiAPEnabled()).thenReturn(true);
+        PowerMockito.whenNew(WifiManagerWrapper.class).withAnyArguments().thenReturn(mockWrapper);
+
+        //WifiTethering was switched on
+        TetheringObservable.setWifiTethering(true, "192.168.40.0/24", "wlan0");
+
+        assertEquals("192.168.40.0/24", observable.getTetheringState().wifiAddress);
+        assertEquals("192.168.40.0/24", observable.getTetheringState().lastSeenWifiAddress);
+        assertEquals("wlan0", observable.getTetheringState().wifiInterface);
+        assertEquals("wlan0", observable.getTetheringState().lastSeenWifiInterface);
+        //Wifi tethering was switched off
+        TetheringObservable.setWifiTethering(true, "", "");
+        assertEquals("", observable.getTetheringState().wifiAddress);
+        assertEquals("192.168.40.0/24", observable.getTetheringState().lastSeenWifiAddress);
+        assertEquals("", observable.getTetheringState().wifiInterface);
+        assertEquals("wlan0", observable.getTetheringState().lastSeenWifiInterface);
     }
+
+    @Test
+    public void testGetUsbAddressRange_keepsLastSeenAddressAndInterface() throws Exception {
+        WifiManagerWrapper mockWrapper = mock(WifiManagerWrapper.class);
+        when(mockWrapper.isWifiAPEnabled()).thenReturn(true);
+        PowerMockito.whenNew(WifiManagerWrapper.class).withAnyArguments().thenReturn(mockWrapper);
+
+        //WifiTethering was switched on
+        TetheringObservable.setWifiTethering(true, "192.168.40.0/24", "rndis0");
+
+        assertEquals("192.168.40.0/24", observable.getTetheringState().usbAddress);
+        assertEquals("192.168.40.0/24", observable.getTetheringState().lastSeenUsbAddress);
+        assertEquals("rndis0", observable.getTetheringState().usbInterface);
+        assertEquals("rndis0", observable.getTetheringState().lastSeenUsbAddress);
+        //Wifi tethering was switched off
+        TetheringObservable.setWifiTethering(true, "", "");
+        assertEquals("", observable.getTetheringState().usbAddress);
+        assertEquals("192.168.40.0/24", observable.getTetheringState().lastSeenUsbAddress);
+        assertEquals("", observable.getTetheringState().usbInterface);
+    }
+
 
 }
