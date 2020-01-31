@@ -303,18 +303,18 @@ public class TetheringStateManagerTest {
         when(mockWrapper.isWifiAPEnabled()).thenReturn(true);
         PowerMockito.whenNew(WifiManagerWrapper.class).withAnyArguments().thenReturn(mockWrapper);
 
-        //WifiTethering was switched on
-        TetheringObservable.setWifiTethering(true, "192.168.40.0/24", "rndis0");
-
+        //UsbTethering was switched on
+        TetheringObservable.setUsbTethering(true, "192.168.40.0/24", "rndis0");
         assertEquals("192.168.40.0/24", observable.getTetheringState().usbAddress);
         assertEquals("192.168.40.0/24", observable.getTetheringState().lastSeenUsbAddress);
         assertEquals("rndis0", observable.getTetheringState().usbInterface);
-        assertEquals("rndis0", observable.getTetheringState().lastSeenUsbAddress);
-        //Wifi tethering was switched off
-        TetheringObservable.setWifiTethering(true, "", "");
+        assertEquals("rndis0", observable.getTetheringState().lastSeenUsbInterface);
+        //UsbTethering tethering was switched off
+        TetheringObservable.setUsbTethering(true, "", "");
         assertEquals("", observable.getTetheringState().usbAddress);
         assertEquals("192.168.40.0/24", observable.getTetheringState().lastSeenUsbAddress);
         assertEquals("", observable.getTetheringState().usbInterface);
+        assertEquals("rndis0", observable.getTetheringState().lastSeenUsbInterface);
     }
 
 
