@@ -131,8 +131,7 @@ public class TetheringStateManager {
         return getUsbInterface() != null;
     }
 
-    @VisibleForTesting
-    static String getAddressRange(String interfaceAddress) {
+    private static String getAddressRange(String interfaceAddress) {
         if (interfaceAddress.split("\\.").length == 4) {
             String result = interfaceAddress.substring(0, interfaceAddress.lastIndexOf("."));
             result = result + ".0/24";
