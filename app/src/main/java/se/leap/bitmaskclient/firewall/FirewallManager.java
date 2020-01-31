@@ -31,6 +31,7 @@ public class FirewallManager implements FirewallCallback, Observer {
     public static String BITMASK_FORWARD = "bitmask_forward";
     public static String BITMASK_POSTROUTING = "bitmask_postrouting";
     static final String TAG = FirewallManager.class.getSimpleName();
+    private boolean isRunning = false;
 
     private Context context;
 
@@ -91,14 +92,19 @@ public class FirewallManager implements FirewallCallback, Observer {
 
 
     public void start() {
-        startIPv6Firewall();
-        TetheringState tetheringState = TetheringObservable.getInstance().getTetheringState();
-        if (tetheringState.hasAnyDeviceTetheringEnabled() && tetheringState.hasAnyVpnTetheringAllowed()) {
-            startTethering();
+        if (!isRunning) {
+            isRunning = true;
+            startIPv6Firewall();
+            TetheringState tetheringState = TetheringObservable.getInstance().getTetheringState();
+            if (tetheringState.hasAnyDeviceTetheringEnabled() && tetheringState.hasAnyVpnTetheringAllowed()) {
+                startTethering();
+            }
         }
+
     }
 
     public void stop() {
+        isRunning = false;
         stopIPv6Firewall();
         stopTethering();
     }
