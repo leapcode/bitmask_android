@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.content.ContextCompat;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import se.leap.bitmaskclient.Provider;
 
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_CONFIGURE_TETHERING;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_BLOCKING_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
@@ -88,6 +90,15 @@ public class EipCommand {
     @VisibleForTesting
     public static void checkVpnCertificate(@NonNull Context context, ResultReceiver resultReceiver) {
         execute(context, EIP_ACTION_CHECK_CERT_VALIDITY, resultReceiver, null);
+    }
+
+    public static void configureTethering(@NonNull Context context) {
+        execute(context, EIP_ACTION_CONFIGURE_TETHERING);
+    }
+
+    @VisibleForTesting
+    public static void configureTethering(@NonNull Context context, ResultReceiver resultReceiver) {
+        execute(context, EIP_ACTION_CONFIGURE_TETHERING);
     }
 
 }

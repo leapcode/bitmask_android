@@ -97,10 +97,47 @@
             android:visibility="gone"
             />
 
+        <TextView
+            android:id="@+id/show_experimental_features"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/show_experimental"
+            android:textColor="@color/colorPrimaryDark"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:gravity="center"
+            android:background="@color/black800_high_transparent"
+            />
+
+        <se.leap.bitmaskclient.views.IconSwitchEntry
+            android:id="@+id/enableIPv6Firewall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:text="@string/ipv6Firewall"
+            app:subtitle="@string/require_root"
+            app:icon="@drawable/ic_cancel"
+            android:visibility="gone"
+            tools:visibility="visible"
+            />
+
+        <se.leap.bitmaskclient.views.IconTextEntry
+            android:id="@+id/tethering"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:text="@string/tethering"
+            app:subtitle="@string/require_root"
+            app:icon="@drawable/ic_access_point_36"
+            android:visibility="gone"
+            tools:visibility="visible"
+            />
+
         <View
+            android:id="@+id/experimental_features_footer"
             android:layout_width="match_parent"
             android:layout_height="20dp"
             android:background="@color/black800_high_transparent"
+            android:visibility="gone"
+            tools:visibility="visible"
             />
 
         <se.leap.bitmaskclient.views.IconTextEntry

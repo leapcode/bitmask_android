@@ -43,6 +43,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.Set;
 
@@ -56,10 +57,12 @@ import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.ExcludeAppsFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
+import se.leap.bitmaskclient.fragments.TetheringDialog;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconSwitchEntry;
 import se.leap.bitmaskclient.views.IconTextEntry;
@@ -81,6 +84,7 @@ import static se.leap.bitmaskclient.utils.PreferenceHelper.getSaveBattery;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.saveBattery;
+import static se.leap.bitmaskclient.utils.PreferenceHelper.showExperimentalFeatures;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.usePluggableTransports;
 
 /**
@@ -109,6 +113,9 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private Toolbar toolbar;
     private IconTextEntry account;
     private IconSwitchEntry saveBattery;
+    private IconTextEntry tethering;
+    private IconSwitchEntry firewall;
+    private View experimentalFeatureFooter;
 
     private boolean userLearnedDrawer;
     private volatile boolean wasPaused;
@@ -117,7 +124,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private SharedPreferences preferences;
 
     private final static String KEY_SHOW_SAVE_BATTERY_ALERT = "KEY_SHOW_SAVE_BATTERY_ALERT";
-    private boolean showEnableExperimentalFeature = false;
+    private volatile boolean showSaveBattery = false;
     AlertDialog alertDialog;
 
     @Override
@@ -237,6 +244,10 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         initSaveBatteryEntry();
         initAlwaysOnVpnEntry();
         initExcludeAppsEntry();
+        initShowExperimentalHint();
+        initTetheringEntry();
+        initFirewallEntry();
+        initExperimentalFeatureFooter();
         initDonateEntry();
         initLogEntry();
         initAboutEntry();
@@ -339,6 +350,62 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         }
     }
 
+    private void initShowExperimentalHint() {
+        TextView textView = drawerLayout.findViewById(R.id.show_experimental_features);
+        textView.setText(showExperimentalFeatures(getContext()) ? R.string.hide_experimental : R.string.show_experimental);
+        textView.setOnClickListener(v -> {
+            boolean shown = showExperimentalFeatures(getContext());
+            if (shown) {
+                tethering.setVisibility(GONE);
+                firewall.setVisibility(GONE);
+                experimentalFeatureFooter.setVisibility(GONE);
+                ((TextView) v).setText(R.string.show_experimental);
+            } else {
+                tethering.setVisibility(VISIBLE);
+                firewall.setVisibility(VISIBLE);
+                experimentalFeatureFooter.setVisibility(VISIBLE);
+                ((TextView) v).setText(R.string.hide_experimental);
+            }
+            PreferenceHelper.setShowExperimentalFeatures(getContext(), !shown);
+        });
+    }
+
+    private void initFirewallEntry() {
+        firewall = drawerView.findViewById(R.id.enableIPv6Firewall);
+        boolean show = showExperimentalFeatures(getContext());
+        firewall.setVisibility(show ? VISIBLE : GONE);
+        firewall.setChecked(PreferenceHelper.useIpv6Firewall(this.getContext()));
+        firewall.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!buttonView.isPressed()) {
+                return;
+            }
+            PreferenceHelper.setUseIPv6Firewall(getContext(), isChecked);
+            FirewallManager firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
+            if (VpnStatus.isVPNActive()) {
+                if (isChecked) {
+                    firewallManager.startIPv6Firewall();
+                } else {
+                    firewallManager.stopIPv6Firewall();
+                }
+            }
+        });
+    }
+
+    private void initTetheringEntry() {
+        tethering = drawerView.findViewById(R.id.tethering);
+        boolean show = showExperimentalFeatures(getContext());
+        tethering.setVisibility(show ? VISIBLE : GONE);
+        tethering.setOnClickListener((buttonView) -> {
+            showTetheringAlert();
+        });
+    }
+
+    private void initExperimentalFeatureFooter() {
+        experimentalFeatureFooter = drawerView.findViewById(R.id.experimental_features_footer);
+        boolean show = showExperimentalFeatures(getContext());
+        experimentalFeatureFooter.setVisibility(show ? VISIBLE : GONE);
+    }
+
     private void initDonateEntry() {
         if (ENABLE_DONATION) {
             IconTextEntry donate = drawerView.findViewById(R.id.donate);
@@ -415,8 +482,9 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (showEnableExperimentalFeature) {
+        if (showSaveBattery) {
             outState.putBoolean(KEY_SHOW_SAVE_BATTERY_ALERT, true);
+            alertDialog.dismiss();
         }
     }
 
@@ -434,7 +502,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
         try {
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-            showEnableExperimentalFeature = true;
+            showSaveBattery = true;
             alertDialog = alertBuilder
                     .setTitle(activity.getString(R.string.save_battery))
                     .setMessage(activity.getString(R.string.save_battery_message))
@@ -442,9 +510,22 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                         saveBattery(getContext(), true);
                     })
                     .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> saveBattery.setCheckedQuietly(false))
-                    .setOnDismissListener(dialog -> showEnableExperimentalFeature = false)
+                    .setOnDismissListener(dialog -> showSaveBattery = false)
                     .setOnCancelListener(dialog -> saveBattery.setCheckedQuietly(false)).show();
         } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showTetheringAlert() {
+        try {
+
+            FragmentTransaction fragmentTransaction = new FragmentManagerEnhanced(
+                    getActivity().getSupportFragmentManager()).removePreviousFragment(
+                    TetheringDialog.TAG);
+            DialogFragment newFragment = new TetheringDialog();
+            newFragment.show(fragmentTransaction, TetheringDialog.TAG);
+        } catch (IllegalStateException | NullPointerException e) {
             e.printStackTrace();
         }
     }

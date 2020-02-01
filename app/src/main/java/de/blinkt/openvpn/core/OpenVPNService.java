@@ -47,7 +47,7 @@ import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.VpnNotificationManager;
 import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
-import se.leap.bitmaskclient.utils.FirewallHelper;
+import se.leap.bitmaskclient.firewall.FirewallManager;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
@@ -90,7 +90,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Runnable mOpenVPNThread;
     private VpnNotificationManager notificationManager;
     private Shapeshifter shapeshifter;
-    private FirewallHelper firewallHelper;
+    private FirewallManager firewallManager;
 
     private static final int PRIORITY_MIN = -2;
     private static final int PRIORITY_DEFAULT = 0;
@@ -194,7 +194,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 VpnStatus.removeStateListener(this);
             }
         }
-        firewallHelper.shutdownFirewall();
+        firewallManager.stop();
     }
 
     private boolean runningOnAndroidTV() {
@@ -309,7 +309,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return START_REDELIVER_INTENT;
         }
 
-       /* TODO: check that for Bitmask */
+        /* TODO: check that for Bitmask */
         // Always show notification here to avoid problem with startForeground timeout
         VpnStatus.logInfo(R.string.building_configration);
         VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);
@@ -449,14 +449,12 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             mProcessThread.start();
         }
 
-        firewallHelper.startFirewall();
-
         new Handler(getMainLooper()).post(() -> {
-            if (mDeviceStateReceiver != null) {
-                unregisterDeviceStateReceiver();
-            }
-            registerDeviceStateReceiver(mManagement);
-        }
+                    if (mDeviceStateReceiver != null) {
+                        unregisterDeviceStateReceiver();
+                    }
+                    registerDeviceStateReceiver(mManagement);
+                }
 
         );
     }
@@ -518,7 +516,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         super.onCreate();
         notificationManager = new VpnNotificationManager(this, this);
         notificationManager.createOpenVpnNotificationChannel();
-        firewallHelper = new FirewallHelper(this);
+        firewallManager = new FirewallManager(this, true);
     }
 
     @Override
@@ -537,6 +535,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.flushLog();
         notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_BG_ID);
         notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_NEWSTATUS_ID);
+        firewallManager.onDestroy();
     }
 
     private String getTunConfigString() {
@@ -967,30 +966,25 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         String channel = NOTIFICATION_CHANNEL_NEWSTATUS_ID;
         // Display byte count only after being connected
 
-        {
-            if (level == LEVEL_CONNECTED) {
-                mDisplayBytecount = true;
-                mConnecttime = System.currentTimeMillis();
-                if (!runningOnAndroidTV())
-                    channel = NOTIFICATION_CHANNEL_BG_ID;
-            } else {
-                mDisplayBytecount = false;
-            }
-
-            // Other notifications are shown,
-            // This also mean we are no longer connected, ignore bytecount messages until next
-            // CONNECTED
-            // Does not work :(
-            notificationManager.buildOpenVpnNotification(
-                    mProfile != null ? mProfile.mName : "",
-                    mProfile != null && mProfile.mUsePluggableTransports,
-                    VpnStatus.getLastCleanLogMessage(this),
-                    VpnStatus.getLastCleanLogMessage(this),
-                    level,
-                    0,
-                    channel);
-
+        if (level == LEVEL_CONNECTED) {
+            mDisplayBytecount = true;
+            mConnecttime = System.currentTimeMillis();
+            if (!runningOnAndroidTV())
+                channel = NOTIFICATION_CHANNEL_BG_ID;
+            firewallManager.start();
+        } else {
+            mDisplayBytecount = false;
         }
+
+        notificationManager.buildOpenVpnNotification(
+                mProfile != null ? mProfile.mName : "",
+                mProfile != null && mProfile.mUsePluggableTransports,
+                VpnStatus.getLastCleanLogMessage(this),
+                VpnStatus.getLastCleanLogMessage(this),
+                level,
+                0,
+                channel);
+
     }
 
     @Override
