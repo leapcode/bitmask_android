@@ -106,7 +106,7 @@
   <string name="always_on_vpn">Always-on VPN</string>
   <string name="subtitle_always_on_vpn">Open Android System Settings</string>
   <string name="tethering">VPN Hotspot</string>
-  <string name="ipv6Firewall">Firewall</string>
+  <string name="ipv6Firewall">Block IPv6</string>
   <string name="require_root">Requires root permissions</string>
   <string name="show_experimental">Show experimental options</string>
   <string name="hide_experimental">Hide experimental options</string>
