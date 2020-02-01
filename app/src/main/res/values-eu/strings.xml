@@ -32,6 +32,7 @@
   <string name="password_mismatch">Pasahitzek ez datoz bat</string>
   <string name="user_message">Erabiltzaile mezua</string>
   <string name="about_fragment_title">Honi buruz</string>
+  <string name="exclude_apps_fragment_title">Baztertu aplikazioak VPNtik</string>
   <string name="error_srp_math_error_user_message">Saiatu berriro: Zerbitzariaren errore matematikoa</string>
   <string name="error_bad_user_password_user_message">Erabiltzaile-izen edo pasahitz okerra</string>
   <string name="error_not_valid_password_user_message">Gutxienez 8 karaktere izan behar ditu</string>
@@ -49,8 +50,11 @@
   <string name="setup_error_title">Konfigurazio-errorea</string>
   <string name="setup_error_configure_button">Konfiguratu</string>
   <string name="setup_error_close_button">Irten</string>
+  <string name="setup_error_text">Akats bat egon da %s konfiguratzean aukeratu duzun hornitzailearekin.\n\nBerriz konfiguratu, edo irten eta konfiguratu hornitzaile bat hurrengo abiorako.</string>
   <string name="server_unreachable_message">Zerbitzaria ezin da atzitu, saiatu berriz.</string>
   <string name="error.security.pinnedcertificate">Segurtasun errorea, bertsio-berritu aplikazioa edo aukeratu beste hornitzaile bat.</string>
+  <string name="malformed_url">Ez dirudi %s hornitzailea denik.</string>
+  <string name="certificate_error">Hau ez da %shornitzaile fidagarria.</string>
   <string name="service_is_down_error">Zerbitzua erorita dago.</string>
   <string name="configuring_provider">Hornitzailea konfiguratzen.</string>
   <string name="incorrectly_downloaded_certificate_message">Zure ziurtagiri anonimoa ez da deskargatu</string>
@@ -82,6 +86,7 @@
   <string name="navigation_drawer_close">Itxi nabigazio-tiradera</string>
   <string name="action_example">Ekintza adibidea</string>
   <string name="action_settings">Ezarpenak</string>
+  <string name="void_vpn_establish">%s nterneteko irteerako trafiko guztia blokeatzen du.</string>
   <string name="void_vpn_error_establish">Ezin izan da VPN blokeoa ezarri.</string>
   <string name="void_vpn_stopped">Interneteko irteera trafikoaren blokeoa gelditu da.</string>
   <string name="void_vpn_title">Trafikoa blokeatzen</string>
@@ -89,6 +94,7 @@
   <string name="update_certificate">Eguneratu ziurtagiria</string>
   <string name="warning_eip_json_corrupted">Hornitzailearen konfigurazioaren eguneraketak huts egin du.</string>
   <string name="eip_json_corrupted_user_message">Hornitzailearen konfigurazioaren eguneraketak hust egin du. Saioa hasi berriz saiatzeko.</string>
+  <string name="warning_client_parsing_error_gateways">Ezin izan dira hornitzailearen ateak identifikatu. Baliteke gaizki konfiguratuak izanak.</string>
   <string name="downloading_vpn_certificate_failed">VPN ziurtagiriaren deskargak huts egin du. Saiatu berriz edo aukeratu beste hornitzaile bat.</string>
   <string name="vpn_certificate_is_invalid">VPN ziurtagiria ez da baliozkoa. Saiatu berri bat deskargatzen.</string>
   <string name="vpn_certificate_user_message">VPN ziurtagiria ez da baliozkoa. Saioa hasi berri bat deskargatzeko.</string>
@@ -102,4 +108,15 @@
   <string name="donate_message">LEAP dohaintzen eta laguntzen menpekoa da. Dohaintza egin erabiltzaileen eta hornitzaileentzat erreza den komunikazio segurua baloratzen baduzu.</string>
   <string name="donate_button_remind_later">Gogorarazi geroago</string>
   <string name="donate_button_donate">Dirulaguntza</string>
+  <string name="nav_drawer_obfuscated_connection">Zubiak erabiltzen</string>
+  <string name="warning_exclude_apps_message">Kontuz ibili aplikazioak VPNtik baztertzerako orduan. Zure identitatea jakinarazi eta zure segurtasuna arriskuan jarri dezake.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">babestu gabeko aplikazio %d</item>
+    <item quantity="other">%d babestu gabeko aplikazio</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s ezin izan da konektatu. Baliteke VPN konexioak blokeatuak izatea. Konexio nahasiak erabiliz berriz saiatu nahi duzu?</string>
+  <string name="warning_no_more_gateways_no_pt">%s ezin izan da konektatu. Berriz saiatu nahi duzu?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s ezin izan da konektatu konexio nahasiak erabiliz. Konexio arrunta erabiliz berriz saiatu nahi duzu?</string>
+  <string name="warning_option_try_ovpn">Saiatu konexio estandarra</string>
+  <string name="vpn_error_establish">Androidek VPN zerbitzua ezartzean huts egin du</string>
 </resources>

@@ -95,6 +95,9 @@
   <string name="warning_eip_json_corrupted">Provayderı konfiqurasiyasınını yeniləməsi alınmadı.</string>
   <string name="eip_json_corrupted_user_message">Provayderı konfiqurasiya yeniləməsi allnmadı. Xahiş edirik yenidən cəhd etmək üçün daxil olun.</string>
   <string name="warning_client_parsing_error_gateways">Provayderin şlüzlərini tanımaq mümkün olmadı. Onlar düzgün düzəlməmiş ola bilər.</string>
+  <string name="warning_corrupted_provider_details">Saxlanılan provayder məlumatları zədələnmişdir. Siz ya %s (tövsiyə olunur) yeniləyə və ya kommersiya CA sertifikatı ilə təchizatçı məlumatlarını yeniləyə bilərsiniz.</string>
+  <string name="warning_corrupted_provider_cert">Saxlanılan provayder sertifikatı qəbuledilməzdir. Siz ya %s (tövsiyə olunur) yeniləmə və ya kommersiya CA sertifikatı istifadə edərək satıcı sertifikatı təkmilləşdirə bilər.</string>
+  <string name="warning_expired_provider_cert">Provayderin saxlanılan sertifikatının qüvvədə olma müddəti başa çatmışdır. Siz ya %s (tövsiyə olunur) yeniləmə və ya kommersiya CA sertifikatı istifadə edərək provayder sertifikatı təkmilləşdirə bilərərsiniz.</string>
   <string name="downloading_vpn_certificate_failed">VPN sertifikatını yükləyə bilmədi. Yenidən cəhd edin və ya başqa bir provayder seçin.</string>
   <string name="vpn_certificate_is_invalid">VPN sertifikatı etibarsızdır. Yenisini yükləməyə çalışın.</string>
   <string name="vpn_certificate_user_message">VPN sertifikatı etibarsızdır. Yeni birini yükləmək üçün daxil olun.</string>
@@ -103,6 +106,8 @@
   <string name="always_on_vpn">Həmişə VPN-la</string>
   <string name="subtitle_always_on_vpn">Android tənzimatını açın</string>
   <string name="do_not_show_again">Bir daha görünməsin</string>
+  <string name="always_on_vpn_user_message">Həmişə VPN-ni Android VPN parametrlərində aktivləşdirmək üçün [img src] düyməsini basın və açarı aktivləşdirin.</string>
+  <string name="always_on_blocking_vpn_user_message">Gizliliyinizi optimal şəkildə qorumaq üçün \"VPN olmadan əlaqələri bloklayın\" seçimini də aktivləşdirməlisiniz.</string>
   <string name="donate_title">Maddi dəstək</string>
   <string name="donate_default_message">Xahiş edirik, həm son istifadəçi, həm də xidmət təminatçınız üçün asan olan təhlükəsiz əlaqəni qiymətləndirirsinizsə, bu gün bəxşiş edin.</string>
   <string name="donate_message">LEAP ianələr və qrantlardan asılıdır. Xahiş edirik, həm istifadəçi, həm də xidmət təminatçınız üçün asan olan təhlükəsiz əlaqəni qiymətləndirirsinizsə, bu gün bəxşiş edin.</string>
@@ -113,4 +118,14 @@
   <string name="nav_drawer_obfuscated_connection">Körpülərin istifadəsi</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">VPN filtrini keçmək</string>
   <string name="warning_exclude_apps_message">VPN-dən tətbiq istisna olmaqla diqqətli olun. Bu, şəxsiyyətinizi ortaya qoyacaq və təhlükəsizliyinizi təhlükəyə salacaq.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d müdafiəsiz proqram</item>
+    <item quantity="other">%d müdafiəsiz proqram</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s qoşula bilmədi. VPN əlaqələrinin bloklanması mümkündür. Siz obfuksasiya əlaqələri istifadə edərək, qoşulmaq üçün cəhd etmək istəyirsiniz?</string>
+  <string name="warning_no_more_gateways_no_pt">%s qoşula bilmədi. Siz yenidən cəhd etmək istəyirsiniz?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s obfuksasiya olunmuş VPN əlaqələri ilə əlaqə qura bilmədi. Standart VPN ilə əlaqə qurmağa cəhd etmək istəyirsiniz?</string>
+  <string name="warning_option_try_pt">Obfuksasiya (çaşdırmaq)  üçün cəhd edin</string>
+  <string name="warning_option_try_ovpn">Standart əlaqəni cəhd edin</string>
+  <string name="vpn_error_establish">Android VPN xidmətini qura bilmədi.</string>
 </resources>

@@ -94,6 +94,8 @@
   <string name="update_certificate">Αναβάθμιση πιστοποιητικού</string>
   <string name="warning_eip_json_corrupted">Η αναβάθμιση των ρυθμίσεων παρόχου απέτυχε.</string>
   <string name="eip_json_corrupted_user_message">Η αναβάθμιση των ρυθμίσεων παρόχου απέτυχε. Παρακαλούμε συνδεθείτε για να ξαναπροσπαθήσετε.</string>
+  <string name="warning_client_parsing_error_gateways"> 
+Δεν ήταν δυνατή η αναγνώριση των πυλών δικτύου παροχέα. Μπορεί να έχουν ρυθμιστεί λανθασμένα.</string>
   <string name="warning_corrupted_provider_details">Οι αποθηκευμένες λεπτομέρειες του παρόχου έχουν σφάλματα. Μπορείτε είτε να αναβαθμίσετε το %s (προτεινόμενο), είτε να αναβαθμίσετε τις λεπτομέρειες παρόχου χρησιμοποιώντας ένα εμπορικό πιστοποιητικό CA.</string>
   <string name="warning_corrupted_provider_cert">Το αποθηκευμένο πιστοποιητικό του παρόχου δεν είναι έγκυρο. Μπορείτε είτε να αναβαθμίσετε το %s (προτεινόμενο), είτε να αναβαθμίσετε τις λεπτομέρειες παρόχου χρησιμοποιώντας ένα εμπορικό πιστοποιητικό CA.</string>
   <string name="warning_expired_provider_cert">Το αποθηκευμένο πιστοποιητικό του παρόχου έχει λήξει. Μπορείτε είτε να αναβαθμίσετε το %s (προτεινόμενο), είτε να αναβαθμίσετε τις λεπτομέρειες παρόχου χρησιμοποιώντας ένα εμπορικό πιστοποιητικό CA.</string>
@@ -112,11 +114,19 @@
   <string name="donate_message">Το LEAP στηρίζεται από δωρεές και χρηματοδοτήσεις. Αν θεωρείτε πως αν δίνετε αξία στην ασφαλή επικοινωνία που είναι εύκολη τόσο για τον τελικό χρήστη όσο και για τον πάροχο της υπηρεσίας, κάντε μια δωρεά σήμερα.</string>
   <string name="donate_button_remind_later">Υπενθύμιση αργότερα</string>
   <string name="donate_button_donate">Δωρεά</string>
+  <string name="obfuscated_connection">Με χρήση συσκοτισμένης σύνδεσης.</string>
+  <string name="obfuscated_connection_try">Γίνεται δοκιμή συσκοτισμένης σύνδεσης.</string>
+  <string name="nav_drawer_obfuscated_connection">Χρήση Γεφυρών</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">Παράκαμψη φιλτραρίσματος VPN</string>
   <string name="warning_exclude_apps_message">Προσέξτε να αποκλείσετε εφαρμογές από το VPN. Αυτό θα αποκαλύψει την ταυτότητά σας και θα θέσει σε κίνδυνο την ασφάλειά σας.</string>
   <plurals name="subtitle_exclude_apps">
     <item quantity="one">%d απροστάτευτη εφαρμογή</item>
     <item quantity="other">%d απροστάτευτες εφαρμογές</item>
   </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s δεν μπορούσε να συνδεθεί. Ίσως οι συνδέσεις VPN να μπλοκάρονται. Θέλετε να προσπαθήσετε να συνδεθείτε χρησιμοποιώντας συσκοτισμένες συνδέσεις;</string>
+  <string name="warning_no_more_gateways_no_pt">%s δεν μπόρεσε να συνδεθεί. Θέλετε να προσπαθήσετε ξανά;</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s δεν μπόρεσε να συνδεθεί χρησιμοποιώντας συσκοτισμένες συνδέσεις VPN. Θέλετε να προσπαθήσετε να συνδεθείτε χρησιμοποιώντας ένα κανονικό VPN;</string>
+  <string name="warning_option_try_pt">Δοκιμάστε συσκοτισμένη σύνδεση</string>
   <string name="warning_option_try_ovpn">Δοκιμάστε κανονική σύνδεση</string>
   <string name="vpn_error_establish">Το Android απέτυχε να εγκαθιδρύσει την υπηρεσία VPN.</string>
 </resources>

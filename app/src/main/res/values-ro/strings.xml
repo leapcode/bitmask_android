@@ -41,6 +41,8 @@
   <string name="logging_in">Autentificare</string>
   <string name="log_fragment_title">Jurnal</string>
   <string name="vpn_fragment_title">VPN</string>
+  <string name="navigation_drawer_open">Deschide sertarul de navigare</string>
+  <string name="navigation_drawer_close">Închide sertarul de navigare</string>
   <string name="action_settings">Setări</string>
   <string name="donate_title">Donează</string>
   <string name="donate_button_donate">Donează</string>
