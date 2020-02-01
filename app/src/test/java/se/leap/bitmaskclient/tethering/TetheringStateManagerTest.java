@@ -145,6 +145,7 @@ public class TetheringStateManagerTest {
         assertFalse(observable.isUsbTetheringEnabled());
     }
 
+/* //TODO enable these tests as soon as bluetooth tethering has been enabled again
     @Test
     public void updateBluetoothTetheringState_btDeviceFound_returnTrue() throws Exception {
         WifiManagerWrapper mockWrapper = mock(WifiManagerWrapper.class);
@@ -227,6 +228,7 @@ public class TetheringStateManagerTest {
         TetheringStateManager manager = TetheringStateManager.getInstance();
         assertTrue(observable.isBluetoothTetheringEnabled());
     }
+    */
 
     @Test
     public void updateWifiTetheringState_ignoreFailingWifiAPReflection_keepsOldValueTrue() throws Exception {
