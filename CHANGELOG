@@ -1,3 +1,12 @@
+1.0.3 - #PuraVida release
+features:
+- circumvent DNS blocking
+- IPv6 Firewall: allows now the usage of many apps that couldn't connect before while Bitmask was enabled (requires root permission)
+- VPN Tethering: share your VPN with other devices via USB- or Wifi-Tethering (requires root permission)
+- updated translations
+bugfixes:
+- fix UI bug in navigation drawer
+
 1.0.2 - the anti-censorship release
 features:
 - implement Pluggable Transports to circumvent VPN blocking
