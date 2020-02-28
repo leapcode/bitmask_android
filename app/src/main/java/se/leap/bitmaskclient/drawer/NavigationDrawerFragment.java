@@ -45,6 +45,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 
 import de.blinkt.openvpn.core.VpnStatus;
@@ -63,6 +65,7 @@ import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.ExcludeAppsFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
 import se.leap.bitmaskclient.fragments.TetheringDialog;
+import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconSwitchEntry;
 import se.leap.bitmaskclient.views.IconTextEntry;
@@ -92,7 +95,7 @@ import static se.leap.bitmaskclient.utils.PreferenceHelper.usePluggableTransport
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class NavigationDrawerFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, Observer {
 
     /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
@@ -149,7 +152,14 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                              Bundle savedInstanceState) {
         drawerView = inflater.inflate(R.layout.f_drawer_main, container, false);
         restoreFromSavedInstance(savedInstanceState);
+        TetheringObservable.getInstance().addObserver(this);
         return drawerView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        TetheringObservable.getInstance().deleteObserver(this);
     }
 
     public boolean isDrawerOpen() {
@@ -313,6 +323,13 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 saveBattery(getContext(), false);
             }
         }));
+        boolean enableEntry = !TetheringObservable.getInstance().getTetheringState().isVpnTetheringRunning();
+        enableSaveBatteryEntry(enableEntry);
+    }
+
+    private void enableSaveBatteryEntry(boolean enabled) {
+        saveBattery.setEnabled(enabled);
+        saveBattery.showSubtitle(!enabled);
     }
 
     private void initAlwaysOnVpnEntry() {
@@ -628,6 +645,14 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(Constants.USE_PLUGGABLE_TRANSPORTS)) {
             initUseBridgesEntry();
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o instanceof TetheringObservable) {
+            TetheringObservable observable = (TetheringObservable) o;
+            enableSaveBatteryEntry(!observable.getTetheringState().isVpnTetheringRunning());
         }
     }
 }

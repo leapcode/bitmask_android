@@ -88,6 +88,10 @@ public class IconSwitchEntry extends LinearLayout {
         textView.setText(id);
     }
 
+    public void showSubtitle(boolean show) {
+        subtitleView.setVisibility(show ? VISIBLE : GONE);
+    }
+
     public void setIcon(@DrawableRes int id) {
         iconView.setImageResource(id);
     }

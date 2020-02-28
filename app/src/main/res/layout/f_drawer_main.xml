@@ -65,6 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:text="@string/save_battery"
+            app:subtitle="@string/subtitle_save_battery"
             app:icon="@drawable/ic_battery_36"
             />
 
