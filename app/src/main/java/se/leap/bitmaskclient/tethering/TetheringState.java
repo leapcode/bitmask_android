@@ -41,5 +41,9 @@ public class TetheringState implements Cloneable {
         return isVpnWifiTetheringAllowed || isVpnUsbTetheringAllowed || isVpnBluetoothTetheringAllowed;
     }
 
+    public boolean isVpnTetheringRunning() {
+        return tetherWifiVpn() || tetherUsbVpn() || tetherBluetoothVpn();
+    }
+
 
 }
