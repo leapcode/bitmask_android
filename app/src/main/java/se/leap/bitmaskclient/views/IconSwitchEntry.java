@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.SwitchCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -22,7 +23,7 @@ public class IconSwitchEntry extends LinearLayout {
 
     private TextView textView;
     private TextView subtitleView;
-    private ImageView iconView;
+    private AppCompatImageView iconView;
     private SwitchCompat switchView;
     private CompoundButton.OnCheckedChangeListener checkedChangeListener;
 
@@ -104,5 +105,13 @@ public class IconSwitchEntry extends LinearLayout {
         switchView.setOnCheckedChangeListener(null);
         switchView.setChecked(isChecked);
         switchView.setOnCheckedChangeListener(checkedChangeListener);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        switchView.setVisibility(enabled ? VISIBLE : GONE);
+        textView.setTextColor(getResources().getColor(enabled ? android.R.color.black : R.color.colorDisabled));
+        iconView.setImageAlpha(enabled ? 255 : 128);
     }
 }
