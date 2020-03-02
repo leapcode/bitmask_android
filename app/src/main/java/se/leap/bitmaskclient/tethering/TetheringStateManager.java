@@ -85,7 +85,7 @@ public class TetheringStateManager {
     }
 
     static void updateBluetoothTetheringState() {
-        //TetheringObservable.setBluetoothTethering(isBluetoothTetheringEnabled());
+        TetheringObservable.setBluetoothTethering(isBluetoothTetheringEnabled());
     }
 
     private static String getWifiAddressRange() {
