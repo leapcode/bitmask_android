@@ -111,7 +111,7 @@ public class TetheringStateManager {
     }
 
     private static NetworkInterface getUsbInterface() {
-        return getNetworkInterface(new String[]{"rndis", "usb"});
+        return getNetworkInterface(new String[]{"rndis"});
     }
 
     private static boolean isBluetoothTetheringEnabled() {
