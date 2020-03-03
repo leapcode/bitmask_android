@@ -1,5 +1,7 @@
 package se.leap.bitmaskclient.tethering;
 
+import de.blinkt.openvpn.core.VpnStatus;
+
 public class TetheringState implements Cloneable {
     public boolean isWifiTetheringEnabled;
     public boolean isUsbTetheringEnabled;
@@ -42,7 +44,7 @@ public class TetheringState implements Cloneable {
     }
 
     public boolean isVpnTetheringRunning() {
-        return tetherWifiVpn() || tetherUsbVpn() || tetherBluetoothVpn();
+        return (tetherWifiVpn() || tetherUsbVpn() || tetherBluetoothVpn()) && VpnStatus.isVPNActive();
     }
 
 
