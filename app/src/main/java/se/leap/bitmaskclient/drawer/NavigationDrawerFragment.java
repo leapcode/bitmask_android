@@ -59,6 +59,7 @@ import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
@@ -153,6 +154,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         drawerView = inflater.inflate(R.layout.f_drawer_main, container, false);
         restoreFromSavedInstance(savedInstanceState);
         TetheringObservable.getInstance().addObserver(this);
+        EipStatus.getInstance().addObserver(this);
         return drawerView;
     }
 
@@ -160,6 +162,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     public void onDestroyView() {
         super.onDestroyView();
         TetheringObservable.getInstance().deleteObserver(this);
+        EipStatus.getInstance().deleteObserver(this);
     }
 
     public boolean isDrawerOpen() {
@@ -312,6 +315,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
     private void initSaveBatteryEntry() {
         saveBattery = drawerView.findViewById(R.id.battery_switch);
+        saveBattery.showSubtitle(false);
         saveBattery.setChecked(getSaveBattery(getContext()));
         saveBattery.setOnCheckedChangeListener(((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
@@ -328,6 +332,9 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     }
 
     private void enableSaveBatteryEntry(boolean enabled) {
+        if (saveBattery.isEnabled() == enabled) {
+            return;
+        }
         saveBattery.setEnabled(enabled);
         saveBattery.showSubtitle(!enabled);
     }
@@ -650,9 +657,13 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
     @Override
     public void update(Observable o, Object arg) {
-        if (o instanceof TetheringObservable) {
-            TetheringObservable observable = (TetheringObservable) o;
-            enableSaveBatteryEntry(!observable.getTetheringState().isVpnTetheringRunning());
+        if (o instanceof TetheringObservable || o instanceof EipStatus) {
+            try {
+                getActivity().runOnUiThread(() ->
+                        enableSaveBatteryEntry(!TetheringObservable.getInstance().getTetheringState().isVpnTetheringRunning()));
+            } catch (NullPointerException npe) {
+                // eat me
+            }
         }
     }
 }
