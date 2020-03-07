@@ -91,9 +91,16 @@ public class TetheringObservable extends Observable {
         }
     }
 
-    static void setBluetoothTethering(boolean enabled) {
-        if (getInstance().tetheringState.isBluetoothTetheringEnabled != enabled) {
-            getInstance().tetheringState.isBluetoothTetheringEnabled = enabled;
+    static void setBluetoothTethering(boolean enabled, @NonNull String address, @NonNull String interfaceName) {
+        if (getInstance().tetheringState.isBluetoothTetheringEnabled != enabled ||
+                !getInstance().tetheringState.bluetoothAddress.equals(address) ||
+                !getInstance().tetheringState.bluetoothInterface.equals(interfaceName)) {
+            TetheringState state = getInstance().tetheringState;
+            state.isBluetoothTetheringEnabled = enabled;
+            state.bluetoothAddress = address;
+            state.bluetoothInterface = interfaceName;
+            state.lastSeenBluetoothAddress = address.isEmpty() ? state.lastSeenBluetoothAddress : address;
+            state.lastSeenBluetoothInterface = interfaceName.isEmpty() ? state.lastSeenBluetoothInterface : interfaceName;
             getInstance().setChanged();
             getInstance().notifyObservers();
         }

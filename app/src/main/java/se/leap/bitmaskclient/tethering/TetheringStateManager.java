@@ -85,7 +85,7 @@ public class TetheringStateManager {
     }
 
     static void updateBluetoothTetheringState() {
-        TetheringObservable.setBluetoothTethering(isBluetoothTetheringEnabled());
+        TetheringObservable.setBluetoothTethering(isBluetoothTetheringEnabled(), getBluetoothAddressRange(), getBluetoothInterfaceName());
     }
 
     private static String getWifiAddressRange() {
@@ -98,6 +98,11 @@ public class TetheringStateManager {
         return getAddressRange(interfaceAddress);
     }
 
+    private static String getBluetoothAddressRange() {
+        String interfaceAddress = getInterfaceAddress(getBluetoothInterface());
+        return getAddressRange(interfaceAddress);
+    }
+
     private static String getWlanInterfaceName() {
         return getInterfaceName(getWlanInterface());
     }
@@ -106,12 +111,20 @@ public class TetheringStateManager {
         return getInterfaceName(getUsbInterface());
     }
 
+    private static String getBluetoothInterfaceName() {
+        return getInterfaceName(getBluetoothInterface());
+    }
+
     private static NetworkInterface getWlanInterface() {
         return getNetworkInterface(new String[]{"wlan", "eth"});
     }
 
     private static NetworkInterface getUsbInterface() {
         return getNetworkInterface(new String[]{"rndis"});
+    }
+
+    private static NetworkInterface getBluetoothInterface() {
+        return getNetworkInterface(new String[]{"bt-pan"});
     }
 
     private static boolean isBluetoothTetheringEnabled() {

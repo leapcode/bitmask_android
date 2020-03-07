@@ -147,17 +147,18 @@ public class SetupTetheringTask extends AsyncTask<Void, Boolean, Boolean> {
         return runBlockingCmd(addRules, log) == 0;
     }
 
-    private boolean removeBluetoothTetheringRules(TetheringState state, StringBuilder log) throws Exception {
+    private boolean addBluetoothTetheringRules(TetheringState state, StringBuilder log) throws Exception {
         Log.d(TAG, "add bluetooth tethering rules");
         String[] addRules = getAdditionRules(state.bluetoothAddress, state.bluetoothInterface);
         return runBlockingCmd(addRules, log) == 0;
     }
 
-    private boolean addBluetoothTetheringRules(TetheringState state, StringBuilder log) throws Exception {
+    private boolean removeBluetoothTetheringRules(TetheringState state, StringBuilder log) throws Exception {
         Log.d(TAG, "remove bluetooth tethering rules");
         String[] addRules = getDeletionRules(state, state.lastSeenBluetoothAddress, state.lastSeenBluetoothInterface);
         return runBlockingCmd(addRules, log) == 0;
     }
+
 
     private String[] getAdditionRules(String addressRange, String interfaceName) {
         return new String[] {
