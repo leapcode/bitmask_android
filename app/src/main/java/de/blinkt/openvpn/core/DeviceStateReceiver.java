@@ -17,6 +17,7 @@ import android.preference.PreferenceManager;
 
 import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
+import se.leap.bitmaskclient.tethering.TetheringObservable;
 
 import java.util.LinkedList;
 import java.util.Objects;
@@ -143,8 +144,8 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
             networkStateChange(context);
         } else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
             boolean screenOffPause = prefs.getBoolean("screenoff", false);
-
-            if (screenOffPause) {
+            boolean isTethering = TetheringObservable.getInstance().getTetheringState().isVpnTetheringRunning();
+            if (screenOffPause && !isTethering) {
                 if (VpnStatus.getLastConnectedVpnProfile() != null && !VpnStatus.getLastConnectedVpnProfile().mPersistTun)
                     VpnStatus.logError(R.string.screen_nopersistenttun);
 

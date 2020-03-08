@@ -1,6 +1,8 @@
 package se.leap.bitmaskclient.fragments;
 
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -150,10 +152,10 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
                 .setPositiveButton(android.R.string.ok, (dialog, id) -> {
                     PreferenceHelper.allowWifiTethering(getContext(), dataset[0].checked);
                     PreferenceHelper.allowUsbTethering(getContext(), dataset[1].checked);
-//                    PreferenceHelper.allowBluetoothTethering(getContext(), dataset[2].checked);
+                    PreferenceHelper.allowBluetoothTethering(getContext(), dataset[2].checked);
                     TetheringObservable.allowVpnWifiTethering(dataset[0].checked);
                     TetheringObservable.allowVpnUsbTethering(dataset[1].checked);
-//                    TetheringObservable.allowVpnBluetoothTethering(dataset[2].checked);
+                    TetheringObservable.allowVpnBluetoothTethering(dataset[2].checked);
                     FirewallManager firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
                     if (VpnStatus.isVPNActive()) {
                         if (TetheringObservable.getInstance().getTetheringState().hasAnyDeviceTetheringEnabled() &&
@@ -172,7 +174,7 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
         super.onResume();
         dataset[0].enabled = TetheringObservable.getInstance().isWifiTetheringEnabled();
         dataset[1].enabled = TetheringObservable.getInstance().isUsbTetheringEnabled();
-//        dataset[2].enabled = TetheringObservable.getInstance().isBluetoothTetheringEnabled();
+        dataset[2].enabled = TetheringObservable.getInstance().isBluetoothTetheringEnabled();
         adapter.notifyDataSetChanged();
         TetheringObservable.getInstance().addObserver(this);
     }
@@ -199,8 +201,18 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
         spannable.setSpan(new ClickableSpan() {
             @Override
             public void onClick(@NonNull View widget) {
-                Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
-                startActivity(intent);
+                try {
+                    final Intent intent = new Intent(Intent.ACTION_MAIN, null);
+                    intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                    final ComponentName cn = new ComponentName("com.android.settings", "com.android.settings.TetherSettings");
+                    intent.setComponent(cn);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                    startActivity(intent);
+                }
+
             }
         }, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
@@ -217,10 +229,10 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
                         getContext().getString(R.string.tethering_usb),
                         PreferenceHelper.isUsbTetheringAllowed(getContext()),
                         TetheringObservable.getInstance().isUsbTetheringEnabled()),
-/*                new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_bluetooth),
+                new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_bluetooth),
                         getContext().getString(R.string.tethering_bluetooth),
                         PreferenceHelper.isBluetoothTetheringAllowed(getContext()),
-                        TetheringObservable.getInstance().isUsbTetheringEnabled())*/
+                        TetheringObservable.getInstance().isUsbTetheringEnabled())
         };
     }
 
@@ -231,7 +243,7 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
             Log.d(TAG, "TetheringObservable is updated");
             dataset[0].enabled = observable.isWifiTetheringEnabled();
             dataset[1].enabled = observable.isUsbTetheringEnabled();
-//            dataset[2].enabled = observable.isBluetoothTetheringEnabled();
+            dataset[2].enabled = observable.isBluetoothTetheringEnabled();
             adapter.notifyDataSetChanged();
         }
     }

@@ -102,6 +102,7 @@
   <string name="vpn_certificate_is_invalid">VPN certificate is invalid. Try to download a new one.</string>
   <string name="vpn_certificate_user_message">The VPN certificate is invalid. Please log in to download a new one.</string>
   <string name="save_battery">Save battery</string>
+  <string name="subtitle_save_battery">Disabled while VPN Hotspot on</string>
   <string name="save_battery_message">Background data connections will hibernate when your phone is inactive.</string>
   <string name="always_on_vpn">Always-on VPN</string>
   <string name="subtitle_always_on_vpn">Open Android System Settings</string>
@@ -139,4 +140,5 @@
   <string name="warning_option_try_pt">Try obfuscated connection</string>
   <string name="warning_option_try_ovpn">Try standard connection</string>
   <string name="vpn_error_establish">Android failed to establish the VPN service.</string>
+  <string name="root_permission_error">%s cannot execute features like VPN Hotspot or IPv6 firewall without root permissions.</string>
 </resources>

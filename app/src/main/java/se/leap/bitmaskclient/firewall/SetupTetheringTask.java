@@ -130,7 +130,7 @@ public class SetupTetheringTask extends AsyncTask<Void, Boolean, Boolean> {
     }
 
     private boolean removeWifiTetheringRules(TetheringState state, StringBuilder log) throws Exception {
-        Log.d(TAG, "add Wifi tethering Rules");
+        Log.d(TAG, "remove Wifi tethering Rules");
         String[] removeRules = getDeletionRules(state, state.lastSeenWifiAddress, state.lastSeenWifiInterface);
         return runBlockingCmd(removeRules, log) == 0;
     }
@@ -142,19 +142,23 @@ public class SetupTetheringTask extends AsyncTask<Void, Boolean, Boolean> {
     }
 
     private boolean removeUsbTetheringRules(TetheringState state, StringBuilder log) throws Exception {
-        Log.d(TAG, "add usb tethering rules");
+        Log.d(TAG, "remove usb tethering rules");
         String[] addRules = getDeletionRules(state, state.lastSeenUsbAddress, state.lastSeenUsbInterface);
         return runBlockingCmd(addRules, log) == 0;
     }
 
-    //TODO: implement the follwing methods -v
-    private boolean removeBluetoothTetheringRules(TetheringState state, StringBuilder log) {
-        return true;
+    private boolean addBluetoothTetheringRules(TetheringState state, StringBuilder log) throws Exception {
+        Log.d(TAG, "add bluetooth tethering rules");
+        String[] addRules = getAdditionRules(state.bluetoothAddress, state.bluetoothInterface);
+        return runBlockingCmd(addRules, log) == 0;
     }
 
-    private boolean addBluetoothTetheringRules(TetheringState state, StringBuilder log) {
-        return true;
+    private boolean removeBluetoothTetheringRules(TetheringState state, StringBuilder log) throws Exception {
+        Log.d(TAG, "remove bluetooth tethering rules");
+        String[] addRules = getDeletionRules(state, state.lastSeenBluetoothAddress, state.lastSeenBluetoothInterface);
+        return runBlockingCmd(addRules, log) == 0;
     }
+
 
     private String[] getAdditionRules(String addressRange, String interfaceName) {
         return new String[] {

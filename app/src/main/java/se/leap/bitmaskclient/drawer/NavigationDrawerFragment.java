@@ -45,10 +45,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.MainActivity;
@@ -57,12 +58,14 @@ import se.leap.bitmaskclient.ProviderListActivity;
 import se.leap.bitmaskclient.ProviderObservable;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.fragments.AboutFragment;
 import se.leap.bitmaskclient.fragments.AlwaysOnDialog;
 import se.leap.bitmaskclient.fragments.ExcludeAppsFragment;
 import se.leap.bitmaskclient.fragments.LogFragment;
 import se.leap.bitmaskclient.fragments.TetheringDialog;
+import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconSwitchEntry;
 import se.leap.bitmaskclient.views.IconTextEntry;
@@ -76,6 +79,8 @@ import static se.leap.bitmaskclient.Constants.ENABLE_DONATION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.Constants.USE_IPv6_FIREWALL;
+import static se.leap.bitmaskclient.Constants.USE_PLUGGABLE_TRANSPORTS;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
 import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
 import static se.leap.bitmaskclient.R.string.log_fragment_title;
@@ -92,7 +97,7 @@ import static se.leap.bitmaskclient.utils.PreferenceHelper.usePluggableTransport
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class NavigationDrawerFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, Observer {
 
     /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
@@ -126,6 +131,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private final static String KEY_SHOW_SAVE_BATTERY_ALERT = "KEY_SHOW_SAVE_BATTERY_ALERT";
     private volatile boolean showSaveBattery = false;
     AlertDialog alertDialog;
+    private FirewallManager firewallManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -135,6 +141,8 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         userLearnedDrawer = preferences.getBoolean(PREF_USER_LEARNED_DRAWER, false);
         preferences.registerOnSharedPreferenceChangeListener(this);
+        firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
+
     }
 
     @Override
@@ -149,7 +157,16 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                              Bundle savedInstanceState) {
         drawerView = inflater.inflate(R.layout.f_drawer_main, container, false);
         restoreFromSavedInstance(savedInstanceState);
+        TetheringObservable.getInstance().addObserver(this);
+        EipStatus.getInstance().addObserver(this);
         return drawerView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        TetheringObservable.getInstance().deleteObserver(this);
+        EipStatus.getInstance().deleteObserver(this);
     }
 
     public boolean isDrawerOpen() {
@@ -302,6 +319,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
     private void initSaveBatteryEntry() {
         saveBattery = drawerView.findViewById(R.id.battery_switch);
+        saveBattery.showSubtitle(false);
         saveBattery.setChecked(getSaveBattery(getContext()));
         saveBattery.setOnCheckedChangeListener(((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
@@ -313,6 +331,16 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 saveBattery(getContext(), false);
             }
         }));
+        boolean enableEntry = !TetheringObservable.getInstance().getTetheringState().isVpnTetheringRunning();
+        enableSaveBatteryEntry(enableEntry);
+    }
+
+    private void enableSaveBatteryEntry(boolean enabled) {
+        if (saveBattery.isEnabled() == enabled) {
+            return;
+        }
+        saveBattery.setEnabled(enabled);
+        saveBattery.showSubtitle(!enabled);
     }
 
     private void initAlwaysOnVpnEntry() {
@@ -374,13 +402,12 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         firewall = drawerView.findViewById(R.id.enableIPv6Firewall);
         boolean show = showExperimentalFeatures(getContext());
         firewall.setVisibility(show ? VISIBLE : GONE);
-        firewall.setChecked(PreferenceHelper.useIpv6Firewall(this.getContext()));
+        firewall.setChecked(PreferenceHelper.useIpv6Firewall(getContext()));
         firewall.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
             PreferenceHelper.setUseIPv6Firewall(getContext(), isChecked);
-            FirewallManager firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
             if (VpnStatus.isVPNActive()) {
                 if (isChecked) {
                     firewallManager.startIPv6Firewall();
@@ -626,8 +653,22 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(Constants.USE_PLUGGABLE_TRANSPORTS)) {
+        if (key.equals(USE_PLUGGABLE_TRANSPORTS)) {
             initUseBridgesEntry();
+        } else if (key.equals(USE_IPv6_FIREWALL)) {
+            initFirewallEntry();
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o instanceof TetheringObservable || o instanceof EipStatus) {
+            try {
+                getActivity().runOnUiThread(() ->
+                        enableSaveBatteryEntry(!TetheringObservable.getInstance().getTetheringState().isVpnTetheringRunning()));
+            } catch (NullPointerException npe) {
+                // eat me
+            }
         }
     }
 }
