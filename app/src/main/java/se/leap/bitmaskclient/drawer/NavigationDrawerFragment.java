@@ -50,7 +50,6 @@ import java.util.Observer;
 import java.util.Set;
 
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.EipFragment;
 import se.leap.bitmaskclient.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.MainActivity;
@@ -80,6 +79,8 @@ import static se.leap.bitmaskclient.Constants.ENABLE_DONATION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.Constants.USE_IPv6_FIREWALL;
+import static se.leap.bitmaskclient.Constants.USE_PLUGGABLE_TRANSPORTS;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
 import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
 import static se.leap.bitmaskclient.R.string.log_fragment_title;
@@ -130,6 +131,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private final static String KEY_SHOW_SAVE_BATTERY_ALERT = "KEY_SHOW_SAVE_BATTERY_ALERT";
     private volatile boolean showSaveBattery = false;
     AlertDialog alertDialog;
+    private FirewallManager firewallManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -139,6 +141,8 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         userLearnedDrawer = preferences.getBoolean(PREF_USER_LEARNED_DRAWER, false);
         preferences.registerOnSharedPreferenceChangeListener(this);
+        firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
+
     }
 
     @Override
@@ -398,13 +402,12 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         firewall = drawerView.findViewById(R.id.enableIPv6Firewall);
         boolean show = showExperimentalFeatures(getContext());
         firewall.setVisibility(show ? VISIBLE : GONE);
-        firewall.setChecked(PreferenceHelper.useIpv6Firewall(this.getContext()));
+        firewall.setChecked(PreferenceHelper.useIpv6Firewall(getContext()));
         firewall.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
             PreferenceHelper.setUseIPv6Firewall(getContext(), isChecked);
-            FirewallManager firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
             if (VpnStatus.isVPNActive()) {
                 if (isChecked) {
                     firewallManager.startIPv6Firewall();
@@ -650,8 +653,10 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(Constants.USE_PLUGGABLE_TRANSPORTS)) {
+        if (key.equals(USE_PLUGGABLE_TRANSPORTS)) {
             initUseBridgesEntry();
+        } else if (key.equals(USE_IPv6_FIREWALL)) {
+            initFirewallEntry();
         }
     }
 

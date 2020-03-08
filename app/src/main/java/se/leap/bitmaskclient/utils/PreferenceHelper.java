@@ -29,7 +29,6 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.Constants.SHOW_EXPERIMENTAL;
-import static se.leap.bitmaskclient.Constants.SU_PERMISSION;
 import static se.leap.bitmaskclient.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.Constants.USE_PLUGGABLE_TRANSPORTS;
 
@@ -119,14 +118,6 @@ public class PreferenceHelper {
                 remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
                 remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
                 apply();
-    }
-
-    public static boolean hasSuPermission(Context context) {
-        return getBoolean(context, SU_PERMISSION, false);
-    }
-
-    public static void setSuPermission(Context context, boolean allowed) {
-        putBoolean(context, SU_PERMISSION, allowed);
     }
 
     public static boolean getUsePluggableTransports(Context context) {

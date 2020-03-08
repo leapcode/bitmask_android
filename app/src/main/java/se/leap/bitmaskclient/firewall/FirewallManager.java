@@ -17,11 +17,15 @@ package se.leap.bitmaskclient.firewall;
  */
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
 
 import java.util.Observable;
 import java.util.Observer;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.tethering.TetheringState;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
@@ -80,9 +84,18 @@ public class FirewallManager implements FirewallCallback, Observer {
 
     @Override
     public void onSuRequested(boolean success) {
-        PreferenceHelper.setSuPermission(context, success);
         if (!success) {
             VpnStatus.logError("[FIREWALL] Root permission needed to execute custom firewall rules.");
+            new Handler(Looper.getMainLooper()).post(() -> {
+                Toast.makeText(context.getApplicationContext(), context.getString(R.string.root_permission_error, context.getString(R.string.app_name)), Toast.LENGTH_LONG).show();
+            });
+            TetheringObservable.allowVpnWifiTethering(false);
+            TetheringObservable.allowVpnUsbTethering(false);
+            TetheringObservable.allowVpnBluetoothTethering(false);
+            PreferenceHelper.allowWifiTethering(context, false);
+            PreferenceHelper.allowUsbTethering(context, false);
+            PreferenceHelper.allowBluetoothTethering(context, false);
+            PreferenceHelper.setUseIPv6Firewall(context, false);
         }
     }
 
