@@ -119,7 +119,7 @@ android {
       // Build apks for each architecture, in addition to one 'fat' apk containing libraries for all all architectures
       // enable this if you're publishing in gplay
       ext {
-        splitApk = false
+        splitApk = true
       }
 
       //**************************************************************************
