@@ -109,8 +109,8 @@
   <string name="tethering">VPN Hotspot</string>
   <string name="ipv6Firewall">Block IPv6</string>
   <string name="require_root">Requires root permissions</string>
-  <string name="show_experimental">Show experimental options</string>
-  <string name="hide_experimental">Hide experimental options</string>
+  <string name="show_experimental">Show experimental features</string>
+  <string name="hide_experimental">Hide experimental features</string>
   <string name="tethering_enabled_message">Please make sure to enable tethering in the %s first!</string>
   <string name="tethering_system_settings">system settings</string>
   <string name="tethering_message">Share your VPN with other devices via:</string>
