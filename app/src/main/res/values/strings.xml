@@ -111,8 +111,7 @@
   <string name="require_root">Requires root permissions</string>
   <string name="show_experimental">Show experimental features</string>
   <string name="hide_experimental">Hide experimental features</string>
-  <string name="tethering_enabled_message">Please make sure to enable tethering in the %s first!</string>
-  <string name="tethering_system_settings">system settings</string>
+  <string name="tethering_enabled_message">Please make sure to enable tethering in the <![CDATA[<b>system settings</b>]]> first.</string>
   <string name="tethering_message">Share your VPN with other devices via:</string>
   <string name="tethering_wifi">Wifi hotspot</string>
   <string name="tethering_usb">USB tethering</string>

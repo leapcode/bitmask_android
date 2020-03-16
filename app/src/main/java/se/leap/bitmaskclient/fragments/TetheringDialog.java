@@ -22,25 +22,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * Copyright (c) 2020 LEAP Encryption Access Project and contributers
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 import java.util.Observable;
 import java.util.Observer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -50,6 +35,23 @@ import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 import se.leap.bitmaskclient.views.IconCheckboxEntry;
+
+/**
+ * Copyright (c) 2020 LEAP Encryption Access Project and contributers
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 public class TetheringDialog extends AppCompatDialogFragment implements Observer {
 
@@ -191,12 +193,17 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
 
     private CharSequence createUserMessage() {
         String tetheringMessage = getString(R.string.tethering_message);
-        String systemSettings = getString(R.string.tethering_system_settings);
-        String systemSettingsMessage = getString(R.string.tethering_enabled_message, systemSettings);
+        String systemSettingsMessage = getString(R.string.tethering_enabled_message);
+        Pattern pattern = Pattern.compile("([\\w .]*)(<b>)+([\\w ]*)(</b>)([\\w .]*)");
+        Matcher matcher = pattern.matcher(systemSettingsMessage);
+        int startIndex = 0;
+        int endIndex = 0;
+        if (matcher.matches()) {
+            startIndex = matcher.start(2);
+            endIndex = startIndex + matcher.group(3).length();
+        }
+        systemSettingsMessage = systemSettingsMessage.replace("<b>", "").replace("</b>", "");
         String wholeMessage = systemSettingsMessage + "\n\n" + tetheringMessage;
-        int startIndex = wholeMessage.indexOf(systemSettings, 0);
-        int endIndex = startIndex + systemSettings.length();
-
         Spannable spannable = new SpannableString(wholeMessage);
         spannable.setSpan(new ClickableSpan() {
             @Override
