@@ -18,7 +18,7 @@ package se.leap.bitmaskclient.eip;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.util.Observable;

@@ -18,7 +18,7 @@ package se.leap.bitmaskclient.tethering;
 
 import android.content.Context;
 import android.content.IntentFilter;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 import java.net.Inet4Address;
 import java.net.InterfaceAddress;

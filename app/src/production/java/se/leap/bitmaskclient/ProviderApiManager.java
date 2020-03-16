@@ -20,7 +20,7 @@ package se.leap.bitmaskclient;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.multidex.BuildConfig;
+import androidx.multidex.BuildConfig;
 import android.util.Pair;
 
 import org.json.JSONException;

@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="150dp">
 
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/background"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -29,7 +29,7 @@
                 android:scaleType="fitXY"
                 app:srcCompat="@drawable/background_drawer" />
 
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/foreground"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
