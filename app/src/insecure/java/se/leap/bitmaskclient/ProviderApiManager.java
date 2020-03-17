@@ -144,7 +144,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         if(providerDefinition.length() == 0 || caCert.isEmpty())
             providerDotJsonString = downloadWithCommercialCA(providerMainUrl + "/provider.json", dangerOn);
         else
-            providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, providerDefinition, dangerOn);
+            providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, provider, dangerOn);
 
         if (ConfigHelper.checkErroneousDownload(providerDotJsonString) || !isValidJson(providerDotJsonString)) {
             setErrorResult(result, malformed_url, null);
@@ -291,10 +291,10 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         return responseString;
     }
 
-    private String downloadFromApiUrlWithProviderCA(String path, String caCert, JSONObject providerDefinition, boolean dangerOn) {
+    private String downloadFromApiUrlWithProviderCA(String path, String caCert, Provider provider, boolean dangerOn) {
         String responseString;
         JSONObject errorJson = new JSONObject();
-        String baseUrl = getApiUrl(providerDefinition);
+        String baseUrl = provider.getApiUrlString();
         OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, errorJson);
         if (okHttpClient == null) {
             return errorJson.toString();
