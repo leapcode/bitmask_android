@@ -18,7 +18,7 @@ package se.leap.bitmaskclient;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
@@ -29,8 +29,6 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
-
-import se.leap.bitmaskclient.utils.IPAddress;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static se.leap.bitmaskclient.Constants.CAPABILITIES;

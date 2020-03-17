@@ -10,7 +10,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
             android:textSize="17sp"
             />
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/block_vpn_user_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

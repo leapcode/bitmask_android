@@ -1,7 +1,7 @@
 package se.leap.bitmaskclient;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import butterknife.OnClick;
 

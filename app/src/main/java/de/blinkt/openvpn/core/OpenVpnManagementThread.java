@@ -12,17 +12,15 @@ import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.ParcelFileDescriptor;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import android.system.Os;
 import android.util.Log;
 
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.VpnProfile;
-import se.leap.bitmaskclient.utils.ConfigHelper;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -32,7 +30,6 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.*;
-import java.util.logging.Logger;
 
 public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 

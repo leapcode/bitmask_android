@@ -4,7 +4,7 @@ package se.leap.bitmaskclient.views;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.AppCompatTextView;
+import androidx.appcompat.widget.AppCompatTextView;
 import android.text.Spannable;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;

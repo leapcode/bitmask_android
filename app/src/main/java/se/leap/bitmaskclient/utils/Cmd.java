@@ -17,7 +17,7 @@
 
 package se.leap.bitmaskclient.utils;
 
-import android.support.annotation.WorkerThread;
+import androidx.annotation.WorkerThread;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

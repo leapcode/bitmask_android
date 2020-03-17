@@ -1,7 +1,7 @@
 package se.leap.bitmaskclient;
 
 import android.content.res.AssetManager;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 import com.pedrogomez.renderers.AdapteeCollection;
 

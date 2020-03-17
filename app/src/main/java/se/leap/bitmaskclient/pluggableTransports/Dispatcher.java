@@ -17,7 +17,7 @@
 package se.leap.bitmaskclient.pluggableTransports;
 
 import android.content.Context;
-import android.support.annotation.WorkerThread;
+import androidx.annotation.WorkerThread;
 import android.text.TextUtils;
 import android.util.Log;
 

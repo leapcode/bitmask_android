@@ -26,11 +26,11 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
-import android.support.annotation.WorkerThread;
-import android.support.v4.app.JobIntentService;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.annotation.WorkerThread;
+import androidx.core.app.JobIntentService;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.json.JSONException;

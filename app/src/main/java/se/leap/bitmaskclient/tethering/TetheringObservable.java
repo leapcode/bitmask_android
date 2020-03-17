@@ -16,7 +16,7 @@
  */
 package se.leap.bitmaskclient.tethering;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.Observable;
 

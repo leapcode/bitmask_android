@@ -16,7 +16,7 @@
  */
 package se.leap.bitmaskclient;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;

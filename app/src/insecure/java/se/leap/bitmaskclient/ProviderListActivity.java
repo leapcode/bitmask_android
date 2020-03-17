@@ -17,7 +17,7 @@
 package se.leap.bitmaskclient;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import static se.leap.bitmaskclient.Constants.DANGER_ON;
 import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;

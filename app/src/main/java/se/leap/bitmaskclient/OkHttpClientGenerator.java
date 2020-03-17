@@ -20,7 +20,7 @@ package se.leap.bitmaskclient;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Build;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.json.JSONException;
 import org.json.JSONObject;
