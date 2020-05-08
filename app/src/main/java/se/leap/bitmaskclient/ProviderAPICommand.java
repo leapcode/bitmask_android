@@ -40,7 +40,11 @@ public class ProviderAPICommand {
     private void execute() {
         if (isInitialized()) {
             Intent intent = setUpIntent();
-            context.startService(intent);
+            try {
+                context.startService(intent);
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
         }
     }
 
