@@ -1,6 +1,7 @@
 package se.leap.bitmaskclient.fragments;
 
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -57,7 +58,11 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
         builder.setView(view);
         btnDonate.setOnClickListener(v -> {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
-            startActivity(browserIntent);
+            try {
+                startActivity(browserIntent);
+            } catch (ActivityNotFoundException e) {
+                e.printStackTrace();
+            }
             PreferenceHelper.putString(getContext(), LAST_DONATION_REMINDER_DATE,
                     DateHelper.getCurrentDateString());
             dismiss();
