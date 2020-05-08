@@ -1,7 +1,7 @@
 #!/bin/bash
 
-GO_VERSION=go1.12.7.linux-amd64
-EXPECTED_FP=66d83bfb5a9ede000e33c6579a91a29e6b101829ad41fffb5c5bb6c900e109d9
+GO_VERSION=go1.14.2.linux-amd64
+EXPECTED_FP=6272d6e940ecb71ea5636ddb5fab3933e087c1356173c61f4a803895e947ebb3
 
 if [[ $(ls -A ${GO_VERSION}.tar.gz) ]]
 then
