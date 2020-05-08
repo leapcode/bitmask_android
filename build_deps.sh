@@ -21,7 +21,7 @@ then
 else
     echo "Clean build: starting externalNativeBuild and GO dependency builds"
     cd ./ics-openvpn || quit "Directory ics-opevpn not found"
-    ./gradlew clean main:externalNativeBuildCleanNoovpn3Release main:externalNativeBuildNoovpn3Release --debug --stacktrace || quit "Build ics-openvpn native libraries failed"
+    ./gradlew clean main:externalNativeBuildCleanSkeletonRelease main:externalNativeBuildSkeletonRelease --debug --stacktrace || quit "Build ics-openvpn native libraries failed"
     cd ..
 fi
 

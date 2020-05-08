@@ -213,7 +213,7 @@ android {
                         '../ics-openvpn/main/build/ovpnassets',
                         // '../go/out' TODO: uncomment this line as soon as we want to use PT in production
                         ]
-      jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/noovpn3/release/obj']
+      jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/skeletonRelease/obj/']
       jni.srcDirs = [] //disable automatic ndk-build
     }
     debug {
