@@ -1,9 +1,12 @@
 package se.leap.bitmaskclient;
 
-import android.content.*;
-import android.os.*;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ProviderAPICommand {
     private Context context;
@@ -40,11 +43,7 @@ public class ProviderAPICommand {
     private void execute() {
         if (isInitialized()) {
             Intent intent = setUpIntent();
-            try {
-                context.startService(intent);
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            }
+            ProviderAPI.enqueueWork(context, intent);
         }
     }
 
