@@ -51,7 +51,9 @@
         </service>
         <service
             android:name=".ProviderAPI"
-            android:enabled="true" />
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
 
         <receiver
             android:name=".OnBootReceiver"
@@ -111,13 +113,6 @@
             android:name=".eip.EIP"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE">
-            <intent-filter>
-                <action android:name="se.leap.bitmaskclient.EIP.UPDATE"/>
-                <action android:name="se.leap.bitmaskclient.EIP.START"/>
-                <action android:name="se.leap.bitmaskclient.EIP.STOP"/>
-                <action android:name="se.leap.bitmaskclient.START_ALWAYS_ON_EIP"/>
-                <action android:name="se.leap.bitmaskclient.EIP.IS_RUNNING"/>
-            </intent-filter>
         </service>
     </application>
 

@@ -17,25 +17,32 @@
 package se.leap.bitmaskclient;
 
 import android.annotation.SuppressLint;
-import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 /**
  * Implements HTTP api methods (encapsulated in {{@link ProviderApiManager}})
  * used to manage communications with the provider server.
  * <p/>
- * It's an IntentService because it downloads data from the Internet, so it operates in the background.
+ * It's an JobIntentService because it downloads data from the Internet, so it operates in the background.
  *
  * @author parmegv
  * @author MeanderingCode
  * @author cyberta
  */
 
-public class ProviderAPI extends IntentService implements ProviderApiManagerBase.ProviderApiServiceCallback {
+public class ProviderAPI extends JobIntentService implements ProviderApiManagerBase.ProviderApiServiceCallback {
+
+    /**
+     * Unique job ID for this service.
+     */
+    static final int JOB_ID = 161375;
 
     final public static String
             TAG = ProviderAPI.class.getSimpleName(),
@@ -74,10 +81,6 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
 
     ProviderApiManager providerApiManager;
 
-    public ProviderAPI() {
-        super(TAG);
-    }
-
     //TODO: refactor me, please!
     //used in insecure flavor only
     @SuppressLint("unused")
@@ -91,14 +94,24 @@ public class ProviderAPI extends IntentService implements ProviderApiManagerBase
         providerApiManager = initApiManager();
     }
 
+    /**
+     * Convenience method for enqueuing work in to this service.
+     */
+    static void enqueueWork(Context context, Intent work) {
+        try {
+            enqueueWork(context, ProviderAPI.class, JOB_ID, work);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+    }
     @Override
-    public void broadcastEvent(Intent intent) {
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    protected void onHandleWork(@NonNull Intent command) {
+        providerApiManager.handleIntent(command);
     }
 
     @Override
-    protected void onHandleIntent(Intent command) {
-        providerApiManager.handleIntent(command);
+    public void broadcastEvent(Intent intent) {
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private ProviderApiManager initApiManager() {
