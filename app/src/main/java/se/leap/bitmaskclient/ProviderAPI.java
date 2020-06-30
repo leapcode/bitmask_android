@@ -53,6 +53,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             LOG_OUT = "logOut",
             DOWNLOAD_VPN_CERTIFICATE = "downloadUserAuthedVPNCertificate",
             UPDATE_INVALID_VPN_CERTIFICATE = "ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE",
+            GEOSERVICE = "geoService",
             PARAMETERS = "parameters",
             RECEIVER_KEY = "receiver",
             ERRORS = "errors",

@@ -269,7 +269,7 @@ public class ProviderApiManagerTest {
 
     @Test
     public void test_handleIntentSetupProvider_preseededProviderAndCA_outdatedCertificate() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
-        Provider provider = getProvider(null ,null, null, "outdated_cert.pem", null, null);
+        Provider provider = getProvider(null ,null, null, null, "outdated_cert.pem", null, null);
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -386,7 +386,7 @@ public class ProviderApiManagerTest {
     @Test
     public void test_handleIntentSetupProvider_outdatedPreseededProviderAndCA_successfulConfiguration() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
 
-        Provider provider = getProvider(null, null, null, null, "riseup_net_outdated_config.json", null);
+        Provider provider = getProvider(null, null, null, null, null, "riseup_net_outdated_config.json", null);
 
         mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
