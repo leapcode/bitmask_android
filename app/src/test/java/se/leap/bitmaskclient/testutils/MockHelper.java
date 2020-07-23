@@ -401,6 +401,8 @@ public class MockHelper {
                         return providerFromPrefs.getCaCertFingerprint();
                     case Provider.CA_CERT:
                         return providerFromPrefs.getCaCert();
+                    case Provider.GEOIP_URL:
+                        return providerFromPrefs.getGeoipUrl().toString();
 
                 }
                 return null;

@@ -50,6 +50,9 @@ public class MisconfiguredProviderBackendResponse extends BaseBackendResponse {
                 } else if (url.contains("config/eip-service.json")) {
                     // download provider service json containing gateways, locations and openvpn settings
                     return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.service.json"));
+                } else if (url.contains(":9001/json")) {
+                    // download geoip json, containing a sorted list of gateways
+                    return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.geoip.json"));
                 } else if (url.contains("/users.json")) {
                     //create new user
                     //TODO: implement me

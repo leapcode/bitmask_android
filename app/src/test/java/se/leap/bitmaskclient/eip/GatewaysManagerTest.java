@@ -74,29 +74,6 @@ public class GatewaysManagerTest {
                 .commit();
     }
 
-    @Test
-    public void testFromEipServiceJson_emptyJson() throws Exception {
-        GatewaysManager gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
-        assertEquals(0, gatewaysManager.size());
-    }
-
-    @Test
-    public void testFromEipServiceJson_ignoreGatewaysWithMisconfiguredTransportsWhileAddingValidOnes() throws Exception {
-        updateEipServiceJson("ptdemo_misconfigured_mixed_gateways.json");
-        GatewaysManager gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
-        assertEquals(1, gatewaysManager.size());
-        assertNull(gatewaysManager.select(0).getProfile(OBFS4));
-        assertNotNull(gatewaysManager.select(0).getProfile(Connection.TransportType.OPENVPN));
-    }
-
-    @Test
-    public void testClearGatewaysAndProfiles_resetGateways() throws Exception {
-        updateEipServiceJson("eip-service-two-gateways.json");
-        GatewaysManager gatewaysManager = new GatewaysManager(mockContext, sharedPreferences);
-        assertEquals(2, gatewaysManager.size());
-        gatewaysManager.clearGateways();
-        assertEquals(0, gatewaysManager.size());
-    }
 
     @Test
     public void testGatewayManagerFromCurrentProvider_noProvider_noGateways() {
@@ -107,7 +84,7 @@ public class GatewaysManagerTest {
 
     @Test
     public void testGatewayManagerFromCurrentProvider_misconfiguredProvider_noGateways() throws IOException, NullPointerException {
-        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_misconfigured_gateway.json");
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_misconfigured_gateway.json", null);
         MockHelper.mockProviderObserver(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(0, gatewaysManager.size());
@@ -115,7 +92,7 @@ public class GatewaysManagerTest {
 
     @Test
     public void testGatewayManagerFromCurrentProvider_threeGateways() {
-        Provider provider = getProvider(null, null, null, null,null, null, "ptdemo_three_mixed_gateways.json");
+        Provider provider = getProvider(null, null, null, null,null, null, "ptdemo_three_mixed_gateways.json", null);
         MockHelper.mockProviderObserver(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(3, gatewaysManager.size());
@@ -123,7 +100,7 @@ public class GatewaysManagerTest {
 
     @Test
     public void TestGetPosition_VpnProfileExtistingObfs4_returnPositionZero() throws JSONException, ConfigParser.ConfigParseError, IOException {
-        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json");
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", null);
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
         MockHelper.mockProviderObserver(provider);
@@ -140,7 +117,7 @@ public class GatewaysManagerTest {
 
     @Test
     public void TestGetPosition_VpnProfileExtistingOpenvpn_returnPositionZero() throws JSONException, ConfigParser.ConfigParseError, IOException {
-        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json");
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", null);
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
         MockHelper.mockProviderObserver(provider);
@@ -157,7 +134,7 @@ public class GatewaysManagerTest {
 
     @Test
     public void TestGetPosition_VpnProfileDifferentIp_returnMinusOne() throws JSONException, ConfigParser.ConfigParseError, IOException {
-        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json");
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", null);
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
         MockHelper.mockProviderObserver(provider);
@@ -174,7 +151,7 @@ public class GatewaysManagerTest {
 
     @Test
     public void TestGetPosition_VpnProfileMoscow_returnOne() throws JSONException, ConfigParser.ConfigParseError, IOException {
-        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json");
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", null);
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(1);
         MockHelper.mockProviderObserver(provider);
@@ -191,7 +168,7 @@ public class GatewaysManagerTest {
 
     @Test
     public void TestSelectN_selectFirstObfs4Connection_returnThirdGateway() throws JSONException, ConfigParser.ConfigParseError, IOException {
-        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_two_openvpn_one_pt_gateways.json");
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_two_openvpn_one_pt_gateways.json", null);
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway3 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(2);
 
