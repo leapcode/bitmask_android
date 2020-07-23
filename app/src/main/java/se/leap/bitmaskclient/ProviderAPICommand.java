@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ProviderAPICommand {
+    private static final String TAG = ProviderAPICommand.class.getSimpleName();
     private Context context;
 
     private String action;
@@ -60,22 +62,22 @@ public class ProviderAPICommand {
         return command;
     }
 
-    public static void execute(Context context, String action, Provider provider) {
+    public static void execute(Context context, String action, @NotNull Provider provider) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, provider);
         command.execute();
     }
 
-    public static void execute(Context context, String action, Bundle parameters, Provider provider) {
+    public static void execute(Context context, String action, Bundle parameters, @NotNull Provider provider) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, parameters, provider);
         command.execute();
     }
 
-    public static void execute(Context context, String action, Bundle parameters, Provider provider, ResultReceiver resultReceiver) {
+    public static void execute(Context context, String action, Bundle parameters, @NotNull Provider provider, ResultReceiver resultReceiver) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, parameters, provider, resultReceiver);
         command.execute();
     }
 
-    public static void execute(Context context, String action, Provider provider, ResultReceiver resultReceiver) {
+    public static void execute(Context context, String action, @NotNull Provider provider, ResultReceiver resultReceiver) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, provider, resultReceiver);
         command.execute();
     }

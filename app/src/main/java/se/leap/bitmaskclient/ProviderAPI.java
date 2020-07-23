@@ -24,6 +24,7 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 
 /**
@@ -48,12 +49,12 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             TAG = ProviderAPI.class.getSimpleName(),
             SET_UP_PROVIDER = "setUpProvider",
             UPDATE_PROVIDER_DETAILS = "updateProviderDetails",
+            DOWNLOAD_GEOIP_JSON = "downloadGeoIpJson",
             SIGN_UP = "srpRegister",
             LOG_IN = "srpAuth",
             LOG_OUT = "logOut",
             DOWNLOAD_VPN_CERTIFICATE = "downloadUserAuthedVPNCertificate",
             UPDATE_INVALID_VPN_CERTIFICATE = "ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE",
-            GEOSERVICE = "geoService",
             PARAMETERS = "parameters",
             RECEIVER_KEY = "receiver",
             ERRORS = "errors",
@@ -78,7 +79,9 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             CORRECTLY_DOWNLOADED_EIP_SERVICE = 13,
             INCORRECTLY_DOWNLOADED_EIP_SERVICE = 14,
             CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE = 15,
-            INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE = 16;
+            INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE = 16,
+            CORRECTLY_DOWNLOADED_GEOIP_JSON = 17,
+            INCORRECTLY_DOWNLOADED_GEOIP_JSON = 18;
 
     ProviderApiManager providerApiManager;
 
@@ -100,11 +103,12 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
      */
     static void enqueueWork(Context context, Intent work) {
         try {
-            enqueueWork(context, ProviderAPI.class, JOB_ID, work);
+            ProviderAPI.enqueueWork(context, ProviderAPI.class, JOB_ID, work);
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
     }
+
     @Override
     protected void onHandleWork(@NonNull Intent command) {
         providerApiManager.handleIntent(command);

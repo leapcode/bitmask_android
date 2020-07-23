@@ -2,5 +2,5 @@
 	"main_url" : "https://riseup.net",
 	"provider_ip" : "198.252.153.70",
 	"provider_api_ip" : "198.252.153.107",
-	"geoip_url" : "https://api.black.riseup.net:9001"
+	"geoip_url" : "https://api.black.riseup.net:9001/json"
 }

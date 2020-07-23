@@ -22,10 +22,11 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import androidx.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
+
+import androidx.annotation.NonNull;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,17 +61,21 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_PASSWORD;
 import static se.leap.bitmaskclient.Constants.CREDENTIALS_USERNAME;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.Provider.CA_CERT;
+import static se.leap.bitmaskclient.Provider.GEOIP_URL;
 import static se.leap.bitmaskclient.Provider.PROVIDER_API_IP;
 import static se.leap.bitmaskclient.Provider.PROVIDER_IP;
 import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.BACKEND_ERROR_MESSAGE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_GEOIP_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_SERVICE_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORID;
@@ -78,6 +83,7 @@ import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.FAILED_LOGIN;
 import static se.leap.bitmaskclient.ProviderAPI.FAILED_SIGNUP;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.LOGOUT_FAILED;
@@ -143,7 +149,11 @@ public abstract class ProviderApiManagerBase {
     }
 
     public void handleIntent(Intent command) {
-        final ResultReceiver receiver = command.getParcelableExtra(RECEIVER_KEY);
+//        Log.d(TAG, "handleIntent was called!");
+        ResultReceiver receiver = null;
+        if (command.getParcelableExtra(RECEIVER_KEY) != null) {
+            receiver = command.getParcelableExtra(RECEIVER_KEY);
+        }
         String action = command.getAction();
         Bundle parameters = command.getBundleExtra(PARAMETERS);
 
@@ -167,6 +177,7 @@ public abstract class ProviderApiManagerBase {
                 Bundle task = new Bundle();
                 result = setUpProvider(provider, task);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    getGeoIPJson(provider);
                     sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
                 } else {
                     sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
@@ -177,6 +188,7 @@ public abstract class ProviderApiManagerBase {
                 ProviderObservable.getInstance().setProviderForDns(provider);
                 result = setUpProvider(provider, parameters);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    getGeoIPJson(provider);
                     sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
                 } else {
                     sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
@@ -245,6 +257,20 @@ public abstract class ProviderApiManagerBase {
                     }
                 }
                 break;
+
+            case DOWNLOAD_GEOIP_JSON:
+                if (!provider.getGeoipUrl().isDefault()) {
+                    boolean startEIP = parameters.getBoolean(EIP_ACTION_START);
+                    ProviderObservable.getInstance().setProviderForDns(provider);
+                    result = getGeoIPJson(provider);
+                    result.putBoolean(EIP_ACTION_START, startEIP);
+                    if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                        sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_GEOIP_JSON, result, provider);
+                    } else {
+                        sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_GEOIP_JSON, result, provider);
+                    }
+                    ProviderObservable.getInstance().setProviderForDns(null);
+                }
         }
     }
 
@@ -664,6 +690,15 @@ public abstract class ProviderApiManagerBase {
     protected abstract Bundle updateVpnCertificate(Provider provider);
 
 
+    /**
+     * Fetches the Geo ip Json, containing a list of gateways sorted by distance from the users current location
+     *
+     * @param provider
+     * @return
+     */
+    protected abstract Bundle getGeoIPJson(Provider provider);
+
+
     protected boolean isValidJson(String jsonString) {
         try {
             new JSONObject(jsonString);
@@ -708,6 +743,7 @@ public abstract class ProviderApiManagerBase {
             provider.setVpnCertificate(getPersistedVPNCertificate(providerDomain));
             provider.setProviderApiIp(getPersistedProviderApiIp(providerDomain));
             provider.setProviderIp(getPersistedProviderIp(providerDomain));
+            provider.setGeoipUrl(getPersistedGeoIp(providerDomain));
         }
     }
 
@@ -814,6 +850,10 @@ public abstract class ProviderApiManagerBase {
 
     protected String getPersistedProviderIp(String providerDomain) {
         return getFromPersistedProvider(PROVIDER_IP, providerDomain, preferences);
+    }
+
+    protected String getPersistedGeoIp(String providerDomain) {
+        return getFromPersistedProvider(GEOIP_URL, providerDomain, preferences);
     }
 
     protected boolean hasUpdatedProviderDetails(String domain) {
