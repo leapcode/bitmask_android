@@ -37,9 +37,6 @@ import static se.leap.bitmaskclient.Constants.USE_PLUGGABLE_TRANSPORTS;
  */
 
 public class PreferenceHelper {
-    public static boolean providerInSharedPreferences(@NonNull SharedPreferences preferences) {
-        return preferences.getBoolean(PROVIDER_CONFIGURED, false);
-    }
 
     public static Provider getSavedProviderFromSharedPreferences(@NonNull SharedPreferences preferences) {
         Provider provider = new Provider();

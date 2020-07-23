@@ -21,9 +21,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,8 +41,6 @@ import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.utils.ConfigHelper.isDefaultBitmask;
-import static se.leap.bitmaskclient.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
-import static se.leap.bitmaskclient.utils.PreferenceHelper.providerInSharedPreferences;
 import static se.leap.bitmaskclient.utils.PreferenceHelper.storeProviderInPreferences;
 
 /**
@@ -162,9 +161,9 @@ public class StartActivity extends Activity{
     }
 
     private void prepareEIP() {
-        boolean providerExists = providerInSharedPreferences(preferences);
+        boolean providerExists = ProviderObservable.getInstance().getCurrentProvider() != null;
         if (providerExists) {
-            Provider provider = getSavedProviderFromSharedPreferences(preferences);
+            Provider provider =  ProviderObservable.getInstance().getCurrentProvider();
             if(!provider.isConfigured()) {
                 configureLeapProvider();
             } else {
