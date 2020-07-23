@@ -174,24 +174,23 @@ public class GatewaysManager {
     }
 
     private void parseGatewaysFromGeoIpServiceJson(Provider provider) {
-        JSONObject geoIpJson = provider.getGeoIpJson();
-        JSONArray gatewaylist = new JSONArray();
-        try {
-            gatewaylist = geoIpJson.getJSONArray(GATEWAYS);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+         try {
+             JSONObject geoIpJson = provider.getGeoIpJson();
+             JSONArray gatewaylist = geoIpJson.getJSONArray(GATEWAYS);
 
-        for (int i = 0; i < gatewaylist.length(); i++) {
-            try {
-                String key = gatewaylist.getString(i);
-                if (gateways.containsKey(key)) {
-                    presortedList.add(gateways.get(key));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+             for (int i = 0; i < gatewaylist.length(); i++) {
+                 try {
+                     String key = gatewaylist.getString(i);
+                     if (gateways.containsKey(key)) {
+                         presortedList.add(gateways.get(key));
+                     }
+                 } catch (JSONException e) {
+                     e.printStackTrace();
+                 }
+             }
+         } catch (NullPointerException | JSONException npe) {
+             npe.printStackTrace();
+         }
     }
 
     private JSONObject secretsConfigurationFromCurrentProvider() {
