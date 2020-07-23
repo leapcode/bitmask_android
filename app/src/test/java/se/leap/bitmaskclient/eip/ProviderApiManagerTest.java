@@ -49,8 +49,11 @@ import se.leap.bitmaskclient.utils.ConfigHelper;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID;
@@ -445,10 +448,20 @@ public class ProviderApiManagerTest {
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Bundle expectedResult = mockBundle();
+        expectedResult.putBoolean(EIP_ACTION_START, true);
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, true);
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
+        Intent providerApiCommand = mockIntent();
 
+        providerApiCommand.setAction(ProviderAPI.DOWNLOAD_GEOIP_JSON);
+        Bundle extrasBundle = mockBundle();
+        extrasBundle.putBoolean(EIP_ACTION_START, true);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(CORRECTLY_DOWNLOADED_GEOIP_JSON, expectedResult));
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.putExtra(PARAMETERS, extrasBundle);
+
+        providerApiManager.handleIntent(providerApiCommand);
 
     }
 }
