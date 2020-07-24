@@ -502,13 +502,43 @@ public class ProviderApiManagerTest {
     }
 
     @Test
-    public void test_handleIntentGetGeoip_noNeedToUpdate_returnsFailure() throws IOException, NoSuchAlgorithmException, CertificateEncodingException, JSONException {
+    public void test_handleIntentGetGeoip_didNotReachTimeoutToFetchNew_returnsFailure() throws IOException, NoSuchAlgorithmException, CertificateEncodingException, JSONException {
         if ("insecure".equals(BuildConfig.FLAVOR_implementation)) {
             return;
         }
 
         Provider provider = getConfiguredProvider();
         provider.setLastGeoIpUpdate(System.currentTimeMillis());
+        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockProviderApiConnector(NO_ERROR);
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
+        Bundle expectedResult = mockBundle();
+        expectedResult.putBoolean(EIP_ACTION_START, true);
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
+
+        Intent providerApiCommand = mockIntent();
+
+        providerApiCommand.setAction(ProviderAPI.DOWNLOAD_GEOIP_JSON);
+        Bundle extrasBundle = mockBundle();
+        extrasBundle.putBoolean(EIP_ACTION_START, true);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(INCORRECTLY_DOWNLOADED_GEOIP_JSON, expectedResult));
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.putExtra(PARAMETERS, extrasBundle);
+
+        providerApiManager.handleIntent(providerApiCommand);
+    }
+
+    @Test
+    public void test_handleIntentGetGeoip_noGeoipServiceURLDefined_returnsFailure() throws IOException, NoSuchAlgorithmException, CertificateEncodingException, JSONException {
+        if ("insecure".equals(BuildConfig.FLAVOR_implementation)) {
+            return;
+        }
+
+        Provider provider = getConfiguredProvider();
+        provider.setGeoipUrl(null);
+        provider.setGeoIpJson(new JSONObject());
         mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());

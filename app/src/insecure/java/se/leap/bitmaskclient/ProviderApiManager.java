@@ -239,7 +239,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     protected Bundle getGeoIPJson(Provider provider) {
         Bundle result = new Bundle();
 
-        if (!provider.shouldUpdateGeoIpJson()) {
+        if (!provider.shouldUpdateGeoIpJson() || provider.getGeoipUrl().isDefault()) {
             result.putBoolean(BROADCAST_RESULT_KEY, false);
             return result;
         }
