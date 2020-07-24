@@ -104,8 +104,6 @@ public class GatewaysManagerTest {
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
         MockHelper.mockProviderObserver(provider);
-        mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
@@ -121,8 +119,6 @@ public class GatewaysManagerTest {
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
         MockHelper.mockProviderObserver(provider);
-        mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
@@ -138,8 +134,6 @@ public class GatewaysManagerTest {
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
         MockHelper.mockProviderObserver(provider);
-        mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
@@ -155,8 +149,6 @@ public class GatewaysManagerTest {
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(1);
         MockHelper.mockProviderObserver(provider);
-        mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);

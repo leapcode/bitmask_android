@@ -70,7 +70,7 @@ public class GatewaysManager {
         Connection.TransportType transportType = getUsePluggableTransports(context) ? OBFS4 : OPENVPN;
 
         if (presortedList.size() > 0) {
-           return getGatewayFromPreorderedList(nClosest, transportType);
+           return getGatewayFromPresortedList(nClosest, transportType);
         }
 
         return getGatewayFromTimezoneCalculation(nClosest, transportType);
@@ -90,7 +90,7 @@ public class GatewaysManager {
         return null;
     }
 
-    private Gateway getGatewayFromPreorderedList(int nClosest, Connection.TransportType transportType) {
+    private Gateway getGatewayFromPresortedList(int nClosest, Connection.TransportType transportType) {
         while (nClosest < presortedList.size()) {
             Gateway gateway = presortedList.get(nClosest);
             if (gateway.getProfile(transportType) != null) {
@@ -107,7 +107,29 @@ public class GatewaysManager {
      * @return position of the gateway owning to the profile
      */
     public int getPosition(VpnProfile profile) {
-        Connection.TransportType transportType = getUsePluggableTransports(context) ? OBFS4 : OPENVPN;
+        if (presortedList.size() > 0) { 
+            return getPositionFromPresortedList(profile);
+        } 
+        
+        return getPositionFromTimezoneCalculatedList(profile);
+    }
+    
+    private int getPositionFromPresortedList(VpnProfile profile) {
+        Connection.TransportType transportType = profile.mUsePluggableTransports ? OBFS4 : OPENVPN;
+        Gateway gateway;
+        int nClosest = 0;
+        while ((nClosest < presortedList.size())) {
+            gateway = presortedList.get(nClosest);
+            if (profile.equals(gateway.getProfile(transportType))) {
+                return nClosest;
+            }
+            nClosest++;
+        }
+        return -1;
+    }
+    
+    private int getPositionFromTimezoneCalculatedList(VpnProfile profile) {
+        Connection.TransportType transportType = profile.mUsePluggableTransports ? OBFS4 : OPENVPN;
         GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
         Gateway gateway;
         int nClosest = 0;
