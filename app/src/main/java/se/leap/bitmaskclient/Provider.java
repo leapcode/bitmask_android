@@ -423,9 +423,7 @@ public final class Provider implements Parcelable {
             privateKey.equals(p.getPrivateKey()) &&
             vpnCertificate.equals(p.getVpnCertificate()) &&
             allowAnonymous == p.allowsAnonymous() &&
-            allowRegistered == p.allowsRegistered() &&
-            lastEipServiceUpdate == p.getLastEipServiceUpdate() &&
-            lastGeoIpUpdate == p.getLastGeoIpUpdate();
+            allowRegistered == p.allowsRegistered();
         } else return false;
     }
 
@@ -596,5 +594,7 @@ public final class Provider implements Parcelable {
         vpnCertificate = "";
         allowRegistered = false;
         allowAnonymous = false;
+        lastGeoIpUpdate = 0L;
+        lastEipServiceUpdate = 0L;
     }
 }
