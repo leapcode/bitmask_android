@@ -81,22 +81,29 @@ public class GatewaysManager {
         List<Gateway> list = new ArrayList<>(gateways.values());
         GatewaySelector gatewaySelector = new GatewaySelector(list);
         Gateway gateway;
-        while ((gateway = gatewaySelector.select(nClosest)) != null) {
+        int found  = 0;
+        int i = 0;
+        while ((gateway = gatewaySelector.select(i)) != null) {
             if (gateway.getProfile(transportType) != null) {
-                return gateway;
+                if (found == nClosest) {
+                    return gateway;
+                }
+                found++;
             }
-            nClosest++;
+            i++;
         }
         return null;
     }
 
     private Gateway getGatewayFromPresortedList(int nClosest, Connection.TransportType transportType) {
-        while (nClosest < presortedList.size()) {
-            Gateway gateway = presortedList.get(nClosest);
+        int found = 0;
+        for (Gateway gateway : presortedList) {
             if (gateway.getProfile(transportType) != null) {
-                return gateway;
+                if (found == nClosest) {
+                    return gateway;
+                }
+                found++;
             }
-            nClosest++;
         }
         return null;
     }

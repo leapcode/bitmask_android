@@ -161,8 +161,6 @@ public class GatewaysManagerTest {
     @Test
     public void TestSelectN_selectFirstObfs4Connection_returnThirdGateway() throws JSONException, ConfigParser.ConfigParseError, IOException {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_two_openvpn_one_pt_gateways.json", null);
-        JSONObject eipServiceJson = provider.getEipServiceJson();
-        JSONObject gateway3 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(2);
 
         MockHelper.mockProviderObserver(provider);
         mockStatic(PreferenceHelper.class);
@@ -171,6 +169,37 @@ public class GatewaysManagerTest {
 
         assertEquals("37.12.247.10", gatewaysManager.select(0).getRemoteIP());
     }
+
+    @Test
+    public void testSelectN_selectFromPresortedGateways_returnsGatewaysInPresortedOrder() throws JSONException {
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", "ptdemo_three_mixed_gateways.geoip.json");
+
+        MockHelper.mockProviderObserver(provider);
+        //use openvpn, not pluggable transports
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+
+        assertEquals("manila.bitmask.net", gatewaysManager.select(0).getHost());
+        assertEquals("moscow.bitmask.net", gatewaysManager.select(1).getHost());
+        assertEquals("pt.demo.bitmask.net", gatewaysManager.select(2).getHost());
+    }
+
+    @Test
+    public void testSelectN_selectObfs4FromPresortedGateways_returnsObfs4GatewaysInPresortedOrder() throws JSONException {
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", "ptdemo_three_mixed_gateways.geoip.json");
+
+        MockHelper.mockProviderObserver(provider);
+        //use openvpn, not pluggable transports
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+
+        assertEquals("moscow.bitmask.net", gatewaysManager.select(0).getHost());
+        assertEquals("pt.demo.bitmask.net", gatewaysManager.select(1).getHost());
+        assertNull(gatewaysManager.select(2));
+    }
+
 
     private String getJsonStringFor(String filename) throws IOException {
         return TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream(filename));
