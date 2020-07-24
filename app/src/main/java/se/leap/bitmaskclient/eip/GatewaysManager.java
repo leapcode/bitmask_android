@@ -84,7 +84,7 @@ public class GatewaysManager {
         int found  = 0;
         int i = 0;
         while ((gateway = gatewaySelector.select(i)) != null) {
-            if (gateway.getProfile(transportType) != null) {
+            if (gateway.suppoortsTransport(transportType)) {
                 if (found == nClosest) {
                     return gateway;
                 }
@@ -98,7 +98,7 @@ public class GatewaysManager {
     private Gateway getGatewayFromPresortedList(int nClosest, Connection.TransportType transportType) {
         int found = 0;
         for (Gateway gateway : presortedList) {
-            if (gateway.getProfile(transportType) != null) {
+            if (gateway.suppoortsTransport(transportType)) {
                 if (found == nClosest) {
                     return gateway;
                 }
@@ -123,14 +123,14 @@ public class GatewaysManager {
     
     private int getPositionFromPresortedList(VpnProfile profile) {
         Connection.TransportType transportType = profile.mUsePluggableTransports ? OBFS4 : OPENVPN;
-        Gateway gateway;
         int nClosest = 0;
-        while ((nClosest < presortedList.size())) {
-            gateway = presortedList.get(nClosest);
-            if (profile.equals(gateway.getProfile(transportType))) {
-                return nClosest;
+        for (Gateway gateway : presortedList) {
+            if (gateway.suppoortsTransport(transportType)) {
+                if (profile.equals(gateway.getProfile(transportType))) {
+                    return nClosest;
+                }
+                nClosest++;
             }
-            nClosest++;
         }
         return -1;
     }
@@ -140,11 +140,15 @@ public class GatewaysManager {
         GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
         Gateway gateway;
         int nClosest = 0;
-        while ((gateway = gatewaySelector.select(nClosest)) != null) {
-            if (profile.equals(gateway.getProfile(transportType))) {
-                return nClosest;
+        int i = 0;
+        while ((gateway = gatewaySelector.select(i)) != null) {
+            if (gateway.suppoortsTransport(transportType)) {
+                if (profile.equals(gateway.getProfile(transportType))) {
+                    return nClosest;
+                }
+                nClosest++;
             }
-            nClosest++;
+            i++;
         }
         return -1;
     }

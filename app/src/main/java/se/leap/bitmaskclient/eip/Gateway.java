@@ -157,6 +157,10 @@ public class Gateway {
         return vpnProfiles.get(transportType);
     }
 
+    public boolean suppoortsTransport(Connection.TransportType transportType) {
+        return vpnProfiles.get(transportType) != null;
+    }
+
     public int getTimezone() {
         return timezone;
     }
