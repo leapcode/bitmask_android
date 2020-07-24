@@ -479,10 +479,6 @@ public final class Provider implements Parcelable {
         lastEipServiceUpdate = timestamp;
     }
 
-    public long getLastEipServiceUpdate() {
-        return lastEipServiceUpdate;
-    }
-
     public boolean shouldUpdateEipServiceJson() {
         return System.currentTimeMillis() - lastEipServiceUpdate >= EIP_SERVICE_TIMEOUT;
     }
@@ -490,10 +486,6 @@ public final class Provider implements Parcelable {
 
     public void setLastGeoIpUpdate(long timestamp) {
         lastGeoIpUpdate = timestamp;
-    }
-
-    public long getLastGeoIpUpdate() {
-        return lastGeoIpUpdate;
     }
 
     public boolean shouldUpdateGeoIpJson() {
