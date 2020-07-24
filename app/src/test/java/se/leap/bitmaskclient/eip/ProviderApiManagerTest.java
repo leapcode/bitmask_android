@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +45,7 @@ import se.leap.bitmaskclient.ProviderAPI;
 import se.leap.bitmaskclient.ProviderApiConnector;
 import se.leap.bitmaskclient.ProviderApiManager;
 import se.leap.bitmaskclient.ProviderApiManagerBase;
+import se.leap.bitmaskclient.testutils.BackendMockResponses.GeoIpServiceIsDownBackendResponse;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.utils.ConfigHelper;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
@@ -53,12 +55,14 @@ import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_MICONFIGURED_PROVIDER;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_UPDATED_CERTIFICATE;
+import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_GEOIP_SERVICE_IS_DOWN;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBundle;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
@@ -442,7 +446,9 @@ public class ProviderApiManagerTest {
             return;
         }
 
-        Provider provider = getConfiguredProvider();
+        Provider inputProvider = getConfiguredProvider();
+        inputProvider.setGeoIpJson(new JSONObject());
+        Provider expectedProvider = getConfiguredProvider();
         mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
@@ -450,7 +456,7 @@ public class ProviderApiManagerTest {
         Bundle expectedResult = mockBundle();
         expectedResult.putBoolean(EIP_ACTION_START, true);
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, true);
-        expectedResult.putParcelable(PROVIDER_KEY, provider);
+        expectedResult.putParcelable(PROVIDER_KEY, expectedProvider);
 
         Intent providerApiCommand = mockIntent();
 
@@ -458,10 +464,42 @@ public class ProviderApiManagerTest {
         Bundle extrasBundle = mockBundle();
         extrasBundle.putBoolean(EIP_ACTION_START, true);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(CORRECTLY_DOWNLOADED_GEOIP_JSON, expectedResult));
+        providerApiCommand.putExtra(PROVIDER_KEY, inputProvider);
+        providerApiCommand.putExtra(PARAMETERS, extrasBundle);
+
+        providerApiManager.handleIntent(providerApiCommand);
+
+    }
+
+
+    @Test
+    public void test_handleIntentGetGeoip_serviceDown_failToDownload() throws IOException, NoSuchAlgorithmException, CertificateEncodingException, JSONException {
+        if ("insecure".equals(BuildConfig.FLAVOR_implementation)) {
+            return;
+        }
+
+        Provider provider = getConfiguredProvider();
+        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockProviderApiConnector(ERROR_GEOIP_SERVICE_IS_DOWN);
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
+        Bundle expectedResult = mockBundle();
+        expectedResult.putBoolean(EIP_ACTION_START, true);
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
+
+        Intent providerApiCommand = mockIntent();
+
+        providerApiCommand.setAction(ProviderAPI.DOWNLOAD_GEOIP_JSON);
+        Bundle extrasBundle = mockBundle();
+        extrasBundle.putBoolean(EIP_ACTION_START, true);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(INCORRECTLY_DOWNLOADED_GEOIP_JSON, expectedResult));
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.putExtra(PARAMETERS, extrasBundle);
 
         providerApiManager.handleIntent(providerApiCommand);
 
     }
+
+
 }
