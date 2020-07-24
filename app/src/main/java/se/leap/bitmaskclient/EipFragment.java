@@ -27,14 +27,6 @@ import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Vibrator;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -43,6 +35,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -62,6 +63,8 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static se.leap.bitmaskclient.Constants.ASK_TO_CANCEL_VPN;
+import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
+import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
@@ -71,6 +74,7 @@ import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.EipSetupObserver.connectionRetry;
 import static se.leap.bitmaskclient.EipSetupObserver.gatewayOrder;
 import static se.leap.bitmaskclient.EipSetupObserver.reconnectingWithDifferentGateway;
+import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_GEOIP_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
@@ -301,7 +305,14 @@ public class EipFragment extends Fragment implements Observer {
             Log.e(TAG, "context is null when trying to start VPN");
             return;
         }
-        EipCommand.startVPN(context.getApplicationContext(), false);
+        if (!provider.getGeoipUrl().isDefault() && provider.shouldUpdateGeoIpJson()) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(EIP_ACTION_START, true);
+            bundle.putBoolean(EIP_EARLY_ROUTES, false);
+            ProviderAPICommand.execute(getContext().getApplicationContext(), DOWNLOAD_GEOIP_JSON, bundle, provider);
+        } else {
+            EipCommand.startVPN(context.getApplicationContext(), false);
+        }
         vpnStateImage.showProgress();
         routedText.setVisibility(GONE);
         vpnRoute.setVisibility(GONE);

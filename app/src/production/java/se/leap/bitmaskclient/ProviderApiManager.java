@@ -20,8 +20,9 @@ package se.leap.bitmaskclient;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import androidx.multidex.BuildConfig;
 import android.util.Pair;
+
+import androidx.multidex.BuildConfig;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,6 +58,8 @@ import static se.leap.bitmaskclient.utils.ConfigHelper.getProviderFormattedStrin
 
 
 public class ProviderApiManager extends ProviderApiManagerBase {
+
+    private static final String TAG = ProviderApiManager.class.getSimpleName();
 
     public ProviderApiManager(SharedPreferences preferences, Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
         super(preferences, resources, clientGenerator, callback);
@@ -120,14 +123,12 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     private Bundle getAndSetProviderJson(Provider provider) {
         Bundle result = new Bundle();
 
-        String caCert = provider.getCaCert();
-
         String providerDotJsonString;
-        if(provider.getDefinitionString().length() == 0 || caCert.isEmpty()) {
+        if(provider.getDefinitionString().length() == 0 || provider.getCaCert().isEmpty()) {
             String providerJsonUrl = provider.getMainUrlString() + "/provider.json";
             providerDotJsonString = downloadWithCommercialCA(providerJsonUrl, provider);
         } else {
-            providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, provider);
+            providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", provider);
         }
 
         if (ConfigHelper.checkErroneousDownload(providerDotJsonString) || !isValidJson(providerDotJsonString)) {
@@ -214,6 +215,43 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         return result;
     }
 
+    /**
+     * Fetches the Geo ip Json, containing a list of gateways sorted by distance from the users current location
+     *
+     * @param provider
+     * @return
+     */
+    @Override
+    protected Bundle getGeoIPJson(Provider provider) {
+        Bundle result = new Bundle();
+
+        if (!provider.shouldUpdateGeoIpJson() || provider.getGeoipUrl().isDefault()) {
+            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            return result;
+        }
+
+        try {
+            URL geoIpUrl = provider.getGeoipUrl().getUrl();
+
+            String geoipJsonString = downloadFromUrlWithProviderCA(geoIpUrl.toString(), provider);
+            JSONObject geoipJson = new JSONObject(geoipJsonString);
+
+            if (geoipJson.has(ERRORS)) {
+                result.putBoolean(BROADCAST_RESULT_KEY, false);
+            } else{
+                provider.setGeoIpJson(geoipJson);
+                provider.setLastGeoIpUpdate(System.currentTimeMillis());
+                result.putBoolean(BROADCAST_RESULT_KEY, true);
+            }
+
+        } catch (JSONException | NullPointerException e) {
+            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
     private Bundle downloadCACert(Provider provider) {
         Bundle result = new Bundle();
         try {
@@ -276,30 +314,33 @@ public class ProviderApiManager extends ProviderApiManagerBase {
      *
      * @return an empty string if it fails, the response body if not.
      */
-    private String downloadFromApiUrlWithProviderCA(String path, String caCert, Provider provider) {
+    private String downloadFromApiUrlWithProviderCA(String path, Provider provider) {
+        String baseUrl = provider.getApiUrlString();
+        String urlString = baseUrl + path;
+        return downloadFromUrlWithProviderCA(urlString, provider);
+    }
+
+    private String downloadFromUrlWithProviderCA(String urlString, Provider provider) {
         String responseString;
         JSONObject errorJson = new JSONObject();
-        String baseUrl = provider.getApiUrlString();
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), errorJson);
         if (okHttpClient == null) {
             return errorJson.toString();
         }
 
-        String urlString = baseUrl + path;
         List<Pair<String, String>> headerArgs = getAuthorizationHeader();
         responseString = sendGetStringToServer(urlString, headerArgs, okHttpClient);
 
         return responseString;
-
     }
 
 
-    /**
-     * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider.
-     *
-     * @param urlString as a string
-     * @return an empty string if it fails, the url content if not.
-     */
+        /**
+         * Tries to download the contents of the provided url using not commercially validated CA certificate from chosen provider.
+         *
+         * @param urlString as a string
+         * @return an empty string if it fails, the url content if not.
+         */
     private String downloadWithProviderCA(String caCert, String urlString) {
         JSONObject initError = new JSONObject();
         String responseString;

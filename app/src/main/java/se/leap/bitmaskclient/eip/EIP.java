@@ -226,7 +226,7 @@ public final class EIP extends JobIntentService implements Observer {
             return;
         }
 
-        GatewaysManager gatewaysManager = gatewaysFromPreferences();
+        GatewaysManager gatewaysManager = new GatewaysManager(getApplicationContext());
         if (gatewaysManager.isEmpty()) {
             setErrorResult(result, warning_client_parsing_error_gateways, null);
             tellToReceiverOrBroadcast(this, EIP_ACTION_START, RESULT_CANCELED, result);
@@ -248,7 +248,7 @@ public final class EIP extends JobIntentService implements Observer {
      * The {@link OnBootReceiver} will care if there is no profile.
      */
     private void startEIPAlwaysOnVpn() {
-        GatewaysManager gatewaysManager = gatewaysFromPreferences();
+        GatewaysManager gatewaysManager = new GatewaysManager(getApplicationContext());
         Gateway gateway = gatewaysManager.select(0);
 
         if (!launchActiveGateway(gateway, 0)) {
@@ -307,15 +307,6 @@ public final class EIP extends JobIntentService implements Observer {
                 RESULT_OK :
                 RESULT_CANCELED;
         tellToReceiverOrBroadcast(this, EIP_ACTION_IS_RUNNING, resultCode);
-    }
-
-    /**
-     * read eipServiceJson from preferences and parse Gateways
-     *
-     * @return GatewaysManager
-     */
-    private GatewaysManager gatewaysFromPreferences() {
-        return new GatewaysManager(getApplicationContext(), preferences);
     }
 
     /**

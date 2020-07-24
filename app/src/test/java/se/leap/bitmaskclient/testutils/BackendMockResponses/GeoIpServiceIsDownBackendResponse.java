@@ -20,6 +20,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
+import java.net.ConnectException;
 
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
 
@@ -27,8 +28,8 @@ import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
  * Created by cyberta on 10.01.18.
  */
 
-public class MisconfiguredProviderBackendResponse extends BaseBackendResponse {
-    public MisconfiguredProviderBackendResponse() throws IOException {
+public class GeoIpServiceIsDownBackendResponse extends BaseBackendResponse {
+    public GeoIpServiceIsDownBackendResponse() throws IOException {
         super();
     }
 
@@ -43,7 +44,7 @@ public class MisconfiguredProviderBackendResponse extends BaseBackendResponse {
 
                 if (url.contains("/provider.json")) {
                     //download provider json
-                    return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup_net_invalid_config.json"));
+                    return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"));
                 } else if (url.contains("/ca.crt")) {
                     //download provider ca cert
                     return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"));
@@ -52,7 +53,7 @@ public class MisconfiguredProviderBackendResponse extends BaseBackendResponse {
                     return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.service.json"));
                 } else if (url.contains(":9001/json")) {
                     // download geoip json, containing a sorted list of gateways
-                    return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.geoip.json"));
+                    throw new ConnectException("Failed to connect to api.black.riseup.net/198.252.153.107:9001");
                 } else if (url.contains("/users.json")) {
                     //create new user
                     //TODO: implement me

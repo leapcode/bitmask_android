@@ -1,0 +1,12 @@
+{
+  "ip":"51.158.144.32",
+  "cc":"FR",
+  "city":"Paris",
+  "lat":48.8628,
+  "lon":2.3292,
+  "gateways":[
+    "manila.bitmask.net",
+    "moscow.bitmask.net",
+    "pt.demo.bitmask.net"
+  ]
+}

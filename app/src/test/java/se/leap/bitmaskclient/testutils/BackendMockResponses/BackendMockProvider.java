@@ -32,6 +32,7 @@ public class BackendMockProvider {
         ERROR_CASE_UPDATED_CERTIFICATE,
         ERROR_CASE_MICONFIGURED_PROVIDER,
         ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID,
+        ERROR_GEOIP_SERVICE_IS_DOWN,
         ERROR_NO_RESPONSE_BODY,         // => NullPointerException
         ERROR_DNS_RESOLUTION_ERROR,     // => UnkownHostException
         ERROR_SOCKET_TIMEOUT,           // => SocketTimeoutException
@@ -62,6 +63,10 @@ public class BackendMockProvider {
                 break;
             case ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID:
                 new EipSerivceJsonInvalidCertificateBackendResponse();
+                break;
+            case ERROR_GEOIP_SERVICE_IS_DOWN:
+                new GeoIpServiceIsDownBackendResponse();
+                break;
             case ERROR_NO_RESPONSE_BODY:
                 break;
             case ERROR_DNS_RESOLUTION_ERROR:

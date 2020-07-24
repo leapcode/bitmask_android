@@ -51,12 +51,14 @@ public class TestSetupHelper {
 
 
     public static Provider getConfiguredProvider() throws IOException, JSONException {
-        return getProvider(null,  null, null, null, null, null);
+        return getProvider(null,  null, null, null, null, null, null, null);
     }
 
-    public static Provider getProvider(String domain, String providerIp, String providerApiIp, String caCertFile, String providerJson, String eipServiceJson) {
+    public static Provider getProvider(String domain, String geoipUrl, String providerIp, String providerApiIp, String caCertFile, String providerJson, String eipServiceJson, String geoIpJson) {
         if (domain == null)
             domain = "https://riseup.net";
+        if (geoipUrl == null)
+            geoipUrl = "https://api.black.riseup.net:9001/json";
         if (providerIp == null) {
             providerIp = "";
         }
@@ -70,10 +72,14 @@ public class TestSetupHelper {
         if (eipServiceJson == null) {
             eipServiceJson = "riseup.service.json";
         }
+        if (geoIpJson == null) {
+            geoIpJson = "riseup.geoip.json";
+        }
 
         try {
             Provider p = new Provider(
                     domain,
+                    geoipUrl,
                     providerIp,
                     providerApiIp,
                     getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(caCertFile)),
@@ -83,6 +89,10 @@ public class TestSetupHelper {
             JSONObject eipServiceJsonObject = new JSONObject(
                     getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(eipServiceJson)));
             p.setEipServiceJson(eipServiceJsonObject);
+
+            JSONObject geoIpJsonObject = new JSONObject(
+                    getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(geoIpJson)));
+            p.setGeoIpJson(geoIpJsonObject);
             return p;
         } catch (IOException | JSONException e) {
             e.printStackTrace();

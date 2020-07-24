@@ -106,7 +106,7 @@ public abstract class ProviderListBaseActivity extends ProviderSetupBaseActivity
     }
 
     public void showAndSelectProvider(String newURL) {
-        provider = new Provider(newURL, "", "");
+        provider = new Provider(newURL, null, null);
         autoSelectProvider();
     }
 

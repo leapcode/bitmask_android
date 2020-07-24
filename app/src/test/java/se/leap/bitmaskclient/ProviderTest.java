@@ -23,10 +23,18 @@ public class ProviderTest {
     }
 
     @Test
-    public void testEquals_sameFields_returnsFalse() throws Exception {
+    public void testEquals_differntMainUrl_returnsFalse() throws Exception {
         Provider p1 = TestSetupHelper.getConfiguredProvider();
         Provider p2 = TestSetupHelper.getConfiguredProvider();
         p2.setMainUrl("http://somethingsdiffer.org");
+        assertFalse("Providers should be same:", p1.equals(p2));
+    }
+
+    @Test
+    public void testEquals_differentGeoIpUrl_returnsFalse() throws Exception {
+        Provider p1 = TestSetupHelper.getConfiguredProvider();
+        Provider p2 = TestSetupHelper.getConfiguredProvider();
+        p2.setGeoipUrl(null);
         assertFalse("Providers should be same:", p1.equals(p2));
     }
 
@@ -55,7 +63,9 @@ public class ProviderTest {
                 null,
                 null,
                 null,
-                "ptdemo.bitmask.eip-service.json");
+                null,
+                "ptdemo.bitmask.eip-service.json",
+                null);
         assertTrue(p1.supportsPluggableTransports());
     }
 
@@ -67,7 +77,9 @@ public class ProviderTest {
                 null,
                 null,
                 null,
-                "eip-service-two-gateways.json");
+                null,
+                "eip-service-two-gateways.json",
+                null);
         assertFalse(p1.supportsPluggableTransports());
     }
 

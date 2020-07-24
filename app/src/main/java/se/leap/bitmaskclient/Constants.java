@@ -142,4 +142,5 @@ public interface Constants {
     String LOCATION = "location";
     String OPENVPN_CONFIGURATION = "openvpn_configuration";
     String GATEWAYS = "gateways";
+    String HOST = "host";
 }

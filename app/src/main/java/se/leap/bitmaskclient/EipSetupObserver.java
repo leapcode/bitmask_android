@@ -6,8 +6,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.json.JSONObject;
 
@@ -39,11 +40,14 @@ import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
+import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
 import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
+import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
 
 /**
  * Created by cyberta on 05.12.18.
@@ -151,12 +155,28 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
                 EipCommand.startVPN(context.getApplicationContext(), true);
                 break;
+            case CORRECTLY_DOWNLOADED_GEOIP_JSON:
+                provider = resultData.getParcelable(PROVIDER_KEY);
+                ProviderObservable.getInstance().updateProvider(provider);
+                PreferenceHelper.storeProviderInPreferences(preferences, provider);
+                maybeStartEipService(resultData);
+                break;
+            case INCORRECTLY_DOWNLOADED_GEOIP_JSON:
+                maybeStartEipService(resultData);
+                break;
             default:
                 break;
         }
 
         for (EipSetupListener listener : listeners) {
             listener.handleProviderApiEvent(intent);
+        }
+    }
+
+    private void maybeStartEipService(Bundle resultData) {
+        if (resultData.getBoolean(EIP_ACTION_START)) {
+            boolean earlyRoutes = resultData.getBoolean(EIP_EARLY_ROUTES);
+            EipCommand.startVPN(context.getApplicationContext(), earlyRoutes);
         }
     }
 
@@ -184,6 +204,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                         finishGatewaySetup(false);
                         EipCommand.startBlockingVPN(context.getApplicationContext());
                     } else {
+                        //FIXME:
                         finishGatewaySetup(false);
                         EipCommand.stopVPN(context);
                         EipStatus.refresh();

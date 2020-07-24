@@ -41,6 +41,7 @@ android {
     buildConfigField "String", "customProviderUrl", '""'
     buildConfigField "String", "customProviderIp", '""'
     buildConfigField "String", "customProviderApiIp", '""'
+    buildConfigField "String", "geoipUrl", '""'
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     dexOptions {
@@ -97,6 +98,8 @@ android {
       //static ip address of the provider api, using a self signed certificate to serve provider.json, eip-service.json etc.
       def customProviderApiIp = '"198.252.153.107"'
       buildConfigField "String", "customProviderApiIp", customProviderApiIp
+      def geoipUrl = '"https://api.black.riseup.net:9001/json"'
+      buildConfigField "String", "geoipUrl", geoipUrl
       //Change the versionCode as needed
       //versionCode 1
       //Change the versionName as needed

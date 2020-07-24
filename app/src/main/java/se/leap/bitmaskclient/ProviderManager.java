@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static se.leap.bitmaskclient.Provider.GEOIP_URL;
 import static se.leap.bitmaskclient.Provider.MAIN_URL;
 import static se.leap.bitmaskclient.Provider.PROVIDER_API_IP;
 import static se.leap.bitmaskclient.Provider.PROVIDER_IP;
@@ -90,18 +91,20 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                 String providerApiIp = null;
                 String certificate = null;
                 String providerDefinition = null;
+                String geoipUrl = null;
                 try {
                     String provider = file.substring(0, file.length() - ".url".length());
                     InputStream providerFile = assetsManager.open(directory + "/" + file);
                     mainUrl = extractKeyFromInputStream(providerFile, MAIN_URL);
                     providerIp = extractKeyFromInputStream(providerFile, PROVIDER_IP);
                     providerApiIp = extractKeyFromInputStream(providerFile, PROVIDER_API_IP);
+                    geoipUrl =  extractKeyFromInputStream(providerFile, GEOIP_URL);
                     certificate = loadInputStreamAsString(assetsManager.open(provider + EXT_PEM));
                     providerDefinition = loadInputStreamAsString(assetsManager.open(provider + EXT_JSON));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                providers.add(new Provider(mainUrl, providerIp, providerApiIp, certificate, providerDefinition));
+                providers.add(new Provider(mainUrl, geoipUrl, providerIp, providerApiIp, certificate, providerDefinition));
             }
 
         return providers;

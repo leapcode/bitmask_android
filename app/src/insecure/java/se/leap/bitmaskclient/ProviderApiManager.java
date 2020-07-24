@@ -136,15 +136,14 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     private Bundle getAndSetProviderJson(Provider provider, boolean dangerOn) {
         Bundle result = new Bundle();
 
-        String caCert = provider.getCaCert();
         JSONObject providerDefinition = provider.getDefinition();
         String providerMainUrl = provider.getMainUrlString();
 
         String providerDotJsonString;
-        if(providerDefinition.length() == 0 || caCert.isEmpty())
+        if(providerDefinition.length() == 0 || provider.getCaCert().isEmpty())
             providerDotJsonString = downloadWithCommercialCA(providerMainUrl + "/provider.json", dangerOn);
         else
-            providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", caCert, provider, dangerOn);
+            providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", provider, dangerOn);
 
         if (ConfigHelper.checkErroneousDownload(providerDotJsonString) || !isValidJson(providerDotJsonString)) {
             setErrorResult(result, malformed_url, null);
@@ -230,6 +229,44 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         return result;
     }
 
+    /**
+     * Fetches the Geo ip Json, containing a list of gateways sorted by distance from the users current location
+     *
+     * @param provider
+     * @return
+     */
+    @Override
+    protected Bundle getGeoIPJson(Provider provider) {
+        Bundle result = new Bundle();
+
+        if (!provider.shouldUpdateGeoIpJson() || provider.getGeoipUrl().isDefault()) {
+            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            return result;
+        }
+
+
+        try {
+            URL geoIpUrl = provider.getGeoipUrl().getUrl();
+
+            String geoipJsonString = downloadFromUrlWithProviderCA(geoIpUrl.toString(), provider, lastDangerOn);
+            JSONObject geoipJson = new JSONObject(geoipJsonString);
+
+            if (geoipJson.has(ERRORS)) {
+                result.putBoolean(BROADCAST_RESULT_KEY, false);
+            } else {
+                provider.setGeoIpJson(geoipJson);
+                provider.setLastEipServiceUpdate(System.currentTimeMillis());
+                result.putBoolean(BROADCAST_RESULT_KEY, true);
+            }
+
+
+        } catch (JSONException | NullPointerException e) {
+            result.putBoolean(BROADCAST_RESULT_KEY, false);
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 
     private Bundle downloadCACert(Provider provider, boolean dangerOn) {
         Bundle result = new Bundle();
@@ -291,16 +328,21 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         return responseString;
     }
 
-    private String downloadFromApiUrlWithProviderCA(String path, String caCert, Provider provider, boolean dangerOn) {
+    private String downloadFromApiUrlWithProviderCA(String path, Provider provider, boolean dangerOn) {
+        String baseUrl = provider.getApiUrlString();
+        String urlString = baseUrl + path;
+
+        return downloadFromUrlWithProviderCA(urlString, provider, dangerOn);
+    }
+
+    private String downloadFromUrlWithProviderCA(String urlString, Provider provider, boolean dangerOn) {
         String responseString;
         JSONObject errorJson = new JSONObject();
-        String baseUrl = provider.getApiUrlString();
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), errorJson);
         if (okHttpClient == null) {
             return errorJson.toString();
         }
 
-        String urlString = baseUrl + path;
         List<Pair<String, String>> headerArgs = getAuthorizationHeader();
         responseString = sendGetStringToServer(urlString, headerArgs, okHttpClient);
 

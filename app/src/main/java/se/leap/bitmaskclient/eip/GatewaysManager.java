@@ -17,7 +17,6 @@
 package se.leap.bitmaskclient.eip;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -30,6 +29,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
@@ -37,7 +37,6 @@ import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.Provider;
 import se.leap.bitmaskclient.ProviderObservable;
-import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
@@ -54,15 +53,9 @@ public class GatewaysManager {
     private static final String TAG = GatewaysManager.class.getSimpleName();
 
     private Context context;
-    private SharedPreferences preferences;
     private LinkedHashMap<String, Gateway> gateways = new LinkedHashMap<>();
     private Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
-
-    public GatewaysManager(Context context, SharedPreferences preferences) {
-        this.preferences = preferences;
-        this.context = context;
-        configureFromPreferences();
-    }
+    private ArrayList<Gateway> presortedList = new ArrayList<>();
 
     public GatewaysManager(Context context) {
         configureFromCurrentProvider();
@@ -75,13 +68,42 @@ public class GatewaysManager {
      */
     public Gateway select(int nClosest) {
         Connection.TransportType transportType = getUsePluggableTransports(context) ? OBFS4 : OPENVPN;
-        GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
+
+        if (presortedList.size() > 0) {
+           return getGatewayFromPresortedList(nClosest, transportType);
+        }
+
+        return getGatewayFromTimezoneCalculation(nClosest, transportType);
+    }
+
+
+    private Gateway getGatewayFromTimezoneCalculation(int nClosest, Connection.TransportType transportType) {
+        List<Gateway> list = new ArrayList<>(gateways.values());
+        GatewaySelector gatewaySelector = new GatewaySelector(list);
         Gateway gateway;
-        while ((gateway = gatewaySelector.select(nClosest)) != null) {
-            if (gateway.getProfile(transportType) != null) {
-                return gateway;
+        int found  = 0;
+        int i = 0;
+        while ((gateway = gatewaySelector.select(i)) != null) {
+            if (gateway.suppoortsTransport(transportType)) {
+                if (found == nClosest) {
+                    return gateway;
+                }
+                found++;
             }
-            nClosest++;
+            i++;
+        }
+        return null;
+    }
+
+    private Gateway getGatewayFromPresortedList(int nClosest, Connection.TransportType transportType) {
+        int found = 0;
+        for (Gateway gateway : presortedList) {
+            if (gateway.suppoortsTransport(transportType)) {
+                if (found == nClosest) {
+                    return gateway;
+                }
+                found++;
+            }
         }
         return null;
     }
@@ -92,15 +114,41 @@ public class GatewaysManager {
      * @return position of the gateway owning to the profile
      */
     public int getPosition(VpnProfile profile) {
-        Connection.TransportType transportType = getUsePluggableTransports(context) ? OBFS4 : OPENVPN;
+        if (presortedList.size() > 0) { 
+            return getPositionFromPresortedList(profile);
+        } 
+        
+        return getPositionFromTimezoneCalculatedList(profile);
+    }
+    
+    private int getPositionFromPresortedList(VpnProfile profile) {
+        Connection.TransportType transportType = profile.mUsePluggableTransports ? OBFS4 : OPENVPN;
+        int nClosest = 0;
+        for (Gateway gateway : presortedList) {
+            if (gateway.suppoortsTransport(transportType)) {
+                if (profile.equals(gateway.getProfile(transportType))) {
+                    return nClosest;
+                }
+                nClosest++;
+            }
+        }
+        return -1;
+    }
+    
+    private int getPositionFromTimezoneCalculatedList(VpnProfile profile) {
+        Connection.TransportType transportType = profile.mUsePluggableTransports ? OBFS4 : OPENVPN;
         GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
         Gateway gateway;
         int nClosest = 0;
-        while ((gateway = gatewaySelector.select(nClosest)) != null) {
-            if (profile.equals(gateway.getProfile(transportType))) {
-                return nClosest;
+        int i = 0;
+        while ((gateway = gatewaySelector.select(i)) != null) {
+            if (gateway.suppoortsTransport(transportType)) {
+                if (profile.equals(gateway.getProfile(transportType))) {
+                    return nClosest;
+                }
+                nClosest++;
             }
-            nClosest++;
+            i++;
         }
         return -1;
     }
@@ -126,41 +174,56 @@ public class GatewaysManager {
     }
 
     /**
-     * parse gateways from eipDefinition
-     * @param eipDefinition eipServiceJson
+     * parse gateways from Provider's eip service
+     * @param provider
      */
-     private void fromEipServiceJson(JSONObject eipDefinition, JSONObject secrets) {
-        JSONArray gatewaysDefined = new JSONArray();
-        try {
-            gatewaysDefined = eipDefinition.getJSONArray(GATEWAYS);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+     private void parseDefaultGateways(Provider provider) {
+         try {
+             JSONObject eipDefinition = provider.getEipServiceJson();
+             JSONObject secrets = secretsConfigurationFromCurrentProvider();
 
-        for (int i = 0; i < gatewaysDefined.length(); i++) {
-            try {
-                JSONObject gw = gatewaysDefined.getJSONObject(i);
-                Gateway aux = new Gateway(eipDefinition, secrets, gw, this.context);
-                if (gateways.get(aux.getRemoteIP()) == null) {
-                    addGateway(aux);
-                }
-            } catch (JSONException | ConfigParser.ConfigParseError | IOException e) {
-                e.printStackTrace();
-                VpnStatus.logError("Unable to parse gateway config!");
-            }
-        }
+             JSONArray gatewaysDefined = new JSONArray();
+             try {
+                 gatewaysDefined = eipDefinition.getJSONArray(GATEWAYS);
+             } catch (Exception e) {
+                 e.printStackTrace();
+             }
+
+             for (int i = 0; i < gatewaysDefined.length(); i++) {
+                 try {
+                     JSONObject gw = gatewaysDefined.getJSONObject(i);
+                     Gateway aux = new Gateway(eipDefinition, secrets, gw, this.context);
+                     if (gateways.get(aux.getHost()) == null) {
+                         addGateway(aux);
+                     }
+                 } catch (JSONException | ConfigParser.ConfigParseError | IOException e) {
+                     e.printStackTrace();
+                     VpnStatus.logError("Unable to parse gateway config!");
+                 }
+             }
+         } catch (NullPointerException npe) {
+             npe.printStackTrace();
+         }
     }
 
-    private JSONObject secretsConfigurationFromPreferences() {
-        JSONObject result = new JSONObject();
-        try {
-            result.put(Provider.CA_CERT, preferences.getString(Provider.CA_CERT, ""));
-            result.put(PROVIDER_PRIVATE_KEY, preferences.getString(PROVIDER_PRIVATE_KEY, ""));
-            result.put(PROVIDER_VPN_CERTIFICATE, preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return result;
+    private void parseGatewaysFromGeoIpServiceJson(Provider provider) {
+         try {
+             JSONObject geoIpJson = provider.getGeoIpJson();
+             JSONArray gatewaylist = geoIpJson.getJSONArray(GATEWAYS);
+
+             for (int i = 0; i < gatewaylist.length(); i++) {
+                 try {
+                     String key = gatewaylist.getString(i);
+                     if (gateways.containsKey(key)) {
+                         presortedList.add(gateways.get(key));
+                     }
+                 } catch (JSONException e) {
+                     e.printStackTrace();
+                 }
+             }
+         } catch (NullPointerException | JSONException npe) {
+             npe.printStackTrace();
+         }
     }
 
     private JSONObject secretsConfigurationFromCurrentProvider() {
@@ -177,31 +240,13 @@ public class GatewaysManager {
         return result;
     }
 
-
-    void clearGateways() {
-        gateways.clear();
-    }
-
     private void addGateway(Gateway gateway) {
-        gateways.put(gateway.getRemoteIP(), gateway);
-    }
-
-    /**
-     * read EipServiceJson from preferences and set gateways
-     */
-    private void configureFromPreferences() {
-        fromEipServiceJson(
-                PreferenceHelper.getEipDefinitionFromPreferences(preferences), secretsConfigurationFromPreferences()
-        );
+        gateways.put(gateway.getHost(), gateway);
     }
 
     private void configureFromCurrentProvider() {
-        try {
-            JSONObject json = ProviderObservable.getInstance().getCurrentProvider().getEipServiceJson();
-            fromEipServiceJson(json, secretsConfigurationFromCurrentProvider());
-        } catch (NullPointerException npe) {
-            npe.printStackTrace();
-        }
-
+         Provider provider = ProviderObservable.getInstance().getCurrentProvider();
+         parseDefaultGateways(provider);
+         parseGatewaysFromGeoIpServiceJson(provider);
     }
 }

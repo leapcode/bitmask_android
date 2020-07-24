@@ -34,6 +34,7 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
+import static se.leap.bitmaskclient.Constants.HOST;
 import static se.leap.bitmaskclient.Constants.IP_ADDRESS;
 import static se.leap.bitmaskclient.Constants.LOCATION;
 import static se.leap.bitmaskclient.Constants.LOCATIONS;
@@ -114,6 +115,10 @@ public class Gateway {
         return gateway.optString(IP_ADDRESS);
     }
 
+    public String getHost() {
+        return gateway.optString(HOST);
+    }
+
     private String locationAsName(JSONObject eipDefinition) {
         JSONObject location = getLocationInfo(eipDefinition);
         return location.optString(NAME);
@@ -150,6 +155,10 @@ public class Gateway {
 
     public VpnProfile getProfile(Connection.TransportType transportType) {
         return vpnProfiles.get(transportType);
+    }
+
+    public boolean suppoortsTransport(Connection.TransportType transportType) {
+        return vpnProfiles.get(transportType) != null;
     }
 
     public int getTimezone() {
