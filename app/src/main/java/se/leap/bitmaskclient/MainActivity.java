@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         arguments.putParcelable(PROVIDER_KEY, provider);
         fragment.setArguments(arguments);
         new FragmentManagerEnhanced(getSupportFragmentManager())
-                .replace(R.id.main_container, fragment, EipFragment.TAG);
+                .replace(R.id.main_container, fragment, MainActivity.TAG);
         hideActionBarSubTitle();
     }
 
