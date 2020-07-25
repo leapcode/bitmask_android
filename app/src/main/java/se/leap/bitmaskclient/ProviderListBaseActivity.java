@@ -19,8 +19,9 @@ package se.leap.bitmaskclient;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import android.widget.ListView;
+
+import androidx.annotation.NonNull;
 
 import com.pedrogomez.renderers.Renderer;
 
@@ -31,7 +32,6 @@ import javax.inject.Inject;
 
 import butterknife.InjectView;
 import butterknife.OnItemClick;
-import se.leap.bitmaskclient.fragments.AboutFragment;
 
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_ADD_PROVIDER;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;

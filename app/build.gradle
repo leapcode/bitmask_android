@@ -329,6 +329,7 @@ dependencies {
   implementation 'androidx.multidex:multidex:2.0.0'
   implementation 'androidx.cardview:cardview:1.0.0'
   implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+  implementation 'de.hdodenhof:circleimageview:3.1.0'
   implementation project(path: ':shapeshifter')
 }
 
