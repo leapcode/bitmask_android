@@ -62,8 +62,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             BACKEND_ERROR_KEY = "error",
             BACKEND_ERROR_MESSAGE = "message",
             USER_MESSAGE = "userMessage",
-            DOWNLOAD_SERVICE_JSON = "ProviderAPI.DOWNLOAD_SERVICE_JSON",
-            PROVIDER_SET_UP = "ProviderAPI.PROVIDER_SET_UP";
+            DOWNLOAD_SERVICE_JSON = "ProviderAPI.DOWNLOAD_SERVICE_JSON";
 
     final public static int
             SUCCESSFUL_LOGIN = 3,

@@ -134,18 +134,6 @@ public abstract class ProviderListBaseActivity extends ProviderSetupBaseActivity
         this.provider = handledProvider;
         showProviderDetails();
     }
-    // -----------------------------------------
-
-    //TODO: only keep empty method for testing purposes
-    @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
-        super.onReceiveResult(resultCode, resultData);
-        if (resultCode == AboutFragment.VIEWED) {
-            // Do nothing, right now
-            // I need this for CW to wait for the About activity to end before going back to Dashboard.
-            //FIXME: WEEEIRD!
-        }
-    }
 
     @OnItemClick(R.id.provider_list)
     void onItemSelected(int position) {

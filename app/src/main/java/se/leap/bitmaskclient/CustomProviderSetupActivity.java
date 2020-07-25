@@ -107,11 +107,6 @@ public class CustomProviderSetupActivity extends ProviderSetupBaseActivity {
     }
 
     @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
-
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
             setResult(resultCode, data);

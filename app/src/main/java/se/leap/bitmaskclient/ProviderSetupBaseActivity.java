@@ -19,12 +19,12 @@ package se.leap.bitmaskclient;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -35,7 +35,6 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
-import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PENDING_SHOW_FAILED_DIALOG;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PROVIDER_NOT_SET;
@@ -47,7 +46,7 @@ import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.S
  * Created by cyberta on 19.08.18.
  */
 
-public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity implements ProviderAPIResultReceiver.Receiver, ProviderSetupInterface, ProviderSetupFailedDialog.DownloadFailedDialogInterface {
+public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity implements ProviderSetupInterface, ProviderSetupFailedDialog.DownloadFailedDialogInterface {
     final public static String TAG = "PoviderSetupActivity";
     final private static String ACTIVITY_STATE = "ACTIVITY STATE";
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
@@ -60,7 +59,6 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     protected boolean testNewURL;
 
     private ProviderApiSetupBroadcastReceiver providerAPIBroadcastReceiver;
-    private ProviderAPIResultReceiver providerAPIResultReceiver;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -97,7 +95,6 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        providerAPIResultReceiver = null;
     }
 
 
@@ -163,15 +160,6 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
         ProviderAPICommand.execute(this, UPDATE_PROVIDER_DETAILS, provider);
     }
 
-    // -------- ProviderAPIResultReceiver.Receiver ---v
-    @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
-        if (resultCode == ProviderAPI.PROVIDER_OK) {
-            Provider provider = resultData.getParcelable(PROVIDER_KEY);
-            handleProviderSetUp(provider);
-        }
-    }
-
     protected void restoreState(Bundle savedInstanceState) {
         super.restoreState(savedInstanceState);
         if (savedInstanceState == null) {
@@ -184,7 +172,6 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     }
 
     private void setUpProviderAPIResultReceiver() {
-        providerAPIResultReceiver = new ProviderAPIResultReceiver(new Handler(), this);
         providerAPIBroadcastReceiver = new ProviderApiSetupBroadcastReceiver(this);
 
         IntentFilter updateIntentFilter = new IntentFilter(BROADCAST_PROVIDER_API_EVENT);
@@ -203,7 +190,9 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
      *
      */
     public void checkProviderSetUp() {
-        ProviderAPICommand.execute(this, PROVIDER_SET_UP, provider, providerAPIResultReceiver);
+        if (provider.isConfigured()) {
+            handleProviderSetUp(provider);
+        }
     }
 
     /**
