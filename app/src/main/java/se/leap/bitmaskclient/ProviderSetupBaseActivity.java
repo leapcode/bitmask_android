@@ -65,13 +65,13 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
         super.onCreate(savedInstanceState);
         fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
         providerManager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
+        setUpProviderAPIResultReceiver();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "resuming with ConfigState: " + providerConfigState.toString());
-        setUpProviderAPIResultReceiver();
         if (SETTING_UP_PROVIDER == providerConfigState) {
             showProgressBar();
             checkProviderSetUp();
@@ -86,15 +86,12 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (providerAPIBroadcastReceiver != null)
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(providerAPIBroadcastReceiver);
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (providerAPIBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(providerAPIBroadcastReceiver);
+        }
+        providerAPIBroadcastReceiver = null;
     }
 
 
