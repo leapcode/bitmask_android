@@ -216,7 +216,10 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     }
 
     /**
-     * Fetches the Geo ip Json, containing a list of gateways sorted by distance from the users current location
+     * Fetches the geo ip Json, containing a list of gateways sorted by distance from the users current location.
+     * Fetching is only allowed if the cache timeout of 1 h was reached, a valid geoip service URL exists and the
+     * vpn is not yet active. The latter condition is needed in order to guarantee that the geoip service sees
+     * the real ip of the client
      *
      * @param provider
      * @return
@@ -225,7 +228,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     protected Bundle getGeoIPJson(Provider provider) {
         Bundle result = new Bundle();
 
-        if (!provider.shouldUpdateGeoIpJson() || provider.getGeoipUrl().isDefault()) {
+        if (!provider.shouldUpdateGeoIpJson() || provider.getGeoipUrl().isDefault() || VpnStatus.isVPNActive()) {
             result.putBoolean(BROADCAST_RESULT_KEY, false);
             return result;
         }
