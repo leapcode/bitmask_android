@@ -31,6 +31,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.Constants.EIP_RESTART_ON_BOOT;
@@ -140,6 +141,17 @@ public class StartActivity extends Activity{
             if (eipJson != null) {
                 preferences.edit().putString(PROVIDER_EIP_DEFINITION, eipJson).
                         remove(PROVIDER_KEY).apply();
+            }
+        }
+
+        if (hasNewFeature(FeatureVersionCode.GEOIP_SERVICE)) {
+            // deletion of current configured provider so that the geoip url will picked out
+            // from the preseeded *.url file / geoipUrl buildconfigfield (build.gradle) during
+            // next setup
+            Provider provider = ProviderObservable.getInstance().getCurrentProvider();
+            if (provider != null && !provider.isDefault()) {
+                PreferenceHelper.deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
+                ProviderObservable.getInstance().updateProvider(null);
             }
         }
 

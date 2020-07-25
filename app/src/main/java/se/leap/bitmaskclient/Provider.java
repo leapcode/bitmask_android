@@ -571,7 +571,8 @@ public final class Provider implements Parcelable {
     }
 
     /**
-     * resets everything except the main url and the providerIp
+     * resets everything except the main url, the providerIp and the geoip
+     * service url (currently preseeded)
      */
     public void reset() {
         definition = new JSONObject();
