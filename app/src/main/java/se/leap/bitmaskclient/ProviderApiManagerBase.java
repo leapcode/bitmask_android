@@ -92,7 +92,6 @@ import static se.leap.bitmaskclient.ProviderAPI.LOG_OUT;
 import static se.leap.bitmaskclient.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_OK;
-import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
 import static se.leap.bitmaskclient.ProviderAPI.RECEIVER_KEY;
 import static se.leap.bitmaskclient.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.ProviderAPI.SIGN_UP;
@@ -249,15 +248,6 @@ public abstract class ProviderApiManagerBase {
                 }
                 ProviderObservable.getInstance().getProviderForDns();
                 break;
-            case PROVIDER_SET_UP:
-                if(provider.hasEIP() && provider.hasCaCert() && provider.hasDefinition()) {
-                    if(receiver!= null) {
-                        result.putParcelable(PROVIDER_KEY, provider);
-                        receiver.send(PROVIDER_OK, result);
-                    }
-                }
-                break;
-
             case DOWNLOAD_GEOIP_JSON:
                 if (!provider.getGeoipUrl().isDefault()) {
                     boolean startEIP = parameters.getBoolean(EIP_ACTION_START);

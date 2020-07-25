@@ -22,6 +22,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
+
 import se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState;
 
 /**
@@ -33,18 +35,18 @@ import se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState;
  */
 
 public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
-    private final ProviderSetupInterface setupInterface;
+    private WeakReference<ProviderSetupInterface> setupInterfaceRef;
 
     public ProviderApiSetupBroadcastReceiver(ProviderSetupInterface setupInterface) {
-        this.setupInterface = setupInterface;
+        this.setupInterfaceRef = new WeakReference<>(setupInterface);
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(ProviderListBaseActivity.TAG, "received Broadcast");
-
+        ProviderSetupInterface setupInterface = setupInterfaceRef.get();
         String action = intent.getAction();
-        if (action == null || !action.equalsIgnoreCase(Constants.BROADCAST_PROVIDER_API_EVENT)) {
+        if (action == null || !action.equalsIgnoreCase(Constants.BROADCAST_PROVIDER_API_EVENT) || setupInterface == null) {
             return;
         }
 

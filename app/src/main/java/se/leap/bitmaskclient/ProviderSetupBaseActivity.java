@@ -19,12 +19,12 @@ package se.leap.bitmaskclient;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -35,9 +35,9 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
-import static se.leap.bitmaskclient.ProviderAPI.PROVIDER_SET_UP;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PENDING_SHOW_FAILED_DIALOG;
+import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PENDING_SHOW_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PROVIDER_NOT_SET;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SHOWING_PROVIDER_DETAILS;
@@ -47,7 +47,7 @@ import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.S
  * Created by cyberta on 19.08.18.
  */
 
-public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity implements ProviderAPIResultReceiver.Receiver, ProviderSetupInterface, ProviderSetupFailedDialog.DownloadFailedDialogInterface {
+public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity implements ProviderSetupInterface, ProviderSetupFailedDialog.DownloadFailedDialogInterface {
     final public static String TAG = "PoviderSetupActivity";
     final private static String ACTIVITY_STATE = "ACTIVITY STATE";
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
@@ -60,23 +60,21 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     protected boolean testNewURL;
 
     private ProviderApiSetupBroadcastReceiver providerAPIBroadcastReceiver;
-    private ProviderAPIResultReceiver providerAPIResultReceiver;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
         providerManager = ProviderManager.getInstance(getAssets(), getExternalFilesDir(null));
+        setUpProviderAPIResultReceiver();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "resuming with ConfigState: " + providerConfigState.toString());
-        setUpProviderAPIResultReceiver();
         if (SETTING_UP_PROVIDER == providerConfigState) {
             showProgressBar();
-            checkProviderSetUp();
         } else if (PENDING_SHOW_FAILED_DIALOG == providerConfigState) {
             showProgressBar();
             showDownloadFailedDialog();
@@ -84,20 +82,18 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
             showProgressBar();
         } else if (SHOWING_PROVIDER_DETAILS == providerConfigState) {
             cancelSettingUpProvider();
+        } else if (PENDING_SHOW_PROVIDER_DETAILS == providerConfigState) {
+            showProviderDetails();
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (providerAPIBroadcastReceiver != null)
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(providerAPIBroadcastReceiver);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        providerAPIResultReceiver = null;
+        if (providerAPIBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(providerAPIBroadcastReceiver);
+        }
+        providerAPIBroadcastReceiver = null;
     }
 
 
@@ -163,15 +159,6 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
         ProviderAPICommand.execute(this, UPDATE_PROVIDER_DETAILS, provider);
     }
 
-    // -------- ProviderAPIResultReceiver.Receiver ---v
-    @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
-        if (resultCode == ProviderAPI.PROVIDER_OK) {
-            Provider provider = resultData.getParcelable(PROVIDER_KEY);
-            handleProviderSetUp(provider);
-        }
-    }
-
     protected void restoreState(Bundle savedInstanceState) {
         super.restoreState(savedInstanceState);
         if (savedInstanceState == null) {
@@ -184,7 +171,6 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     }
 
     private void setUpProviderAPIResultReceiver() {
-        providerAPIResultReceiver = new ProviderAPIResultReceiver(new Handler(), this);
         providerAPIBroadcastReceiver = new ProviderApiSetupBroadcastReceiver(this);
 
         IntentFilter updateIntentFilter = new IntentFilter(BROADCAST_PROVIDER_API_EVENT);
@@ -197,13 +183,6 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
      */
     protected void downloadVpnCertificate() {
         ProviderAPICommand.execute(this, DOWNLOAD_VPN_CERTIFICATE, provider);
-    }
-
-    /*
-     *
-     */
-    public void checkProviderSetUp() {
-        ProviderAPICommand.execute(this, PROVIDER_SET_UP, provider, providerAPIResultReceiver);
     }
 
     /**
@@ -220,6 +199,8 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             intent.putExtra(PROVIDER_KEY, provider);
             startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
+        } else {
+            providerConfigState = PENDING_SHOW_PROVIDER_DETAILS;
         }
     }
 
