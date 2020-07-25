@@ -32,20 +32,12 @@
             android:gravity="center"
             android:text="@string/donate_message" />
 
-        <androidx.cardview.widget.CardView
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/donation_logo"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:innerRadius="0dp"
-            android:shape="ring"
-            app:cardCornerRadius="60dp">
-            <ImageView
-                android:id="@+id/donation_logo"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                app:srcCompat="@drawable/donation_img" />
-        </androidx.cardview.widget.CardView>
-
+            android:src="@drawable/donation_img"
+            />
 
         <Button
             android:id="@+id/btnDonate"

@@ -41,4 +41,7 @@
     <string name="copyright_shapeshifter_transports" translatable="false">Copyright (c) 2014, Yawning Angel (yawning at torproject dot org) \n All rights reserved.</string>
     <string name="shapeshifter_dispatcher" translatable="false">Shapeshifter Dispatcher</string>
     <string name="copyright_shapeshifter_dispatcher" translatable="false">Copyright (c) 2014, Yawning Angel (yawning at torproject dot org) \n All rights reserved.</string>
+    <string name="circleImageView" translatable="false">CircleImageView</string>
+    <string name="copyright_circleImageView" translatable="false">Copyright 2014 - 2020 Henning Dodenhof. Licensed under the Apache License, Version 2.0 </string>
+
 </resources>
