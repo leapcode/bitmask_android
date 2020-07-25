@@ -34,7 +34,6 @@ public class FragmentManagerEnhanced {
         if (previousFragment != null) {
             transaction.remove(previousFragment);
         }
-        transaction.addToBackStack(null);
 
         return transaction;
     }
