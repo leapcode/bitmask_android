@@ -37,6 +37,7 @@ import static se.leap.bitmaskclient.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.ProviderAPI.UPDATE_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PENDING_SHOW_FAILED_DIALOG;
+import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PENDING_SHOW_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.PROVIDER_NOT_SET;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
 import static se.leap.bitmaskclient.ProviderSetupInterface.ProviderConfigState.SHOWING_PROVIDER_DETAILS;
@@ -74,7 +75,6 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
         Log.d(TAG, "resuming with ConfigState: " + providerConfigState.toString());
         if (SETTING_UP_PROVIDER == providerConfigState) {
             showProgressBar();
-            checkProviderSetUp();
         } else if (PENDING_SHOW_FAILED_DIALOG == providerConfigState) {
             showProgressBar();
             showDownloadFailedDialog();
@@ -82,6 +82,8 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
             showProgressBar();
         } else if (SHOWING_PROVIDER_DETAILS == providerConfigState) {
             cancelSettingUpProvider();
+        } else if (PENDING_SHOW_PROVIDER_DETAILS == providerConfigState) {
+            showProviderDetails();
         }
     }
 
@@ -183,15 +185,6 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
         ProviderAPICommand.execute(this, DOWNLOAD_VPN_CERTIFICATE, provider);
     }
 
-    /*
-     *
-     */
-    public void checkProviderSetUp() {
-        if (provider.isConfigured()) {
-            handleProviderSetUp(provider);
-        }
-    }
-
     /**
      * Once selected a provider, this fragment offers the user to log in,
      * use it anonymously (if possible)
@@ -206,6 +199,8 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             intent.putExtra(PROVIDER_KEY, provider);
             startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
+        } else {
+            providerConfigState = PENDING_SHOW_PROVIDER_DETAILS;
         }
     }
 

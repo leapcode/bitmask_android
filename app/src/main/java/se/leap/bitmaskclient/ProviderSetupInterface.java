@@ -27,6 +27,7 @@ public interface ProviderSetupInterface {
         PROVIDER_NOT_SET,
         SETTING_UP_PROVIDER,
         SHOWING_PROVIDER_DETAILS,
+        PENDING_SHOW_PROVIDER_DETAILS,
         PENDING_SHOW_FAILED_DIALOG,
         SHOW_FAILED_DIALOG,
     }
