@@ -246,7 +246,7 @@ public abstract class ProviderApiManagerBase {
                 } else {
                     sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
                 }
-                ProviderObservable.getInstance().getProviderForDns();
+                ProviderObservable.getInstance().setProviderForDns(null);
                 break;
             case DOWNLOAD_GEOIP_JSON:
                 if (!provider.getGeoipUrl().isDefault()) {
