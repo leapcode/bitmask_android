@@ -4,7 +4,7 @@
   <string name="repository_url_text">Broncode is beschikbaar op https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Issue tracker https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="translation_project_text">Vertalingen zijn welkom en worden gewaardeerd. Kijk voor meer info op onze Transifex pagina: https://www.transifex.com/projects/p/bitmask-android/</string>
-  <string name="switch_provider_menu_option">Provider wisselen</string>
+  <string name="switch_provider_menu_option">Wisselen van provider</string>
   <string name="info">info</string>
   <string name="show_connection_details">Details van de verbinding weergeven</string>
   <string name="routes_info">Routes: %s</string>
@@ -45,7 +45,7 @@
   <string name="login_to_profile">Login voor profiel</string>
   <string name="logout_button">Afmelden</string>
   <string name="signup_button">Registreer</string>
-  <string name="create_profile">Creeer profiel</string>
+  <string name="create_profile">Creëer profiel</string>
   <string name="setup_provider">Setup provider</string>
   <string name="setup_error_title">Configuratiefout</string>
   <string name="setup_error_configure_button">Configureren</string>
@@ -60,8 +60,8 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="service_is_down_error">Service is onbereikbaar.</string>
   <string name="configuring_provider">Provider wordt ingesteld</string>
   <string name="incorrectly_downloaded_certificate_message">Je anonieme certificaat is niet gedownload</string>
-  <string name="downloading_certificate_message">Downloading VPN certificaat</string>
-  <string name="updating_certificate_message">Updaten VPN certificaat</string>
+  <string name="downloading_certificate_message">Downloading VPN-certificaat</string>
+  <string name="updating_certificate_message">Updaten VPN-certificaat</string>
   <string name="login.riseup.warning">Riseup gebruikers moeten een apart account aanmaken om de VPN service te gebruiken</string>
   <string name="succesful_authentication_message">Geauthenticeerd</string>
   <string name="authentication_failed_message">Authenticatie is mislukt</string>
@@ -77,7 +77,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="default_username">Anoniem</string>
   <string name="logging_in">Aanmelden</string>
   <string name="signing_up">Sign up</string>
-  <string name="vpn.button.turn.on">Aanzetten</string>
+  <string name="vpn.button.turn.on">Inschakelen</string>
   <string name="vpn.button.turn.off">Uitschakelen</string>
   <string name="vpn_button_turn_off_blocking">Stop blokkeren</string>
   <string name="vpn_securely_routed">Je verkeer wordt beveiligd gerouteerd door:</string>
@@ -104,11 +104,19 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="vpn_certificate_is_invalid">VPN certificaat is ongeldig. Probeer een nieuw te downloaden.</string>
   <string name="vpn_certificate_user_message">Het VPN certificaat in ongeldig. Gelieve opnieuw in te loggen om een nieuw te downloaden.</string>
   <string name="save_battery">Batterij besparen</string>
+  <string name="subtitle_save_battery">Uitzetten wanneer VPN Hotspot is ingeschakeld</string>
   <string name="save_battery_message">Dataverbindingen in de achtergrond worden in slaapstand gezet wanneer uw telefoon inactief is.</string>
   <string name="always_on_vpn">VPN altijd aan</string>
   <string name="subtitle_always_on_vpn">Open Android systeeminstellingen</string>
+  <string name="tethering">VPN Hotspot</string>
+  <string name="ipv6Firewall">Blokkeer IPv6</string>
+  <string name="require_root">Vereist root-rechten</string>
+  <string name="tethering_message">Deel je VPN met andere apparaten via:</string>
+  <string name="tethering_wifi">Wifi-hotspot</string>
+  <string name="tethering_usb">USB tethering</string>
+  <string name="tethering_bluetooth">Bluetooth-tethering</string>
   <string name="do_not_show_again">Laat niet meer zien</string>
-  <string name="always_on_vpn_user_message">Om  always-on VPN (continu verbonden blijven) in te schakelen op Android, klik op het configuratie-icoon [img src] en schakel aan.</string>
+  <string name="always_on_vpn_user_message">Om  \"always-on VPN\" (continu verbonden blijven) in te schakelen op Android, klik op het configuratie-icoon [img src] en zet aan.</string>
   <string name="always_on_blocking_vpn_user_message">Om je privacy optimaal te beschermen, moet je ook de optie \"Verbindingen zonder VPN blokkeren\" activeren.</string>
   <string name="donate_title">Doneren</string>
   <string name="donate_default_message">Doneer vandaag als je beveiligde communicatie op prijs stelt die zowel eenvoudig is voor de eindgebruikers als de provider. </string>
@@ -130,4 +138,5 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="warning_option_try_pt">Probeer een versluierde verbinding</string>
   <string name="warning_option_try_ovpn">Probeer een standaard verbinding</string>
   <string name="vpn_error_establish">Android is er niet in geslaagd de VPN-dienst op te zetten.</string>
+  <string name="root_permission_error">%s kan bepaalde functies zoals VPN-hotspot of IPv6-firewall niet uitvoeren zonder root-rechten.</string>
 </resources>

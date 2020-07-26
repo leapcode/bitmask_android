@@ -102,9 +102,17 @@
   <string name="vpn_certificate_is_invalid">Das VPN Zertifikat ist ungültig. Versuche ein neues herunterzuladen.</string>
   <string name="vpn_certificate_user_message">Das VPN Zertifikat ist ungültig. Bitte melde dich an, um ein neues herunterzuladen.</string>
   <string name="save_battery">Batteriesparmodus</string>
+  <string name="subtitle_save_battery">Deaktiviert während der VPN-Hotspot aktiv ist</string>
   <string name="save_battery_message">Datenverbindungen im Hintergrund bleiben inaktiv solange dein Handy inaktiv ist.</string>
   <string name="always_on_vpn">VPN immer anlassen</string>
   <string name="subtitle_always_on_vpn">Systemeinstellungen öffnen</string>
+  <string name="tethering">VPN-Hotspot</string>
+  <string name="ipv6Firewall">IPv6 blockieren</string>
+  <string name="require_root">Benötigt Rootrechte</string>
+  <string name="tethering_message">Teilen Sie Ihren VPN mit anderen Geräten über:</string>
+  <string name="tethering_wifi">Wifi-Hotspot</string>
+  <string name="tethering_usb">USB-Tethering</string>
+  <string name="tethering_bluetooth">Bluetooth-Tethering</string>
   <string name="do_not_show_again">Nicht erneut anzeigen</string>
   <string name="always_on_vpn_user_message">Um durchgehend aktives VPN in den Android VPN Einstellungen einzuschalten, klicke auf das Zahnrad [img src] und aktiviere den Schalter.</string>
   <string name="always_on_blocking_vpn_user_message">Aktiviere zusätzlich die Option \"Verbindungen nur über VPN zulassen\", um deine Privatsphäre optimal zu schützen.</string>
@@ -128,4 +136,5 @@
   <string name="warning_option_try_pt">Teste verschleierte Verbindung</string>
   <string name="warning_option_try_ovpn">Teste normale Verbindung</string>
   <string name="vpn_error_establish">Android konnte nicht den VPN Dienst starten.</string>
+  <string name="root_permission_error">%s kann keine Funktionen wie VPN-Hotspot oder IPv6-Firewall ohne Rootrechte ausführen.</string>
 </resources>

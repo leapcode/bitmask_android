@@ -30,6 +30,7 @@
   <string name="error_json_exception_user_message">Pokušajte ponovo: Bad response from the server</string>
   <string name="login_button">Prijavite se</string>
   <string name="logout_button">Odjavite se</string>
+  <string name="signup_button">Prijavi se</string>
   <string name="setup_error_title">Greška u konfiguraciji</string>
   <string name="setup_error_configure_button">Konfiguriraj</string>
   <string name="setup_error_close_button">Izađi</string>
@@ -46,6 +47,7 @@
   <string name="navigation_drawer_open">Otvori navigacijsku ladicu</string>
   <string name="navigation_drawer_close">Zatvori navigacijsku ladicu</string>
   <string name="action_settings">Postavke</string>
+  <string name="always_on_vpn">Uvijek upaljen VPN</string>
   <string name="donate_title">Donirajte</string>
   <string name="donate_button_remind_later">Podsjeti me kasnije</string>
   <string name="donate_button_donate">Donirajte</string>

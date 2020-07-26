@@ -102,9 +102,20 @@
   <string name="vpn_certificate_is_invalid">VPN sertifikası geçersiz. Yeni bir tane indirmeyi dene.</string>
   <string name="vpn_certificate_user_message">VPN sertifikası geçersiz. Lütfen yeni bir tane indirmek için giriş yapın.</string>
   <string name="save_battery">Güç tasarrufu</string>
+  <string name="subtitle_save_battery">VPN Hotspot açıkken etkisizleştirildi</string>
   <string name="save_battery_message">Arka plan veri bağlantıları, telefonunuz etkin olmadığında hazırda bekleme moduna geçer.</string>
   <string name="always_on_vpn">Her zaman açık VPN</string>
   <string name="subtitle_always_on_vpn">Android Sistem Ayarlarını Aç</string>
+  <string name="tethering">VPN Hotspot</string>
+  <string name="ipv6Firewall">IPv6 Engelle</string>
+  <string name="require_root">Yönetici izni gerekir</string>
+  <string name="show_experimental">Deneysel özellikleri göster</string>
+  <string name="hide_experimental">Deneysel özellikleri gizle</string>
+  <string name="tethering_enabled_message">Lütfen ilk önce <![CDATA[<b>sistem ayarlarında</b>]]> tetheringi etkinleştirdiğinizden emin olun.</string>
+  <string name="tethering_message">VPN\'i diğer aygıtlarla şu şekilde paylaş:</string>
+  <string name="tethering_wifi">Wi-Fi Bağlantı Noktası</string>
+  <string name="tethering_usb">USB tethering</string>
+  <string name="tethering_bluetooth">Bluetooth tethering</string>
   <string name="do_not_show_again">Tekrar gösterme</string>
   <string name="always_on_vpn_user_message">Android VPN ayarlarında Always-on VPN\'i sağlamak için yapılandır simgesine [img src] tıklayın ve seçeneği seçili yapın.  </string>
   <string name="always_on_blocking_vpn_user_message">Gizliliğinizi en iyi şekilde korumak için, \"VPN^siz bağlantıları engelle\" seçeneğini de etkinleştirmelisiniz.</string>
@@ -128,4 +139,5 @@
   <string name="warning_option_try_pt">Karartılmış bağlantıyı dene</string>
   <string name="warning_option_try_ovpn">Standart bağlantıyı dene</string>
   <string name="vpn_error_establish">Android, VPN hizmetini kurmakta başarısız oldu.</string>
+  <string name="root_permission_error">%s, VPN Hotspot veya IPv6 güvenlik duvarı özelliklerini yönetici izinleri olmadan çalıştıramıyor.</string>
 </resources>

@@ -102,9 +102,17 @@
   <string name="vpn_certificate_is_invalid">گواهی وی‌پی‌ان نامعتبر است. تلاش کنید که گواهی جدیدی دریافت کنید.</string>
   <string name="vpn_certificate_user_message">گواهی وی‌پی‌ان نامعتبر است. لطفا برای دریافت گواهی جدید وارد شوید. </string>
   <string name="save_battery">صرفه جویی در باطری</string>
+  <string name="subtitle_save_battery">غیرفعال در زمان روشن شدن هات اسپات VPN</string>
   <string name="save_battery_message">هنگامی که تلفن شما غیر فعال است، ارتباط اطلاعات پشت صحنه غیر فعال می‌شود.</string>
   <string name="always_on_vpn">وی پی ان در حالت همیشه روشن</string>
   <string name="subtitle_always_on_vpn">تنظیمات سیستم اندرویدرا باز کنید.</string>
+  <string name="tethering">VPN Hotspot</string>
+  <string name="ipv6Firewall">مسدود کردن IPv6</string>
+  <string name="require_root">نیازمند دسترسی به روت</string>
+  <string name="tethering_message">به اشتراک گذاری VPN با دیگر دستگاه ها از طریق:</string>
+  <string name="tethering_wifi">Wifi hotspot</string>
+  <string name="tethering_usb">اتصال به USB</string>
+  <string name="tethering_bluetooth">اتصال به بلوتوث</string>
   <string name="do_not_show_again">دوباره نشان نده</string>
   <string name="always_on_vpn_user_message">برای روشن کردن VPN همیشه فعال، در تنظیمات VPN آندروید روی آیکون [img src] کلیک کنید و آن را به حالت روشن تغییر دهید.</string>
   <string name="always_on_blocking_vpn_user_message">برای بهینه سازی حفاظت از حریم شخصی شما، بهتر است گزینه‌ی \"جلوگیری از ارتباطات بدون VPN\" را نیز فعال کنید.</string>
@@ -128,4 +136,5 @@
   <string name="warning_option_try_pt">اتصال مبهم شده را امتحان کنید.</string>
   <string name="warning_option_try_ovpn">اتصال عادی را امتحان کنید.</string>
   <string name="vpn_error_establish">آندروید نتوانست با یک سرویس VPN ارتباط برقرار کند.</string>
+  <string name="root_permission_error">%s بدون دسترسی به روت نمیتواند ویژگی هایی مانند VPN Hotspot یا IPv6 firewall را اجرا کند.</string>
 </resources>

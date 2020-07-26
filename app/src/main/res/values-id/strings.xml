@@ -20,6 +20,7 @@
   <string name="username_ask">Silakan masukkan nama pengguna anda</string>
   <string name="password_ask">Silahkan memasukkan password anda</string>
   <string name="password_hint">Pasword</string>
+  <string name="password_match">Kata sandi cocok</string>
   <string name="password_mismatch">Kata sandi tidak cocok</string>
   <string name="user_message">Pesan pengguna</string>
   <string name="about_fragment_title">Tentang</string>
@@ -43,6 +44,8 @@
   <string name="logging_in">Masuk</string>
   <string name="log_fragment_title">Log</string>
   <string name="vpn_fragment_title">VPN</string>
+  <string name="navigation_drawer_open">Buka laci navigasi</string>
+  <string name="navigation_drawer_close">Tutup laci navigasi</string>
   <string name="action_settings">Pengaturan</string>
   <string name="always_on_vpn">VPN selalu menyala</string>
   <string name="donate_title">Donasi</string>

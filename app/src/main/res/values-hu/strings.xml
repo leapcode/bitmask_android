@@ -32,6 +32,7 @@
   <string name="password_mismatch">Jelszavak nem egyeznek</string>
   <string name="user_message">Üzenet</string>
   <string name="about_fragment_title">Névjegy</string>
+  <string name="exclude_apps_fragment_title">Appok kihagyása a VPN-ből</string>
   <string name="error_srp_math_error_user_message">Próbálja újra: szerver matematikai hiba</string>
   <string name="error_bad_user_password_user_message">Hibás felhasználó-jelszó páros</string>
   <string name="error_not_valid_password_user_message">Legalább 8 karakter hosszúnak kell lennie</string>
@@ -93,6 +94,7 @@
   <string name="update_certificate">Tanúsítvány frissítése</string>
   <string name="warning_eip_json_corrupted">Szolgáltató konfiguráció frissítése sikertelen.</string>
   <string name="eip_json_corrupted_user_message">Szolgáltató konfiguráció frissítése sikertelen. Kérjük lépjen be és próbálja újra.</string>
+  <string name="warning_client_parsing_error_gateways">A szolgáltató gateway nem felismerhető. Vélhetően hibásan konfigurált.</string>
   <string name="warning_corrupted_provider_details">A tárolt szolgáltató részletek sérültek. Frissítheti őket %s (ajánlott) vagy a szolgáltató adatait egy kereskedelmi tanúsítvánnyal.</string>
   <string name="warning_corrupted_provider_cert">A tárolt szolgáltató tanúsítvány érvénytelen. Frissítheti őket %s (ajánlott) vagy a szolgáltató adatait egy kereskedelmi tanúsítvánnyal.</string>
   <string name="warning_expired_provider_cert">A tárolt szolgáltató tanúsítvány lejárt. Frissítheti őket %s (ajánlott) vagy a szolgáltató adatait egy kereskedelmi tanúsítvánnyal.</string>
@@ -100,8 +102,17 @@
   <string name="vpn_certificate_is_invalid">A VPN tanúsítvány érvénytelen. Próbáljon meg letölteni egy újat.</string>
   <string name="vpn_certificate_user_message">A VPN tanúsítvány érvénytelen. Kérjük lépjen be egy új letöltéséhez.</string>
   <string name="save_battery">Akkumulátor takarékos</string>
+  <string name="subtitle_save_battery">Letiltás, ha VPN Hotspot-on van</string>
   <string name="save_battery_message">A háttér adat kommunikációk hibernálásra kerülnek, ha a telefonja inaktív.</string>
   <string name="always_on_vpn">Mindig bekapcsolt VPN</string>
+  <string name="subtitle_always_on_vpn">Az Android Rendszer beállítások megnyitása</string>
+  <string name="tethering">VPN Hotspot</string>
+  <string name="ipv6Firewall">IPv6 letiltása</string>
+  <string name="require_root">Szükséges root jogosultság</string>
+  <string name="tethering_message">Oszd meg a VPN-t más eszközökkel ezen keresztül:</string>
+  <string name="tethering_wifi">Wifi hotspot</string>
+  <string name="tethering_usb">USB tethering</string>
+  <string name="tethering_bluetooth">Bluetooth tethering</string>
   <string name="do_not_show_again">Ne mutassa újra</string>
   <string name="always_on_vpn_user_message">Ahhoz, hogy beállítsa a mindig engedélyezett VPN-t kattintson beállítások ikonra [img src] az Android VPN beállítások között és kapcsolja be a kapcsolót.</string>
   <string name="always_on_blocking_vpn_user_message">Ahhoz, hogy az adatait optimálisan védje, javasolt bekapcsolni az \"Blokkolja a kapcsolatokat VPN nélkül\" opciót is. </string>
@@ -110,4 +121,20 @@
   <string name="donate_message">A LEAP támogatásoktól és adományoktól függ. Kérjük támogasson még ma, ha értékeli a biztonságos kommunikációt ami egyszerű a végfelhasználónak és a szolgáltatónak is.</string>
   <string name="donate_button_remind_later">Emlékeztessen később</string>
   <string name="donate_button_donate">Támogatás</string>
+  <string name="obfuscated_connection">Obfuszkált csatorna használata.</string>
+  <string name="obfuscated_connection_try">Obfuszkált csatorna létrehozás megkísérlése.</string>
+  <string name="nav_drawer_obfuscated_connection">Hidak használata</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">VPN szűrés megkerülése</string>
+  <string name="warning_exclude_apps_message">Legyen óvatos, milyen appokat  zár ki a VPN-ből. Ez felfedheti identitását és kompromittálhaja biztonságát.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d védetlen app</item>
+    <item quantity="other">%d védetlen app</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s nem tud csatlakozni. Lehet, hogy a VPN kapcsolatok n. Szeretné megpróbálni hagyományos VPN kapcsolaton?</string>
+  <string name="warning_no_more_gateways_no_pt">%s nem tud csatlakozni. Megpróbálja újra?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s nem tud csatlakozni obfuszkált VPN kapcsolatokn. Szeretné megpróbálni hagyományos VPN kapcsolaton?</string>
+  <string name="warning_option_try_pt">Obfuszkált kapcsolat próbálkozás</string>
+  <string name="warning_option_try_ovpn">Hagyományos kapcsolat próbálkozás</string>
+  <string name="vpn_error_establish">Az Androidnak nem sikerült létre hozni VPN szolgáltatást.</string>
+  <string name="root_permission_error">%s nem tud elindítani szolgáltatásokat, mint VPN Hotpsot vagy IPv6 tűzfal, root jogok nélkül.</string>
 </resources>
