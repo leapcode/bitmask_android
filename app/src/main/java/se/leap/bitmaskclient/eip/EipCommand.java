@@ -27,7 +27,7 @@ import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
 public class EipCommand {
 
     private static void execute(@NotNull Context context, @NotNull String action) {
-        execute(context, action, null, null);
+        execute(context.getApplicationContext(), action, null, null);
     }
 
     /**

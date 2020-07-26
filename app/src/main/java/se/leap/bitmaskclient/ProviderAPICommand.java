@@ -19,14 +19,14 @@ public class ProviderAPICommand {
     private Provider provider;
 
     private ProviderAPICommand(@NotNull Context context, @NotNull String action, @NotNull Provider provider, ResultReceiver resultReceiver) {
-        this(context, action, Bundle.EMPTY, provider, resultReceiver);
+        this(context.getApplicationContext(), action, Bundle.EMPTY, provider, resultReceiver);
     }
     private ProviderAPICommand(@NotNull Context context, @NotNull String action, @NotNull Provider provider) {
-        this(context, action, Bundle.EMPTY, provider);
+        this(context.getApplicationContext(), action, Bundle.EMPTY, provider);
     }
 
     private ProviderAPICommand(@NotNull Context context, @NotNull String action, @NotNull Bundle parameters, @NotNull Provider provider) {
-        this(context, action, parameters, provider, null);
+        this(context.getApplicationContext(), action, parameters, provider, null);
     }
 
     private ProviderAPICommand(@NotNull Context context, @NotNull String action, @NotNull Bundle parameters, @NotNull Provider provider, @Nullable ResultReceiver resultReceiver) {
