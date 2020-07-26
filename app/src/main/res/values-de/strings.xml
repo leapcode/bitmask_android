@@ -102,7 +102,7 @@
   <string name="vpn_certificate_is_invalid">Das VPN Zertifikat ist ungültig. Versuche ein neues herunterzuladen.</string>
   <string name="vpn_certificate_user_message">Das VPN Zertifikat ist ungültig. Bitte melde dich an, um ein neues herunterzuladen.</string>
   <string name="save_battery">Batteriesparmodus</string>
-  <string name="subtitle_save_battery">Deaktiviert während der VPN-Hotspot aktiv ist</string>
+  <string name="subtitle_save_battery">Bei aktivem VPN-Hotspot aus</string>
   <string name="save_battery_message">Datenverbindungen im Hintergrund bleiben inaktiv solange dein Handy inaktiv ist.</string>
   <string name="always_on_vpn">VPN immer anlassen</string>
   <string name="subtitle_always_on_vpn">Systemeinstellungen öffnen</string>
