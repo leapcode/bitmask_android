@@ -102,13 +102,16 @@
   <string name="vpn_certificate_is_invalid">Das VPN Zertifikat ist ungültig. Versuche ein neues herunterzuladen.</string>
   <string name="vpn_certificate_user_message">Das VPN Zertifikat ist ungültig. Bitte melde dich an, um ein neues herunterzuladen.</string>
   <string name="save_battery">Batteriesparmodus</string>
-  <string name="subtitle_save_battery">Deaktiviert während der VPN-Hotspot aktiv ist</string>
+  <string name="subtitle_save_battery">Bei aktivem VPN-Hotspot aus</string>
   <string name="save_battery_message">Datenverbindungen im Hintergrund bleiben inaktiv solange dein Handy inaktiv ist.</string>
   <string name="always_on_vpn">VPN immer anlassen</string>
   <string name="subtitle_always_on_vpn">Systemeinstellungen öffnen</string>
   <string name="tethering">VPN-Hotspot</string>
   <string name="ipv6Firewall">IPv6 blockieren</string>
   <string name="require_root">Benötigt Rootrechte</string>
+  <string name="show_experimental">Experimentelle Funktionen anzeigen</string>
+  <string name="hide_experimental">Experimentelle Funktionen verstecken</string>
+  <string name="tethering_enabled_message">Bitte aktiviere zuerst Tethering in deinen <![CDATA[<b>Systemeinstellungen</b>]]>.</string>
   <string name="tethering_message">Teilen Sie Ihren VPN mit anderen Geräten über:</string>
   <string name="tethering_wifi">Wifi-Hotspot</string>
   <string name="tethering_usb">USB-Tethering</string>
@@ -137,4 +140,5 @@
   <string name="warning_option_try_ovpn">Teste normale Verbindung</string>
   <string name="vpn_error_establish">Android konnte nicht den VPN Dienst starten.</string>
   <string name="root_permission_error">%s kann keine Funktionen wie VPN-Hotspot oder IPv6-Firewall ohne Rootrechte ausführen.</string>
+  <string name="qs_enable_vpn">%s starten</string>
 </resources>
