@@ -1,4 +1,4 @@
-1.0.4 - Menshen release
+1.0.5 - Menshen release
 features:
 - geoip service: improved automatic gateway selection, taking hemisphere into account
 - vpn tethering over bluetooth
@@ -6,6 +6,7 @@ features:
 - tile service: start/stop Bitmask from Quick Setting Tiles
 - updated openvpn, openssl, ics-openvpn dependencies, Android support libraries, golang version
 - reduced APK size for RiseupVPN
+- updated translations (thanks to Localization Lab and all translators!)
 bugfixes:
 - fixes for several UI bugs on Android 4.X devices
 - improved provider setup flow
