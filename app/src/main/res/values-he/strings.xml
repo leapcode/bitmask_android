@@ -142,4 +142,5 @@
   <string name="warning_option_try_ovpn">נסה חיבור תקני</string>
   <string name="vpn_error_establish">Android נכשל בהקמת שירות VPN.</string>
   <string name="root_permission_error">%s אינו יכול לבצע מאפיינים כמו נקודה חמה של VPN או חומת אש IPv6 בלי הרשאות שורש.</string>
+  <string name="qs_enable_vpn">התחל את %s</string>
 </resources>
