@@ -1,3 +1,20 @@
+/**
+ * Copyright (c) 2020 LEAP Encryption Access Project and contributers
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package se.leap.bitmaskclient;
 
 import android.content.BroadcastReceiver;
@@ -21,6 +38,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.appUpdate.DownloadServiceCommand;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
@@ -48,6 +66,7 @@ import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
+import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.CHECK_VERSION_FILE;
 
 /**
  * Created by cyberta on 05.12.18.
@@ -292,6 +311,8 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                 //setupNClostestGateway > 0: at least one failed gateway -> did the provider change it's gateways?
                 ProviderAPICommand.execute(context, ProviderAPI.DOWNLOAD_SERVICE_JSON, provider);
             }
+
+            DownloadServiceCommand.execute(context, CHECK_VERSION_FILE);
             finishGatewaySetup(false);
         } else if ("TCP_CONNECT".equals(state)) {
             changingGateway.set(false);

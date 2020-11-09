@@ -1,1 +1,1 @@
-include ':app', ':shapeshifter'
+include ':app', ':bitmask-core', ':bitmask-web-core'

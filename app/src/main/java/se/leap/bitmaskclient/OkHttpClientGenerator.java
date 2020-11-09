@@ -62,7 +62,7 @@ public class OkHttpClientGenerator {
 
     Resources resources;
 
-    public OkHttpClientGenerator(SharedPreferences preferences, Resources resources) {
+    public OkHttpClientGenerator(/*SharedPreferences preferences,*/ Resources resources) {
         this.resources = resources;
     }
 
@@ -74,22 +74,21 @@ public class OkHttpClientGenerator {
         return initHttpClient(initError, caCert);
     }
 
-    private OkHttpClient initHttpClient(JSONObject initError, String certificate) {
+    public OkHttpClient init() {
         try {
-            TLSCompatSocketFactory sslCompatFactory;
-            ConnectionSpec spec = getConnectionSpec();
-            OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+            return createClient(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-            if (!isEmpty(certificate)) {
-                sslCompatFactory = new TLSCompatSocketFactory(certificate);
-            } else {
-                sslCompatFactory = new TLSCompatSocketFactory();
-            }
-            sslCompatFactory.initSSLSocketFactory(clientBuilder);
-            clientBuilder.cookieJar(getCookieJar())
-                    .connectionSpecs(Collections.singletonList(spec));
-            clientBuilder.dns(new DnsResolver());
-            return clientBuilder.build();
+    private OkHttpClient initHttpClient(JSONObject initError, String certificate) {
+        if (resources == null) {
+            return null;
+        }
+        try {
+            return createClient(certificate);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             // TODO ca cert is invalid - show better error ?!
@@ -110,8 +109,29 @@ public class OkHttpClientGenerator {
         } catch (IOException e) {
             e.printStackTrace();
             addErrorMessageToJson(initError, resources.getString(error_io_exception_user_message));
+        } catch (Exception e) {
+            e.printStackTrace();
+            // unexpected exception, should never happen
+            // only to shorten the method signature createClient(String certificate)
         }
         return null;
+    }
+
+    private OkHttpClient createClient(String certificate) throws Exception {
+        TLSCompatSocketFactory sslCompatFactory;
+        ConnectionSpec spec = getConnectionSpec();
+        OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+
+        if (!isEmpty(certificate)) {
+            sslCompatFactory = new TLSCompatSocketFactory(certificate);
+        } else {
+            sslCompatFactory = new TLSCompatSocketFactory();
+        }
+        sslCompatFactory.initSSLSocketFactory(clientBuilder);
+        clientBuilder.cookieJar(getCookieJar())
+                .connectionSpecs(Collections.singletonList(spec));
+        clientBuilder.dns(new DnsResolver());
+        return clientBuilder.build();
     }
 
 

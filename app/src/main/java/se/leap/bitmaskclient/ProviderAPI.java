@@ -120,7 +120,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
 
     private ProviderApiManager initApiManager() {
         SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(preferences, getResources());
+        OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(getResources());
         return new ProviderApiManager(preferences, getResources(), clientGenerator, this);
     }
 }
