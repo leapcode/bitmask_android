@@ -133,9 +133,6 @@ public class StartActivity extends Activity{
      * execute necessary upgrades for version change
      */
     private void executeUpgrade() {
-        if (hasNewFeature(FeatureVersionCode.MULTIPLE_PROFILES)) {
-            // TODO prepare usage of multiple profiles
-        }
         if (hasNewFeature(FeatureVersionCode.RENAMED_EIP_IN_PREFERENCES)) {
             String eipJson = preferences.getString(PROVIDER_KEY, null);
             if (eipJson != null) {
