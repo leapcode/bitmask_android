@@ -27,6 +27,7 @@ import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.Constants.RESTART_ON_UPDATE;
 import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.Constants.USE_IPv6_FIREWALL;
@@ -119,6 +120,14 @@ public class PreferenceHelper {
                 remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
                 remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
                 apply();
+    }
+
+    public static void restartOnUpdate(Context context, boolean isEnabled) {
+        putBoolean(context, RESTART_ON_UPDATE, isEnabled);
+    }
+
+    public static boolean getRestartOnUpdate(Context context) {
+        return getBoolean(context, RESTART_ON_UPDATE, false);
     }
 
     public static boolean getUsePluggableTransports(Context context) {

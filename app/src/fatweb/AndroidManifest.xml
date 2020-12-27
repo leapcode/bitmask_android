@@ -39,10 +39,6 @@
                 <action android:name="android.intent.action.PACKAGE_INSTALL"/>
                 <data android:scheme="package"/>
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_INSTALL"/>
-                <data android:scheme="package"/>
-            </intent-filter>
         </receiver>
 
         <provider android:name="androidx.core.content.FileProvider"
@@ -53,6 +49,9 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />
 
         </provider>
+        <activity
+            android:name=".appUpdate.InstallActivity"
+            android:theme="@style/invisibleTheme" />
     </application>
 
 

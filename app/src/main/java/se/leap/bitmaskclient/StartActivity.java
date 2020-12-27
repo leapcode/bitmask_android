@@ -183,9 +183,14 @@ public class StartActivity extends Activity{
                 if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
                     EipCommand.startVPN(this.getApplicationContext(), true);
                     finish();
-                    return;
+                } else if (PreferenceHelper.getRestartOnUpdate(this.getApplicationContext())) {
+                    PreferenceHelper.restartOnUpdate(this.getApplicationContext(), false);
+                    EipCommand.startVPN(this.getApplicationContext(), false);
+                    showMainActivity();
+                    finish();
+                } else {
+                    showMainActivity();
                 }
-                showMainActivity();
             }
         } else {
             configureLeapProvider();

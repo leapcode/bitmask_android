@@ -45,8 +45,8 @@ import okio.Okio;
 public class DownloadConnector {
 
     private static final String TAG = DownloadConnector.class.getSimpleName();
-    final static String APP_TYPE = "application/vnd.android.package-archive";
-    final static String TEXT_FILE_TYPE = "application/text";
+    public final static String APP_TYPE = "application/vnd.android.package-archive";
+    public final static String TEXT_FILE_TYPE = "application/text";
 
     public interface DownloadProgress {
         void onUpdate(int progress);
@@ -78,8 +78,8 @@ public class DownloadConnector {
     }
 
     static File requestFileFromServer(@NonNull String url, @NonNull OkHttpClient okHttpClient, File destFile, DownloadProgress callback) {
-        BufferedSink sink = null;
-        BufferedSource source = null;
+        BufferedSink sink;
+        BufferedSource source;
         try {
             Request.Builder requestBuilder = new Request.Builder()
                     .url(url)

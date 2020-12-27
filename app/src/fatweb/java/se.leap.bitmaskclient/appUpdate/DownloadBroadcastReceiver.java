@@ -19,7 +19,6 @@ package se.leap.bitmaskclient.appUpdate;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -27,12 +26,12 @@ import android.widget.Toast;
 import java.io.File;
 
 import se.leap.bitmaskclient.Constants;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.utils.ConfigHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static se.leap.bitmaskclient.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
 import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
-import static se.leap.bitmaskclient.appUpdate.DownloadConnector.APP_TYPE;
-import static se.leap.bitmaskclient.appUpdate.DownloadService.DOWNLOAD_FAILED;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.DOWNLOAD_PROGRESS;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.NO_NEW_VERISON;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.PROGRESS_VALUE;
@@ -40,8 +39,9 @@ import static se.leap.bitmaskclient.appUpdate.DownloadService.UPDATE_DOWNLOADED;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.UPDATE_DOWNLOAD_FAILED;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.UPDATE_FOUND;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.UPDATE_NOT_FOUND;
+import static se.leap.bitmaskclient.appUpdate.DownloadService.VERIFICATION_ERROR;
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.DOWNLOAD_UPDATE;
-import static se.leap.bitmaskclient.appUpdate.FileProviderUtil.getUriFor;
+import static se.leap.bitmaskclient.appUpdate.UpdateDownloadManager.getUpdateFile;
 
 public class DownloadBroadcastReceiver extends BroadcastReceiver {
 
@@ -75,25 +75,21 @@ public class DownloadBroadcastReceiver extends BroadcastReceiver {
                     case UPDATE_NOT_FOUND:
                         if (resultData.getBoolean(NO_NEW_VERISON, false)) {
                             //TODO: Save in preferences date, retry in a week
-                        } else if (resultData.getBoolean(DOWNLOAD_FAILED, false)) {
-                            Toast.makeText(context.getApplicationContext(), "Update check failed.", Toast.LENGTH_LONG).show();
                         }
                         break;
                     case UPDATE_DOWNLOADED:
-                        notificationManager.cancelNotifications();
-                        Intent installIntent = new Intent(Intent.ACTION_VIEW);
-                        File update = UpdateDownloadManager.getUpdateFile(context);
-                        if (update.exists()) {
-                            installIntent.setDataAndType(getUriFor(context, update), APP_TYPE);
-                        }
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
-                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        context.startActivity(installIntent);
+                        notificationManager.buildDownloadSuccessfulNotification();
                         break;
                     case UPDATE_DOWNLOAD_FAILED:
-                        notificationManager.cancelNotifications();
-                        Toast.makeText(context.getApplicationContext(), "Update download failed.", Toast.LENGTH_LONG).show();
+                        if (resultData.getBoolean(VERIFICATION_ERROR, false)) {
+                            Toast.makeText(context.getApplicationContext(), context.getString(R.string.version_update_error_pgp_verification), Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(context.getApplicationContext(), context.getString(R.string.version_update_error), Toast.LENGTH_LONG).show();
+                        }
+                        File file = getUpdateFile(context);
+                        if (file.exists()) {
+                            file.delete();
+                        }
                         break;
                     case DOWNLOAD_PROGRESS:
                         int progress = resultData.getInt(PROGRESS_VALUE, 0);

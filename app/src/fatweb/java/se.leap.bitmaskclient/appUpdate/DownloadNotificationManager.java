@@ -42,23 +42,64 @@ public class DownloadNotificationManager {
     }
 
     public void buildDownloadFoundNotification() {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = initNotificationManager();
         if (notificationManager == null) {
             return;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-           createNotificationChannel(notificationManager);
-        }
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this.context, DownloadService.NOTIFICATION_CHANNEL_NEWSTATUS_ID);
-        notificationBuilder.setAutoCancel(true)
-                .setDefaults(Notification.DEFAULT_ALL)
+        NotificationCompat.Builder notificationBuilder = initNotificationBuilderDefaults();
+        notificationBuilder
+                .setSmallIcon(R.drawable.ic_about_36)
                 .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.mipmap.ic_launcher)
                 .setTicker(context.getString(R.string.version_update_title, context.getString(R.string.app_name)))
                 .setContentTitle(context.getString(R.string.version_update_title, context.getString(R.string.app_name)))
                 .setContentText(context.getString(R.string.version_update_found))
                 .setContentIntent(getDownloadIntent());
         notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notificationBuilder.build());
+    }
+
+    public void buildDownloadSuccessfulNotification() {
+        NotificationManager notificationManager = initNotificationManager();
+        if (notificationManager == null) {
+            return;
+        }
+        NotificationCompat.Builder notificationBuilder = initNotificationBuilderDefaults();
+        notificationBuilder
+                .setSmallIcon(android.R.drawable.stat_sys_download_done)
+                .setWhen(System.currentTimeMillis())
+                .setTicker(context.getString(R.string.version_update_title, context.getString(R.string.app_name)))
+                .setContentTitle(context.getString(R.string.version_update_download_title, context.getString(R.string.app_name)))
+                .setContentText(context.getString(R.string.version_update_download_description))
+                .setContentIntent(getInstallIntent());
+        notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notificationBuilder.build());
+    }
+
+    public void buildDownloadUpdateProgress(int progress) {
+        NotificationManager notificationManager = initNotificationManager();
+        if (notificationManager == null) {
+            return;
+        }
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this.context, DownloadService.NOTIFICATION_CHANNEL_NEWSTATUS_ID);
+        notificationBuilder
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setAutoCancel(false)
+                .setOngoing(true)
+                .setSmallIcon(android.R.drawable.stat_sys_download)
+                .setContentTitle(context.getString(R.string.version_update_apk_description, context.getString(R.string.app_name)))
+                .setProgress(100, progress, false)
+                .setContentIntent(getDownloadIntent());
+        notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notificationBuilder.build());
+    }
+
+    private NotificationManager initNotificationManager() {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager == null) {
+            return null;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel(notificationManager);
+        }
+        return notificationManager;
     }
 
     @TargetApi(26)
@@ -75,7 +116,13 @@ public class DownloadNotificationManager {
         notificationManager.createNotificationChannel(channel);
     }
 
-
+    private NotificationCompat.Builder initNotificationBuilderDefaults() {
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this.context, DownloadService.NOTIFICATION_CHANNEL_NEWSTATUS_ID);
+        notificationBuilder.
+                setDefaults(Notification.DEFAULT_ALL).
+                setAutoCancel(true);
+        return notificationBuilder;
+    }
 
     private PendingIntent getDownloadIntent() {
         Intent downloadIntent = new Intent(context, DownloadBroadcastReceiver.class);
@@ -83,24 +130,9 @@ public class DownloadNotificationManager {
         return PendingIntent.getBroadcast(context, 0, downloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    public void buildDownloadUpdateProgress(int progress) {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager == null) {
-            return;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel(notificationManager);
-        }
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this.context, DownloadService.NOTIFICATION_CHANNEL_NEWSTATUS_ID);
-        notificationBuilder.setAutoCancel(true)
-                .setDefaults(Notification.DEFAULT_ALL)
-                .setAutoCancel(false)
-                .setOngoing(true)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(context.getString(R.string.version_update_apk_description, context.getString(R.string.app_name)))
-                .setProgress(100, progress, false)
-                .setContentIntent(getDownloadIntent());
-        notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, notificationBuilder.build());
+    private PendingIntent getInstallIntent() {
+        Intent installIntent = new Intent(context, InstallActivity.class);
+        return PendingIntent.getActivity(context, 0, installIntent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     public void cancelNotifications() {
