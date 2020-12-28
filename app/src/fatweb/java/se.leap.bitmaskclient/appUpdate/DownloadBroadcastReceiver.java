@@ -22,8 +22,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import java.io.File;
-
 import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
@@ -40,7 +38,6 @@ import static se.leap.bitmaskclient.appUpdate.DownloadService.UPDATE_FOUND;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.UPDATE_NOT_FOUND;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.VERIFICATION_ERROR;
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.DOWNLOAD_UPDATE;
-import static se.leap.bitmaskclient.appUpdate.UpdateDownloadManager.getUpdateFile;
 
 public class DownloadBroadcastReceiver extends BroadcastReceiver {
 
@@ -83,10 +80,6 @@ public class DownloadBroadcastReceiver extends BroadcastReceiver {
                             Toast.makeText(context.getApplicationContext(), context.getString(R.string.version_update_error_pgp_verification), Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(context.getApplicationContext(), context.getString(R.string.version_update_error), Toast.LENGTH_LONG).show();
-                        }
-                        File file = getUpdateFile(context);
-                        if (file.exists()) {
-                            file.delete();
                         }
                         break;
                     case DOWNLOAD_PROGRESS:
