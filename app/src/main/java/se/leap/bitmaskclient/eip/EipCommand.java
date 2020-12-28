@@ -11,14 +11,14 @@ import androidx.annotation.VisibleForTesting;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_CONFIGURE_TETHERING;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_START;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_BLOCKING_VPN;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP;
-import static se.leap.bitmaskclient.Constants.EIP_EARLY_ROUTES;
-import static se.leap.bitmaskclient.Constants.EIP_N_CLOSEST_GATEWAY;
-import static se.leap.bitmaskclient.Constants.EIP_RECEIVER;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_CONFIGURE_TETHERING;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_BLOCKING_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_N_CLOSEST_GATEWAY;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_RECEIVER;
 
 /**
  * Use this class to send commands to EIP

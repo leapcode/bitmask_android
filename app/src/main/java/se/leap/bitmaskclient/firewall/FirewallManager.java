@@ -28,7 +28,7 @@ import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.tethering.TetheringState;
-import se.leap.bitmaskclient.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 public class FirewallManager implements FirewallCallback, Observer {
     public static String BITMASK_CHAIN = "bitmask_fw";

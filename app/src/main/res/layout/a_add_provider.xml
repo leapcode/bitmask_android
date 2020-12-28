@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/stdpadding"
-    tools:context=".AddProviderActivity">
+    tools:context=".providersetup.AddProviderActivity">
 
     <LinearLayout
         android:id="@+id/content"
@@ -18,7 +18,7 @@
         android:orientation="vertical">
 
         <!-- the header contains the mask-->
-        <se.leap.bitmaskclient.views.ProviderHeaderView
+        <se.leap.bitmaskclient.base.views.ProviderHeaderView
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

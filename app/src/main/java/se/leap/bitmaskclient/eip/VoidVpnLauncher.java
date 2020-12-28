@@ -6,7 +6,7 @@ import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
 
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_BLOCKING_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_BLOCKING_VPN;
 
 public class VoidVpnLauncher extends Activity {
 

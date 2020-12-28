@@ -33,14 +33,13 @@ import java.util.Observer;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.VpnNotificationManager;
 
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_START_BLOCKING_VPN;
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
-import static se.leap.bitmaskclient.Constants.EIP_IS_ALWAYS_ON;
-import static se.leap.bitmaskclient.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.utils.ConfigHelper.getProviderFormattedString;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_BLOCKING_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_IS_ALWAYS_ON;
+import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
 
 
 public class VoidVpnService extends VpnService implements Observer, VpnNotificationManager.VpnServiceCallback {

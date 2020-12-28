@@ -32,16 +32,16 @@ import java.util.Set;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
-import se.leap.bitmaskclient.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
-import static se.leap.bitmaskclient.Constants.HOST;
-import static se.leap.bitmaskclient.Constants.IP_ADDRESS;
-import static se.leap.bitmaskclient.Constants.LOCATION;
-import static se.leap.bitmaskclient.Constants.LOCATIONS;
-import static se.leap.bitmaskclient.Constants.NAME;
-import static se.leap.bitmaskclient.Constants.OPENVPN_CONFIGURATION;
-import static se.leap.bitmaskclient.Constants.TIMEZONE;
-import static se.leap.bitmaskclient.Constants.VERSION;
+import static se.leap.bitmaskclient.base.models.Constants.HOST;
+import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
+import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
+import static se.leap.bitmaskclient.base.models.Constants.LOCATIONS;
+import static se.leap.bitmaskclient.base.models.Constants.NAME;
+import static se.leap.bitmaskclient.base.models.Constants.OPENVPN_CONFIGURATION;
+import static se.leap.bitmaskclient.base.models.Constants.TIMEZONE;
+import static se.leap.bitmaskclient.base.models.Constants.VERSION;
 
 /**
  * Gateway provides objects defining gateways and their metadata.

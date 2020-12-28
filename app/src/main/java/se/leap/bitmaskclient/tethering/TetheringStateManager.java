@@ -18,7 +18,6 @@ package se.leap.bitmaskclient.tethering;
 
 import android.content.Context;
 import android.content.IntentFilter;
-import androidx.annotation.VisibleForTesting;
 
 import java.net.Inet4Address;
 import java.net.InterfaceAddress;
@@ -26,11 +25,11 @@ import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.List;
 
-import se.leap.bitmaskclient.utils.Cmd;
+import se.leap.bitmaskclient.base.utils.Cmd;
 
-import static se.leap.bitmaskclient.utils.PreferenceHelper.isBluetoothTetheringAllowed;
-import static se.leap.bitmaskclient.utils.PreferenceHelper.isUsbTetheringAllowed;
-import static se.leap.bitmaskclient.utils.PreferenceHelper.isWifiTetheringAllowed;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.isBluetoothTetheringAllowed;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.isUsbTetheringAllowed;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.isWifiTetheringAllowed;
 
 /**
  * This manager tries to figure out the current tethering states for Wifi, USB and Bluetooth

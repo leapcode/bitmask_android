@@ -29,7 +29,7 @@ import se.leap.bitmaskclient.tethering.TetheringState;
 
 import static se.leap.bitmaskclient.firewall.FirewallManager.BITMASK_FORWARD;
 import static se.leap.bitmaskclient.firewall.FirewallManager.BITMASK_POSTROUTING;
-import static se.leap.bitmaskclient.utils.Cmd.runBlockingCmd;
+import static se.leap.bitmaskclient.base.utils.Cmd.runBlockingCmd;
 
 public class SetupTetheringTask extends AsyncTask<Void, Boolean, Boolean> {
 

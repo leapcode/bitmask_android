@@ -69,8 +69,8 @@ import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
-import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
-import static se.leap.bitmaskclient.utils.ConfigHelper.stringEqual;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.stringEqual;
 
 public class VpnProfile implements Serializable, Cloneable {
     // Note that this class cannot be moved to core where it belongs since

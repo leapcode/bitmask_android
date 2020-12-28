@@ -24,7 +24,7 @@ import android.widget.Toast;
 
 import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static se.leap.bitmaskclient.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;

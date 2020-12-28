@@ -8,10 +8,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
 import static android.content.Intent.CATEGORY_DEFAULT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_EIP_EVENT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
-import static se.leap.bitmaskclient.Constants.EIP_REQUEST;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_EIP_EVENT;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_REQUEST;
 
 public class EipResultBroadcast {
     private static final String TAG = EipResultBroadcast.class.getSimpleName();

@@ -25,7 +25,7 @@ import org.mockito.stubbing.Answer;
 import java.io.IOException;
 
 import okhttp3.OkHttpClient;
-import se.leap.bitmaskclient.ProviderApiConnector;
+import se.leap.bitmaskclient.providersetup.ProviderApiConnector;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;

@@ -24,7 +24,7 @@
             android:textStyle="bold"
             />
 
-        <se.leap.bitmaskclient.views.IconTextView
+        <se.leap.bitmaskclient.base.views.IconTextView
             android:id="@+id/user_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

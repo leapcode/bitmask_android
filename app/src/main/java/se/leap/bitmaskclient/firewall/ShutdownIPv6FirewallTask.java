@@ -22,7 +22,7 @@ import android.util.Log;
 import java.lang.ref.WeakReference;
 
 import static se.leap.bitmaskclient.firewall.FirewallManager.BITMASK_CHAIN;
-import static se.leap.bitmaskclient.utils.Cmd.runBlockingCmd;
+import static se.leap.bitmaskclient.base.utils.Cmd.runBlockingCmd;
 
 class ShutdownIPv6FirewallTask extends AsyncTask<Void, Boolean, Boolean> {
 

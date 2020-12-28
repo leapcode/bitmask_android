@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <se.leap.bitmaskclient.views.ProviderHeaderView
+        <se.leap.bitmaskclient.base.views.ProviderHeaderView
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
