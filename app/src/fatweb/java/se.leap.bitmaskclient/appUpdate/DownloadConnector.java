@@ -95,11 +95,16 @@ public class DownloadConnector {
             long totalBytesRead = 0;
             int bufferSize = 8 * 1024;
             long bytesRead;
+            int lastProgress = 0;
             while ((bytesRead = source.read(sinkBuffer, bufferSize)) != -1) {
                 sink.emit();
                 totalBytesRead += bytesRead;
                 int progress = (int) ((totalBytesRead * 100) / contentLength);
-                callback.onUpdate(progress);
+                // debouncing callbacks
+                if (lastProgress < progress) {
+                    lastProgress = progress;
+                    callback.onUpdate(progress);
+                }
             }
             sink.flush();
 
