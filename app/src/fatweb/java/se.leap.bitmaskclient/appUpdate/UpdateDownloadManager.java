@@ -22,8 +22,6 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import java.io.File;
 
 import okhttp3.OkHttpClient;
@@ -114,7 +112,6 @@ public class UpdateDownloadManager implements Logger, DownloadConnector.Download
                     sendToReceiverOrBroadcast(receiver, UPDATE_DOWNLOAD_FAILED, result);
                 }
                 break;
-
         }
     }
 
@@ -162,23 +159,6 @@ public class UpdateDownloadManager implements Logger, DownloadConnector.Download
 
         task.putBoolean(BROADCAST_RESULT_KEY, true);
         return task;
-    }
-
-    private static void clearPreviousDownloads(@NonNull Context context, String destinationFile) {
-        File directory = context.getExternalFilesDir(null);
-
-        if (directory == null) {
-            Log.w(TAG, "Failed to read external files directory.");
-            return;
-        }
-
-        for (File file : directory.listFiles()) {
-            if (file.getName().equals(destinationFile)) {
-                if (file.delete()) {
-                    Log.d(TAG, "Deleted " + file.getName());
-                }
-            }
-        }
     }
 
     private Bundle checkVersionFile(Bundle task) {

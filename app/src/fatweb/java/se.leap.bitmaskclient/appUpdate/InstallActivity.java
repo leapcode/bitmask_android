@@ -28,7 +28,6 @@ import androidx.annotation.Nullable;
 
 import java.io.File;
 
-import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 

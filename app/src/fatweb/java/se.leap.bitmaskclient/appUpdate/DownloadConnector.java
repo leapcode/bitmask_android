@@ -88,7 +88,6 @@ public class DownloadConnector {
 
             Response response = okHttpClient.newCall(request).execute();
             ResponseBody body = response.body();
-            InputStream in = body.byteStream();
             long contentLength = body.contentLength();
             source = body.source();
             sink = Okio.buffer(Okio.sink(destFile));
