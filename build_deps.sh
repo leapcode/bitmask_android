@@ -19,7 +19,7 @@ if [[ $(ls -A ${DIR_OVPNASSETS}) && $(ls -A ${DIR_OVPNLIBS}) ]]
 then
     echo "Dirty build: skipped externalNativeBuild - reusing existing libs"
 else
-    echo "Clean build: starting externalNativeBuild and GO dependency builds"
+    echo "Clean build: starting externalNativeBuild"
     cd ./ics-openvpn || quit "Directory ics-opevpn not found"
     ./gradlew clean main:externalNativeBuildCleanSkeletonRelease main:externalNativeBuildSkeletonRelease --debug --stacktrace || quit "Build ics-openvpn native libraries failed"
     cd ..
@@ -32,6 +32,7 @@ else
     echo "Clean build: compiling Go libraries"
     cd ./go || quit "Directory go not found"
     ./install_go.sh || quit "install_go.sh failed"
-    ./android_build_shapeshifter.sh createLibrary || quit "android_build_shapeshifter_dispatcher.sh failed"
+    ./android_build_web_core.sh || quit "android_build_web_core.sh (shapeshifter + pgpverify) failed"
+    ./android_build_core.sh || quit "android build core (shapeshifter) failed"
     cd ..
 fi

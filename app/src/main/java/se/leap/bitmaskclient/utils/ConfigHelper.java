@@ -53,6 +53,7 @@ import static se.leap.bitmaskclient.Constants.DEFAULT_BITMASK;
 
 /**
  * Stores constants, and implements auxiliary methods used across all Bitmask Android classes.
+ * Wraps BuildConfigFields for to support easier unit testing
  *
  * @author parmegv
  * @author MeanderingCode
@@ -120,7 +121,7 @@ public class ConfigHelper {
         try {
             KeyFactory kf;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-               kf = KeyFactory.getInstance("RSA", "BC");
+                kf = KeyFactory.getInstance("RSA", "BC");
             } else {
                 kf = KeyFactory.getInstance("RSA");
             }
@@ -201,4 +202,29 @@ public class ConfigHelper {
         return (string1 == null && string2 == null) ||
                 (string1 != null && string1.equals(string2));
     }
+
+    public static String getApkFileName() {
+        try {
+            return BuildConfig.update_apk_url.substring(BuildConfig.update_apk_url.lastIndexOf("/"));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String getVersionFileName() {
+        try {
+            return BuildConfig.version_file_url.substring(BuildConfig.version_file_url.lastIndexOf("/"));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String getSignatureFileName() {
+        try {
+            return BuildConfig.signature_url.substring(BuildConfig.signature_url.lastIndexOf("/"));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

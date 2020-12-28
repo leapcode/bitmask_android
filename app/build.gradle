@@ -27,8 +27,6 @@ android {
     //This is the default donation URL and should be set to the donation page of LEAP
     // and this should not be set/altered anywhere else.
     buildConfigField 'String', 'default_donation_url', '"https://leap.se/en/about-us/donate"'
-    //This is the donation URL and should be set to the relevant donation page.
-    buildConfigField 'String', 'donation_url', 'null'
     //The field to enable donations in the app.
     buildConfigField 'boolean', 'enable_donation', 'true'
     //The field to enable donation reminder popup in the app if enable_donation is set to 'false' this will be disabled.
@@ -37,7 +35,16 @@ android {
     buildConfigField 'int', 'donation_reminder_duration', '30'
     //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
     buildConfigField 'boolean', 'priotize_anonymous_usage', 'false'
+
+    // static update url pointing to the latest stable release apk
+    buildConfigField "String", "update_apk_url", '"https://dl.bitmask.net/client/android/Bitmask-Android-latest.apk"'
+    // the the pgp signature file of the apk
+    buildConfigField "String", "signature_url", '"https://dl.bitmask.net/client/android/Bitmask-Android-latest.apk.sig"'
+    // the version file contains the versionCode of the latest release
+    buildConfigField "String", "version_file_url", '"https://dl.bitmask.net/client/android/versioncode.txt"'
+
     //ignore the following configs, only used in custom flavor
+    buildConfigField 'String', 'donation_url', 'null'
     buildConfigField "String", "customProviderUrl", '""'
     buildConfigField "String", "customProviderIp", '""'
     buildConfigField "String", "customProviderApiIp", '""'
@@ -108,6 +115,17 @@ android {
       //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
       buildConfigField 'boolean', 'priotize_anonymous_usage', 'true'
 
+      //Build Config Fields for automatic apk update checks
+
+      // static update url pointing to the latest stable release apk
+      def apkURL = '"https://dl.bitmask.net/RiseupVPN/android/RiseupVPN-Android-latest.apk"'
+      buildConfigField "String", "update_apk_url", apkURL
+      // the the pgp signature file of the apk
+      def signatureURL = '"https://dl.bitmask.net/RiseupVPN/android/RiseupVPN-Android-latest.apk.sig"'
+      buildConfigField "String", "signature_url", signatureURL
+      // the version file should contain a single line with the versionCode of the latest release
+      buildConfigField "String", "version_file_url", '"https://dl.bitmask.net/client/android/versioncode.txt"' //'"https://dl.bitmask.net/RiseupVPN/android/versioncode.txt"'
+
       //Build Config Fields for default donation details
 
       //This is the donation URL and should be set to the relevant donation page.
@@ -130,6 +148,13 @@ android {
 
     }
 
+    fatweb {
+      dimension "abi"
+      ext {
+        abiVersionCode = 0
+        abiFilter = ""
+      }
+    }
 
     fat {
       dimension "abi"
@@ -232,6 +257,31 @@ android {
     androidTest {
       java.srcDirs += ['src/sharedTest/java']
     }
+
+    fatweb {
+      java.srcDirs += ['src/fatweb/java']
+    }
+
+    fat {
+      java.srcDirs += ['src/notFatweb/java']
+    }
+
+    x86 {
+      java.srcDirs += ['src/notFatweb/java']
+    }
+
+    x86_64 {
+      java.srcDirs += ['src/notFatweb/java']
+    }
+
+    armv7 {
+      java.srcDirs += ['src/notFatweb/java']
+    }
+
+    arm64 {
+      java.srcDirs += ['src/notFatweb/java']
+    }
+
   }
 
   /**
@@ -241,6 +291,8 @@ android {
    * --------------------
    * customProductionFatDebug -> branded development build, includes all ABIs
    * normalProductionFatDebug -> Bitmask development build, includes all ABIS
+   * customProductionFatwebDebug -> branded development build, includes all ABIs, for distribution through a download page
+   * normalProductionFatWebDebug ->  Bitmask development build, includes all ABIS, for distribution through a download page
    * customInsecureFatDebug -> branded development build, doesn't checks certificates (for test server setup w/o valid certificates), includes all ABIs
    * normalInsecureFatDebug -> Bitmask development build, doesn't checks certificates (for test server setup w/o valid certificates), includes all ABIs
    *
@@ -248,6 +300,7 @@ android {
    * -----------------
    * customProductionFatBeta -> branded build, includes all ABI's, Beta release
    * customProductionFatRelease -> branded build, includes all ABI's, stable release (-> F-Droid, GPlay if not splitApk is set to true)
+   * customProductionFatwebRelease -> branded build, includes all ABI's, stable release (-> F-Droid, GPlay if not splitApk is set to true), for distribution through a download page
    *
    * Bitmask Beta releases:
    * ----------------------
@@ -263,7 +316,8 @@ android {
    * normalProductionArmv7Release  ->  Bitmask build, only for ABI armeabi-v7a, for GPlay releases with split apks (2 of 4)
    * normalProductionX86Release    ->  Bitmask build, only for ABI x86, for GPlay releases with split apks (3 of 4)
    * normalProductionX86_64Release ->  Bitmask build, only for ABI x86 64 bit, for GPlay releases with split apks (4 of 4)
-   * normalProductionFatRelease    ->  Bitmask build, including all ABIS, for official F-Droid repo and stable link on download page
+   * normalProductionFatRelease    ->  Bitmask build, including all ABIS, for official F-Droid repo
+   * normalProductionFatWebRelease ->  Bitmask build, including all ABIS, for distribution through a download page
    */
 
   variantFilter { variant ->
@@ -276,7 +330,8 @@ android {
     if (((names.contains("insecure") && !names.contains("fat")) ||
             (names.contains("insecure") && buildTypeName.contains("beta")) ||
             (names.contains("insecure") && buildTypeName.contains("release")) ||
-            (buildTypeName.contains("debug") && !names.contains("fat")) ||
+            (buildTypeName.contains("debug") && !(names.contains("fatweb") || names.contains("fat"))) ||
+            (names.contains("fatweb") && buildTypeName.contains("beta")) ||
             (!supportsSplitApk && !names.contains("fat")))
     ) {
       // Gradle ignores any variants that satisfy the conditions above.
@@ -330,7 +385,13 @@ dependencies {
   implementation 'androidx.cardview:cardview:1.0.0'
   implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
   implementation 'de.hdodenhof:circleimageview:3.1.0'
-  implementation project(path: ':shapeshifter')
+  //implementation project(path: ':shapeshifter')
+  fatwebImplementation project(path: ':bitmask-web-core')
+  fatImplementation project(path: ':bitmask-core')
+  x86Implementation project(path: ':bitmask-core')
+  x86_64Implementation project(path: ':bitmask-core')
+  armv7Implementation project(path: ':bitmask-core')
+  arm64Implementation project(path: ':bitmask-core')
 }
 
 android.applicationVariants.all { variant ->

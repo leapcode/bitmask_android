@@ -133,9 +133,6 @@ public class StartActivity extends Activity{
      * execute necessary upgrades for version change
      */
     private void executeUpgrade() {
-        if (hasNewFeature(FeatureVersionCode.MULTIPLE_PROFILES)) {
-            // TODO prepare usage of multiple profiles
-        }
         if (hasNewFeature(FeatureVersionCode.RENAMED_EIP_IN_PREFERENCES)) {
             String eipJson = preferences.getString(PROVIDER_KEY, null);
             if (eipJson != null) {
@@ -183,9 +180,14 @@ public class StartActivity extends Activity{
                 if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
                     EipCommand.startVPN(this.getApplicationContext(), true);
                     finish();
-                    return;
+                } else if (PreferenceHelper.getRestartOnUpdate(this.getApplicationContext())) {
+                    PreferenceHelper.restartOnUpdate(this.getApplicationContext(), false);
+                    EipCommand.startVPN(this.getApplicationContext(), false);
+                    showMainActivity();
+                    finish();
+                } else {
+                    showMainActivity();
                 }
-                showMainActivity();
             }
         } else {
             configureLeapProvider();

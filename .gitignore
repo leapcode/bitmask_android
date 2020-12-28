@@ -83,3 +83,7 @@ releases
 currentReleases
 
 go/golang/go
+go/lib/bitmask-core-sources.jar
+go/lib/bitmask-core.aar
+go/lib/bitmask-web-core-sources.jar
+go/lib/bitmask-web-core.aar

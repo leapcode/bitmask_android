@@ -4,9 +4,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.ResultReceiver;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.content.ContextCompat;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +38,6 @@ public class EipCommand {
      * @param resultReceiver The resultreceiver to reply to
      */
     private static void execute(@NotNull Context context, @NotNull String action, @Nullable ResultReceiver resultReceiver, @Nullable Intent vpnIntent) {
-        // TODO validate "action"...how do we get the list of intent-filters for a class via Android API?
         if (vpnIntent == null) {
             vpnIntent = new Intent();
         }

@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2020 LEAP Encryption Access Project and contributers
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.leap.bitmaskclient;
 
 import android.text.TextUtils;
@@ -20,6 +36,8 @@ public interface Constants {
     String ALLOW_TETHERING_USB = "tethering_usb";
     String SHOW_EXPERIMENTAL = "show_experimental";
     String USE_IPv6_FIREWALL = "use_ipv6_firewall";
+    String RESTART_ON_UPDATE = "restart_on_update";
+    String LAST_UPDATE_CHECK = "last_update_check";
 
 
      //////////////////////////////////////////////
@@ -31,6 +49,7 @@ public interface Constants {
     int REQUEST_CODE_SWITCH_PROVIDER = 1;
     int REQUEST_CODE_LOG_IN = 2;
     int REQUEST_CODE_ADD_PROVIDER = 3;
+    int REQUEST_CODE_REQUEST_UPDATE = 4;
 
 
     //////////////////////////////////////////////
@@ -105,6 +124,7 @@ public interface Constants {
     String BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT = "BROADCAST.GATEWAY_SETUP_WATCHER_EVENT";
     String BROADCAST_RESULT_CODE = "BROADCAST.RESULT_CODE";
     String BROADCAST_RESULT_KEY = "BROADCAST.RESULT_KEY";
+    String BROADCAST_DOWNLOAD_SERVICE_EVENT = "BROADCAST.DOWNLOAD_SERVICE_EVENT";
 
 
     //////////////////////////////////////////////

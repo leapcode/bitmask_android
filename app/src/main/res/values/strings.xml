@@ -142,4 +142,14 @@
   <string name="root_permission_error">%s cannot execute features like VPN Hotspot or IPv6 firewall without root permissions.</string>
   
   <string name="qs_enable_vpn">Start %s</string>
+  <string name="version_update_found">Tap here to start the download.</string>
+  <string name="version_update_title">A new %s version has been found.</string>
+  <string name="version_update_apk_description">Downloading a new %s version</string>
+  <string name="version_update_storage_access_required">Storage access is required to web update.</string>
+  <string name="version_update_storage_permission_denied">Storage permission request was denied.</string>
+  <string name="version_update_download_title">A new %s version has been downloaded.</string>
+  <string name="version_update_download_description">Tap here to install the update.</string>
+  <string name="version_update_error_pgp_verification">PGP verification error. Ignoring download.</string>
+  <string name="version_update_error">Update failed.</string>
+  <string name="version_update_error_permissions">No permissions to install app.</string>
 </resources>
