@@ -49,8 +49,7 @@ public interface Constants {
     int REQUEST_CODE_SWITCH_PROVIDER = 1;
     int REQUEST_CODE_LOG_IN = 2;
     int REQUEST_CODE_ADD_PROVIDER = 3;
-    int REQUEST_CODE_INSTALL_UPDATE = 4;
-    int REQUEST_CODE_REQUEST_UPDATE = 5;
+    int REQUEST_CODE_REQUEST_UPDATE = 4;
 
 
     //////////////////////////////////////////////

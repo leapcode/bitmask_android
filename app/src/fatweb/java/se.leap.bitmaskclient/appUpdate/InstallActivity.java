@@ -31,7 +31,6 @@ import java.io.File;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.utils.PreferenceHelper;
 
-import static se.leap.bitmaskclient.Constants.REQUEST_CODE_INSTALL_UPDATE;
 import static se.leap.bitmaskclient.Constants.REQUEST_CODE_REQUEST_UPDATE;
 import static se.leap.bitmaskclient.appUpdate.DownloadConnector.APP_TYPE;
 import static se.leap.bitmaskclient.appUpdate.FileProviderUtil.getUriFor;
@@ -45,7 +44,6 @@ public class InstallActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestPermissionAndInstall();
     }
-
 
     private void requestPermissionAndInstall() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !this.getPackageManager().canRequestPackageInstalls()) {
@@ -65,7 +63,8 @@ public class InstallActivity extends Activity {
             installIntent.setDataAndType(getUriFor(this.getApplicationContext(), update), APP_TYPE);
             installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            this.startActivityForResult(installIntent, REQUEST_CODE_INSTALL_UPDATE);
+            this.startActivity(installIntent);
+            finish();
         }
     }
 
@@ -79,17 +78,6 @@ public class InstallActivity extends Activity {
                 Toast.makeText(this, getString(R.string.version_update_error_permissions), Toast.LENGTH_LONG).show();
                 finish();
             }
-        } else if (requestCode == REQUEST_CODE_INSTALL_UPDATE) {
-            switch (resultCode) {
-                case RESULT_OK:
-                    Toast.makeText(this, "Update successful.", Toast.LENGTH_LONG).show();
-                    break;
-                case RESULT_CANCELED:
-                case RESULT_FIRST_USER:
-                    Toast.makeText(this, getString(R.string.version_update_error), Toast.LENGTH_LONG).show();
-                    break;
-            }
-            finish();
         }
     }
 }
