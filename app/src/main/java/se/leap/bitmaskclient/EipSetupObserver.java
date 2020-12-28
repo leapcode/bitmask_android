@@ -77,6 +77,7 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
 
     //The real timout is 4*2s + 1*4s + 1*8s + 1*16s + 1*32s + 1*64s = 132 s;
     private static final String TIMEOUT = "4";
+    private static final int UPDATE_CHECK_TIMEOUT = 1000*60*60*24*7;
     private Context context;
     private VpnProfile setupVpnProfile;
     private String observedProfileFromVpnStatus;
@@ -312,11 +313,17 @@ class EipSetupObserver extends BroadcastReceiver implements VpnStatus.StateListe
                 ProviderAPICommand.execute(context, ProviderAPI.DOWNLOAD_SERVICE_JSON, provider);
             }
 
-            DownloadServiceCommand.execute(context, CHECK_VERSION_FILE);
+            if (shouldCheckAppUpdate()) {
+                DownloadServiceCommand.execute(context, CHECK_VERSION_FILE);
+            }
             finishGatewaySetup(false);
         } else if ("TCP_CONNECT".equals(state)) {
             changingGateway.set(false);
         }
+    }
+
+    private boolean shouldCheckAppUpdate() {
+        return System.currentTimeMillis() - PreferenceHelper.getLastAppUpdateCheck(context) >= UPDATE_CHECK_TIMEOUT;
     }
 
     private void selectNextGateway() {

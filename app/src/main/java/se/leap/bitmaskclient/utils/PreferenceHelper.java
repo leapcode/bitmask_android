@@ -22,6 +22,7 @@ import static se.leap.bitmaskclient.Constants.ALLOW_TETHERING_WIFI;
 import static se.leap.bitmaskclient.Constants.ALWAYS_ON_SHOW_DIALOG;
 import static se.leap.bitmaskclient.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
 import static se.leap.bitmaskclient.Constants.EXCLUDED_APPS;
+import static se.leap.bitmaskclient.Constants.LAST_UPDATE_CHECK;
 import static se.leap.bitmaskclient.Constants.LAST_USED_PROFILE;
 import static se.leap.bitmaskclient.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.Constants.PROVIDER_EIP_DEFINITION;
@@ -120,6 +121,14 @@ public class PreferenceHelper {
                 remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
                 remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
                 apply();
+    }
+
+    public static void setLastAppUpdateCheck(Context context) {
+        putLong(context, LAST_UPDATE_CHECK, System.currentTimeMillis());
+    }
+
+    public static long getLastAppUpdateCheck(Context context) {
+        return getLong(context, LAST_UPDATE_CHECK, 0);
     }
 
     public static void restartOnUpdate(Context context, boolean isEnabled) {
@@ -221,6 +230,16 @@ public class PreferenceHelper {
         }
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         return preferences.getStringSet(EXCLUDED_APPS, new HashSet<>());
+    }
+
+    public static long getLong(Context context, String key, long defValue) {
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        return preferences.getLong(key, defValue);
+    }
+
+    public static void putLong(Context context, String key, long value) {
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putLong(key, value).apply();
     }
 
     public static String getString(Context context, String key, String defValue) {

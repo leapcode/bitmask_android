@@ -20,14 +20,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
 
 import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.utils.ConfigHelper;
+import se.leap.bitmaskclient.utils.PreferenceHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static se.leap.bitmaskclient.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
@@ -53,7 +52,6 @@ public class DownloadBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "DOWNLOAD ON RECEIVE!");
         String action = intent.getAction();
         if (action == null) {
             return;
@@ -74,7 +72,7 @@ public class DownloadBroadcastReceiver extends BroadcastReceiver {
                         break;
                     case UPDATE_NOT_FOUND:
                         if (resultData.getBoolean(NO_NEW_VERISON, false)) {
-                            //TODO: Save in preferences date, retry in a week
+                            PreferenceHelper.setLastAppUpdateCheck(context.getApplicationContext());
                         }
                         break;
                     case UPDATE_DOWNLOADED:

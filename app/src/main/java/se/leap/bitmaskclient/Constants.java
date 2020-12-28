@@ -37,6 +37,7 @@ public interface Constants {
     String SHOW_EXPERIMENTAL = "show_experimental";
     String USE_IPv6_FIREWALL = "use_ipv6_firewall";
     String RESTART_ON_UPDATE = "restart_on_update";
+    String LAST_UPDATE_CHECK = "last_update_check";
 
 
      //////////////////////////////////////////////
