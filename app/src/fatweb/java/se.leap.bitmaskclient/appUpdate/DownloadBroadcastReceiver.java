@@ -81,6 +81,7 @@ public class DownloadBroadcastReceiver extends BroadcastReceiver {
                         } else {
                             Toast.makeText(context.getApplicationContext(), context.getString(R.string.version_update_error), Toast.LENGTH_LONG).show();
                         }
+                        notificationManager.cancelNotifications();
                         break;
                     case DOWNLOAD_PROGRESS:
                         int progress = resultData.getInt(PROGRESS_VALUE, 0);
