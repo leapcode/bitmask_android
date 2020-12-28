@@ -58,8 +58,8 @@ public class GatewaysManager {
     private ArrayList<Gateway> presortedList = new ArrayList<>();
 
     public GatewaysManager(Context context) {
-        configureFromCurrentProvider();
         this.context = context;
+        configureFromCurrentProvider();
     }
 
     /**
