@@ -171,7 +171,7 @@ public class UpdateDownloadManager implements Logger, DownloadConnector.Download
 
         int version = -1;
         try {
-            version = Integer.valueOf(versionString);
+            version = Integer.parseInt(versionString);
         } catch (NumberFormatException e) {
             e.printStackTrace();
             Log.e(TAG, "could not parse version code: " + versionString);
