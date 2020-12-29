@@ -361,7 +361,7 @@ dependencies {
   //TODO: remove that library
   androidTestImplementation 'com.jayway.android.robotium:robotium-solo:5.6.3'
   testImplementation 'junit:junit:4.12'
-  testImplementation 'org.json:json:20170516'
+  testImplementation 'org.json:json:20180813'
   debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
   releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
   betaImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
@@ -371,21 +371,19 @@ dependencies {
   //TODO: replace that library
   compileOnly 'com.squareup.dagger:dagger-compiler:1.2.2'
   implementation 'com.github.pedrovgs:renderers:1.5'
-  implementation 'com.intellij:annotations:12.0'
-  implementation 'com.google.code.gson:gson:2.8.2'
-  implementation 'com.squareup.okhttp3:okhttp:3.9.0'
+  implementation 'com.google.code.gson:gson:2.8.6'
+  implementation 'com.squareup.okhttp3:okhttp:4.0.1'
   implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
-  implementation 'androidx.annotation:annotation:1.0.0'
+  implementation 'androidx.annotation:annotation:1.1.0'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-  implementation 'androidx.appcompat:appcompat:1.0.0'
-  implementation 'com.google.android.material:material:1.0.0'
-  implementation 'androidx.fragment:fragment:1.0.0'
-  implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-  implementation 'androidx.multidex:multidex:2.0.0'
+  implementation 'androidx.appcompat:appcompat:1.2.0'
+  implementation 'com.google.android.material:material:1.2.1'
+  implementation 'androidx.fragment:fragment:1.2.5'
+  implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+  implementation 'androidx.multidex:multidex:2.0.1'
   implementation 'androidx.cardview:cardview:1.0.0'
   implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
   implementation 'de.hdodenhof:circleimageview:3.1.0'
-  //implementation project(path: ':shapeshifter')
   fatwebImplementation project(path: ':bitmask-web-core')
   fatImplementation project(path: ':bitmask-core')
   x86Implementation project(path: ':bitmask-core')
@@ -449,12 +447,7 @@ configurations.all { config ->
       }
     }
   }
-  resolutionStrategy.force "com.android.support:support-annotations:28.0.0"
-  resolutionStrategy.force "com.android.support:support-v4:28.0.0"
-  resolutionStrategy.force "com.android.support:support-core-utils:28.0.0"
-  resolutionStrategy.force "com.android.support:appcompat-v7:28.0.0"
-  resolutionStrategy.force "com.android.support:design:28.0.0"
-  resolutionStrategy.force "com.android.support:support-fragment:28.0.0"
+  //resolutionStrategy.force "org.jetbrains:annotations:13.0"
 }
 
 subprojects {
