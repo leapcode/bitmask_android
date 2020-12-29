@@ -6,7 +6,7 @@
     style="@style/BitmaskActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CustomProviderSetupActivity">
+    tools:context=".providersetup.activities.CustomProviderSetupActivity">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="match_parent"

@@ -44,4 +44,5 @@
     <string name="circleImageView" translatable="false">CircleImageView</string>
     <string name="copyright_circleImageView" translatable="false">Copyright 2014 - 2020 Henning Dodenhof. Licensed under the Apache License, Version 2.0 </string>
 
+
 </resources>

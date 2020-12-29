@@ -36,7 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 
-import se.leap.bitmaskclient.utils.Cmd;
+import se.leap.bitmaskclient.base.utils.Cmd;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;

@@ -18,15 +18,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import de.blinkt.openvpn.core.ConfigParser;
-import se.leap.bitmaskclient.Provider;
-import se.leap.bitmaskclient.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.utils.ConfigHelper;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
-import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
-import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
 
 /**

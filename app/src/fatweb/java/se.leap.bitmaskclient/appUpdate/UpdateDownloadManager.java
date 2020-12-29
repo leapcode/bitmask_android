@@ -48,7 +48,7 @@ import static se.leap.bitmaskclient.appUpdate.DownloadService.UPDATE_NOT_FOUND;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.VERIFICATION_ERROR;
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.CHECK_VERSION_FILE;
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.DOWNLOAD_UPDATE;
-import static se.leap.bitmaskclient.utils.FileHelper.readPublicKey;
+import static se.leap.bitmaskclient.base.utils.FileHelper.readPublicKey;
 
 public class UpdateDownloadManager implements Logger, DownloadConnector.DownloadProgress {
 

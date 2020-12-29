@@ -70,7 +70,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <se.leap.bitmaskclient.views.VpnStateImage
+    <se.leap.bitmaskclient.base.views.VpnStateImage
         android:id="@+id/vpn_state_image"
         android:layout_width="0dp"
         android:layout_height="0dp"

@@ -21,9 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
-import static se.leap.bitmaskclient.utils.ConfigHelper.getProviderFormattedString;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
 
 public class VpnStatus {
 

@@ -34,16 +34,16 @@ import java.util.Map;
 import java.util.Set;
 
 import okhttp3.OkHttpClient;
-import se.leap.bitmaskclient.OkHttpClientGenerator;
-import se.leap.bitmaskclient.Provider;
-import se.leap.bitmaskclient.ProviderObservable;
+import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
+import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider;
 import se.leap.bitmaskclient.testutils.matchers.BundleMatcher;
-import se.leap.bitmaskclient.utils.ConfigHelper;
-import se.leap.bitmaskclient.utils.FileHelper;
-import se.leap.bitmaskclient.utils.InputStreamHelper;
-import se.leap.bitmaskclient.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.FileHelper;
+import se.leap.bitmaskclient.base.utils.InputStreamHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -57,11 +57,11 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
-import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.utils.FileHelper.createFile;
-import static se.leap.bitmaskclient.utils.PreferenceHelper.getEipDefinitionFromPreferences;
-import static se.leap.bitmaskclient.utils.PreferenceHelper.getFromPersistedProvider;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.utils.FileHelper.createFile;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getEipDefinitionFromPreferences;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getFromPersistedProvider;
 
 /**
  * Created by cyberta on 29.01.18.

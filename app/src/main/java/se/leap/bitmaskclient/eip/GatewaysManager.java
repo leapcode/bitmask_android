@@ -35,15 +35,15 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
-import se.leap.bitmaskclient.Provider;
-import se.leap.bitmaskclient.ProviderObservable;
+import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
-import static se.leap.bitmaskclient.Constants.GATEWAYS;
-import static se.leap.bitmaskclient.Constants.PROVIDER_PRIVATE_KEY;
-import static se.leap.bitmaskclient.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.utils.PreferenceHelper.getUsePluggableTransports;
+import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePluggableTransports;
 
 /**
  * @author parmegv

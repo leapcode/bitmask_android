@@ -22,7 +22,7 @@ import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
-import se.leap.bitmaskclient.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.ConfigHelper;
 
 public class VpnCertificateValidator {
     public final static String TAG = VpnCertificateValidator.class.getSimpleName();

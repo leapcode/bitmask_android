@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import static se.leap.bitmaskclient.utils.ConfigHelper.getCurrentTimezone;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getCurrentTimezone;
 
 public class GatewaySelector {
     private final static String TAG = GatewaySelector.class.getSimpleName();

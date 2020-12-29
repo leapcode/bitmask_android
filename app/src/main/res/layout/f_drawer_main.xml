@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:background="@color/colorBackground"
-    tools:context="se.leap.bitmaskclient.drawer.NavigationDrawerFragment"
+    tools:context=".base.fragments.NavigationDrawerFragment"
     android:clickable="true"
     android:focusable="true"
     android:fillViewport="true"
@@ -37,13 +37,13 @@
                 app:srcCompat="@drawable/drawer_logo" />
         </FrameLayout>
 
-        <se.leap.bitmaskclient.views.IconTextEntry
+        <se.leap.bitmaskclient.base.views.IconTextEntry
             android:id="@+id/account"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             />
 
-        <se.leap.bitmaskclient.views.IconTextEntry
+        <se.leap.bitmaskclient.base.views.IconTextEntry
             android:id="@+id/switch_provider"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
@@ -60,7 +60,7 @@
             android:background="@color/black800_high_transparent"
             />
 
-        <se.leap.bitmaskclient.views.IconSwitchEntry
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
             android:id="@+id/battery_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
             app:icon="@drawable/ic_battery_36"
             />
 
-        <se.leap.bitmaskclient.views.IconSwitchEntry
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
             android:id="@+id/bridges_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
             android:visibility="gone"
             />
 
-        <se.leap.bitmaskclient.views.IconTextEntry
+        <se.leap.bitmaskclient.base.views.IconTextEntry
             android:id="@+id/always_on_vpn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -89,7 +89,7 @@
             android:visibility="gone"
             />
 
-        <se.leap.bitmaskclient.views.IconTextEntry
+        <se.leap.bitmaskclient.base.views.IconTextEntry
             android:id="@+id/exclude_apps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
             android:background="@color/black800_high_transparent"
             />
 
-        <se.leap.bitmaskclient.views.IconSwitchEntry
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
             android:id="@+id/enableIPv6Firewall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -121,7 +121,7 @@
             tools:visibility="visible"
             />
 
-        <se.leap.bitmaskclient.views.IconTextEntry
+        <se.leap.bitmaskclient.base.views.IconTextEntry
             android:id="@+id/tethering"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -141,7 +141,7 @@
             tools:visibility="visible"
             />
 
-        <se.leap.bitmaskclient.views.IconTextEntry
+        <se.leap.bitmaskclient.base.views.IconTextEntry
             android:id="@+id/donate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -150,7 +150,7 @@
             android:visibility="gone"
             />
 
-        <se.leap.bitmaskclient.views.IconTextEntry
+        <se.leap.bitmaskclient.base.views.IconTextEntry
             android:id="@+id/log"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -158,7 +158,7 @@
             app:icon="@drawable/ic_log_36"
             />
 
-        <se.leap.bitmaskclient.views.IconTextEntry
+        <se.leap.bitmaskclient.base.views.IconTextEntry
             android:id="@+id/about"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

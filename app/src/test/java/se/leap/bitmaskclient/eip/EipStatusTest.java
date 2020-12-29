@@ -3,18 +3,14 @@ package se.leap.bitmaskclient.eip;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
-import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.testutils.MockHelper;
-import se.leap.bitmaskclient.testutils.TestSetupHelper;
-import se.leap.bitmaskclient.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_AUTH_FAILED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
@@ -26,7 +22,6 @@ import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INP
 import static de.blinkt.openvpn.core.ConnectionStatus.UNKNOWN_LEVEL;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static junit.framework.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;

@@ -23,11 +23,11 @@ import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.MainActivity;
+import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.R;
 
-import static se.leap.bitmaskclient.Constants.EIP_ACTION_PREPARE_VPN;
-import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.eip.EipResultBroadcast.tellToReceiverOrBroadcast;
 
 /**

@@ -45,14 +45,14 @@ import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.VpnNotificationManager;
+import se.leap.bitmaskclient.eip.VpnNotificationManager;
 import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
 import se.leap.bitmaskclient.firewall.FirewallManager;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
-import static se.leap.bitmaskclient.Constants.PROVIDER_PROFILE;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 
 
 public class OpenVPNService extends VpnService implements StateListener, Callback, ByteCountListener, IOpenVPNServiceInternal, VpnNotificationManager.VpnServiceCallback {
