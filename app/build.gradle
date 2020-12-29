@@ -447,7 +447,6 @@ configurations.all { config ->
       }
     }
   }
-  //resolutionStrategy.force "org.jetbrains:annotations:13.0"
 }
 
 subprojects {

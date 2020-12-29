@@ -6,10 +6,8 @@ import android.content.Intent;
 import android.os.ResultReceiver;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_CONFIGURE_TETHERING;
@@ -26,7 +24,7 @@ import static se.leap.bitmaskclient.base.models.Constants.EIP_RECEIVER;
 
 public class EipCommand {
 
-    private static void execute(@NotNull Context context, @NotNull String action) {
+    private static void execute(@NonNull Context context, @NonNull String action) {
         execute(context.getApplicationContext(), action, null, null);
     }
 
@@ -37,7 +35,7 @@ public class EipCommand {
      *               filter for the EIP class
      * @param resultReceiver The resultreceiver to reply to
      */
-    private static void execute(@NotNull Context context, @NotNull String action, @Nullable ResultReceiver resultReceiver, @Nullable Intent vpnIntent) {
+    private static void execute(@NonNull Context context, @NonNull String action, @Nullable ResultReceiver resultReceiver, @Nullable Intent vpnIntent) {
         if (vpnIntent == null) {
             vpnIntent = new Intent();
         }

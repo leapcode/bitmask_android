@@ -1,6 +1,6 @@
 package se.leap.bitmaskclient.providersetup.connectivity;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -15,7 +15,7 @@ import se.leap.bitmaskclient.base.utils.IPAddress;
 class DnsResolver implements Dns {
 
     @Override
-    public List<InetAddress> lookup(@NotNull String hostname) throws UnknownHostException {
+    public List<InetAddress> lookup(@NonNull String hostname) throws UnknownHostException {
         try {
             return Dns.SYSTEM.lookup(hostname);
         } catch (UnknownHostException e) {
