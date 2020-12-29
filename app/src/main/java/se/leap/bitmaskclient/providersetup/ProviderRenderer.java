@@ -1,14 +1,17 @@
 package se.leap.bitmaskclient.providersetup;
 
-import android.content.*;
-import android.view.*;
-import android.widget.*;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.pedrogomez.renderers.*;
+import com.pedrogomez.renderers.Renderer;
 
-import butterknife.*;
-import se.leap.bitmaskclient.base.models.Provider;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.Provider;
 
 /**
  * Created by parmegv on 4/12/14.
@@ -16,9 +19,9 @@ import se.leap.bitmaskclient.R;
 public class ProviderRenderer extends Renderer<Provider> {
     private final Context context;
 
-    @InjectView(R.id.provider_name)
+    @BindView(R.id.provider_name)
     TextView name;
-    @InjectView(R.id.provider_domain)
+    @BindView(R.id.provider_domain)
     TextView domain;
 
     public ProviderRenderer(Context context) {
@@ -28,7 +31,7 @@ public class ProviderRenderer extends Renderer<Provider> {
     @Override
     protected View inflate(LayoutInflater inflater, ViewGroup parent) {
         View view = inflater.inflate(R.layout.v_provider_list_item, parent, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         return view;
     }
 

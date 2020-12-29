@@ -365,9 +365,9 @@ dependencies {
   debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
   releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
   betaImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
-  annotationProcessor 'com.jakewharton:butterknife:6.1.0'
+  annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
   annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.2'
-  implementation 'com.jakewharton:butterknife:6.1.0'
+  implementation 'com.jakewharton:butterknife:10.2.1'
   //TODO: replace that library
   compileOnly 'com.squareup.dagger:dagger-compiler:1.2.2'
   implementation 'com.github.pedrovgs:renderers:1.5'

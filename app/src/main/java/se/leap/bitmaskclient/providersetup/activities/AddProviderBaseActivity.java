@@ -2,14 +2,15 @@ package se.leap.bitmaskclient.providersetup.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 
-import butterknife.InjectView;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import butterknife.BindView;
 import se.leap.bitmaskclient.R;
 
 import static se.leap.bitmaskclient.providersetup.activities.ProviderListBaseActivity.EXTRAS_KEY_INVALID_URL;
@@ -22,16 +23,16 @@ public abstract class AddProviderBaseActivity extends ConfigWizardBaseActivity {
 
     final public static String EXTRAS_KEY_NEW_URL = "NEW_URL";
 
-    @InjectView(R.id.text_uri_error)
+    @BindView(R.id.text_uri_error)
     TextInputLayout urlError;
 
-    @InjectView(R.id.text_uri)
+    @BindView(R.id.text_uri)
     TextInputEditText editUrl;
 
-    @InjectView(R.id.button_cancel)
+    @BindView(R.id.button_cancel)
     Button cancelButton;
 
-    @InjectView(R.id.button_save)
+    @BindView(R.id.button_save)
     Button saveButton;
 
 

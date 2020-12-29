@@ -30,15 +30,15 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnItemClick;
-import se.leap.bitmaskclient.providersetup.AddProviderActivity;
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.providersetup.AddProviderActivity;
 import se.leap.bitmaskclient.providersetup.ProviderListActivity;
+import se.leap.bitmaskclient.providersetup.ProviderListAdapter;
 import se.leap.bitmaskclient.providersetup.ProviderRenderer;
 import se.leap.bitmaskclient.providersetup.ProviderRendererBuilder;
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.providersetup.ProviderListAdapter;
 
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_ADD_PROVIDER;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
@@ -58,7 +58,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderSetupInterface.Provide
 
 public abstract class ProviderListBaseActivity extends ProviderSetupBaseActivity {
 
-    @InjectView(R.id.provider_list)
+    @BindView(R.id.provider_list)
     protected ListView providerListView;
     @Inject
     protected ProviderListAdapter adapter;

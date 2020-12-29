@@ -43,7 +43,7 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import se.leap.bitmaskclient.base.models.Constants.CREDENTIAL_ERRORS;
 import se.leap.bitmaskclient.base.models.Provider;
@@ -87,28 +87,28 @@ public abstract class ProviderCredentialsBaseActivity extends ConfigWizardBaseAc
     protected Intent mConfigState = new Intent(SHOWING_FORM);
     protected ProviderAPIBroadcastReceiver providerAPIBroadcastReceiver;
 
-    @InjectView(R.id.provider_credentials_user_message)
+    @BindView(R.id.provider_credentials_user_message)
     AppCompatTextView userMessage;
 
-    @InjectView(R.id.provider_credentials_username)
+    @BindView(R.id.provider_credentials_username)
     TextInputEditText usernameField;
 
-    @InjectView(R.id.provider_credentials_password)
+    @BindView(R.id.provider_credentials_password)
     TextInputEditText passwordField;
 
-    @InjectView(R.id.provider_credentials_password_verification)
+    @BindView(R.id.provider_credentials_password_verification)
     TextInputEditText passwordVerificationField;
 
-    @InjectView(R.id.provider_credentials_username_error)
+    @BindView(R.id.provider_credentials_username_error)
     TextInputLayout usernameError;
 
-    @InjectView(R.id.provider_credentials_password_error)
+    @BindView(R.id.provider_credentials_password_error)
     TextInputLayout passwordError;
 
-    @InjectView(R.id.provider_credentials_password_verification_error)
+    @BindView(R.id.provider_credentials_password_verification_error)
     TextInputLayout passwordVerificationError;
 
-    @InjectView(R.id.button)
+    @BindView(R.id.button)
     AppCompatButton button;
 
     private boolean isUsernameError = false;

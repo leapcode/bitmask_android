@@ -5,23 +5,24 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.Guideline;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.widget.AppCompatTextView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import butterknife.InjectView;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.Guideline;
+import androidx.core.content.ContextCompat;
+
+import butterknife.BindView;
 import butterknife.Optional;
-import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.views.ProviderHeaderView;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
@@ -42,32 +43,32 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     public static final float GUIDE_LINE_COMPACT_DELTA = 0.1f;
     protected SharedPreferences preferences;
 
-    @InjectView(R.id.header)
+    @BindView(R.id.header)
     ProviderHeaderView providerHeaderView;
 
     //Add provider screen has no loading screen
-    @Optional
-    @InjectView(R.id.loading_screen)
+    @Nullable
+    @BindView(R.id.loading_screen)
     protected LinearLayout loadingScreen;
 
-    @Optional
-    @InjectView(R.id.progressbar)
+    @Nullable
+    @BindView(R.id.progressbar)
     protected ProgressBar progressBar;
 
-    @Optional
-    @InjectView(R.id.progressbar_description)
+    @Nullable
+    @BindView(R.id.progressbar_description)
     protected AppCompatTextView progressbarText;
 
     //Only tablet layouts have guidelines as they are based on a ConstraintLayout
-    @Optional
-    @InjectView(R.id.guideline_top)
+    @Nullable
+    @BindView(R.id.guideline_top)
     protected Guideline guideline_top;
 
-    @Optional
-    @InjectView(R.id.guideline_bottom)
+    @Nullable
+    @BindView(R.id.guideline_bottom)
     protected Guideline guideline_bottom;
 
-    @InjectView(R.id.content)
+    @BindView(R.id.content)
     protected LinearLayout content;
 
     protected Provider provider;

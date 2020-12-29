@@ -11,7 +11,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import butterknife.InjectView;
+
+import butterknife.BindView;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.R;
 
@@ -22,10 +23,10 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
 
     final public static String TAG = "providerDetailActivity";
 
-    @InjectView(R.id.provider_detail_description)
+    @BindView(R.id.provider_detail_description)
     AppCompatTextView description;
 
-    @InjectView(R.id.provider_detail_options)
+    @BindView(R.id.provider_detail_options)
     ListView options;
 
     @Override
@@ -38,7 +39,6 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
         if (provider == null) {
             return;
         }
-
 
         setProviderHeaderText(provider.getName());
         description.setText(provider.getDescription());
@@ -54,7 +54,6 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
         } else {
             onAnonymouslySelected();
         }
-
 
         options.setAdapter(new ArrayAdapter<>(
                 this,

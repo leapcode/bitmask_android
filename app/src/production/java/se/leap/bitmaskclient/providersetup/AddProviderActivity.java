@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import butterknife.InjectView;
+import butterknife.BindView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.providersetup.activities.AddProviderBaseActivity;
 
@@ -12,7 +12,7 @@ public class AddProviderActivity extends AddProviderBaseActivity {
 
     final public static String TAG = "AddProviderActivity";
 
-    @InjectView(R.id.button_save)
+    @BindView(R.id.button_save)
     Button saveButton;
 
     @Override
