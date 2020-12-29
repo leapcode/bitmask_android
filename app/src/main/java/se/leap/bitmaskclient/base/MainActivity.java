@@ -35,7 +35,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.base.drawer.NavigationDrawerFragment;
+import se.leap.bitmaskclient.base.fragments.NavigationDrawerFragment;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipSetupListener;

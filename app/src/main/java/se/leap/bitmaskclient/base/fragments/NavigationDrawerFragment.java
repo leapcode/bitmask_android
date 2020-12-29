@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.leap.bitmaskclient.base.drawer;
+package se.leap.bitmaskclient.base.fragments;
 
 
 import android.app.Activity;
@@ -50,7 +50,6 @@ import java.util.Observer;
 import java.util.Set;
 
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.base.fragments.EipFragment;
 import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Provider;
@@ -60,11 +59,6 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.firewall.FirewallManager;
-import se.leap.bitmaskclient.base.fragments.AboutFragment;
-import se.leap.bitmaskclient.base.fragments.AlwaysOnDialog;
-import se.leap.bitmaskclient.base.fragments.ExcludeAppsFragment;
-import se.leap.bitmaskclient.base.fragments.LogFragment;
-import se.leap.bitmaskclient.base.fragments.TetheringDialog;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.IconSwitchEntry;
