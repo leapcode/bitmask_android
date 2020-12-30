@@ -31,9 +31,9 @@ import java.io.File;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
-import static se.leap.bitmaskclient.Constants.REQUEST_CODE_REQUEST_UPDATE;
 import static se.leap.bitmaskclient.appUpdate.DownloadConnector.APP_TYPE;
 import static se.leap.bitmaskclient.appUpdate.FileProviderUtil.getUriFor;
+import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_REQUEST_UPDATE;
 
 public class InstallActivity extends Activity {
 

@@ -20,10 +20,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.ResultReceiver;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import se.leap.bitmaskclient.ProviderAPI;
+import se.leap.bitmaskclient.providersetup.ProviderAPI;
 
 public class DownloadServiceCommand {
 
@@ -35,11 +35,11 @@ public class DownloadServiceCommand {
     private String action;
     private ResultReceiver resultReceiver;
 
-    private DownloadServiceCommand(@NotNull Context context, @NotNull String action) {
+    private DownloadServiceCommand(@NonNull Context context, @NonNull String action) {
         this(context.getApplicationContext(), action, null);
     }
 
-    private DownloadServiceCommand(@NotNull Context context, @NotNull String action, @Nullable ResultReceiver resultReceiver) {
+    private DownloadServiceCommand(@NonNull Context context, @NonNull String action, @Nullable ResultReceiver resultReceiver) {
         super();
         this.context = context;
         this.action = action;
