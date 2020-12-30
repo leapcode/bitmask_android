@@ -4,17 +4,19 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.CheckBox;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.appcompat.widget.AppCompatTextView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.CheckBox;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Unbinder;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.views.IconTextView;
 
@@ -31,14 +33,16 @@ public class AlwaysOnDialog extends AppCompatDialogFragment {
 
     public final static String TAG = AlwaysOnDialog.class.getName();
 
-    @InjectView(R.id.do_not_show_again)
+    @BindView(R.id.do_not_show_again)
     CheckBox doNotShowAgainCheckBox;
 
-    @InjectView(R.id.user_message)
+    @BindView(R.id.user_message)
     IconTextView userMessage;
 
-    @InjectView(R.id.block_vpn_user_message)
+    @BindView(R.id.block_vpn_user_message)
     AppCompatTextView blockVpnUserMessage;
+
+    private Unbinder unbinder;
 
 
     @Override
@@ -52,7 +56,7 @@ public class AlwaysOnDialog extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.d_checkbox_confirm, null);
-        ButterKnife.inject(this, view);
+        unbinder = ButterKnife.bind(this, view);
 
         userMessage.setIcon(R.drawable.ic_settings);
         userMessage.setText(getString(R.string.always_on_vpn_user_message));
@@ -72,5 +76,11 @@ public class AlwaysOnDialog extends AppCompatDialogFragment {
                 })
                 .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
         return builder.create();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

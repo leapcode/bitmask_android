@@ -6,19 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatDialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDialogFragment;
+
 import java.text.ParseException;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Unbinder;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.DateHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
@@ -35,11 +37,13 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
     public final static String TAG = DonationReminderDialog.class.getName();
     private static boolean isShown = false;
 
-    @InjectView(R.id.btnDonate)
+    @BindView(R.id.btnDonate)
     Button btnDonate;
 
-    @InjectView(R.id.btnLater)
+    @BindView(R.id.btnLater)
     Button btnLater;
+
+    private Unbinder unbinder;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,7 +56,7 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.donation_reminder_dialog, null);
-        ButterKnife.inject(this, view);
+        unbinder = ButterKnife.bind(this, view);
         isShown = true;
 
         builder.setView(view);
@@ -74,6 +78,12 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
         });
 
         return builder.create();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     public static boolean isCallable(Context context) {

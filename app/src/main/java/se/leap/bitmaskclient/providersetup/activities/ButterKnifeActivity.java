@@ -16,8 +16,9 @@
  */
 package se.leap.bitmaskclient.providersetup.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import butterknife.ButterKnife;
 
@@ -30,13 +31,13 @@ public abstract class ButterKnifeActivity extends AppCompatActivity {
     @Override
     public void setContentView(View view) {
         super.setContentView(view);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
     }
 
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
     }
 
     @Override

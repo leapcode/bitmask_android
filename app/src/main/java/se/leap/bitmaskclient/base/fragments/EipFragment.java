@@ -48,9 +48,10 @@ import androidx.fragment.app.FragmentTransaction;
 import java.util.Observable;
 import java.util.Observer;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
@@ -97,23 +98,22 @@ public class EipFragment extends Fragment implements Observer {
     private SharedPreferences preferences;
     private Provider provider;
 
-    @InjectView(R.id.background)
+    @BindView(R.id.background)
     AppCompatImageView background;
 
-    @InjectView(R.id.vpn_state_image)
+    @BindView(R.id.vpn_state_image)
     VpnStateImage vpnStateImage;
 
-    @InjectView(R.id.vpn_main_button)
+    @BindView(R.id.vpn_main_button)
     AppCompatButton mainButton;
 
-    @InjectView(R.id.routed_text)
+    @BindView(R.id.routed_text)
     AppCompatTextView routedText;
 
-    @InjectView(R.id.vpn_route)
+    @BindView(R.id.vpn_route)
     AppCompatTextView vpnRoute;
 
-
-
+    private Unbinder unbinder;
     private EipStatus eipStatus;
 
     //---saved Instance -------
@@ -157,8 +157,6 @@ public class EipFragment extends Fragment implements Observer {
 
     }
 
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -176,7 +174,7 @@ public class EipFragment extends Fragment implements Observer {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         eipStatus.addObserver(this);
         View view = inflater.inflate(R.layout.f_eip, container, false);
-        ButterKnife.inject(this, view);
+        unbinder = ButterKnife.bind(this, view);
 
         Bundle arguments = getArguments();
         if (arguments != null && arguments.containsKey(ASK_TO_CANCEL_VPN) && arguments.getBoolean(ASK_TO_CANCEL_VPN)) {
@@ -241,6 +239,7 @@ public class EipFragment extends Fragment implements Observer {
     public void onDestroyView() {
         super.onDestroyView();
         eipStatus.deleteObserver(this);
+        unbinder.unbind();
     }
 
     private void saveStatus(boolean restartOnBoot) {

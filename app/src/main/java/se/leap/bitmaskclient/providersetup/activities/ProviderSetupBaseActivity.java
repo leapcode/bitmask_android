@@ -21,12 +21,12 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -107,7 +107,7 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
 
 
     @Override
-    public void onSaveInstanceState(@NotNull Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString(ACTIVITY_STATE, providerConfigState.toString());
         outState.putString(REASON_TO_FAIL, reasonToFail);
 

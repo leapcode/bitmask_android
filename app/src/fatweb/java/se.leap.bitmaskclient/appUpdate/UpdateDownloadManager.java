@@ -28,14 +28,10 @@ import okhttp3.OkHttpClient;
 import pgpverify.Logger;
 import pgpverify.PgpVerifier;
 import se.leap.bitmaskclient.BuildConfig;
-import se.leap.bitmaskclient.OkHttpClientGenerator;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 
 import static android.text.TextUtils.isEmpty;
-import static se.leap.bitmaskclient.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_KEY;
-import static se.leap.bitmaskclient.ProviderAPI.RECEIVER_KEY;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.DOWNLOAD_FAILED;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.DOWNLOAD_PROGRESS;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.NO_NEW_VERISON;
@@ -48,7 +44,11 @@ import static se.leap.bitmaskclient.appUpdate.DownloadService.UPDATE_NOT_FOUND;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.VERIFICATION_ERROR;
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.CHECK_VERSION_FILE;
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.DOWNLOAD_UPDATE;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.utils.FileHelper.readPublicKey;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.RECEIVER_KEY;
 
 public class UpdateDownloadManager implements Logger, DownloadConnector.DownloadProgress {
 

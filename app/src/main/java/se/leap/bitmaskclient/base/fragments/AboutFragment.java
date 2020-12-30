@@ -3,14 +3,16 @@ package se.leap.bitmaskclient.base.fragments;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Unbinder;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 
@@ -20,17 +22,18 @@ public class AboutFragment extends Fragment {
 
     final public static String TAG = AboutFragment.class.getSimpleName();
     final public static int VIEWED = 0;
+    private Unbinder unbinder;
 
-    @InjectView(R.id.version)
+    @BindView(R.id.version)
     TextView versionTextView;
 
-    @InjectView(R.id.terms_of_service)
+    @BindView(R.id.terms_of_service)
     TextView termsOfService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.f_about, container, false);
-        ButterKnife.inject(this, view);
+        unbinder = ButterKnife.bind(this, view);
         return view;
     }
 
@@ -54,6 +57,12 @@ public class AboutFragment extends Fragment {
             termsOfService.setText(getString(getTermsOfServiceResource()));
             termsOfService.setVisibility(VISIBLE);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     private boolean hasTermsOfServiceResource() {

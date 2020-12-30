@@ -3,31 +3,32 @@ package se.leap.bitmaskclient.base.views;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.fragments.TetheringDialog;
 
 
 public class IconCheckboxEntry extends LinearLayout {
 
-    @InjectView(android.R.id.text1)
+    @BindView(android.R.id.text1)
     TextView textView;
 
-    @InjectView(R.id.material_icon)
+    @BindView(R.id.material_icon)
     AppCompatImageView iconView;
 
-    @InjectView(R.id.checked_icon)
+    @BindView(R.id.checked_icon)
     AppCompatImageView checkedIcon;
 
     public IconCheckboxEntry(Context context) {
@@ -55,10 +56,7 @@ public class IconCheckboxEntry extends LinearLayout {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rootview = inflater.inflate(R.layout.v_icon_select_text_list_item, this, true);
-        ButterKnife.inject(this, rootview);
-
-
-
+        ButterKnife.bind(this, rootview);
     }
 
     public void bind(TetheringDialog.DialogListAdapter.ViewModel model) {

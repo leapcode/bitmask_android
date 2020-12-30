@@ -7,8 +7,9 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import butterknife.InjectView;
-import butterknife.Optional;
+import androidx.annotation.Nullable;
+
+import butterknife.BindView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.providersetup.activities.AddProviderBaseActivity;
 
@@ -20,14 +21,14 @@ public class AddProviderActivity extends AddProviderBaseActivity {
 
     final public static String TAG = "AddProviderActivity";
 
-    @InjectView(R.id.danger_checkbox)
+    @BindView(R.id.danger_checkbox)
     CheckBox checkboxDanger;
 
-    @InjectView(R.id.button_save)
+    @BindView(R.id.button_save)
     Button saveButton;
 
-    @Optional
-    @InjectView(R.id.button_container)
+    @Nullable
+    @BindView(R.id.button_container)
     LinearLayout buttonContainer;
 
     @Override

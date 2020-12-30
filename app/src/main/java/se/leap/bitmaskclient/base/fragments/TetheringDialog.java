@@ -7,12 +7,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.appcompat.widget.AppCompatTextView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
@@ -22,19 +16,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.Observable;
 import java.util.Observer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Unbinder;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.firewall.FirewallManager;
-import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.IconCheckboxEntry;
+import se.leap.bitmaskclient.firewall.FirewallManager;
+import se.leap.bitmaskclient.tethering.TetheringObservable;
 
 /**
  * Copyright (c) 2020 LEAP Encryption Access Project and contributers
@@ -57,16 +59,17 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
 
     public final static String TAG = TetheringDialog.class.getName();
 
-    @InjectView(R.id.tvTitle)
+    @BindView(R.id.tvTitle)
     AppCompatTextView title;
 
-    @InjectView(R.id.user_message)
+    @BindView(R.id.user_message)
     AppCompatTextView userMessage;
 
-    @InjectView(R.id.selection_list_view)
+    @BindView(R.id.selection_list_view)
     RecyclerView selectionListView;
     DialogListAdapter adapter;
     private DialogListAdapter.ViewModel[] dataset;
+    private Unbinder unbinder;
 
     public static class DialogListAdapter extends RecyclerView.Adapter<DialogListAdapter.ViewHolder> {
 
@@ -137,7 +140,7 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.d_list_selection, null);
-        ButterKnife.inject(this, view);
+        unbinder = ButterKnife.bind(this, view);
 
         title.setText(R.string.tethering);
         userMessage.setMovementMethod(LinkMovementMethod.getInstance());
@@ -185,6 +188,12 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
     public void onPause() {
         super.onPause();
         TetheringObservable.getInstance().deleteObserver(this);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     public void onItemClick(DialogListAdapter.ViewModel item) {

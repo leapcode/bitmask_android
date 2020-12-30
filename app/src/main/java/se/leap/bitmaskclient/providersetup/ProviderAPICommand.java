@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import se.leap.bitmaskclient.base.models.Constants;
 import se.leap.bitmaskclient.base.models.Provider;
@@ -20,18 +20,18 @@ public class ProviderAPICommand {
     private ResultReceiver resultReceiver;
     private Provider provider;
 
-    private ProviderAPICommand(@NotNull Context context, @NotNull String action, @NotNull Provider provider, ResultReceiver resultReceiver) {
+    private ProviderAPICommand(@NonNull Context context, @NonNull String action, @NonNull Provider provider, ResultReceiver resultReceiver) {
         this(context.getApplicationContext(), action, Bundle.EMPTY, provider, resultReceiver);
     }
-    private ProviderAPICommand(@NotNull Context context, @NotNull String action, @NotNull Provider provider) {
+    private ProviderAPICommand(@NonNull Context context, @NonNull String action, @NonNull Provider provider) {
         this(context.getApplicationContext(), action, Bundle.EMPTY, provider);
     }
 
-    private ProviderAPICommand(@NotNull Context context, @NotNull String action, @NotNull Bundle parameters, @NotNull Provider provider) {
+    private ProviderAPICommand(@NonNull Context context, @NonNull String action, @NonNull Bundle parameters, @NonNull Provider provider) {
         this(context.getApplicationContext(), action, parameters, provider, null);
     }
 
-    private ProviderAPICommand(@NotNull Context context, @NotNull String action, @NotNull Bundle parameters, @NotNull Provider provider, @Nullable ResultReceiver resultReceiver) {
+    private ProviderAPICommand(@NonNull Context context, @NonNull String action, @NonNull Bundle parameters, @NonNull Provider provider, @Nullable ResultReceiver resultReceiver) {
         super();
         this.context = context;
         this.action = action;
@@ -64,22 +64,22 @@ public class ProviderAPICommand {
         return command;
     }
 
-    public static void execute(Context context, String action, @NotNull Provider provider) {
+    public static void execute(Context context, String action, @NonNull Provider provider) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, provider);
         command.execute();
     }
 
-    public static void execute(Context context, String action, Bundle parameters, @NotNull Provider provider) {
+    public static void execute(Context context, String action, Bundle parameters, @NonNull Provider provider) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, parameters, provider);
         command.execute();
     }
 
-    public static void execute(Context context, String action, Bundle parameters, @NotNull Provider provider, ResultReceiver resultReceiver) {
+    public static void execute(Context context, String action, Bundle parameters, @NonNull Provider provider, ResultReceiver resultReceiver) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, parameters, provider, resultReceiver);
         command.execute();
     }
 
-    public static void execute(Context context, String action, @NotNull Provider provider, ResultReceiver resultReceiver) {
+    public static void execute(Context context, String action, @NonNull Provider provider, ResultReceiver resultReceiver) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, provider, resultReceiver);
         command.execute();
     }

@@ -22,13 +22,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import se.leap.bitmaskclient.Constants;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.Constants;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
-import static se.leap.bitmaskclient.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
-import static se.leap.bitmaskclient.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.DOWNLOAD_PROGRESS;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.NO_NEW_VERISON;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.PROGRESS_VALUE;
@@ -38,6 +36,8 @@ import static se.leap.bitmaskclient.appUpdate.DownloadService.UPDATE_FOUND;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.UPDATE_NOT_FOUND;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.VERIFICATION_ERROR;
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.DOWNLOAD_UPDATE;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 
 public class DownloadBroadcastReceiver extends BroadcastReceiver {
 

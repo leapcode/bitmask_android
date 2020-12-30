@@ -23,7 +23,8 @@ import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import se.leap.bitmaskclient.OkHttpClientGenerator;
+import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
+
 
 public class DownloadService extends JobIntentService implements UpdateDownloadManager.DownloadServiceCallback {
 
