@@ -199,6 +199,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     private boolean runningOnAndroidTV() {
         UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+        if (uiModeManager == null)
+            return false;
         return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
     }
 
@@ -393,6 +395,13 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return;
         }
         String nativeLibraryDirectory = getApplicationInfo().nativeLibraryDir;
+        String tmpDir;
+        try {
+            tmpDir = getApplication().getCacheDir().getCanonicalPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+            tmpDir = "/tmp";
+        }
 
         // Write OpenVPN binary
         String[] argv = VPNLaunchHelper.buildOpenvpnArgv(this);
@@ -439,7 +448,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             processThread = (Runnable) mOpenVPN3;
             mManagement = mOpenVPN3;
         } else {
-            processThread = new OpenVPNThread(this, argv, nativeLibraryDirectory);
+            processThread = new OpenVPNThread(this, argv, nativeLibraryDirectory, tmpDir);
             mOpenVPNThread = processThread;
         }
 
@@ -570,7 +579,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         VpnStatus.logInfo(R.string.last_openvpn_tun_config);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && mProfile.mAllowLocalLAN) {
+        boolean allowUnsetAF = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !mProfile.mBlockUnusedAddressFamilies;
+        if (allowUnsetAF) {
             allowAllAFFamilies(builder);
         }
 
@@ -673,15 +683,34 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             builder.addSearchDomain(mDomain);
 
         String ipv4info;
+        String ipv6info;
+        if (allowUnsetAF) {
+            ipv4info = "(not set, allowed)";
+            ipv6info = "(not set, allowed)";
+        } else {
+            ipv4info = "(not set)";
+            ipv6info = "(not set)";
+        }
+
         int ipv4len;
         if (mLocalIP!=null) {
             ipv4len=mLocalIP.len;
             ipv4info=mLocalIP.mIp;
         } else {
             ipv4len = -1;
-            ipv4info="(not set)";
         }
-        VpnStatus.logInfo(R.string.local_ip_info, ipv4info, ipv4len, mLocalIPv6, mMtu);
+
+        if (mLocalIPv6!=null)
+        {
+            ipv6info = mLocalIPv6;
+        }
+
+        if ((!mRoutes.getNetworks(false).isEmpty() || !mRoutesv6.getNetworks(false).isEmpty()) && isLockdownEnabledCompat())
+        {
+            VpnStatus.logInfo("VPN lockdown enabled (do not allow apps to bypass VPN) enabled. Route exclusion will not allow apps to bypass VPN (e.g. bypass VPN for local networks)");
+        }
+
+        VpnStatus.logInfo(R.string.local_ip_info, ipv4info, ipv4len, ipv6info, mMtu);
         VpnStatus.logInfo(R.string.dns_server_info, TextUtils.join(", ", mDnslist), mDomain);
         VpnStatus.logInfo(R.string.routes_info_incl, TextUtils.join(", ", mRoutes.getNetworks(true)), TextUtils.join(", ", mRoutesv6.getNetworks(true)));
         VpnStatus.logInfo(R.string.routes_info_excl, TextUtils.join(", ", mRoutes.getNetworks(false)), TextUtils.join(", ", mRoutesv6.getNetworks(false)));
@@ -692,6 +721,12 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             // VPN always uses the default network
             builder.setUnderlyingNetworks(null);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Setting this false, will cause the VPN to inherit the underlying network metered
+            // value
+            builder.setMetered(false);
         }
 
 
@@ -734,6 +769,15 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return null;
         }
 
+    }
+
+    private boolean isLockdownEnabledCompat() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return isLockdownEnabled();
+        } else {
+            /* We cannot determine this, return false */
+            return false;
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -821,6 +865,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             VpnStatus.logDebug(R.string.disallowed_vpn_apps_info, TextUtils.join(", ", mProfile.mAllowedAppsVpn));
         } else {
             VpnStatus.logDebug(R.string.allowed_vpn_apps_info, TextUtils.join(", ", mProfile.mAllowedAppsVpn));
+        }
+
+        if (mProfile.mAllowAppVpnBypass) {
+            builder.allowBypass();
+            VpnStatus.logDebug("Apps may bypass VPN");
         }
     }
 

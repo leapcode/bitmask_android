@@ -165,6 +165,7 @@ public class VpnProfile implements Serializable, Cloneable {
     public boolean mRemoteRandom = false;
     public HashSet<String> mAllowedAppsVpn = new HashSet<>();
     public boolean mAllowedAppsVpnAreDisallowed = true;
+    public boolean mAllowAppVpnBypass = false;
     public String mCrlFilename;
     public String mProfileCreator;
     public String mExternalAuthenticator;
@@ -186,6 +187,7 @@ public class VpnProfile implements Serializable, Cloneable {
     // set members to default values
     private UUID mUuid;
     private int mProfileVersion;
+    public boolean mBlockUnusedAddressFamilies = true;
     public String mGatewayIp;
     public boolean mUsePluggableTransports;
 
@@ -509,15 +511,18 @@ public class VpnProfile implements Serializable, Cloneable {
 
         if (mUseTLSAuth) {
             boolean useTlsCrypt = mTLSAuthDirection.equals("tls-crypt");
+            boolean useTlsCrypt2 = mTLSAuthDirection.equals("tls-crypt-v2");
 
             if (mAuthenticationType == TYPE_STATICKEYS)
                 cfg.append(insertFileData("secret", mTLSAuthFilename));
             else if (useTlsCrypt)
                 cfg.append(insertFileData("tls-crypt", mTLSAuthFilename));
+            else if (useTlsCrypt2)
+                cfg.append(insertFileData("tls-crypt-v2", mTLSAuthFilename));
             else
                 cfg.append(insertFileData("tls-auth", mTLSAuthFilename));
 
-            if (!TextUtils.isEmpty(mTLSAuthDirection) && !useTlsCrypt) {
+            if (!TextUtils.isEmpty(mTLSAuthDirection) && !useTlsCrypt && !useTlsCrypt2) {
                 cfg.append("key-direction ");
                 cfg.append(mTLSAuthDirection);
                 cfg.append("\n");

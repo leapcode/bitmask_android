@@ -4,8 +4,7 @@ import java.util.regex.Pattern
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 28
-  buildToolsVersion '28.0.3'
+  compileSdkVersion 30
 
   compileOptions {
     targetCompatibility 1.8
@@ -17,7 +16,7 @@ android {
     versionCode 149
     versionName "1.0.5"
     minSdkVersion 16
-    targetSdkVersion 28
+    targetSdkVersion 30
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
 
@@ -372,7 +371,7 @@ dependencies {
   compileOnly 'com.squareup.dagger:dagger-compiler:1.2.2'
   implementation 'com.github.pedrovgs:renderers:1.5'
   implementation 'com.google.code.gson:gson:2.8.6'
-  implementation 'com.squareup.okhttp3:okhttp:4.0.1'
+  implementation 'com.squareup.okhttp3:okhttp:3.12.12'
   implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
   implementation 'androidx.annotation:annotation:1.1.0'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -453,8 +452,7 @@ subprojects {
   afterEvaluate {project ->
     if (project.hasProperty("android")) {
       android {
-        compileSdkVersion 28
-        buildToolsVersion "28.0.3"
+        compileSdkVersion 30
       }
     }
   }
