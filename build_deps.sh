@@ -1,4 +1,4 @@
-./#!/bin/bash
+#!/bin/bash
 
 function quit {
     echo "Task failed. $1."

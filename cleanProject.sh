@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#git checkout -- \*
-#git checkout -- \.\*
+git checkout -- \*
+git checkout -- \.\*
 
 rm -r ./ics-openvpn
 rm -r ./build
