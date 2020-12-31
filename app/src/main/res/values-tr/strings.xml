@@ -140,4 +140,5 @@
   <string name="warning_option_try_ovpn">Standart bağlantıyı dene</string>
   <string name="vpn_error_establish">Android, VPN hizmetini kurmakta başarısız oldu.</string>
   <string name="root_permission_error">%s, VPN Hotspot veya IPv6 güvenlik duvarı özelliklerini yönetici izinleri olmadan çalıştıramıyor.</string>
+  <string name="qs_enable_vpn">%s Başlat</string>
 </resources>

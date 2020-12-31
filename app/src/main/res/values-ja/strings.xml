@@ -102,7 +102,7 @@
   <string name="vpn_certificate_is_invalid">VPN証明書が不正です。 新しくダウンロードし直してください。</string>
   <string name="vpn_certificate_user_message">VPN証明書が不正です。 ログインして新しくダウンロードし直してください。</string>
   <string name="save_battery">バッテリー節約</string>
-  <string name="subtitle_save_battery">VPNホットスポットの間無効にします</string>
+  <string name="subtitle_save_battery">VPNホットスポットがオンの間無効にします</string>
   <string name="save_battery_message">お使いの携帯電話を使用していない時に、バックグラウンドのデータ接続は休止状態になります。</string>
   <string name="always_on_vpn">常時VPN接続</string>
   <string name="subtitle_always_on_vpn">Androidのシステム設定を開く</string>
@@ -139,4 +139,5 @@
   <string name="warning_option_try_ovpn">標準接続を試みる</string>
   <string name="vpn_error_establish">AndroidはVPNサービスを確立できませんでした。</string>
   <string name="root_permission_error">root権限がないと %s がVPNホットスポットやIPv6ファイアウォールなどの機能を実行できません。</string>
+  <string name="qs_enable_vpn">%s 開始</string>
 </resources>

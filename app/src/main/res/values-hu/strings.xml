@@ -102,13 +102,16 @@
   <string name="vpn_certificate_is_invalid">A VPN tanúsítvány érvénytelen. Próbáljon meg letölteni egy újat.</string>
   <string name="vpn_certificate_user_message">A VPN tanúsítvány érvénytelen. Kérjük lépjen be egy új letöltéséhez.</string>
   <string name="save_battery">Akkumulátor takarékos</string>
-  <string name="subtitle_save_battery">Letiltás, ha VPN Hotspot-on van</string>
+  <string name="subtitle_save_battery">Letiltás, ha VPN Hotspot bekapcsolt</string>
   <string name="save_battery_message">A háttér adat kommunikációk hibernálásra kerülnek, ha a telefonja inaktív.</string>
   <string name="always_on_vpn">Mindig bekapcsolt VPN</string>
   <string name="subtitle_always_on_vpn">Az Android Rendszer beállítások megnyitása</string>
   <string name="tethering">VPN Hotspot</string>
   <string name="ipv6Firewall">IPv6 letiltása</string>
   <string name="require_root">Szükséges root jogosultság</string>
+  <string name="show_experimental">Kísérleti funkciók megjelenítése</string>
+  <string name="hide_experimental">Kísérleti funkciók elrejtése</string>
+  <string name="tethering_enabled_message">Kérjük biztosítsa, hogy engedélyezi a tetheringet a <![CDATA[<b>rendszer beállításokba</b>]]> először.</string>
   <string name="tethering_message">Oszd meg a VPN-t más eszközökkel ezen keresztül:</string>
   <string name="tethering_wifi">Wifi hotspot</string>
   <string name="tethering_usb">USB tethering</string>
@@ -137,4 +140,5 @@
   <string name="warning_option_try_ovpn">Hagyományos kapcsolat próbálkozás</string>
   <string name="vpn_error_establish">Az Androidnak nem sikerült létre hozni VPN szolgáltatást.</string>
   <string name="root_permission_error">%s nem tud elindítani szolgáltatásokat, mint VPN Hotpsot vagy IPv6 tűzfal, root jogok nélkül.</string>
+  <string name="qs_enable_vpn">%s indítása</string>
 </resources>

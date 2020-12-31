@@ -94,6 +94,7 @@
   <string name="update_certificate">Actualizar certificado</string>
   <string name="warning_eip_json_corrupted">No se pudo actualizar la configuración del proveedor.</string>
   <string name="eip_json_corrupted_user_message">No se pudo actualizar la configuración del proveedor. Por favor inicia sesión e inténtalo de nuevo.</string>
+  <string name="warning_client_parsing_error_gateways">Pasarela de proveedor no encontrado o no conocida. Es posible que no esté bien configurada.</string>
   <string name="warning_corrupted_provider_details">Los detalles almacenados de este proveedor están corrompidos. Puedes actualizar %s (recomendado), o bien actualizar los detalles del proveedor usando un certificado de una autoridad de certificación comercial.</string>
   <string name="warning_corrupted_provider_cert">El certificado almacenado de este proveedor es inválido. Puedes actualizar %s (recomendado) o actualizar el certificado del proveedor usando una autoridad de certificación comercial. </string>
   <string name="warning_expired_provider_cert">El certificado almacenado de este proveedor ha caducado. Puedes actualizar %s (recomendado) o actualizar el certificado de proveedor usando una autoridad de certificación comercial.</string>
@@ -101,9 +102,20 @@
   <string name="vpn_certificate_is_invalid">El certificado de la VPN no es válido. Trata de descargar uno nuevo.</string>
   <string name="vpn_certificate_user_message">El certificado de la VPN no es válido. Por favor inicia sesión para descargar uno nuevo.</string>
   <string name="save_battery">Ahorrar batería</string>
+  <string name="subtitle_save_battery">Deshabilitado mientras está activo como punto de acceso a VPN</string>
   <string name="save_battery_message">Las conexiones de datos de segundo plano hibernarán cuando tu teléfono esté inactivo.</string>
   <string name="always_on_vpn">VPN siempre activa</string>
-  <string name="subtitle_always_on_vpn">Abrir Configuración del Sistema de Android</string>
+  <string name="subtitle_always_on_vpn">Configuración del sistema Open Android</string>
+  <string name="tethering">Punto de acceso a VPN</string>
+  <string name="ipv6Firewall">Bloquear IPv6</string>
+  <string name="require_root">Requiere permisos de superusuaria</string>
+  <string name="show_experimental">Mostrar características experimentales</string>
+  <string name="hide_experimental">Ocultar características experimentales</string>
+  <string name="tethering_enabled_message">Por favor asegúrate de habilitar primero tethering en los <![CDATA[<b>ajustes de sistema</b>]]>.</string>
+  <string name="tethering_message">Comparte tu VPN con otros dispositivos vía:</string>
+  <string name="tethering_wifi">Punto de acceso wifi</string>
+  <string name="tethering_usb">Tethering USB</string>
+  <string name="tethering_bluetooth">Tethering bluetooth</string>
   <string name="do_not_show_again">No mostrar de nuevo.</string>
   <string name="always_on_vpn_user_message">Para habilitar VPN siempre activa en las configuraciones de VPN de Android, haz clic en el ícono de configuración [img src] y activa el selector.</string>
   <string name="always_on_blocking_vpn_user_message">Para proteger tu privacidad de manera óptima, también deberías activar la opción \"Bloquear conexiones sin VPN\". </string>
@@ -112,9 +124,11 @@
   <string name="donate_message">LEAP depende de donaciones y subvenciones. Por favor haz una donación hoy si valoras la comunicación segura que es fácil tanto para el usuario final como para el proveedor de servicio.</string>
   <string name="donate_button_remind_later">Recordármelo más tarde</string>
   <string name="donate_button_donate">Donar</string>
-  <string name="obfuscated_connection">Probando una conexión ofuscada.</string>
+  <string name="obfuscated_connection">Usando una conexión ofuscada.</string>
   <string name="obfuscated_connection_try">Probando una conexión ofuscada.</string>
   <string name="nav_drawer_obfuscated_connection">Usando Puentes</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">Evadir cribado de VPN</string>
+  <string name="warning_exclude_apps_message">Ten cuidado de excluir aplicaciones de la VPN. Esto revelará tu identidad y comprometerá tu seguridad.</string>
   <plurals name="subtitle_exclude_apps">
     <item quantity="one">%d aplicación desprotegida</item>
     <item quantity="other">%d aplicaciones desprotegidas</item>
@@ -125,4 +139,6 @@
   <string name="warning_option_try_pt">Probar conexión ofuscada</string>
   <string name="warning_option_try_ovpn">Probar conexión estándar</string>
   <string name="vpn_error_establish">Android no se pudo establecer el servicio VPN.</string>
+  <string name="root_permission_error">%s no puede ejecutar las funciones de punto de acceso a VPN o cortafuegos IPv6 si no dispone de permisos de superusuaria.</string>
+  <string name="qs_enable_vpn">Iniciar %s</string>
 </resources>

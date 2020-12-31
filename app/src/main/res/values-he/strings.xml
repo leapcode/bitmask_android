@@ -15,9 +15,9 @@
   <string name="provider_label_none">לא נקבעה תצורת ספק</string>
   <string name="status_unknown">מעמד בלתי ידוע.</string>
   <string name="eip_service_label">גישת אינטרנט VPN מוצפנת</string>
-  <string name="configuration_wizard_title">בחר ספק שירותים</string>
+  <string name="configuration_wizard_title">בחר ספק שרות</string>
   <string name="add_provider">הוסף ספק חדש</string>
-  <string name="introduce_new_provider">הוסף ספק שירותים חדש</string>
+  <string name="introduce_new_provider">הוסף ספק חדש של שרות</string>
   <string name="save">שמור</string>
   <string name="new_provider_uri">שם תחום</string>
   <string name="valid_url_entered">הכתובת תקפה</string>
@@ -55,12 +55,12 @@
   <string name="error.security.pinnedcertificate">שגיאת אבטחה. שדרג את היישום או נסה ספק אחר.</string>
   <string name="malformed_url">נראה שזה לא ספק %s.</string>
   <string name="certificate_error">זה לא ספק %s מהימן.</string>
-  <string name="service_is_down_error">השירות אינו פעיל.</string>
+  <string name="service_is_down_error">השרות אינו פעיל.</string>
   <string name="configuring_provider">מתצר ספק</string>
   <string name="incorrectly_downloaded_certificate_message">התעודה האלמונית שלך לא ירדה</string>
   <string name="downloading_certificate_message">מוריד תעודת VPN</string>
   <string name="updating_certificate_message">מעדכן תעודת VPN</string>
-  <string name="login.riseup.warning">משתמשי Riseup יצטרכו ליצור חשבון נפרד כדי להשתמש בשירות ה־VPN</string>
+  <string name="login.riseup.warning">משתמשי Riseup יצטרכו ליצור חשבון נפרד כדי להשתמש בשרות ה־VPN</string>
   <string name="succesful_authentication_message">אומת בהצלחה</string>
   <string name="authentication_failed_message">אימות נכשל</string>
   <string name="registration_failed_message">הרשמה נכשלה</string>
@@ -120,8 +120,8 @@
   <string name="always_on_vpn_user_message">כדי לאפשר VPN תמיד פועל בהגדרות VPN של Android, לחץ על הצלמית הגדר [img src] והפעל את המתג.</string>
   <string name="always_on_blocking_vpn_user_message">כדי להגן על פרטיותך באופן הרצוי ביותר, אתה גם צריך להפעיל את האפשרות \"חסום חיבורים ללא VPN\".</string>
   <string name="donate_title">תרום</string>
-  <string name="donate_default_message">אנא תרום היום אם אתה מעריך תקשורת מאובטחת שקלה גם עבור משתמש־הקצה וגם עבור ספק השירות.</string>
-  <string name="donate_message">LEAP מסתמך על תרומות ומענקים. אנא תרום היום אם אתה מעריך תקשורת מאובטחת שקלה גם עבור משתמש־הקצה וגם עבור ספק השירות.</string>
+  <string name="donate_default_message">אנא תרום היום אם אתה מעריך תקשורת מאובטחת שקלה גם עבור משתמש־הקצה וגם עבור ספק השרות.</string>
+  <string name="donate_message">LEAP מסתמך על תרומות ומענקים. אנא תרום היום אם אתה מעריך תקשורת מאובטחת שקלה גם עבור משתמש־הקצה וגם עבור ספק השרות.</string>
   <string name="donate_button_remind_later">הזכר לי מאוחר יותר</string>
   <string name="donate_button_donate">תרום</string>
   <string name="obfuscated_connection">משתמש בחיבור מאופל.</string>
@@ -140,7 +140,7 @@
   <string name="warning_no_more_gateways_use_ovpn">%s לא היה יכול להתחבר ע״י שימוש בחיבורי VPN מאורפלים. האם אתה רוצה לנסות להתחבר ע״י שימוש בחיבור VPN תקני?</string>
   <string name="warning_option_try_pt">נסה חיבור מאופל</string>
   <string name="warning_option_try_ovpn">נסה חיבור תקני</string>
-  <string name="vpn_error_establish">Android נכשל בהקמת שירות VPN.</string>
+  <string name="vpn_error_establish">Android נכשל בהקמת שרות VPN.</string>
   <string name="root_permission_error">%s אינו יכול לבצע מאפיינים כמו נקודה חמה של VPN או חומת אש IPv6 בלי הרשאות שורש.</string>
   <string name="qs_enable_vpn">התחל את %s</string>
 </resources>

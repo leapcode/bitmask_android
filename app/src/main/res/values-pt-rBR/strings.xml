@@ -105,6 +105,8 @@
   <string name="save_battery_message">Conexões de dados em segundo plano vão hibernar quando o seu telefone estiver inativo.</string>
   <string name="always_on_vpn">VPN sempre ativa</string>
   <string name="subtitle_always_on_vpn">Abrir configurações do Android</string>
+  <string name="show_experimental">Mostrar recursos experimentais</string>
+  <string name="hide_experimental">Esconder recursos experimentais</string>
   <string name="do_not_show_again">Não mostrar novamente</string>
   <string name="always_on_vpn_user_message">Para habilitar VPN sempre ativa nas configurações de VPN clique no ícone de configurar [img src] e mude para ligado. </string>
   <string name="always_on_blocking_vpn_user_message">Para proteger sua privacidade da melhor forma, você deveria ativar também a opção \"Bloqueie conexões sem VPN\"</string>

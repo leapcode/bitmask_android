@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="retry">Ressayer</string>
+  <string name="retry">Réessayer</string>
   <string name="repository_url_text">Le code source se trouve sur https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Le système de suivi des problèmes se trouve sur https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="translation_project_text">Les traductions sont les bienvenues et nous les valorisons. Consulter notre projet Transifex sur https://www.transifex.com/projects/p/bitmask-android/</string>
@@ -33,12 +33,12 @@
   <string name="user_message">Message utilisateur</string>
   <string name="about_fragment_title">À propos</string>
   <string name="exclude_apps_fragment_title">Exclure des applis du RPV</string>
-  <string name="error_srp_math_error_user_message">Ressayez : erreur mathématique du serveur</string>
+  <string name="error_srp_math_error_user_message">Réessayez : erreur mathématique du serveur</string>
   <string name="error_bad_user_password_user_message">Nom d’utilisateur ou mot de passe erroné</string>
   <string name="error_not_valid_password_user_message">ll doit comporter au moins 8 caractères</string>
-  <string name="error_client_http_user_message">Ressayez : erreur HTTP du client</string>
-  <string name="error_io_exception_user_message">Ressayez : erreur E/S</string>
-  <string name="error_json_exception_user_message">Ressayez : mauvaise réponse du serveur</string>
+  <string name="error_client_http_user_message">Réessayez : erreur HTTP du client</string>
+  <string name="error_io_exception_user_message">Réessayez : erreur E/S</string>
+  <string name="error_json_exception_user_message">Réessayez : mauvaise réponse du serveur</string>
   <string name="error_no_such_algorithm_exception_user_message">L’algorithme de chiffrement est introuvable. Veuillez mettre votre Android à niveau !</string>
   <string name="signup_or_login_button">Inscription/Connexion</string>
   <string name="login_button">Connexion</string>
@@ -51,7 +51,7 @@
   <string name="setup_error_configure_button">Configurer</string>
   <string name="setup_error_close_button">Quitter</string>
   <string name="setup_error_text">Une erreur est survenue lors de la configuration de %s avec le fournisseur de votre choix.\n\nVous pouvez soit reconfigurer, soit quitter et configurer un fournisseur lors du prochain lancement.</string>
-  <string name="server_unreachable_message">Le serveur est inaccessible, veuillez ressayer.</string>
+  <string name="server_unreachable_message">Le serveur est inaccessible, veuillez réessayer.</string>
   <string name="error.security.pinnedcertificate">Erreur de sécurité. Mettre l’appli à niveau ou choisir un autre fournisseur.</string>
   <string name="malformed_url">Cela ne semble pas être un fournisseur %s.</string>
   <string name="certificate_error">Ce n’est pas un fournisseur %s de confiance.</string>
@@ -93,12 +93,12 @@
   <string name="update_provider_details">Mettre les renseignements de fournisseur à jour</string>
   <string name="update_certificate">Mettre le certificat à jour</string>
   <string name="warning_eip_json_corrupted">Échec de mise à jour de la configuration du fournisseur.</string>
-  <string name="eip_json_corrupted_user_message">Échec de mise à jour de la configuration du fournisseur. Veuillez vous connecter pour ressayer.</string>
+  <string name="eip_json_corrupted_user_message">Échec de mise à jour de la configuration du fournisseur. Veuillez vous connecter pour réessayer.</string>
   <string name="warning_client_parsing_error_gateways">Les passerelles du fournisseur n’ont pas été reconnues. Elles ont peut-être été configurées incorrectement.</string>
   <string name="warning_corrupted_provider_details">Les renseignements de fournisseur enregistrés sont corrompus. Vous pouvez soit mettre %s à jour (recommandé), soit mettre les renseignements de fournisseur à jour en utilisant un certificat CA commercial.</string>
   <string name="warning_corrupted_provider_cert">Le certificat de fournisseur enregistré est invalide. Vous pouvez soit mettre %s à jour (recommandé), soit mettre le certificat de fournisseur à jour en utilisant un certificat CA commercial.</string>
   <string name="warning_expired_provider_cert">Le certificat de fournisseur enregistré est expiré. Vous pouvez soit mettre %s à jour (recommandé), soit mettre le certificat de fournisseur à jour en utilisant un certificat CA commercial.</string>
-  <string name="downloading_vpn_certificate_failed">Échec de téléchargement du certificat du RPV. Ressayez ou choisissez un autre fournisseur.</string>
+  <string name="downloading_vpn_certificate_failed">Échec de téléchargement du certificat du RPV. Réessayez ou choisissez un autre fournisseur.</string>
   <string name="vpn_certificate_is_invalid">Le certificat du RPV est invalide. Essayez d’en télécharger un nouveau.</string>
   <string name="vpn_certificate_user_message">Le certificat du RPV est invalide. Veuillez vous connecter pour en télécharger un nouveau.</string>
   <string name="save_battery">Économiser la pile</string>
@@ -133,11 +133,12 @@
     <item quantity="one">%d appli non protégée</item>
     <item quantity="other">%d applis non protégées</item>
   </plurals>
-  <string name="warning_no_more_gateways_use_pt">%s n’a pas pu se connecter. Les connexions RPV sont peut-être bloquées. Souhaitez-vous tenter de vous connecter en essayant des connexions brouillées ?</string>
-  <string name="warning_no_more_gateways_no_pt">%s n’a pas pu se connecter. Souhaitez-vous ressayer ?</string>
-  <string name="warning_no_more_gateways_use_ovpn">%s n’a pas pu se connecter en utilisant des connexions RPV brouillées. Souhaitez-vous tenter de vous connecter en essayant un RPV normal ?</string>
+  <string name="warning_no_more_gateways_use_pt">%s n’a pas pu se connecter. Les connexions RPV sont peut-être bloquées. Voulez-vous tenter de vous connecter en essayant des connexions brouillées ?</string>
+  <string name="warning_no_more_gateways_no_pt">%s n’a pas pu se connecter. Voulez-vous réessayer ?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s n’a pas pu se connecter en utilisant des connexions RPV brouillées. Voulez-vous tenter de vous connecter en essayant un RPV normal ?</string>
   <string name="warning_option_try_pt">Essayer une connexion brouillée.</string>
   <string name="warning_option_try_ovpn">Essayer une connexion normal.</string>
   <string name="vpn_error_establish">Android n’a pas réussi à établir le service RPV.</string>
   <string name="root_permission_error">%s ne peut pas exécuter des fonctions telles que le point d’accès RPV ou le pare-feu IPv6 sans autorisations superutilisateur (racine).</string>
+  <string name="qs_enable_vpn">Démarrer %s</string>
 </resources>
