@@ -10,3 +10,9 @@ source_file = app/src/main/res/values/strings.xml
 source_lang = en
 type = ANDROID
 
+[bitmask-android.riseupvpn]
+file_filter = app/src/custom/res/values-<lang>/strings.xml
+minimum_perc = 25
+source_file = app/src/custom/res/values/strings.xml
+source_lang = en
+type = ANDROID

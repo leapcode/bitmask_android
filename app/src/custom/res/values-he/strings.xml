@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="donate_message">RiseupVPN הוא שרות VPN קל, מהיר ומאובטח מאת riseup.net. השרות RiseupVPN אינו דורש חשבון משתמש, אינו שומר יומנים או עוקב אחריך בדרך כלשהי. שירות זה משולם לגמרי ע״י תרומות ממשתמשים כמוך. אנא תרום בכתובת https://riseup.net/vpn/donate.</string>
+  <string name="terms_of_service">ע״י שימוש ביישום זה אתה מסכים אל תנאי השירות שזמינים בכתובת https://riseup.net/tos. שרות זה מסופק כמו שהוא, ללא אחריות כלשהי והוא מיועד לאנשים שפועלים להפוך את העולם למקום טוב יותר.</string>
+</resources>

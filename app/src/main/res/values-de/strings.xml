@@ -141,4 +141,12 @@
   <string name="vpn_error_establish">Android konnte nicht den VPN Dienst starten.</string>
   <string name="root_permission_error">%s kann keine Funktionen wie VPN-Hotspot oder IPv6-Firewall ohne Rootrechte ausführen.</string>
   <string name="qs_enable_vpn">%s starten</string>
+  <string name="version_update_found">Hier klicken, um das Herunterladen zu starten.</string>
+  <string name="version_update_title">Eine neue %s Version wurde gefunden.</string>
+  <string name="version_update_apk_description">Eine neue %s Version wird heruntergeladen</string>
+  <string name="version_update_download_title">Eine neue %s wurde heruntergeladen.</string>
+  <string name="version_update_download_description">Hier klicken um die Aktualisierung zu installieren.</string>
+  <string name="version_update_error_pgp_verification">PGP Verifikationsfehler. Heruntergeladene Datei wird ignoriert.</string>
+  <string name="version_update_error">Aktualisierung schlug fehl.</string>
+  <string name="version_update_error_permissions">Keine Rechte, um die App zu installieren.</string>
 </resources>
