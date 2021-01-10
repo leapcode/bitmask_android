@@ -13,8 +13,8 @@ android {
 
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
-    versionCode 149
-    versionName "1.0.5"
+    versionCode 150
+    versionName "1.0.6"
     minSdkVersion 16
     targetSdkVersion 30
     vectorDrawables.useSupportLibrary = true

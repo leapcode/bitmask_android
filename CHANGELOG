@@ -1,3 +1,14 @@
+1.0.6 - New Year release
+features:
+- auto-update for apks downloaded from bitmask.net and from brand websites like riseup.net
+- pgp verification to secure auto-update mechanism
+- support for Android 10 and Android 11
+- new translations (<3 to all translators)
+- update openvpn, openssl and other dependencies
+
+bugfixes:
+- fix "exclude apps from VPN" feature
+
 1.0.5 - Menshen release
 features:
 - geoip service: improved automatic gateway selection, taking hemisphere into account
