@@ -302,10 +302,13 @@ then
             cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionArm64/beta/*.apk $RELEASES_FILE_DIR/.
         fi
     else
-            echo -e "${GREEN} -> build stable releases for flavor ${FLAVOR}${NC}"
+        echo -e "${GREEN} -> build stable releases for flavor ${FLAVOR}${NC}"
         ./gradlew clean assemble${FLAVOR}ProductionFatRelease --stacktrace || quit
         cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionFat/release/*.apk $RELEASES_FILE_DIR/.
-        
+
+        ./gradlew clean assemble${FLAVOR}ProductionFatwebRelease --stacktrace || quit
+        cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionFatweb/release/*.apk $RELEASES_FILE_DIR/.
+
         # custom builds might have disabled split apks -> check if build task exist
         if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Release) ]]; then
             ./gradlew clean assemble${FLAVOR}ProductionX86Release --stacktrace || quit
