@@ -145,6 +145,7 @@ public class VpnProfile implements Serializable, Cloneable {
     public String mCustomConfigOptions = "";
     public String mVerb = "1";  //ignored
     public String mCipher = "";
+    public String mDataCiphers = "";
     public boolean mNobind = true;
     public boolean mUseDefaultRoutev6 = true;
     public String mCustomRoutesv6 = "";
@@ -628,6 +629,12 @@ public class VpnProfile implements Serializable, Cloneable {
             }
             if (mExpectTLSCert)
                 cfg.append("remote-cert-tls server\n");
+        }
+
+
+        if (!TextUtils.isEmpty(mDataCiphers))
+        {
+            cfg.append("data-ciphers ").append(mDataCiphers).append("\n");
         }
 
         if (!TextUtils.isEmpty(mCipher)) {
