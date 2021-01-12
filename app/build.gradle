@@ -151,7 +151,7 @@ android {
       dimension "abi"
       ext {
         abiVersionCode = 0
-        abiFilter = ""
+        abiFilter = "web"
       }
     }
 
