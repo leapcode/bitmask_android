@@ -2,6 +2,7 @@ package se.leap.bitmaskclient.eip;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -42,13 +43,14 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITIO
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Provider.CA_CERT;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
 
 /**
  * Created by cyberta on 09.10.17.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ProviderObservable.class, Log.class, PreferenceHelper.class, ConfigHelper.class})
+@PrepareForTest({ProviderObservable.class, Log.class, PreferenceHelper.class, ConfigHelper.class, TextUtils.class})
 public class GatewaysManagerTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -62,6 +64,7 @@ public class GatewaysManagerTest {
     public void setUp() throws IOException, JSONException {
         mockStatic(Log.class);
         mockStatic(ConfigHelper.class);
+        mockTextUtils();
         when(ConfigHelper.getCurrentTimezone()).thenReturn(-1);
         when(ConfigHelper.stringEqual(anyString(), anyString())).thenCallRealMethod();
         secrets = new JSONObject(getJsonStringFor("secrets.json"));

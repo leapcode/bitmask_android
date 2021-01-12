@@ -1,1 +1,1 @@
-{"auth":"SHA1","cipher":"AES-128-CBC","keepalive":"10 30","tls-cipher":"DHE-RSA-AES128-SHA","tun-ipv6":true}
+{"auth":"SHA1","cipher":"AES-128-CBC", "data-ciphers": "AES-128-CBC", "keepalive":"10 30","tls-cipher":"DHE-RSA-AES128-SHA","tun-ipv6":true}

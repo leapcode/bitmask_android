@@ -1,5 +1,9 @@
 package se.leap.bitmaskclient.eip;
 
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -27,6 +31,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
 
 /**
@@ -34,7 +39,7 @@ import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(DataProviderRunner.class)
-@PrepareForTest({ConfigHelper.class})
+@PrepareForTest({ConfigHelper.class, TextUtils.class})
 public class GatewaySelectorTest {
     public static final String TAG = GatewaySelectorTest.class.getSimpleName();
 
@@ -70,6 +75,7 @@ public class GatewaySelectorTest {
     @Before
     public void setup() throws IOException, JSONException, ConfigParser.ConfigParseError {
         mockStatic(ConfigHelper.class);
+        mockTextUtils();
         eipDefinition = new JSONObject(getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-four-gateways.json")));
         JSONArray gateways = eipDefinition.getJSONArray("gateways");
         for (int i = 0; i < gateways.length(); i++) {
