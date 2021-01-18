@@ -304,21 +304,6 @@ public class VpnProfile implements Serializable, Cloneable {
 
     @Deprecated
     public void upgradeProfile() {
-        if (mProfileVersion < 2) {
-            /* default to the behaviour the OS used */
-            mAllowLocalLAN = Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT;
-        }
-
-        if (mProfileVersion < 4) {
-            moveOptionsToConnection();
-            mAllowedAppsVpnAreDisallowed = true;
-        }
-        if (mAllowedAppsVpn == null)
-            mAllowedAppsVpn = new HashSet<>();
-
-        if (mConnections == null)
-            mConnections = new Connection[0];
-
         if (mProfileVersion < 6) {
             if (TextUtils.isEmpty(mProfileCreator))
                 mUserEditable = true;
@@ -330,20 +315,6 @@ public class VpnProfile implements Serializable, Cloneable {
         }
 
         mProfileVersion = CURRENT_PROFILE_VERSION;
-
-    }
-
-    @Deprecated
-    private void moveOptionsToConnection() {
-        mConnections = new Connection[1];
-        Connection conn = mUsePluggableTransports ? new Obfs4Connection() : new OpenvpnConnection();
-
-        conn.setServerName(mServerName);
-        conn.setServerPort(mServerPort);
-        conn.setUseUdp(mUseUdp);
-        conn.setCustomConfiguration("");
-
-        mConnections[0] = conn;
 
     }
 
