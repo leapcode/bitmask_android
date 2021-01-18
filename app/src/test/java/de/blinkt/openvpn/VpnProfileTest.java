@@ -37,7 +37,7 @@ public class VpnProfileTest {
         mockVpnProfile.mLastUsed = 0;
         String s = mockVpnProfile.toJson();
 
-        //ignore UUID in comparison -> set it to static value
+        //ignore UUID in comparison -> set it to fixed value
         JSONObject actual = new JSONObject(s);
         actual.put("mUuid", "9d295ca2-3789-48dd-996e-f731dbf50fdc");
         JSONObject expectation = new JSONObject(OPENVPNCONNECTION_PROFILE);
@@ -65,7 +65,7 @@ public class VpnProfileTest {
         String s = mockVpnProfile.toJson();
         System.out.println(s);
 
-        //ignore UUID in comparison -> set it to 123
+        //ignore UUID in comparison -> set it to fixed value
         JSONObject actual = new JSONObject(s);
         actual.put("mUuid", "9d295ca2-3789-48dd-996e-f731dbf50fdc");
         JSONObject expectation = new JSONObject(OBFS4CONNECTION_PROFILE);
