@@ -15,12 +15,14 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.security.KeyChain;
 import android.security.KeyChainException;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
@@ -63,8 +65,7 @@ import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.X509Utils;
 import de.blinkt.openvpn.core.connection.Connection;
-import de.blinkt.openvpn.core.connection.Obfs4Connection;
-import de.blinkt.openvpn.core.connection.OpenvpnConnection;
+import de.blinkt.openvpn.core.connection.ConnectionAdapter;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 
@@ -1159,8 +1160,9 @@ public class VpnProfile implements Serializable, Cloneable {
 
     public static VpnProfile fromJson(String json) {
         try {
-            Gson gson = new Gson();
-            return gson.fromJson(json, VpnProfile.class);
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(Connection.class, new ConnectionAdapter());
+            return builder.create().fromJson(json, VpnProfile.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

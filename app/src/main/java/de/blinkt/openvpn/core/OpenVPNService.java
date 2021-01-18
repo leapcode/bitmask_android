@@ -333,6 +333,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         } else {
             /* The intent is null when we are set as always-on or the service has been restarted. */
+            Log.d(TAG, "Starting VPN due to isAlwaysOn system settings or app crash.");
             mProfile = VpnStatus.getLastConnectedVpnProfile(this);
             VpnStatus.logInfo(R.string.service_restarted);
 
