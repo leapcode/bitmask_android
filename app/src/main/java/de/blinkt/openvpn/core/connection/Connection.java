@@ -7,9 +7,12 @@ package de.blinkt.openvpn.core.connection;
 
 import android.text.TextUtils;
 
+import com.google.gson.annotations.JsonAdapter;
+
 import java.io.Serializable;
 import java.util.Locale;
 
+@JsonAdapter(ConnectionAdapter.class)
 public abstract class Connection implements Serializable, Cloneable {
     private String mServerName = "openvpn.example.com";
     private String mServerPort = "1194";

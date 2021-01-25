@@ -27,18 +27,6 @@ public class Obfs4Connection extends Connection {
         this.options = options;
     }
 
-    @Deprecated
-    public Obfs4Connection() {
-        setUseUdp(false);
-        setServerName(DISPATCHER_IP);
-        setServerPort(DISPATCHER_PORT);
-        setProxyName("");
-        setProxyPort("");
-        setProxyAuthUser(null);
-        setProxyAuthPassword(null);
-        setProxyType(ProxyType.NONE);
-        setUseProxyAuth(false);    }
-
     @Override
     public Connection clone() throws CloneNotSupportedException {
         Obfs4Connection connection = (Obfs4Connection) super.clone();

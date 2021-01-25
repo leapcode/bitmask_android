@@ -15,12 +15,14 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.security.KeyChain;
 import android.security.KeyChainException;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
@@ -63,8 +65,7 @@ import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.X509Utils;
 import de.blinkt.openvpn.core.connection.Connection;
-import de.blinkt.openvpn.core.connection.Obfs4Connection;
-import de.blinkt.openvpn.core.connection.OpenvpnConnection;
+import de.blinkt.openvpn.core.connection.ConnectionAdapter;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 
@@ -303,21 +304,6 @@ public class VpnProfile implements Serializable, Cloneable {
 
     @Deprecated
     public void upgradeProfile() {
-        if (mProfileVersion < 2) {
-            /* default to the behaviour the OS used */
-            mAllowLocalLAN = Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT;
-        }
-
-        if (mProfileVersion < 4) {
-            moveOptionsToConnection();
-            mAllowedAppsVpnAreDisallowed = true;
-        }
-        if (mAllowedAppsVpn == null)
-            mAllowedAppsVpn = new HashSet<>();
-
-        if (mConnections == null)
-            mConnections = new Connection[0];
-
         if (mProfileVersion < 6) {
             if (TextUtils.isEmpty(mProfileCreator))
                 mUserEditable = true;
@@ -329,20 +315,6 @@ public class VpnProfile implements Serializable, Cloneable {
         }
 
         mProfileVersion = CURRENT_PROFILE_VERSION;
-
-    }
-
-    @Deprecated
-    private void moveOptionsToConnection() {
-        mConnections = new Connection[1];
-        Connection conn = mUsePluggableTransports ? new Obfs4Connection() : new OpenvpnConnection();
-
-        conn.setServerName(mServerName);
-        conn.setServerPort(mServerPort);
-        conn.setUseUdp(mUseUdp);
-        conn.setCustomConfiguration("");
-
-        mConnections[0] = conn;
 
     }
 
@@ -1159,8 +1131,9 @@ public class VpnProfile implements Serializable, Cloneable {
 
     public static VpnProfile fromJson(String json) {
         try {
-            Gson gson = new Gson();
-            return gson.fromJson(json, VpnProfile.class);
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(Connection.class, new ConnectionAdapter());
+            return builder.create().fromJson(json, VpnProfile.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
