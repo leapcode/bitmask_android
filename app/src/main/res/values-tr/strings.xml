@@ -141,4 +141,12 @@
   <string name="vpn_error_establish">Android, VPN hizmetini kurmakta başarısız oldu.</string>
   <string name="root_permission_error">%s, VPN Hotspot veya IPv6 güvenlik duvarı özelliklerini yönetici izinleri olmadan çalıştıramıyor.</string>
   <string name="qs_enable_vpn">%s Başlat</string>
+  <string name="version_update_found">İndirmeyi başlatmak için buraya dokunun.</string>
+  <string name="version_update_title">Yeni %s sürümü bulundu.</string>
+  <string name="version_update_apk_description">Yeni %s sürümü indiriliyor.</string>
+  <string name="version_update_download_title">Yeni %s sürümü indirildi.</string>
+  <string name="version_update_download_description">Güncellemeyi başlatmak için buraya dokunun.</string>
+  <string name="version_update_error_pgp_verification">PGP doğrulama hatası. İndirme göz ardı ediliyor.</string>
+  <string name="version_update_error">Güncelleme başarısız oldu.</string>
+  <string name="version_update_error_permissions">Uygulamayı kurma izni yok.</string>
 </resources>

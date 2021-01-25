@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="donate_message">RiseupVPN es un servicio de VPN fácil, rápido y seguro porporcionado por riseup.net. RiseupVPN no requiere una cuenta de usuario, no mantiene registros o te rastrea de ninguna manera. Este servicio está abonado en su totalidad mediante donaciones de usuarios como vos. Por favor doná en https://riseup.net/vpn/donate.</string>
-  <string name="terms_of_service">Al usar esta aplicación acordás seguir los Términos del Servicio, disponibles en https://riseup.net/tos. Este servicio se provee como viene, sin ninguna garantía, y su intención es respaldar a la gente que trabaja para hacer del mundo un lugar mejor.</string>
+  <string name="terms_of_service">Al usar esta aplicación acordás seguir los Términos del Servicio, disponibles en https://riseup.net/tos. Este servicio se provee como viene, sin ninguna garantía, y está pensado para la gente que trabaja para hacer del mundo un lugar mejor.</string>
 </resources>

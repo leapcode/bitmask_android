@@ -104,13 +104,16 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="vpn_certificate_is_invalid">VPN certificaat is ongeldig. Probeer een nieuw te downloaden.</string>
   <string name="vpn_certificate_user_message">Het VPN certificaat in ongeldig. Gelieve opnieuw in te loggen om een nieuw te downloaden.</string>
   <string name="save_battery">Batterij besparen</string>
-  <string name="subtitle_save_battery">Uitzetten wanneer VPN Hotspot is ingeschakeld</string>
+  <string name="subtitle_save_battery">Uitschakelen wanneer VPN Hotspot is ingeschakeld</string>
   <string name="save_battery_message">Dataverbindingen in de achtergrond worden in slaapstand gezet wanneer uw telefoon inactief is.</string>
   <string name="always_on_vpn">VPN altijd aan</string>
   <string name="subtitle_always_on_vpn">Open Android systeeminstellingen</string>
   <string name="tethering">VPN Hotspot</string>
   <string name="ipv6Firewall">Blokkeer IPv6</string>
   <string name="require_root">Vereist root-rechten</string>
+  <string name="show_experimental">Toon experimentele functies</string>
+  <string name="hide_experimental">Experimentele functies verbergen</string>
+  <string name="tethering_enabled_message">Zorg er eerst voor dat tethering is ingeschakeld in de  <![CDATA[<b>system settings</b>]]></string>
   <string name="tethering_message">Deel je VPN met andere apparaten via:</string>
   <string name="tethering_wifi">Wifi-hotspot</string>
   <string name="tethering_usb">USB tethering</string>
@@ -139,4 +142,13 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="warning_option_try_ovpn">Probeer een standaard verbinding</string>
   <string name="vpn_error_establish">Android is er niet in geslaagd de VPN-dienst op te zetten.</string>
   <string name="root_permission_error">%s kan bepaalde functies zoals VPN-hotspot of IPv6-firewall niet uitvoeren zonder root-rechten.</string>
+  <string name="qs_enable_vpn">Start %s</string>
+  <string name="version_update_found">Tik hier om de download te starten.</string>
+  <string name="version_update_title">Een nieuwe %s versie is gevonden.</string>
+  <string name="version_update_apk_description">Download een nieuwe %s versie</string>
+  <string name="version_update_download_title">Een nieuwe %s versie is gedownload.</string>
+  <string name="version_update_download_description">Tik hier om de update te installeren.</string>
+  <string name="version_update_error_pgp_verification">PGP verificatiefout.  Download genegeerd.</string>
+  <string name="version_update_error">Update mislukt.</string>
+  <string name="version_update_error_permissions">Geen toestemming om de app te installeren.</string>
 </resources>

@@ -141,4 +141,12 @@
   <string name="vpn_error_establish">Android n’a pas réussi à établir le service RPV.</string>
   <string name="root_permission_error">%s ne peut pas exécuter des fonctions telles que le point d’accès RPV ou le pare-feu IPv6 sans autorisations superutilisateur (racine).</string>
   <string name="qs_enable_vpn">Démarrer %s</string>
+  <string name="version_update_found">Toucher ici pour lancer le téléchargement.</string>
+  <string name="version_update_title">Une nouvelle version de %s a été trouvée.</string>
+  <string name="version_update_apk_description">Téléchargement d’une nouvelle version de %s</string>
+  <string name="version_update_download_title">Une nouvelle version de %s a été téléchargée.</string>
+  <string name="version_update_download_description">Toucher ici pour installer la mise à jour.</string>
+  <string name="version_update_error_pgp_verification">Erreur de vérification PGP. Le téléchargement est ignoré.</string>
+  <string name="version_update_error">Échec de mise à jour.</string>
+  <string name="version_update_error_permissions">Manque de droits pour installer l’appli.</string>
 </resources>
