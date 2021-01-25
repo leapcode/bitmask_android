@@ -1,3 +1,14 @@
+1.0.7
+features:
+- new translations
+
+bugfixes:
+- fixed relaunch VPN on reboot:
+> in case always-on system setting is enabled on Android O+
+> in case VPN was connected before turning off the smartphone on pre Android O
+> better support for "Block connections without VPN" system setting while rebooting
+
+
 1.0.6 - New Year release
 features:
 - auto-update for apks downloaded from bitmask.net and from brand websites like riseup.net
