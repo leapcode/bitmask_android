@@ -77,12 +77,9 @@ function sign {
     then
         echo -e "${GREEN} -> gpg sign using key ${GPG_KEY}${NC}"
         gpg --default-key ${GPG_KEY} --armor --output "${FINAL_APK}.sig" --detach-sign ${FINAL_APK} || quit
-        #gpg -u ${GPG_KEY} -sab --output ${FINAL_APK} || quit
     else
-        echo -e "${GREEN} -> gpg sign using pub key of user ${GPG_KEY_USER}${NC}"
-        GPG_KEY=$(gpg --list-keys $GPG_KEY_USER | grep pub | cut -d '/' -f 2 | cut -d ' ' -f 1) || quit
-        #gpg -u ${GPG_KEY} -sab --output ${FINAL_APK} || quit
-        gpg --default-key ${GPG_KEY} --armor --output "${FINAL_APK}.sig" --detach-sign ${FINAL_APK} || quit
+        echo -e "${GREEN} -> gpg sign using key of user ${GPG_KEY_USER}${NC}"
+        gpg -u ${GPG_KEY_USER} --armor --output "${FINAL_APK}.sig" --detach-sign ${FINAL_APK} || quit
     fi
 
     echo -e "${GREEN} -> gpg verify ${FINAL_APK}${NC}"
