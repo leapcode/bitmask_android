@@ -106,6 +106,7 @@ NC='\033[0m'
 export GREEN=${GREEN}
 export RED=${RED}
 export ORANGE=${ORANGE}
+export NC=${NC}
 export EXPECTED_FINGERPRINT=${EXPECTED_FINGERPRINT}
 export -f sign
 export -f quit
