@@ -104,7 +104,7 @@ build:
   script:
     - ./scripts/cleanProject.sh
     - ./scripts/build_deps.sh >> build_deps.log 2>&1
-    - ./scripts/gradlew clean assembleNormalProductionFatDebug --stacktrace >> build.log 2>&1
+    - ./gradlew clean assembleNormalProductionFatDebug --stacktrace >> build.log 2>&1
   artifacts:
     paths:
     - app/build/outputs/
