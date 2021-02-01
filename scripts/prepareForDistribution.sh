@@ -86,6 +86,14 @@ function sign {
     gpg --verify "${FINAL_APK}.sig" || quit
 }
 
+function base_dir {
+    echo "$(dirname "$0")/.."
+}
+
+function script_dir {
+    echo "$(dirname "$0")"
+}
+
 # ----Main-----
 
 DO_BUILD=false
@@ -243,11 +251,6 @@ then
     exit
 fi
 
-SCRIPT_DIR=$(dirname "$0")
-BASE_DIR="$SCRIPT_DIR/../"
-BASE_FILE_DIR="$BASE_DIR/app/build/outputs/apk"
-RELEASES_FILE_DIR="$BASE_DIR/currentReleases"
-
 if [[ ${DO_BUILD} == true ]]
 then
     if [[ ${NO_TAG} == false && -z ${VERSION_NAME} ]]
@@ -267,10 +270,13 @@ then
         fi
     fi
 
-    $SCRIPT_DIR/cleanProject.sh || quit
-    $SCRIPT_DIR/build_deps.sh || quit
-    $SCRIPT_DIR/fix_gradle_lock.sh || quit
-
+    $(script_dir)/cleanProject.sh || quit
+    $(script_dir)/build_deps.sh || quit
+    $(script_dir)/fix_gradle_lock.sh || quit
+    
+    cd $(base_dir)
+    BASE_OUTPUT_DIR="./app/build/outputs/apk"
+    RELEASES_FILE_DIR="./currentReleases"
     if [[ ! -d $RELEASES_FILE_DIR ]]
     then
         mkdir $RELEASES_FILE_DIR
@@ -280,57 +286,60 @@ then
     if [[ ${BETA} == true ]]
     then
         echo "${GREEN} -> build beta releases for flavor ${FLAVOR}${NC}"
-        $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionFatBeta --stacktrace || quit
- #       echo "copy file:  $(ls $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk)"
-        cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk $RELEASES_FILE_DIR/.
+        ./gradlew clean assemble${FLAVOR}ProductionFatBeta --stacktrace || quit
+ #       echo "copy file:  $(ls $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk)"
+        cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk $RELEASES_FILE_DIR/.
         
         # custom builds might have disabled split apks -> check if build task exist
-        if [[ $($BASE_DIR/gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Beta) ]]; then
-            $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionX86Beta --stacktrace || quit
-            cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionX86/beta/*.apk $RELEASES_FILE_DIR/.
+        if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Beta) ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionX86Beta --stacktrace || quit
+            cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86/beta/*.apk $RELEASES_FILE_DIR/.
         fi
-        if [[  $($BASE_DIR/gradlew tasks --console plain | grep ${FLAVOR}ProductionX86_64Beta) ]]; then
-            $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionX86_64Beta --stacktrace || quit
-            cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionX86_64/beta/*.apk $RELEASES_FILE_DIR/.
+        if [[  $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86_64Beta) ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionX86_64Beta --stacktrace || quit
+            cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86_64/beta/*.apk $RELEASES_FILE_DIR/.
         fi
-        if [[ $($BASE_DIR/gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Beta) ]]; then
-            $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionArmv7Beta --stacktrace || quit
-            cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionArmv7/beta/*.apk $RELEASES_FILE_DIR/.
+        if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Beta) ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionArmv7Beta --stacktrace || quit
+            cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArmv7/beta/*.apk $RELEASES_FILE_DIR/.
         fi
-        if [[ $($BASE_DIR/gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Beta) ]]; then
-            $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionArm64Beta --stacktrace || quit
-            cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionArm64/beta/*.apk $RELEASES_FILE_DIR/.
+        if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Beta) ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionArm64Beta --stacktrace || quit
+            cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArm64/beta/*.apk $RELEASES_FILE_DIR/.
         fi
     else
         echo -e "${GREEN} -> build stable releases for flavor ${FLAVOR}${NC}"
-        $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionFatRelease --stacktrace || quit
-        cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionFat/release/*.apk $RELEASES_FILE_DIR/.
+        ./gradlew clean assemble${FLAVOR}ProductionFatRelease --stacktrace || quit
+        cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/release/*.apk $RELEASES_FILE_DIR/.
 
-        $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionFatwebRelease --stacktrace || quit
-        cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionFatweb/release/*.apk $RELEASES_FILE_DIR/.
+        ./gradlew clean assemble${FLAVOR}ProductionFatwebRelease --stacktrace || quit
+        cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFatweb/release/*.apk $RELEASES_FILE_DIR/.
 
         # custom builds might have disabled split apks -> check if build task exist
-        if [[ $($BASE_DIR/gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Release) ]]; then
-            $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionX86Release --stacktrace || quit
-            cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionX86/release/*.apk $RELEASES_FILE_DIR/.
+        if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Release) ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionX86Release --stacktrace || quit
+            cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86/release/*.apk $RELEASES_FILE_DIR/.
         fi
-        if [[ $($BASE_DIR/gradlew tasks --console plain | grep ${FLAVOR}ProductionX86_64Release) ]]; then
-            $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionX86_64Release --stacktrace || quit
-            cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionX86_64/release/*.apk $RELEASES_FILE_DIR/.
+        if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86_64Release) ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionX86_64Release --stacktrace || quit
+            cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86_64/release/*.apk $RELEASES_FILE_DIR/.
         fi
-        if [[ $($BASE_DIR/gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Release) ]]; then
-            $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionArmv7Release --stacktrace || quit
-            cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionArmv7/release/*.apk $RELEASES_FILE_DIR/.
+        if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Release) ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionArmv7Release --stacktrace || quit
+            cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArmv7/release/*.apk $RELEASES_FILE_DIR/.
         fi
-        if [[ $($BASE_DIR/gradlew tasks --console plain | grep ${FLAVOR}ProductionArm64Release) ]]; then
-            $BASE_DIR/gradlew clean assemble${FLAVOR}ProductionArm64Release --stacktrace || quit
-            cp $BASE_FILE_DIR/${FLAVOR_LOWERCASE}ProductionArm64/release/*.apk $RELEASES_FILE_DIR/.
+        if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArm64Release) ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionArm64Release --stacktrace || quit
+            cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArm64/release/*.apk $RELEASES_FILE_DIR/.
         fi
     fi
+    
+    cd -
 fi
 
 if [[ ${DO_SIGN} == true ]]
 then
+    cd $(base_dir)
     # check global vars
     if [[ -z ${ANDROID_BUILD_TOOLS} ]] 
     then
@@ -369,4 +378,5 @@ then
         echo -e "${GREEN} -> sign apk: ${FILE_NAME_STRING}${NC}"
         sign $FILE_NAME_STRING
     fi
+    cd -
 fi
