@@ -102,8 +102,8 @@ build:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./cleanProject.sh
-    - ./build_deps.sh >> build_deps.log 2>&1
+    - ./scripts/cleanProject.sh
+    - ./scripts/build_deps.sh >> build_deps.log 2>&1
     - ./gradlew clean assembleNormalProductionFatDebug --stacktrace >> build.log 2>&1
   artifacts:
     paths:
@@ -117,7 +117,7 @@ build_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./prepareForDistribution.sh build -no-tag >> normalRelease.log 2>&1
+    - ./scripts/prepareForDistribution.sh build -no-tag >> normalRelease.log 2>&1
   artifacts:
     paths:
       - app/build/outputs/
@@ -131,7 +131,7 @@ build_fdroid_beta_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./prepareForDistribution.sh build -no-tag -beta >> normalBeta.log 2>&1
+    - ./scripts/prepareForDistribution.sh build -no-tag -beta >> normalBeta.log 2>&1
   artifacts:
     paths:
       - app/build/outputs/
@@ -145,7 +145,7 @@ build_custom_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./prepareForDistribution.sh build -no-tag -custom >> customRelease.log 2>&1
+    - ./scripts/prepareForDistribution.sh build -no-tag -custom >> customRelease.log 2>&1
   artifacts:
     paths:
     - app/build/outputs/
@@ -159,7 +159,7 @@ build_fdroid_custom_beta_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./prepareForDistribution.sh build -no-tag -beta -custom >> customBeta.log 2>&1
+    - ./scripts/prepareForDistribution.sh build -no-tag -beta -custom >> customBeta.log 2>&1
   artifacts:
     paths:
       - app/build/outputs/

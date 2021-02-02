@@ -5,7 +5,8 @@ function quit {
     exit 1
 }
 
-
+SCRIPT_DIR=$(dirname "$0")
+BASE_DIR="$SCRIPT_DIR/.."
 DIR_OVPNASSETS=./ics-openvpn/main/build/ovpnassets
 DIR_OVPNLIBS=./ics-openvpn/main/build/intermediates/cmake/noovpn3/release/obj
 DIR_GOLIBS=./go/lib/
@@ -15,6 +16,7 @@ FILE_ARM=./go/out/armeabi-v7a/piedispatcherlib
 # init
 # look for empty dir
 
+cd $BASE_DIR
 if [[ $(ls -A ${DIR_OVPNASSETS}) && $(ls -A ${DIR_OVPNLIBS}) ]]
 then
     echo "Dirty build: skipped externalNativeBuild - reusing existing libs"
