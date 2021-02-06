@@ -63,6 +63,7 @@ import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockPr
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_CASE_UPDATED_CERTIFICATE;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_GEOIP_SERVICE_IS_DOWN;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR;
+import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR_API_V4;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBundle;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockConfigHelper;
@@ -74,6 +75,7 @@ import static se.leap.bitmaskclient.testutils.MockHelper.mockResources;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResultReceiver;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getConfiguredProvider;
+import static se.leap.bitmaskclient.testutils.TestSetupHelper.getConfiguredProviderAPIv4;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
 
@@ -555,6 +557,27 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(INCORRECTLY_DOWNLOADED_GEOIP_JSON, expectedResult));
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.putExtra(PARAMETERS, extrasBundle);
+
+        providerApiManager.handleIntent(providerApiCommand);
+    }
+
+    @Test
+    public void test_handleIntentSetupProvider_APIv4_happyPath() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = getConfiguredProviderAPIv4();
+
+        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockProviderApiConnector(NO_ERROR_API_V4);
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+        Bundle expectedResult = mockBundle();
+
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, true);
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
+
+        Intent providerApiCommand = mockIntent();
+
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
 
         providerApiManager.handleIntent(providerApiCommand);
     }

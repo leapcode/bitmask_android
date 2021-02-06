@@ -1,0 +1,25 @@
+{
+  "api_uri": "https://api.black.riseup.net:443",
+  "api_version": "1",
+  "ca_cert_fingerprint": "SHA256: a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494",
+  "ca_cert_uri": "https://black.riseup.net/ca.crt",
+  "default_language": "en",
+  "description": {
+    "en": "Riseup is a non-profit collective in Seattle that provides online communication tools for people and groups working toward liberatory social change."
+  },
+  "domain": "riseup.net",
+  "enrollment_policy": "open",
+  "languages": [
+    "en"
+  ],
+  "name": {
+    "en": "Riseup Networks"
+  },
+  "service": {
+    "allow_anonymous": false,
+    "allow_registration": true
+  },
+  "services": [
+    "openvpn"
+  ]
+}

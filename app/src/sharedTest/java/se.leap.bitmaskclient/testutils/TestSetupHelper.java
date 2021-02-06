@@ -53,6 +53,11 @@ public class TestSetupHelper {
         return getProvider(null,  null, null, null, null, null, null, null);
     }
 
+    public static Provider getConfiguredProviderAPIv4() {
+           return getProvider(null, null, null, null, null, "v4/riseup.net.json", "v4/riseup.service.json", null);
+    }
+
+
     public static Provider getProvider(String domain, String geoipUrl, String providerIp, String providerApiIp, String caCertFile, String providerJson, String eipServiceJson, String geoIpJson) {
         if (domain == null)
             domain = "https://riseup.net";

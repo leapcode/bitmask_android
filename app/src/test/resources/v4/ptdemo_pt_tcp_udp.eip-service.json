@@ -1,0 +1,66 @@
+{
+  "gateways":[
+    {
+      "capabilities":{
+        "adblock":false,
+        "filter_dns":false,
+        "limited":false,
+        "transport":[
+          {
+            "type":"obfs4",
+            "protocols":[
+              "tcp"
+            ],
+            "ports":[
+              "23049"
+            ],
+            "options": {
+              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+              "iatMode": "0"
+            }
+          },
+          {
+            "type":"openvpn",
+            "protocols":[
+              "tcp",
+              "udp"
+            ],
+            "ports":[
+              "1195"
+            ]
+          }
+        ],
+        "user_ips":false
+      },
+      "host":"pt.demo.bitmask.net",
+      "ip_address":"37.218.247.60",
+      "ip_address6":"2001:db8:123::1056",
+      "location":"Amsterdam"
+    }
+  ],
+  "locations":{
+    "Amsterdam":{
+      "country_code":"NL",
+      "hemisphere":"N",
+      "name":"Amsterdam",
+      "timezone":"-1"
+    }
+  },
+  "openvpn_configuration":{
+    "auth":"SHA1",
+    "cipher":"AES-256-CBC",
+    "keepalive":"10 30",
+    "tls-cipher":"DHE-RSA-AES128-SHA",
+    "tun-ipv6":true,
+    "dev" : "tun",
+    "sndbuf" : "0",
+    "rcvbuf" : "0",
+    "nobind" : true,
+    "persist-key" : true,
+    "comp-lzo" : true,
+    "key-direction" : "1",
+    "verb" : "3"
+  },
+  "serial":4,
+  "version":4
+}

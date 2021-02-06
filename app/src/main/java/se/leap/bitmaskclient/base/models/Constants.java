@@ -150,6 +150,7 @@ public interface Constants {
     // JSON KEYS
     /////////////////////////////////////////////
     String IP_ADDRESS = "ip_address";
+    String IP_ADDRESS6 = "ip_address6";
     String REMOTE = "remote";
     String PORTS = "ports";
     String PROTOCOLS = "protocols";
