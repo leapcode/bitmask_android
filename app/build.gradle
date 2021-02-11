@@ -426,7 +426,7 @@ android.applicationVariants.all { variant ->
   }
 
   // remove unrelated abi specific assets
-  variant.mergeAssets.doLast {
+  variant.mergeAssetsProvider.get().doLast {
     // if not a fat build
     if (abiDimension.abiVersionCode > 0) {
       def filesToDelete = fileTree(dir: variant.mergeAssets.outputDir, excludes: ["*pie_openvpn.${abiDimension.abiFilter}",
