@@ -74,15 +74,12 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
 
     private static final String TAG = EipSetupObserver.class.getName();
 
-    //The real timout is 4*2s + 1*4s + 1*8s + 1*16s + 1*32s + 1*64s = 132 s;
-    private static final String TIMEOUT = "4";
     private static final int UPDATE_CHECK_TIMEOUT = 1000*60*60*24*7;
     private Context context;
     private VpnProfile setupVpnProfile;
     private String observedProfileFromVpnStatus;
     AtomicBoolean changingGateway = new AtomicBoolean(false);
     AtomicInteger setupNClosestGateway = new AtomicInteger();
-    AtomicInteger reconnectTry = new AtomicInteger();
     private Vector<EipSetupListener> listeners = new Vector<>();
     private SharedPreferences preferences;
     private static EipSetupObserver instance;
@@ -107,10 +104,6 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
 
     public static boolean reconnectingWithDifferentGateway() {
         return instance.setupNClosestGateway.get() > 0;
-    }
-
-    public static int connectionRetry() {
-        return instance.reconnectTry.get();
     }
 
     public static int gatewayOrder() {
@@ -293,15 +286,9 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         if (ConnectionStatus.LEVEL_STOPPING == level) {
             finishGatewaySetup(false);
         } else if ("CONNECTRETRY".equals(state) && LEVEL_CONNECTING_NO_SERVER_REPLY_YET.equals(level)) {
-            Log.d(TAG, "trying gateway: " + setupVpnProfile.getName());
-            if (TIMEOUT.equals(logmessage)) {
-                Log.e(TAG, "Timeout reached! Try next gateway!");
-                VpnStatus.logError("Timeout reached! Try next gateway!");
-                selectNextGateway();
-                return;
-            }
-            int current = reconnectTry.get();
-            reconnectTry.set(current + 1);
+            Log.e(TAG, "Timeout reached! Try next gateway!");
+            VpnStatus.logError("Timeout reached! Try next gateway!");
+            selectNextGateway();
         } else if ("NOPROCESS".equals(state) && LEVEL_NOTCONNECTED == level) {
             //??
         } else if ("CONNECTED".equals(state)) {
@@ -327,7 +314,6 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
 
     private void selectNextGateway() {
         changingGateway.set(true);
-        reconnectTry.set(0);
         EipCommand.startVPN(context.getApplicationContext(), false, setupNClosestGateway.get() + 1);
     }
 
@@ -337,7 +323,6 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         setupNClosestGateway.set(0);
         observedProfileFromVpnStatus = null;
         this.changingGateway.set(changingGateway);
-        this.reconnectTry.set(0);
     }
 
     /**
