@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -68,6 +69,9 @@ public class ProviderApiConnector {
         Request request = requestBuilder.build();
 
         Response response = okHttpClient.newCall(request).execute();
+        if (!response.isSuccessful()) {
+            VpnStatus.logWarning("[API] API request failed canConnect(): " + url);
+        }
         return response.isSuccessful();
 
     }
@@ -88,6 +92,9 @@ public class ProviderApiConnector {
         Request request = requestBuilder.build();
 
         Response response = okHttpClient.newCall(request).execute();
+        if (!response.isSuccessful()) {
+            VpnStatus.logWarning("[API] API request failed: " + url);
+        }
         InputStream inputStream = response.body().byteStream();
         Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
         if (scanner.hasNext()) {
