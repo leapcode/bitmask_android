@@ -52,17 +52,29 @@ import java.util.NoSuchElementException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import okhttp3.OkHttpClient;
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Constants.CREDENTIAL_ERRORS;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
 import se.leap.bitmaskclient.providersetup.models.SrpCredentials;
 import se.leap.bitmaskclient.providersetup.models.SrpRegistrationData;
-import se.leap.bitmaskclient.base.utils.ConfigHelper;
 
+import static se.leap.bitmaskclient.R.string.certificate_error;
+import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
+import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
+import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
+import static se.leap.bitmaskclient.R.string.malformed_url;
+import static se.leap.bitmaskclient.R.string.server_unreachable_message;
+import static se.leap.bitmaskclient.R.string.service_is_down_error;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
+import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
+import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
+import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
@@ -76,6 +88,11 @@ import static se.leap.bitmaskclient.base.models.Provider.CA_CERT;
 import static se.leap.bitmaskclient.base.models.Provider.GEOIP_URL;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_API_IP;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_IP;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getFingerprintFromCertificate;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.parseRsaKeyFromString;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getFromPersistedProvider;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.BACKEND_ERROR_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.BACKEND_ERROR_MESSAGE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
@@ -111,22 +128,6 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
-import static se.leap.bitmaskclient.R.string.certificate_error;
-import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
-import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
-import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
-import static se.leap.bitmaskclient.R.string.malformed_url;
-import static se.leap.bitmaskclient.R.string.server_unreachable_message;
-import static se.leap.bitmaskclient.R.string.service_is_down_error;
-import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
-import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
-import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
-import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.getFingerprintFromCertificate;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.parseRsaKeyFromString;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getFromPersistedProvider;
 
 /**
  * Implements the logic of the http api calls. The methods of this class needs to be called from
@@ -494,6 +495,7 @@ public abstract class ProviderApiManagerBase {
         } else {
             broadcastEvent(resultCode, resultData);
         }
+        handleEventSummaryErrorLog(resultCode);
     }
 
     private void broadcastEvent(int resultCode , Bundle resultData) {
@@ -504,6 +506,40 @@ public abstract class ProviderApiManagerBase {
         serviceCallback.broadcastEvent(intentUpdate);
     }
 
+    private void handleEventSummaryErrorLog(int resultCode) {
+        String event = null;
+        switch (resultCode) {
+            case FAILED_LOGIN:
+                event = "login.";
+                break;
+            case FAILED_SIGNUP:
+                event = "signup.";
+                break;
+            case SUCCESSFUL_LOGOUT:
+                event = "logout.";
+                break;
+            case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
+                event = "download of vpn certificate.";
+                break;
+            case PROVIDER_NOK:
+                event = "setup or update provider details.";
+                break;
+            case INCORRECTLY_DOWNLOADED_EIP_SERVICE:
+                event = "update eip-service.json";
+                break;
+            case INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
+                event = "update invalid vpn certificate.";
+                break;
+            case INCORRECTLY_DOWNLOADED_GEOIP_JSON:
+                event = "download menshen service json.";
+                break;
+            default:
+                break;
+        }
+        if (event != null) {
+            VpnStatus.logWarning("[API] failed provider API event: " + event);
+        }
+    }
 
     /**
      * Validates parameters entered by the user to log in
@@ -598,6 +634,7 @@ public abstract class ProviderApiManagerBase {
         } catch (NullPointerException | JSONException e) {
             e.printStackTrace();
             responseJson = getErrorMessageAsJson(error_json_exception_user_message);
+            VpnStatus.logWarning("[API] got null response for request: " + url);
         }
         return responseJson;
 
@@ -612,21 +649,29 @@ public abstract class ProviderApiManagerBase {
 
         } catch (NullPointerException npe) {
             plainResponseBody = formatErrorMessage(error_json_exception_user_message);
+            VpnStatus.logWarning("[API] Null response body for request " + url + ": " + npe.getLocalizedMessage());
         } catch (UnknownHostException | SocketTimeoutException e) {
             plainResponseBody = formatErrorMessage(server_unreachable_message);
+            VpnStatus.logWarning("[API] UnknownHostException or SocketTimeoutException for request " + url + ": " + e.getLocalizedMessage());
         } catch (MalformedURLException e) {
             plainResponseBody = formatErrorMessage(malformed_url);
+            VpnStatus.logWarning("[API] MalformedURLException for request " + url + ": " + e.getLocalizedMessage());
         } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
             plainResponseBody = formatErrorMessage(certificate_error);
+            VpnStatus.logWarning("[API] SSLHandshakeException or SSLPeerUnverifiedException for request " + url + ": " + e.getLocalizedMessage());
         } catch (ConnectException e) {
             plainResponseBody = formatErrorMessage(service_is_down_error);
+            VpnStatus.logWarning("[API] ConnectException for request " + url + ": " + e.getLocalizedMessage());
         } catch (IllegalArgumentException e) {
             plainResponseBody = formatErrorMessage(error_no_such_algorithm_exception_user_message);
+            VpnStatus.logWarning("[API] IllegalArgumentException for request " + url + ": " + e.getLocalizedMessage());
         } catch (UnknownServiceException e) {
             //unable to find acceptable protocols - tlsv1.2 not enabled?
             plainResponseBody = formatErrorMessage(error_no_such_algorithm_exception_user_message);
+            VpnStatus.logWarning("[API] UnknownServiceException for request " + url + ": " + e.getLocalizedMessage());
         } catch (IOException e) {
             plainResponseBody = formatErrorMessage(error_io_exception_user_message);
+            VpnStatus.logWarning("[API] IOException for request " + url + ": " + e.getLocalizedMessage());
         }
 
         return plainResponseBody;
@@ -647,19 +692,26 @@ public abstract class ProviderApiManagerBase {
             return ProviderApiConnector.canConnect(okHttpClient, providerUrl);
 
         }  catch (UnknownHostException | SocketTimeoutException e) {
+            VpnStatus.logWarning("[API] UnknownHostException or SocketTimeoutException during connection check: " + e.getLocalizedMessage());
             setErrorResult(result, server_unreachable_message, null);
         } catch (MalformedURLException e) {
+            VpnStatus.logWarning("[API] MalformedURLException during connection check: " + e.getLocalizedMessage());
             setErrorResult(result, malformed_url, null);
         } catch (SSLHandshakeException e) {
+            VpnStatus.logWarning("[API] SSLHandshakeException during connection check: " + e.getLocalizedMessage());
             setErrorResult(result, warning_corrupted_provider_cert, ERROR_INVALID_CERTIFICATE.toString());
         } catch (ConnectException e) {
+            VpnStatus.logWarning("[API] ConnectException during connection check: " + e.getLocalizedMessage());
             setErrorResult(result, service_is_down_error, null);
         } catch (IllegalArgumentException e) {
+            VpnStatus.logWarning("[API] IllegalArgumentException during connection check: " + e.getLocalizedMessage());
             setErrorResult(result, error_no_such_algorithm_exception_user_message, null);
         } catch (UnknownServiceException e) {
+            VpnStatus.logWarning("[API] UnknownServiceException during connection check: " + e.getLocalizedMessage());
             //unable to find acceptable protocols - tlsv1.2 not enabled?
             setErrorResult(result, error_no_such_algorithm_exception_user_message, null);
         } catch (IOException e) {
+            VpnStatus.logWarning("[API] IOException during connection check: " + e.getLocalizedMessage());
             setErrorResult(result, error_io_exception_user_message, null);
         }
         return false;
@@ -768,6 +820,7 @@ public abstract class ProviderApiManagerBase {
         String caCert = provider.getCaCert();
 
         if (ConfigHelper.checkErroneousDownload(caCert)) {
+            VpnStatus.logWarning("[API] No provider cert.");
             return result;
         }
 
@@ -802,6 +855,7 @@ public abstract class ProviderApiManagerBase {
 
     protected Bundle setErrorResult(Bundle result, String stringJsonErrorMessage) {
         String reasonToFail = pickErrorMessage(stringJsonErrorMessage);
+        VpnStatus.logWarning("[API] error: " + reasonToFail);
         result.putString(ERRORS, reasonToFail);
         result.putBoolean(BROADCAST_RESULT_KEY, false);
         return result;
@@ -815,6 +869,7 @@ public abstract class ProviderApiManagerBase {
         } else {
             addErrorMessageToJson(errorJson, errorMessage);
         }
+        VpnStatus.logWarning("[API] error: " + errorMessage);
         result.putString(ERRORS, errorJson.toString());
         result.putBoolean(BROADCAST_RESULT_KEY, false);
         return result;
