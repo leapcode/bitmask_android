@@ -218,14 +218,17 @@ android {
         signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
       //minifyEnabled = true
       //shrinkResources true
+      buildConfigField "Boolean", "DEBUG_MODE", "false"
     }
     beta {
       initWith release
       applicationIdSuffix ".beta"
       appSuffix = " Beta"
+      buildConfigField "Boolean", "DEBUG_MODE", "true"
     }
     debug {
       testCoverageEnabled = true
+      buildConfigField "Boolean", "DEBUG_MODE", "true"
     }
   }
 
