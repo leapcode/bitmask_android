@@ -19,6 +19,7 @@ package se.leap.bitmaskclient.providersetup;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import static se.leap.bitmaskclient.BuildConfig.DEBUG_MODE;
 import android.os.Bundle;
 import android.util.Pair;
 
@@ -44,6 +45,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
@@ -104,6 +106,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         if (isEmpty(provider.getMainUrlString()) || provider.getMainUrl().isDefault()) {
             setErrorResult(currentDownload, malformed_url, null);
             currentDownload.putParcelable(PROVIDER_KEY, provider);
+            VpnStatus.logWarning("[API] MainURL String is not set. Cannot setup provider.");
             return currentDownload;
         }
 
@@ -153,6 +156,10 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             return result;
         }
 
+        if (DEBUG_MODE) {
+            VpnStatus.logDebug("[API] PROVIDER JSON: " + providerDotJsonString);
+        }
+
         try {
             JSONObject providerJson = new JSONObject(providerDotJsonString);
 
@@ -183,6 +190,9 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             JSONObject providerDefinition = provider.getDefinition();
             String eipServiceUrl = providerDefinition.getString(Provider.API_URL) + "/" + providerDefinition.getString(Provider.API_VERSION) + "/" + EIP.SERVICE_API_PATH;
             eipServiceJsonString = downloadWithProviderCA(provider.getCaCert(), eipServiceUrl, lastDangerOn);
+            if (DEBUG_MODE) {
+                VpnStatus.logDebug("[API] EIP SERVICE JSON: " + eipServiceJsonString);
+            }
 
             JSONObject eipServiceJson = new JSONObject(eipServiceJsonString);
 
@@ -213,6 +223,9 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             URL newCertStringUrl = new URL(provider.getApiUrlWithVersion() + "/" + PROVIDER_VPN_CERTIFICATE);
 
             String certString = downloadWithProviderCA(provider.getCaCert(), newCertStringUrl.toString(), lastDangerOn);
+            if (DEBUG_MODE) {
+                VpnStatus.logDebug("[API] VPN CERT: " + certString);
+            }
             if (ConfigHelper.checkErroneousDownload(certString)) {
                 if (certString == null || certString.isEmpty()) {
                     // probably 204
@@ -252,6 +265,9 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             URL geoIpUrl = provider.getGeoipUrl().getUrl();
 
             String geoipJsonString = downloadFromUrlWithProviderCA(geoIpUrl.toString(), provider, lastDangerOn);
+            if (DEBUG_MODE) {
+                VpnStatus.logDebug("[API] MENSHEN JSON: " + geoipJsonString);
+            }
             JSONObject geoipJson = new JSONObject(geoipJsonString);
 
             if (geoipJson.has(ERRORS)) {
@@ -281,6 +297,9 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
             if (validCertificate(provider, certString)) {
                 provider.setCaCert(certString);
+                if (DEBUG_MODE) {
+                    VpnStatus.logDebug("[API] CA CERT: " + certString);
+                }
                 preferences.edit().putString(Provider.CA_CERT + "." + providerDomain, certString).apply();
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             } else {

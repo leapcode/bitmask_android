@@ -352,11 +352,14 @@ public final class EIP extends JobIntentService implements Observer {
     void setErrorResult(Bundle result, String errorId, @StringRes int errorMessageId, Object... args) {
         JSONObject errorJson = new JSONObject();
         try {
+            String errorMessage;
             if (args != null) {
-                errorJson.put(ERRORS, getResources().getString(errorMessageId, args));
+                errorMessage = getResources().getString(errorMessageId, args);
             } else {
-                errorJson.put(ERRORS, getResources().getString(errorMessageId));
+                errorMessage = getResources().getString(errorMessageId);
             }
+            VpnStatus.logWarning("[EIP] error: " + errorMessage);
+            errorJson.put(ERRORS, errorMessage);
             errorJson.put(ERRORID, errorId);
         } catch (JSONException e) {
             e.printStackTrace();

@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import okhttp3.Dns;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
@@ -28,10 +29,12 @@ class DnsResolver implements Dns {
             }
             String ip = currentProvider.getIpForHostname(hostname);
             if (!ip.isEmpty()) {
+                VpnStatus.logWarning("[API] Normal DNS resolution for " + hostname + " seems to be blocked. Circumventing.");
                 ArrayList<InetAddress> addresses = new ArrayList<>();
                 addresses.add(InetAddress.getByAddress(hostname, IPAddress.asBytes(ip)));
                 return addresses;
             } else {
+                VpnStatus.logWarning("[API] Could not resolve DNS for " + hostname);
                 throw new UnknownHostException("Hostname " + hostname + " not found");
             }
         }
