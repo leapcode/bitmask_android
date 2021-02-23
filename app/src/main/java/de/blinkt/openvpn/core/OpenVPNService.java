@@ -24,11 +24,12 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
-import androidx.annotation.RequiresApi;
 import android.system.OsConstants;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -46,8 +47,8 @@ import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.VpnNotificationManager;
-import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
 import se.leap.bitmaskclient.firewall.FirewallManager;
+import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
@@ -61,7 +62,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     public static final String START_SERVICE_STICKY = "de.blinkt.openvpn.START_SERVICE_STICKY";
     public static final String ALWAYS_SHOW_NOTIFICATION = "de.blinkt.openvpn.NOTIFICATION_ALWAYS_VISIBLE";
     public static final String DISCONNECT_VPN = "de.blinkt.openvpn.DISCONNECT_VPN";
-    public static final String NOTIFICATION_CHANNEL_BG_ID = "openvpn_bg";
     public static final String NOTIFICATION_CHANNEL_NEWSTATUS_ID = "openvpn_newstat";
     public static final String VPNSERVICE_TUN = "vpnservice-tun";
     public final static String ORBOT_PACKAGE_NAME = "org.torproject.android";
@@ -278,6 +278,20 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         return hasVPNProcessThread;
 
+    }
+
+    public void startWithForegroundNotification() {
+        // Always show notification here to avoid problem with startForeground timeout
+        notificationManager.createOpenVpnNotificationChannel();
+        notificationManager.buildOpenVpnNotification(
+                mProfile != null ? mProfile.mName : "",
+                mProfile != null && mProfile.mUsePluggableTransports,
+                VpnStatus.getLastCleanLogMessage(this),
+                VpnStatus.getLastCleanLogMessage(this),
+                ConnectionStatus.LEVEL_START,
+                0,
+                NOTIFICATION_CHANNEL_NEWSTATUS_ID,
+                this::onNotificationBuild);
     }
 
     @Override
@@ -524,8 +538,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     @Override
     public void onCreate() {
         super.onCreate();
-        notificationManager = new VpnNotificationManager(this, this);
-        notificationManager.createOpenVpnNotificationChannel();
+        notificationManager = new VpnNotificationManager(this);
+        startWithForegroundNotification();
         firewallManager = new FirewallManager(this, true);
     }
 
@@ -543,9 +557,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         // Just in case unregister for state
         VpnStatus.removeStateListener(this);
         VpnStatus.flushLog();
-        notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_BG_ID);
-        notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_NEWSTATUS_ID);
         firewallManager.onDestroy();
+        notificationManager.cancelAllNotifications();
     }
 
     private String getTunConfigString() {
@@ -1013,14 +1026,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if (mProcessThread == null && !mNotificationAlwaysVisible)
             return;
 
-        String channel = NOTIFICATION_CHANNEL_NEWSTATUS_ID;
         // Display byte count only after being connected
-
         if (level == LEVEL_CONNECTED) {
             mDisplayBytecount = true;
             mConnecttime = System.currentTimeMillis();
-            if (!runningOnAndroidTV())
-                channel = NOTIFICATION_CHANNEL_BG_ID;
             firewallManager.start();
         } else {
             mDisplayBytecount = false;
@@ -1033,7 +1042,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 VpnStatus.getLastCleanLogMessage(this),
                 level,
                 0,
-                channel);
+                NOTIFICATION_CHANNEL_NEWSTATUS_ID);
 
     }
 
@@ -1064,7 +1073,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     null,
                     LEVEL_CONNECTED,
                     mConnecttime,
-                    NOTIFICATION_CHANNEL_BG_ID);
+                    NOTIFICATION_CHANNEL_NEWSTATUS_ID);
         }
 
     }
@@ -1108,18 +1117,13 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 getString(resid),
                 LEVEL_WAITING_FOR_USER_INPUT,
                 0,
-                NOTIFICATION_CHANNEL_BG_ID);
+                NOTIFICATION_CHANNEL_NEWSTATUS_ID);
 
     }
 
     @Override
     public void onNotificationBuild(int notificationId, Notification notification) {
         startForeground(notificationId, notification);
-    }
-
-    @Override
-    public void onNotificationStop() {
-        stopForeground(true);
     }
 
     public void trigger_url_open(String info) {

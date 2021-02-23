@@ -27,32 +27,35 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.widget.RemoteViews;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.OpenVPNService;
-import se.leap.bitmaskclient.base.MainActivity;
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.StartActivity;
 
 import static android.os.Build.VERSION_CODES.O;
-import static androidx.core.app.NotificationCompat.PRIORITY_HIGH;
+import static android.text.TextUtils.isEmpty;
+import static androidx.core.app.NotificationCompat.PRIORITY_DEFAULT;
 import static androidx.core.app.NotificationCompat.PRIORITY_MAX;
 import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
-import static android.text.TextUtils.isEmpty;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
+import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
-import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 
 /**
  * Created by cyberta on 14.01.18.
@@ -60,29 +63,20 @@ import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 
 public class VpnNotificationManager {
 
+    private static final String TAG = VpnNotificationManager.class.getSimpleName();
     Context context;
-    private VpnServiceCallback vpnServiceCallback;
-    private NotificationManager notificationManager;
-    private NotificationManagerCompat compatNotificationManager;
-    private String[] notificationChannels = {
-            OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
-            OpenVPNService.NOTIFICATION_CHANNEL_BG_ID,
-            VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID};
-    private String lastNotificationChannel = "";
+    private final NotificationManagerCompat compatNotificationManager;
 
     public interface VpnServiceCallback {
         void onNotificationBuild(int notificationId, Notification notification);
-        void onNotificationStop();
     }
 
-    public VpnNotificationManager(@NonNull Context context, @NonNull VpnServiceCallback vpnServiceCallback) {
+    public VpnNotificationManager(@NonNull Context context) {
        this.context = context;
-       notificationManager =  (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
        compatNotificationManager = NotificationManagerCompat.from(context);
-       this.vpnServiceCallback = vpnServiceCallback;
     }
 
-    public void buildVoidVpnNotification(final String msg, String tickerText, ConnectionStatus status) {
+    public void buildVoidVpnNotification(final String msg, String tickerText, ConnectionStatus status, VpnServiceCallback callback) {
         //TODO: implement extra Dashboard.ACTION_ASK_TO_CANCEL_BLOCKING_VPN
         NotificationCompat.Action.Builder actionBuilder = new NotificationCompat.Action.Builder(R.drawable.ic_menu_close_clear_cancel,
                 context.getString(R.string.vpn_button_turn_off_blocking), getStopVoidVpnIntent());
@@ -97,28 +91,14 @@ public class VpnNotificationManager {
                 PRIORITY_MAX,
                 0,
                 getMainActivityIntent(),
-                actionBuilder.build());
+                actionBuilder.build(),
+                callback
+                );
     }
 
-    public void stopNotifications(String notificationChannelNewstatusId) {
-        vpnServiceCallback.onNotificationStop();
-        compatNotificationManager.cancel(notificationChannelNewstatusId.hashCode());
-    }
-
-    public void deleteNotificationChannel(String notificationChannel) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-                notificationManager.getNotificationChannel(notificationChannel) != null) {
-            notificationManager.deleteNotificationChannel(notificationChannel);
-        }
-    }
-
-    /**
-     * @param msg
-     * @param tickerText
-     * @param status
-     * @param when
-     */
-    public void buildOpenVpnNotification(String profileName, boolean isObfuscated, String msg, String tickerText, ConnectionStatus status, long when, String notificationChannelNewstatusId) {
+    public void buildOpenVpnNotification(String profileName, boolean isObfuscated, String msg,
+                                         String tickerText, ConnectionStatus status, long when,
+                                         String notificationChannelNewstatusId, VpnServiceCallback vpnServiceCallback) {
         String cancelString;
         CharSequence bigmessage = null;
         String ghostIcon = new String(Character.toChars(0x1f309));
@@ -158,7 +138,7 @@ public class VpnNotificationManager {
         String appName = context.getString(R.string.app_name);
         if (isEmpty(profileName)) {
             title = appName;
-       } else {
+        } else {
             title = context.getString(R.string.notifcation_title_bitmask, appName, profileName);
         }
 
@@ -170,7 +150,7 @@ public class VpnNotificationManager {
 
         int priority;
         if (OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID.equals(notificationChannelNewstatusId)) {
-            priority = PRIORITY_HIGH;
+            priority = PRIORITY_DEFAULT;
         } else {
             // background channel
             priority = PRIORITY_MIN;
@@ -186,9 +166,18 @@ public class VpnNotificationManager {
                 priority,
                 when,
                 contentIntent,
-                actionBuilder.build());
+                actionBuilder.build(),
+                vpnServiceCallback);
     }
 
+    public void buildOpenVpnNotification(String profileName, boolean isObfuscated, String msg, String tickerText, ConnectionStatus status, long when, String notificationChannelNewstatusId) {
+        buildOpenVpnNotification(profileName, isObfuscated, msg, tickerText, status, when, notificationChannelNewstatusId, null);
+    }
+
+
+    public void cancelAllNotifications() {
+        compatNotificationManager.cancelAll();
+    }
 
     @TargetApi(O)
     public void createVoidVpnNotificationChannel() {
@@ -197,16 +186,19 @@ public class VpnNotificationManager {
         }
 
         // Connection status change messages
-        CharSequence name = context.getString(R.string.channel_name_status);
-        NotificationChannel mChannel = new NotificationChannel(VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
-                name, NotificationManager.IMPORTANCE_DEFAULT);
+        NotificationChannel channel = compatNotificationManager.getNotificationChannel(VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID);
+        if (channel == null) {
+            CharSequence name = context.getString(R.string.channel_name_status);
+            channel = new NotificationChannel(VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
+                    name, NotificationManager.IMPORTANCE_DEFAULT);
 
-        mChannel.setDescription(context.getString(R.string.channel_description_status));
-        mChannel.enableLights(true);
+            channel.setDescription(context.getString(R.string.channel_description_status));
+            channel.enableLights(true);
 
-        mChannel.setLightColor(Color.BLUE);
-        mChannel.setSound(null, null);
-        notificationManager.createNotificationChannel(mChannel);
+            channel.setLightColor(Color.BLUE);
+            channel.setSound(null, null);
+            compatNotificationManager.createNotificationChannel(channel);
+        }
     }
 
     @TargetApi(O)
@@ -215,29 +207,20 @@ public class VpnNotificationManager {
             return;
         }
 
-        // Background message
-        CharSequence name = context.getString(R.string.channel_name_background);
-        NotificationChannel mChannel = new NotificationChannel(OpenVPNService.NOTIFICATION_CHANNEL_BG_ID,
-                name, NotificationManager.IMPORTANCE_MIN);
-
-        mChannel.setDescription(context.getString(R.string.channel_description_background));
-        mChannel.enableLights(false);
-
-        mChannel.setLightColor(Color.DKGRAY);
-        notificationManager.createNotificationChannel(mChannel);
-
         // Connection status change messages
-        name = context.getString(R.string.channel_name_status);
-        mChannel = new NotificationChannel(OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
-                name, NotificationManager.IMPORTANCE_DEFAULT);
+        NotificationChannel channel = compatNotificationManager.getNotificationChannel(OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID);
+        if (channel == null) {
+            CharSequence name = context.getString(R.string.channel_name_status);
+            channel = new NotificationChannel(OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
+                    name, NotificationManager.IMPORTANCE_DEFAULT);
 
+            channel.setDescription(context.getString(R.string.channel_description_status));
+            channel.enableLights(true);
 
-        mChannel.setDescription(context.getString(R.string.channel_description_status));
-        mChannel.enableLights(true);
-
-        mChannel.setLightColor(Color.BLUE);
-        mChannel.setSound(null, null);
-        notificationManager.createNotificationChannel(mChannel);
+            channel.setLightColor(Color.BLUE);
+            channel.setSound(null, null);
+            compatNotificationManager.createNotificationChannel(channel);
+        }
     }
 
     /**
@@ -253,7 +236,21 @@ public class VpnNotificationManager {
         return remoteViews;
     }
 
-    private void buildVpnNotification(String title, String message, CharSequence bigMessage, String tickerText, ConnectionStatus status, String notificationChannelNewstatusId, int priority, long when, PendingIntent contentIntent, NotificationCompat.Action notificationAction) {
+    public void buildOpenVpnForegroundNotification(VpnServiceCallback vpnServiceCallback) {
+        buildOpenVpnNotification("",
+                false,
+                VpnStatus.getLastCleanLogMessage(context.getApplicationContext()),
+                VpnStatus.getLastCleanLogMessage(context.getApplicationContext()),
+                ConnectionStatus.LEVEL_START,
+                0,
+                OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
+                vpnServiceCallback
+        );
+    }
+
+    private void buildVpnNotification(String title, String message, CharSequence bigMessage, String tickerText,
+                                      ConnectionStatus status, String notificationChannelNewstatusId, int priority,
+                                      long when, PendingIntent contentIntent, NotificationCompat.Action notificationAction, VpnServiceCallback vpnServiceCallback) {
         NotificationCompat.Builder nCompatBuilder = new NotificationCompat.Builder(context, notificationChannelNewstatusId);
         int icon = getIconByConnectionStatus(status);
 
@@ -291,16 +288,10 @@ public class VpnNotificationManager {
         Notification notification = nCompatBuilder.build();
         int notificationId = notificationChannelNewstatusId.hashCode();
 
-        if (!notificationChannelNewstatusId.equals(lastNotificationChannel)) {
-            // Cancel old notification
-            for (String channel : notificationChannels) {
-                stopNotifications(channel);
-            }
-        }
-
         compatNotificationManager.notify(notificationId, notification);
-        vpnServiceCallback.onNotificationBuild(notificationId, notification);
-        lastNotificationChannel = notificationChannelNewstatusId;
+        if (vpnServiceCallback != null) {
+            vpnServiceCallback.onNotificationBuild(notificationId, notification);
+        }
     }
 
     private PendingIntent getMainActivityIntent() {

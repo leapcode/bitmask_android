@@ -58,7 +58,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
         super.onCreate();
         eipStatus = EipStatus.getInstance();
         eipStatus.addObserver(this);
-        notificationManager = new VpnNotificationManager(this, this);
+        notificationManager = new VpnNotificationManager(this);
         notificationManager.createVoidVpnNotificationChannel();
     }
 
@@ -100,13 +100,12 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
     }
 
     private void stop() {
-        notificationManager.stopNotifications(NOTIFICATION_CHANNEL_NEWSTATUS_ID);
-        notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_NEWSTATUS_ID);
         if (thread != null) {
             thread.interrupt();
         }
         closeFd();
         VpnStatus.updateStateString("NOPROCESS", "BLOCKING VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
+        stopForeground(true);
     }
 
     public static boolean isRunning() throws NullPointerException {
@@ -185,20 +184,17 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
             notificationManager.buildVoidVpnNotification(
                     blockingMessage,
                     blockingMessage,
-                    eipStatus.getLevel());
+                    eipStatus.getLevel(),
+                    this
+            );
         } else {
-            notificationManager.stopNotifications(NOTIFICATION_CHANNEL_NEWSTATUS_ID);
+            stopForeground(true);
         }
     }
 
     @Override
     public void onNotificationBuild(int notificationId, Notification notification) {
         startForeground(notificationId, notification);
-    }
-
-    @Override
-    public void onNotificationStop() {
-        stopForeground(true);
     }
 
 }
