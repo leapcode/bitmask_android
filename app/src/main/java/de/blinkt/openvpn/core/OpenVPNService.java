@@ -198,13 +198,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         firewallManager.stop();
     }
 
-    private boolean runningOnAndroidTV() {
-        UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
-        if (uiModeManager == null)
-            return false;
-        return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
-    }
-
     synchronized void registerDeviceStateReceiver(OpenVPNManagement magnagement) {
         // Registers BroadcastReceiver to track network connection changes.
         IntentFilter filter = new IntentFilter();
@@ -219,8 +212,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         registerReceiver(mDeviceStateReceiver, filter);
         VpnStatus.addByteCountListener(mDeviceStateReceiver);
 
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            addLollipopCMListener(); */
     }
 
     synchronized void unregisterDeviceStateReceiver() {
@@ -235,9 +226,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 iae.printStackTrace();
             }
         mDeviceStateReceiver = null;
-
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            removeLollipopCMListener();*/
 
     }
 
