@@ -77,7 +77,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         currentStatus.setLocalizedResId(localizedResId);
         currentStatus.setLevel(level);
         currentStatus.setEipLevel(level);
-        if (tmp != currentStatus.getLevel() || "RECONNECTING".equals(state)) {
+        if (tmp != currentStatus.getLevel() || "RECONNECTING".equals(state) || "UI_CONNECTING".equals(state)) {
             refresh();
         }
     }

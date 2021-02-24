@@ -320,11 +320,7 @@ public class EipFragment extends Fragment implements Observer {
         } else {
             EipCommand.startVPN(context.getApplicationContext(), false);
         }
-        EipStatus.getInstance().updateState("RECONNECTING", "", 0, ConnectionStatus.LEVEL_START);
-       /* vpnStateImage.showProgress();
-        routedText.setVisibility(GONE);
-        vpnRoute.setVisibility(GONE);
-        colorBackgroundALittle();*/
+        EipStatus.getInstance().updateState("UI_CONNECTING", "", 0, ConnectionStatus.LEVEL_START);
     }
 
     protected void stopEipIfPossible() {
