@@ -216,7 +216,7 @@ android {
       //runProguard true
       if(signingConfigs.contains(release))
         signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
-      ndk.debugSymbolLevel = "full"
+      //ndk.debugSymbolLevel = "full"
       //minifyEnabled = true
       //shrinkResources true
       buildConfigField "Boolean", "DEBUG_MODE", "false"
