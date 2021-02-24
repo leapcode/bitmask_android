@@ -46,6 +46,7 @@ import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VpnNotificationManager;
 import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
@@ -92,11 +93,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Shapeshifter shapeshifter;
     private FirewallManager firewallManager;
 
-    private static final int PRIORITY_MIN = -2;
-    private static final int PRIORITY_DEFAULT = 0;
-    private static final int PRIORITY_MAX = 2;
-
-
     private final IBinder mBinder = new IOpenVPNServiceInternal.Stub() {
 
         @Override
@@ -117,6 +113,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         @Override
         public boolean isVpnRunning() throws RemoteException {
             return OpenVPNService.this.isVpnRunning();
+        }
+
+        @Override
+        public void startWithForegroundNotification() throws  RemoteException {
+            OpenVPNService.this.startWithForegroundNotification();
         }
     };
 
@@ -280,18 +281,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     }
 
+    @Override
     public void startWithForegroundNotification() {
         // Always show notification here to avoid problem with startForeground timeout
         notificationManager.createOpenVpnNotificationChannel();
-        notificationManager.buildOpenVpnNotification(
-                mProfile != null ? mProfile.mName : "",
-                mProfile != null && mProfile.mUsePluggableTransports,
-                VpnStatus.getLastCleanLogMessage(this),
-                VpnStatus.getLastCleanLogMessage(this),
-                ConnectionStatus.LEVEL_START,
-                0,
-                NOTIFICATION_CHANNEL_NEWSTATUS_ID,
-                this::onNotificationBuild);
+        notificationManager.buildForegroundServiceNotification(EipStatus.getInstance().getLevel(), this::onNotificationBuild);
     }
 
     @Override
@@ -539,7 +533,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     public void onCreate() {
         super.onCreate();
         notificationManager = new VpnNotificationManager(this);
-        startWithForegroundNotification();
         firewallManager = new FirewallManager(this, true);
     }
 
@@ -558,7 +551,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.removeStateListener(this);
         VpnStatus.flushLog();
         firewallManager.onDestroy();
-        notificationManager.cancelAllNotifications();
+        notificationManager.deleteOpenvpnNotificationChannel();
     }
 
     private String getTunConfigString() {

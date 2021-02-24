@@ -25,6 +25,7 @@ import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.eip.EipCommand;
 
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
@@ -119,7 +120,7 @@ public class LaunchVPN extends Activity {
 
             if(!mhideLog && showLogWindow)
                 showLogWindow();
-            VPNLaunchHelper.startOpenVpn(mSelectedProfile, getBaseContext());
+            EipCommand.launchVPNProfile(getApplicationContext(), mSelectedProfile);
             finish();
 
         } else if (resultCode == Activity.RESULT_CANCELED) {

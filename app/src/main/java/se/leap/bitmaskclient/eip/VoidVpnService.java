@@ -99,6 +99,12 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
         closeFd();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        notificationManager.deleteVoidVpnNotificationChannel();
+    }
+
     private void stop() {
         if (thread != null) {
             thread.interrupt();

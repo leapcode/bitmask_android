@@ -54,6 +54,7 @@ import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_GATEWAY_SETU
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_LAUNCH_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
@@ -226,6 +227,13 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             case EIP_ACTION_PREPARE_VPN:
                 if (resultCode == RESULT_CANCELED) {
                     VpnStatus.logError("Error preparing VpnService.");
+                    finishGatewaySetup(false);
+                    EipStatus.refresh();
+                }
+                break;
+            case EIP_ACTION_LAUNCH_VPN:
+                if (resultCode == RESULT_CANCELED) {
+                    VpnStatus.logError("Error starting VpnService.");
                     finishGatewaySetup(false);
                     EipStatus.refresh();
                 }

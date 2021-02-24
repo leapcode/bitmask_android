@@ -52,6 +52,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
@@ -319,10 +320,11 @@ public class EipFragment extends Fragment implements Observer {
         } else {
             EipCommand.startVPN(context.getApplicationContext(), false);
         }
-        vpnStateImage.showProgress();
+        EipStatus.getInstance().updateState("RECONNECTING", "", 0, ConnectionStatus.LEVEL_START);
+       /* vpnStateImage.showProgress();
         routedText.setVisibility(GONE);
         vpnRoute.setVisibility(GONE);
-        colorBackgroundALittle();
+        colorBackgroundALittle();*/
     }
 
     protected void stopEipIfPossible() {

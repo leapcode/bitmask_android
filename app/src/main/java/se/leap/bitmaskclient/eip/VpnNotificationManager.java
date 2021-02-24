@@ -31,7 +31,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
@@ -50,11 +49,11 @@ import static android.os.Build.VERSION_CODES.O;
 import static android.text.TextUtils.isEmpty;
 import static androidx.core.app.NotificationCompat.PRIORITY_DEFAULT;
 import static androidx.core.app.NotificationCompat.PRIORITY_MAX;
-import static androidx.core.app.NotificationCompat.PRIORITY_MIN;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
 
 /**
@@ -89,6 +88,37 @@ public class VpnNotificationManager {
                 status,
                 VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
                 PRIORITY_MAX,
+                0,
+                getMainActivityIntent(),
+                actionBuilder.build(),
+                callback
+                );
+    }
+
+
+    public void buildForegroundServiceNotification(ConnectionStatus connectionStatus,
+                                                   VpnServiceCallback callback) {
+        String message = "";
+        // if the app was killed by the system getLastCleanLogMessage returns an empty string
+        // because the state doesn't get persisted. We can use LEVEL_NOTCONNECTED as an indicator for
+        // that case because the openvpn service won't be connected then
+        if (connectionStatus == ConnectionStatus.LEVEL_NOTCONNECTED) {
+            message = context.getString(R.string.eip_state_not_connected);
+        } else {
+            message = VpnStatus.getLastCleanLogMessage(context);
+        }
+
+        NotificationCompat.Action.Builder actionBuilder = new NotificationCompat.Action.Builder(0,
+                context.getString(R.string.vpn_button_turn_on), getStartOpenvpnIntent());
+
+        buildVpnNotification(
+                "",
+                message,
+                null,
+                "",
+                connectionStatus,
+                OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
+                PRIORITY_DEFAULT,
                 0,
                 getMainActivityIntent(),
                 actionBuilder.build(),
@@ -147,15 +177,6 @@ public class VpnNotificationManager {
             contentIntent = getUserInputIntent(msg);
         else
             contentIntent = getMainActivityIntent();
-
-        int priority;
-        if (OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID.equals(notificationChannelNewstatusId)) {
-            priority = PRIORITY_DEFAULT;
-        } else {
-            // background channel
-            priority = PRIORITY_MIN;
-        }
-
         buildVpnNotification(
                 title,
                 msg,
@@ -163,7 +184,7 @@ public class VpnNotificationManager {
                 tickerText,
                 status,
                 notificationChannelNewstatusId,
-                priority,
+                PRIORITY_DEFAULT,
                 when,
                 contentIntent,
                 actionBuilder.build(),
@@ -174,10 +195,16 @@ public class VpnNotificationManager {
         buildOpenVpnNotification(profileName, isObfuscated, msg, tickerText, status, when, notificationChannelNewstatusId, null);
     }
 
-
-    public void cancelAllNotifications() {
+    public void deleteOpenvpnNotificationChannel() {
         compatNotificationManager.cancelAll();
+        compatNotificationManager.deleteNotificationChannel(OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID);
     }
+
+    public void deleteVoidVpnNotificationChannel() {
+        compatNotificationManager.cancelAll();
+        compatNotificationManager.deleteNotificationChannel(VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID);
+    }
+
 
     @TargetApi(O)
     public void createVoidVpnNotificationChannel() {
@@ -236,18 +263,6 @@ public class VpnNotificationManager {
         return remoteViews;
     }
 
-    public void buildOpenVpnForegroundNotification(VpnServiceCallback vpnServiceCallback) {
-        buildOpenVpnNotification("",
-                false,
-                VpnStatus.getLastCleanLogMessage(context.getApplicationContext()),
-                VpnStatus.getLastCleanLogMessage(context.getApplicationContext()),
-                ConnectionStatus.LEVEL_START,
-                0,
-                OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID,
-                vpnServiceCallback
-        );
-    }
-
     private void buildVpnNotification(String title, String message, CharSequence bigMessage, String tickerText,
                                       ConnectionStatus status, String notificationChannelNewstatusId, int priority,
                                       long when, PendingIntent contentIntent, NotificationCompat.Action notificationAction, VpnServiceCallback vpnServiceCallback) {
@@ -297,6 +312,12 @@ public class VpnNotificationManager {
     private PendingIntent getMainActivityIntent() {
         Intent startActivity = new Intent(context, StartActivity.class);
         return PendingIntent.getActivity(context, 0, startActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private PendingIntent getStartOpenvpnIntent() {
+        Intent startIntent = new Intent(context, EIP.class);
+        startIntent.setAction(EIP_ACTION_START);
+        return PendingIntent.getService(context, 0, startIntent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     private PendingIntent getStopVoidVpnIntent() {

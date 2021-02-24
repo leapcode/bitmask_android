@@ -22,16 +22,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.annotation.WorkerThread;
 import androidx.core.app.JobIntentService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,20 +51,23 @@ import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.OnBootReceiver;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
+import static se.leap.bitmaskclient.R.string.warning_client_parsing_error_gateways;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_CONFIGURE_TETHERING;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_IS_RUNNING;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_LAUNCH_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_BLOCKING_VPN;
@@ -75,13 +80,11 @@ import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
-import static se.leap.bitmaskclient.R.string.warning_client_parsing_error_gateways;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePluggableTransports;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.NO_MORE_GATEWAYS;
 import static se.leap.bitmaskclient.eip.EipResultBroadcast.tellToReceiverOrBroadcast;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePluggableTransports;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -116,7 +119,8 @@ public final class EIP extends JobIntentService implements Observer {
         UNKNOWN,
         ERROR_INVALID_VPN_CERTIFICATE,
         NO_MORE_GATEWAYS,
-        ERROR_VPN_PREPARE
+        ERROR_VPN_PREPARE,
+        ERROR_INVALID_PROFILE
     }
 
     /**
@@ -195,8 +199,9 @@ public final class EIP extends JobIntentService implements Observer {
                 disconnect();
                 earlyRoutes();
                 break;
-            case EIP_ACTION_CONFIGURE_TETHERING:
-                Log.d(TAG, "TODO: implement tethering configuration");
+            case EIP_ACTION_LAUNCH_VPN:
+                VpnProfile profile = (VpnProfile) intent.getSerializableExtra(PROVIDER_PROFILE);
+                launchVpn(profile);
                 break;
         }
     }
@@ -407,6 +412,33 @@ public final class EIP extends JobIntentService implements Observer {
             VpnStatus.logException(e);
         }
         return false;
+    }
+
+    /**
+     * creates an OpenVpnServiceConnection if necessary and starts OpenVPN as foreground service
+     */
+    private void launchVpn(VpnProfile vpnProfile) {
+        Bundle result = new Bundle();
+
+        Intent startVPN = vpnProfile.prepareStartService(getApplicationContext());
+        if (startVPN != null) {
+            try {
+                initOpenVpnServiceConnection();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    //noinspection NewApi
+                    getApplicationContext().startForegroundService(startVPN);
+                    openVpnServiceConnection.getService().startWithForegroundNotification();
+                } else {
+                    getApplicationContext().startService(startVPN);
+                }
+            } catch (InterruptedException | IllegalStateException | RemoteException e) {
+                    setErrorResult(result,  R.string.vpn_error_establish, null);
+                    tellToReceiverOrBroadcast(this.getApplicationContext(), EIP_ACTION_PREPARE_VPN, RESULT_CANCELED);
+            }
+        } else {
+            setErrorResult(result,  R.string.vpn_error_establish, null);
+            tellToReceiverOrBroadcast(this.getApplicationContext(), EIP_ACTION_PREPARE_VPN, RESULT_CANCELED);
+        }
     }
 
 
