@@ -159,14 +159,14 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
                 if (EipStatus.getInstance().isDisconnected()) {
-                    EipCommand.startVPN(context.getApplicationContext(), true);
+                    EipCommand.startVPN(context.getApplicationContext(), false);
                 }
                 break;
             case CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
                 provider = resultData.getParcelable(PROVIDER_KEY);
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
-                EipCommand.startVPN(context.getApplicationContext(), true);
+                EipCommand.startVPN(context.getApplicationContext(), false);
                 break;
             case CORRECTLY_DOWNLOADED_GEOIP_JSON:
                 provider = resultData.getParcelable(PROVIDER_KEY);

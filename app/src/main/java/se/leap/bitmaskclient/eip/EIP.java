@@ -179,7 +179,7 @@ public final class EIP extends JobIntentService implements Observer {
         int nClosestGateway;
         switch (action) {
             case EIP_ACTION_START:
-                boolean earlyRoutes = intent.getBooleanExtra(EIP_EARLY_ROUTES, true);
+                boolean earlyRoutes = intent.getBooleanExtra(EIP_EARLY_ROUTES, false);
                 nClosestGateway = intent.getIntExtra(EIP_N_CLOSEST_GATEWAY, 0);
                 startEIP(earlyRoutes, nClosestGateway);
                 break;
