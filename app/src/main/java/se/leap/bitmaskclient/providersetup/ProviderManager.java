@@ -22,12 +22,16 @@ import java.util.Set;
 
 import se.leap.bitmaskclient.base.models.Provider;
 
+import static se.leap.bitmaskclient.base.models.Constants.EXT_JSON;
+import static se.leap.bitmaskclient.base.models.Constants.EXT_PEM;
+import static se.leap.bitmaskclient.base.models.Constants.URLS;
 import static se.leap.bitmaskclient.base.models.Provider.GEOIP_URL;
 import static se.leap.bitmaskclient.base.models.Provider.MAIN_URL;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_API_IP;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_IP;
 import static se.leap.bitmaskclient.base.utils.FileHelper.createFile;
 import static se.leap.bitmaskclient.base.utils.FileHelper.persistFile;
+import static se.leap.bitmaskclient.base.utils.InputStreamHelper.extractKeyFromInputStream;
 import static se.leap.bitmaskclient.base.utils.InputStreamHelper.getInputStreamFrom;
 import static se.leap.bitmaskclient.base.utils.InputStreamHelper.loadInputStreamAsString;
 
@@ -44,10 +48,6 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     private Set<URL> customProviderURLs;
 
     private static ProviderManager instance;
-
-    final private static String URLS = "urls";
-    final private static String EXT_JSON = ".json";
-    final private static String EXT_PEM = ".pem";
 
     public static ProviderManager getInstance(AssetManager assetsManager, File externalFilesDir) {
         if (instance == null)
@@ -136,28 +136,6 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         }
 
         return providers;
-    }
-
-    private String extractKeyFromInputStream(InputStream inputStream, String key) {
-        String value = "";
-
-        JSONObject fileContents = inputStreamToJson(inputStream);
-        if (fileContents != null)
-            value = fileContents.optString(key);
-        return value;
-    }
-
-    private JSONObject inputStreamToJson(InputStream inputStream) {
-        JSONObject json = null;
-        try {
-            byte[] bytes = new byte[inputStream.available()];
-            if (inputStream.read(bytes) > 0)
-                json = new JSONObject(new String(bytes));
-            inputStream.reset();
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-        return json;
     }
 
     public List<Provider> providers() {

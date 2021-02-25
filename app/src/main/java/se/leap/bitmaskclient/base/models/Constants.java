@@ -104,6 +104,13 @@ public interface Constants {
     String PROVIDER_PROFILE_UUID = "Constants.PROVIDER_PROFILE_UUID";
     String PROVIDER_PROFILE = "Constants.PROVIDER_PROFILE";
 
+    ////////////////////////////////////////////////
+    // PRESHIPPED PROVIDER CONFIG
+    ////////////////////////////////////////////////
+    String URLS = "urls";
+    String EXT_JSON = ".json";
+    String EXT_PEM = ".pem";
+
     //////////////////////////////////////////////
     // CREDENTIAL CONSTANTS
     /////////////////////////////////////////////
