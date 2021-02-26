@@ -330,6 +330,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         } else {
             /* The intent is null when we are set as always-on or the service has been restarted. */
             Log.d(TAG, "Starting VPN due to isAlwaysOn system settings or app crash.");
+            startWithForegroundNotification();
+
             mProfile = VpnStatus.getLastConnectedVpnProfile(this);
             VpnStatus.logInfo(R.string.service_restarted);
 
@@ -371,9 +373,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     private void startOpenVPN() {
-        /**
-         * see change above (l. 292 ff)
-         */
         //TODO: investigate how connections[n] with n>0 get called during vpn setup (on connection refused?)
         // Do we need to check if there's any obfs4 connection in mProfile.mConnections and start
         // the dispatcher here? Can we start the dispatcher at a later point of execution, e.g. when
