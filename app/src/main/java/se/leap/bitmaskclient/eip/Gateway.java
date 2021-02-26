@@ -55,7 +55,6 @@ import static se.leap.bitmaskclient.base.models.Constants.VERSION;
 public class Gateway {
 
     public final static String TAG = Gateway.class.getSimpleName();
-    public final static String KEY_N_CLOSEST_GATEWAY = "N_CLOSEST_GATEWAY";
 
     private JSONObject generalConfiguration;
     private JSONObject secrets;

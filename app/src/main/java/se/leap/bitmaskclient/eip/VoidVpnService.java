@@ -21,7 +21,9 @@ import android.app.Notification;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.VpnService;
+import android.os.Binder;
 import android.os.Build;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.system.OsConstants;
 import android.util.Log;
@@ -52,6 +54,21 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
     public static final String NOTIFICATION_CHANNEL_NEWSTATUS_ID = "bitmask_void_vpn_news";
     private EipStatus eipStatus;
     private VpnNotificationManager notificationManager;
+
+    private final IBinder binder = new VoidVpnServiceBinder();
+    public class VoidVpnServiceBinder extends Binder {
+        VoidVpnService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return VoidVpnService.this;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+
 
     @Override
     public void onCreate() {
@@ -201,6 +218,10 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
     @Override
     public void onNotificationBuild(int notificationId, Notification notification) {
         startForeground(notificationId, notification);
+    }
+
+    public void startWithForegroundNotification() {
+
     }
 
 }

@@ -258,7 +258,8 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 break;
             case EIP_ACTION_PREPARE_VPN:
                 if (resultCode == RESULT_CANCELED) {
-                    showMainActivityErrorDialog(getString(R.string.vpn_error_establish), ERROR_VPN_PREPARE);
+                    String error = resultData.getString(ERRORS);
+                    showMainActivityErrorDialog(error, ERROR_VPN_PREPARE);
                 }
                 break;
             case EIP_ACTION_LAUNCH_VPN:

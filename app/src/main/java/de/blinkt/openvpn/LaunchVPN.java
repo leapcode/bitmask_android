@@ -5,29 +5,21 @@
 
 package de.blinkt.openvpn;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
 
-import java.io.IOException;
-
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.Preferences;
-import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.eip.EipCommand;
 
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_N_CLOSEST_GATEWAY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.eip.EipResultBroadcast.tellToReceiverOrBroadcast;
 
@@ -58,54 +50,56 @@ import static se.leap.bitmaskclient.eip.EipResultBroadcast.tellToReceiverOrBroad
  */
 public class LaunchVPN extends Activity {
 
-    public static final String EXTRA_KEY = "de.blinkt.openvpn.shortcutProfileUUID";
-    public static final String EXTRA_NAME = "de.blinkt.openvpn.shortcutProfileName";
     public static final String EXTRA_HIDELOG = "de.blinkt.openvpn.showNoLogWindow";
-    public static final String CLEARLOG = "clearlogconnect";
-
-
     private static final int START_VPN_PROFILE = 70;
     private static final String TAG = LaunchVPN.class.getName();
+    private VpnProfile selectedProfile;
+    private int selectedGateway;
 
-
-    private VpnProfile mSelectedProfile;
-    private boolean mhideLog = false;
-
-    private boolean mCmfixed = false;
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        startVpnFromIntent();
-    }
-
-    protected void startVpnFromIntent() {
-        // Resolve the intent
-
         final Intent intent = getIntent();
         final String action = intent.getAction();
+        if (!Intent.ACTION_MAIN.equals(action)) {
+            finish();
+        }
 
-        // If the intent is a request to create a shortcut, we'll do that and exit
+        VpnProfile profileToConnect = (VpnProfile) intent.getExtras().getSerializable(PROVIDER_PROFILE);
+        selectedGateway = intent.getExtras().getInt(EIP_N_CLOSEST_GATEWAY, 0);
+        if (profileToConnect == null) {
+            VpnStatus.logError(R.string.shortcut_profile_notfound);
+            // show Log window to display error
+            showLogWindow();
+            finish();
+        } else {
+            selectedProfile = profileToConnect;
+        }
 
+        Intent vpnIntent;
+        try {
+            vpnIntent = VpnService.prepare(this.getApplicationContext());
+        } catch (NullPointerException npe) {
+            tellToReceiverOrBroadcast(this.getApplicationContext(), EIP_ACTION_PREPARE_VPN, RESULT_CANCELED);
+            finish();
+            return;
+        }
 
-        if (Intent.ACTION_MAIN.equals(action)) {
-            // Check if we need to clear the log
-            if (Preferences.getDefaultSharedPreferences(this).getBoolean(CLEARLOG, true))
-                VpnStatus.clearLog();
+        if (vpnIntent != null) {
+            // we don't have the permission yet to start the VPN
 
-            // we got called to be the starting point, most likely a shortcut
-            mhideLog = intent.getBooleanExtra(EXTRA_HIDELOG, false);
-            VpnProfile profileToConnect = (VpnProfile) intent.getExtras().getSerializable(PROVIDER_PROFILE);
-
-            if (profileToConnect == null) {
-                VpnStatus.logError(R.string.shortcut_profile_notfound);
-                // show Log window to display error
+            VpnStatus.updateStateString("USER_VPN_PERMISSION", "", R.string.state_user_vpn_permission,
+                    ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT);
+            // Start the query
+            try {
+                startActivityForResult(vpnIntent, START_VPN_PROFILE);
+            } catch (ActivityNotFoundException ane) {
+                // Shame on you Sony! At least one user reported that
+                // an official Sony Xperia Arc S image triggers this exception
+                VpnStatus.logError(R.string.no_vpn_support_image);
                 showLogWindow();
-                finish();
-            } else {
-                mSelectedProfile = profileToConnect;
-                launchVPN();
             }
         }
     }
@@ -114,13 +108,8 @@ public class LaunchVPN extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode==START_VPN_PROFILE) {
-            SharedPreferences prefs = Preferences.getDefaultSharedPreferences(this);
-            boolean showLogWindow = prefs.getBoolean("showlogwindow", true);
-
-            if(!mhideLog && showLogWindow)
-                showLogWindow();
-            EipCommand.launchVPNProfile(getApplicationContext(), mSelectedProfile);
+        if(requestCode==START_VPN_PROFILE && resultCode == Activity.RESULT_OK) {
+            EipCommand.launchVPNProfile(getApplicationContext(), selectedProfile, selectedGateway);
             finish();
 
         } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -128,110 +117,20 @@ public class LaunchVPN extends Activity {
             VpnStatus.updateStateString("USER_VPN_PERMISSION_CANCELLED", "", R.string.state_user_vpn_permission_cancelled,
                     ConnectionStatus.LEVEL_NOTCONNECTED);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 VpnStatus.logError(R.string.nought_alwayson_warning);
+                // show Log window to display error
+                showLogWindow();
+            }
 
             finish();
         }
     }
 
     void showLogWindow() {
-
         Intent startLW = new Intent(getBaseContext(), MainActivity.class);
         startLW.putExtra(MainActivity.ACTION_SHOW_LOG_FRAGMENT, true);
         startLW.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(startLW);
-
-    }
-
-    void showConfigErrorDialog(int vpnok) {
-        AlertDialog.Builder d = new AlertDialog.Builder(this);
-        d.setTitle(R.string.config_error_found);
-        d.setMessage(vpnok);
-        d.setPositiveButton(android.R.string.ok, new OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
-
-            }
-        });
-        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                finish();
-            }
-        });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
-            setOnDismissListener(d);
-        d.show();
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    private void setOnDismissListener(AlertDialog.Builder d) {
-        d.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                finish();
-            }
-        });
-    }
-
-    void launchVPN() {
-        int vpnok = mSelectedProfile.checkProfile(this);
-        if (vpnok != R.string.no_error_found) {
-            showConfigErrorDialog(vpnok);
-            return;
-        }
-
-        Intent intent = null;
-        try {
-            intent = VpnService.prepare(this.getApplicationContext());
-        } catch (NullPointerException npe) {
-            tellToReceiverOrBroadcast(this.getApplicationContext(), EIP_ACTION_PREPARE_VPN, RESULT_CANCELED);
-            finish();
-            return;
-        }
-
-        // Check if we want to fix /dev/tun
-        SharedPreferences prefs = Preferences.getDefaultSharedPreferences(this);
-        boolean usecm9fix = prefs.getBoolean("useCM9Fix", false);
-        boolean loadTunModule = prefs.getBoolean("loadTunModule", false);
-
-        if (loadTunModule)
-            execeuteSUcmd("insmod /system/lib/modules/tun.ko");
-
-        if (usecm9fix && !mCmfixed) {
-            execeuteSUcmd("chown system /dev/tun");
-        }
-
-        if (intent != null) {
-            VpnStatus.updateStateString("USER_VPN_PERMISSION", "", R.string.state_user_vpn_permission,
-                    ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT);
-            // Start the query
-            try {
-                startActivityForResult(intent, START_VPN_PROFILE);
-            } catch (ActivityNotFoundException ane) {
-                // Shame on you Sony! At least one user reported that
-                // an official Sony Xperia Arc S image triggers this exception
-                VpnStatus.logError(R.string.no_vpn_support_image);
-                showLogWindow();
-            }
-        } else {
-            onActivityResult(START_VPN_PROFILE, Activity.RESULT_OK, null);
-        }
-
-    }
-
-    private void execeuteSUcmd(String command) {
-        try {
-            ProcessBuilder pb = new ProcessBuilder("su", "-c", command);
-            Process p = pb.start();
-            int ret = p.waitFor();
-            if (ret == 0)
-                mCmfixed = true;
-        } catch (InterruptedException | IOException e) {
-            VpnStatus.logException("SU command", e);
-        }
     }
 }

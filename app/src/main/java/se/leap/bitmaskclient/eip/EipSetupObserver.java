@@ -59,6 +59,7 @@ import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_N_CLOSEST_GATEWAY;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
@@ -260,20 +261,19 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             return;
         }
         setupVpnProfile = vpnProfile;
-        setupNClosestGateway.set(event.getIntExtra(Gateway.KEY_N_CLOSEST_GATEWAY, 0));
+        setupNClosestGateway.set(event.getIntExtra(EIP_N_CLOSEST_GATEWAY, 0));
         Log.d(TAG, "bitmaskapp add state listener");
         VpnStatus.addStateListener(this);
-
-        launchVPN(setupVpnProfile);
     }
 
     private void launchVPN(VpnProfile vpnProfile) {
+        EipCommand.launchVPNProfile(context, vpnProfile, setupNClosestGateway.get());
         Intent intent = new Intent(context.getApplicationContext(), LaunchVPN.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
         intent.putExtra(PROVIDER_PROFILE, vpnProfile);
-        intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, setupNClosestGateway.get());
+        intent.putExtra(EIP_N_CLOSEST_GATEWAY, setupNClosestGateway.get());
         context.startActivity(intent);
     }
 

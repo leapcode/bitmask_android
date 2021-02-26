@@ -76,11 +76,14 @@ public class EipCommand {
         execute(context, EIP_ACTION_STOP);
     }
 
-    public static void launchVPNProfile(@NonNull Context context, VpnProfile vpnProfile) {
+    public static void launchVPNProfile(@NonNull Context context, VpnProfile vpnProfile, Integer closestGateway) {
         Intent baseIntent = new Intent();
         baseIntent.putExtra(PROVIDER_PROFILE, vpnProfile);
+        baseIntent.putExtra(EIP_N_CLOSEST_GATEWAY, closestGateway);
         execute(context, EIP_ACTION_LAUNCH_VPN, null, baseIntent);
     }
+
+    public static void launchVoidVPN(@NonNull Context context) { execute(context, EIP_ACTION_START_BLOCKING_VPN);}
 
     @VisibleForTesting
     public static void stopVPN(@NonNull Context context, ResultReceiver resultReceiver) {
