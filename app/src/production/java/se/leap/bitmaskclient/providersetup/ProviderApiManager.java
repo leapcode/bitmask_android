@@ -180,7 +180,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             }
         } catch (NullPointerException | JSONException e) {
-            setErrorResult(result, eipServiceJsonString);
+            setErrorResult(result, R.string.error_json_exception_user_message, null);
         }
         return result;
     }
