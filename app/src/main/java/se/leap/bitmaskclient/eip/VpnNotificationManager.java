@@ -195,14 +195,8 @@ public class VpnNotificationManager {
         buildOpenVpnNotification(profileName, isObfuscated, msg, tickerText, status, when, notificationChannelNewstatusId, null);
     }
 
-    public void deleteOpenvpnNotificationChannel() {
+    public void cancelAll() {
         compatNotificationManager.cancelAll();
-        compatNotificationManager.deleteNotificationChannel(OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID);
-    }
-
-    public void deleteVoidVpnNotificationChannel() {
-        compatNotificationManager.cancelAll();
-        compatNotificationManager.deleteNotificationChannel(VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID);
     }
 
 

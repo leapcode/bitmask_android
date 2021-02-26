@@ -8,12 +8,10 @@ package de.blinkt.openvpn.core;
 import android.Manifest.permission;
 import android.annotation.TargetApi;
 import android.app.Notification;
-import android.app.UiModeManager;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutManager;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.VpnService;
@@ -538,7 +536,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.removeStateListener(this);
         VpnStatus.flushLog();
         firewallManager.onDestroy();
-        notificationManager.deleteOpenvpnNotificationChannel();
+        notificationManager.cancelAll();
     }
 
     private String getTunConfigString() {
