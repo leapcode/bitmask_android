@@ -12,15 +12,18 @@ import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.StringRes;
+
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.eip.EipCommand;
 
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_N_CLOSEST_GATEWAY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
+import static se.leap.bitmaskclient.eip.EIP.ERRORS;
 import static se.leap.bitmaskclient.eip.EipResultBroadcast.tellToReceiverOrBroadcast;
 
 /**
@@ -70,9 +73,7 @@ public class LaunchVPN extends Activity {
         VpnProfile profileToConnect = (VpnProfile) intent.getExtras().getSerializable(PROVIDER_PROFILE);
         selectedGateway = intent.getExtras().getInt(EIP_N_CLOSEST_GATEWAY, 0);
         if (profileToConnect == null) {
-            VpnStatus.logError(R.string.shortcut_profile_notfound);
-            // show Log window to display error
-            showLogWindow();
+            showAlertInMainActivity(R.string.shortcut_profile_notfound);
             finish();
         } else {
             selectedProfile = profileToConnect;
@@ -82,7 +83,7 @@ public class LaunchVPN extends Activity {
         try {
             vpnIntent = VpnService.prepare(this.getApplicationContext());
         } catch (NullPointerException npe) {
-            tellToReceiverOrBroadcast(this.getApplicationContext(), EIP_ACTION_PREPARE_VPN, RESULT_CANCELED);
+            showAlertInMainActivity(R.string.vpn_error_establish);
             finish();
             return;
         }
@@ -98,8 +99,7 @@ public class LaunchVPN extends Activity {
             } catch (ActivityNotFoundException ane) {
                 // Shame on you Sony! At least one user reported that
                 // an official Sony Xperia Arc S image triggers this exception
-                VpnStatus.logError(R.string.no_vpn_support_image);
-                showLogWindow();
+                showAlertInMainActivity(R.string.no_vpn_support_image);
             }
         }
     }
@@ -118,19 +118,28 @@ public class LaunchVPN extends Activity {
                     ConnectionStatus.LEVEL_NOTCONNECTED);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                VpnStatus.logError(R.string.nought_alwayson_warning);
-                // show Log window to display error
-                showLogWindow();
+                showAlertInMainActivity(R.string.nought_alwayson_warning);
             }
 
             finish();
         }
     }
 
-    void showLogWindow() {
-        Intent startLW = new Intent(getBaseContext(), MainActivity.class);
-        startLW.putExtra(MainActivity.ACTION_SHOW_LOG_FRAGMENT, true);
-        startLW.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(startLW);
+    void showAlertInMainActivity(@StringRes int errorString) {
+        Bundle result = new Bundle();
+        setErrorResult(result, errorString);
+        tellToReceiverOrBroadcast(this.getApplicationContext(), EIP_ACTION_PREPARE_VPN, RESULT_CANCELED, result);
+    }
+
+    /**
+     * helper function to add error to result bundle
+     *
+     * @param result         - result of an action
+     * @param errorMessageId - id of string resource describing the error
+     */
+    void setErrorResult(Bundle result, @StringRes int errorMessageId) {
+        VpnStatus.logError(errorMessageId);
+        result.putString(ERRORS, getResources().getString(errorMessageId));
+        result.putBoolean(BROADCAST_RESULT_KEY, false);
     }
 }
