@@ -366,6 +366,8 @@ public class MockHelper {
                 return getClass().getClassLoader().getResourceAsStream(filename);
             }
         });
+        when(InputStreamHelper.extractKeyFromInputStream(any(InputStream.class), anyString())).thenCallRealMethod();
+        when(InputStreamHelper.inputStreamToJson(any(InputStream.class))).thenCallRealMethod();
 
     }
 
