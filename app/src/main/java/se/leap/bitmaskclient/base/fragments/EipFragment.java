@@ -176,12 +176,18 @@ public class EipFragment extends Fragment implements Observer {
         View view = inflater.inflate(R.layout.f_eip, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        Bundle arguments = getArguments();
-        if (arguments != null && arguments.containsKey(ASK_TO_CANCEL_VPN) && arguments.getBoolean(ASK_TO_CANCEL_VPN)) {
-            arguments.remove(ASK_TO_CANCEL_VPN);
-            setArguments(arguments);
-            askToStopEIP();
+        try {
+            Bundle arguments = getArguments();
+            if (arguments != null && arguments.containsKey(ASK_TO_CANCEL_VPN) && arguments.getBoolean(ASK_TO_CANCEL_VPN)) {
+                arguments.remove(ASK_TO_CANCEL_VPN);
+                setArguments(arguments);
+                askToStopEIP();
+            }
+        } catch (IllegalStateException e) {
+            // probably setArguments failed because the fragments state is already saved
+            e.printStackTrace();
         }
+
         restoreFromSavedInstance(savedInstanceState);
         return view;
     }
