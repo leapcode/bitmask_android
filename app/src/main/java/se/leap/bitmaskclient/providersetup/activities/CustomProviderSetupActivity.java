@@ -17,19 +17,33 @@
 package se.leap.bitmaskclient.providersetup.activities;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
 import se.leap.bitmaskclient.BuildConfig;
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
-import se.leap.bitmaskclient.R;
 
+import static se.leap.bitmaskclient.BuildConfig.customProviderApiIp;
+import static se.leap.bitmaskclient.BuildConfig.customProviderIp;
+import static se.leap.bitmaskclient.BuildConfig.customProviderUrl;
+import static se.leap.bitmaskclient.BuildConfig.geoipUrl;
+import static se.leap.bitmaskclient.base.models.Constants.EXT_JSON;
+import static se.leap.bitmaskclient.base.models.Constants.EXT_PEM;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.preferAnonymousUsage;
+import static se.leap.bitmaskclient.base.utils.InputStreamHelper.loadInputStreamAsString;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.preferAnonymousUsage;
 
 /**
  * Created by cyberta on 17.08.18.
@@ -42,7 +56,7 @@ public class CustomProviderSetupActivity extends ProviderSetupBaseActivity {
         super.onCreate(savedInstanceState);
         setUpInitialUI();
         restoreState(savedInstanceState);
-        setProvider(new Provider(BuildConfig.customProviderUrl, BuildConfig.geoipUrl, BuildConfig.customProviderIp, BuildConfig.customProviderApiIp));
+        setDefaultProvider();
     }
 
     @Override
@@ -51,6 +65,21 @@ public class CustomProviderSetupActivity extends ProviderSetupBaseActivity {
         if (getConfigState() == ProviderConfigState.PROVIDER_NOT_SET) {
             showProgressBar();
             setupProvider();
+        }
+    }
+
+    private void setDefaultProvider() {
+        try {
+            AssetManager assetsManager = getAssets();
+            Provider customProvider = new Provider(customProviderUrl, geoipUrl, customProviderIp, customProviderApiIp);
+            String certificate = loadInputStreamAsString(assetsManager.open(customProvider.getDomain() + EXT_PEM));
+            String providerDefinition = loadInputStreamAsString(assetsManager.open(customProvider.getDomain() + EXT_JSON));
+            customProvider.setCaCert(certificate);
+            customProvider.define(new JSONObject(providerDefinition));
+            setProvider(customProvider);
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            setProvider(new Provider(customProviderUrl, geoipUrl, customProviderIp, customProviderApiIp));
         }
     }
 
