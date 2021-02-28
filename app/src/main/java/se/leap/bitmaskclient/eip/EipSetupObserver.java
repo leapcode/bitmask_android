@@ -266,16 +266,6 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         VpnStatus.addStateListener(this);
     }
 
-    private void launchVPN(VpnProfile vpnProfile) {
-        EipCommand.launchVPNProfile(context, vpnProfile, setupNClosestGateway.get());
-        Intent intent = new Intent(context.getApplicationContext(), LaunchVPN.class);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(PROVIDER_PROFILE, vpnProfile);
-        intent.putExtra(EIP_N_CLOSEST_GATEWAY, setupNClosestGateway.get());
-        context.startActivity(intent);
-    }
-
     @Override
     public void updateState(String state, String logmessage, int localizedResId, ConnectionStatus level) {
         // VpnStatus.updateStateString("NOPROCESS", "No process running.", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
