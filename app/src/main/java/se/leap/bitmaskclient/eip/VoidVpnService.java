@@ -76,7 +76,6 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
         eipStatus = EipStatus.getInstance();
         eipStatus.addObserver(this);
         notificationManager = new VpnNotificationManager(this);
-        notificationManager.createVoidVpnNotificationChannel();
     }
 
     @Override
@@ -94,6 +93,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
             thread.run();
         } else if (action.equals("android.net.VpnService") && Build.VERSION.SDK_INT >= ALWAYS_ON_MIN_API_LEVEL) {
             //only always-on feature triggers this
+            startWithForegroundNotification();
             thread = new Thread(new Runnable() {
                 public void run() {
                     establishBlockingVpn();
@@ -221,7 +221,14 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
     }
 
     public void startWithForegroundNotification() {
-
+        notificationManager.createOpenVpnNotificationChannel();
+        String message = getString(R.string.state_disconnected);
+        notificationManager.buildVoidVpnNotification(
+                message,
+                message,
+                eipStatus.getLevel(),
+                this::onNotificationBuild
+        );
     }
 
 }
