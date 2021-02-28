@@ -253,6 +253,11 @@ public class VpnConfigGenerator {
             String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
             stringBuilder.append(route);
         }*/
+
+        if (ipAddresses.length == 0) {
+            return;
+        }
+
         String ipAddress = ipAddresses[ipAddresses.length - 1];
         String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
         stringBuilder.append(route);
