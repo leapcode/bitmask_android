@@ -271,7 +271,6 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         Intent intent = new Intent(context.getApplicationContext(), LaunchVPN.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
         intent.putExtra(PROVIDER_PROFILE, vpnProfile);
         intent.putExtra(EIP_N_CLOSEST_GATEWAY, setupNClosestGateway.get());
         context.startActivity(intent);

@@ -53,7 +53,6 @@ import static se.leap.bitmaskclient.eip.EipResultBroadcast.tellToReceiverOrBroad
  */
 public class LaunchVPN extends Activity {
 
-    public static final String EXTRA_HIDELOG = "de.blinkt.openvpn.showNoLogWindow";
     private static final int START_VPN_PROFILE = 70;
     private static final String TAG = LaunchVPN.class.getName();
     private VpnProfile selectedProfile;
