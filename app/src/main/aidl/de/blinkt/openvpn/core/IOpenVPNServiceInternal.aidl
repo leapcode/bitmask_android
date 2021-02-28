@@ -23,4 +23,6 @@ interface IOpenVPNServiceInternal {
 
     boolean isVpnRunning();
 
+    void startWithForegroundNotification();
+
 }

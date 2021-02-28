@@ -80,7 +80,7 @@ public interface Constants {
     String EIP_ACTION_START_BLOCKING_VPN = "se.leap.bitmaskclient.EIP_ACTION_START_BLOCKING_VPN";
     String EIP_ACTION_STOP_BLOCKING_VPN = "se.leap.bitmaskclient.EIP_ACTION_STOP_BLOCKING_VPN";
     String EIP_ACTION_PREPARE_VPN = "se.leap.bitmaskclient.EIP_ACTION_PREPARE_VPN";
-    String EIP_ACTION_CONFIGURE_TETHERING = "se.leap.bitmaskclient.EIP_ACTION_CONFIGURE_TETHERING";
+    String EIP_ACTION_LAUNCH_VPN = "se.leap.bitmaskclient.EIP_ACTION_LAUNCH_VPN";
 
     String EIP_RECEIVER = "EIP.RECEIVER";
     String EIP_REQUEST = "EIP.REQUEST";
@@ -157,6 +157,7 @@ public interface Constants {
     // JSON KEYS
     /////////////////////////////////////////////
     String IP_ADDRESS = "ip_address";
+    String IP_ADDRESS6 = "ip_address6";
     String REMOTE = "remote";
     String PORTS = "ports";
     String PROTOCOLS = "protocols";

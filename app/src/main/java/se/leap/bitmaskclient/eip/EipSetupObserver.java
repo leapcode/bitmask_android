@@ -54,10 +54,12 @@ import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_GATEWAY_SETU
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_LAUNCH_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_N_CLOSEST_GATEWAY;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_REQUEST;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
@@ -158,14 +160,14 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
                 if (EipStatus.getInstance().isDisconnected()) {
-                    EipCommand.startVPN(context.getApplicationContext(), true);
+                    EipCommand.startVPN(context.getApplicationContext(), false);
                 }
                 break;
             case CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
                 provider = resultData.getParcelable(PROVIDER_KEY);
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
-                EipCommand.startVPN(context.getApplicationContext(), true);
+                EipCommand.startVPN(context.getApplicationContext(), false);
                 break;
             case CORRECTLY_DOWNLOADED_GEOIP_JSON:
                 provider = resultData.getParcelable(PROVIDER_KEY);
@@ -212,20 +214,31 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             case EIP_ACTION_START_ALWAYS_ON_VPN:
                 if (resultCode == RESULT_CANCELED) {
                     //setup failed
-                    if (error == EIP.EIPErrors.NO_MORE_GATEWAYS) {
-                        finishGatewaySetup(false);
-                        EipCommand.startBlockingVPN(context.getApplicationContext());
-                    } else {
-                        //FIXME:
-                        finishGatewaySetup(false);
-                        EipCommand.stopVPN(context);
-                        EipStatus.refresh();
+                    switch (error) {
+                        case NO_MORE_GATEWAYS:
+                            finishGatewaySetup(false);
+                            EipCommand.startBlockingVPN(context.getApplicationContext());
+                            break;
+                        case ERROR_INVALID_PROFILE:
+                            selectNextGateway();
+                            break;
+                        default:
+                            finishGatewaySetup(false);
+                            EipCommand.stopVPN(context);
+                            EipStatus.refresh();
                     }
                 }
                 break;
             case EIP_ACTION_PREPARE_VPN:
                 if (resultCode == RESULT_CANCELED) {
                     VpnStatus.logError("Error preparing VpnService.");
+                    finishGatewaySetup(false);
+                    EipStatus.refresh();
+                }
+                break;
+            case EIP_ACTION_LAUNCH_VPN:
+                if (resultCode == RESULT_CANCELED) {
+                    VpnStatus.logError("Error starting VpnService.");
                     finishGatewaySetup(false);
                     EipStatus.refresh();
                 }
@@ -252,21 +265,9 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             return;
         }
         setupVpnProfile = vpnProfile;
-        setupNClosestGateway.set(event.getIntExtra(Gateway.KEY_N_CLOSEST_GATEWAY, 0));
+        setupNClosestGateway.set(event.getIntExtra(EIP_N_CLOSEST_GATEWAY, 0));
         Log.d(TAG, "bitmaskapp add state listener");
         VpnStatus.addStateListener(this);
-
-        launchVPN(setupVpnProfile);
-    }
-
-    private void launchVPN(VpnProfile vpnProfile) {
-        Intent intent = new Intent(context.getApplicationContext(), LaunchVPN.class);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(LaunchVPN.EXTRA_HIDELOG, true);
-        intent.putExtra(PROVIDER_PROFILE, vpnProfile);
-        intent.putExtra(Gateway.KEY_N_CLOSEST_GATEWAY, setupNClosestGateway.get());
-        context.startActivity(intent);
     }
 
     @Override

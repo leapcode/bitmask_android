@@ -20,13 +20,14 @@ package se.leap.bitmaskclient.base;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,24 +36,27 @@ import java.util.Observable;
 import java.util.Observer;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.fragments.EipFragment;
+import se.leap.bitmaskclient.base.fragments.ExcludeAppsFragment;
+import se.leap.bitmaskclient.base.fragments.LogFragment;
+import se.leap.bitmaskclient.base.fragments.MainActivityErrorDialog;
 import se.leap.bitmaskclient.base.fragments.NavigationDrawerFragment;
+import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipSetupListener;
 import se.leap.bitmaskclient.eip.EipSetupObserver;
-import se.leap.bitmaskclient.base.fragments.EipFragment;
-import se.leap.bitmaskclient.base.fragments.ExcludeAppsFragment;
-import se.leap.bitmaskclient.base.fragments.LogFragment;
-import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
 import se.leap.bitmaskclient.providersetup.activities.LoginActivity;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.base.fragments.MainActivityErrorDialog;
+import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
 
+import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_LAUNCH_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_REQUEST;
@@ -61,16 +65,14 @@ import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInPreferences;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORID;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
-import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
-import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
-import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInPreferences;
 
 
 public class MainActivity extends AppCompatActivity implements EipSetupListener, Observer, ExcludeAppsFragment.ExcludedAppsCallback {
@@ -256,7 +258,14 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 break;
             case EIP_ACTION_PREPARE_VPN:
                 if (resultCode == RESULT_CANCELED) {
-                    showMainActivityErrorDialog(getString(R.string.vpn_error_establish), ERROR_VPN_PREPARE);
+                    String error = resultData.getString(ERRORS);
+                    showMainActivityErrorDialog(error, ERROR_VPN_PREPARE);
+                }
+                break;
+            case EIP_ACTION_LAUNCH_VPN:
+                if (resultCode == RESULT_CANCELED) {
+                    String error = resultData.getString(ERRORS);
+                    showMainActivityErrorDialog(error);
                 }
                 break;
         }

@@ -9,14 +9,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import de.blinkt.openvpn.VpnProfile;
+
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_CONFIGURE_TETHERING;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_LAUNCH_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_BLOCKING_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_N_CLOSEST_GATEWAY;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_RECEIVER;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 
 /**
  * Use this class to send commands to EIP
@@ -73,6 +76,15 @@ public class EipCommand {
         execute(context, EIP_ACTION_STOP);
     }
 
+    public static void launchVPNProfile(@NonNull Context context, VpnProfile vpnProfile, Integer closestGateway) {
+        Intent baseIntent = new Intent();
+        baseIntent.putExtra(PROVIDER_PROFILE, vpnProfile);
+        baseIntent.putExtra(EIP_N_CLOSEST_GATEWAY, closestGateway);
+        execute(context, EIP_ACTION_LAUNCH_VPN, null, baseIntent);
+    }
+
+    public static void launchVoidVPN(@NonNull Context context) { execute(context, EIP_ACTION_START_BLOCKING_VPN);}
+
     @VisibleForTesting
     public static void stopVPN(@NonNull Context context, ResultReceiver resultReceiver) {
         execute(context, EIP_ACTION_STOP, resultReceiver, null);
@@ -85,15 +97,6 @@ public class EipCommand {
     @VisibleForTesting
     public static void checkVpnCertificate(@NonNull Context context, ResultReceiver resultReceiver) {
         execute(context, EIP_ACTION_CHECK_CERT_VALIDITY, resultReceiver, null);
-    }
-
-    public static void configureTethering(@NonNull Context context) {
-        execute(context, EIP_ACTION_CONFIGURE_TETHERING);
-    }
-
-    @VisibleForTesting
-    public static void configureTethering(@NonNull Context context, ResultReceiver resultReceiver) {
-        execute(context, EIP_ACTION_CONFIGURE_TETHERING);
     }
 
 }

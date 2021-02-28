@@ -111,15 +111,15 @@ public class MainActivityErrorDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         Context applicationContext = getContext().getApplicationContext();
-        builder.setMessage(reasonToFail)
-                .setNegativeButton(R.string.cancel, (dialog, id) -> {
-                });
+        builder.setMessage(reasonToFail);
         switch (downloadError) {
             case ERROR_INVALID_VPN_CERTIFICATE:
                 builder.setPositiveButton(R.string.update_certificate, (dialog, which) ->
                         ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider));
+                builder.setNegativeButton(R.string.cancel, (dialog, id) -> {});
                 break;
             case NO_MORE_GATEWAYS:
+                builder.setNegativeButton(R.string.cancel, (dialog, id) -> {});
                 if (provider.supportsPluggableTransports()) {
                     if (getUsePluggableTransports(applicationContext)) {
                         builder.setPositiveButton(warning_option_try_ovpn, ((dialog, which) -> {
@@ -139,9 +139,7 @@ public class MainActivityErrorDialog extends DialogFragment {
                 }
                 break;
             case ERROR_VPN_PREPARE:
-                builder.setPositiveButton(R.string.retry, (dialog, which) -> {
-                    EipCommand.startVPN(applicationContext, false);
-                });
+                builder.setPositiveButton(android.R.string.ok, (dialog, which) -> { });
                 break;
             default:
                 break;

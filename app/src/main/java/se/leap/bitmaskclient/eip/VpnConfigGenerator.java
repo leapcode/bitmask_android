@@ -37,6 +37,7 @@ import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.base.models.Constants.CAPABILITIES;
 import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
+import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS6;
 import static se.leap.bitmaskclient.base.models.Constants.OPTIONS;
 import static se.leap.bitmaskclient.base.models.Constants.PORTS;
 import static se.leap.bitmaskclient.base.models.Constants.PROTOCOLS;
@@ -70,7 +71,7 @@ public class VpnConfigGenerator {
     public void checkCapabilities() throws ConfigParser.ConfigParseError {
 
         try {
-            if (apiVersion == 3) {
+            if (apiVersion >= 3) {
                 JSONArray supportedTransports = gateway.getJSONObject(CAPABILITIES).getJSONArray(TRANSPORT);
                 for (int i = 0; i < supportedTransports.length(); i++) {
                     JSONObject transport = supportedTransports.getJSONObject(i);
@@ -170,8 +171,13 @@ public class VpnConfigGenerator {
                     gatewayConfigApiv1(stringBuilder, ipAddress, capabilities);
                     break;
                 case 3:
+                case 4:
+                    String ipAddress6 = gateway.optString(IP_ADDRESS6);
+                    String[] ipAddresses = ipAddress6.isEmpty()  ?
+                            new String[]{ipAddress} :
+                            new String[]{ipAddress6, ipAddress};
                     JSONArray transports = capabilities.getJSONArray(TRANSPORT);
-                    gatewayConfigApiv3(transportType, stringBuilder, ipAddress, transports);
+                    gatewayConfigMinApiv3(transportType, stringBuilder, ipAddresses, transports);
                     break;
             }
         } catch (JSONException e) {
@@ -186,11 +192,11 @@ public class VpnConfigGenerator {
         return remotes;
     }
 
-    private void gatewayConfigApiv3(Connection.TransportType transportType, StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
+    private void gatewayConfigMinApiv3(Connection.TransportType transportType, StringBuilder stringBuilder, String[] ipAddresses, JSONArray transports) throws JSONException {
         if (transportType == OBFS4) {
-            obfs4GatewayConfigApiv3(stringBuilder, ipAddress, transports);
+            obfs4GatewayConfigMinApiv3(stringBuilder, ipAddresses, transports);
         } else {
-            ovpnGatewayConfigApi3(stringBuilder, ipAddress, transports);
+            ovpnGatewayConfigMinApi3(stringBuilder, ipAddresses, transports);
         }
     }
 
@@ -209,7 +215,7 @@ public class VpnConfigGenerator {
         }
     }
 
-    private void ovpnGatewayConfigApi3(StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
+    private void ovpnGatewayConfigMinApi3(StringBuilder stringBuilder, String[] ipAddresses, JSONArray transports) throws JSONException {
         String port;
         String protocol;
         JSONObject openvpnTransport = getTransport(transports, OPENVPN);
@@ -219,8 +225,10 @@ public class VpnConfigGenerator {
             JSONArray protocols = openvpnTransport.getJSONArray(PROTOCOLS);
             for (int k = 0; k < protocols.length(); k++) {
                 protocol = protocols.optString(k);
-                String newRemote = REMOTE + " " + ipAddress + " " + port + " " + protocol + newLine;
-                stringBuilder.append(newRemote);
+                for (String ipAddress : ipAddresses) {
+                    String newRemote = REMOTE + " " + ipAddress + " " + port + " " + protocol + newLine;
+                    stringBuilder.append(newRemote);
+                }
             }
         }
     }
@@ -237,8 +245,20 @@ public class VpnConfigGenerator {
         return selectedTransport;
     }
 
-    private void obfs4GatewayConfigApiv3(StringBuilder stringBuilder, String ipAddress, JSONArray transports) throws JSONException {
+    private void obfs4GatewayConfigMinApiv3(StringBuilder stringBuilder, String[] ipAddresses, JSONArray transports) throws JSONException {
         JSONObject obfs4Transport = getTransport(transports, OBFS4);
+        //for now only use ipv4 gateway the syntax route remote_host 255.255.255.255 net_gateway is not yet working
+        // https://community.openvpn.net/openvpn/ticket/1161
+        /*for (String ipAddress : ipAddresses) {
+            String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
+            stringBuilder.append(route);
+        }*/
+
+        if (ipAddresses.length == 0) {
+            return;
+        }
+
+        String ipAddress = ipAddresses[ipAddresses.length - 1];
         String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
         stringBuilder.append(route);
         String remote = REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " " + obfs4Transport.getJSONArray(PROTOCOLS).getString(0) + newLine;

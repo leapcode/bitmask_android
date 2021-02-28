@@ -45,7 +45,8 @@ public class BackendMockProvider {
         ERROR_NO_ACCESS,
         ERROR_INVALID_SESSION_TOKEN,
         ERROR_NO_CONNECTION,
-        ERROR_WRONG_SRP_CREDENTIALS
+        ERROR_WRONG_SRP_CREDENTIALS,
+        NO_ERROR_API_V4
     }
 
 
@@ -54,6 +55,9 @@ public class BackendMockProvider {
 
             case NO_ERROR:
                 new NoErrorBackendResponse();
+                break;
+            case NO_ERROR_API_V4:
+                new NoErrorBackendResponseAPIv4();
                 break;
             case ERROR_CASE_UPDATED_CERTIFICATE:
                 new UpdatedCertificateBackendResponse();

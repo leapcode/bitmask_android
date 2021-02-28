@@ -52,6 +52,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
@@ -175,12 +176,18 @@ public class EipFragment extends Fragment implements Observer {
         View view = inflater.inflate(R.layout.f_eip, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        Bundle arguments = getArguments();
-        if (arguments != null && arguments.containsKey(ASK_TO_CANCEL_VPN) && arguments.getBoolean(ASK_TO_CANCEL_VPN)) {
-            arguments.remove(ASK_TO_CANCEL_VPN);
-            setArguments(arguments);
-            askToStopEIP();
+        try {
+            Bundle arguments = getArguments();
+            if (arguments != null && arguments.containsKey(ASK_TO_CANCEL_VPN) && arguments.getBoolean(ASK_TO_CANCEL_VPN)) {
+                arguments.remove(ASK_TO_CANCEL_VPN);
+                setArguments(arguments);
+                askToStopEIP();
+            }
+        } catch (IllegalStateException e) {
+            // probably setArguments failed because the fragments state is already saved
+            e.printStackTrace();
         }
+
         restoreFromSavedInstance(savedInstanceState);
         return view;
     }
@@ -319,10 +326,7 @@ public class EipFragment extends Fragment implements Observer {
         } else {
             EipCommand.startVPN(context.getApplicationContext(), false);
         }
-        vpnStateImage.showProgress();
-        routedText.setVisibility(GONE);
-        vpnRoute.setVisibility(GONE);
-        colorBackgroundALittle();
+        EipStatus.getInstance().updateState("UI_CONNECTING", "", 0, ConnectionStatus.LEVEL_START);
     }
 
     protected void stopEipIfPossible() {

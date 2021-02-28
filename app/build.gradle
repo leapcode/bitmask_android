@@ -216,6 +216,7 @@ android {
       //runProguard true
       if(signingConfigs.contains(release))
         signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
+      //ndk.debugSymbolLevel = "full"
       //minifyEnabled = true
       //shrinkResources true
       buildConfigField "Boolean", "DEBUG_MODE", "false"
@@ -426,7 +427,7 @@ android.applicationVariants.all { variant ->
   }
 
   // remove unrelated abi specific assets
-  variant.mergeAssets.doLast {
+  variant.mergeAssetsProvider.get().doLast {
     // if not a fat build
     if (abiDimension.abiVersionCode > 0) {
       def filesToDelete = fileTree(dir: variant.mergeAssets.outputDir, excludes: ["*pie_openvpn.${abiDimension.abiFilter}",
