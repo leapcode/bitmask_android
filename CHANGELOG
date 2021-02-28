@@ -1,3 +1,13 @@
+1.0.8
+features:
+- new languages: Burmese, Uyghur
+- more translations, <3 to all translators!
+
+bugfixes:
+- reduce crash rate
+- better error logging during provider and VPN gateway setup
+- switch failing VPN gateways faster during gateway setup
+
 1.0.7
 features:
 - new translations
