@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="donate_message">RiseupVPN هي شبكة خاصة افتراضية سهلة، آمنة من riseup.net. خدمة RiseupVPN لا تحتاج إلى حساب مستخدم، لا تقم بحفظ السجلات أو تتبعك بأي وسيلة. هذه الخدمة مدفوعة بالكامل بواسطة التبرعات من قبل مستخدمين مثلك. من فضلك تبرع من هنا https://riseup.net/vpn/donate. </string>
+  <string name="terms_of_service">باستخدامك لهذا التطبيق فأنت توافق على شروط الخدمة المتاحة على https://riseup.net/tos. هذه الخدمة متوفرة كما هي، بدون أي ضمان، وهي تستهدف الأشخاص الذين يعملون لجعل العالم مكانًا أفضل.</string>
+</resources>
