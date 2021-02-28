@@ -347,7 +347,7 @@ public final class EIP extends JobIntentService implements Observer {
             if (vpnok != R.string.no_error_found) {
                 VpnStatus.logError(R.string.config_error_found);
                 VpnStatus.logError(vpnok);
-                setErrorResult(result, ERROR_INVALID_PROFILE.toString(), R.string.config_error_found);
+                setErrorResult(result, ERROR_INVALID_PROFILE.toString(), 0);
                 return;
             }
 
@@ -432,14 +432,16 @@ public final class EIP extends JobIntentService implements Observer {
     void setErrorResult(Bundle result, String errorId, @StringRes int errorMessageId, Object... args) {
         JSONObject errorJson = new JSONObject();
         try {
-            String errorMessage;
-            if (args != null) {
-                errorMessage = getResources().getString(errorMessageId, args);
-            } else {
-                errorMessage = getResources().getString(errorMessageId);
+            if (errorMessageId != 0) {
+                String errorMessage;
+                if (args != null) {
+                    errorMessage = getResources().getString(errorMessageId, args);
+                } else {
+                    errorMessage = getResources().getString(errorMessageId);
+                }
+                VpnStatus.logWarning("[EIP] error: " + errorMessage);
+                errorJson.put(ERRORS, errorMessage);
             }
-            VpnStatus.logWarning("[EIP] error: " + errorMessage);
-            errorJson.put(ERRORS, errorMessage);
             errorJson.put(ERRORID, errorId);
         } catch (JSONException e) {
             e.printStackTrace();

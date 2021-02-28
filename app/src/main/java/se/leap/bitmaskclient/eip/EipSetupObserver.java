@@ -214,14 +214,18 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             case EIP_ACTION_START_ALWAYS_ON_VPN:
                 if (resultCode == RESULT_CANCELED) {
                     //setup failed
-                    if (error == EIP.EIPErrors.NO_MORE_GATEWAYS) {
-                        finishGatewaySetup(false);
-                        EipCommand.startBlockingVPN(context.getApplicationContext());
-                    } else {
-                        //FIXME:
-                        finishGatewaySetup(false);
-                        EipCommand.stopVPN(context);
-                        EipStatus.refresh();
+                    switch (error) {
+                        case NO_MORE_GATEWAYS:
+                            finishGatewaySetup(false);
+                            EipCommand.startBlockingVPN(context.getApplicationContext());
+                            break;
+                        case ERROR_INVALID_PROFILE:
+                            selectNextGateway();
+                            break;
+                        default:
+                            finishGatewaySetup(false);
+                            EipCommand.stopVPN(context);
+                            EipStatus.refresh();
                     }
                 }
                 break;
