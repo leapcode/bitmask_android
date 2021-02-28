@@ -102,9 +102,20 @@
   <string name="vpn_certificate_is_invalid">شهادة VPN غير صالحة. حاول تحميل أخرى جديدة.</string>
   <string name="vpn_certificate_user_message">شهادة VPN غير صالحة. سجل دخول لتحميل أخرى جديدة.</string>
   <string name="save_battery">وفّر البطارية</string>
+  <string name="subtitle_save_battery">إلغاء التفعيل في حالة استخدام نقطة اتصال شبكة خاصة افتراضية VPN</string>
   <string name="save_battery_message">اتصالات البيانات في الخلفية ستتوقف حين يكون هاتفك غير نشط.</string>
   <string name="always_on_vpn">‏شبكة افتراضية خاصة (VPN) دائمة التشغيل</string>
   <string name="subtitle_always_on_vpn">افتح إعدادات نظام الأندرويد</string>
+  <string name="tethering">نقطة اتصال شبكة خاصة افتراضية VPN</string>
+  <string name="ipv6Firewall">حظر الإصدار السادس من عناوين الإنترنت IPv6</string>
+  <string name="require_root">يتطلب صلاحية الجذر (الروت)</string>
+  <string name="show_experimental">عرض مزايا تجريبية</string>
+  <string name="hide_experimental">إخفاء المزايا التجريبية</string>
+  <string name="tethering_enabled_message">يُرجى التأكد من تفعيل خيار الربط من <![CDATA[1<b> إعدادات النظام أولا </b>]]> أولا.</string>
+  <string name="tethering_message">مشاركة اتصال الـ VPN الخاص بك مع الآخرين عبر:</string>
+  <string name="tethering_wifi">نقطة اتصال واي فاي</string>
+  <string name="tethering_usb">اتصال عبر الناقل التسلسلي العام USB</string>
+  <string name="tethering_bluetooth">اتصال بلوتوث</string>
   <string name="do_not_show_again">‮لا تظهر مجددا</string>
   <string name="always_on_vpn_user_message">لتفعيل الاتصال الدائم بالشبكة الافتراضية الخاصة في إعدادات آندرويد لل VPN، يجب النقر على أيقونة الضبط [img src] ومن ثمّ تشغيل \"شبكة ظاهريّة خاصّة (VPN) دائمة التشغيل\".</string>
   <string name="always_on_blocking_vpn_user_message">لحماية خصوصيتكم على نحو أمثل ، يجب عليكم أيضا تفعيل خيار \"منع الاتصالات بدون الشبكة الافتراضية الخاصة\".</string>
@@ -132,4 +143,14 @@
   <string name="warning_option_try_pt">حاول باتصال مموه</string>
   <string name="warning_option_try_ovpn">حاول باتصال عادي</string>
   <string name="vpn_error_establish">فشل أندرويد في تأسيس خدمة ال VPN. </string>
+  <string name="root_permission_error">%s لا يمكن عمل مميزات مثل نقطة اتصال لشبكة خاصة افتراضية VPN أو جدار ناري للإصدار السادس من عنوان الإنترنت IPv6 بدون صلاحية الجذر (الروت).</string>
+  <string name="qs_enable_vpn">بدأ %s</string>
+  <string name="version_update_found">انقر هنا لبدء التحميل.</string>
+  <string name="version_update_title">تم اكتشاف %s نسخة جديدة.</string>
+  <string name="version_update_apk_description">تحميل %s نسخة جديدة.</string>
+  <string name="version_update_download_title">نسخة جديدة %s تم تحميلها.</string>
+  <string name="version_update_download_description">انقر هنا لتثبيت التحديث.</string>
+  <string name="version_update_error_pgp_verification">خطأ في التحقق من صحة التوقيع. تجاهل التحميل.</string>
+  <string name="version_update_error">فشل التحديث.</string>
+  <string name="version_update_error_permissions">لاتوجد صلاحيات لتثبيت التطبيق.</string>
 </resources>

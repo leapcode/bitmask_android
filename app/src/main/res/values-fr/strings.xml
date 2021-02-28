@@ -87,7 +87,7 @@
   <string name="action_example">Exemple d’action</string>
   <string name="action_settings">Paramètres</string>
   <string name="void_vpn_establish">%s bloque tout le trafic Internet sortant.</string>
-  <string name="void_vpn_error_establish">Échec de mise en place du blocage RPV.</string>
+  <string name="void_vpn_error_establish">Échec de mise en place du RPV bloquant.</string>
   <string name="void_vpn_stopped">Le trafic Internet sortant n’est plus bloqué.</string>
   <string name="void_vpn_title">Blocage du trafic</string>
   <string name="update_provider_details">Mettre les renseignements de fournisseur à jour</string>

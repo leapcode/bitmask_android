@@ -141,4 +141,12 @@
   <string name="vpn_error_establish">Android no se pudo establecer el servicio VPN.</string>
   <string name="root_permission_error">%s no puede ejecutar las funciones de punto de acceso a VPN o cortafuegos IPv6 si no dispone de permisos de superusuaria.</string>
   <string name="qs_enable_vpn">Iniciar %s</string>
+  <string name="version_update_found">Pulsa aquí para empezar la descarga.</string>
+  <string name="version_update_title">Fue encontrada una nueva versión de %s.</string>
+  <string name="version_update_apk_description">Descargando una nueva versión de %s</string>
+  <string name="version_update_download_title">Fue descargada una nueva versión de %s.</string>
+  <string name="version_update_download_description">Pulsa aquí para instalar la actualización.</string>
+  <string name="version_update_error_pgp_verification">Error de verificación PGP. Ignorando la descarga.</string>
+  <string name="version_update_error">Falló la actualización.</string>
+  <string name="version_update_error_permissions">No tienes permisos para instalar la aplicación.</string>
 </resources>

@@ -141,4 +141,12 @@
   <string name="vpn_error_establish">آندروید نتوانست با یک سرویس VPN ارتباط برقرار کند.</string>
   <string name="root_permission_error">%s بدون دسترسی به روت نمیتواند ویژگی هایی مانند VPN Hotspot یا IPv6 firewall را اجرا کند.</string>
   <string name="qs_enable_vpn">آغاز %s</string>
+  <string name="version_update_found">برای آغاز بارگیری، اینجا را لمس کنید.</string>
+  <string name="version_update_title">نسخه جدید %s یافت شده است.</string>
+  <string name="version_update_apk_description">درحال بارگیری نسخه جدید %s</string>
+  <string name="version_update_download_title">نسخه جدید %s بارگیری شده است.</string>
+  <string name="version_update_download_description">برای نصب به‌روزرسانی، اینجا را لمس کنید.</string>
+  <string name="version_update_error_pgp_verification">خطا در اعتبارسنجی PGP. نادیده‌گرفتن بارگیری.</string>
+  <string name="version_update_error">به‌روزرسانی با شکست مواجه شد.</string>
+  <string name="version_update_error_permissions">مجوزی برای نصب برنامه داده نشده است.</string>
 </resources>

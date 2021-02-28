@@ -141,4 +141,12 @@
   <string name="vpn_error_establish">Az Androidnak nem sikerült létre hozni VPN szolgáltatást.</string>
   <string name="root_permission_error">%s nem tud elindítani szolgáltatásokat, mint VPN Hotpsot vagy IPv6 tűzfal, root jogok nélkül.</string>
   <string name="qs_enable_vpn">%s indítása</string>
+  <string name="version_update_found">Érintsd meg itt a letöltés elindításához.</string>
+  <string name="version_update_title">Egy új %s verzió elérhető.</string>
+  <string name="version_update_apk_description">A %s új verzió letöltése</string>
+  <string name="version_update_download_title">Az új %s verzió letöltésre került.</string>
+  <string name="version_update_download_description">Érintsd meg itt a frissítés telepítéséhez.</string>
+  <string name="version_update_error_pgp_verification">PGP ellenőrzési hiba. Letöltés figyelmen kívül hagyása.</string>
+  <string name="version_update_error">Frissítés sikertelen.</string>
+  <string name="version_update_error_permissions">Nincs jogosultság az app telepítésére.</string>
 </resources>
