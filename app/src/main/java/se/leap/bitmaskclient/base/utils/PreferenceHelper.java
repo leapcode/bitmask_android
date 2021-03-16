@@ -204,7 +204,7 @@ public class PreferenceHelper {
         return getBoolean(context, ALWAYS_ON_SHOW_DIALOG, true);
     }
 
-    public static String getSelectedCity(Context context) {
+    public static String getPreferredCity(Context context) {
         return getString(context, PREFERRED_CITY, null);
     }
 

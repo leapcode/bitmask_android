@@ -47,7 +47,7 @@ import static se.leap.bitmaskclient.base.models.Constants.HOST;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.SORTED_GATEWAYS;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSelectedCity;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePluggableTransports;
 
 /**
@@ -73,7 +73,7 @@ public class GatewaysManager {
      */
     public Gateway select(int nClosest) {
         Connection.TransportType transportType = getUsePluggableTransports(context) ? OBFS4 : OPENVPN;
-        String selectedCity = getSelectedCity(context);
+        String selectedCity = getPreferredCity(context);
         if (presortedList.size() > 0) {
             return getGatewayFromPresortedList(nClosest, transportType, selectedCity);
         }
