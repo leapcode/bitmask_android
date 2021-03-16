@@ -24,6 +24,7 @@ import static se.leap.bitmaskclient.base.models.Constants.DEFAULT_SHARED_PREFS_B
 import static se.leap.bitmaskclient.base.models.Constants.EXCLUDED_APPS;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_UPDATE_CHECK;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_USED_PROFILE;
+import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
@@ -201,6 +202,14 @@ public class PreferenceHelper {
 
     public static boolean getShowAlwaysOnDialog(Context context) {
         return getBoolean(context, ALWAYS_ON_SHOW_DIALOG, true);
+    }
+
+    public static String getSelectedCity(Context context) {
+        return getString(context, PREFERRED_CITY, null);
+    }
+
+    public static void setPreferredCity(Context context, String city) {
+        putString(context, PREFERRED_CITY, city);
     }
 
     public static JSONObject getEipDefinitionFromPreferences(SharedPreferences preferences) {

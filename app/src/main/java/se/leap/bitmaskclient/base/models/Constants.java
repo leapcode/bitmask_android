@@ -40,6 +40,7 @@ public interface Constants {
     String USE_IPv6_FIREWALL = "use_ipv6_firewall";
     String RESTART_ON_UPDATE = "restart_on_update";
     String LAST_UPDATE_CHECK = "last_update_check";
+    String PREFERRED_CITY = "preferred_city";
 
 
      //////////////////////////////////////////////
@@ -173,4 +174,7 @@ public interface Constants {
     String OPENVPN_CONFIGURATION = "openvpn_configuration";
     String GATEWAYS = "gateways";
     String HOST = "host";
+    String SORTED_GATEWAYS = "sortedGateways";
+    String FULLNESS = "fullness";
+    String OVERLOAD = "overload";
 }

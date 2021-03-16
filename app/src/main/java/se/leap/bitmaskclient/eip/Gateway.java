@@ -17,6 +17,7 @@
 package se.leap.bitmaskclient.eip;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
@@ -59,7 +60,9 @@ public class Gateway {
     private JSONObject generalConfiguration;
     private JSONObject secrets;
     private JSONObject gateway;
+    private JSONObject load;
 
+    // the location of a gateway is its name
     private String name;
     private int timezone;
     private int apiVersion;
@@ -71,15 +74,25 @@ public class Gateway {
      */
     public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway, Context context)
             throws ConfigParser.ConfigParseError, JSONException, IOException {
+        this(eipDefinition, secrets, gateway, null, context);
+    }
+
+    public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway, JSONObject load, Context context)
+            throws ConfigParser.ConfigParseError, JSONException, IOException {
 
         this.gateway = gateway;
         this.secrets = secrets;
+        this.load = load;
 
         generalConfiguration = getGeneralConfiguration(eipDefinition);
         timezone = getTimezone(eipDefinition);
         name = locationAsName(eipDefinition);
         apiVersion = getApiVersion(eipDefinition);
         vpnProfiles = createVPNProfiles(context);
+    }
+
+    public void updateLoad(JSONObject load) {
+        this.load = load;
     }
 
     private void addProfileInfos(Context context, HashMap<Connection.TransportType, VpnProfile> profiles) {
@@ -156,7 +169,7 @@ public class Gateway {
         return vpnProfiles.get(transportType);
     }
 
-    public boolean suppoortsTransport(Connection.TransportType transportType) {
+    public boolean supportsTransport(Connection.TransportType transportType) {
         return vpnProfiles.get(transportType) != null;
     }
 
