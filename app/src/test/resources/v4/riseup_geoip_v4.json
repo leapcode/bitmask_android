@@ -7,8 +7,9 @@
   "gateways":[
     "mouette.riseup.net",
     "hoatzin.riseup.net",
-    "zarapito.riseup.net",
-    "redshank.riseup.net"
+    "yal.riseup.net",
+    "redshank.riseup.net",
+    "zarapito.riseup.net"
   ],
   "sortedGateways": [
     {
@@ -22,8 +23,13 @@
       "overload": false
     },
     {
-      "host": "zarapito.riseup.net",
-      "fullness": 0.57,
+      "host": "yal.riseup.net",
+      "fullness": 0.59,
+      "overload": false
+    },
+    {
+      "host": "redshank.riseup.net",
+      "fullness": 0.8,
       "overload": false
     },
     {
