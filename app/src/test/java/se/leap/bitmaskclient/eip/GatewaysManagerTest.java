@@ -250,6 +250,22 @@ public class GatewaysManagerTest {
     }
 
     @Test
+    public void testSelectN_selectFromCityWithGeoIpServiceV1_returnsGatewaysInPresortedOrder() {
+        Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v1.json");
+
+        MockHelper.mockProviderObserver(provider);
+        //use openvpn, not pluggable transports
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        when(PreferenceHelper.getPreferredCity(any(Context.class))).thenReturn("Paris");
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+
+        assertEquals("mouette.riseup.net", gatewaysManager.select(0).getHost());
+        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1).getHost());
+        assertEquals("zarapito.riseup.net", gatewaysManager.select(2).getHost());
+    }
+
+    @Test
     public void testSelectN_selectFromCityWithTimezoneCalculation_returnsRandomizedGatewaysOfSelectedCity() {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", null);
 
