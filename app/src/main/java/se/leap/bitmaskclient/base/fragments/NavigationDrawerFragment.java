@@ -70,6 +70,7 @@ import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.base.BitmaskApp.getRefWatcher;
 import static se.leap.bitmaskclient.base.models.Constants.DONATION_URL;
 import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION;
+import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
@@ -79,6 +80,7 @@ import static se.leap.bitmaskclient.R.string.about_fragment_title;
 import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
 import static se.leap.bitmaskclient.R.string.log_fragment_title;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSaveBattery;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePluggableTransports;
@@ -114,6 +116,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private IconSwitchEntry saveBattery;
     private IconTextEntry tethering;
     private IconSwitchEntry firewall;
+    private IconTextEntry manualGatewaySelection;
     private View experimentalFeatureFooter;
 
     private boolean userLearnedDrawer;
@@ -255,6 +258,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         initSaveBatteryEntry();
         initAlwaysOnVpnEntry();
         initExcludeAppsEntry();
+        initManualGatewayEntry();
         initShowExperimentalHint();
         initTetheringEntry();
         initFirewallEntry();
@@ -409,6 +413,23 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                     firewallManager.stopIPv6Firewall();
                 }
             }
+        });
+    }
+
+    private void initManualGatewayEntry() {
+        manualGatewaySelection = drawerView.findViewById(R.id.manualGatewaySelection);
+        String preferredGateway = getPreferredCity(getContext());
+        String subtitle = preferredGateway != null ? preferredGateway : getString(R.string.gateway_selection_best_location);
+        manualGatewaySelection.setSubtitle(subtitle);
+        boolean show =  ProviderObservable.getInstance().getCurrentProvider().hasGatewaysInDifferentLocations();
+        manualGatewaySelection.setVisibility(show ? VISIBLE : GONE);
+
+        manualGatewaySelection.setOnClickListener(v -> {
+            FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
+            closeDrawer();
+            Fragment fragment = new GatewaySelectionFragment();
+            setActionBarTitle(R.string.gateway_selection_title);
+            fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
     }
 
@@ -627,6 +648,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         Provider currentProvider = ProviderObservable.getInstance().getCurrentProvider();
         account.setText(currentProvider.getName());
         initUseBridgesEntry();
+        initManualGatewayEntry();
     }
 
     private void updateExcludeAppsSubtitle(IconTextEntry excludeApps, int number) {
@@ -651,6 +673,8 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
             initUseBridgesEntry();
         } else if (key.equals(USE_IPv6_FIREWALL)) {
             initFirewallEntry();
+        } else if (key.equals(PREFERRED_CITY)) {
+            initManualGatewayEntry();
         }
     }
 

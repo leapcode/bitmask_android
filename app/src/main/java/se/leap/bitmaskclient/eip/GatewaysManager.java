@@ -30,6 +30,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -37,8 +39,10 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
+import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
@@ -72,15 +76,46 @@ public class GatewaysManager {
       * @return the n closest Gateway
      */
     public Gateway select(int nClosest) {
-        Connection.TransportType transportType = getUsePluggableTransports(context) ? OBFS4 : OPENVPN;
         String selectedCity = getPreferredCity(context);
-        if (presortedList.size() > 0) {
-            return getGatewayFromPresortedList(nClosest, transportType, selectedCity);
-        }
-
-        return getGatewayFromTimezoneCalculation(nClosest, transportType, selectedCity);
+        return select(nClosest, selectedCity);
     }
 
+    public Gateway select(int nClosest, String city) {
+        Connection.TransportType transportType = getUsePluggableTransports(context) ? OBFS4 : OPENVPN;
+        if (presortedList.size() > 0) {
+            return getGatewayFromPresortedList(nClosest, transportType, city);
+        }
+
+        return getGatewayFromTimezoneCalculation(nClosest, transportType, city);
+    }
+
+    public List<Location> getGatewayLocations() {
+        String selectedCity = PreferenceHelper.getPreferredCity(context);
+        HashMap<String, Integer> locationNames = new HashMap<>();
+        ArrayList<Location> locations = new ArrayList<>();
+        int n = 0;
+        Gateway gateway;
+        while ((gateway = select(n, null)) != null) {
+            if (!locationNames.containsKey(gateway.getName())) {
+                locationNames.put(gateway.getName(), locations.size());
+                Location location = new Location(
+                        gateway.getName(),
+                        gateway.getFullness(),
+                        1,
+                        gateway.getName().equals(selectedCity));
+                locations.add(location);
+            } else {
+                int index = locationNames.get(gateway.getName());
+                Location location = locations.get(index);
+                location.averageLoad = (location.numberOfGateways * location.averageLoad + gateway.getFullness()) / (location.numberOfGateways + 1);
+                location.numberOfGateways += 1;
+                locations.set(index, location);
+            }
+            n++;
+        }
+
+        return locations;
+    }
 
     private Gateway getGatewayFromTimezoneCalculation(int nClosest, Connection.TransportType transportType, @Nullable String city) {
         List<Gateway> list = new ArrayList<>(gateways.values());

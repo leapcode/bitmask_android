@@ -35,12 +35,14 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
+import static se.leap.bitmaskclient.base.models.Constants.FULLNESS;
 import static se.leap.bitmaskclient.base.models.Constants.HOST;
 import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
 import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
 import static se.leap.bitmaskclient.base.models.Constants.LOCATIONS;
 import static se.leap.bitmaskclient.base.models.Constants.NAME;
 import static se.leap.bitmaskclient.base.models.Constants.OPENVPN_CONFIGURATION;
+import static se.leap.bitmaskclient.base.models.Constants.OVERLOAD;
 import static se.leap.bitmaskclient.base.models.Constants.TIMEZONE;
 import static se.leap.bitmaskclient.base.models.Constants.VERSION;
 
@@ -143,6 +145,26 @@ public class Gateway {
             return locations.getJSONObject(gateway.getString(LOCATION));
         } catch (JSONException e) {
             return new JSONObject();
+        }
+    }
+
+    public boolean hasLoadInfo() {
+        return load != null;
+    }
+
+    public double getFullness() {
+        try {
+            return load.getDouble(FULLNESS);
+        } catch (JSONException | NullPointerException e) {
+            return 0;
+        }
+    }
+
+    public boolean isOverloaded() {
+        try {
+            return load.getBoolean(OVERLOAD);
+        } catch (JSONException | NullPointerException e) {
+            return false;
         }
     }
 

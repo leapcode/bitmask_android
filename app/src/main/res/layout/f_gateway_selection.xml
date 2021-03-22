@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".base.fragments.GatewaySelectionFragment">
+
+    <LinearLayout
+        android:id="@+id/current_location_container"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible"
+        >
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/current_location_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:text="@string/vpn_securely_routed" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/current_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            tools:text="Paris" />
+
+    </LinearLayout>
+
+
+
+    <se.leap.bitmaskclient.base.views.IconSwitchEntry
+        android:id="@+id/automatic_gateway_switch"
+        android:layout_below="@id/current_location_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/stdpadding"
+        android:paddingStart="@dimen/stdpadding"
+        android:paddingLeft="@dimen/stdpadding"
+        android:paddingEnd="@dimen/stdpadding"
+        android:paddingRight="@dimen/stdpadding"
+        app:text="@string/gateway_selection_automatic"
+        app:subtitle="@string/gateway_selection_warning"
+        app:icon="@drawable/ic_map_marker_star_black_36dp"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/gatewaySelection_list"
+        android:layout_below="@id/automatic_gateway_switch"
+        android:layout_above="@+id/vpn_button_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/stdpadding"
+        android:paddingLeft="@dimen/stdpadding"
+        android:paddingRight="@dimen/stdpadding"
+        android:paddingEnd="@dimen/stdpadding"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:scrollbars="vertical"
+        >
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <LinearLayout
+        android:id="@+id/vpn_button_container"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_margin"
+        >
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/vpn_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="@string/vpn.button.turn.on" />
+    </LinearLayout>
+
+
+</RelativeLayout>
