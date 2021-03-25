@@ -159,17 +159,17 @@ do
             echo -e "${RED}ERROR: Version name has to be a git tag!${NC}"
             exit
         fi
-    elif [[ ${!i} = "-k" || ${!i} = "-key" ]];
+    elif [[ ${!i} = "-k" || ${!i} = "-key" ]]
     then 
         ((i++)) 
         GPG_KEY=${!i}
         export GPG_KEY=${GPG_KEY}
-    elif [[ ${!i} = "-u" || ${!i} = "-user" ]];
+    elif [[ ${!i} = "-u" || ${!i} = "-user" ]]
     then 
         ((i++)) 
         GPG_KEY_USER=${!i}
         export GPG_KEY_USER=${GPG_KEY_USER}
-    elif [[ ${!i} = "-b" || ${!i} = "-beta" ]];
+    elif [[ ${!i} = "-b" || ${!i} = "-beta" ]]
     then 
         BETA=true
     elif [[ ${!i} = "-no-tag" ]];
@@ -183,7 +183,7 @@ do
         ((i++))
         FLAVOR="Custom"
         FLAVOR_LOWERCASE="custom"
-    elif [[ ${!i} = "-h" || ${!i} = "-help" ]];
+    elif [[ ${!i} = "-h" || ${!i} = "-help" ]]
     then 
         echo -e "
         sign [-ks -fp -f -b -u -k]            sign a given apk (both app signing and GPG signing)
