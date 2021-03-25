@@ -186,7 +186,7 @@ do
     elif [[ ${!i} = "-h" || ${!i} = "-help" ]]
     then 
         echo -e "
-        sign [-ks -fp -f -b -u -k]            sign a given apk (both app signing and GPG signing)
+        sign [-ks -fp -f -u -k]               sign a given apk (both app signing and GPG signing)
         -ks / -keystore [path] -------------- define path to keystore for signing (required)
         -fp / -fingerprint [fingerprint] ---- define the fingerprint for the app (required for non-LEAP
                                               signed apps)
