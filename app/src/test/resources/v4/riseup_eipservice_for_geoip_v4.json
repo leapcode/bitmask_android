@@ -29,6 +29,19 @@
         "limited": false,
         "transport":[
           {
+            "type":"obfs4",
+            "protocols":[
+              "tcp"
+            ],
+            "ports":[
+              "23042"
+            ],
+            "options": {
+              "cert": "48F/JNm/LKYt7zkDmPHXcw5f3Jqgwg/3OBRrqW14Yj87ATZ4KyAZRV7np4RhCXGSJHgoCQ",
+              "iatMode": "0"
+            }
+          },
+          {
             "type":"openvpn",
             "protocols":[
               "tcp"
