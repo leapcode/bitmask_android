@@ -17,6 +17,7 @@
 package se.leap.bitmaskclient.eip;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -264,7 +265,7 @@ public class GatewaysManager {
                  }
              }
          } catch (NullPointerException | JSONException npe) {
-             npe.printStackTrace();
+             Log.d(TAG, "No valid geoip json found: " + npe.getLocalizedMessage());
          }
     }
 
