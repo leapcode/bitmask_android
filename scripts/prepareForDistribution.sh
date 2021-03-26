@@ -43,15 +43,9 @@ function sign {
     fi
 
     FINAL_APK="${FILE_DIR}/${FILE_NAME}"
-  #  ALIGNED_UNSIGNED_APK="${FILE_DIR}/aligned-${FILE_NAME}"
-  #  ALIGNED_SIGNED_APK="${FILE_DIR}/aligned-signed-${FILE_NAME}"
-
-    #echo -e "${GREEN} -> zip align ${ALIGNED_UNSIGNED_APK}${NC}"
-    #${ANDROID_BUILD_TOOLS}/zipalign -v -p 4 "${FINAL_APK}" ${ALIGNED_UNSIGNED_APK} > /dev/null && echo "zip alignment successful" || quit
     echo -e "${GREEN} -> apksign ${FINAL_APK}${NC}"
     ${ANDROID_BUILD_TOOLS}/apksigner sign --ks "${KEY_STORE_STRING}" --out ${FINAL_APK} ${FINAL_APK} || quit
-    #rm ${ALIGNED_UNSIGNED_APK}
-    
+
     FINGERPRINT=$(unzip -p ${FINAL_APK} META-INF/*.RSA | keytool -printcert | grep "SHA256" | tr -d '[:space:]') || quit
     
     if [[ ${FINGERPRINT} == ${EXPECTED_FINGERPRINT} ]] 
@@ -62,8 +56,6 @@ function sign {
         quit
     fi
 
-   # echo -e "${GREEN} -> rename aligned signed apk to ${FINAL_APK}${NC}"
-   # cp ${ALIGNED_SIGNED_APK} ${FINAL_APK} || quit
     cleanUp
     
     #---- GPG SIGNING ----
