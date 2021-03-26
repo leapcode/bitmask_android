@@ -43,16 +43,10 @@ function sign {
     fi
 
     FINAL_APK="${FILE_DIR}/${FILE_NAME}"
-    ALIGNED_UNSIGNED_APK="${FILE_DIR}/aligned-${FILE_NAME}"
-    ALIGNED_SIGNED_APK="${FILE_DIR}/aligned-signed-${FILE_NAME}"
+    echo -e "${GREEN} -> apksign ${FINAL_APK}${NC}"
+    ${ANDROID_BUILD_TOOLS}/apksigner sign --ks "${KEY_STORE_STRING}" --out ${FINAL_APK} ${FINAL_APK} || quit
 
-    echo -e "${GREEN} -> zip align ${ALIGNED_UNSIGNED_APK}${NC}"
-    ${ANDROID_BUILD_TOOLS}/zipalign -v -p 4 "${FINAL_APK}" ${ALIGNED_UNSIGNED_APK} > /dev/null && echo "zip alignment successful" || quit
-    echo -e "${GREEN} -> apksign ${ALIGNED_UNSIGNED_APK}${NC}"
-    ${ANDROID_BUILD_TOOLS}/apksigner sign --ks "${KEY_STORE_STRING}" --out ${ALIGNED_SIGNED_APK} ${ALIGNED_UNSIGNED_APK} || quit
-    rm ${ALIGNED_UNSIGNED_APK}
-    
-    FINGERPRINT=$(unzip -p ${ALIGNED_SIGNED_APK} META-INF/*.RSA | keytool -printcert | grep "SHA256" | tr -d '[:space:]') || quit
+    FINGERPRINT=$(unzip -p ${FINAL_APK} META-INF/*.RSA | keytool -printcert | grep "SHA256" | tr -d '[:space:]') || quit
     
     if [[ ${FINGERPRINT} == ${EXPECTED_FINGERPRINT} ]] 
     then
@@ -62,8 +56,6 @@ function sign {
         quit
     fi
 
-    echo -e "${GREEN} -> rename aligned signed apk to ${FINAL_APK}${NC}"
-    cp ${ALIGNED_SIGNED_APK} ${FINAL_APK} || quit
     cleanUp
     
     #---- GPG SIGNING ----
@@ -100,6 +92,7 @@ DO_BUILD=false
 DO_SIGN=false
 BETA=false
 NO_TAG=false
+STACKTRACE=""
 FLAVOR="Normal"
 FLAVOR_LOWERCASE="normal"
 EXPECTED_FINGERPRINT="SHA256:9C:94:DB:F8:46:FD:95:97:47:57:17:2A:6A:8D:9A:9B:DF:8C:40:21:A6:6C:15:11:28:28:D1:72:39:1B:81:AA"
@@ -158,31 +151,34 @@ do
             echo -e "${RED}ERROR: Version name has to be a git tag!${NC}"
             exit
         fi
-    elif [[ ${!i} = "-k" || ${!i} = "-key" ]];
+    elif [[ ${!i} = "-k" || ${!i} = "-key" ]]
     then 
         ((i++)) 
         GPG_KEY=${!i}
         export GPG_KEY=${GPG_KEY}
-    elif [[ ${!i} = "-u" || ${!i} = "-user" ]];
+    elif [[ ${!i} = "-u" || ${!i} = "-user" ]]
     then 
         ((i++)) 
         GPG_KEY_USER=${!i}
         export GPG_KEY_USER=${GPG_KEY_USER}
-    elif [[ ${!i} = "-b" || ${!i} = "-beta" ]];
+    elif [[ ${!i} = "-b" || ${!i} = "-beta" ]]
     then 
         BETA=true
     elif [[ ${!i} = "-no-tag" ]];
     then 
         NO_TAG=true
+    elif [[ ${!i} = "-s" || ${!i} = "-stacktrace" ]]
+    then
+        STACKTRACE="--stacktrace"
     elif [[  ${!i} = "-c" || ${!i} = "-custom" ]]
     then
         ((i++))
         FLAVOR="Custom"
         FLAVOR_LOWERCASE="custom"
-    elif [[ ${!i} = "-h" || ${!i} = "-help" ]];
+    elif [[ ${!i} = "-h" || ${!i} = "-help" ]]
     then 
         echo -e "
-        sign [-ks -fp -f -b -u -k]            sign a given apk (both app signing and GPG signing)
+        sign [-ks -fp -f -u -k]               sign a given apk (both app signing and GPG signing)
         -ks / -keystore [path] -------------- define path to keystore for signing (required)
         -fp / -fingerprint [fingerprint] ---- define the fingerprint for the app (required for non-LEAP
                                               signed apps)
@@ -194,7 +190,7 @@ do
                                               -u will be ignored (optional)                           
         
         
-        build [-v, -c, -b, -no-tag]
+        build [-v, -c, -b, -no-tag, -s]
         -v / -version [gittag] -------------- define the git version tag that needs to be checked out 
                                               for building. It's also part of the resulting apk file 
                                               name. (required if you don't use -no-tag)
@@ -203,6 +199,7 @@ do
         -b / -beta -------------------------- build beta version with .beta appended to applicationId (optional)
         -no-tag ----------------------------- force to build current checked out git commit instead of an
                                               official release version
+        -s / -stacktrace -------------------- show verbose debug output
 
         
         -h / -help                            print out this help
@@ -286,50 +283,50 @@ then
     if [[ ${BETA} == true ]]
     then
         echo "${GREEN} -> build beta releases for flavor ${FLAVOR}${NC}"
-        ./gradlew clean assemble${FLAVOR}ProductionFatBeta --stacktrace || quit
+        ./gradlew clean assemble${FLAVOR}ProductionFatBeta $STACKTRACE || quit
  #       echo "copy file:  $(ls $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk)"
         cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk $RELEASES_FILE_DIR/.
         
         # custom builds might have disabled split apks -> check if build task exist
         if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Beta) ]]; then
-            ./gradlew clean assemble${FLAVOR}ProductionX86Beta --stacktrace || quit
+            ./gradlew clean assemble${FLAVOR}ProductionX86Beta $STACKTRACE || quit
             cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86/beta/*.apk $RELEASES_FILE_DIR/.
         fi
         if [[  $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86_64Beta) ]]; then
-            ./gradlew clean assemble${FLAVOR}ProductionX86_64Beta --stacktrace || quit
+            ./gradlew clean assemble${FLAVOR}ProductionX86_64Beta $STACKTRACE || quit
             cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86_64/beta/*.apk $RELEASES_FILE_DIR/.
         fi
         if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Beta) ]]; then
-            ./gradlew clean assemble${FLAVOR}ProductionArmv7Beta --stacktrace || quit
+            ./gradlew clean assemble${FLAVOR}ProductionArmv7Beta $STACKTRACE || quit
             cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArmv7/beta/*.apk $RELEASES_FILE_DIR/.
         fi
         if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Beta) ]]; then
-            ./gradlew clean assemble${FLAVOR}ProductionArm64Beta --stacktrace || quit
+            ./gradlew clean assemble${FLAVOR}ProductionArm64Beta $STACKTRACE || quit
             cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArm64/beta/*.apk $RELEASES_FILE_DIR/.
         fi
     else
         echo -e "${GREEN} -> build stable releases for flavor ${FLAVOR}${NC}"
-        ./gradlew clean assemble${FLAVOR}ProductionFatRelease --stacktrace || quit
+        ./gradlew clean assemble${FLAVOR}ProductionFatRelease $STACKTRACE || quit
         cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/release/*.apk $RELEASES_FILE_DIR/.
 
-        ./gradlew clean assemble${FLAVOR}ProductionFatwebRelease --stacktrace || quit
+        ./gradlew clean assemble${FLAVOR}ProductionFatwebRelease $STACKTRACE || quit
         cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFatweb/release/*.apk $RELEASES_FILE_DIR/.
 
         # custom builds might have disabled split apks -> check if build task exist
         if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Release) ]]; then
-            ./gradlew clean assemble${FLAVOR}ProductionX86Release --stacktrace || quit
+            ./gradlew clean assemble${FLAVOR}ProductionX86Release $STACKTRACE || quit
             cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86/release/*.apk $RELEASES_FILE_DIR/.
         fi
         if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86_64Release) ]]; then
-            ./gradlew clean assemble${FLAVOR}ProductionX86_64Release --stacktrace || quit
+            ./gradlew clean assemble${FLAVOR}ProductionX86_64Release $STACKTRACE || quit
             cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86_64/release/*.apk $RELEASES_FILE_DIR/.
         fi
         if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Release) ]]; then
-            ./gradlew clean assemble${FLAVOR}ProductionArmv7Release --stacktrace || quit
+            ./gradlew clean assemble${FLAVOR}ProductionArmv7Release $STACKTRACE || quit
             cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArmv7/release/*.apk $RELEASES_FILE_DIR/.
         fi
         if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArm64Release) ]]; then
-            ./gradlew clean assemble${FLAVOR}ProductionArm64Release --stacktrace || quit
+            ./gradlew clean assemble${FLAVOR}ProductionArm64Release $STACKTRACE || quit
             cp $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArm64/release/*.apk $RELEASES_FILE_DIR/.
         fi
     fi
