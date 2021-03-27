@@ -66,7 +66,6 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
 
 
     private RecyclerView recyclerView;
-    private LinearLayoutManager layoutManager;
     private LocationListAdapter locationListAdapter;
     private IconSwitchEntry autoSelectionSwitch;
     private AppCompatButton vpnButton;
@@ -115,7 +114,7 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
     private void initRecyclerView() {
         recyclerView = (RecyclerView) getActivity().findViewById(R.id.gatewaySelection_list);
         recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(this.getContext());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         recyclerView.setLayoutManager(layoutManager);
         locationListAdapter = new LocationListAdapter(gatewaysManager.getGatewayLocations());
         recyclerView.setAdapter(locationListAdapter);
