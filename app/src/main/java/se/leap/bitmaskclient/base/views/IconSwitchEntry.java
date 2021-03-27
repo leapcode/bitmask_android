@@ -131,6 +131,10 @@ public class IconSwitchEntry extends LinearLayout {
         switchView.setOnCheckedChangeListener(checkedChangeListener);
     }
 
+    public boolean isChecked() {
+        return switchView.isChecked();
+    }
+
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
