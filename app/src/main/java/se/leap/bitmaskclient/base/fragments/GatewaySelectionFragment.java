@@ -241,7 +241,7 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
                 if (selectedLocation == null) {
                     selectedLocation = location;
                     selectedLocation.selected = true;
-                } else if (selectedLocation.equals(location.name)){
+                } else if (selectedLocation.name.equals(location.name)){
                     selectedLocation.selected = !selectedLocation.selected;
                 } else {
                     selectedLocation.selected = false;
