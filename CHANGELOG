@@ -2,6 +2,7 @@
 features:
 - new languages: Burmese, Uyghur
 - more translations, <3 to all translators!
+- initial gateway selector implementation: get the best connection from your chosen location
 
 bugfixes:
 - reduce crash rate
