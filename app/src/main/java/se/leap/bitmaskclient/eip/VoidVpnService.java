@@ -221,13 +221,13 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
     }
 
     public void startWithForegroundNotification() {
-        notificationManager.createOpenVpnNotificationChannel();
+        notificationManager.createVoidVpnNotificationChannel();
         String message = getString(R.string.state_disconnected);
         notificationManager.buildVoidVpnNotification(
                 message,
                 message,
                 eipStatus.getLevel(),
-                this::onNotificationBuild
+                this
         );
     }
 
