@@ -84,6 +84,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePluggableTransports;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_PROFILE;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
@@ -317,7 +318,12 @@ public final class EIP extends JobIntentService implements Observer {
         Connection.TransportType transportType = getUsePluggableTransports(this) ? OBFS4 : OPENVPN;
         if (gateway == null ||
                 (profile = gateway.getProfile(transportType)) == null) {
-            setErrorResult(result, NO_MORE_GATEWAYS.toString(), getStringResourceForNoMoreGateways(), getString(R.string.app_name));
+            String preferredLocation = getPreferredCity(getApplicationContext());
+            if (preferredLocation != null) {
+                setErrorResult(result, NO_MORE_GATEWAYS.toString(), getStringResourceForNoMoreGateways(), getString(R.string.app_name), preferredLocation);
+            } else {
+                setErrorResult(result, NO_MORE_GATEWAYS.toString(), getStringResourceForNoMoreGateways(), getString(R.string.app_name));
+            }
             return;
         }
 
@@ -527,7 +533,10 @@ public final class EIP extends JobIntentService implements Observer {
 
 
     private @StringRes int getStringResourceForNoMoreGateways() {
-        if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
+        boolean isManualGatewaySelection = PreferenceHelper.getLastConnectedVpnProfile(getApplicationContext()) != null;
+        if (isManualGatewaySelection) {
+            return R.string.warning_no_more_gateways_manual_gw_selection;
+        } else if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
             if (PreferenceHelper.getUsePluggableTransports(getApplicationContext())) {
                 return R.string.warning_no_more_gateways_use_ovpn;
             } else {

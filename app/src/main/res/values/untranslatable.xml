@@ -44,5 +44,9 @@
     <string name="circleImageView" translatable="false">CircleImageView</string>
     <string name="copyright_circleImageView" translatable="false">Copyright 2014 - 2020 Henning Dodenhof. Licensed under the Apache License, Version 2.0 </string>
 
+   <!-- gateway selector, move to strings.xml, once the wording is clear -->
+    <string name="warning_no_more_gateways_manual_gw_selection" translatable="false">%1$s could not connect to %2$s. Do you want to try to connect automatically with best location?</string>
+    <string name="warning_option_try_best"translatable="false">Try best location</string>
+
 
 </resources>
