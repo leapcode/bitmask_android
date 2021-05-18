@@ -105,6 +105,7 @@
             app:icon="@drawable/ic_map_marker_star_black_36dp"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            android:visibility="gone"
             />
 
         <TextView
