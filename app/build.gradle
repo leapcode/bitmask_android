@@ -13,8 +13,8 @@ android {
 
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
-    versionCode 152
-    versionName "1.0.8RC1"
+    versionCode 153
+    versionName "1.0.8RC2"
     minSdkVersion 16
     targetSdkVersion 30
     vectorDrawables.useSupportLibrary = true
@@ -34,6 +34,8 @@ android {
     buildConfigField 'int', 'donation_reminder_duration', '30'
     //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
     buildConfigField 'boolean', 'priotize_anonymous_usage', 'false'
+    //allow manual gateway selection
+    buildConfigField 'boolean', 'allow_manual_gateway_selection', 'false'
 
     // static update url pointing to the latest stable release apk
     buildConfigField "String", "update_apk_url", '"https://dl.bitmask.net/client/android/Bitmask-Android-latest.apk"'
@@ -113,6 +115,8 @@ android {
 
       //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
       buildConfigField 'boolean', 'priotize_anonymous_usage', 'true'
+      //allow manual gateway selection
+      buildConfigField 'boolean', 'allow_manual_gateway_selection', 'true'
 
       //Build Config Fields for automatic apk update checks
 

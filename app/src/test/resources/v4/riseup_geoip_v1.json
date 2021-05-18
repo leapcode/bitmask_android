@@ -1,0 +1,14 @@
+{
+  "ip":"51.158.144.32",
+  "cc":"FR",
+  "city":"Paris",
+  "lat":48.8628,
+  "lon":2.3292,
+  "gateways":[
+    "mouette.riseup.net",
+    "hoatzin.riseup.net",
+    "yal.riseup.net",
+    "redshank.riseup.net",
+    "zarapito.riseup.net"
+  ]
+}

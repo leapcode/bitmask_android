@@ -18,6 +18,7 @@ package se.leap.bitmaskclient.base.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +33,8 @@ import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
 
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setPreferredCity;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.R.string.warning_option_try_ovpn;
 import static se.leap.bitmaskclient.R.string.warning_option_try_pt;
@@ -120,7 +123,12 @@ public class MainActivityErrorDialog extends DialogFragment {
                 break;
             case NO_MORE_GATEWAYS:
                 builder.setNegativeButton(R.string.cancel, (dialog, id) -> {});
-                if (provider.supportsPluggableTransports()) {
+                if (getPreferredCity(applicationContext) != null) {
+                    builder.setPositiveButton(R.string.warning_option_try_best, (dialog, which) -> {
+                        setPreferredCity(applicationContext, null);
+                        EipCommand.startVPN(applicationContext, false);
+                    });
+                } else if (provider.supportsPluggableTransports()) {
                     if (getUsePluggableTransports(applicationContext)) {
                         builder.setPositiveButton(warning_option_try_ovpn, ((dialog, which) -> {
                             usePluggableTransports(applicationContext, false);

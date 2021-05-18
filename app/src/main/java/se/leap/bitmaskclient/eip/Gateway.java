@@ -17,6 +17,7 @@
 package se.leap.bitmaskclient.eip;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
@@ -34,12 +35,14 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
+import static se.leap.bitmaskclient.base.models.Constants.FULLNESS;
 import static se.leap.bitmaskclient.base.models.Constants.HOST;
 import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
 import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
 import static se.leap.bitmaskclient.base.models.Constants.LOCATIONS;
 import static se.leap.bitmaskclient.base.models.Constants.NAME;
 import static se.leap.bitmaskclient.base.models.Constants.OPENVPN_CONFIGURATION;
+import static se.leap.bitmaskclient.base.models.Constants.OVERLOAD;
 import static se.leap.bitmaskclient.base.models.Constants.TIMEZONE;
 import static se.leap.bitmaskclient.base.models.Constants.VERSION;
 
@@ -59,7 +62,9 @@ public class Gateway {
     private JSONObject generalConfiguration;
     private JSONObject secrets;
     private JSONObject gateway;
+    private JSONObject load;
 
+    // the location of a gateway is its name
     private String name;
     private int timezone;
     private int apiVersion;
@@ -71,15 +76,25 @@ public class Gateway {
      */
     public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway, Context context)
             throws ConfigParser.ConfigParseError, JSONException, IOException {
+        this(eipDefinition, secrets, gateway, null, context);
+    }
+
+    public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway, JSONObject load, Context context)
+            throws ConfigParser.ConfigParseError, JSONException, IOException {
 
         this.gateway = gateway;
         this.secrets = secrets;
+        this.load = load;
 
         generalConfiguration = getGeneralConfiguration(eipDefinition);
         timezone = getTimezone(eipDefinition);
         name = locationAsName(eipDefinition);
         apiVersion = getApiVersion(eipDefinition);
         vpnProfiles = createVPNProfiles(context);
+    }
+
+    public void updateLoad(JSONObject load) {
+        this.load = load;
     }
 
     private void addProfileInfos(Context context, HashMap<Connection.TransportType, VpnProfile> profiles) {
@@ -133,6 +148,26 @@ public class Gateway {
         }
     }
 
+    public boolean hasLoadInfo() {
+        return load != null;
+    }
+
+    public double getFullness() {
+        try {
+            return load.getDouble(FULLNESS);
+        } catch (JSONException | NullPointerException e) {
+            return 0;
+        }
+    }
+
+    public boolean isOverloaded() {
+        try {
+            return load.getBoolean(OVERLOAD);
+        } catch (JSONException | NullPointerException e) {
+            return false;
+        }
+    }
+
     /**
      * Create and attach the VpnProfile to our gateway object
      */
@@ -156,7 +191,7 @@ public class Gateway {
         return vpnProfiles.get(transportType);
     }
 
-    public boolean suppoortsTransport(Connection.TransportType transportType) {
+    public boolean supportsTransport(Connection.TransportType transportType) {
         return vpnProfiles.get(transportType) != null;
     }
 

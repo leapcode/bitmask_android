@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2021 LEAP Encryption Access Project and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.leap.bitmaskclient.base.views;
 
 import android.annotation.TargetApi;
@@ -51,7 +67,7 @@ public class IconSwitchEntry extends LinearLayout {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rootview = inflater.inflate(R.layout.v_switch_list_item, this, true);
-        textView = rootview.findViewById(android.R.id.text1);
+        textView = rootview.findViewById(R.id.title);
         subtitleView = rootview.findViewById(R.id.subtitle);
         iconView = rootview.findViewById(R.id.material_icon);
         switchView = rootview.findViewById(R.id.option_switch);
@@ -88,6 +104,15 @@ public class IconSwitchEntry extends LinearLayout {
         textView.setText(id);
     }
 
+    public void setSubtitle(CharSequence text) {
+        subtitleView.setText(text);
+    }
+
+    public void setSingleLine(boolean singleLine) {
+        textView.setSingleLine(singleLine);
+        subtitleView.setSingleLine(singleLine);
+    }
+
     public void showSubtitle(boolean show) {
         subtitleView.setVisibility(show ? VISIBLE : GONE);
     }
@@ -104,6 +129,10 @@ public class IconSwitchEntry extends LinearLayout {
         switchView.setOnCheckedChangeListener(null);
         switchView.setChecked(isChecked);
         switchView.setOnCheckedChangeListener(checkedChangeListener);
+    }
+
+    public boolean isChecked() {
+        return switchView.isChecked();
     }
 
     @Override

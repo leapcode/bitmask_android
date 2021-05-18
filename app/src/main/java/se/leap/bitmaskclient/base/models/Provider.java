@@ -32,6 +32,7 @@ import java.util.Locale;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static se.leap.bitmaskclient.base.models.Constants.CAPABILITIES;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
+import static se.leap.bitmaskclient.base.models.Constants.LOCATIONS;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOWED_REGISTERED;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
@@ -331,6 +332,14 @@ public final class Provider implements Parcelable {
     public boolean hasEIP() {
         return getEipServiceJson() != null && getEipServiceJson().length() > 0
                 && !getEipServiceJson().has(ERRORS);
+    }
+
+    public boolean hasGatewaysInDifferentLocations() {
+        try {
+            return getEipServiceJson().getJSONObject(LOCATIONS).length() > 1;
+        } catch (NullPointerException | JSONException e) {
+            return false;
+        }
     }
 
     @Override

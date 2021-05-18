@@ -30,6 +30,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.providersetup.ProviderListActivity;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.base.models.FeatureVersionCode;
@@ -155,6 +156,11 @@ public class StartActivity extends Activity{
                 PreferenceHelper.deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
                 ProviderObservable.getInstance().updateProvider(null);
             }
+        }
+
+        // always check if manual gateway selection feature switch has been disabled
+        if (!BuildConfig.allow_manual_gateway_selection && PreferenceHelper.getPreferredCity(this) != null) {
+            PreferenceHelper.setPreferredCity(this, null);
         }
 
         // ensure all upgrades have passed before storing new information

@@ -149,4 +149,10 @@
   <string name="version_update_error_pgp_verification">PGP verification error. Ignoring download.</string>
   <string name="version_update_error">Update failed.</string>
   <string name="version_update_error_permissions">No permissions to install app.</string>
+  <string name="gateway_selection_title">Select location</string>
+  <string name="gateway_selection_warning">%s will find the best connection for you.</string>
+  <string name="gateway_selection_best_location">Location with best connection</string>
+  <string name="gateway_selection_automatic">Automatic</string>
+  <string name="gateway_selection_current_location">Your traffic is currently routed through: </string>
+
 </resources>

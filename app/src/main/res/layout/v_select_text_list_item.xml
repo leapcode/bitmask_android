@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_container"
+    android:layout_height="?android:attr/listPreferredItemHeightSmall"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- views are composed right to left -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/checked_icon"
+        android:layout_width="?android:attr/listPreferredItemHeightSmall"
+        android:layout_height="?android:attr/listPreferredItemHeightSmall"
+        android:layout_gravity="center"
+        android:padding="10dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        tools:src="@drawable/ic_check_bold"
+        android:visibility="visible"
+        tools:visibility="visible"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/quality"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceListItem"
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/standard_margin"
+        android:paddingLeft="@dimen/standard_margin"
+        android:paddingEnd="@dimen/standard_margin"
+        android:paddingRight="@dimen/standard_margin"
+        android:minHeight="?android:attr/listPreferredItemHeightSmall"
+        android:layout_toLeftOf="@id/checked_icon"
+        android:layout_toStartOf="@id/checked_icon"
+        tools:text="GOOD"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toStartOf="@id/quality"
+        android:layout_toLeftOf="@id/quality"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeightLarge"
+        android:paddingStart="@dimen/standard_margin"
+        android:paddingLeft="@dimen/standard_margin"
+        android:paddingEnd="@dimen/standard_margin"
+        android:paddingRight="@dimen/standard_margin"
+        android:textAppearance="?android:attr/textAppearanceListItem"
+        android:textStyle="bold"
+        tools:text="Paris" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@android:color/darker_gray"
+        android:layout_alignParentBottom="true"
+        />
+</RelativeLayout>
