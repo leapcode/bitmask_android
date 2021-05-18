@@ -50,6 +50,7 @@ import java.util.Observer;
 import java.util.Set;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Provider;
@@ -417,6 +418,9 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     }
 
     private void initManualGatewayEntry() {
+        if (!BuildConfig.allow_manual_gateway_selection) {
+            return;
+        }
         manualGatewaySelection = drawerView.findViewById(R.id.manualGatewaySelection);
         String preferredGateway = getPreferredCity(getContext());
         String subtitle = preferredGateway != null ? preferredGateway : getString(R.string.gateway_selection_best_location);
