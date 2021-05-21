@@ -16,7 +16,7 @@
     "en": "calyx"
   },
   "service": {
-    "allow_anonymous": false,
+    "allow_anonymous": true,
     "allow_free": true,
     "allow_limited_bandwidth": false,
     "allow_paid": false,
