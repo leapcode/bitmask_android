@@ -2,7 +2,7 @@
 features:
 - new languages: Burmese, Uyghur
 - more translations, <3 to all translators!
-- initial gateway selector implementation: get the best connection from your chosen location
+- gateway selector: get the best connection from your chosen location (only enabled in RiseupVPN app for now)
 
 bugfixes:
 - reduce crash rate
