@@ -32,6 +32,7 @@
   <string name="password_mismatch">Os contrasinais non concordan</string>
   <string name="user_message">Mensaxe de usuaria</string>
   <string name="about_fragment_title">Sobre</string>
+  <string name="exclude_apps_fragment_title">Excluír apps da VPN</string>
   <string name="error_srp_math_error_user_message">Inténteo de novo: fallo no Servidor</string>
   <string name="error_bad_user_password_user_message">Nome de usuaria ou contrasinal incorrectos</string>
   <string name="error_not_valid_password_user_message">Debe ter ao menos 8 caracteres</string>
@@ -93,6 +94,7 @@
   <string name="update_certificate">Anovar certificado</string>
   <string name="warning_eip_json_corrupted">Fallo ao anovar a configuración do provedor.</string>
   <string name="eip_json_corrupted_user_message">Fallo ao anovar a configuración do provedor. Por favor conéctese para intentalo de novo.</string>
+  <string name="warning_client_parsing_error_gateways">As pasarelas do provedor non se recoñecen. Pode que non estén ben configuradas.</string>
   <string name="warning_corrupted_provider_details">Os detalles gardados do provedor están corruptos. Podes actualizar %s (recomendado) ou actualizar os detalles do provedor utilizando un certificado CA comercial.</string>
   <string name="warning_corrupted_provider_cert">O certificado gardado do provedor non é válido. Podes actualizar %s (recomendado) ou actualizar o certificado do provedor utilizando un certificado CA comercial.</string>
   <string name="warning_expired_provider_cert">O certificado gardado do provedor caducou. Podes actualizar %s (recomendado) ou actualizar o certificado do provedor utilizando un certificado CA comercial.</string>
@@ -100,8 +102,20 @@
   <string name="vpn_certificate_is_invalid">O certificado do VPN non é válido. Intente descargar un novo.</string>
   <string name="vpn_certificate_user_message">O certificado VPN non é válido. Por favor conéctese para descargar un novo.</string>
   <string name="save_battery">Aforro de batería</string>
+  <string name="subtitle_save_battery">Desactivado cando o Hotspot da VPN está aceso</string>
   <string name="save_battery_message">As conexións de datos en segundo plano hibernarán cando o móbil estea inactivo.</string>
   <string name="always_on_vpn">VPN sempre activa</string>
+  <string name="subtitle_always_on_vpn">Abrir os Axustes do sistema android</string>
+  <string name="tethering">Hotspot VPN</string>
+  <string name="ipv6Firewall">Bloquear IPv6</string>
+  <string name="require_root">Require permiso root</string>
+  <string name="show_experimental">Mostrar funcións experimentais</string>
+  <string name="hide_experimental">Agochar funcións experimentais</string>
+  <string name="tethering_enabled_message">Asegúrate de ter antes activada a compartición da conexión en <![CDATA[1system settings1]]>.</string>
+  <string name="tethering_message">Comparte a túa VPN con outros dispositivos vía:</string>
+  <string name="tethering_wifi">Punto de acceso Wi-Fi</string>
+  <string name="tethering_usb">Compartición USB</string>
+  <string name="tethering_bluetooth">Compartición Bluetooth</string>
   <string name="do_not_show_again">Non mostrar de novo</string>
   <string name="always_on_vpn_user_message">Para activar VPN sempre acendida nos axustes VPN de Android pulse na icona de configuración [img src] en active a opción.</string>
   <string name="always_on_blocking_vpn_user_message">Para protexer de xeito óptimo a túa intimidade, deberías activar a opción \"Bloquear conexións sen VPN\".</string>
@@ -110,4 +124,29 @@
   <string name="donate_message">LEAP depende das doazóns e contribucións. Por favor, doe agroa si valora a comunicación segura que é sinxela tanto para a usuaria final como a proveedora do servizo.</string>
   <string name="donate_button_remind_later">Lembramo máis tarde</string>
   <string name="donate_button_donate">Doar</string>
+  <string name="obfuscated_connection">Usando unha conexión agochada.</string>
+  <string name="obfuscated_connection_try">Intentando facer unha conexión agochada.</string>
+  <string name="nav_drawer_obfuscated_connection">Usando Pontes</string>
+  <string name="nav_drawer_subtitle_obfuscated_connection">Evitar o filtro VPN</string>
+  <string name="warning_exclude_apps_message">Ten coidado ao excluír apps da VPN. Esto revelará a túa identidade e comprometerá a seguridade.</string>
+  <plurals name="subtitle_exclude_apps">
+    <item quantity="one">%d app desprotexida</item>
+    <item quantity="other">%dapps desprotexidas</item>
+  </plurals>
+  <string name="warning_no_more_gateways_use_pt">%s non puido conectar. Pode que as conexións VPN sexan bloqueadas. Queres conectar utilizando conexións agochadas?</string>
+  <string name="warning_no_more_gateways_no_pt">%s non puido conectar. Queres volver a intentalo?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s non puido conectar usando conexións VPN agochadas. Queres intentar conectar utilizando a VPN estándar?</string>
+  <string name="warning_option_try_pt">Intentar conexión agochada</string>
+  <string name="warning_option_try_ovpn">Intentar conexión estándar</string>
+  <string name="vpn_error_establish">Android non puido establecer o servizo VPN.</string>
+  <string name="root_permission_error">%s non pode executar ferramentas como Punto de acceso VPN ou cortalumes IPv6 se non ten acceso root.</string>
+  <string name="qs_enable_vpn">Inciar %s</string>
+  <string name="version_update_found">Toca aquí para iniciar a descarga.</string>
+  <string name="version_update_title">Hai unha nova versión de %s dispoñible</string>
+  <string name="version_update_apk_description">Descargando a nova versión de %s</string>
+  <string name="version_update_download_title">Descargouse a nova versión de %s.</string>
+  <string name="version_update_download_description">Toca aquí para instalar a actualización.</string>
+  <string name="version_update_error_pgp_verification">Fallou a verificación PGP. Ignorando a descarga.</string>
+  <string name="version_update_error">Fallou a actualización.</string>
+  <string name="version_update_error_permissions">Non tes permiso para instalar a app.</string>
 </resources>

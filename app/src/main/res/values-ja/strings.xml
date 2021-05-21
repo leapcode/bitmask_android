@@ -113,7 +113,6 @@
   <string name="hide_experimental">試験的な機能を表示しない</string>
   <string name="tethering_enabled_message">先に <![CDATA[<b>システム設定</b>]]> で、テザリングを有効にしてください。</string>
   <string name="tethering_message">お使いのVPNを他のデバイスと共有:</string>
-  <string name="tethering_wifi">Wifiホットスポット</string>
   <string name="tethering_usb">USBテザリング</string>
   <string name="tethering_bluetooth">Bluetoothテザリング</string>
   <string name="do_not_show_again">今後表示しない</string>

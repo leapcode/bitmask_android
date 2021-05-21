@@ -113,7 +113,6 @@
   <string name="hide_experimental">پنهان‌سازی ویژگی‌های آزمایشی</string>
   <string name="tethering_enabled_message">ابتدا اطمینان حاصی کنید که اشتراک‌گذاری در <![CDATA[system settings]]> فعال است.</string>
   <string name="tethering_message">به اشتراک گذاری VPN با دیگر دستگاه ها از طریق:</string>
-  <string name="tethering_wifi">Wifi hotspot</string>
   <string name="tethering_usb">اتصال به USB</string>
   <string name="tethering_bluetooth">اتصال به بلوتوث</string>
   <string name="do_not_show_again">دوباره نشان نده</string>

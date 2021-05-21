@@ -55,6 +55,7 @@
   <string name="navigation_drawer_close">Chiudi drawer</string>
   <string name="action_settings">Impostazioni</string>
   <string name="always_on_vpn">VPN sempre attivo</string>
+  <string name="tethering_wifi">Hotspot Wi-Fi</string>
   <string name="donate_title">Fai una donazione</string>
   <string name="donate_button_donate">Fai una donazione</string>
 </resources>

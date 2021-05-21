@@ -113,7 +113,7 @@
   <string name="hide_experimental">Ocultar características experimentales</string>
   <string name="tethering_enabled_message">Por favor asegúrate de habilitar primero tethering en los <![CDATA[<b>ajustes de sistema</b>]]>.</string>
   <string name="tethering_message">Comparte tu VPN con otros dispositivos vía:</string>
-  <string name="tethering_wifi">Punto de acceso wifi</string>
+  <string name="tethering_wifi">Punto de acceso Wi-fi</string>
   <string name="tethering_usb">Tethering USB</string>
   <string name="tethering_bluetooth">Tethering bluetooth</string>
   <string name="do_not_show_again">No mostrar de nuevo.</string>

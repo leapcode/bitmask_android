@@ -113,7 +113,7 @@
   <string name="hide_experimental">Deneysel özellikleri gizle</string>
   <string name="tethering_enabled_message">Lütfen ilk önce <![CDATA[<b>sistem ayarlarında</b>]]> tetheringi etkinleştirdiğinizden emin olun.</string>
   <string name="tethering_message">VPN\'i diğer aygıtlarla şu şekilde paylaş:</string>
-  <string name="tethering_wifi">Wi-Fi Bağlantı Noktası</string>
+  <string name="tethering_wifi">Wi-Fi erişim noktası</string>
   <string name="tethering_usb">USB tethering</string>
   <string name="tethering_bluetooth">Bluetooth tethering</string>
   <string name="do_not_show_again">Tekrar gösterme</string>

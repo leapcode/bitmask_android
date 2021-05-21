@@ -113,7 +113,7 @@
   <string name="hide_experimental">הסתר מאפיינים ניסיוניים</string>
   <string name="tethering_enabled_message">אנא וודא כי איפשרת שיתוף חיבור ב<![CDATA[<b>הגדרות המערכת</b>]]> תחילה.</string>
   <string name="tethering_message">שתף את ה־VPN שלך עם מכשירים אחרים דרך:</string>
-  <string name="tethering_wifi">נקודה חמה של WiFi</string>
+  <string name="tethering_wifi">נקודה חמה של Wi-Fi</string>
   <string name="tethering_usb">שיתוף חיבור דרך USB</string>
   <string name="tethering_bluetooth">שיתוף חיבור דרך Bluetooth</string>
   <string name="do_not_show_again">אל תראה שוב</string>
