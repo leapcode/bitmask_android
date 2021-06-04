@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="donate_message">RiseupVPNは、riseup.netの簡単で高速かつ安全なVPNサービスです。 RiseupVPNは、ユーザーアカウントを必要とせず、ログを保存したり、あなたを追跡したりしません。 このサービスは、あなたのようなユーザーからの寄付によって全額支払われました。 https://riseup.net/vpn/donate で寄付してください。</string>
-  <string name="terms_of_service">このアプリケーションを使用することにより、https://riseup.net/tos で参照可能な利用規約に同意したことになります。 このサービスは、保証なしで現状のまま提供され、世界をより良い場所にするために働く人々を対象にしています。</string>
+  <string name="donate_message">RiseupVPNはriseup.netによる簡単、高速、そして安全なVPNサービスです。RiseupVPNはユーザーアカウント、ログの保持、または何らかの方法であなたを追跡することを必要としません。このサービスはあなたを好きなユーザーからの寄付によって、全て賄われています。是非、 https://riseup.net/vpn/donate に寄付してください。</string>
+  <string name="terms_of_service">このアプリケーションを使用するならば、 https://riseup.net/tos でご覧いただける利用規約に同意することになります。このサービスは、現状のまま、いかなる保証もなく提供され、世界をより良くするために働く人々を対象としています。</string>
 </resources>

@@ -20,6 +20,7 @@
   <string name="username_ask">Kirjoita käyttäjätunnuksesi</string>
   <string name="password_ask">Kirjoita salasana</string>
   <string name="password_hint">salasana</string>
+  <string name="password_match">Salasanat täsmäävät</string>
   <string name="password_mismatch">Salasanat eivät täsmää</string>
   <string name="user_message">Käyttäjäviesti</string>
   <string name="about_fragment_title">Tietoja</string>
