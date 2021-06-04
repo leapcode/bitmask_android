@@ -21,7 +21,6 @@
     <!-- if you want to run test, this permissions are needed. Gradle will get rid of them once we implement it. --> 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />    
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 

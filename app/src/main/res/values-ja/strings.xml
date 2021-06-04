@@ -113,6 +113,7 @@
   <string name="hide_experimental">試験的な機能を表示しない</string>
   <string name="tethering_enabled_message">先に <![CDATA[<b>システム設定</b>]]> で、テザリングを有効にしてください。</string>
   <string name="tethering_message">お使いのVPNを他のデバイスと共有:</string>
+  <string name="tethering_wifi">Wi-Fiホットスポット</string>
   <string name="tethering_usb">USBテザリング</string>
   <string name="tethering_bluetooth">Bluetoothテザリング</string>
   <string name="do_not_show_again">今後表示しない</string>
@@ -139,4 +140,12 @@
   <string name="vpn_error_establish">AndroidはVPNサービスを確立できませんでした。</string>
   <string name="root_permission_error">root権限がないと %s がVPNホットスポットやIPv6ファイアウォールなどの機能を実行できません。</string>
   <string name="qs_enable_vpn">%s 開始</string>
+  <string name="version_update_found">ここをタップしてダウンロードを開始する</string>
+  <string name="version_update_title">新しいバージョン %s が見つかりました</string>
+  <string name="version_update_apk_description">新しいバージョン %s をダウンロード中</string>
+  <string name="version_update_download_title">新しいバージョン %sはダウンロードされました。 </string>
+  <string name="version_update_download_description">ここをタップしてアップデートをインストールする。</string>
+  <string name="version_update_error_pgp_verification">PGP検証エラー。ダウンロードを無視。</string>
+  <string name="version_update_error">アップデート失敗。</string>
+  <string name="version_update_error_permissions">アプリをインストールする権限がありません。</string>
 </resources>

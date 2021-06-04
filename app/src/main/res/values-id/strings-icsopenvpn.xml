@@ -191,7 +191,7 @@
   <string name="setting_loadtun">Pakai modul TUN</string>
   <string name="importpkcs12fromconfig">Ambil PKCS12 dari konfigurasi ke Android Keystore</string>
   <string name="getproxy_error">Gagal mendapatkan pengaturan proxy: %s</string>
-  <string name="using_proxy">Menggunakan proxy %1$s %2$d</string>
+  <string name="using_proxy">Menggunakan proxy %1$s %2$s</string>
   <string name="use_system_proxy">Gunakan sistem proxy</string>
   <string name="use_system_proxy_summary">Gunakan konfigurasi lebih luas untuk menyambung system melalui proxy HTTP/HTTPS</string>
   <string name="donatewithpaypal">Anda dapat melakukan donasi &lt;a href=\"https://www.paypal.com/cgi-bin/webscr?hosted_button_id=R2M6ZP9AF25LS&amp;amp;cmd=_s-xclick\"&gt;dengan PayPal&lt;/a&gt; </string>

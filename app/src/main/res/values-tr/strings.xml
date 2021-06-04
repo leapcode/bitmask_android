@@ -95,7 +95,7 @@
   <string name="warning_eip_json_corrupted">Sağlayıcı yapılandırması güncellenemedi.</string>
   <string name="eip_json_corrupted_user_message">Sağlayıcı yapılandırması güncellenemedi. Lütfen tekrar denemek için giriş yapın.</string>
   <string name="warning_client_parsing_error_gateways">Sağlayıcı geçitleri tanımlanamıyor. Yanlış yapılandırılmış olabilir.</string>
-  <string name="warning_corrupted_provider_details">Depolanan sağlayıcı bilgileri bozuk. Ticari bir CA sertifikası kullanarak sağlayıcı bilgilerini güncelleyebilir (önerilen) veya sağlayıcı ayrıntılarını güncelleyebilirsiniz.</string>
+  <string name="warning_corrupted_provider_details">Depolanan sağlayıcı bilgileri bozuk. Ticari bir CA sertifikası kullanarak %s (önerilen) veya sağlayıcı ayrıntılarını güncelleyebilirsiniz.</string>
   <string name="warning_corrupted_provider_cert">Depolanan sağlayıcı sertifikası geçersiz. Ticari bir CA sertifikası kullanarak %s (önerilir) güncelleyebilir veya sağlayıcı sertifikasını güncelleyebilirsiniz.</string>
   <string name="warning_expired_provider_cert">Depolanan sağlayıcı sertifikasının süresi dolmuş. Ticari bir CA sertifikası kullanarak %s (önerilir) güncelleyebilir veya sağlayıcı sertifikasını güncelleyebilirsiniz.</string>
   <string name="downloading_vpn_certificate_failed">VPN sertifikası indirilemedi. Tekrar deneyin veya başka bir sağlayıcı seçin.</string>
