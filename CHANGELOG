@@ -1,3 +1,12 @@
+1.0.9 - Hotfix release
+features:
+- updated translations
+
+bugfixes:
+- fix app crash in gateway selection error handling
+- removed slovenian language as it is unmaintained right now
+- fixed potential crashes due to wrong string formatting in several languages
+
 1.0.8
 features:
 - new languages: Burmese, Uyghur
