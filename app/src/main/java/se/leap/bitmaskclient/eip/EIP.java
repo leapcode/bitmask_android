@@ -533,7 +533,7 @@ public final class EIP extends JobIntentService implements Observer {
 
 
     private @StringRes int getStringResourceForNoMoreGateways() {
-        boolean isManualGatewaySelection = PreferenceHelper.getLastConnectedVpnProfile(getApplicationContext()) != null;
+        boolean isManualGatewaySelection = PreferenceHelper.getPreferredCity(getApplicationContext()) != null;
         if (isManualGatewaySelection) {
             return R.string.warning_no_more_gateways_manual_gw_selection;
         } else if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
