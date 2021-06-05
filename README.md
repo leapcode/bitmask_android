@@ -72,10 +72,10 @@ sudo apt install default-jdk
 
 ### C Libraries <a name="c-libraries"></a>
 
-These are necessary to make sure the program cross-compiles to 32-bit architectures successfully from 64-bit GNU/Linux machines:
+These are necessary to make sure the program cross-compiles to 32-bit architectures successfully from 64-bit GNU/Linux machines. If you don't have the lib32stdc++, try for example lib32stdc++-8-dev-x32-cross or whatever version is current on your system.
 
 ```
-sudo apt install make gcc file install lib32stdc++ lib32z1
+sudo apt install make gcc file lib32stdc++ lib32z1
 ```
 
 ### Android SDK <a name="android-sdk"></a>
