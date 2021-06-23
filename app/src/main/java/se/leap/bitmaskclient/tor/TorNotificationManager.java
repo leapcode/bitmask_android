@@ -45,7 +45,7 @@ public class TorNotificationManager {
         return notificationBuilder
                 .setSmallIcon(R.drawable.ic_bridge_36)
                 .setWhen(System.currentTimeMillis())
-                .setContentTitle("Using Bridges to configure provider.").build();
+                .setContentTitle(context.getString(R.string.tor_provider_setup)).build();
     }
 
     public void buildTorNotification(Context context, String state) {
