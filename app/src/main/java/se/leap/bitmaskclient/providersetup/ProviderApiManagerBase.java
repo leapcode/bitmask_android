@@ -48,6 +48,9 @@ import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Observer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -59,10 +62,13 @@ import se.leap.bitmaskclient.base.models.Constants.CREDENTIAL_ERRORS;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
 import se.leap.bitmaskclient.providersetup.models.SrpCredentials;
 import se.leap.bitmaskclient.providersetup.models.SrpRegistrationData;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static se.leap.bitmaskclient.R.string.certificate_error;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
@@ -119,6 +125,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.RECEIVER_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SIGN_UP;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.STOP_PROXY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_LOGIN;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_LOGOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_SIGNUP;
@@ -128,6 +135,8 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.ON;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
 /**
  * Implements the logic of the http api calls. The methods of this class needs to be called from
@@ -140,9 +149,11 @@ public abstract class ProviderApiManagerBase {
 
     public interface ProviderApiServiceCallback {
         void broadcastEvent(Intent intent);
+        int initTorConnection();
+        void stopTorConnection();
     }
 
-    private ProviderApiServiceCallback serviceCallback;
+    private final ProviderApiServiceCallback serviceCallback;
 
     protected SharedPreferences preferences;
     protected Resources resources;
@@ -164,17 +175,22 @@ public abstract class ProviderApiManagerBase {
         String action = command.getAction();
         Bundle parameters = command.getBundleExtra(PARAMETERS);
 
-        Provider provider = command.getParcelableExtra(PROVIDER_KEY);
-
-        if (provider == null) {
-            //TODO: consider returning error back e.g. NO_PROVIDER
-            Log.e(TAG, action +" called without provider!");
-            return;
-        }
         if (action == null) {
             Log.e(TAG, "Intent without action sent!");
             return;
         }
+
+        Provider provider = null;
+        if (command.getParcelableExtra(PROVIDER_KEY) != null) {
+            provider = command.getParcelableExtra(PROVIDER_KEY);
+        } else if (!STOP_PROXY.equals(action)) {
+            //TODO: consider returning error back e.g. NO_PROVIDER
+            Log.e(TAG, action +" called without provider!");
+            return;
+        }
+
+        // uncomment for testing --v
+        TorStatusObservable.setProxyPort(startTorProxy());
 
         Bundle result = new Bundle();
         switch (action) {
@@ -269,7 +285,41 @@ public abstract class ProviderApiManagerBase {
                     }
                     ProviderObservable.getInstance().setProviderForDns(null);
                 }
+                break;
+            case STOP_PROXY:
+                serviceCallback.stopTorConnection();
+                break;
         }
+    }
+
+    protected int startTorProxy() {
+        int port = -1;
+        if (PreferenceHelper.useTor(preferences) && EipStatus.getInstance().isDisconnected() ) {
+            port = serviceCallback.initTorConnection();
+            if (port != -1) {
+                try {
+                    waitForTorCircuits();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    port = -1;
+                }
+            }
+        }
+        return port;
+    }
+
+    private void waitForTorCircuits() throws InterruptedException {
+        if (TorStatusObservable.getStatus() == ON) {
+            return;
+        }
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        Observer observer = (o, arg) -> {
+            if (TorStatusObservable.getStatus() == ON) {
+                countDownLatch.countDown();
+            }
+        };
+        TorStatusObservable.getInstance().addObserver(observer);
+        countDownLatch.await(90, TimeUnit.SECONDS);
     }
 
     void resetProviderDetails(Provider provider) {
@@ -342,7 +392,7 @@ public abstract class ProviderApiManagerBase {
 
     private Bundle register(Provider provider, String username, String password) {
         JSONObject stepResult = null;
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), stepResult);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), stepResult);
         if (okHttpClient == null) {
             return backendErrorNotification(stepResult, username);
         }
@@ -401,7 +451,7 @@ public abstract class ProviderApiManagerBase {
 
         String providerApiUrl = provider.getApiUrlWithVersion();
 
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), stepResult);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), stepResult);
         if (okHttpClient == null) {
             return backendErrorNotification(stepResult, username);
         }
@@ -681,7 +731,7 @@ public abstract class ProviderApiManagerBase {
         JSONObject errorJson = new JSONObject();
         String providerUrl = provider.getApiUrlString() + "/provider.json";
 
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), errorJson);
         if (okHttpClient == null) {
             result.putString(ERRORS, errorJson.toString());
             return false;
@@ -950,7 +1000,7 @@ public abstract class ProviderApiManagerBase {
     }
 
     private boolean logOut(Provider provider) {
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), new JSONObject());
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), new JSONObject());
         if (okHttpClient == null) {
             return false;
         }

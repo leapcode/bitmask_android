@@ -28,27 +28,29 @@ import android.util.Log;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.json.JSONObject;
+import org.torproject.jni.TorService;
 
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.appUpdate.DownloadServiceCommand;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.ProviderAPI;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
-import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.appUpdate.DownloadServiceCommand;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTING_NO_SERVER_REPLY_YET;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NOTCONNECTED;
+import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.CHECK_VERSION_FILE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_EIP_EVENT;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_PROVIDER_API_EVENT;
@@ -67,7 +69,8 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOAD
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
-import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.CHECK_VERSION_FILE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.STOP_PROXY;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
 /**
  * Created by cyberta on 05.12.18.
@@ -92,6 +95,8 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         IntentFilter updateIntentFilter = new IntentFilter(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT);
         updateIntentFilter.addAction(BROADCAST_EIP_EVENT);
         updateIntentFilter.addAction(BROADCAST_PROVIDER_API_EVENT);
+        updateIntentFilter.addAction(TorService.ACTION_STATUS);
+        updateIntentFilter.addAction(TorService.ACTION_ERROR);
         updateIntentFilter.addCategory(CATEGORY_DEFAULT);
         LocalBroadcastManager.getInstance(context.getApplicationContext()).registerReceiver(this, updateIntentFilter);
         instance = this;
@@ -140,10 +145,29 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             case BROADCAST_PROVIDER_API_EVENT:
                 handleProviderApiEvent(intent);
                 break;
+            case TorService.ACTION_STATUS:
+                handleTorStatusEvent(intent);
+                break;
+            case TorService.ACTION_ERROR:
+                handleTorErrorEvent(intent);
+                break;
             default:
                 break;
         }
     }
+
+    private void handleTorErrorEvent(Intent intent) {
+        String error = intent.getStringExtra(Intent.EXTRA_TEXT);
+        Log.d(TAG, "handle Tor error event: " + error);
+        TorStatusObservable.setLastError(error);
+    }
+
+    private void handleTorStatusEvent(Intent intent) {
+        String status = intent.getStringExtra(TorService.EXTRA_STATUS);
+        Log.d(TAG, "handle Tor status event: " + status);
+        TorStatusObservable.updateState(context, status);
+    }
+
 
     private void handleProviderApiEvent(Intent intent) {
         int resultCode = intent.getIntExtra(BROADCAST_RESULT_CODE, RESULT_CANCELED);
@@ -324,6 +348,9 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         setupNClosestGateway.set(0);
         observedProfileFromVpnStatus = null;
         this.changingGateway.set(changingGateway);
+        if (TorStatusObservable.getStatus() != OFF) {
+            ProviderAPICommand.execute(context.getApplicationContext(), STOP_PROXY, null);
+        }
     }
 
     /**

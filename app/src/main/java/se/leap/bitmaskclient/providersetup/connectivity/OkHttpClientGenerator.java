@@ -18,6 +18,7 @@
 package se.leap.bitmaskclient.providersetup.connectivity;
 
 import android.content.res.Resources;
+import android.net.LocalSocketAddress;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -50,6 +54,7 @@ import static se.leap.bitmaskclient.R.string.certificate_error;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
 import static se.leap.bitmaskclient.R.string.keyChainAccessError;
+import static se.leap.bitmaskclient.R.string.proxy;
 import static se.leap.bitmaskclient.R.string.server_unreachable_message;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
@@ -61,34 +66,35 @@ import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormatted
 public class OkHttpClientGenerator {
 
     Resources resources;
+    private final static String PROXY_HOST = "127.0.0.1";
 
     public OkHttpClientGenerator(/*SharedPreferences preferences,*/ Resources resources) {
         this.resources = resources;
     }
 
-    public OkHttpClient initCommercialCAHttpClient(JSONObject initError) {
-        return initHttpClient(initError, null);
+    public OkHttpClient initCommercialCAHttpClient(JSONObject initError, int proxyPort) {
+        return initHttpClient(initError, null, proxyPort);
     }
 
-    public OkHttpClient initSelfSignedCAHttpClient(String caCert, JSONObject initError) {
-        return initHttpClient(initError, caCert);
+    public OkHttpClient initSelfSignedCAHttpClient(String caCert, int proxyPort, JSONObject initError) {
+        return initHttpClient(initError, caCert, proxyPort);
     }
 
     public OkHttpClient init() {
         try {
-            return createClient(null);
+            return createClient(null, -1);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private OkHttpClient initHttpClient(JSONObject initError, String certificate) {
+    private OkHttpClient initHttpClient(JSONObject initError, String certificate, int proxyPort) {
         if (resources == null) {
             return null;
         }
         try {
-            return createClient(certificate);
+            return createClient(certificate, proxyPort);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             // TODO ca cert is invalid - show better error ?!
@@ -117,7 +123,7 @@ public class OkHttpClientGenerator {
         return null;
     }
 
-    private OkHttpClient createClient(String certificate) throws Exception {
+    private OkHttpClient createClient(String certificate, int proxyPort) throws Exception {
         TLSCompatSocketFactory sslCompatFactory;
         ConnectionSpec spec = getConnectionSpec();
         OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
@@ -131,6 +137,9 @@ public class OkHttpClientGenerator {
         clientBuilder.cookieJar(getCookieJar())
                 .connectionSpecs(Collections.singletonList(spec));
         clientBuilder.dns(new DnsResolver());
+        if (proxyPort != -1) {
+            clientBuilder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, proxyPort)));
+        }
         return clientBuilder.build();
     }
 

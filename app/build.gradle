@@ -391,6 +391,9 @@ dependencies {
   implementation 'androidx.cardview:cardview:1.0.0'
   implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
   implementation 'de.hdodenhof:circleimageview:3.1.0'
+  implementation 'info.guardianproject:tor-android:0.4.5.7'
+  implementation 'info.guardianproject:jtorctl:0.4.5.7'
+
   fatwebImplementation project(path: ':bitmask-web-core')
   fatImplementation project(path: ':bitmask-core')
   x86Implementation project(path: ':bitmask-core')

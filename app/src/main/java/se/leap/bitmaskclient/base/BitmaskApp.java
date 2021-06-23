@@ -34,6 +34,8 @@ import se.leap.bitmaskclient.eip.EipSetupObserver;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.tethering.TetheringStateManager;
 import se.leap.bitmaskclient.base.utils.PRNGFixes;
+import se.leap.bitmaskclient.tor.TorNotificationManager;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
@@ -53,6 +55,7 @@ public class BitmaskApp extends MultiDexApplication {
     private RefWatcher refWatcher;
     private ProviderObservable providerObservable;
     private DownloadBroadcastReceiver downloadBroadcastReceiver;
+    private TorStatusObservable torStatusObservable;
 
 
     @Override
@@ -69,6 +72,7 @@ public class BitmaskApp extends MultiDexApplication {
         SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         providerObservable = ProviderObservable.getInstance();
         providerObservable.updateProvider(getSavedProviderFromSharedPreferences(preferences));
+        torStatusObservable = TorStatusObservable.getInstance();
         EipSetupObserver.init(this, preferences);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         TetheringStateManager.getInstance().init(this);

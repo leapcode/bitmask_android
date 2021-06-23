@@ -155,4 +155,9 @@
   <string name="gateway_selection_automatic">Automatic</string>
   <string name="gateway_selection_current_location">Your traffic is currently routed through: </string>
 
+  <string name="tor_starting">Starting Tor with bridges.</string>
+  <string name="tor_stopping">Stopping Tor with bridges.</string>
+  <string name="tor_started">Running Tor with bridges to fetch provider configuration.</string>
+  <string name="tor_provider_setup">Using Bridges to configure provider.</string>
+
 </resources>

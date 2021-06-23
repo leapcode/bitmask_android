@@ -34,6 +34,7 @@ import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_PLUGGABLE_TRANSPORTS;
+import static se.leap.bitmaskclient.base.models.Constants.USE_TOR;
 
 /**
  * Created by cyberta on 18.03.18.
@@ -212,6 +213,18 @@ public class PreferenceHelper {
         putString(context, PREFERRED_CITY, city);
     }
 
+    public static Boolean useTor(SharedPreferences preferences) {
+        return preferences.getBoolean(USE_TOR, true);
+    }
+
+    public static boolean useTor(Context context) {
+        return getBoolean(context, USE_TOR, true);
+    }
+
+    public static void setUseTor(Context context, boolean useTor) {
+        putBoolean(context, USE_TOR, useTor);
+    }
+
     public static JSONObject getEipDefinitionFromPreferences(SharedPreferences preferences) {
         JSONObject result = new JSONObject();
         try {
@@ -278,5 +291,4 @@ public class PreferenceHelper {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putBoolean(key, value).apply();
     }
-
 }
