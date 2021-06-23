@@ -289,8 +289,10 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         if (isDefaultBitmask()) {
             IconTextEntry switchProvider = drawerView.findViewById(R.id.switch_provider);
             switchProvider.setVisibility(VISIBLE);
-            switchProvider.setOnClickListener(v ->
-                    getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER));
+            switchProvider.setOnClickListener(v -> {
+                closeDrawer();
+                getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
+            });
         }
     }
 
