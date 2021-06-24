@@ -47,7 +47,7 @@ public class TorNotificationManager {
         return notificationBuilder
                 .setSmallIcon(R.drawable.ic_bridge_36)
                 .setWhen(System.currentTimeMillis())
-                .setContentTitle(context.getString(R.string.tor_started)).build();
+                .setContentText(context.getString(R.string.tor_started)).build();
     }
 
     public void buildTorNotification(Context context, String state) {
@@ -60,7 +60,7 @@ public class TorNotificationManager {
                 .setSmallIcon(R.drawable.ic_bridge_36)
                 .setWhen(System.currentTimeMillis())
                 .setTicker(state)
-                .setContentTitle(state);
+                .setContentText(state);
         notificationManager.notify(TOR_SERVICE_NOTIFICATION_ID, notificationBuilder.build());
     }
 
