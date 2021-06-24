@@ -68,7 +68,11 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.STOP_PROXY;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
@@ -202,6 +206,13 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             case INCORRECTLY_DOWNLOADED_GEOIP_JSON:
                 maybeStartEipService(resultData);
                 break;
+            case PROVIDER_NOK:
+            case INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
+            case INCORRECTLY_DOWNLOADED_EIP_SERVICE:
+            case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
+                if (TorStatusObservable.getStatus() != OFF) {
+                    ProviderAPICommand.execute(context.getApplicationContext(), STOP_PROXY, null);
+                }
             default:
                 break;
         }
