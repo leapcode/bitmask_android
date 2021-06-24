@@ -19,11 +19,14 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
 import androidx.core.content.ContextCompat;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import butterknife.BindView;
-import butterknife.Optional;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.views.ProviderHeaderView;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.view.View.GONE;
@@ -37,7 +40,7 @@ import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
  * Created by fupduck on 09.01.18.
  */
 
-public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
+public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity implements Observer {
 
     private static final String TAG = ConfigWizardBaseActivity.class.getName();
     public static final float GUIDE_LINE_COMPACT_DELTA = 0.1f;
@@ -56,8 +59,12 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     protected ProgressBar progressBar;
 
     @Nullable
+    @BindView(R.id.progressbar_title)
+    protected AppCompatTextView progressbarTitle;
+
+    @Nullable
     @BindView(R.id.progressbar_description)
-    protected AppCompatTextView progressbarText;
+    protected AppCompatTextView progressbarDescription;
 
     //Only tablet layouts have guidelines as they are based on a ConstraintLayout
     @Nullable
@@ -142,12 +149,15 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
     protected void onPause() {
         super.onPause();
         isActivityShowing = false;
+        TorStatusObservable.getInstance().deleteObserver(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         isActivityShowing = true;
+        TorStatusObservable.getInstance().addObserver(this);
+        setProgressbarDescription(TorStatusObservable.getStringForCurrentStatus(this));
     }
 
     protected void restoreState(Bundle savedInstanceState) {
@@ -184,11 +194,18 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
         loadingScreen.setVisibility(VISIBLE);
     }
 
-    protected void setProgressbarText(@StringRes int progressbarText) {
-        if (this.progressbarText == null) {
+    protected void setProgressbarTitle(@StringRes int progressbarTitle) {
+        if (this.progressbarTitle == null) {
             return;
         }
-        this.progressbarText.setText(progressbarText);
+        this.progressbarTitle.setText(progressbarTitle);
+    }
+
+    protected void setProgressbarDescription(String progressbarDescription) {
+        if (this.progressbarDescription == null) {
+            return;
+        }
+        this.progressbarDescription.setText(progressbarDescription);
     }
 
 
@@ -287,4 +304,10 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity {
         });
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o instanceof TorStatusObservable) {
+            runOnUiThread(() -> setProgressbarDescription(TorStatusObservable.getStringForCurrentStatus(ConfigWizardBaseActivity.this)));
+        }
+    }
 }

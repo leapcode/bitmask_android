@@ -27,6 +27,8 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
 
 public class TorNotificationManager {
     public   final static int TOR_SERVICE_NOTIFICATION_ID = 10;
@@ -45,7 +47,7 @@ public class TorNotificationManager {
         return notificationBuilder
                 .setSmallIcon(R.drawable.ic_bridge_36)
                 .setWhen(System.currentTimeMillis())
-                .setContentTitle(context.getString(R.string.tor_provider_setup)).build();
+                .setContentTitle(context.getString(R.string.tor_started)).build();
     }
 
     public void buildTorNotification(Context context, String state) {
@@ -58,8 +60,7 @@ public class TorNotificationManager {
                 .setSmallIcon(R.drawable.ic_bridge_36)
                 .setWhen(System.currentTimeMillis())
                 .setTicker(state)
-                .setContentTitle(context.getString(R.string.tor_provider_setup))
-                .setContentText(state);
+                .setContentTitle(state);
         notificationManager.notify(TOR_SERVICE_NOTIFICATION_ID, notificationBuilder.build());
     }
 

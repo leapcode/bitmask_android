@@ -37,7 +37,7 @@ public class SignupActivity extends ProviderCredentialsBaseActivity {
         setProviderHeaderLogo(R.drawable.logo);
         setProviderHeaderText(R.string.create_profile);
 
-        setProgressbarText(R.string.signing_up);
+        setProgressbarTitle(R.string.signing_up);
         setButtonText(R.string.signup_button);
 
         passwordVerificationField.setVisibility(VISIBLE);

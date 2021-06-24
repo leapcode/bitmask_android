@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/loading_screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:visibility="gone">
+    android:visibility="gone"
+    tools:visibility="visible"
+    >
 
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="wrap_content"
@@ -18,7 +21,7 @@
         />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/progressbar_description"
+        android:id="@+id/progressbar_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fadingEdge="horizontal"
@@ -27,6 +30,21 @@
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
         android:layout_marginTop="@dimen/standard_margin"
         android:layout_marginBottom="@dimen/standard_margin"
+        tools:text="title"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/progressbar_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fadingEdge="horizontal"
+        android:singleLine="true"
+        android:text="@string/configuring_provider"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/standard_margin"
+        tools:text="test"
+        tools:visibility="visible"
         />
 
     <ProgressBar
