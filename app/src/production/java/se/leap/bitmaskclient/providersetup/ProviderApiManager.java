@@ -330,8 +330,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 responseString.contains(ERRORS)  &&
                 PreferenceHelper.useTor(preferences) &&
                 EipStatus.getInstance().isDisconnected() &&
-                TorStatusObservable.getStatus() == OFF ||
-                TorStatusObservable.getStatus() == UNKOWN) {
+                (TorStatusObservable.getStatus() == OFF ||
+                TorStatusObservable.getStatus() == UNKOWN)) {
             TorStatusObservable.setProxyPort(startTorProxy());
             return downloadWithCommercialCA(stringUrl, provider, 1);
         }
@@ -371,8 +371,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 responseString.contains(ERRORS)  &&
                 PreferenceHelper.useTor(preferences) &&
                 EipStatus.getInstance().isDisconnected() &&
-                TorStatusObservable.getStatus() == OFF ||
-                TorStatusObservable.getStatus() == UNKOWN) {
+                (TorStatusObservable.getStatus() == OFF ||
+                TorStatusObservable.getStatus() == UNKOWN)) {
             TorStatusObservable.setProxyPort(startTorProxy());
             return downloadFromUrlWithProviderCA(urlString, provider, 1);
         }
