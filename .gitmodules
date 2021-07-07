@@ -69,3 +69,6 @@
 [submodule "go/src/golang.org/x/tools"]
 	path = go/src/golang.org/x/tools
 	url = https://github.com/golang/tools.git
+[submodule "tor-android"]
+	path = tor-android
+	url = https://0xacab.org/leap/android_snowflake/tor-android.git
