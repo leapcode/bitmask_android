@@ -9,7 +9,7 @@ SCRIPT_DIR=$(dirname "$0")
 BASE_DIR="$SCRIPT_DIR/.."
 DIR_OVPNASSETS=./ics-openvpn/main/build/ovpnassets
 DIR_OVPNLIBS=./ics-openvpn/main/build/intermediates/cmake/noovpn3/release/obj
-DIR_GOLIBS=./go/lib/
+DIR_GOLIBS=./bitmaskcore/lib/
 FILE_X86=./go/out/x86/piedispatcherlib
 FILE_ARM=./go/out/armeabi-v7a/piedispatcherlib
 
@@ -32,9 +32,11 @@ then
     echo "Dirty build: Reusing go libraries"
 else
     echo "Clean build: compiling Go libraries"
-    cd ./go || quit "Directory go not found"
-    ./install_go.sh || quit "install_go.sh failed"
-    ./android_build_web_core.sh || quit "android_build_web_core.sh (shapeshifter + pgpverify) failed"
-    ./android_build_core.sh || quit "android build core (shapeshifter) failed"
+    cd ./bitmaskcore || quit "Directory go not found"
+    if [[ ! -d lib ]]
+    then
+        mkdir lib
+    fi
+    ./build_core.sh
     cd ..
 fi
