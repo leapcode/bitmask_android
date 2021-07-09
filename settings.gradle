@@ -1,1 +1,1 @@
-include ':app', ':bitmask-core', ':bitmask-web-core'
+include ':app', ':bitmask-core', ':bitmask-web-core', ':bitmaskcore', ':tor-android'
