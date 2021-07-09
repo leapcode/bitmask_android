@@ -394,12 +394,12 @@ dependencies {
   implementation 'info.guardianproject:tor-android:0.4.5.7'
   implementation 'info.guardianproject:jtorctl:0.4.5.7'
 
-  fatwebImplementation project(path: ':bitmask-web-core')
-  fatImplementation project(path: ':bitmask-core')
-  x86Implementation project(path: ':bitmask-core')
-  x86_64Implementation project(path: ':bitmask-core')
-  armv7Implementation project(path: ':bitmask-core')
-  arm64Implementation project(path: ':bitmask-core')
+  fatwebImplementation project(path: ':lib-bitmask-core-web')
+  fatImplementation project(path: ':lib-bitmask-core')
+  x86Implementation project(path: ':lib-bitmask-core-x86')
+  x86_64Implementation project(path: ':lib-bitmask-core-x86_64')
+  armv7Implementation project(path: ':lib-bitmask-core-armv7')
+  arm64Implementation project(path: ':lib-bitmask-core-arm64')
 }
 
 android.applicationVariants.all { variant ->

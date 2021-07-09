@@ -1,1 +1,1 @@
-include ':app', ':bitmask-core', ':bitmask-web-core', ':bitmaskcore', ':tor-android'
+include ':app', ':lib-bitmask-core', ':lib-bitmask-core-web', ':lib-bitmask-core-arm64', ':lib-bitmask-core-armv7', ':lib-bitmask-core-x86', ':lib-bitmask-core-x86_64', ':bitmaskcore', ':tor-android'
