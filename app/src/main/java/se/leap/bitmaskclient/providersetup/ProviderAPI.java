@@ -39,6 +39,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
+import se.leap.bitmaskclient.tor.IPtProxyWrapper;
 import se.leap.bitmaskclient.tor.TorNotificationManager;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
@@ -202,6 +203,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             try {
                 if (torServiceConnection == null) {
                     Log.d(TAG, "serviceConnection is still null");
+                    TorService.setIPtProxy(new IPtProxyWrapper());
                     torServiceConnection = new TorServiceConnection(context);
                 }
             } catch (InterruptedException | IllegalStateException e) {

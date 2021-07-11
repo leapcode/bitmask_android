@@ -250,6 +250,7 @@ android {
                         ]
       jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/skeletonRelease/obj/']
       jni.srcDirs = [] //disable automatic ndk-build
+
     }
     debug {
       assets.srcDirs = ['src/debug/assets',
@@ -391,8 +392,11 @@ dependencies {
   implementation 'androidx.cardview:cardview:1.0.0'
   implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
   implementation 'de.hdodenhof:circleimageview:3.1.0'
-  implementation 'info.guardianproject:tor-android:0.4.5.7'
-  implementation 'info.guardianproject:jtorctl:0.4.5.7'
+
+
+  //implementation 'info.guardianproject:tor-android:0.4.5.7'
+  //implementation 'info.guardianproject:jtorctl:0.4.5.7'
+  implementation project(path: ':tor-android:tor-android-binary')
 
   fatwebImplementation project(path: ':lib-bitmask-core-web')
   fatImplementation project(path: ':lib-bitmask-core')
