@@ -230,6 +230,9 @@ android {
       applicationIdSuffix ".beta"
       appSuffix = " Beta"
       buildConfigField "Boolean", "DEBUG_MODE", "true"
+
+      // tor-android doesn't know this build-type, fallback to release in that case
+      matchingFallbacks = ['release']
     }
     debug {
       testCoverageEnabled = true
@@ -445,7 +448,8 @@ android.applicationVariants.all { variant ->
                                                                                   'urls/',
                                                                                   '*.url',
                                                                                   '*.json',
-                                                                                  '*.pem'])
+                                                                                  '*.pem',
+                                                                                  'fronts'])
       delete(filesToDelete)
     }
   }
