@@ -166,7 +166,6 @@ public abstract class ProviderApiManagerBase {
     }
 
     public void handleIntent(Intent command) {
-//        Log.d(TAG, "handleIntent was called!");
         ResultReceiver receiver = null;
         if (command.getParcelableExtra(RECEIVER_KEY) != null) {
             receiver = command.getParcelableExtra(RECEIVER_KEY);
