@@ -34,8 +34,8 @@ import org.torproject.jni.TorService;
 import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
-import se.leap.bitmaskclient.providersetup.ProviderDetailActivity;
 import se.leap.bitmaskclient.providersetup.ProviderApiSetupBroadcastReceiver;
+import se.leap.bitmaskclient.providersetup.ProviderDetailActivity;
 import se.leap.bitmaskclient.providersetup.ProviderManager;
 import se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog;
 import se.leap.bitmaskclient.providersetup.ProviderSetupInterface;
@@ -60,7 +60,7 @@ import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
  */
 
 public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity implements ProviderSetupInterface, ProviderSetupFailedDialog.DownloadFailedDialogInterface {
-    final public static String TAG = "PoviderSetupActivity";
+    final public static String TAG = "ProviderSetupActivity";
     final private static String ACTIVITY_STATE = "ACTIVITY STATE";
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
 
@@ -207,7 +207,7 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     /**
      * Once selected a provider, this fragment offers the user to log in,
      * use it anonymously (if possible)
-     * or cancel his/her election pressing the back button.
+     * or cancel their selection pressing the back button.
      */
     public void showProviderDetails() {
         // show only if current activity is shown
