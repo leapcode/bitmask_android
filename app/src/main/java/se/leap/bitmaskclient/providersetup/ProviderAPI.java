@@ -243,6 +243,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
+                    torService = null;
                 }
             };
             Intent intent = new Intent(context, TorService.class);
