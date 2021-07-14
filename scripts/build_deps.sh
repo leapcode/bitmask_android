@@ -10,9 +10,11 @@ BASE_DIR="$SCRIPT_DIR/.."
 DIR_OVPNASSETS=./ics-openvpn/main/build/ovpnassets
 DIR_OVPNLIBS=./ics-openvpn/main/build/intermediates/cmake/noovpn3/release/obj
 DIR_GOLIBS=./bitmaskcore/lib/
-FILE_X86=./go/out/x86/piedispatcherlib
-FILE_ARM=./go/out/armeabi-v7a/piedispatcherlib
-
+#FILE_X86=./go/out/x86/piedispatcherlib
+#FILE_ARM=./go/out/armeabi-v7a/piedispatcherlib
+DIR_TORLIBS=./tor-android/external/lib
+NDK_VERSION=`cat $ANDROID_NDK_HOME/source.properties | grep Pkg.Revision | cut -d "=" -f2 | sed 's/ //g'`
+EXPECTED_NDK_VERSION="21.4.7075529"
 # init
 # look for empty dir
 
@@ -51,4 +53,28 @@ else
     cp lib/bitmaskcore_x86_64.aar ../lib-bitmask-core-x86_64/.
     cp lib/bitmaskcore_x86_64-sources.jar ../lib-bitmask-core-x86_64/.
 
+    cd ..
+fi
+
+if [[ $(ls -A ${DIR_TORLIBS}) ]]
+then
+  echo "Dirty build: Reusing tor libraries"
+else
+  echo "Clean build: compiling tor libraries"
+  if [[ ! -d $DIR_TORLIBS ]]
+  then
+    mkdir $DIR_TORLIBS
+  fi
+
+  cd ./tor-android
+
+  if [[ $NDK_VERSION == $EXPECTED_NDK_VERSION ]]
+  then
+    ./tor-droid-make.sh fetch -c
+    ./tor-droid-make.sh build -b release
+  else
+    echo "expected NDK VERSION: $EXPECTED_NDK_VERSION. But found: $NDK_VERSION"
+  fi
+
+  cd ..
 fi
