@@ -192,7 +192,9 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             try {
                 if (torServiceConnection == null) {
                     Log.d(TAG, "serviceConnection is still null");
-                    TorService.setClientTransportPlugin(new ClientTransportPlugin(context.getApplicationContext()));
+                    if (!TorService.hasClientTransportPlugin()) {
+                        TorService.setClientTransportPlugin(new ClientTransportPlugin(context.getApplicationContext()));
+                    }
                     torServiceConnection = new TorServiceConnection(context);
                 }
             } catch (InterruptedException | IllegalStateException e) {
