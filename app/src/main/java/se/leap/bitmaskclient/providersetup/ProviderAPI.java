@@ -168,7 +168,10 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
                 getApplicationContext().startService(torServiceIntent);
             }
 
-            return torServiceConnection.torService.getHttpTunnelPort();
+            int tunnelPort = torServiceConnection.torService.getHttpTunnelPort();
+            torServiceConnection.close();
+            torServiceConnection = null;
+            return tunnelPort;
         }
 
         return -1;
