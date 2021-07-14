@@ -73,7 +73,6 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLO
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.STOP_PROXY;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
 /**
@@ -211,7 +210,8 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             case INCORRECTLY_DOWNLOADED_EIP_SERVICE:
             case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 if (TorStatusObservable.getStatus() != OFF) {
-                    ProviderAPICommand.execute(context.getApplicationContext(), STOP_PROXY, null);
+                    Intent stopIntent = new Intent(context, TorService.class);
+                    context.stopService(stopIntent);
                 }
             default:
                 break;
@@ -360,7 +360,8 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         observedProfileFromVpnStatus = null;
         this.changingGateway.set(changingGateway);
         if (TorStatusObservable.getStatus() != OFF) {
-            ProviderAPICommand.execute(context.getApplicationContext(), STOP_PROXY, null);
+            Intent intent = new Intent(context, TorService.class);
+            context.stopService(intent);
         }
     }
 

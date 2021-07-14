@@ -29,6 +29,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.torproject.jni.TorService;
 
 import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.base.models.Provider;
@@ -38,6 +39,7 @@ import se.leap.bitmaskclient.providersetup.ProviderApiSetupBroadcastReceiver;
 import se.leap.bitmaskclient.providersetup.ProviderManager;
 import se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog;
 import se.leap.bitmaskclient.providersetup.ProviderSetupInterface;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
@@ -51,6 +53,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderSetupInterface.Provide
 import static se.leap.bitmaskclient.providersetup.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupInterface.ProviderConfigState.SHOWING_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupInterface.ProviderConfigState.SHOW_FAILED_DIALOG;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
 /**
  * Created by cyberta on 19.08.18.
@@ -90,7 +93,7 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
         } else if (SHOW_FAILED_DIALOG == providerConfigState) {
             showProgressBar();
         } else if (SHOWING_PROVIDER_DETAILS == providerConfigState) {
-            cancelSettingUpProvider();
+            cancelSettingUpProvider(false);
         } else if (PENDING_SHOW_PROVIDER_DETAILS == providerConfigState) {
             showProviderDetails();
         }
@@ -156,15 +159,23 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     // -------- DownloadFailedDialogInterface ---v
     @Override
     public void cancelSettingUpProvider() {
-        providerConfigState = PROVIDER_NOT_SET;
-        provider = null;
-        hideProgressBar();
+       cancelSettingUpProvider(true);
     }
 
     @Override
     public void updateProviderDetails() {
         providerConfigState = SETTING_UP_PROVIDER;
         ProviderAPICommand.execute(this, UPDATE_PROVIDER_DETAILS, provider);
+    }
+
+    public void cancelSettingUpProvider(boolean stopTor) {
+        if (stopTor && TorStatusObservable.getStatus() != OFF) {
+            Intent torServiceIntent = new Intent(getApplicationContext(), TorService.class);
+            stopService(torServiceIntent);
+        }
+        providerConfigState = PROVIDER_NOT_SET;
+        provider = null;
+        hideProgressBar();
     }
 
     protected void restoreState(Bundle savedInstanceState) {

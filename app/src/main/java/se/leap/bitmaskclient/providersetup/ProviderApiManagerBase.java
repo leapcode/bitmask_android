@@ -149,8 +149,7 @@ public abstract class ProviderApiManagerBase {
 
     public interface ProviderApiServiceCallback {
         void broadcastEvent(Intent intent);
-        int initTorConnection();
-        void stopTorConnection();
+        int getTorHttpTunnelPort();
     }
 
     private final ProviderApiServiceCallback serviceCallback;
@@ -285,9 +284,6 @@ public abstract class ProviderApiManagerBase {
                     }
                     ProviderObservable.getInstance().setProviderForDns(null);
                 }
-                break;
-            case STOP_PROXY:
-                serviceCallback.stopTorConnection();
                 break;
         }
     }

@@ -174,17 +174,6 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
         return -1;
     }
 
-    @Override
-    public void stopTorConnection() {
-        if (TorStatusObservable.getStatus() != OFF) {
-            TorStatusObservable.updateState(this, STOPPING.toString());
-            initTorServiceConnection(this);
-            if (torServiceConnection != null) {
-                torServiceConnection.torService.stopSelf();
-            }
-        }
-    }
-
     private ProviderApiManager initApiManager() {
         SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(getResources());
