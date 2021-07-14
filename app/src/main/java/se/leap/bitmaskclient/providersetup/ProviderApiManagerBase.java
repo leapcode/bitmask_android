@@ -291,7 +291,7 @@ public abstract class ProviderApiManagerBase {
     protected int startTorProxy() {
         int port = -1;
         if (PreferenceHelper.useTor(preferences) && EipStatus.getInstance().isDisconnected() ) {
-            port = serviceCallback.initTorConnection();
+            port = serviceCallback.getTorHttpTunnelPort();
             if (port != -1) {
                 try {
                     waitForTorCircuits();

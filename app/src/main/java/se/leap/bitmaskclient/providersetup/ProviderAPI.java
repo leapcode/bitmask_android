@@ -154,7 +154,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
 
 
     @Override
-    public int initTorConnection() {
+    public int getTorHttpTunnelPort() {
         initTorServiceConnection(this);
         if (torServiceConnection != null) {
             Intent torServiceIntent = new Intent(this, TorService.class);
