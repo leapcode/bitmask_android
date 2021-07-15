@@ -13,13 +13,21 @@ DIR_GOLIBS=./bitmaskcore/lib/
 #FILE_X86=./go/out/x86/piedispatcherlib
 #FILE_ARM=./go/out/armeabi-v7a/piedispatcherlib
 DIR_TORLIBS=./tor-android/external/lib
-NDK_VERSION=`cat $ANDROID_NDK_HOME/source.properties | grep Pkg.Revision | cut -d "=" -f2 | sed 's/ //g'`
 EXPECTED_NDK_VERSION="21.4.7075529"
 # init
 # look for empty dir
 
 cd $BASE_DIR
 
+# try to set the expected ndk version
+if [[ $(ls -A ${ANDROID_HOME}/ndk/${EXPECTED_NDK_VERSION}) ]]
+then
+  ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/${EXPECTED_NDK_VERSION}
+fi
+NDK_VERSION=`cat $ANDROID_NDK_HOME/source.properties | grep Pkg.Revision | cut -d "=" -f2 | sed 's/ //g'`
+
+
+# build tor libs
 if [[ $(ls -A ${DIR_TORLIBS}) ]]
 then
   echo "Dirty build: Reusing tor libraries"
@@ -40,6 +48,7 @@ else
   cd ..
 fi
 
+# build openvpn libs
 if [[ $(ls -A ${DIR_OVPNASSETS}) && $(ls -A ${DIR_OVPNLIBS}) ]]
 then
     echo "Dirty build: skipped externalNativeBuild - reusing existing libs"
@@ -50,6 +59,7 @@ else
     cd ..
 fi
 
+# build bitmask core (shapeshifter, snowflake, pgpverify)
 if [[ $(ls -A ${DIR_GOLIBS}) ]]
 then
     echo "Dirty build: Reusing go libraries"
