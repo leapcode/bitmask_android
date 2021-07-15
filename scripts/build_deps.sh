@@ -19,6 +19,27 @@ EXPECTED_NDK_VERSION="21.4.7075529"
 # look for empty dir
 
 cd $BASE_DIR
+
+if [[ $(ls -A ${DIR_TORLIBS}) ]]
+then
+  echo "Dirty build: Reusing tor libraries"
+else
+  echo "Clean build: compiling tor libraries"
+  if [[ ! -d $DIR_TORLIBS ]]
+  then
+    mkdir $DIR_TORLIBS
+  fi
+  cd ./tor-android
+  if [[ $NDK_VERSION == $EXPECTED_NDK_VERSION ]]
+  then
+    ./tor-droid-make.sh fetch -c || quit "failed to checkout tor dependencies"
+    ./tor-droid-make.sh build -b release || quit "failed to build tor release binaries"
+  else
+    quit "expected NDK VERSION: $EXPECTED_NDK_VERSION. But found: $NDK_VERSION"
+  fi
+  cd ..
+fi
+
 if [[ $(ls -A ${DIR_OVPNASSETS}) && $(ls -A ${DIR_OVPNLIBS}) ]]
 then
     echo "Dirty build: skipped externalNativeBuild - reusing existing libs"
@@ -52,29 +73,5 @@ else
     cp lib/bitmaskcore_x86-sources.jar ../lib-bitmask-core-x86/.
     cp lib/bitmaskcore_x86_64.aar ../lib-bitmask-core-x86_64/.
     cp lib/bitmaskcore_x86_64-sources.jar ../lib-bitmask-core-x86_64/.
-
     cd ..
-fi
-
-if [[ $(ls -A ${DIR_TORLIBS}) ]]
-then
-  echo "Dirty build: Reusing tor libraries"
-else
-  echo "Clean build: compiling tor libraries"
-  if [[ ! -d $DIR_TORLIBS ]]
-  then
-    mkdir $DIR_TORLIBS
-  fi
-
-  cd ./tor-android
-
-  if [[ $NDK_VERSION == $EXPECTED_NDK_VERSION ]]
-  then
-    ./tor-droid-make.sh fetch -c || quit "failed to checkout tor dependencies"
-    ./tor-droid-make.sh build -b release || quit "failed to build tor release binaries"
-  else
-    quit "expected NDK VERSION: $EXPECTED_NDK_VERSION. But found: $NDK_VERSION"
-  fi
-
-  cd ..
 fi
