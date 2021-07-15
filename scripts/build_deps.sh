@@ -70,10 +70,10 @@ else
 
   if [[ $NDK_VERSION == $EXPECTED_NDK_VERSION ]]
   then
-    ./tor-droid-make.sh fetch -c
-    ./tor-droid-make.sh build -b release
+    ./tor-droid-make.sh fetch -c || quit "failed to checkout tor dependencies"
+    ./tor-droid-make.sh build -b release || quit "failed to build tor release binaries"
   else
-    echo "expected NDK VERSION: $EXPECTED_NDK_VERSION. But found: $NDK_VERSION"
+    quit "expected NDK VERSION: $EXPECTED_NDK_VERSION. But found: $NDK_VERSION"
   fi
 
   cd ..
