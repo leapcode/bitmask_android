@@ -10,6 +10,7 @@ rm -r $BASE_DIR/ics-openvpn
 rm -r $BASE_DIR/build
 rm -r $BASE_DIR/app/build
 rm -r $BASE_DIR/bitmaskcore/lib/*
+rm -r $BASE_DIR/bitmaskcore/golang/
 rm -r $BASE_DIR/currentReleases
 rm -r $BASE_DIR/tor-android/build
 rm -r $BASE_DIR/tor-android/tor-android-binary/build
