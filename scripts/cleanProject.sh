@@ -18,5 +18,6 @@ rm -r $BASE_DIR/tor-android/external/bin
 rm -r $BASE_DIR/tor-android/external/include/
 rm -r $BASE_DIR/tor-android/external/*.build-stamp
 rm -r $BASE_DIR/tor-android/external/lib
+git submodule foreach --recursive git reset --hard HEAD
 git submodule sync --recursive
 git submodule update --init --recursive
