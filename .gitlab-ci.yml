@@ -11,7 +11,7 @@ variables:
   DOCKER_DRIVER: overlay
 
 .job_template: &build_docker_image
-  image: 0xacab.org:4567/leap/docker/debian:stretch_amd64
+  image: 0xacab.org:4567/leap/docker/debian:buster_amd64
   tags:
     - docker-in-docker
   services:
