@@ -35,7 +35,7 @@ public class VpnTestController {
     }
 
     protected Button getVpnButton() {
-        View button_view = solo.getView(R.id.vpn_main_button);
+        View button_view = solo.getView(R.id.gateway_location_button);
         if (button_view != null)
             return (Button) button_view;
         else

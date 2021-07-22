@@ -155,7 +155,8 @@
   <string name="gateway_selection_best_location">Location with best connection</string>
   <string name="gateway_selection_automatic">Automatic</string>
   <string name="gateway_selection_current_location">Your traffic is currently routed through: </string>
-
+  <string name="finding_best_connection">Finding best connection…</string>
+  <string name="reconnecting">Reconnecting…</string>
   <string name="tor_starting">Starting bridges for censorship circumvention…</string>
   <string name="tor_stopping">Stopping bridges.</string>
   <string name="tor_started">Using bridges for censorship circumvention.</string>
@@ -180,6 +181,5 @@
   <string name="retry_unobfuscated">Retry unobfuscated</string>
   <string name="hide_connection_details">Hide connection details</string>
   <string name="error_network_connection">%s has no internet connection. Please check your WiFi and cellular data settings.</string>
-
 
 </resources>
