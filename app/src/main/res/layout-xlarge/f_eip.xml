@@ -80,53 +80,21 @@
         app:layout_constraintTop_toTopOf="@+id/guideline_horizontal_top"
         app:layout_constraintDimensionRatio="1:1" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/vpn_main_button"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:minWidth="200dp"
+
+    <se.leap.bitmaskclient.base.views.LocationButton
+        android:id="@+id/gateway_location_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/stdpadding"
         android:layout_marginEnd="@dimen/stdpadding"
         android:layout_marginStart="@dimen/stdpadding"
         android:layout_marginTop="@dimen/stdpadding"
         android:layout_marginLeft="@dimen/stdpadding"
         android:layout_marginRight="@dimen/stdpadding"
-        android:paddingLeft="@dimen/stdpadding"
-        android:paddingRight="@dimen/stdpadding"
         app:layout_constraintBottom_toBottomOf="@+id/background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:text="@string/vpn.button.turn.on"
-        tools:text="Turn on in another language"
-        style="@style/BitmaskButtonBlack"
-        />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/routed_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/stdpadding"
-        android:paddingRight="@dimen/stdpadding"
-        android:paddingStart="@dimen/stdpadding"
-        android:paddingEnd="@dimen/stdpadding"
-        android:text="@string/vpn_securely_routed"
-        android:gravity="center"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eipLabel" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/vpn_route"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/stdpadding"
-        android:paddingRight="@dimen/stdpadding"
-        android:paddingStart="@dimen/stdpadding"
-        android:paddingEnd="@dimen/stdpadding"
-        android:gravity="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routed_text" />
+        tools:text="SEATTLE"
+        android:gravity="center_vertical" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

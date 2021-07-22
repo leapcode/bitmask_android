@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
@@ -58,6 +59,37 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
  * @author parmegv
  */
 public class GatewaysManager {
+
+    public enum Load {
+        UNKNOWN(0),
+        GOOD(0.25),
+        AVERAGE(0.75),
+        CRITICAL(1.0);
+
+        private final double value;
+
+        Load(double i) {
+            value = i;
+        }
+
+        public static Load getLoadByValue(double value) {
+            if (value == UNKNOWN.value) {
+                return UNKNOWN;
+            } else if (value <= GOOD.value) {
+                return GOOD;
+            } else if (value <= AVERAGE.value) {
+                return AVERAGE;
+            } else if (value <= CRITICAL.value) {
+                return CRITICAL;
+            } else {
+                return UNKNOWN;
+            }
+        }
+
+        public double getValue() {
+            return value;
+        }
+    }
 
     private static final String TAG = GatewaysManager.class.getSimpleName();
 
@@ -115,6 +147,22 @@ public class GatewaysManager {
         }
 
         return locations;
+    }
+
+    public Load getLoadForLocation(@Nullable String name) {
+        List <Location> locations = getGatewayLocations();
+        for (Location location : locations) {
+            if (location.name.equals(name)) {
+
+                // fake values for now
+                Random rand = new Random();
+                double averageLoad = rand.nextDouble(); //location.averageLoad;
+                return Load.getLoadByValue(averageLoad);
+            }
+        }
+
+        // location not found
+        return Load.UNKNOWN;
     }
 
     private Gateway getGatewayFromTimezoneCalculation(int nClosest, Connection.TransportType transportType, @Nullable String city) {
@@ -326,4 +374,6 @@ public class GatewaysManager {
          }
 
     }
+
+
 }
