@@ -56,6 +56,7 @@ import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
+import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.views.LocationButton;
@@ -168,6 +169,7 @@ public class EipFragment extends Fragment implements Observer {
 
         gatewaysManager = new GatewaysManager(getContext());
 
+
     }
 
     @Override
@@ -189,6 +191,11 @@ public class EipFragment extends Fragment implements Observer {
         }
 
         restoreFromSavedInstance(savedInstanceState);
+        locationButton.setOnClickListener(v -> {
+                FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
+                Fragment fragment = new GatewaySelectionFragment();
+                fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
+        });
         return view;
     }
 

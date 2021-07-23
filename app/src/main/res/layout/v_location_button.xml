@@ -4,8 +4,6 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_gravity="center_vertical"
-    android:clickable="true"
-    android:focusable="true"
     android:padding="@dimen/stdpadding"
     android:background="@drawable/cust_button_primary_rect"
     android:layout_height="wrap_content">
