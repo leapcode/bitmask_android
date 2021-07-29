@@ -46,6 +46,7 @@ import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.IconSwitchEntry;
+import se.leap.bitmaskclient.base.views.LocationIndicator;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
@@ -189,7 +190,7 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             public AppCompatTextView locationLabel;
-            public AppCompatTextView qualityLabel;
+            public LocationIndicator locationIndicator;
             public AppCompatImageView checkedIcon;
             public View layout;
 
@@ -197,7 +198,7 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
                 super(v);
                 layout = v;
                 locationLabel = (AppCompatTextView) v.findViewById(R.id.location);
-                qualityLabel = (AppCompatTextView) v.findViewById(R.id.quality);
+                locationIndicator = (LocationIndicator) v.findViewById(R.id.quality);
                 checkedIcon = (AppCompatImageView) v.findViewById(R.id.checked_icon);
             }
         }
@@ -263,7 +264,7 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
             DrawableCompat.setTint(checkIcon, ContextCompat.getColor(holder.layout.getContext(), R.color.colorSuccess));
             holder.checkedIcon.setImageDrawable(checkIcon);
             holder.checkedIcon.setVisibility(location.selected ? VISIBLE : INVISIBLE);
-            holder.qualityLabel.setText(getQualityString(location.averageLoad));
+            holder.locationIndicator.setLoad(GatewaysManager.Load.getLoadByValue(location.averageLoad));
             if (location.selected) {
                 selectedLocation = location;
             }

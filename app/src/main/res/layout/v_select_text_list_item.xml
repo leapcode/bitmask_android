@@ -19,20 +19,13 @@
         tools:visibility="visible"
         />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <se.leap.bitmaskclient.base.views.LocationIndicator
         android:id="@+id/quality"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceListItem"
-        android:gravity="center_vertical"
-        android:paddingStart="@dimen/standard_margin"
-        android:paddingLeft="@dimen/standard_margin"
-        android:paddingEnd="@dimen/standard_margin"
-        android:paddingRight="@dimen/standard_margin"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall"
-        android:layout_toLeftOf="@id/checked_icon"
-        android:layout_toStartOf="@id/checked_icon"
-        tools:text="GOOD"
+        android:layout_width="56dp"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@+id/checked_icon"
+        android:layout_toStartOf="@+id/checked_icon"
+        tools:visibility="visible"
         />
 
     <androidx.appcompat.widget.AppCompatTextView

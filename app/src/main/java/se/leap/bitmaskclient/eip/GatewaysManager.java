@@ -130,9 +130,15 @@ public class GatewaysManager {
         while ((gateway = select(n, null)) != null) {
             if (!locationNames.containsKey(gateway.getName())) {
                 locationNames.put(gateway.getName(), locations.size());
+                // fake values for now
+                Random rand = new Random();
+                double averageLoad = rand.nextDouble(); //location.averageLoad;
+
+
                 Location location = new Location(
                         gateway.getName(),
-                        gateway.getFullness(),
+                        averageLoad
+                        /*gateway.getFullness()*/,
                         1,
                         gateway.getName().equals(selectedCity));
                 locations.add(location);
@@ -153,11 +159,7 @@ public class GatewaysManager {
         List <Location> locations = getGatewayLocations();
         for (Location location : locations) {
             if (location.name.equals(name)) {
-
-                // fake values for now
-                Random rand = new Random();
-                double averageLoad = rand.nextDouble(); //location.averageLoad;
-                return Load.getLoadByValue(averageLoad);
+                return Load.getLoadByValue(location.averageLoad);
             }
         }
 
