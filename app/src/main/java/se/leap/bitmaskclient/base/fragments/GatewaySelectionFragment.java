@@ -18,7 +18,6 @@ package se.leap.bitmaskclient.base.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +27,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -39,6 +39,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Location;
@@ -48,18 +49,15 @@ import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 
 interface LocationListSelectionListener {
     void onLocationSelected(String name);
 }
 
-public class GatewaySelectionFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, Observer, LocationListSelectionListener {
+public class GatewaySelectionFragment extends Fragment implements Observer, LocationListSelectionListener {
 
     private static final String TAG = GatewaySelectionFragment.class.getSimpleName();
 
@@ -70,7 +68,6 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
     private AppCompatTextView currentLocation;
     private AppCompatButton autoSelectionButton;
     private GatewaysManager gatewaysManager;
-    private SharedPreferences preferences;
     private EipStatus eipStatus;
 
     public GatewaySelectionFragment() {
@@ -81,7 +78,6 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gatewaysManager = new GatewaysManager(getContext());
-        preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         eipStatus = EipStatus.getInstance();
     }
 
@@ -98,18 +94,13 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
         initRecyclerView();
         initAutoSelectionButton();
         initCurrentLocationInfoPanel();
-        eipStatus.addObserver(this);
-        preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        preferences.unregisterOnSharedPreferenceChangeListener(this);
         eipStatus.deleteObserver(this);
     }
-
-
 
     private void initRecyclerView() {
         recyclerView = getActivity().findViewById(R.id.gatewaySelection_list);
@@ -163,13 +154,6 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (USE_BRIDGES.equals(key)) {
-            locationListAdapter.updateData(gatewaysManager.getGatewayLocations());
-        }
-    }
-
-    @Override
     public void onLocationSelected(String name) {
         startEipService(name);
     }
@@ -193,6 +177,7 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
         static class ViewHolder extends RecyclerView.ViewHolder {
             public AppCompatTextView locationLabel;
             public LocationIndicator locationIndicator;
+            public AppCompatImageView bridgeView;
             public View layout;
 
             public ViewHolder(View v) {
@@ -200,6 +185,7 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
                 layout = v;
                 locationLabel = v.findViewById(R.id.location);
                 locationIndicator = v.findViewById(R.id.quality);
+                bridgeView = v.findViewById(R.id.bridge_image);
             }
         }
 
@@ -246,6 +232,7 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
                 }
             });
             holder.locationIndicator.setLoad(GatewaysManager.Load.getLoadByValue(location.averageLoad));
+            holder.bridgeView.setVisibility(location.supportedTransports.contains(Connection.TransportType.OBFS4) ? VISIBLE : View.GONE);
         }
 
 

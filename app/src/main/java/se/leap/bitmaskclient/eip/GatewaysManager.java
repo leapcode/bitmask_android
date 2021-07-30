@@ -43,7 +43,6 @@ import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
@@ -121,13 +120,20 @@ public class GatewaysManager {
         return getGatewayFromTimezoneCalculation(nClosest, transportType, city);
     }
 
+    public ArrayList<Gateway> getSortedGateways() {
+        if (presortedList.size() > 0) {
+            return presortedList;
+        } else {
+            GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
+            return gatewaySelector.getGatewaysSortedByDistance();
+        }
+    }
+
     public List<Location> getGatewayLocations() {
-        String selectedCity = PreferenceHelper.getPreferredCity(context);
         HashMap<String, Integer> locationNames = new HashMap<>();
         ArrayList<Location> locations = new ArrayList<>();
-        int n = 0;
-        Gateway gateway;
-        while ((gateway = select(n, null)) != null) {
+        ArrayList<Gateway> gateways = getSortedGateways();
+        for (Gateway gateway : gateways) {
             String name = gateway.getName();
             if (name == null) {
                 Log.e(TAG, "Gateway without location name found. This should never happen. Provider misconfigured?");
@@ -139,23 +145,25 @@ public class GatewaysManager {
                 // fake values for now
                 Random rand = new Random();
                 double averageLoad = rand.nextDouble(); //location.averageLoad;
-                Log.d(TAG, "getGatewayLocations - new averageLoad (" + gateway.getName() + "): " + averageLoad);
+                Log.d(TAG, "getGatewayLocations - new averageLoad (" + gateway.getName() + " - " + gateway.getHost()+ "): " + averageLoad);
 
                 Location location = new Location(
                         gateway.getName(),
                         averageLoad
                         /*gateway.getFullness()*/,
-                        1);
+                        1,
+                        gateway.getSupportedTransports()
+                        );
                 locations.add(location);
             } else {
                 int index = locationNames.get(gateway.getName());
                 Location location = locations.get(index);
                 location.averageLoad = (location.numberOfGateways * location.averageLoad + gateway.getFullness()) / (location.numberOfGateways + 1);
-                Log.d(TAG, "getGatewayLocations - updated averageLoad: (" + gateway.getName() + "): " + location.averageLoad);
+                Log.d(TAG, "getGatewayLocations - updated averageLoad: (" + gateway.getName() + " - " + gateway.getHost()+ "): " + location.averageLoad);
                 location.numberOfGateways += 1;
+                location.supportedTransports.addAll(gateway.getSupportedTransports());
                 locations.set(index, location);
             }
-            n++;
         }
 
         return locations;

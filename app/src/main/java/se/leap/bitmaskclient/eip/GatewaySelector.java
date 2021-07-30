@@ -2,6 +2,8 @@ package se.leap.bitmaskclient.eip;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,15 @@ public class GatewaySelector {
     public GatewaySelector(List<Gateway> gateways) {
         this.gateways = gateways;
         this.offsets = calculateOffsets();
+    }
 
+    public ArrayList<Gateway> getGatewaysSortedByDistance() {
+        ArrayList<Gateway> list = new ArrayList<>();
+        int i = 0;
+        for (Collection<Gateway> gatewayCollection : offsets.values()) {
+            list.addAll(gatewayCollection);
+        }
+        return list;
     }
 
     public Gateway select() {

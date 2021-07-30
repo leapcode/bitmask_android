@@ -195,6 +195,10 @@ public class Gateway {
         return vpnProfiles.get(transportType) != null;
     }
 
+    public HashSet<Connection.TransportType> getSupportedTransports() {
+        return new HashSet<>(vpnProfiles.keySet());
+    }
+
     public int getTimezone() {
         return timezone;
     }
