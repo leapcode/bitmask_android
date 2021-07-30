@@ -45,16 +45,21 @@ import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.LocationIndicator;
+import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
+import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_DIALOG_FRAGMENT;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
+import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
 
 interface LocationListSelectionListener {
-    void onLocationSelected(String name);
+    void onLocationSelected(Location location);
 }
 
 public class GatewaySelectionFragment extends Fragment implements Observer, LocationListSelectionListener {
@@ -154,8 +159,24 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     }
 
     @Override
-    public void onLocationSelected(String name) {
-        startEipService(name);
+    public void onLocationSelected(Location location) {
+        String name = location.name;
+        Connection.TransportType selectedTransport = PreferenceHelper.getUsePluggableTransports(getContext()) ? OBFS4 : OPENVPN;
+        if (location.supportedTransports.contains(selectedTransport)) {
+            startEipService(name);
+        } else {
+            askToChangeTransport(name);
+        }
+    }
+
+    private void askToChangeTransport(String name) {
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setAction(ACTION_SHOW_DIALOG_FRAGMENT);
+        intent.putExtra(EIP.ERRORID, EIP.EIPErrors.TRANSPORT_NOT_SUPPORTED.toString());
+        intent.putExtra(EIP.ERRORS, getString(R.string.warning_bridges_not_supported, name));
+        intent.putExtra(LOCATION, name);
+        startActivity(intent);
     }
 
     @Override
@@ -167,7 +188,6 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
             }
         }
     }
-
 
     static class LocationListAdapter extends RecyclerView.Adapter<LocationListAdapter.ViewHolder> {
         private static final String TAG = LocationListAdapter.class.getSimpleName();
@@ -228,11 +248,11 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
                 Log.d(TAG, "view at position clicked: " + position);
                 LocationListSelectionListener listener = callback.get();
                 if (listener != null) {
-                    listener.onLocationSelected(location.name);
+                    listener.onLocationSelected(location);
                 }
             });
             holder.locationIndicator.setLoad(GatewaysManager.Load.getLoadByValue(location.averageLoad));
-            holder.bridgeView.setVisibility(location.supportedTransports.contains(Connection.TransportType.OBFS4) ? VISIBLE : View.GONE);
+            holder.bridgeView.setVisibility(location.supportedTransports.contains(OBFS4) ? VISIBLE : View.GONE);
         }
 
 

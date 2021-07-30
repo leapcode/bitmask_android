@@ -60,6 +60,7 @@ import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_LAUNCH_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_REQUEST;
+import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_LOG_IN;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
 
     public final static String ACTION_SHOW_VPN_FRAGMENT = "action_show_vpn_fragment";
     public final static String ACTION_SHOW_LOG_FRAGMENT = "action_show_log_fragment";
+    public final static String ACTION_SHOW_DIALOG_FRAGMENT = "action_show_dialog_fragment";
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -152,6 +154,13 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 fragment = new LogFragment();
                 setActionBarTitle(R.string.log_fragment_title);
                 break;
+            case ACTION_SHOW_DIALOG_FRAGMENT:
+                if (intent.hasExtra(EIP.ERRORID)) {
+                    String errorId = intent.getStringExtra(EIP.ERRORID);
+                    String error = intent.getStringExtra(EIP.ERRORS);
+                    String args = intent.getStringExtra(LOCATION);
+                    showMainActivityErrorDialog(error, EIP.EIPErrors.valueOf(errorId), args);
+                }
             default:
                 break;
         }
@@ -324,12 +333,12 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     /**
      * Shows an error dialog
      */
-    public void showMainActivityErrorDialog(String reasonToFail, EIP.EIPErrors error) {
+    public void showMainActivityErrorDialog(String reasonToFail, EIP.EIPErrors error, String... args) {
         try {
             FragmentTransaction fragmentTransaction = new FragmentManagerEnhanced(
                     this.getSupportFragmentManager()).removePreviousFragment(
                     MainActivityErrorDialog.TAG);
-            DialogFragment newFragment = MainActivityErrorDialog.newInstance(provider, reasonToFail, error);
+            DialogFragment newFragment = MainActivityErrorDialog.newInstance(provider, reasonToFail, error, args);
             newFragment.show(fragmentTransaction, MainActivityErrorDialog.TAG);
         } catch (IllegalStateException | NullPointerException e) {
             e.printStackTrace();

@@ -96,6 +96,7 @@ public class GatewaysManager {
     private final LinkedHashMap<String, Gateway> gateways = new LinkedHashMap<>();
     private final Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
     private final ArrayList<Gateway> presortedList = new ArrayList<>();
+    private ArrayList<Location> locations = new ArrayList<>();
 
     public GatewaysManager(Context context) {
         this.context = context;
@@ -130,6 +131,10 @@ public class GatewaysManager {
     }
 
     public List<Location> getGatewayLocations() {
+        if (locations.size() > 0) {
+            return locations;
+        }
+
         HashMap<String, Integer> locationNames = new HashMap<>();
         ArrayList<Location> locations = new ArrayList<>();
         ArrayList<Gateway> gateways = getSortedGateways();
@@ -166,15 +171,25 @@ public class GatewaysManager {
             }
         }
 
+        this.locations = locations;
         return locations;
     }
 
-    public Load getLoadForLocation(@Nullable String name) {
+    @Nullable
+    public Location getLocation(String name) {
         List <Location> locations = getGatewayLocations();
         for (Location location : locations) {
             if (location.name.equals(name)) {
-                return Load.getLoadByValue(location.averageLoad);
+                return location;
             }
+        }
+        return null;
+    }
+
+    public Load getLoadForLocation(@Nullable String name) {
+        Location location = getLocation(name);
+        if (location != null) {
+            return Load.getLoadByValue(location.averageLoad);
         }
 
         // location not found
