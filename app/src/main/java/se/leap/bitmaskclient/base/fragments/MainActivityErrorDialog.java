@@ -124,8 +124,10 @@ public class MainActivityErrorDialog extends DialogFragment {
                 builder.setNegativeButton(R.string.cancel, (dialog, id) -> {});
                 if (getPreferredCity(applicationContext) != null) {
                     builder.setPositiveButton(R.string.warning_option_try_best, (dialog, which) -> {
-                        setPreferredCity(applicationContext, null);
-                        EipCommand.startVPN(applicationContext, false);
+                        new Thread(() -> {
+                            setPreferredCity(applicationContext, null);
+                            EipCommand.startVPN(applicationContext, false);
+                        }).start();
                     });
                 } else if (provider.supportsPluggableTransports()) {
                     if (getUseBridges(applicationContext)) {
