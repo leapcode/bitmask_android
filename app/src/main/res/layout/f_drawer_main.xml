@@ -101,7 +101,7 @@
         <se.leap.bitmaskclient.base.views.IconTextEntry
             android:id="@+id/manualGatewaySelection"
             app:text="@string/gateway_selection_title"
-            app:subtitle="@string/gateway_selection_best_location"
+            app:subtitle="@string/gateway_selection_recommended_location"
             app:icon="@drawable/ic_map_marker_star_black_36dp"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"

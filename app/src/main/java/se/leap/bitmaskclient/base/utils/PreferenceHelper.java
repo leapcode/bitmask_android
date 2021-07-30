@@ -3,6 +3,7 @@ package se.leap.bitmaskclient.base.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -229,8 +230,9 @@ public class PreferenceHelper {
         return getString(context, PREFERRED_CITY, null);
     }
 
+    @WorkerThread
     public static void setPreferredCity(Context context, String city) {
-        putString(context, PREFERRED_CITY, city);
+        putStringSync(context, PREFERRED_CITY, city);
     }
 
     public static JSONObject getEipDefinitionFromPreferences(SharedPreferences preferences) {
@@ -275,6 +277,12 @@ public class PreferenceHelper {
     public static String getString(Context context, String key, String defValue) {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         return preferences.getString(key, defValue);
+    }
+
+    @WorkerThread
+    public static void putStringSync(Context context, String key, String value) {
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putString(key, value).commit();
     }
 
     public static void putString(Context context, String key, String value) {

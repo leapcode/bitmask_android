@@ -425,7 +425,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         }
         manualGatewaySelection = drawerView.findViewById(R.id.manualGatewaySelection);
         String preferredGateway = getPreferredCity(getContext());
-        String subtitle = preferredGateway != null ? preferredGateway : getString(R.string.gateway_selection_best_location);
+        String subtitle = preferredGateway != null ? preferredGateway : getString(R.string.gateway_selection_recommended_location);
         manualGatewaySelection.setSubtitle(subtitle);
         boolean show =  ProviderObservable.getInstance().getCurrentProvider().hasGatewaysInDifferentLocations();
         manualGatewaySelection.setVisibility(show ? VISIBLE : GONE);

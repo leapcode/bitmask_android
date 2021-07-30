@@ -93,10 +93,10 @@ public class GatewaysManager {
 
     private static final String TAG = GatewaysManager.class.getSimpleName();
 
-    private Context context;
-    private LinkedHashMap<String, Gateway> gateways = new LinkedHashMap<>();
-    private Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
-    private ArrayList<Gateway> presortedList = new ArrayList<>();
+    private final Context context;
+    private final LinkedHashMap<String, Gateway> gateways = new LinkedHashMap<>();
+    private final Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
+    private final ArrayList<Gateway> presortedList = new ArrayList<>();
 
     public GatewaysManager(Context context) {
         this.context = context;
@@ -128,24 +128,30 @@ public class GatewaysManager {
         int n = 0;
         Gateway gateway;
         while ((gateway = select(n, null)) != null) {
+            String name = gateway.getName();
+            if (name == null) {
+                Log.e(TAG, "Gateway without location name found. This should never happen. Provider misconfigured?");
+                continue;
+            }
+
             if (!locationNames.containsKey(gateway.getName())) {
                 locationNames.put(gateway.getName(), locations.size());
                 // fake values for now
                 Random rand = new Random();
                 double averageLoad = rand.nextDouble(); //location.averageLoad;
-
+                Log.d(TAG, "getGatewayLocations - new averageLoad (" + gateway.getName() + "): " + averageLoad);
 
                 Location location = new Location(
                         gateway.getName(),
                         averageLoad
                         /*gateway.getFullness()*/,
-                        1,
-                        gateway.getName().equals(selectedCity));
+                        1);
                 locations.add(location);
             } else {
                 int index = locationNames.get(gateway.getName());
                 Location location = locations.get(index);
                 location.averageLoad = (location.numberOfGateways * location.averageLoad + gateway.getFullness()) / (location.numberOfGateways + 1);
+                Log.d(TAG, "getGatewayLocations - updated averageLoad: (" + gateway.getName() + "): " + location.averageLoad);
                 location.numberOfGateways += 1;
                 locations.set(index, location);
             }

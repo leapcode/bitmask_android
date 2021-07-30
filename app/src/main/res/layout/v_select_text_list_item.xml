@@ -6,25 +6,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- views are composed right to left -->
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/checked_icon"
-        android:layout_width="?android:attr/listPreferredItemHeightSmall"
-        android:layout_height="?android:attr/listPreferredItemHeightSmall"
-        android:layout_gravity="center"
-        android:padding="10dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        tools:src="@drawable/ic_check_bold"
-        android:visibility="visible"
-        tools:visibility="visible"
-        />
 
     <se.leap.bitmaskclient.base.views.LocationIndicator
         android:id="@+id/quality"
         android:layout_width="56dp"
         android:layout_height="match_parent"
-        android:layout_toLeftOf="@+id/checked_icon"
-        android:layout_toStartOf="@+id/checked_icon"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         tools:visibility="visible"
         />
 
