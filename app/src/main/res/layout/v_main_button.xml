@@ -102,6 +102,7 @@
         app:layout_constraintEnd_toEndOf="@id/border_guideline_right"
         app:layout_constraintStart_toStartOf="@id/border_guideline_left"
         app:layout_constraintTop_toTopOf="@id/border_guideline_top"
+        app:layout_constraintDimensionRatio="1:1"
         android:indeterminate="true"
         android:indeterminateDuration="800"
         android:indeterminateDrawable="@drawable/progressbar_circle"
@@ -117,16 +118,19 @@
         app:layout_constraintEnd_toStartOf="@+id/vpn_btn_guideline_right"
         app:layout_constraintStart_toStartOf="@+id/vpn_btn_guideline_left"
         app:layout_constraintTop_toTopOf="@+id/vpn_btn_guideline_top"
+        app:layout_constraintDimensionRatio="1:1"
         app:srcCompat="@drawable/black_circle" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/vpn_state_key"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/icn_guideline_bottom"
-        app:layout_constraintEnd_toStartOf="@id/icn_guideline_right"
-        app:layout_constraintStart_toStartOf="@id/icn_guideline_left"
-        app:layout_constraintTop_toTopOf="@id/icn_guideline_top"
-        app:srcCompat="@drawable/vpn_connected" />
+        app:layout_constraintBottom_toTopOf="@+id/icn_guideline_bottom"
+        app:layout_constraintEnd_toStartOf="@+id/icn_guideline_right"
+        app:layout_constraintStart_toStartOf="@+id/icn_guideline_left"
+        app:layout_constraintTop_toTopOf="@+id/icn_guideline_top"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintVertical_bias="0.35"
+        app:srcCompat="@drawable/ic_btn_on_disabled" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

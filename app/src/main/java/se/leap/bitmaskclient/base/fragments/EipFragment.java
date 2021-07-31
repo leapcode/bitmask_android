@@ -27,7 +27,6 @@ import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Vibrator;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -51,7 +50,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
@@ -420,7 +418,7 @@ public class EipFragment extends Fragment implements Observer {
         Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
         if (eipStatus.isConnecting() ) {
             setMainButtonEnabled(true);
-            showConnectingLayout(activity);
+            showConnectionTransitionLayout(true);
             if (eipStatus.isReconnecting()) {
                 subDescription.setText(getString(R.string.reconnecting));
             } else {
@@ -432,7 +430,7 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.setLocationLoad(UNKNOWN);
         } else if (eipStatus.isConnected()) {
             setMainButtonEnabled(true);
-            vpnStateImage.setStateIcon(R.drawable.vpn_connected);
+            vpnStateImage.setStateIcon(R.drawable.ic_btn_on_primary_color);
             vpnStateImage.stopProgress(false);
             locationButton.setLocationLoad(gatewaysManager.getLoadForLocation(VpnStatus.getLastConnectedVpnName()));
             locationButton.setText(VpnStatus.getLastConnectedVpnName());
@@ -445,16 +443,15 @@ public class EipFragment extends Fragment implements Observer {
         } else if(isOpenVpnRunningWithoutNetwork()){
             Log.d(TAG, "eip fragment eipStatus - isOpenVpnRunningWithoutNetwork");
             setMainButtonEnabled(true);
-            vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
+            vpnStateImage.setStateIcon(R.drawable.ic_btn_on_primary_color);
             vpnStateImage.stopProgress(false);
             locationButton.setVisibility(VISIBLE);
             locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
-            setVpnRouteText();
             colorBackgroundALittle();
             mainDescription.setText(R.string.eip_state_insecure);
             subDescription.setText(R.string.eip_state_no_network);
         } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
-            showConnectingLayout(activity);
+            showConnectionTransitionLayout(true);
             // showRetryToast(activity);
             locationButton.setText(getString(R.string.finding_best_connection));
             locationButton.setVisibility(VISIBLE);
@@ -463,12 +460,12 @@ public class EipFragment extends Fragment implements Observer {
             subDescription.setText(R.string.reconnecting);
         } else if (eipStatus.isDisconnecting()) {
             setMainButtonEnabled(false);
-            showDisconnectingLayout(activity);
+            showConnectionTransitionLayout(false);
             mainDescription.setText(R.string.eip_state_insecure);
             subDescription.setText(R.string.connection_not_connected);
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
-            vpnStateImage.setStateIcon(R.drawable.vpn_blocking);
+            vpnStateImage.setStateIcon(R.drawable.ic_btn_on_primary_color);
             vpnStateImage.stopProgress(false);
             colorBackgroundALittle();
             locationButton.setText(getString(R.string.finding_best_connection));
@@ -518,16 +515,8 @@ public class EipFragment extends Fragment implements Observer {
         showToast(activity, message, true );
     }
 
-    private void showConnectingLayout(Context activity) {
-        showConnectionTransitionLayout(activity, true);
-    }
-
-    private void showDisconnectingLayout(Activity activity) {
-        showConnectionTransitionLayout(activity, false);
-    }
-
-    private void showConnectionTransitionLayout(Context activity, boolean isConnecting) {
-        vpnStateImage.setStateIcon(R.drawable.vpn_connecting);
+    private void showConnectionTransitionLayout(boolean isConnecting) {
+        vpnStateImage.setStateIcon(R.drawable.ic_btn_on_connecting);
         vpnStateImage.showProgress();
         if (isConnecting) {
             colorBackgroundALittle();
