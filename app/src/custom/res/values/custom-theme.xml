@@ -11,5 +11,7 @@
     <color name="colorActionBarSubtitleFont">#cccccc</color>
     <!-- Font color of labels in EipFragment (main screen)-->
     <color name="colorEipFragmentFont">#ffffff</color>
+    <!-- Font color of rounded standard buttons -->
+    <color name="colorFontBtn">#ffffff</color>
 
 </resources>
