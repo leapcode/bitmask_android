@@ -587,15 +587,6 @@ public class EipFragment extends Fragment implements Observer {
         }
     }
 
-    private void setVpnRouteText() {
-        String vpnRouteString = provider.getName();
-        String profileName = VpnStatus.getLastConnectedVpnName();
-        if (!TextUtils.isEmpty(profileName)) {
-            vpnRouteString += " (" + profileName + ")";
-        }
-      //  vpnRoute.setText(vpnRouteString);
-    }
-
     private class EipFragmentServiceConnection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName className,
