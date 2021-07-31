@@ -70,7 +70,7 @@ import se.leap.bitmaskclient.providersetup.activities.CustomProviderSetupActivit
 import se.leap.bitmaskclient.providersetup.activities.LoginActivity;
 import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
 
-import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
@@ -480,7 +480,7 @@ public class EipFragment extends Fragment implements Observer {
             vpnStateImage.stopProgress(false);
             greyscaleBackground();
             locationButton.setLocationLoad(UNKNOWN);
-            locationButton.setVisibility(GONE);
+            locationButton.setVisibility(INVISIBLE);
             mainDescription.setText(R.string.eip_state_insecure);
             subDescription.setText(R.string.connection_not_connected);
         }
