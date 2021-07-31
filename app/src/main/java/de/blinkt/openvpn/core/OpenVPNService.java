@@ -377,6 +377,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         // connections[n], n>0 gets choosen?
 
         Connection connection = mProfile.mConnections[0];
+        VpnStatus.setCurrentlyConnectingProfile(mProfile);
 
         VpnStatus.logInfo(R.string.building_configration);
         VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);

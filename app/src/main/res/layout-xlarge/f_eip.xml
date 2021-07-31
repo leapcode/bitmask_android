@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    This is the layout for extra large landscape, extra large portrait
+    can be found in layout-xlarge-port
+-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -14,7 +18,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintGuide_percent="0.3"
+        app:layout_constraintGuide_percent="0.0"
         />
 
     <androidx.constraintlayout.widget.Guideline
@@ -23,7 +27,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.3"
+        app:layout_constraintGuide_percent="0.2"
         />
 
 
@@ -34,7 +38,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintGuide_percent="0.7"
+        app:layout_constraintGuide_percent="0.66"
         />
 
     <androidx.constraintlayout.widget.Guideline
@@ -43,7 +47,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.7"
+        app:layout_constraintGuide_percent="0.8"
         />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -53,21 +57,6 @@
         android:scaleType="fitXY"
         app:srcCompat="@drawable/background_eip" />
 
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/eipLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/stdpadding"
-        android:paddingRight="@dimen/stdpadding"
-        android:paddingStart="@dimen/stdpadding"
-        android:paddingEnd="@dimen/stdpadding"
-        android:text="@string/eip_service_label"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:gravity="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <se.leap.bitmaskclient.base.views.VpnStateImage
         android:id="@+id/vpn_state_image"
@@ -80,6 +69,40 @@
         app:layout_constraintTop_toTopOf="@+id/guideline_horizontal_top"
         app:layout_constraintDimensionRatio="1:1" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/main_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/guideline_horizontal_bottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/sub_description"
+        android:padding="@dimen/stdpadding"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:textStyle="bold"
+        app:layout_constraintDimensionRatio="1:1"
+        tools:text="CONNETION SECURE"
+        android:maxLines="1"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/sub_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/main_description"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/gateway_location_button"
+        android:padding="@dimen/stdpadding"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:textStyle="bold"
+        app:layout_constraintDimensionRatio="1:1"
+        android:maxLines="5"
+        android:ellipsize="end"
+        tools:text="Your traffic is securly routed through"
+        android:gravity="center"
+
+        />
 
     <se.leap.bitmaskclient.base.views.LocationButton
         android:id="@+id/gateway_location_button"

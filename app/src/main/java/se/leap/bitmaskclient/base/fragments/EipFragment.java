@@ -39,6 +39,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -50,6 +51,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
@@ -84,6 +86,7 @@ import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.convertDimensionToPx;
 import static se.leap.bitmaskclient.eip.EipSetupObserver.gatewayOrder;
 import static se.leap.bitmaskclient.eip.EipSetupObserver.reconnectingWithDifferentGateway;
@@ -108,6 +111,12 @@ public class EipFragment extends Fragment implements Observer {
 
     @BindView(R.id.gateway_location_button)
     LocationButton locationButton;
+
+    @BindView(R.id.main_description)
+    AppCompatTextView mainDescription;
+
+    @BindView(R.id.sub_description)
+    AppCompatTextView subDescription;
 
     private Unbinder unbinder;
     private EipStatus eipStatus;
@@ -408,21 +417,20 @@ public class EipFragment extends Fragment implements Observer {
             return;
         }
 
-        //Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
-
-
+        Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
         if (eipStatus.isConnecting() ) {
             setMainButtonEnabled(true);
             showConnectingLayout(activity);
             if (eipStatus.isReconnecting()) {
-                locationButton.setText(getString(R.string.reconnecting));
+                subDescription.setText(getString(R.string.reconnecting));
             } else {
-                locationButton.setText(getString(R.string.finding_best_connection));
+                subDescription.setText(R.string.connection_not_connected);
             }
+            locationButton.setText(getString(R.string.finding_best_connection));
+            mainDescription.setText(R.string.eip_state_insecure);
             locationButton.setVisibility(VISIBLE);
             locationButton.setLocationLoad(UNKNOWN);
-        } else if (eipStatus.isConnected() ) {
-            locationButton.setText(activity.getString(R.string.vpn_button_turn_off));
+        } else if (eipStatus.isConnected()) {
             setMainButtonEnabled(true);
             vpnStateImage.setStateIcon(R.drawable.vpn_connected);
             vpnStateImage.stopProgress(false);
@@ -430,23 +438,34 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.setText(VpnStatus.getLastConnectedVpnName());
             locationButton.setVisibility(VISIBLE);
             colorBackground();
+            mainDescription.setText(R.string.eip_state_connected);
+            subDescription.setText(getPreferredCity(getContext()) == null ?
+                    R.string.eip_state_connected_recommended :
+                    R.string.eip_state_connected_manual);
         } else if(isOpenVpnRunningWithoutNetwork()){
-            locationButton.setText(activity.getString(R.string.vpn_button_turn_off));
+            Log.d(TAG, "eip fragment eipStatus - isOpenVpnRunningWithoutNetwork");
             setMainButtonEnabled(true);
             vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
             vpnStateImage.stopProgress(false);
             locationButton.setVisibility(VISIBLE);
+            locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             setVpnRouteText();
             colorBackgroundALittle();
+            mainDescription.setText(R.string.eip_state_insecure);
+            subDescription.setText(R.string.eip_state_no_network);
         } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
             showConnectingLayout(activity);
             // showRetryToast(activity);
             locationButton.setText(getString(R.string.finding_best_connection));
             locationButton.setVisibility(VISIBLE);
             locationButton.setLocationLoad(UNKNOWN);
+            mainDescription.setText(R.string.eip_state_insecure);
+            subDescription.setText(R.string.reconnecting);
         } else if (eipStatus.isDisconnecting()) {
             setMainButtonEnabled(false);
             showDisconnectingLayout(activity);
+            mainDescription.setText(R.string.eip_state_insecure);
+            subDescription.setText(R.string.connection_not_connected);
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
             vpnStateImage.setStateIcon(R.drawable.vpn_blocking);
@@ -455,6 +474,8 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.setText(getString(R.string.finding_best_connection));
             locationButton.setVisibility(VISIBLE);
             locationButton.setLocationLoad(UNKNOWN);
+            mainDescription.setText(R.string.eip_state_connected);
+            subDescription.setText(R.string.eip_state_blocking);
         } else {
             locationButton.setText(activity.getString(R.string.vpn_button_turn_on));
             setMainButtonEnabled(true);
@@ -463,6 +484,8 @@ public class EipFragment extends Fragment implements Observer {
             greyscaleBackground();
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.setVisibility(GONE);
+            mainDescription.setText(R.string.eip_state_insecure);
+            subDescription.setText(R.string.connection_not_connected);
         }
     }
 

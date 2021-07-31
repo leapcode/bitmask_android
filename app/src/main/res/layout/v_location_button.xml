@@ -6,11 +6,10 @@
     android:layout_gravity="center_vertical"
     android:padding="@dimen/stdpadding"
     android:background="@drawable/cust_button_primary_rect"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/text_location"
-        android:padding="@dimen/stdpadding"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:maxLines="1"

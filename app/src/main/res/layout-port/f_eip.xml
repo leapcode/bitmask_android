@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    This is the default layout for landscape, portrait can be found
-    in layout-port
--->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -11,21 +7,13 @@
     android:id="@+id/eipServiceFragment">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_horizontal_top"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.1"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_vertical_left"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.3" />
+        app:layout_constraintGuide_percent="0.225"
+        />
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -34,26 +22,9 @@
         android:layout_height="0dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.55"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_horizontal_button_top"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.8"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintGuide_percent="0.66"
         />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_horizontal_button_bottom"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.98"
-        app:layout_constraintRight_toRightOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_vertical_right"
@@ -61,7 +32,8 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.7" />
+        app:layout_constraintGuide_percent="0.775"
+        />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/background"
@@ -70,35 +42,33 @@
         android:scaleType="fitXY"
         app:srcCompat="@drawable/background_eip" />
 
-
     <se.leap.bitmaskclient.base.views.VpnStateImage
         android:id="@+id/vpn_state_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="@dimen/stdpadding"
-        app:layout_constraintTop_toBottomOf="@id/guideline_horizontal_top"
         app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal_bottom"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_right"
         app:layout_constraintStart_toStartOf="@+id/guideline_vertical_left"
-        app:layout_constraintDimensionRatio="1:1"
-        />
+        app:layout_constraintTop_toTopOf="parent"
+         />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/main_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/guideline_horizontal_bottom"
+        app:layout_constraintTop_toBottomOf="@id/vpn_state_image"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/sub_description"
-        android:paddingLeft="@dimen/stdpadding"
-        android:paddingStart="@dimen/stdpadding"
-        android:paddingRight="@dimen/stdpadding"
-        android:paddingEnd="@dimen/stdpadding"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:padding="@dimen/activity_margin"
+        android:textAppearance="@android:style/TextAppearance.Large"
         android:textStyle="bold"
         app:layout_constraintDimensionRatio="1:1"
-        tools:text="CONNETION SECURE"
+        tools:text="CONNETION"
+        android:gravity="center"
+        android:maxLines="1"
         />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -109,33 +79,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/gateway_location_button"
+        android:padding="@dimen/activity_margin"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
         android:textStyle="bold"
-        android:paddingLeft="@dimen/stdpadding"
-        android:paddingStart="@dimen/stdpadding"
-        android:paddingRight="@dimen/stdpadding"
-        android:paddingEnd="@dimen/stdpadding"
-        android:paddingBottom="@dimen/stdpadding"
-
         app:layout_constraintDimensionRatio="1:1"
-        tools:text="Your traffic is securly routed through \n another"
-        android:maxLines="2"
+        tools:text="A LONG TEXT WITH SEVERAL THINGS BLABLkk \n kdjfkj \n kjdfkjdf"
         android:gravity="center"
+        android:maxLines="3"
+        android:ellipsize="end"
         />
 
     <se.leap.bitmaskclient.base.views.LocationButton
         android:id="@+id/gateway_location_button"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="64dp"
+        android:layout_marginBottom="@dimen/stdpadding"
         android:layout_marginEnd="@dimen/stdpadding"
         android:layout_marginStart="@dimen/stdpadding"
-
+        android:layout_marginTop="@dimen/stdpadding"
         android:layout_marginLeft="@dimen/stdpadding"
         android:layout_marginRight="@dimen/stdpadding"
+        app:layout_constraintBottom_toBottomOf="@+id/background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline_horizontal_button_top"
-        app:layout_constraintBottom_toBottomOf="@+id/guideline_horizontal_button_bottom"
         tools:text="SEATTLE"
         android:gravity="center_vertical" />
 
