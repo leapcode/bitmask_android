@@ -84,6 +84,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         super.onCreate(savedInstanceState);
         gatewaysManager = new GatewaysManager(getContext());
         eipStatus = EipStatus.getInstance();
+        eipStatus.addObserver(this);
     }
 
     @Override
