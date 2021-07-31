@@ -476,7 +476,7 @@ public class EipFragment extends Fragment implements Observer {
         } else {
             locationButton.setText(activity.getString(R.string.vpn_button_turn_on));
             setMainButtonEnabled(true);
-            vpnStateImage.setStateIcon(R.drawable.vpn_disconnected);
+            vpnStateImage.setStateIcon(R.drawable.ic_btn_on_disabled);
             vpnStateImage.stopProgress(false);
             greyscaleBackground();
             locationButton.setLocationLoad(UNKNOWN);
