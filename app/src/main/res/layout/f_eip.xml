@@ -97,6 +97,7 @@
         android:paddingEnd="@dimen/stdpadding"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
         android:textStyle="bold"
+        android:textColor="@color/colorEipFragmentFont"
         app:layout_constraintDimensionRatio="1:1"
         tools:text="CONNETION SECURE"
         />
@@ -111,12 +112,12 @@
         app:layout_constraintBottom_toTopOf="@+id/gateway_location_button"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
         android:textStyle="bold"
+        android:textColor="@color/colorEipFragmentFont"
         android:paddingLeft="@dimen/stdpadding"
         android:paddingStart="@dimen/stdpadding"
         android:paddingRight="@dimen/stdpadding"
         android:paddingEnd="@dimen/stdpadding"
         android:paddingBottom="@dimen/stdpadding"
-
         app:layout_constraintDimensionRatio="1:1"
         tools:text="Your traffic is securly routed through \n another"
         android:maxLines="2"

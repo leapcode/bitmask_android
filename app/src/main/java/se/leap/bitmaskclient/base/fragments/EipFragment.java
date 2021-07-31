@@ -54,6 +54,7 @@ import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.base.MainActivity;
@@ -552,21 +553,27 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void greyscaleBackground() {
-        ColorMatrix matrix = new ColorMatrix();
-        matrix.setSaturation(0);
-        ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
-        background.setColorFilter(cf);
-        background.setImageAlpha(255);
+        if (BuildConfig.use_color_filter) {
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(0);
+            ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
+            background.setColorFilter(cf);
+            background.setImageAlpha(255);
+        }
     }
 
     private void colorBackgroundALittle() {
-        background.setColorFilter(null);
-        background.setImageAlpha(144);
+        if (BuildConfig.use_color_filter) {
+            background.setColorFilter(null);
+            background.setImageAlpha(144);
+        }
     }
 
     private void colorBackground() {
-        background.setColorFilter(null);
-        background.setImageAlpha(210);
+        if (BuildConfig.use_color_filter) {
+            background.setColorFilter(null);
+            background.setImageAlpha(210);
+        }
     }
 
     private void updateInvalidVpnCertificate() {
