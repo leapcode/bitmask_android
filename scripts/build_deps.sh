@@ -14,6 +14,8 @@ DIR_GOLIBS=./bitmaskcore/lib/
 #FILE_ARM=./go/out/armeabi-v7a/piedispatcherlib
 DIR_TORLIBS=./tor-android/external/lib
 EXPECTED_NDK_VERSION="21.4.7075529"
+EXPECTED_ANDROID_NDK_RELEASE_VERSION="r21e"
+
 # init
 # look for empty dir
 
@@ -23,6 +25,9 @@ cd $BASE_DIR
 if [[ $(ls -A ${ANDROID_HOME}/ndk/${EXPECTED_NDK_VERSION}) ]]
 then
   ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/${EXPECTED_NDK_VERSION}
+else
+  # ndk was manually downloaded from http://dl.google.com/android/repository
+  ANDROID_NDK_HOME=${ANDROID_HOME}/android-ndk-${EXPECTED_ANDROID_NDK_RELEASE_VERSION}
 fi
 NDK_VERSION=`cat $ANDROID_NDK_HOME/source.properties | grep Pkg.Revision | cut -d "=" -f2 | sed 's/ //g'`
 
