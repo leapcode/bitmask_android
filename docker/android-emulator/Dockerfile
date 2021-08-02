@@ -16,7 +16,7 @@ RUN apt-get update -qq && \
     apt-get -y dist-upgrade && \
     apt-get -y install gnupg apt-transport-https
 RUN echo 'deb https://apt.dockerproject.org/repo debian-stretch main'> /etc/apt/sources.list.d/docker.list && \
-    curl -s https://apt.dockerproject.org/gpg | apt-key add -
+    curl -s https://download.docker.com/linux/debian/gpg | apt-key add -
 RUN apt-get update -qq && \
     apt-get -y install docker-engine mesa-utils && \
     apt-get clean && \
