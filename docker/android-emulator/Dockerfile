@@ -15,8 +15,10 @@ ENV ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
 RUN apt-get update -qq && \
     apt-get -y dist-upgrade && \
     apt-get -y install gnupg apt-transport-https
-RUN echo 'deb https://download.docker.com/linux/debian debian-stretch stable' > /etc/apt/sources.list.d/docker.list && \
-    curl -s https://download.docker.com/linux/debian/gpg | apt-key add -
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    echo \
+      "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 RUN apt-get update -qq && \
     apt-get -y install docker-engine mesa-utils && \
     apt-get clean && \
