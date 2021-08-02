@@ -18,7 +18,7 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor
       $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 # JNI build dependencies w/ 32-bit compatible C libs
 RUN apt-get update -qq && \
-    apt-get -y install docker-engine make gcc file lib32stdc++6 lib32z1  && \
+    apt-get -y install docker-ce make gcc file lib32stdc++6 lib32z1  && \
     apt-get clean && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

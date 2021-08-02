@@ -20,7 +20,7 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor
       "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
       $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 RUN apt-get update -qq && \
-    apt-get -y install docker-engine mesa-utils && \
+    apt-get -y install docker-ce mesa-utils && \
     apt-get clean && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

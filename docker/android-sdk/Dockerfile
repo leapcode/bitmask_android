@@ -18,7 +18,7 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor
       "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
       $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 RUN apt-get update -qq && \
-    apt-get install -y docker-engine \
+    apt-get install -y docker-ce \
     # the basics
     curl unzip git locales \
     # java stuff
