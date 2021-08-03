@@ -29,8 +29,11 @@ else
   # ndk was manually downloaded from http://dl.google.com/android/repository
   ANDROID_NDK_HOME=${ANDROID_HOME}/android-ndk-${EXPECTED_ANDROID_NDK_RELEASE_VERSION}
 fi
-NDK_VERSION=`cat $ANDROID_NDK_HOME/source.properties | grep Pkg.Revision | cut -d "=" -f2 | sed 's/ //g'`
+NDK_VERSION=`cat ${ANDROID_NDK_HOME}/source.properties | grep Pkg.Revision | cut -d "=" -f2 | sed 's/ //g'`
 
+ls -la ${ANDROID_HOME}/*/*ndk*
+echo "ndk version: $NDK_VERSION"
+echo "ANDROID_NDK_HOME: $ANDROID_NDK_HOME"
 
 # build tor libs
 if [[ $(ls -A ${DIR_TORLIBS}) ]]
