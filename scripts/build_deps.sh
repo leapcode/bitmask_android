@@ -31,7 +31,7 @@ else
 fi
 NDK_VERSION=`cat ${ANDROID_NDK_HOME}/source.properties | grep Pkg.Revision | cut -d "=" -f2 | sed 's/ //g'`
 
-ls -la ${ANDROID_HOME}/*/*ndk*
+ls -la ${ANDROID_HOME}/*/*ndk
 echo "ndk version: $NDK_VERSION"
 echo "ANDROID_NDK_HOME: $ANDROID_NDK_HOME"
 
