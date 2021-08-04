@@ -27,7 +27,7 @@ import java.util.Observer;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipStatus;
-import shapeshifter.ShapeShifter;
+import shapeShifter.ShapeShifter;
 
 public class Shapeshifter implements Observer {
 
@@ -43,7 +43,7 @@ public class Shapeshifter implements Observer {
     private int retry = 0;
     private Handler reconnectHandler;
 
-    public class ShapeshifterLogger implements shapeshifter.Logger {
+    public class ShapeshifterLogger implements shapeShifter.Logger {
         @Override
         public void log(String s) {
             Log.e(TAG, "SHAPESHIFTER ERROR: " + s);
