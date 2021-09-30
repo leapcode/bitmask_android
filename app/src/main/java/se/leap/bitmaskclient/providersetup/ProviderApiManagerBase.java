@@ -315,6 +315,7 @@ public abstract class ProviderApiManagerBase {
         };
         TorStatusObservable.getInstance().addObserver(observer);
         countDownLatch.await(180, TimeUnit.SECONDS);
+        TorStatusObservable.getInstance().deleteObserver(observer);
     }
 
     void resetProviderDetails(Provider provider) {
