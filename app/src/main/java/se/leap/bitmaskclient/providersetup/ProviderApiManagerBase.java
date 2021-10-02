@@ -51,6 +51,8 @@ import java.util.NoSuchElementException;
 import java.util.Observer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -149,7 +151,9 @@ public abstract class ProviderApiManagerBase {
 
     public interface ProviderApiServiceCallback {
         void broadcastEvent(Intent intent);
+        void startTorService();
         int getTorHttpTunnelPort();
+        boolean isConnectedToWifi();
     }
 
     private final ProviderApiServiceCallback serviceCallback;
@@ -188,7 +192,11 @@ public abstract class ProviderApiManagerBase {
         }
 
         // uncomment for testing --v
-        TorStatusObservable.setProxyPort(startTorProxy());
+        /* try {
+            startTorProxy();
+        } catch (InterruptedException | TimeoutException e) {
+            e.printStackTrace();
+        } */
 
         Bundle result = new Bundle();
         switch (action) {
@@ -287,35 +295,38 @@ public abstract class ProviderApiManagerBase {
         }
     }
 
-    protected int startTorProxy() {
-        int port = -1;
-        if (PreferenceHelper.useTor(preferences) && EipStatus.getInstance().isDisconnected() ) {
-            port = serviceCallback.getTorHttpTunnelPort();
-            if (port != -1) {
-                try {
-                    waitForTorCircuits();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    port = -1;
-                }
-            }
+    protected boolean startTorProxy() throws InterruptedException, TimeoutException {
+        if (PreferenceHelper.useTor(preferences) &&
+                EipStatus.getInstance().isDisconnected() &&
+                serviceCallback.isConnectedToWifi()
+        ) {
+            serviceCallback.startTorService();
+            waitForTorCircuits();
+            int port = serviceCallback.getTorHttpTunnelPort();
+            TorStatusObservable.setProxyPort(port);
+            return port != -1;
         }
-        return port;
+        return false;
     }
 
-    private void waitForTorCircuits() throws InterruptedException {
+    private void waitForTorCircuits() throws InterruptedException, TimeoutException {
         if (TorStatusObservable.getStatus() == ON) {
             return;
         }
         CountDownLatch countDownLatch = new CountDownLatch(1);
+        AtomicBoolean successfulSetup = new AtomicBoolean(false);
         Observer observer = (o, arg) -> {
             if (TorStatusObservable.getStatus() == ON) {
+                successfulSetup.set(true);
                 countDownLatch.countDown();
             }
         };
         TorStatusObservable.getInstance().addObserver(observer);
         countDownLatch.await(180, TimeUnit.SECONDS);
         TorStatusObservable.getInstance().deleteObserver(observer);
+        if (!successfulSetup.get()) {
+            throw new TimeoutException("Timeout reached");
+        }
     }
 
     void resetProviderDetails(Provider provider) {

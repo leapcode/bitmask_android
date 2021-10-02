@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import de.blinkt.openvpn.core.VpnStatus;
 import okhttp3.OkHttpClient;
@@ -325,17 +326,21 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             }
         }
 
-        if (tries == 0 &&
-                responseString != null &&
-                responseString.contains(ERRORS)  &&
-                PreferenceHelper.useTor(preferences) &&
-                EipStatus.getInstance().isDisconnected() &&
-                (TorStatusObservable.getStatus() == OFF ||
-                TorStatusObservable.getStatus() == UNKOWN)) {
-            TorStatusObservable.setProxyPort(startTorProxy());
-            return downloadWithCommercialCA(stringUrl, provider, 1);
+        try {
+            if (tries == 0 &&
+                    responseString != null &&
+                    responseString.contains(ERRORS)  &&
+                    PreferenceHelper.useTor(preferences) &&
+                    EipStatus.getInstance().isDisconnected() &&
+                    (TorStatusObservable.getStatus() == OFF ||
+                    TorStatusObservable.getStatus() == UNKOWN) &&
+                    startTorProxy()
+            ) {
+                return downloadWithCommercialCA(stringUrl, provider, 1);
+            }
+        } catch (InterruptedException | TimeoutException e) {
+            e.printStackTrace();
         }
-
         return responseString;
     }
 
@@ -366,15 +371,20 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         List<Pair<String, String>> headerArgs = getAuthorizationHeader();
         responseString = sendGetStringToServer(urlString, headerArgs, okHttpClient);
 
-        if (tries == 0 &&
-                responseString != null &&
-                responseString.contains(ERRORS)  &&
-                PreferenceHelper.useTor(preferences) &&
-                EipStatus.getInstance().isDisconnected() &&
-                (TorStatusObservable.getStatus() == OFF ||
-                TorStatusObservable.getStatus() == UNKOWN)) {
-            TorStatusObservable.setProxyPort(startTorProxy());
-            return downloadFromUrlWithProviderCA(urlString, provider, 1);
+        try {
+            if (tries == 0 &&
+                    responseString != null &&
+                    responseString.contains(ERRORS)  &&
+                    PreferenceHelper.useTor(preferences) &&
+                    EipStatus.getInstance().isDisconnected() &&
+                    (TorStatusObservable.getStatus() == OFF ||
+                    TorStatusObservable.getStatus() == UNKOWN) &&
+                    startTorProxy()
+            ) {
+                return downloadFromUrlWithProviderCA(urlString, provider, 1);
+            }
+        } catch (InterruptedException | TimeoutException e) {
+            e.printStackTrace();
         }
 
         return responseString;

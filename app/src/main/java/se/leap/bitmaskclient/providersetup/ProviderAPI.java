@@ -37,17 +37,15 @@ import java.io.Closeable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import de.blinkt.openvpn.core.NetworkUtils;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.tor.ClientTransportPlugin;
 import se.leap.bitmaskclient.tor.TorNotificationManager;
-import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
 import static se.leap.bitmaskclient.tor.TorNotificationManager.TOR_SERVICE_NOTIFICATION_ID;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.STOPPING;
 
 /**
  * Implements HTTP api methods (encapsulated in {{@link ProviderApiManager}})
@@ -151,23 +149,31 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+    @Override
+    public boolean isConnectedToWifi() {
+        return NetworkUtils.isConnectedToWifi(getApplicationContext());
+    }
+
+    @Override
+    public void startTorService() {
+        initTorServiceConnection(this);
+        Intent torServiceIntent = new Intent(this, TorService.class);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification notification = TorNotificationManager.buildTorForegroundNotification(getApplicationContext());
+            //noinspection NewApi
+            getApplicationContext().startForegroundService(torServiceIntent);
+            torServiceConnection.torService.startForeground(TOR_SERVICE_NOTIFICATION_ID, notification);
+        } else {
+            getApplicationContext().startService(torServiceIntent);
+        }
+    }
 
 
     @Override
     public int getTorHttpTunnelPort() {
         initTorServiceConnection(this);
         if (torServiceConnection != null) {
-            Intent torServiceIntent = new Intent(this, TorService.class);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Notification notification = TorNotificationManager.buildTorForegroundNotification(getApplicationContext());
-                //noinspection NewApi
-                getApplicationContext().startForegroundService(torServiceIntent);
-                torServiceConnection.torService.startForeground(TOR_SERVICE_NOTIFICATION_ID, notification);
-            } else {
-                getApplicationContext().startService(torServiceIntent);
-            }
-
             int tunnelPort = torServiceConnection.torService.getHttpTunnelPort();
             torServiceConnection.close();
             torServiceConnection = null;
