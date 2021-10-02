@@ -1,6 +1,7 @@
 package se.leap.bitmaskclient.tor;
 
 import android.content.Context;
+import android.os.FileObserver;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -9,10 +10,14 @@ import org.torproject.jni.ClientTransportPluginInterface;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Scanner;
+import java.util.Vector;
 
 import IPtProxy.IPtProxy;
 
@@ -22,6 +27,7 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
     private HashMap<String, String> mFronts;
     private final WeakReference<Context> contextRef;
     private long snowflakePort = -1;
+    private FileObserver logFileObserver;
 
     public ClientTransportPlugin(Context context) {
         this.contextRef = new WeakReference<>(context);
@@ -36,12 +42,13 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
         }
         File logfile = new File(context.getApplicationContext().getCacheDir(), "snowflake.log");
         Log.d(TAG, "logfile at " + logfile.getAbsolutePath());
-        if (!logfile.exists()) {
-            try {
-                logfile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            if (logfile.exists()) {
+                logfile.delete();
             }
+            logfile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         //this is using the current, default Tor snowflake infrastructure
@@ -51,12 +58,43 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
         Log.d(TAG, "startSnowflake. target: " + target + ", front:" + front + ", stunServer" + stunServer);
         snowflakePort = IPtProxy.startSnowflake( stunServer, target, front, logfile.getAbsolutePath(), false, false, true, 1);
         Log.d(TAG, "startSnowflake running on port: " + snowflakePort);
+        watchLogFile(logfile);
+    }
+
+    private void watchLogFile(File logfile) {
+        final Vector<String> lastBuffer = new Vector<>();
+        logFileObserver = new FileObserver(logfile) {
+            @Override
+            public void onEvent(int event, @Nullable String name) {
+                if (FileObserver.MODIFY == event) {
+                    try (Scanner scanner = new Scanner(logfile)) {
+                        Vector<String> currentBuffer = new Vector<>();
+                        while (scanner.hasNextLine()) {
+                            currentBuffer.add(scanner.nextLine());
+                        }
+                        if (lastBuffer.size() < currentBuffer.size()) {
+                            int startIndex =  lastBuffer.size() > 0 ? lastBuffer.size() - 1 : 0;
+                            int endIndex = currentBuffer.size() - 1;
+                            Collection<String> newMessages = currentBuffer.subList(startIndex, endIndex);
+                            for (String message : newMessages) {
+                                Log.d("[SNOWFLAKE]",  message);
+                            }
+                            lastBuffer.addAll(newMessages);
+                        }
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        logFileObserver.startWatching();
     }
 
     @Override
     public void stop() {
         IPtProxy.stopSnowflake();
         snowflakePort = -1;
+        logFileObserver.stopWatching();
     }
 
     @Override
