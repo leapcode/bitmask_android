@@ -73,6 +73,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLO
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
 /**
@@ -213,6 +214,11 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                     Intent stopIntent = new Intent(context, TorService.class);
                     context.stopService(stopIntent);
                 }
+                Log.d(TAG, "PROVIDER NOK - FETCH FAILED");
+                break;
+            case PROVIDER_OK:
+                Log.d(TAG, "PROVIDER OK - FETCH SUCCESSFUL");
+                break;
             default:
                 break;
         }
