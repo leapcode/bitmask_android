@@ -140,6 +140,8 @@ public class OpenVPNThread implements Runnable {
             InputStream in = mProcess.getInputStream();
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
+            // 1380308330.240114 18000002 Send to HTTP proxy: 'X-Online-Host: bla.blabla.com'
+            Pattern p = Pattern.compile("(\\d+).(\\d+) ([0-9a-f])+ (.*)");
             while (true) {
                 String logline = br.readLine();
                 if (logline == null)
@@ -151,10 +153,6 @@ public class OpenVPNThread implements Runnable {
                 if (logline.startsWith(BROKEN_PIE_SUPPORT) || logline.contains(BROKEN_PIE_SUPPORT2))
                     mBrokenPie = true;
 
-
-                // 1380308330.240114 18000002 Send to HTTP proxy: 'X-Online-Host: bla.blabla.com'
-
-                Pattern p = Pattern.compile("(\\d+).(\\d+) ([0-9a-f])+ (.*)");
                 Matcher m = p.matcher(logline);
                 int logerror = 0;
                 if (m.matches()) {
