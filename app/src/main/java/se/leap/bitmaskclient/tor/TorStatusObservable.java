@@ -66,7 +66,7 @@ public class TorStatusObservable extends Observable {
         String snowflakeLog = getInstance().lastSnowflakeLog;
         // we don't want to show the response json in the notification
         if (snowflakeLog != null && snowflakeLog.contains("Received answer: {")) {
-            snowflakeLog = "Received answer.";
+            snowflakeLog = "Received Answer.";
         }
         return "Tor: " + getInstance().lastTorLog + "\n" +
                 snowflakeIcon + ": " + snowflakeLog;
