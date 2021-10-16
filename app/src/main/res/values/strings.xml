@@ -172,7 +172,7 @@
   <string name="log_enough_dirinfo">Loaded enough directory info to build circuits</string>
   <string name="log_ap_handshake_done">Handshake finished with a relay to build circuits</string>
   <string name="log_circuit_create">Establishing a Tor circuit</string>
-  <string name="log_done">Done!</string>
+  <string name="log_done">Running</string>
 
 
 </resources>
