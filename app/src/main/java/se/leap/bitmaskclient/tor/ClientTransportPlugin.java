@@ -138,10 +138,7 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
         Matcher matcher = SNOWFLAKE_LOG_TIMESTAMP_PATTERN.matcher(message);
         if (matcher.matches()) {
             try {
-
                 String strippedString = matcher.group(3).trim();
-                Log.d(TAG, "log: " + message);
-                Log.d(TAG, "log stripped: " + strippedString);
                 if (strippedString.length() > 0) {
                     TorStatusObservable.logSnowflakeMessage(contextRef.get(), strippedString);
                 }
