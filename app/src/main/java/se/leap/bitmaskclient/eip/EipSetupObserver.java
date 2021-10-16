@@ -169,7 +169,9 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
     private void handleTorStatusEvent(Intent intent) {
         String status = intent.getStringExtra(TorService.EXTRA_STATUS);
         Log.d(TAG, "handle Tor status event: " + status);
-        TorStatusObservable.updateState(context, status);
+        Integer bootstrap = intent.getIntExtra(TorService.EXTRA_STATUS_DETAIL_BOOTSTRAP, -1);
+        String logKey = intent.getStringExtra(TorService.EXTRA_STATUS_DETAIL_LOGKEY);
+        TorStatusObservable.updateState(context, status, bootstrap, logKey);
     }
 
 
