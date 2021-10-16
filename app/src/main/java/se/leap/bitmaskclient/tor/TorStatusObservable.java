@@ -1,10 +1,8 @@
 package se.leap.bitmaskclient.tor;
 
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Observable;
@@ -24,10 +22,15 @@ public class TorStatusObservable extends Observable {
         UNKOWN
     }
 
+    public static final String LOG_TAG_TOR = "[TOR]";
+    public static final String LOG_TAG_SNOWFLAKE = "[SNOWFLAKE]";
+
     private static TorStatusObservable instance;
     private TorStatus status = TorStatus.UNKOWN;
     private final TorNotificationManager torNotificationManager;
     private String lastError;
+    private String lastTorLog;
+    private String lastSnowflakeLog;
     private int port = -1;
     private int bootstrapPercent = -1;
     private Vector<String> lastLogs = new Vector<>(100);
@@ -47,14 +50,30 @@ public class TorStatusObservable extends Observable {
         return getInstance().status;
     }
 
-    public static void logMessage(Context context, String tag, String message) {
-        Log.d(tag, message);
+    public static void logSnowflakeMessage(Context context, String message) {
+        Log.d(LOG_TAG_SNOWFLAKE, message);
         addLog(message);
+        getInstance().lastSnowflakeLog = message;
         if (getInstance().status != TorStatus.OFF) {
-            getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), message, getInstance().bootstrapPercent);
+            getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getNotificationProgress());
         }
         instance.setChanged();
         instance.notifyObservers();
+    }
+
+    private static String getNotificationLog() {
+        String snowflakeIcon = new String(Character.toChars(0x2744));
+        String snowflakeLog = getInstance().lastSnowflakeLog;
+        // we don't want to show the response json in the notification
+        if (snowflakeLog != null && snowflakeLog.contains("Received answer: {")) {
+            snowflakeLog = "Received answer.";
+        }
+        return "Tor: " + getInstance().lastTorLog + "\n" +
+                snowflakeIcon + ": " + snowflakeLog;
+    }
+
+    private static int getNotificationProgress() {
+        return getInstance().status == TorStatus.STARTING ? getInstance().bootstrapPercent : -1;
     }
 
     private static void addLog(String message) {
@@ -75,18 +94,15 @@ public class TorStatusObservable extends Observable {
             if (bootstrapPercent != -1) {
                 getInstance().bootstrapPercent = bootstrapPercent;
             }
-            int progress = getInstance().status == TorStatus.STARTING ? getInstance().bootstrapPercent : -1;
-
 
             if (getInstance().status == TorStatus.OFF) {
                 getInstance().torNotificationManager.cancelNotifications(context);
-            } else if (logKey != null) {
-                String log = getStringFor(context, logKey);
-                addLog(log);
-                getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), log, progress);
             } else {
-                String log = instance.lastLogs.size() > 0 ? instance.lastLogs.lastElement() : "";
-                getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), log, progress);
+                if (logKey != null) {
+                    getInstance().lastTorLog = getStringFor(context, logKey);
+                    addLog(getInstance().lastTorLog);
+                }
+                getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getNotificationProgress());
             }
 
             instance.setChanged();

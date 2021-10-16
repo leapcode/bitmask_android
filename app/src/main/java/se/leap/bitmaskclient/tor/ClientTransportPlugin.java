@@ -18,6 +18,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import IPtProxy.IPtProxy;
 
@@ -28,6 +30,7 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
     private final WeakReference<Context> contextRef;
     private long snowflakePort = -1;
     private FileObserver logFileObserver;
+    private static final Pattern SNOWFLAKE_LOG_TIMESTAMP_PATTERN = Pattern.compile("((19|2[0-9])[0-9]{2}\\/\\d{1,2}\\/\\d{1,2} \\d{1,2}:\\d{1,2}:\\d{1,2}) ([\\S|\\s]+)");
 
     public ClientTransportPlugin(Context context) {
         this.contextRef = new WeakReference<>(context);
@@ -77,7 +80,7 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
                             int endIndex = currentBuffer.size() - 1;
                             Collection<String> newMessages = currentBuffer.subList(startIndex, endIndex);
                             for (String message : newMessages) {
-                                Log.d("[SNOWFLAKE]",  message);
+                                logSnowflakeMessage(message);
                             }
                             lastBuffer.addAll(newMessages);
                         }
@@ -129,5 +132,24 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
             return mFronts.get(service);
         }
         return null;
+    }
+
+    private void logSnowflakeMessage(String message) {
+        Matcher matcher = SNOWFLAKE_LOG_TIMESTAMP_PATTERN.matcher(message);
+        if (matcher.matches()) {
+            try {
+
+                String strippedString = matcher.group(3).trim();
+                Log.d(TAG, "log: " + message);
+                Log.d(TAG, "log stripped: " + strippedString);
+                if (strippedString.length() > 0) {
+                    TorStatusObservable.logSnowflakeMessage(contextRef.get(), strippedString);
+                }
+            } catch (IndexOutOfBoundsException | IllegalStateException e) {
+                e.printStackTrace();
+            }
+        } else {
+            TorStatusObservable.logSnowflakeMessage(contextRef.get(), message);
+        }
     }
 }
