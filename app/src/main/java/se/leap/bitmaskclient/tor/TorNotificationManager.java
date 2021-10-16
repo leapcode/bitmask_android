@@ -23,12 +23,9 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.base.models.ProviderObservable;
 
 public class TorNotificationManager {
     public   final static int TOR_SERVICE_NOTIFICATION_ID = 10;
