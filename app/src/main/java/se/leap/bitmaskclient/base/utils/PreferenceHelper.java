@@ -33,8 +33,7 @@ import static se.leap.bitmaskclient.base.models.Constants.RESTART_ON_UPDATE;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
-import static se.leap.bitmaskclient.base.models.Constants.USE_PLUGGABLE_TRANSPORTS;
-import static se.leap.bitmaskclient.base.models.Constants.USE_TOR;
+import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 
 /**
  * Created by cyberta on 18.03.18.
@@ -141,12 +140,17 @@ public class PreferenceHelper {
         return getBoolean(context, RESTART_ON_UPDATE, false);
     }
 
-    public static boolean getUsePluggableTransports(Context context) {
-        return getBoolean(context, USE_PLUGGABLE_TRANSPORTS, false);
+
+    public static boolean getUseBridges(SharedPreferences preferences) {
+        return preferences.getBoolean(USE_BRIDGES, false);
     }
 
-    public static void usePluggableTransports(Context context, boolean isEnabled) {
-        putBoolean(context, USE_PLUGGABLE_TRANSPORTS, isEnabled);
+    public static boolean getUseBridges(Context context) {
+        return getBoolean(context, USE_BRIDGES, false);
+    }
+
+    public static void useBridges(Context context, boolean isEnabled) {
+        putBoolean(context, USE_BRIDGES, isEnabled);
     }
 
     public static void saveBattery(Context context, boolean isEnabled) {
@@ -213,7 +217,7 @@ public class PreferenceHelper {
         putString(context, PREFERRED_CITY, city);
     }
 
-    public static Boolean useTor(SharedPreferences preferences) {
+ /*   public static Boolean useTor(SharedPreferences preferences) {
         return preferences.getBoolean(USE_TOR, true);
     }
 
@@ -223,7 +227,7 @@ public class PreferenceHelper {
 
     public static void setUseTor(Context context, boolean useTor) {
         putBoolean(context, USE_TOR, useTor);
-    }
+    }*/
 
     public static JSONObject getEipDefinitionFromPreferences(SharedPreferences preferences) {
         JSONObject result = new JSONObject();

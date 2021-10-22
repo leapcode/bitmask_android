@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -53,7 +52,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.SORTED_GATEWAYS;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePluggableTransports;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 
 /**
  * @author parmegv
@@ -82,7 +81,7 @@ public class GatewaysManager {
     }
 
     public Gateway select(int nClosest, String city) {
-        Connection.TransportType transportType = getUsePluggableTransports(context) ? OBFS4 : OPENVPN;
+        Connection.TransportType transportType = getUseBridges(context) ? OBFS4 : OPENVPN;
         if (presortedList.size() > 0) {
             return getGatewayFromPresortedList(nClosest, transportType, city);
         }

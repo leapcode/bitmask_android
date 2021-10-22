@@ -198,7 +198,7 @@ public class GatewaysManagerTest {
 
         MockHelper.mockProviderObserver(provider);
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         assertEquals("37.12.247.10", gatewaysManager.select(0).getRemoteIP());
@@ -211,7 +211,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         assertEquals("manila.bitmask.net", gatewaysManager.select(0).getHost());
@@ -226,7 +226,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         assertEquals("moscow.bitmask.net", gatewaysManager.select(0).getHost());
@@ -242,7 +242,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         when(PreferenceHelper.getPreferredCity(any(Context.class))).thenReturn("Paris");
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
@@ -258,7 +258,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         when(PreferenceHelper.getPreferredCity(any(Context.class))).thenReturn("Paris");
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
@@ -275,7 +275,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         when(PreferenceHelper.getPreferredCity(any(Context.class))).thenReturn("Paris");
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
@@ -292,7 +292,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         assertEquals("mouette.riseup.net", gatewaysManager.select(0, "Paris").getHost());
@@ -307,7 +307,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         assertEquals("mouette.riseup.net", gatewaysManager.select(0, "Paris").getHost());
@@ -323,7 +323,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         assertEquals("Paris", gatewaysManager.select(0, "Paris").getName());
@@ -340,7 +340,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObserver(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertNull(gatewaysManager.select(0, "Stockholm"));
     }
@@ -351,7 +351,7 @@ public class GatewaysManagerTest {
 
         MockHelper.mockProviderObserver(provider);
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(false);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         List<Location> locations = gatewaysManager.getGatewayLocations();
 
@@ -372,7 +372,7 @@ public class GatewaysManagerTest {
 
         MockHelper.mockProviderObserver(provider);
         mockStatic(PreferenceHelper.class);
-        when(PreferenceHelper.getUsePluggableTransports(any(Context.class))).thenReturn(true);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         List<Location> locations = gatewaysManager.getGatewayLocations();
 

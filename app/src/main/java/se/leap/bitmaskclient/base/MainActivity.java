@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
             storeProviderInPreferences(preferences, provider);
             ProviderObservable.getInstance().updateProvider(provider);
             if (!provider.supportsPluggableTransports()) {
-                PreferenceHelper.usePluggableTransports(this, false);
+                PreferenceHelper.useBridges(this, false);
             }
             navigationDrawerFragment.refresh();
 

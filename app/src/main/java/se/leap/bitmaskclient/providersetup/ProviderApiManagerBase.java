@@ -296,7 +296,7 @@ public abstract class ProviderApiManagerBase {
     }
 
     protected boolean startTorProxy() throws InterruptedException, TimeoutException {
-        if (PreferenceHelper.useTor(preferences) &&
+        if (PreferenceHelper.getUseBridges(preferences) &&
                 EipStatus.getInstance().isDisconnected() &&
                 serviceCallback.isConnectedToWifi()
         ) {

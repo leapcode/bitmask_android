@@ -330,7 +330,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             if (tries == 0 &&
                     responseString != null &&
                     responseString.contains(ERRORS)  &&
-                    PreferenceHelper.useTor(preferences) &&
+                    PreferenceHelper.getUseBridges(preferences) &&
                     EipStatus.getInstance().isDisconnected() &&
                     (TorStatusObservable.getStatus() == OFF ||
                     TorStatusObservable.getStatus() == UNKOWN) &&
@@ -375,7 +375,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             if (tries == 0 &&
                     responseString != null &&
                     responseString.contains(ERRORS)  &&
-                    PreferenceHelper.useTor(preferences) &&
+                    PreferenceHelper.getUseBridges(preferences) &&
                     EipStatus.getInstance().isDisconnected() &&
                     (TorStatusObservable.getStatus() == OFF ||
                     TorStatusObservable.getStatus() == UNKOWN) &&
