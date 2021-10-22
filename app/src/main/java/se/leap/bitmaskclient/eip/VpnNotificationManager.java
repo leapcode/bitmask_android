@@ -131,7 +131,7 @@ public class VpnNotificationManager {
                                          String notificationChannelNewstatusId, VpnServiceCallback vpnServiceCallback) {
         String cancelString;
         CharSequence bigmessage = null;
-        String ghostIcon = new String(Character.toChars(0x1f309));
+        String bridgeIcon = new String(Character.toChars(0x1f309));
 
         switch (status) {
             // show cancel if no connection
@@ -143,7 +143,7 @@ public class VpnNotificationManager {
                 if (isObfuscated && Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
                     Spannable spannable = new SpannableString(context.getString(R.string.obfuscated_connection_try));
                     spannable.setSpan(new StyleSpan(Typeface.ITALIC), 0, spannable.length() -1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    bigmessage = TextUtils.concat(spannable, " " + ghostIcon + "\n" + msg);
+                    bigmessage = TextUtils.concat(spannable, " " + bridgeIcon + "\n" + msg);
                 }
                 break;
 
@@ -152,14 +152,14 @@ public class VpnNotificationManager {
                 if (isObfuscated && Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
                     Spannable spannable = new SpannableString(context.getString(R.string.obfuscated_connection));
                     spannable.setSpan(new StyleSpan(Typeface.ITALIC), 0, spannable.length() -1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    bigmessage = TextUtils.concat(spannable, " " + ghostIcon + "\n" + msg);
+                    bigmessage = TextUtils.concat(spannable, " " + bridgeIcon + "\n" + msg);
                 }
             default:
                 cancelString = context.getString(R.string.cancel_connection);
         }
 
         if (isObfuscated) {
-            msg =  ghostIcon + " " + msg;
+            msg =  bridgeIcon + " " + msg;
         }
 
         NotificationCompat.Action.Builder actionBuilder = new NotificationCompat.Action.
