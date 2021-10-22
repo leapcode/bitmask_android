@@ -5,20 +5,28 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -31,8 +39,14 @@ import se.leap.bitmaskclient.tor.TorStatusObservable;
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getBootstrapProgress;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastLogs;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastSnowflakeLog;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastTorLog;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getStringForCurrentStatus;
 
 /**
  * Base Activity for configuration wizard activities
@@ -53,6 +67,32 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
     @Nullable
     @BindView(R.id.loading_screen)
     protected LinearLayout loadingScreen;
+
+    @Nullable
+    @BindView(R.id.btn_connection_detail)
+    protected Button connectionDetailBtn;
+
+    @Nullable
+    @BindView(R.id.connection_detail_container)
+    protected RelativeLayout connectionDetailContainer;
+
+    @Nullable
+    @BindView(R.id.log_container)
+    protected RelativeLayout logsContainer;
+
+    @Nullable
+    @BindView(R.id.tor_state)
+    protected AppCompatTextView torState;
+
+    @Nullable
+    @BindView(R.id.snowflake_state)
+    protected AppCompatTextView snowflakeState;
+
+    @Nullable
+    @BindView(R.id.connection_detail_logs)
+    protected RecyclerView connectionDetailLogs;
+
+    private TorLogAdapter torLogAdapter;
 
     @Nullable
     @BindView(R.id.progressbar)
@@ -157,7 +197,7 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
         super.onResume();
         isActivityShowing = true;
         TorStatusObservable.getInstance().addObserver(this);
-        setProgressbarDescription(TorStatusObservable.getStringForCurrentStatus(this));
+        setProgressbarDescription(getStringForCurrentStatus(this));
     }
 
     protected void restoreState(Bundle savedInstanceState) {
@@ -178,10 +218,48 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
         providerHeaderView.setTitle(providerHeaderText);
     }
 
+    protected void showConnectionDetails() {
+        if (loadingScreen == null) {
+            return;
+        }
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        connectionDetailLogs.setLayoutManager(layoutManager);
+        connectionDetailLogs.addItemDecoration( new DividerItemDecoration(this, layoutManager.getOrientation()));
+        torLogAdapter = new TorLogAdapter(getLastLogs());
+        connectionDetailLogs.setAdapter(torLogAdapter);
+
+        connectionDetailLogs.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState != SCROLL_STATE_IDLE) {
+                    torLogAdapter.postponeUpdate = true;
+                } else if (newState == SCROLL_STATE_IDLE && getFirstVisibleItemPosion() == 0) {
+                    torLogAdapter.postponeUpdate = false;
+                }
+            }
+        });
+
+        snowflakeState.setText(getLastSnowflakeLog());
+        torState.setText(getLastTorLog());
+        connectionDetailBtn.setOnClickListener(v -> {
+            connectionDetailBtn.setVisibility(GONE);
+            logsContainer.setVisibility(VISIBLE);
+        });
+        connectionDetailContainer.setVisibility(VISIBLE);
+    }
+
+    private int getFirstVisibleItemPosion() {
+        return ((LinearLayoutManager)connectionDetailLogs.getLayoutManager()).findFirstVisibleItemPosition();
+    }
+
     protected void hideProgressBar() {
         if (loadingScreen == null) {
             return;
         }
+        connectionDetailBtn.setVisibility(VISIBLE);
+        connectionDetailContainer.setVisibility(GONE);
+        logsContainer.setVisibility(GONE);
         loadingScreen.setVisibility(GONE);
         content.setVisibility(VISIBLE);
     }
@@ -195,17 +273,26 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
     }
 
     protected void setProgressbarTitle(@StringRes int progressbarTitle) {
-        if (this.progressbarTitle == null) {
+        if (loadingScreen == null) {
             return;
         }
         this.progressbarTitle.setText(progressbarTitle);
     }
 
     protected void setProgressbarDescription(String progressbarDescription) {
-        if (this.progressbarDescription == null) {
+        if (loadingScreen == null) {
             return;
         }
         this.progressbarDescription.setText(progressbarDescription);
+    }
+
+    protected void setConfigProgress(int value) {
+        if (loadingScreen == null) {
+            return;
+        }
+
+        progressBar.setProgress(value, true);
+        progressBar.setIndeterminate(value >= 100 || value < 0);
     }
 
 
@@ -307,7 +394,73 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof TorStatusObservable) {
-            runOnUiThread(() -> setProgressbarDescription(TorStatusObservable.getStringForCurrentStatus(ConfigWizardBaseActivity.this)));
+            runOnUiThread(() -> {
+                if (TorStatusObservable.getStatus() != TorStatusObservable.TorStatus.OFF && loadingScreen != null) {
+                    if (connectionDetailContainer.getVisibility() == GONE) {
+                        showConnectionDetails();
+                    } else {
+                        setLogs(getLastTorLog(), getLastSnowflakeLog(), getLastLogs());
+                    }
+                }
+                setProgressbarDescription(getStringForCurrentStatus(ConfigWizardBaseActivity.this));
+                setConfigProgress(getBootstrapProgress());
+            });
+        }
+    }
+
+    protected void setLogs(String torLog, String snowflakeLog, List<String> lastLogs) {
+        if (loadingScreen == null) {
+            return;
+        }
+        torLogAdapter.updateData(lastLogs);
+        torState.setText(torLog);
+        snowflakeState.setText(snowflakeLog);
+    }
+
+    static class TorLogAdapter extends RecyclerView.Adapter<TorLogAdapter.ViewHolder> {
+        private List<String> values;
+        private boolean postponeUpdate;
+
+        static class ViewHolder extends RecyclerView.ViewHolder {
+            public AppCompatTextView logTextLabel;
+            public View layout;
+
+            public ViewHolder(View v) {
+                super(v);
+                layout = v;
+                logTextLabel = v.findViewById(android.R.id.text1);
+            }
+        }
+
+        public void updateData(List<String> data) {
+            values = data;
+            if (!postponeUpdate) {
+                notifyDataSetChanged();
+            }
+        }
+
+        public TorLogAdapter(List<String> data) {
+            values = data;
+        }
+
+        @NonNull
+        @Override
+        public TorLogAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(
+                    parent.getContext());
+            View v = inflater.inflate(R.layout.v_log_item, parent, false);
+            return new TorLogAdapter.ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(TorLogAdapter.ViewHolder holder, final int position) {
+            final String log = values.get(position);
+            holder.logTextLabel.setText(log);
+        }
+
+        @Override
+        public int getItemCount() {
+            return values.size();
         }
     }
 }

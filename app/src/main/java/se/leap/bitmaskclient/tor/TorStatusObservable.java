@@ -55,7 +55,7 @@ public class TorStatusObservable extends Observable {
         addLog(message);
         getInstance().lastSnowflakeLog = message;
         if (getInstance().status != TorStatus.OFF) {
-            getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getNotificationProgress());
+            getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getBootstrapProgress());
         }
         instance.setChanged();
         instance.notifyObservers();
@@ -72,15 +72,15 @@ public class TorStatusObservable extends Observable {
                 snowflakeIcon + ": " + snowflakeLog;
     }
 
-    private static int getNotificationProgress() {
+    public static int getBootstrapProgress() {
         return getInstance().status == TorStatus.STARTING ? getInstance().bootstrapPercent : -1;
     }
 
     private static void addLog(String message) {
         if (instance.lastLogs.size() > 100) {
-            instance.lastLogs.remove(0);
+            instance.lastLogs.remove(99);
         }
-        instance.lastLogs.add(message);
+        instance.lastLogs.add(0, message.trim());
     }
 
     public static void updateState(Context context, String status) {
@@ -102,7 +102,7 @@ public class TorStatusObservable extends Observable {
                     getInstance().lastTorLog = getStringFor(context, logKey);
                     addLog(getInstance().lastTorLog);
                 }
-                getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getNotificationProgress());
+                getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getBootstrapProgress());
             }
 
             instance.setChanged();
@@ -168,8 +168,17 @@ public class TorStatusObservable extends Observable {
 
 
     @Nullable
-    public String getLastError() {
-        return lastError;
+    public static String getLastTorLog() {
+        return getInstance().lastTorLog;
+    }
+
+    @Nullable
+    public static String getLastSnowflakeLog() {
+        return getInstance().lastSnowflakeLog;
+    }
+
+    public static Vector<String> getLastLogs() {
+        return getInstance().lastLogs;
     }
 
     public static String getStringForCurrentStatus(Context context) {
