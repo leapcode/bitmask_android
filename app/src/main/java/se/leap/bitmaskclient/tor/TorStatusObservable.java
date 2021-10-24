@@ -1,9 +1,12 @@
 package se.leap.bitmaskclient.tor;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+
+import org.torproject.jni.TorService;
 
 import java.util.Observable;
 import java.util.Vector;
@@ -21,6 +24,8 @@ public class TorStatusObservable extends Observable {
         STOPPING,
         UNKOWN
     }
+
+    private boolean cancelled = false;
 
     public static final String LOG_TAG_TOR = "[TOR]";
     public static final String LOG_TAG_SNOWFLAKE = "[SNOWFLAKE]";
@@ -97,6 +102,7 @@ public class TorStatusObservable extends Observable {
 
             if (getInstance().status == TorStatus.OFF) {
                 getInstance().torNotificationManager.cancelNotifications(context);
+                getInstance().cancelled = false;
             } else {
                 if (logKey != null) {
                     getInstance().lastTorLog = getStringFor(context, logKey);
@@ -194,5 +200,17 @@ public class TorStatusObservable extends Observable {
                 break;
         }
         return null;
+    }
+
+    public static void shutdownTor(Context context) {
+        getInstance().cancelled = true;
+        getInstance().notifyObservers();
+
+        Intent intent = new Intent(context, TorService.class);
+        boolean stopped = context.stopService(intent);
+    }
+
+    public static boolean isCancelled() {
+        return getInstance().cancelled;
     }
 }

@@ -170,8 +170,8 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
 
     public void cancelSettingUpProvider(boolean stopTor) {
         if (stopTor && TorStatusObservable.getStatus() != OFF) {
-            Intent torServiceIntent = new Intent(getApplicationContext(), TorService.class);
-            stopService(torServiceIntent);
+            Log.d(TAG, "SHUTDOWN - cancelSettingUpProvider stopTor:" + stopTor);
+            TorStatusObservable.shutdownTor(this);
         }
         providerConfigState = PROVIDER_NOT_SET;
         provider = null;

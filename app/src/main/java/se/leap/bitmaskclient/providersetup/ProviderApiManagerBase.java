@@ -192,11 +192,12 @@ public abstract class ProviderApiManagerBase {
         }
 
         // uncomment for testing --v
-        /* try {
+         try {
             startTorProxy();
         } catch (InterruptedException | TimeoutException e) {
             e.printStackTrace();
-        } */
+            return;
+        }
 
         Bundle result = new Bundle();
         switch (action) {
@@ -302,6 +303,9 @@ public abstract class ProviderApiManagerBase {
         ) {
             serviceCallback.startTorService();
             waitForTorCircuits();
+            if (TorStatusObservable.isCancelled()) {
+                throw new InterruptedException("cancelled Tor setup");
+            }
             int port = serviceCallback.getTorHttpTunnelPort();
             TorStatusObservable.setProxyPort(port);
             return port != -1;
@@ -314,17 +318,17 @@ public abstract class ProviderApiManagerBase {
             return;
         }
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        AtomicBoolean successfulSetup = new AtomicBoolean(false);
+        AtomicBoolean stopWaiting = new AtomicBoolean(false);
         Observer observer = (o, arg) -> {
-            if (TorStatusObservable.getStatus() == ON) {
-                successfulSetup.set(true);
+            if (TorStatusObservable.getStatus() == ON || TorStatusObservable.isCancelled()) {
+                stopWaiting.set(true);
                 countDownLatch.countDown();
             }
         };
         TorStatusObservable.getInstance().addObserver(observer);
         countDownLatch.await(180, TimeUnit.SECONDS);
         TorStatusObservable.getInstance().deleteObserver(observer);
-        if (!successfulSetup.get()) {
+        if (!stopWaiting.get()) {
             throw new TimeoutException("Timeout reached");
         }
     }

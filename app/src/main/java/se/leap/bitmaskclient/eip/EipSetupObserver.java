@@ -368,8 +368,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         observedProfileFromVpnStatus = null;
         this.changingGateway.set(changingGateway);
         if (TorStatusObservable.getStatus() != OFF) {
-            Intent intent = new Intent(context, TorService.class);
-            context.stopService(intent);
+            TorStatusObservable.shutdownTor(context);
         }
     }
 
