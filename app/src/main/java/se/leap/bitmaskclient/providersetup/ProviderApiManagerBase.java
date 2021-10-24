@@ -127,7 +127,6 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.RECEIVER_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SIGN_UP;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.STOP_PROXY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_LOGIN;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_LOGOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_SIGNUP;
@@ -185,7 +184,7 @@ public abstract class ProviderApiManagerBase {
         Provider provider = null;
         if (command.getParcelableExtra(PROVIDER_KEY) != null) {
             provider = command.getParcelableExtra(PROVIDER_KEY);
-        } else if (!STOP_PROXY.equals(action)) {
+        } else {
             //TODO: consider returning error back e.g. NO_PROVIDER
             Log.e(TAG, action +" called without provider!");
             return;

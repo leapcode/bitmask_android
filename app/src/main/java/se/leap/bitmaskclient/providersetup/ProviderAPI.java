@@ -67,7 +67,6 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
 
     final public static String
             TAG = ProviderAPI.class.getSimpleName(),
-            STOP_PROXY = "stopProxy",
             SET_UP_PROVIDER = "setUpProvider",
             UPDATE_PROVIDER_DETAILS = "updateProviderDetails",
             DOWNLOAD_GEOIP_JSON = "downloadGeoIpJson",
