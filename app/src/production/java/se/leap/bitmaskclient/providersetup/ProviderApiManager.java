@@ -57,7 +57,6 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.UNKOWN;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
 /**
@@ -332,8 +331,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                     responseString.contains(ERRORS)  &&
                     PreferenceHelper.getUseBridges(preferences) &&
                     EipStatus.getInstance().isDisconnected() &&
-                    (TorStatusObservable.getStatus() == OFF ||
-                    TorStatusObservable.getStatus() == UNKOWN) &&
+                    TorStatusObservable.getStatus() == OFF &&
                     startTorProxy()
             ) {
                 return downloadWithCommercialCA(stringUrl, provider, 1);
@@ -377,8 +375,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                     responseString.contains(ERRORS)  &&
                     PreferenceHelper.getUseBridges(preferences) &&
                     EipStatus.getInstance().isDisconnected() &&
-                    (TorStatusObservable.getStatus() == OFF ||
-                    TorStatusObservable.getStatus() == UNKOWN) &&
+                    TorStatusObservable.getStatus() == OFF &&
                     startTorProxy()
             ) {
                 return downloadFromUrlWithProviderCA(urlString, provider, 1);

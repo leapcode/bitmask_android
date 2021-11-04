@@ -22,7 +22,7 @@ public class TorStatusObservable extends Observable {
         OFF,
         STARTING,
         STOPPING,
-        UNKOWN
+       // UNKOWN
     }
 
     private boolean cancelled = false;
@@ -31,7 +31,7 @@ public class TorStatusObservable extends Observable {
     public static final String LOG_TAG_SNOWFLAKE = "[SNOWFLAKE]";
 
     private static TorStatusObservable instance;
-    private TorStatus status = TorStatus.UNKOWN;
+    private TorStatus status = TorStatus.OFF;
     private final TorNotificationManager torNotificationManager;
     private String lastError;
     private String lastTorLog;
@@ -196,7 +196,6 @@ public class TorStatusObservable extends Observable {
             case STOPPING:
                 return context.getString(R.string.tor_stopping);
             case OFF:
-            case UNKOWN:
                 break;
         }
         return null;
