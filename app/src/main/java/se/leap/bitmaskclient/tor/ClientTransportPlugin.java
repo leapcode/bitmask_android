@@ -66,7 +66,7 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
 
     private void watchLogFile(File logfile) {
         final Vector<String> lastBuffer = new Vector<>();
-        logFileObserver = new FileObserver(logfile) {
+        logFileObserver = new FileObserver(logfile.getAbsolutePath()) {
             @Override
             public void onEvent(int event, @Nullable String name) {
                 if (FileObserver.MODIFY == event) {
