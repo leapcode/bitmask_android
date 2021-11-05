@@ -176,6 +176,8 @@
   <string name="log_done">Running</string>
   <string name="channel_name_tor_service">%s Bridges Service</string>
   <string name="channel_description_tor_service">Informs about usage of bridges while configuring %s.</string>
+  <string name="error_tor_timeout">Starting bridges failed. Do you want to retry or continue with an unobfuscated secure connection to configure %s?</string>
+  <string name="retry_unobfuscated">Retry unobfuscated</string>
 
 
 </resources>

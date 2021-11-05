@@ -114,6 +114,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLO
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INITIAL_ACTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.LOGOUT_FAILED;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.LOG_OUT;
@@ -126,12 +127,14 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.SIGN_UP;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_LOGIN;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_LOGOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_SIGNUP;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_TOR_TIMEOUT;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.ON;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
@@ -147,6 +150,7 @@ public abstract class ProviderApiManagerBase {
     public interface ProviderApiServiceCallback {
         void broadcastEvent(Intent intent);
         void startTorService() throws InterruptedException, IllegalStateException;
+        void stopTorService() throws IllegalStateException;
         int getTorHttpTunnelPort();
         boolean isConnectedToWifi();
     }
@@ -188,10 +192,16 @@ public abstract class ProviderApiManagerBase {
 
          try {
             startTorProxy();
-        } catch (InterruptedException | IllegalStateException | TimeoutException e) {
+        } catch (InterruptedException | IllegalStateException e) {
             e.printStackTrace();
             return;
-        }
+        } catch (TimeoutException e) {
+             serviceCallback.stopTorService();
+             Bundle result = new Bundle();
+             setErrorResult(result, action, R.string.error_tor_timeout, ERROR_TOR_TIMEOUT.toString());
+             sendToReceiverOrBroadcast(receiver, TOR_TIMEOUT, result, provider);
+             return;
+         }
 
         Bundle result = new Bundle();
         switch (action) {
@@ -348,10 +358,11 @@ public abstract class ProviderApiManagerBase {
         }
     }
 
-    private void addErrorMessageToJson(JSONObject jsonObject, String errorMessage, String errorId) {
+    private void addErrorMessageToJson(JSONObject jsonObject, String initialAction, String errorMessage, String errorId) {
         try {
             jsonObject.put(ERRORS, errorMessage);
-            jsonObject.put(ERRORID, errorId);
+            jsonObject.putOpt(ERRORID, errorId);
+            jsonObject.putOpt(INITIAL_ACTION, initialAction);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -908,13 +919,13 @@ public abstract class ProviderApiManagerBase {
     }
 
     Bundle setErrorResult(Bundle result, int errorMessageId, String errorId) {
+        return setErrorResult(result, null, errorMessageId, errorId);
+    }
+
+    Bundle setErrorResult(Bundle result, String initialAction, int errorMessageId, String errorId) {
         JSONObject errorJson = new JSONObject();
         String errorMessage = getProviderFormattedString(resources, errorMessageId);
-        if (errorId != null) {
-            addErrorMessageToJson(errorJson, errorMessage, errorId);
-        } else {
-            addErrorMessageToJson(errorJson, errorMessage);
-        }
+        addErrorMessageToJson(errorJson, initialAction, errorMessage, errorId);
         VpnStatus.logWarning("[API] error: " + errorMessage);
         result.putString(ERRORS, errorJson.toString());
         result.putBoolean(BROADCAST_RESULT_KEY, false);

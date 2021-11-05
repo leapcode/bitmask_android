@@ -35,7 +35,7 @@ public interface ProviderSetupInterface {
     }
 
     void handleProviderSetUp(Provider provider);
-    void handleProviderSetupFailed(Bundle resultData);
+    void handleError(Bundle resultData);
     void handleCorrectlyDownloadedCertificate(Provider provider);
     void handleIncorrectlyDownloadedCertificate();
     Provider getProvider();

@@ -145,7 +145,7 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     }
 
     @Override
-    public void handleProviderSetupFailed(Bundle resultData) {
+    public void handleError(Bundle resultData) {
         reasonToFail = resultData.getString(ERRORS);
         showDownloadFailedDialog();
     }

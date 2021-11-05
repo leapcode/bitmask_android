@@ -79,6 +79,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             RECEIVER_KEY = "receiver",
             ERRORS = "errors",
             ERRORID = "errorId",
+            INITIAL_ACTION = "initalAction",
             BACKEND_ERROR_KEY = "error",
             BACKEND_ERROR_MESSAGE = "message",
             USER_MESSAGE = "userMessage",
@@ -100,7 +101,8 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE = 15,
             INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE = 16,
             CORRECTLY_DOWNLOADED_GEOIP_JSON = 17,
-            INCORRECTLY_DOWNLOADED_GEOIP_JSON = 18;
+            INCORRECTLY_DOWNLOADED_GEOIP_JSON = 18,
+            TOR_TIMEOUT = 19;
 
     ProviderApiManager providerApiManager;
     private volatile TorServiceConnection torServiceConnection;
@@ -137,6 +139,10 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
     @Override
     public void onDestroy() {
         super.onDestroy();
+        closeTorServiceConnection();
+    }
+
+    private void closeTorServiceConnection() {
         if (torServiceConnection != null) {
             torServiceConnection.close();
             torServiceConnection = null;
@@ -168,6 +174,12 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
         }
     }
 
+    @Override
+    public void stopTorService() throws IllegalStateException {
+        closeTorServiceConnection();
+        Intent stopIntent = new Intent(this, TorService.class);
+        stopService(stopIntent);
+    }
 
     @Override
     public int getTorHttpTunnelPort() {
