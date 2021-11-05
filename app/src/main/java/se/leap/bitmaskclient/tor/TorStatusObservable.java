@@ -9,7 +9,12 @@ import androidx.annotation.Nullable;
 import org.torproject.jni.TorService;
 
 import java.util.Observable;
+import java.util.Observer;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import se.leap.bitmaskclient.R;
 
@@ -17,21 +22,34 @@ public class TorStatusObservable extends Observable {
 
     private static final String TAG = TorStatusObservable.class.getSimpleName();
 
+    public interface StatusCondition {
+        boolean met();
+    }
+
     public enum TorStatus {
         ON,
         OFF,
         STARTING,
-        STOPPING,
-       // UNKOWN
+        STOPPING
     }
 
+    public enum SnowflakeStatus {
+        ON,
+        OFF
+    }
+
+    // indicates if the user has cancelled Tor, the actual TorStatus can still be different until
+    // the TorService has sent the shutdown signal
     private boolean cancelled = false;
 
     public static final String LOG_TAG_TOR = "[TOR]";
     public static final String LOG_TAG_SNOWFLAKE = "[SNOWFLAKE]";
+    public static final String SNOWFLAKE_STARTED = "--- Starting Snowflake Client ---";
+    public static final String SNOWFLAKE_STOPPED = "---- SnowflakeConn: end collecting snowflakes ---";
 
     private static TorStatusObservable instance;
     private TorStatus status = TorStatus.OFF;
+    private SnowflakeStatus snowflakeStatus = SnowflakeStatus.OFF;
     private final TorNotificationManager torNotificationManager;
     private String lastError;
     private String lastTorLog;
@@ -55,12 +73,49 @@ public class TorStatusObservable extends Observable {
         return getInstance().status;
     }
 
+    public static SnowflakeStatus getSnowflakeStatus() {
+        return getInstance().snowflakeStatus;
+    }
+
+    /**
+     * Waits on the current Thread until a certain tor/snowflake status has been reached
+     * @param condition defines when wait should be interrupted
+     * @param timeout Timout in seconds
+     * @throws InterruptedException if thread was interrupted while waiting
+     * @throws TimeoutException thrown if timeout was reached
+     */
+    public static void waitUntil(StatusCondition condition, int timeout) throws InterruptedException, TimeoutException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        final AtomicBoolean conditionMet = new AtomicBoolean(false);
+        Observer observer = (o, arg) -> {
+              if (condition.met()) {
+                  countDownLatch.countDown();
+                  conditionMet.set(true);
+              }
+        };
+        if (condition.met()) {
+            // no need to wait
+            return;
+        }
+        getInstance().addObserver(observer);
+        countDownLatch.await(timeout, TimeUnit.SECONDS);
+        getInstance().deleteObserver(observer);
+        if (!conditionMet.get()) {
+            throw new TimeoutException("Status condition not met within " + timeout + "s.");
+        }
+    }
+
     public static void logSnowflakeMessage(Context context, String message) {
-        Log.d(LOG_TAG_SNOWFLAKE, message);
         addLog(message);
         getInstance().lastSnowflakeLog = message;
         if (getInstance().status != TorStatus.OFF) {
             getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getBootstrapProgress());
+        }
+        //TODO: implement proper state signalling in IPtProxy
+        if (SNOWFLAKE_STARTED.equals(message)) {
+            getInstance().snowflakeStatus = SnowflakeStatus.ON;
+        } else if (SNOWFLAKE_STOPPED.equals(message)) {
+            getInstance().snowflakeStatus = SnowflakeStatus.OFF;
         }
         instance.setChanged();
         instance.notifyObservers();
@@ -206,7 +261,7 @@ public class TorStatusObservable extends Observable {
         getInstance().notifyObservers();
 
         Intent intent = new Intent(context, TorService.class);
-        boolean stopped = context.stopService(intent);
+        context.stopService(intent);
     }
 
     public static boolean isCancelled() {

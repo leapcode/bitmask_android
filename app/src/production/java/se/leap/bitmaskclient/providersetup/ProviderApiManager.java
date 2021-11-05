@@ -336,7 +336,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             ) {
                 return downloadWithCommercialCA(stringUrl, provider, 1);
             }
-        } catch (InterruptedException | TimeoutException e) {
+        } catch (InterruptedException | IllegalStateException | TimeoutException e) {
             e.printStackTrace();
         }
         return responseString;
@@ -380,7 +380,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             ) {
                 return downloadFromUrlWithProviderCA(urlString, provider, 1);
             }
-        } catch (InterruptedException | TimeoutException e) {
+        } catch (InterruptedException | IllegalStateException | TimeoutException e) {
             e.printStackTrace();
         }
 

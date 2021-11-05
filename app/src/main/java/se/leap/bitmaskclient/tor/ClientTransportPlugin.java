@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.FileObserver;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.torproject.jni.ClientTransportPluginInterface;
@@ -18,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,8 +98,17 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
     @Override
     public void stop() {
         IPtProxy.stopSnowflake();
+         try {
+            TorStatusObservable.waitUntil(this::isSnowflakeOff, 10);
+        } catch (InterruptedException | TimeoutException e) {
+            e.printStackTrace();
+        }
         snowflakePort = -1;
         logFileObserver.stopWatching();
+    }
+
+    private boolean isSnowflakeOff() {
+        return TorStatusObservable.getSnowflakeStatus() == TorStatusObservable.SnowflakeStatus.OFF;
     }
 
     @Override

@@ -154,7 +154,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
     }
 
     @Override
-    public void startTorService() {
+    public void startTorService() throws InterruptedException, IllegalStateException {
         initTorServiceConnection(this);
         Intent torServiceIntent = new Intent(this, TorService.class);
 
@@ -171,12 +171,16 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
 
     @Override
     public int getTorHttpTunnelPort() {
-        initTorServiceConnection(this);
-        if (torServiceConnection != null) {
-            int tunnelPort = torServiceConnection.torService.getHttpTunnelPort();
-            torServiceConnection.close();
-            torServiceConnection = null;
-            return tunnelPort;
+        try {
+            initTorServiceConnection(this);
+            if (torServiceConnection != null) {
+                int tunnelPort = torServiceConnection.torService.getHttpTunnelPort();
+                torServiceConnection.close();
+                torServiceConnection = null;
+                return tunnelPort;
+            }
+        } catch (InterruptedException | IllegalStateException e) {
+            e.printStackTrace();
         }
 
         return -1;
@@ -195,18 +199,14 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
      * @throws InterruptedException  thrown if thread gets interrupted
      * @throws IllegalStateException thrown if this method was not called from a background thread
      */
-    private void initTorServiceConnection(Context context) {
+    private void initTorServiceConnection(Context context) throws InterruptedException, IllegalStateException {
         if (PreferenceHelper.getUseBridges(context)) {
-            try {
-                if (torServiceConnection == null) {
-                    Log.d(TAG, "serviceConnection is still null");
-                    if (!TorService.hasClientTransportPlugin()) {
-                        TorService.setClientTransportPlugin(new ClientTransportPlugin(context.getApplicationContext()));
-                    }
-                    torServiceConnection = new TorServiceConnection(context);
+            if (torServiceConnection == null) {
+                Log.d(TAG, "serviceConnection is still null");
+                if (!TorService.hasClientTransportPlugin()) {
+                    TorService.setClientTransportPlugin(new ClientTransportPlugin(context.getApplicationContext()));
                 }
-            } catch (InterruptedException | IllegalStateException e) {
-                e.printStackTrace();
+                torServiceConnection = new TorServiceConnection(context);
             }
         }
     }
