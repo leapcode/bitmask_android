@@ -14,6 +14,7 @@ import java.util.Set;
 
 import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_BLUETOOTH;
@@ -151,6 +152,9 @@ public class PreferenceHelper {
 
     public static void useBridges(Context context, boolean isEnabled) {
         putBoolean(context, USE_BRIDGES, isEnabled);
+        if (!isEnabled) {
+            TorStatusObservable.setProxyPort(-1);
+        }
     }
 
     public static void saveBattery(Context context, boolean isEnabled) {
