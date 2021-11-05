@@ -75,15 +75,16 @@ public class TorNotificationManager {
             return null;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel(notificationManager);
+            createNotificationChannel(context, notificationManager);
         }
         return notificationManager;
     }
 
     @TargetApi(26)
-    private static void createNotificationChannel(NotificationManager notificationManager) {
-        CharSequence name =  "Bitmask Tor Service";
-        String description = "Informs about usage of bridges to configure Bitmask.";
+    private static void createNotificationChannel(Context context, NotificationManager notificationManager) {
+        String appName = context.getString(R.string.app_name);
+        CharSequence name =  context.getString(R.string.channel_name_tor_service, appName);
+        String description = context.getString(R.string.channel_description_tor_service, appName);
         NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_NEWSTATUS_ID,
                 name,
                 NotificationManager.IMPORTANCE_LOW);
