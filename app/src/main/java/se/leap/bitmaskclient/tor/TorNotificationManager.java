@@ -61,6 +61,7 @@ public class TorNotificationManager {
                         bigText(message))
                 .setTicker(message)
                 .setContentTitle(state)
+                .setOnlyAlertOnce(true)
                 .setContentText(message);
         if (progress > 0) {
             notificationBuilder.setProgress(100, progress, false);
@@ -97,7 +98,8 @@ public class TorNotificationManager {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_NEWSTATUS_ID);
         notificationBuilder.
                 setDefaults(Notification.DEFAULT_ALL).
-                setAutoCancel(true);
+                setLocalOnly(true).
+                setAutoCancel(false);
         return notificationBuilder;
     }
 
