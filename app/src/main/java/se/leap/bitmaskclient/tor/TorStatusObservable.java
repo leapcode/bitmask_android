@@ -52,8 +52,8 @@ public class TorStatusObservable extends Observable {
     private SnowflakeStatus snowflakeStatus = SnowflakeStatus.OFF;
     private final TorNotificationManager torNotificationManager;
     private String lastError;
-    private String lastTorLog;
-    private String lastSnowflakeLog;
+    private String lastTorLog = "";
+    private String lastSnowflakeLog = "";
     private int port = -1;
     private int bootstrapPercent = -1;
     private Vector<String> lastLogs = new Vector<>(100);
@@ -253,7 +253,7 @@ public class TorStatusObservable extends Observable {
             case OFF:
                 break;
         }
-        return null;
+        return "";
     }
 
     public static void shutdownTor(Context context) {
