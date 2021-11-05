@@ -31,6 +31,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import butterknife.BindView;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.views.ProviderHeaderView;
@@ -218,6 +219,16 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
         providerHeaderView.setTitle(providerHeaderText);
     }
 
+    protected void hideConnectionDetails() {
+        if (loadingScreen == null) {
+            return;
+        }
+
+        connectionDetailBtn.setVisibility(VISIBLE);
+        connectionDetailContainer.setVisibility(GONE);
+        logsContainer.setVisibility(GONE);
+    }
+
     protected void showConnectionDetails() {
         if (loadingScreen == null) {
             return;
@@ -257,9 +268,7 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
         if (loadingScreen == null) {
             return;
         }
-        connectionDetailBtn.setVisibility(VISIBLE);
-        connectionDetailContainer.setVisibility(GONE);
-        logsContainer.setVisibility(GONE);
+        hideConnectionDetails();
         loadingScreen.setVisibility(GONE);
         content.setVisibility(VISIBLE);
     }

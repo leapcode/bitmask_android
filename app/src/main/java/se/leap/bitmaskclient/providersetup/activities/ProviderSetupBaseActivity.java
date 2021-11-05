@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -89,9 +90,11 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
             showProgressBar();
         } else if (PENDING_SHOW_FAILED_DIALOG == providerConfigState) {
             showProgressBar();
+            hideConnectionDetails();
             showDownloadFailedDialog();
         } else if (SHOW_FAILED_DIALOG == providerConfigState) {
             showProgressBar();
+            hideConnectionDetails();
         } else if (SHOWING_PROVIDER_DETAILS == providerConfigState) {
             cancelSettingUpProvider(false);
         } else if (PENDING_SHOW_PROVIDER_DETAILS == providerConfigState) {
@@ -229,6 +232,7 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     public void showDownloadFailedDialog() {
         try {
             providerConfigState = SHOW_FAILED_DIALOG;
+            hideConnectionDetails();
             FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(ProviderSetupFailedDialog.TAG);
             DialogFragment newFragment;
             try {
