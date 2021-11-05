@@ -299,8 +299,11 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
         if (loadingScreen == null) {
             return;
         }
-
-        progressBar.setProgress(value, true);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            progressBar.setProgress(value);
+        } else {
+            progressBar.setProgress(value, true);
+        }
         progressBar.setIndeterminate(value >= 100 || value < 0);
     }
 
