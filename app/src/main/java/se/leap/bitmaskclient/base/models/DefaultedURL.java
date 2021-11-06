@@ -5,12 +5,12 @@ import java.net.URL;
 
 public class DefaultedURL {
     private URL DEFAULT_URL;
-    private String default_url = "https://example.net";
 
     private URL url;
 
     DefaultedURL() {
         try {
+            String default_url = "https://example.net";
             DEFAULT_URL = new URL(default_url);
             url = DEFAULT_URL;
         } catch (MalformedURLException e) {
