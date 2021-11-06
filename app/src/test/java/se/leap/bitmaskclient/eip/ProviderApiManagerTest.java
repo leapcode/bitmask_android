@@ -107,6 +107,24 @@ public class ProviderApiManagerTest {
         public void broadcastEvent(Intent intent) {
             //assertEquals("expected intent: ", expectedIntent, intent);
         }
+
+        @Override
+        public void startTorService() throws InterruptedException, IllegalStateException {
+        }
+
+        @Override
+        public void stopTorService() throws IllegalStateException {
+        }
+
+        @Override
+        public int getTorHttpTunnelPort() {
+            return 0;
+        }
+
+        @Override
+        public boolean isConnectedToWifi() {
+            return true;
+        }
     }
 
     @Before
