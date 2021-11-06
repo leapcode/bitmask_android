@@ -191,7 +191,9 @@ public abstract class ProviderApiManagerBase {
         }
 
          try {
-            startTorProxy();
+             if (PreferenceHelper.getUseBridges(preferences)) {
+                 startTorProxy();
+             }
         } catch (InterruptedException | IllegalStateException e) {
             e.printStackTrace();
             return;
@@ -301,8 +303,8 @@ public abstract class ProviderApiManagerBase {
     }
 
     protected boolean startTorProxy() throws InterruptedException, IllegalStateException, TimeoutException {
-        if (PreferenceHelper.getUseBridges(preferences) &&
-                EipStatus.getInstance().isDisconnected() &&
+        if (EipStatus.getInstance().isDisconnected() &&
+                PreferenceHelper.getUseTor(preferences) &&
                 serviceCallback.isConnectedToWifi()
         ) {
             serviceCallback.startTorService();

@@ -35,6 +35,7 @@ import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
+import static se.leap.bitmaskclient.base.models.Constants.USE_TOR;
 
 /**
  * Created by cyberta on 18.03.18.
@@ -152,9 +153,16 @@ public class PreferenceHelper {
 
     public static void useBridges(Context context, boolean isEnabled) {
         putBoolean(context, USE_BRIDGES, isEnabled);
+        putBoolean(context, USE_TOR, isEnabled);
         if (!isEnabled) {
             TorStatusObservable.setProxyPort(-1);
         }
+    }
+
+    // in contrast to USE_BRIDGES, USE_TOR in enabled by default
+    // This way the initial provider setup can rely on tor as fallback circumvention mechanism
+    public static Boolean getUseTor(SharedPreferences preferences) {
+        return preferences.getBoolean(USE_TOR, true);
     }
 
     public static void saveBattery(Context context, boolean isEnabled) {
@@ -220,18 +228,6 @@ public class PreferenceHelper {
     public static void setPreferredCity(Context context, String city) {
         putString(context, PREFERRED_CITY, city);
     }
-
- /*   public static Boolean useTor(SharedPreferences preferences) {
-        return preferences.getBoolean(USE_TOR, true);
-    }
-
-    public static boolean useTor(Context context) {
-        return getBoolean(context, USE_TOR, true);
-    }
-
-    public static void setUseTor(Context context, boolean useTor) {
-        putBoolean(context, USE_TOR, useTor);
-    }*/
 
     public static JSONObject getEipDefinitionFromPreferences(SharedPreferences preferences) {
         JSONObject result = new JSONObject();
