@@ -53,8 +53,8 @@ public final class Provider implements Parcelable {
     private DefaultedURL mainUrl = new DefaultedURL();
     private DefaultedURL apiUrl = new DefaultedURL();
     private DefaultedURL geoipUrl = new DefaultedURL();
-    private String providerIp = "";
-    private String providerApiIp = "";
+    private String providerIp = ""; // ip of the provider main url
+    private String providerApiIp = ""; // ip of the provider api url
     private String certificatePin = "";
     private String certificatePinEncoding = "";
     private String caCert = "";
