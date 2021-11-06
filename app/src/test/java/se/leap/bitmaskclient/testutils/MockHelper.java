@@ -445,8 +445,8 @@ public class MockHelper {
     public static OkHttpClientGenerator mockClientGenerator(boolean resolveDNS) throws UnknownHostException {
         OkHttpClientGenerator mockClientGenerator = mock(OkHttpClientGenerator.class);
         OkHttpClient mockedOkHttpClient = mock(OkHttpClient.class, RETURNS_DEEP_STUBS);
-        when(mockClientGenerator.initCommercialCAHttpClient(any(JSONObject.class))).thenReturn(mockedOkHttpClient);
-        when(mockClientGenerator.initSelfSignedCAHttpClient(anyString(), any(JSONObject.class))).thenReturn(mockedOkHttpClient);
+        when(mockClientGenerator.initCommercialCAHttpClient(any(JSONObject.class), anyInt())).thenReturn(mockedOkHttpClient);
+        when(mockClientGenerator.initSelfSignedCAHttpClient(anyString(), anyInt(), any(JSONObject.class))).thenReturn(mockedOkHttpClient);
         if (resolveDNS) {
             when(mockedOkHttpClient.dns().lookup(anyString())).thenReturn(new ArrayList<>());
         } else {
