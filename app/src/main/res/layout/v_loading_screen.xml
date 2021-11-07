@@ -67,7 +67,7 @@
             android:id="@+id/connection_details_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/show_log"
+            android:text="@string/connection_details"
             android:gravity="start"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
             android:paddingBottom="@dimen/stdpadding"
