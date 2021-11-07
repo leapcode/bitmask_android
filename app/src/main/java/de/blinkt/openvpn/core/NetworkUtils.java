@@ -80,30 +80,4 @@ public class NetworkUtils {
         }
         return nets;
     }
-
-    public static boolean isConnectedToWifi(Context context) {
-        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            NetworkInfo wifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            Log.d(TAG, "isConnectedToWifi (<=LOLLIPOP_MR1): " + wifi.isConnected());
-            return wifi.isConnected();
-        } else if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1) {
-            NetworkInfo[] netInfos = connManager.getAllNetworkInfo();
-            for (NetworkInfo netInfo : netInfos) {
-                if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-                    Log.d(TAG, "isConnectedToWifi (<= Build.VERSION_CODES.O_MR1): " + netInfo.isConnected());
-                    return netInfo.isConnected();
-                }
-            }
-        } else {
-            NetworkInfo netInfo = connManager.getActiveNetworkInfo();
-            if(netInfo != null) {
-                NetworkCapabilities networkCapabilities = connManager.getNetworkCapabilities(connManager.getActiveNetwork());
-                Log.d(TAG, "isConnectedToWifi (> Build.VERSION_CODES.O_MR1): " + networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI));
-                return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
-            }
-        }
-
-        return false;
-    }
 }

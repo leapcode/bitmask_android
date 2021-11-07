@@ -155,11 +155,6 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
     }
 
     @Override
-    public boolean isConnectedToWifi() {
-        return NetworkUtils.isConnectedToWifi(getApplicationContext());
-    }
-
-    @Override
     public void startTorService() throws InterruptedException, IllegalStateException {
         initTorServiceConnection(this);
         Intent torServiceIntent = new Intent(this, TorService.class);

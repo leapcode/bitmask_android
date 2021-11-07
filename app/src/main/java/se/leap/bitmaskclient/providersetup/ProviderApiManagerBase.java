@@ -153,7 +153,6 @@ public abstract class ProviderApiManagerBase {
         void startTorService() throws InterruptedException, IllegalStateException;
         void stopTorService();
         int getTorHttpTunnelPort();
-        boolean isConnectedToWifi();
     }
 
     private final ProviderApiServiceCallback serviceCallback;
@@ -305,8 +304,7 @@ public abstract class ProviderApiManagerBase {
 
     protected boolean startTorProxy() throws InterruptedException, IllegalStateException, TimeoutException {
         if (EipStatus.getInstance().isDisconnected() &&
-                PreferenceHelper.getUseTor(preferences) &&
-                serviceCallback.isConnectedToWifi()
+                PreferenceHelper.getUseTor(preferences)
         ) {
             serviceCallback.startTorService();
             waitForTorCircuits();
