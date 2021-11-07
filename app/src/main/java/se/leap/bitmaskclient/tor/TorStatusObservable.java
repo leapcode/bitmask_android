@@ -160,6 +160,7 @@ public class TorStatusObservable extends Observable {
             if (getInstance().status == TorStatus.OFF) {
                 getInstance().torNotificationManager.cancelNotifications(context);
                 getInstance().cancelled = false;
+                getInstance().port = -1;
             } else {
                 if (logKey != null) {
                     getInstance().lastTorLog = getStringFor(context, logKey);
