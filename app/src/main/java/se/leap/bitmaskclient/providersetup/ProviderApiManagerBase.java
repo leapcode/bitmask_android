@@ -135,6 +135,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWN
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_TOR_TIMEOUT;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.ON;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
@@ -737,6 +738,10 @@ public abstract class ProviderApiManagerBase {
     }
 
     private boolean canConnect(Provider provider, Bundle result) {
+        return canConnect(provider, result, 0);
+    }
+
+    private boolean canConnect(Provider provider, Bundle result, int tries) {
         JSONObject errorJson = new JSONObject();
         String providerUrl = provider.getApiUrlString() + "/provider.json";
 
@@ -746,8 +751,11 @@ public abstract class ProviderApiManagerBase {
             return false;
         }
 
-        try {
+        if (tries > 0) {
+            result.remove(ERRORS);
+        }
 
+        try {
             return ProviderApiConnector.canConnect(okHttpClient, providerUrl);
 
         }  catch (UnknownHostException | SocketTimeoutException e) {
@@ -773,6 +781,19 @@ public abstract class ProviderApiManagerBase {
             VpnStatus.logWarning("[API] IOException during connection check: " + e.getLocalizedMessage());
             setErrorResult(result, error_io_exception_user_message, null);
         }
+
+        try {
+            if (tries == 0 &&
+                    result.containsKey(ERRORS) &&
+                    TorStatusObservable.getStatus() == OFF &&
+                    startTorProxy()
+            ) {
+                return canConnect(provider, result, 1);
+            }
+        } catch (InterruptedException | IllegalStateException | TimeoutException e) {
+            e.printStackTrace();
+        }
+
         return false;
     }
 
