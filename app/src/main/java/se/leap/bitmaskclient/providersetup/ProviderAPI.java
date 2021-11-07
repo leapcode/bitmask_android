@@ -175,10 +175,15 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
     }
 
     @Override
-    public void stopTorService() throws IllegalStateException {
+    public void stopTorService() {
         closeTorServiceConnection();
-        Intent stopIntent = new Intent(this, TorService.class);
-        stopService(stopIntent);
+        try {
+            Intent stopIntent = new Intent(this, TorService.class);
+            stopService(stopIntent);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

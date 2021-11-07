@@ -150,7 +150,7 @@ public abstract class ProviderApiManagerBase {
     public interface ProviderApiServiceCallback {
         void broadcastEvent(Intent intent);
         void startTorService() throws InterruptedException, IllegalStateException;
-        void stopTorService() throws IllegalStateException;
+        void stopTorService();
         int getTorHttpTunnelPort();
         boolean isConnectedToWifi();
     }
