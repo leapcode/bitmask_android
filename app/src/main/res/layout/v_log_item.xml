@@ -1,16 +1,29 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@android:id/text1"
-    android:layout_width="match_parent"
+    android:orientation="vertical"
     android:layout_height="wrap_content"
-    android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-    android:gravity="center_vertical"
-    tools:text="test \ntest2\ntest3"
-    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-    android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
-    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-    android:paddingRight="?android:attr/listPreferredItemPaddingRight"
-    android:background="?android:attr/activatedBackgroundIndicator"
-    android:paddingTop="2dp"
-    android:paddingBottom="2dp"
-    />
+    android:layout_width="match_parent"
+    >
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_gravity="center_vertical"
+        tools:text="test"
+        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+        android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
+        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+        android:paddingRight="?android:attr/listPreferredItemPaddingRight"
+        android:background="?android:attr/activatedBackgroundIndicator"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+        android:minHeight="10dp"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black800_high_transparent"
+        />
+
+</LinearLayout>

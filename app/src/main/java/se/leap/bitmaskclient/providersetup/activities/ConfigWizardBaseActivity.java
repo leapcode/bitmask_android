@@ -243,7 +243,6 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         connectionDetailLogs.setLayoutManager(layoutManager);
-        connectionDetailLogs.addItemDecoration( new DividerItemDecoration(this, layoutManager.getOrientation()));
         torLogAdapter = new TorLogAdapter(getLastLogs());
         connectionDetailLogs.setAdapter(torLogAdapter);
 
