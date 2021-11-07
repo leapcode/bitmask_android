@@ -55,18 +55,37 @@
         android:layout_marginTop="@dimen/standard_margin"
         />
 
+
     <RelativeLayout
-        android:id="@+id/connection_detail_container"
+        android:id="@+id/connection_detail_header_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:visibility="gone"
-        tools:visibility="visible"
+        android:layout_marginTop="@dimen/stdpadding"
         >
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/btn_connection_detail"
+            android:layout_marginTop="@dimen/stdpadding"
+            android:paddingLeft="@dimen/stdpadding"
+            android:paddingStart="@dimen/stdpadding"
+            android:paddingEnd="@dimen/stdpadding"
+            android:paddingRight="@dimen/stdpadding"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="@string/show_connection_details"
+            android:textColor="@color/colorPrimaryDark"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:visibility="visible"
+            />
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/connection_details_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/btn_connection_detail"
             android:text="@string/connection_details"
             android:gravity="start"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
@@ -75,14 +94,23 @@
             android:paddingLeft="4dp"
             android:paddingEnd="4dp"
             android:paddingRight="4dp"
+            android:visibility="gone"
             />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/connection_detail_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible"
+        >
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/tor_icon"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:src="@drawable/ic_tor"
-            android:layout_below="@id/connection_details_title"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginBottom="@dimen/stdpadding"
@@ -91,7 +119,6 @@
             android:id="@+id/tor_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/connection_details_title"
             android:fadingEdge="horizontal"
             android:maxLines="2"
             android:text="@string/configuring_provider"
@@ -138,17 +165,6 @@
             tools:text="test \n another \n and a third \n blkud"
             android:ellipsize="end"
             tools:visibility="visible"
-            />
-        <Button
-            android:id="@+id/btn_connection_detail"
-            android:layout_marginTop="30dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/snowflake_icon"
-            android:text="@string/show_log"
-            android:visibility="visible"
             />
     </RelativeLayout>
     <RelativeLayout

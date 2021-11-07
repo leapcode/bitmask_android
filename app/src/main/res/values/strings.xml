@@ -178,6 +178,7 @@
   <string name="channel_description_tor_service">Informs about usage of bridges while configuring %s.</string>
   <string name="error_tor_timeout">Starting bridges failed. Do you want to retry or continue with an unobfuscated secure connection to configure %s?</string>
   <string name="retry_unobfuscated">Retry unobfuscated</string>
+  <string name="hide_connection_details">Hide connection details</string>
 
 
 </resources>

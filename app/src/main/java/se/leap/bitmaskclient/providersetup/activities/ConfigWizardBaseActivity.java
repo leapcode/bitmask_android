@@ -71,7 +71,15 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
 
     @Nullable
     @BindView(R.id.btn_connection_detail)
-    protected Button connectionDetailBtn;
+    protected AppCompatTextView connectionDetailBtn;
+
+    @Nullable
+    @BindView(R.id.connection_detail_header_container)
+    protected RelativeLayout connectionDetailHeaderContainer;
+
+    @Nullable
+    @BindView(R.id.connection_details_title)
+    protected AppCompatTextView connectionDetailsTitle;
 
     @Nullable
     @BindView(R.id.connection_detail_container)
@@ -224,7 +232,7 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
             return;
         }
 
-        connectionDetailBtn.setVisibility(VISIBLE);
+        connectionDetailHeaderContainer.setVisibility(GONE);
         connectionDetailContainer.setVisibility(GONE);
         logsContainer.setVisibility(GONE);
     }
@@ -254,10 +262,19 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
         snowflakeState.setText(getLastSnowflakeLog());
         torState.setText(getLastTorLog());
         connectionDetailBtn.setOnClickListener(v -> {
-            connectionDetailBtn.setVisibility(GONE);
-            logsContainer.setVisibility(VISIBLE);
+            if (logsContainer.getVisibility() == VISIBLE) {
+                logsContainer.setVisibility(GONE);
+                connectionDetailContainer.setVisibility(GONE);
+                connectionDetailsTitle.setVisibility(GONE);
+                connectionDetailBtn.setText(R.string.show_connection_details);
+            } else {
+                logsContainer.setVisibility(VISIBLE);
+                connectionDetailContainer.setVisibility(VISIBLE);
+                connectionDetailsTitle.setVisibility(VISIBLE);
+                connectionDetailBtn.setText(R.string.hide_connection_details);
+            }
         });
-        connectionDetailContainer.setVisibility(VISIBLE);
+        connectionDetailHeaderContainer.setVisibility(VISIBLE);
     }
 
     private int getFirstVisibleItemPosion() {
