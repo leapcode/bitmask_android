@@ -83,8 +83,9 @@ public class TorStatusObservable extends Observable {
      * @param timeout Timout in seconds
      * @throws InterruptedException if thread was interrupted while waiting
      * @throws TimeoutException thrown if timeout was reached
+     * @return true return value only needed to mock this method call
      */
-    public static void waitUntil(StatusCondition condition, int timeout) throws InterruptedException, TimeoutException {
+    public static boolean waitUntil(StatusCondition condition, int timeout) throws InterruptedException, TimeoutException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         final AtomicBoolean conditionMet = new AtomicBoolean(false);
         Observer observer = (o, arg) -> {
@@ -95,7 +96,7 @@ public class TorStatusObservable extends Observable {
         };
         if (condition.met()) {
             // no need to wait
-            return;
+            return true;
         }
         getInstance().addObserver(observer);
         countDownLatch.await(timeout, TimeUnit.SECONDS);
@@ -103,6 +104,7 @@ public class TorStatusObservable extends Observable {
         if (!conditionMet.get()) {
             throw new TimeoutException("Status condition not met within " + timeout + "s.");
         }
+        return true;
     }
 
     public static void logSnowflakeMessage(Context context, String message) {

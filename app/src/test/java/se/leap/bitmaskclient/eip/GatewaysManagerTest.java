@@ -81,7 +81,7 @@ public class GatewaysManagerTest {
 
     @Test
     public void testGatewayManagerFromCurrentProvider_noProvider_noGateways() {
-        MockHelper.mockProviderObserver(null);
+        MockHelper.mockProviderObservable(null);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(0, gatewaysManager.size());
     }
@@ -89,7 +89,7 @@ public class GatewaysManagerTest {
     @Test
     public void testGatewayManagerFromCurrentProvider_misconfiguredProvider_noGateways() throws IOException, NullPointerException {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_misconfigured_gateway.json", null);
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(0, gatewaysManager.size());
     }
@@ -97,7 +97,7 @@ public class GatewaysManagerTest {
     @Test
     public void testGatewayManagerFromCurrentProvider_threeGateways() {
         Provider provider = getProvider(null, null, null, null,null, null, "ptdemo_three_mixed_gateways.json", null);
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(3, gatewaysManager.size());
     }
@@ -107,7 +107,7 @@ public class GatewaysManagerTest {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", null);
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
@@ -122,7 +122,7 @@ public class GatewaysManagerTest {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", null);
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
@@ -137,7 +137,7 @@ public class GatewaysManagerTest {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", "ptdemo_three_mixed_gateways.geoip.json");
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
@@ -152,7 +152,7 @@ public class GatewaysManagerTest {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", "ptdemo_three_mixed_gateways.geoip.json");
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
@@ -167,7 +167,7 @@ public class GatewaysManagerTest {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", null);
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
@@ -182,7 +182,7 @@ public class GatewaysManagerTest {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", null);
         JSONObject eipServiceJson = provider.getEipServiceJson();
         JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(1);
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
@@ -196,7 +196,7 @@ public class GatewaysManagerTest {
     public void TestSelectN_selectFirstObfs4Connection_returnThirdGateway() {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_two_openvpn_one_pt_gateways.json", null);
 
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
@@ -208,7 +208,7 @@ public class GatewaysManagerTest {
     public void testSelectN_selectFromPresortedGateways_returnsGatewaysInPresortedOrder() {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", "ptdemo_three_mixed_gateways.geoip.json");
 
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
@@ -223,7 +223,7 @@ public class GatewaysManagerTest {
     public void testSelectN_selectObfs4FromPresortedGateways_returnsObfs4GatewaysInPresortedOrder() {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", "ptdemo_three_mixed_gateways.geoip.json");
 
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
@@ -239,7 +239,7 @@ public class GatewaysManagerTest {
     public void testSelectN_selectFromCity_returnsGatewaysInPresortedOrder() {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4.json");
 
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
@@ -255,7 +255,7 @@ public class GatewaysManagerTest {
     public void testSelectN_selectFromCityWithGeoIpServiceV1_returnsGatewaysInPresortedOrder() {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v1.json");
 
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
@@ -272,7 +272,7 @@ public class GatewaysManagerTest {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", null);
 
         provider.setGeoIpJson(new JSONObject());
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
@@ -289,7 +289,7 @@ public class GatewaysManagerTest {
     public void testSelectN_selectNAndCity_returnsGatewaysInPresortedOrder() {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4.json");
 
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
@@ -304,7 +304,7 @@ public class GatewaysManagerTest {
     public void testSelectN_selectNAndCityWithGeoIpServiceV1_returnsGatewaysInPresortedOrder() {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v1.json");
 
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
@@ -320,7 +320,7 @@ public class GatewaysManagerTest {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", null);
 
         provider.setGeoIpJson(new JSONObject());
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
@@ -337,7 +337,7 @@ public class GatewaysManagerTest {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4.json");
 
         provider.setGeoIpJson(new JSONObject());
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         //use openvpn, not pluggable transports
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
@@ -349,7 +349,7 @@ public class GatewaysManagerTest {
     public void testGetLocations_openvpn() {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4.json");
 
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
@@ -370,7 +370,7 @@ public class GatewaysManagerTest {
     public void testGetLocations_obfs4() {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4.json");
 
-        MockHelper.mockProviderObserver(provider);
+        MockHelper.mockProviderObservable(provider);
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
