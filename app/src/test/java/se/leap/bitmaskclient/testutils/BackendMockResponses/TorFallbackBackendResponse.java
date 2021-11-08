@@ -20,8 +20,6 @@ public class TorFallbackBackendResponse extends BaseBackendResponse {
             @Override
             public String answer(InvocationOnMock invocation) throws Throwable {
                 String url = (String) invocation.getArguments()[0];
-                String requestMethod = (String) invocation.getArguments()[1];
-                String jsonPayload = (String) invocation.getArguments()[2];
 
                 if (url.contains("/provider.json")) {
                     if (requestAttempt == 0) {
