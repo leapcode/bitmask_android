@@ -33,6 +33,7 @@ public class BackendMockProvider {
         ERROR_CASE_MICONFIGURED_PROVIDER,
         ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID,
         ERROR_GEOIP_SERVICE_IS_DOWN,
+        ERROR_GEOIP_SERVICE_IS_DOWN_TOR_FALLBACK,
         ERROR_NO_RESPONSE_BODY,         // => NullPointerException
         ERROR_DNS_RESOLUTION_ERROR,     // => UnkownHostException
         ERROR_SOCKET_TIMEOUT,           // => SocketTimeoutException
@@ -72,6 +73,8 @@ public class BackendMockProvider {
             case ERROR_GEOIP_SERVICE_IS_DOWN:
                 new GeoIpServiceIsDownBackendResponse();
                 break;
+            case ERROR_GEOIP_SERVICE_IS_DOWN_TOR_FALLBACK:
+                new GeoIpServiceNotReachableTorFallbackBackendResponse();
             case ERROR_DNS_RESUOLUTION_TOR_FALLBACK:
                 new TorFallbackBackendResponse();
                 break;

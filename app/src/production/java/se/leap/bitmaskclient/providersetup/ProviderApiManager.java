@@ -245,7 +245,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         try {
             URL geoIpUrl = provider.getGeoipUrl().getUrl();
 
-            String geoipJsonString = downloadFromUrlWithProviderCA(geoIpUrl.toString(), provider);
+            String geoipJsonString = downloadFromUrlWithProviderCA(geoIpUrl.toString(), provider, false);
             if (DEBUG_MODE) {
                 VpnStatus.logDebug("[API] MENSHEN JSON: " + geoipJsonString);
             }
@@ -292,14 +292,14 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     }
 
     private String downloadWithCommercialCA(String stringUrl, Provider provider) {
-        return downloadWithCommercialCA(stringUrl, provider, 0);
+        return downloadWithCommercialCA(stringUrl, provider, true);
     }
 
         /**
          * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
          *
          */
-    private String downloadWithCommercialCA(String stringUrl, Provider provider, int tries) {
+    private String downloadWithCommercialCA(String stringUrl, Provider provider, boolean allowRetry) {
 
         String responseString;
         JSONObject errorJson = new JSONObject();
@@ -326,13 +326,13 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         }
 
         try {
-            if (tries == 0 &&
+            if (allowRetry &&
                     responseString != null &&
                     responseString.contains(ERRORS)  &&
                     TorStatusObservable.getStatus() == OFF &&
                     startTorProxy()
             ) {
-                return downloadWithCommercialCA(stringUrl, provider, 1);
+                return downloadWithCommercialCA(stringUrl, provider, false);
             }
         } catch (InterruptedException | IllegalStateException | TimeoutException e) {
             e.printStackTrace();
@@ -353,10 +353,10 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     }
 
     private String downloadFromUrlWithProviderCA(String urlString, Provider provider) {
-        return downloadFromUrlWithProviderCA(urlString, provider, 0);
+        return downloadFromUrlWithProviderCA(urlString, provider, true);
     }
 
-    private String downloadFromUrlWithProviderCA(String urlString, Provider provider, int tries) {
+    private String downloadFromUrlWithProviderCA(String urlString, Provider provider, boolean allowRetry) {
         String responseString;
         JSONObject errorJson = new JSONObject();
         OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), errorJson);
@@ -368,13 +368,13 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         responseString = sendGetStringToServer(urlString, headerArgs, okHttpClient);
 
         try {
-            if (tries == 0 &&
+            if (allowRetry &&
                     responseString != null &&
                     responseString.contains(ERRORS)  &&
                     TorStatusObservable.getStatus() == OFF &&
                     startTorProxy()
             ) {
-                return downloadFromUrlWithProviderCA(urlString, provider, 1);
+                return downloadFromUrlWithProviderCA(urlString, provider, false);
             }
         } catch (InterruptedException | IllegalStateException | TimeoutException e) {
             e.printStackTrace();
