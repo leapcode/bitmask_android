@@ -89,6 +89,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
     private Context context;
     private VpnProfile setupVpnProfile;
     private String observedProfileFromVpnStatus;
+    AtomicInteger reconnectTry = new AtomicInteger();
     AtomicBoolean changingGateway = new AtomicBoolean(false);
     AtomicInteger setupNClosestGateway = new AtomicInteger();
     private Vector<EipSetupListener> listeners = new Vector<>();
@@ -331,9 +332,12 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         if (ConnectionStatus.LEVEL_STOPPING == level) {
             finishGatewaySetup(false);
         } else if ("CONNECTRETRY".equals(state) && LEVEL_CONNECTING_NO_SERVER_REPLY_YET.equals(level)) {
-            Log.e(TAG, "Timeout reached! Try next gateway!");
-            VpnStatus.logError("Timeout reached! Try next gateway!");
-            selectNextGateway();
+            // mConnections.length is the amount of remotes defined in the current profile
+            if (reconnectTry.addAndGet(1) == setupVpnProfile.mConnections.length) {
+                Log.e(TAG, "Timeout reached! Try next gateway!");
+                VpnStatus.logError("Timeout reached! Try next gateway!");
+                selectNextGateway();
+            }
         } else if ("NOPROCESS".equals(state) && LEVEL_NOTCONNECTED == level) {
             //??
         } else if ("CONNECTED".equals(state)) {
@@ -359,6 +363,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
 
     private void selectNextGateway() {
         changingGateway.set(true);
+        reconnectTry.set(0);
         EipCommand.startVPN(context.getApplicationContext(), false, setupNClosestGateway.get() + 1);
     }
 
@@ -368,6 +373,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         setupNClosestGateway.set(0);
         observedProfileFromVpnStatus = null;
         this.changingGateway.set(changingGateway);
+        this.reconnectTry.set(0);
         if (TorStatusObservable.getStatus() != OFF) {
             TorServiceCommand.stopTorServiceAsync(context);
         }
