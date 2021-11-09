@@ -165,6 +165,10 @@ public class PreferenceHelper {
         return preferences.getBoolean(USE_TOR, true);
     }
 
+    public static Boolean getUseTor(Context context) {
+        return getBoolean(context, USE_TOR, true);
+    }
+
     public static void saveBattery(Context context, boolean isEnabled) {
         putBoolean(context, DEFAULT_SHARED_PREFS_BATTERY_SAVER, isEnabled);
     }

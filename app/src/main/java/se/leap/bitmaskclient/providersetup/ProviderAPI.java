@@ -212,7 +212,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
      * @throws IllegalStateException thrown if this method was not called from a background thread
      */
     private void initTorServiceConnection(Context context) throws InterruptedException, IllegalStateException {
-        if (PreferenceHelper.getUseBridges(context)) {
+        if (PreferenceHelper.getUseTor(context)) {
             if (torServiceConnection == null) {
                 Log.d(TAG, "serviceConnection is still null");
                 if (!TorService.hasClientTransportPlugin()) {
