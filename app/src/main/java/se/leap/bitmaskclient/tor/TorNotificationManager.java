@@ -30,6 +30,9 @@ import se.leap.bitmaskclient.R;
 public class TorNotificationManager {
     public   final static int TOR_SERVICE_NOTIFICATION_ID = 10;
     static final String NOTIFICATION_CHANNEL_NEWSTATUS_ID = "bitmask_tor_service_news";
+    private long lastNotificationTime = 0;
+    // debounce timeout in milliseconds
+    private final static long NOTIFICATION_DEBOUNCE_TIME = 500;
 
 
     public TorNotificationManager() {}
@@ -48,6 +51,9 @@ public class TorNotificationManager {
     }
 
     public void buildTorNotification(Context context, String state, String message, int progress) {
+        if (shouldDropNotification()) {
+            return;
+        }
         NotificationManager notificationManager = initNotificationManager(context);
         if (notificationManager == null) {
             return;
@@ -67,6 +73,15 @@ public class TorNotificationManager {
             notificationBuilder.setProgress(100, progress, false);
         }
         notificationManager.notify(TOR_SERVICE_NOTIFICATION_ID, notificationBuilder.build());
+    }
+
+    private boolean shouldDropNotification() {
+        long now = System.currentTimeMillis();
+        if (now - lastNotificationTime < NOTIFICATION_DEBOUNCE_TIME) {
+            return true;
+        }
+        lastNotificationTime = now;
+        return false;
     }
 
 
