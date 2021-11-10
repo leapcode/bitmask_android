@@ -73,6 +73,7 @@ import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
 import static se.leap.bitmaskclient.R.string.malformed_url;
+import static se.leap.bitmaskclient.R.string.new_provider_uri;
 import static se.leap.bitmaskclient.R.string.server_unreachable_message;
 import static se.leap.bitmaskclient.R.string.service_is_down_error;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
@@ -118,6 +119,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.INITIAL_ACTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.LOGOUT_FAILED;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.LOG_OUT;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.MISSING_NETWORK_CONNECTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
@@ -153,6 +155,7 @@ public abstract class ProviderApiManagerBase {
         void startTorService() throws InterruptedException, IllegalStateException;
         void stopTorService();
         int getTorHttpTunnelPort();
+        boolean hasNetworkConnection();
     }
 
     private final ProviderApiServiceCallback serviceCallback;
@@ -187,6 +190,13 @@ public abstract class ProviderApiManagerBase {
         } else {
             //TODO: consider returning error back e.g. NO_PROVIDER
             Log.e(TAG, action +" called without provider!");
+            return;
+        }
+
+        if (!serviceCallback.hasNetworkConnection()) {
+            Bundle result = new Bundle();
+            setErrorResult(result, R.string.error_network_connection, null);
+            sendToReceiverOrBroadcast(receiver, MISSING_NETWORK_CONNECTION, result, provider);
             return;
         }
 

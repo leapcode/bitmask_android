@@ -23,6 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -37,7 +40,6 @@ import java.io.Closeable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import de.blinkt.openvpn.core.NetworkUtils;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.tor.ClientTransportPlugin;
@@ -102,7 +104,8 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE = 16,
             CORRECTLY_DOWNLOADED_GEOIP_JSON = 17,
             INCORRECTLY_DOWNLOADED_GEOIP_JSON = 18,
-            TOR_TIMEOUT = 19;
+            TOR_TIMEOUT = 19,
+            MISSING_NETWORK_CONNECTION = 20;
 
     ProviderApiManager providerApiManager;
     private volatile TorServiceConnection torServiceConnection;
@@ -197,6 +200,31 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
 
         return -1;
     }
+
+    @Override
+    public boolean hasNetworkConnection() {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                return activeNetwork != null &&
+                        activeNetwork.isConnectedOrConnecting();
+            } else {
+                NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
+                if (capabilities != null) {
+                    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+                }
+                return false;
+            }
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            // we don't know, let's try to fetch data anyways then
+            return true;
+        }
+    }
+
+
 
     private ProviderApiManager initApiManager() {
         SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
