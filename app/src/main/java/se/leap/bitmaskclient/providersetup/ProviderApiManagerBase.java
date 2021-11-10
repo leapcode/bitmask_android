@@ -200,7 +200,7 @@ public abstract class ProviderApiManagerBase {
         } catch (TimeoutException e) {
              serviceCallback.stopTorService();
              Bundle result = new Bundle();
-             setErrorResult(result, action, R.string.error_tor_timeout, ERROR_TOR_TIMEOUT.toString());
+             setErrorResult(result, R.string.error_tor_timeout, ERROR_TOR_TIMEOUT.toString(), action);
              sendToReceiverOrBroadcast(receiver, TOR_TIMEOUT, result, provider);
              return;
          }
@@ -359,7 +359,7 @@ public abstract class ProviderApiManagerBase {
         }
     }
 
-    private void addErrorMessageToJson(JSONObject jsonObject, String initialAction, String errorMessage, String errorId) {
+    private void addErrorMessageToJson(JSONObject jsonObject, String errorMessage, String errorId, String initialAction) {
         try {
             jsonObject.put(ERRORS, errorMessage);
             jsonObject.putOpt(ERRORID, errorId);
@@ -940,13 +940,13 @@ public abstract class ProviderApiManagerBase {
     }
 
     Bundle setErrorResult(Bundle result, int errorMessageId, String errorId) {
-        return setErrorResult(result, null, errorMessageId, errorId);
+        return setErrorResult(result, errorMessageId, errorId, null);
     }
 
-    Bundle setErrorResult(Bundle result, String initialAction, int errorMessageId, String errorId) {
+    Bundle setErrorResult(Bundle result, int errorMessageId, String errorId, String initialAction) {
         JSONObject errorJson = new JSONObject();
         String errorMessage = getProviderFormattedString(resources, errorMessageId);
-        addErrorMessageToJson(errorJson, initialAction, errorMessage, errorId);
+        addErrorMessageToJson(errorJson, errorMessage, errorId, initialAction);
         VpnStatus.logWarning("[API] error: " + errorMessage);
         result.putString(ERRORS, errorJson.toString());
         result.putBoolean(BROADCAST_RESULT_KEY, false);
