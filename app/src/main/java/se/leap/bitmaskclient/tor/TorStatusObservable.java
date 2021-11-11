@@ -114,9 +114,11 @@ public class TorStatusObservable extends Observable {
             getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getBootstrapProgress());
         }
         //TODO: implement proper state signalling in IPtProxy
-        if (SNOWFLAKE_STARTED.equals(message)) {
+        if (SNOWFLAKE_STARTED.equals(message.trim())) {
+            Log.d(TAG, "snowflakeStatus ON");
             getInstance().snowflakeStatus = SnowflakeStatus.ON;
-        } else if (SNOWFLAKE_STOPPED.equals(message)) {
+        } else if (SNOWFLAKE_STOPPED.equals(message.trim())) {
+            Log.d(TAG, "snowflakeStatus OFF");
             getInstance().snowflakeStatus = SnowflakeStatus.OFF;
         }
         instance.setChanged();
