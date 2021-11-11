@@ -44,6 +44,8 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.ProviderAPI;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
+import se.leap.bitmaskclient.tor.TorServiceCommand;
+import se.leap.bitmaskclient.tor.TorServiceConnection;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -213,8 +215,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             case INCORRECTLY_DOWNLOADED_EIP_SERVICE:
             case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 if (TorStatusObservable.getStatus() != OFF) {
-                    Intent stopIntent = new Intent(context, TorService.class);
-                    context.stopService(stopIntent);
+                    TorServiceCommand.stopTorServiceAsync(context);
                 }
                 Log.d(TAG, "PROVIDER NOK - FETCH FAILED");
                 break;
@@ -368,7 +369,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         observedProfileFromVpnStatus = null;
         this.changingGateway.set(changingGateway);
         if (TorStatusObservable.getStatus() != OFF) {
-            TorStatusObservable.shutdownTor(context);
+            TorServiceCommand.stopTorServiceAsync(context);
         }
     }
 

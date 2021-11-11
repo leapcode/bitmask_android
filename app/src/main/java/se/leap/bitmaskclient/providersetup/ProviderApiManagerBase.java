@@ -152,7 +152,7 @@ public abstract class ProviderApiManagerBase {
 
     public interface ProviderApiServiceCallback {
         void broadcastEvent(Intent intent);
-        void startTorService() throws InterruptedException, IllegalStateException;
+        boolean startTorService() throws InterruptedException, IllegalStateException, TimeoutException;
         void stopTorService();
         int getTorHttpTunnelPort();
         boolean hasNetworkConnection();
@@ -314,9 +314,8 @@ public abstract class ProviderApiManagerBase {
 
     protected boolean startTorProxy() throws InterruptedException, IllegalStateException, TimeoutException {
         if (EipStatus.getInstance().isDisconnected() &&
-                PreferenceHelper.getUseTor(preferences)
-        ) {
-            serviceCallback.startTorService();
+                PreferenceHelper.getUseTor(preferences) &&
+            serviceCallback.startTorService()) {
             waitForTorCircuits();
             if (TorStatusObservable.isCancelled()) {
                 throw new InterruptedException("Cancelled Tor setup.");

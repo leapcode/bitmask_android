@@ -40,6 +40,7 @@ import se.leap.bitmaskclient.providersetup.ProviderDetailActivity;
 import se.leap.bitmaskclient.providersetup.ProviderManager;
 import se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog;
 import se.leap.bitmaskclient.providersetup.ProviderSetupInterface;
+import se.leap.bitmaskclient.tor.TorServiceCommand;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_PROVIDER_API_EVENT;
@@ -174,7 +175,7 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     public void cancelSettingUpProvider(boolean stopTor) {
         if (stopTor && TorStatusObservable.getStatus() != OFF) {
             Log.d(TAG, "SHUTDOWN - cancelSettingUpProvider stopTor:" + stopTor);
-            TorStatusObservable.shutdownTor(this);
+            TorServiceCommand.stopTorServiceAsync(this);
         }
         providerConfigState = PROVIDER_NOT_SET;
         provider = null;

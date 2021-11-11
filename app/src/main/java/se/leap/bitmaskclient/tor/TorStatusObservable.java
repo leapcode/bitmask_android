@@ -261,12 +261,11 @@ public class TorStatusObservable extends Observable {
         return "";
     }
 
-    public static void shutdownTor(Context context) {
-        getInstance().cancelled = true;
-        getInstance().notifyObservers();
-
-        Intent intent = new Intent(context, TorService.class);
-        context.stopService(intent);
+    public static void markCancelled() {
+        if (!getInstance().cancelled) {
+            getInstance().cancelled = true;
+            getInstance().notifyObservers();
+        }
     }
 
     public static boolean isCancelled() {

@@ -17,37 +17,25 @@
 package se.leap.bitmaskclient.providersetup;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.IBinder;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import org.torproject.jni.TorService;
+import java.util.concurrent.TimeoutException;
 
-import java.io.Closeable;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
-import se.leap.bitmaskclient.tor.ClientTransportPlugin;
-import se.leap.bitmaskclient.tor.TorNotificationManager;
+import se.leap.bitmaskclient.tor.TorServiceCommand;
+import se.leap.bitmaskclient.tor.TorServiceConnection;
 
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
-import static se.leap.bitmaskclient.tor.TorNotificationManager.TOR_SERVICE_NOTIFICATION_ID;
 
 /**
  * Implements HTTP api methods (encapsulated in {{@link ProviderApiManager}})
@@ -140,65 +128,23 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        closeTorServiceConnection();
-    }
-
-    private void closeTorServiceConnection() {
-        if (torServiceConnection != null) {
-            torServiceConnection.close();
-            torServiceConnection = null;
-        }
-    }
-
-    @Override
     public void broadcastEvent(Intent intent) {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override
-    public void startTorService() throws InterruptedException, IllegalStateException {
-        initTorServiceConnection(this);
-        Intent torServiceIntent = new Intent(this, TorService.class);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification notification = TorNotificationManager.buildTorForegroundNotification(getApplicationContext());
-            //noinspection NewApi
-            getApplicationContext().startForegroundService(torServiceIntent);
-            torServiceConnection.torService.startForeground(TOR_SERVICE_NOTIFICATION_ID, notification);
-        } else {
-            getApplicationContext().startService(torServiceIntent);
-        }
+    public boolean startTorService() throws InterruptedException, IllegalStateException, TimeoutException {
+        return TorServiceCommand.startTorService(this, null);
     }
 
     @Override
     public void stopTorService() {
-        closeTorServiceConnection();
-        try {
-            Intent stopIntent = new Intent(this, TorService.class);
-            stopService(stopIntent);
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
-
+        TorServiceCommand.stopTorService(this);
     }
 
     @Override
     public int getTorHttpTunnelPort() {
-        try {
-            initTorServiceConnection(this);
-            if (torServiceConnection != null) {
-                int tunnelPort = torServiceConnection.torService.getHttpTunnelPort();
-                torServiceConnection.close();
-                torServiceConnection = null;
-                return tunnelPort;
-            }
-        } catch (InterruptedException | IllegalStateException e) {
-            e.printStackTrace();
-        }
-
-        return -1;
+        return TorServiceCommand.getHttpTunnelPort(this);
     }
 
     @Override
@@ -230,75 +176,6 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
         SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(getResources());
         return new ProviderApiManager(preferences, getResources(), clientGenerator, this);
-    }
-
-    /**
-     * Assigns a new TorServiceConnection to ProviderAPI's member variable torServiceConnection.
-     * Only one thread at a time can create the service connection, that will be shared between threads
-     *
-     * @throws InterruptedException  thrown if thread gets interrupted
-     * @throws IllegalStateException thrown if this method was not called from a background thread
-     */
-    private void initTorServiceConnection(Context context) throws InterruptedException, IllegalStateException {
-        if (PreferenceHelper.getUseTor(context)) {
-            if (torServiceConnection == null) {
-                Log.d(TAG, "serviceConnection is still null");
-                if (!TorService.hasClientTransportPlugin()) {
-                    TorService.setClientTransportPlugin(new ClientTransportPlugin(context.getApplicationContext()));
-                }
-                torServiceConnection = new TorServiceConnection(context);
-            }
-        }
-    }
-
-    public static class TorServiceConnection implements Closeable {
-        private final Context context;
-        private ServiceConnection serviceConnection;
-        private TorService torService;
-
-        TorServiceConnection(Context context) throws InterruptedException, IllegalStateException {
-            this.context = context;
-            ensureNotOnMainThread(context);
-            Log.d(TAG, "initSynchronizedServiceConnection!");
-            initSynchronizedServiceConnection(context);
-        }
-
-        @Override
-        public void close() {
-            context.unbindService(serviceConnection);
-        }
-
-        private void initSynchronizedServiceConnection(final Context context) throws InterruptedException {
-            final BlockingQueue<TorService> blockingQueue = new LinkedBlockingQueue<>(1);
-            this.serviceConnection = new ServiceConnection() {
-                volatile boolean mConnectedAtLeastOnce = false;
-
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    if (!mConnectedAtLeastOnce) {
-                        mConnectedAtLeastOnce = true;
-                        try {
-                            TorService.LocalBinder binder = (TorService.LocalBinder) service;
-                            blockingQueue.put(binder.getService());
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    torService = null;
-                }
-            };
-            Intent intent = new Intent(context, TorService.class);
-            context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-            torService = blockingQueue.take();
-        }
-
-        public TorService getService() {
-            return torService;
-        }
     }
 
 }
