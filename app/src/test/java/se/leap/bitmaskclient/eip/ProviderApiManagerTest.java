@@ -121,7 +121,7 @@ public class ProviderApiManagerTest {
         }
 
         @Override
-        public void startTorService() throws InterruptedException, IllegalStateException {
+        public boolean startTorService() throws InterruptedException, IllegalStateException {
             if (startTorServiceException != null) {
                 if (startTorServiceException instanceof InterruptedException) {
                     throw (InterruptedException) startTorServiceException;
@@ -130,6 +130,7 @@ public class ProviderApiManagerTest {
                     throw (IllegalStateException) startTorServiceException;
                 }
             }
+            return true;
         }
 
         @Override
@@ -139,6 +140,11 @@ public class ProviderApiManagerTest {
         @Override
         public int getTorHttpTunnelPort() {
             return 0;
+        }
+
+        @Override
+        public boolean hasNetworkConnection() {
+            return true;
         }
 
     }
