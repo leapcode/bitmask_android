@@ -1,12 +1,9 @@
 package se.leap.bitmaskclient.tor;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-
-import org.torproject.jni.TorService;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -45,7 +42,9 @@ public class TorStatusObservable extends Observable {
     public static final String LOG_TAG_TOR = "[TOR]";
     public static final String LOG_TAG_SNOWFLAKE = "[SNOWFLAKE]";
     public static final String SNOWFLAKE_STARTED = "--- Starting Snowflake Client ---";
-    public static final String SNOWFLAKE_STOPPED = "---- SnowflakeConn: end collecting snowflakes ---";
+    public static final String SNOWFLAKE_STOPPED_COLLECTING = "---- SnowflakeConn: end collecting snowflakes ---";
+    public static final String SNOWFLAKE_COPY_LOOP_STOPPED = "copy loop ended";
+    public static final String SNOWFLAKE_SOCKS_ERROR = "SOCKS accept error";
 
     private static TorStatusObservable instance;
     private TorStatus status = TorStatus.OFF;
@@ -117,7 +116,9 @@ public class TorStatusObservable extends Observable {
         if (SNOWFLAKE_STARTED.equals(message.trim())) {
             Log.d(TAG, "snowflakeStatus ON");
             getInstance().snowflakeStatus = SnowflakeStatus.ON;
-        } else if (SNOWFLAKE_STOPPED.equals(message.trim())) {
+        } else if (SNOWFLAKE_STOPPED_COLLECTING.equals(message.trim()) ||
+                SNOWFLAKE_COPY_LOOP_STOPPED.equals(message.trim()) ||
+                message.trim().contains(SNOWFLAKE_SOCKS_ERROR)) {
             Log.d(TAG, "snowflakeStatus OFF");
             getInstance().snowflakeStatus = SnowflakeStatus.OFF;
         }
