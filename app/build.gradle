@@ -36,7 +36,7 @@ android {
     //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
     buildConfigField 'boolean', 'priotize_anonymous_usage', 'false'
     //allow manual gateway selection
-    buildConfigField 'boolean', 'allow_manual_gateway_selection', 'false'
+    buildConfigField 'boolean', 'allow_manual_gateway_selection', 'true'
 
     // static update url pointing to the latest stable release apk
     buildConfigField "String", "update_apk_url", '"https://dl.bitmask.net/client/android/Bitmask-Android-latest.apk"'
