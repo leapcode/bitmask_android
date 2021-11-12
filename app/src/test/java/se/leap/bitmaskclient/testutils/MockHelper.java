@@ -571,6 +571,8 @@ public class MockHelper {
                 thenReturn("Bitmask");
         when(mockedResources.getString(eq(R.string.error_tor_timeout), anyString())).
                 thenReturn(String.format(errorMessages.getString("error_tor_timeout"), "Bitmask"));
+        when(mockedResources.getString(eq(R.string.error_network_connection), anyString())).
+                thenReturn(String.format(errorMessages.getString("error_network_connection"), "Bitmask"));
         return mockedResources;
     }
 

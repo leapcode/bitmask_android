@@ -62,6 +62,7 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_TOR;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.MISSING_NETWORK_CONNECTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
@@ -109,10 +110,11 @@ public class ProviderApiManagerTest {
 
     static class TestProviderApiServiceCallback implements ProviderApiManagerBase.ProviderApiServiceCallback {
         Throwable startTorServiceException;
+        boolean hasNetworkConnection;
         TestProviderApiServiceCallback() {
-            new TestProviderApiServiceCallback(null);
+            new TestProviderApiServiceCallback(null, true);
         }
-        TestProviderApiServiceCallback(@Nullable Throwable startTorServiceException) {
+        TestProviderApiServiceCallback(@Nullable Throwable startTorServiceException, boolean hasNetworkConnection) {
             this.startTorServiceException = startTorServiceException;
         }
 
@@ -144,7 +146,7 @@ public class ProviderApiManagerTest {
 
         @Override
         public boolean hasNetworkConnection() {
-            return true;
+            return hasNetworkConnection;
         }
 
     }
@@ -661,7 +663,7 @@ public class ProviderApiManagerTest {
 
         mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
-        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback(null));
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Intent providerApiCommand = mockIntent();
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
@@ -680,7 +682,7 @@ public class ProviderApiManagerTest {
 
         mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
-        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback(new IllegalStateException("Tor service start not failed.")));
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback(new IllegalStateException("Tor service start not failed."), true));
 
         Intent providerApiCommand = mockIntent();
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
@@ -699,7 +701,7 @@ public class ProviderApiManagerTest {
 
         mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
-        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback(null));
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Intent providerApiCommand = mockIntent();
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
@@ -720,7 +722,7 @@ public class ProviderApiManagerTest {
         mockProviderApiConnector(NO_ERROR_API_V4);
 
         mockPreferences.edit().putBoolean(USE_BRIDGES, true).putBoolean(USE_TOR, true).commit();
-        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback(null));
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Intent providerApiCommand = mockIntent();
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
@@ -741,7 +743,7 @@ public class ProviderApiManagerTest {
         mockProviderApiConnector(NO_ERROR_API_V4);
 
         mockPreferences.edit().putBoolean(USE_BRIDGES, false).putBoolean(USE_TOR, false).commit();
-        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback(null));
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Intent providerApiCommand = mockIntent();
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
@@ -759,7 +761,7 @@ public class ProviderApiManagerTest {
         Provider provider = getConfiguredProviderAPIv4();
 
         mockPreferences.edit().putBoolean(USE_BRIDGES, true).putBoolean(USE_TOR, true).commit();
-        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback(null));
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Bundle expectedResult = mockBundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
@@ -775,6 +777,28 @@ public class ProviderApiManagerTest {
 
         providerApiManager.handleIntent(providerApiCommand);
         assertEquals(-1, TorStatusObservable.getProxyPort());
+    }
+
+    @Test
+    public void test_handleIntentSetupProvider_noNetwork_NetworkError() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+        Provider provider = getConfiguredProvider();
+
+        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockProviderApiConnector(NO_ERROR);
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback(null, false));
+        Bundle expectedResult = mockBundle();
+
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
+        expectedResult.putString(ERRORS, "{\"errors\":\"Bitmask has no internet connection. Please check your WiFi and cellular data settings.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
+
+        Intent providerApiCommand = mockIntent();
+
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(MISSING_NETWORK_CONNECTION, expectedResult));
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+
+        providerApiManager.handleIntent(providerApiCommand);
     }
 
 }
