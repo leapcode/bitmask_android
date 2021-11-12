@@ -1,3 +1,12 @@
+1.1.0RC1 - early snowflakes release
+features:
+- support of tor and snowflake to circumvent censorship of the API server
+- improved error handling if user tries to configure a provider without having an internet connection
+- manual gateway selection in Bitmask
+
+bugfixes:
+- fix openvpn fallback during gateway setup, e.g. UDP to TCP fallback or IPv6 to IPv4 fallback
+
 1.0.9 - Hotfix release
 features:
 - updated translations
