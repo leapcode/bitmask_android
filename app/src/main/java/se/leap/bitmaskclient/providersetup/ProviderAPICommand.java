@@ -13,12 +13,12 @@ import se.leap.bitmaskclient.base.models.Provider;
 
 public class ProviderAPICommand {
     private static final String TAG = ProviderAPICommand.class.getSimpleName();
-    private Context context;
+    private final Context context;
 
-    private String action;
-    private Bundle parameters;
-    private ResultReceiver resultReceiver;
-    private Provider provider;
+    private final String action;
+    private final Bundle parameters;
+    private final ResultReceiver resultReceiver;
+    private final Provider provider;
 
     private ProviderAPICommand(@NonNull Context context, @NonNull String action, @NonNull Provider provider, ResultReceiver resultReceiver) {
         this(context.getApplicationContext(), action, Bundle.EMPTY, provider, resultReceiver);
@@ -64,22 +64,22 @@ public class ProviderAPICommand {
         return command;
     }
 
-    public static void execute(Context context, String action, @NonNull Provider provider) {
+    public static void execute(Context context, String action, Provider provider) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, provider);
         command.execute();
     }
 
-    public static void execute(Context context, String action, Bundle parameters, @NonNull Provider provider) {
+    public static void execute(Context context, String action, Bundle parameters, Provider provider) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, parameters, provider);
         command.execute();
     }
 
-    public static void execute(Context context, String action, Bundle parameters, @NonNull Provider provider, ResultReceiver resultReceiver) {
+    public static void execute(Context context, String action, Bundle parameters, Provider provider, ResultReceiver resultReceiver) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, parameters, provider, resultReceiver);
         command.execute();
     }
 
-    public static void execute(Context context, String action, @NonNull Provider provider, ResultReceiver resultReceiver) {
+    public static void execute(Context context, String action, Provider provider, ResultReceiver resultReceiver) {
         ProviderAPICommand command = new ProviderAPICommand(context, action, provider, resultReceiver);
         command.execute();
     }

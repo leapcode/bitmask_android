@@ -18,7 +18,6 @@ package se.leap.bitmaskclient.base.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,8 +41,8 @@ import static se.leap.bitmaskclient.eip.EIP.EIPErrors.UNKNOWN;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.valueOf;
 import static se.leap.bitmaskclient.eip.EIP.ERRORS;
 import static se.leap.bitmaskclient.eip.EIP.ERRORID;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePluggableTransports;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.usePluggableTransports;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 
 /**
  * Implements an error dialog for the main activity.
@@ -129,14 +128,14 @@ public class MainActivityErrorDialog extends DialogFragment {
                         EipCommand.startVPN(applicationContext, false);
                     });
                 } else if (provider.supportsPluggableTransports()) {
-                    if (getUsePluggableTransports(applicationContext)) {
+                    if (getUseBridges(applicationContext)) {
                         builder.setPositiveButton(warning_option_try_ovpn, ((dialog, which) -> {
-                            usePluggableTransports(applicationContext, false);
+                            useBridges(applicationContext, false);
                             EipCommand.startVPN(applicationContext, false);
                         }));
                     } else {
                         builder.setPositiveButton(warning_option_try_pt, ((dialog, which) -> {
-                            usePluggableTransports(applicationContext, true);
+                            useBridges(applicationContext, true);
                             EipCommand.startVPN(applicationContext, false);
                         }));
                     }

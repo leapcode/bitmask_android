@@ -95,10 +95,15 @@ public class ProviderApiConnector {
         if (!response.isSuccessful()) {
             VpnStatus.logWarning("[API] API request failed: " + url);
         }
-        InputStream inputStream = response.body().byteStream();
-        Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-        if (scanner.hasNext()) {
-            return scanner.next();
+
+        if (response.body() != null) {
+            InputStream inputStream = response.body().byteStream();
+            Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+            if (scanner.hasNext()) {
+                String result = scanner.next();
+                response.body().close();
+                return result;
+            }
         }
         return null;
     }

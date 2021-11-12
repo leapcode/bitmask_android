@@ -9,8 +9,10 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,18 +34,22 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.OkHttpClient;
-import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider;
-import se.leap.bitmaskclient.testutils.matchers.BundleMatcher;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.FileHelper;
 import se.leap.bitmaskclient.base.utils.InputStreamHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
+import se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider;
+import se.leap.bitmaskclient.testutils.matchers.BundleMatcher;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -202,6 +208,18 @@ public class MockHelper {
             }
         });
 
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                String key = (String) invocation.getArguments()[0];
+                fakeBooleanBundle.remove(key);
+                fakeIntBundle.remove(key);
+                fakeParcelableBundle.remove(key);
+                fakeStringBundle.remove(key);
+                return null;
+            }
+        }).when(bundle).remove(anyString());
+
         return bundle;
     }
 
@@ -319,6 +337,20 @@ public class MockHelper {
         });
     }
 
+    public static ResultReceiver mockResultReceiver(final int expectedResultCode) {
+        ResultReceiver resultReceiver = mock(ResultReceiver.class);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] arguments = invocation.getArguments();
+                int resultCode = (int) arguments[0];
+                assertEquals("expected resultCode: ", expectedResultCode, resultCode);
+                return null;
+            }
+        }).when(resultReceiver).send(anyInt(), any(Bundle.class));
+        return resultReceiver;
+    }
+
     public static ResultReceiver mockResultReceiver(final int expectedResultCode, final Bundle expectedBundle) {
         ResultReceiver resultReceiver = mock(ResultReceiver.class);
 
@@ -423,7 +455,46 @@ public class MockHelper {
         });
     }
 
-    public static void mockProviderObserver(Provider provider) {
+    public static void mockTorStatusObservable(@Nullable Throwable exception) throws TimeoutException, InterruptedException {
+        TorStatusObservable observable = TorStatusObservable.getInstance();
+        mockStatic(TorStatusObservable.class);
+        when(TorStatusObservable.getInstance()).thenAnswer((Answer<TorStatusObservable>) invocation -> observable);
+
+        when(TorStatusObservable.getBootstrapProgress()).thenReturn(0);
+        when(TorStatusObservable.getLastLogs()).thenReturn(new Vector<>());
+        when(TorStatusObservable.getLastTorLog()).thenReturn("");
+        when(TorStatusObservable.getLastSnowflakeLog()).thenReturn("");
+        AtomicBoolean waitUntilSuccess = new AtomicBoolean(false);
+        when(TorStatusObservable.getProxyPort()).thenAnswer((Answer<Integer>) invocation -> {
+            if (waitUntilSuccess.get()) {
+                return 8118;
+            }
+            return -1;
+        });
+        when(TorStatusObservable.getStatus()).thenAnswer((Answer<TorStatusObservable.TorStatus>) invocation -> {
+            if (waitUntilSuccess.get()) {
+                return TorStatusObservable.TorStatus.ON;
+            }
+            return TorStatusObservable.TorStatus.OFF;
+        });
+        when(TorStatusObservable.getSnowflakeStatus()).thenAnswer((Answer<TorStatusObservable.SnowflakeStatus>) invocation -> {
+            if (waitUntilSuccess.get()) {
+                return TorStatusObservable.SnowflakeStatus.ON;
+            }
+            return TorStatusObservable.SnowflakeStatus.OFF;
+        });
+
+        if (exception != null) {
+            when(TorStatusObservable.waitUntil(any(TorStatusObservable.StatusCondition.class), anyInt())).thenThrow(exception);
+        } else {
+            when(TorStatusObservable.waitUntil(any(TorStatusObservable.StatusCondition.class), anyInt())).thenAnswer((Answer<Boolean>) invocation -> {
+                waitUntilSuccess.set(true);
+                return true;
+            });
+        }
+    }
+
+    public static void mockProviderObservable(Provider provider) {
         ProviderObservable observable = ProviderObservable.getInstance();
         observable.updateProvider(provider);
         mockStatic(ProviderObservable.class);
@@ -445,8 +516,8 @@ public class MockHelper {
     public static OkHttpClientGenerator mockClientGenerator(boolean resolveDNS) throws UnknownHostException {
         OkHttpClientGenerator mockClientGenerator = mock(OkHttpClientGenerator.class);
         OkHttpClient mockedOkHttpClient = mock(OkHttpClient.class, RETURNS_DEEP_STUBS);
-        when(mockClientGenerator.initCommercialCAHttpClient(any(JSONObject.class))).thenReturn(mockedOkHttpClient);
-        when(mockClientGenerator.initSelfSignedCAHttpClient(anyString(), any(JSONObject.class))).thenReturn(mockedOkHttpClient);
+        when(mockClientGenerator.initCommercialCAHttpClient(any(JSONObject.class), anyInt())).thenReturn(mockedOkHttpClient);
+        when(mockClientGenerator.initSelfSignedCAHttpClient(anyString(), anyInt(), any(JSONObject.class))).thenReturn(mockedOkHttpClient);
         if (resolveDNS) {
             when(mockedOkHttpClient.dns().lookup(anyString())).thenReturn(new ArrayList<>());
         } else {
@@ -498,6 +569,10 @@ public class MockHelper {
                 thenReturn(String.format(errorMessages.getString("setup_error_text"), "Bitmask"));
         when(mockedResources.getString(R.string.app_name)).
                 thenReturn("Bitmask");
+        when(mockedResources.getString(eq(R.string.error_tor_timeout), anyString())).
+                thenReturn(String.format(errorMessages.getString("error_tor_timeout"), "Bitmask"));
+        when(mockedResources.getString(eq(R.string.error_network_connection), anyString())).
+                thenReturn(String.format(errorMessages.getString("error_network_connection"), "Bitmask"));
         return mockedResources;
     }
 

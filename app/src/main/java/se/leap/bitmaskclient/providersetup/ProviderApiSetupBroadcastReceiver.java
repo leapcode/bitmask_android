@@ -67,8 +67,10 @@ public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
                     case ProviderAPI.PROVIDER_OK:
                         setupInterface.handleProviderSetUp(handledProvider);
                         break;
+                    case ProviderAPI.MISSING_NETWORK_CONNECTION:
+                    case ProviderAPI.TOR_TIMEOUT:
                     case ProviderAPI.PROVIDER_NOK:
-                        setupInterface.handleProviderSetupFailed(resultData);
+                        setupInterface.handleError(resultData);
                         break;
                     case ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                         setupInterface.handleCorrectlyDownloadedCertificate(handledProvider);

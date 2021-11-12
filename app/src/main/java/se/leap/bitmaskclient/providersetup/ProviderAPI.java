@@ -20,12 +20,20 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import java.util.concurrent.TimeoutException;
+
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
+import se.leap.bitmaskclient.tor.TorServiceCommand;
+import se.leap.bitmaskclient.tor.TorServiceConnection;
 
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 
@@ -61,6 +69,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             RECEIVER_KEY = "receiver",
             ERRORS = "errors",
             ERRORID = "errorId",
+            INITIAL_ACTION = "initalAction",
             BACKEND_ERROR_KEY = "error",
             BACKEND_ERROR_MESSAGE = "message",
             USER_MESSAGE = "userMessage",
@@ -82,9 +91,12 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE = 15,
             INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE = 16,
             CORRECTLY_DOWNLOADED_GEOIP_JSON = 17,
-            INCORRECTLY_DOWNLOADED_GEOIP_JSON = 18;
+            INCORRECTLY_DOWNLOADED_GEOIP_JSON = 18,
+            TOR_TIMEOUT = 19,
+            MISSING_NETWORK_CONNECTION = 20;
 
     ProviderApiManager providerApiManager;
+    private volatile TorServiceConnection torServiceConnection;
 
     //TODO: refactor me, please!
     //used in insecure flavor only
@@ -120,9 +132,50 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+    @Override
+    public boolean startTorService() throws InterruptedException, IllegalStateException, TimeoutException {
+        return TorServiceCommand.startTorService(this, null);
+    }
+
+    @Override
+    public void stopTorService() {
+        TorServiceCommand.stopTorService(this);
+    }
+
+    @Override
+    public int getTorHttpTunnelPort() {
+        return TorServiceCommand.getHttpTunnelPort(this);
+    }
+
+    @Override
+    public boolean hasNetworkConnection() {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                return activeNetwork != null &&
+                        activeNetwork.isConnectedOrConnecting();
+            } else {
+                NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
+                if (capabilities != null) {
+                    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+                }
+                return false;
+            }
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            // we don't know, let's try to fetch data anyways then
+            return true;
+        }
+    }
+
+
+
     private ProviderApiManager initApiManager() {
         SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(getResources());
         return new ProviderApiManager(preferences, getResources(), clientGenerator, this);
     }
+
 }

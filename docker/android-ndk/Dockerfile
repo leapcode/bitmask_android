@@ -12,11 +12,14 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update -qq && \
     apt-get -y dist-upgrade && \
     apt-get install -y gnupg apt-transport-https
-RUN echo 'deb https://apt.dockerproject.org/repo debian-stretch main'> /etc/apt/sources.list.d/docker.list && \
-    curl -s https://apt.dockerproject.org/gpg | apt-key add -
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    echo \
+      "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 # JNI build dependencies w/ 32-bit compatible C libs
 RUN apt-get update -qq && \
-    apt-get -y install docker-engine make gcc file lib32stdc++6 lib32z1  && \
+    apt-get -y install docker-ce make gcc file lib32stdc++6 lib32z1 \
+    autoconf autogen automake autopoint autotools-dev gettext-base libtool patch pkg-config && \
     apt-get clean && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -24,7 +27,7 @@ RUN apt-get update -qq && \
 # ------------------------------------------------------
 # --- Install Android NDK (for running C code)
 
-ENV ANDROID_NDK_VERSION "r20"
+ENV ANDROID_NDK_VERSION "r21e"
 ENV ANDROID_NDK_HOME ${ANDROID_HOME}/android-ndk-${ANDROID_NDK_VERSION}
 ENV ANDROID_NDK_URL http://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip
 

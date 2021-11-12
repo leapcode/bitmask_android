@@ -56,7 +56,7 @@ import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.base.models.Constants.USE_PLUGGABLE_TRANSPORTS;
+import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setPreferredCity;
 
@@ -162,7 +162,7 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (USE_PLUGGABLE_TRANSPORTS.equals(key)) {
+        if (USE_BRIDGES.equals(key)) {
             locationListAdapter.updateData(gatewaysManager.getGatewayLocations());
             setVpnButtonState();
         } else if (PREFERRED_CITY.equals(key)) {

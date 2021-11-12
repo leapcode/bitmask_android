@@ -48,6 +48,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -59,10 +60,13 @@ import se.leap.bitmaskclient.base.models.Constants.CREDENTIAL_ERRORS;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
 import se.leap.bitmaskclient.providersetup.models.SrpCredentials;
 import se.leap.bitmaskclient.providersetup.models.SrpRegistrationData;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static se.leap.bitmaskclient.R.string.certificate_error;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
@@ -110,9 +114,11 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLO
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INITIAL_ACTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.LOGOUT_FAILED;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.LOG_IN;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.LOG_OUT;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.MISSING_NETWORK_CONNECTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
@@ -122,12 +128,17 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.SIGN_UP;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_LOGIN;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_LOGOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_SIGNUP;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_TOR_TIMEOUT;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.ON;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
 /**
  * Implements the logic of the http api calls. The methods of this class needs to be called from
@@ -140,9 +151,13 @@ public abstract class ProviderApiManagerBase {
 
     public interface ProviderApiServiceCallback {
         void broadcastEvent(Intent intent);
+        boolean startTorService() throws InterruptedException, IllegalStateException, TimeoutException;
+        void stopTorService();
+        int getTorHttpTunnelPort();
+        boolean hasNetworkConnection();
     }
 
-    private ProviderApiServiceCallback serviceCallback;
+    private final ProviderApiServiceCallback serviceCallback;
 
     protected SharedPreferences preferences;
     protected Resources resources;
@@ -156,7 +171,6 @@ public abstract class ProviderApiManagerBase {
     }
 
     public void handleIntent(Intent command) {
-//        Log.d(TAG, "handleIntent was called!");
         ResultReceiver receiver = null;
         if (command.getParcelableExtra(RECEIVER_KEY) != null) {
             receiver = command.getParcelableExtra(RECEIVER_KEY);
@@ -164,17 +178,41 @@ public abstract class ProviderApiManagerBase {
         String action = command.getAction();
         Bundle parameters = command.getBundleExtra(PARAMETERS);
 
-        Provider provider = command.getParcelableExtra(PROVIDER_KEY);
-
-        if (provider == null) {
-            //TODO: consider returning error back e.g. NO_PROVIDER
-            Log.e(TAG, action +" called without provider!");
-            return;
-        }
         if (action == null) {
             Log.e(TAG, "Intent without action sent!");
             return;
         }
+
+        Provider provider = null;
+        if (command.getParcelableExtra(PROVIDER_KEY) != null) {
+            provider = command.getParcelableExtra(PROVIDER_KEY);
+        } else {
+            //TODO: consider returning error back e.g. NO_PROVIDER
+            Log.e(TAG, action +" called without provider!");
+            return;
+        }
+
+        if (!serviceCallback.hasNetworkConnection()) {
+            Bundle result = new Bundle();
+            setErrorResult(result, R.string.error_network_connection, null);
+            sendToReceiverOrBroadcast(receiver, MISSING_NETWORK_CONNECTION, result, provider);
+            return;
+        }
+
+         try {
+             if (PreferenceHelper.getUseBridges(preferences)) {
+                 startTorProxy();
+             }
+        } catch (InterruptedException | IllegalStateException e) {
+            e.printStackTrace();
+            return;
+        } catch (TimeoutException e) {
+             serviceCallback.stopTorService();
+             Bundle result = new Bundle();
+             setErrorResult(result, R.string.error_tor_timeout, ERROR_TOR_TIMEOUT.toString(), action);
+             sendToReceiverOrBroadcast(receiver, TOR_TIMEOUT, result, provider);
+             return;
+         }
 
         Bundle result = new Bundle();
         switch (action) {
@@ -269,7 +307,34 @@ public abstract class ProviderApiManagerBase {
                     }
                     ProviderObservable.getInstance().setProviderForDns(null);
                 }
+                break;
         }
+    }
+
+    protected boolean startTorProxy() throws InterruptedException, IllegalStateException, TimeoutException {
+        if (EipStatus.getInstance().isDisconnected() &&
+                PreferenceHelper.getUseTor(preferences) &&
+            serviceCallback.startTorService()) {
+            waitForTorCircuits();
+            if (TorStatusObservable.isCancelled()) {
+                throw new InterruptedException("Cancelled Tor setup.");
+            }
+            int port = serviceCallback.getTorHttpTunnelPort();
+            TorStatusObservable.setProxyPort(port);
+            return port != -1;
+        }
+        return false;
+    }
+
+    private void waitForTorCircuits() throws InterruptedException, TimeoutException {
+        if (TorStatusObservable.getStatus() == ON) {
+            return;
+        }
+        TorStatusObservable.waitUntil(this::isTorOnOrCancelled, 180);
+    }
+
+    private boolean isTorOnOrCancelled() {
+        return TorStatusObservable.getStatus() == ON || TorStatusObservable.isCancelled();
     }
 
     void resetProviderDetails(Provider provider) {
@@ -302,10 +367,11 @@ public abstract class ProviderApiManagerBase {
         }
     }
 
-    private void addErrorMessageToJson(JSONObject jsonObject, String errorMessage, String errorId) {
+    private void addErrorMessageToJson(JSONObject jsonObject, String errorMessage, String errorId, String initialAction) {
         try {
             jsonObject.put(ERRORS, errorMessage);
-            jsonObject.put(ERRORID, errorId);
+            jsonObject.putOpt(ERRORID, errorId);
+            jsonObject.putOpt(INITIAL_ACTION, initialAction);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -342,7 +408,7 @@ public abstract class ProviderApiManagerBase {
 
     private Bundle register(Provider provider, String username, String password) {
         JSONObject stepResult = null;
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), stepResult);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), stepResult);
         if (okHttpClient == null) {
             return backendErrorNotification(stepResult, username);
         }
@@ -401,7 +467,7 @@ public abstract class ProviderApiManagerBase {
 
         String providerApiUrl = provider.getApiUrlWithVersion();
 
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), stepResult);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), stepResult);
         if (okHttpClient == null) {
             return backendErrorNotification(stepResult, username);
         }
@@ -678,17 +744,24 @@ public abstract class ProviderApiManagerBase {
     }
 
     private boolean canConnect(Provider provider, Bundle result) {
+        return canConnect(provider, result, 0);
+    }
+
+    private boolean canConnect(Provider provider, Bundle result, int tries) {
         JSONObject errorJson = new JSONObject();
         String providerUrl = provider.getApiUrlString() + "/provider.json";
 
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), errorJson);
         if (okHttpClient == null) {
             result.putString(ERRORS, errorJson.toString());
             return false;
         }
 
-        try {
+        if (tries > 0) {
+            result.remove(ERRORS);
+        }
 
+        try {
             return ProviderApiConnector.canConnect(okHttpClient, providerUrl);
 
         }  catch (UnknownHostException | SocketTimeoutException e) {
@@ -714,6 +787,19 @@ public abstract class ProviderApiManagerBase {
             VpnStatus.logWarning("[API] IOException during connection check: " + e.getLocalizedMessage());
             setErrorResult(result, error_io_exception_user_message, null);
         }
+
+        try {
+            if (tries == 0 &&
+                    result.containsKey(ERRORS) &&
+                    TorStatusObservable.getStatus() == OFF &&
+                    startTorProxy()
+            ) {
+                return canConnect(provider, result, 1);
+            }
+        } catch (InterruptedException | IllegalStateException | TimeoutException e) {
+            e.printStackTrace();
+        }
+
         return false;
     }
 
@@ -862,13 +948,13 @@ public abstract class ProviderApiManagerBase {
     }
 
     Bundle setErrorResult(Bundle result, int errorMessageId, String errorId) {
+        return setErrorResult(result, errorMessageId, errorId, null);
+    }
+
+    Bundle setErrorResult(Bundle result, int errorMessageId, String errorId, String initialAction) {
         JSONObject errorJson = new JSONObject();
         String errorMessage = getProviderFormattedString(resources, errorMessageId);
-        if (errorId != null) {
-            addErrorMessageToJson(errorJson, errorMessage, errorId);
-        } else {
-            addErrorMessageToJson(errorJson, errorMessage);
-        }
+        addErrorMessageToJson(errorJson, errorMessage, errorId, initialAction);
         VpnStatus.logWarning("[API] error: " + errorMessage);
         result.putString(ERRORS, errorJson.toString());
         result.putBoolean(BROADCAST_RESULT_KEY, false);
@@ -950,7 +1036,7 @@ public abstract class ProviderApiManagerBase {
     }
 
     private boolean logOut(Provider provider) {
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), new JSONObject());
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), new JSONObject());
         if (okHttpClient == null) {
             return false;
         }

@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,15 +30,18 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.torproject.jni.TorService;
 
 import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
-import se.leap.bitmaskclient.providersetup.ProviderDetailActivity;
 import se.leap.bitmaskclient.providersetup.ProviderApiSetupBroadcastReceiver;
+import se.leap.bitmaskclient.providersetup.ProviderDetailActivity;
 import se.leap.bitmaskclient.providersetup.ProviderManager;
 import se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog;
 import se.leap.bitmaskclient.providersetup.ProviderSetupInterface;
+import se.leap.bitmaskclient.tor.TorServiceCommand;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
@@ -51,13 +55,14 @@ import static se.leap.bitmaskclient.providersetup.ProviderSetupInterface.Provide
 import static se.leap.bitmaskclient.providersetup.ProviderSetupInterface.ProviderConfigState.SETTING_UP_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupInterface.ProviderConfigState.SHOWING_PROVIDER_DETAILS;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupInterface.ProviderConfigState.SHOW_FAILED_DIALOG;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
 /**
  * Created by cyberta on 19.08.18.
  */
 
 public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity implements ProviderSetupInterface, ProviderSetupFailedDialog.DownloadFailedDialogInterface {
-    final public static String TAG = "PoviderSetupActivity";
+    final public static String TAG = "ProviderSetupActivity";
     final private static String ACTIVITY_STATE = "ACTIVITY STATE";
     final private static String REASON_TO_FAIL = "REASON TO FAIL";
 
@@ -86,11 +91,13 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
             showProgressBar();
         } else if (PENDING_SHOW_FAILED_DIALOG == providerConfigState) {
             showProgressBar();
+            hideConnectionDetails();
             showDownloadFailedDialog();
         } else if (SHOW_FAILED_DIALOG == providerConfigState) {
             showProgressBar();
+            hideConnectionDetails();
         } else if (SHOWING_PROVIDER_DETAILS == providerConfigState) {
-            cancelSettingUpProvider();
+            cancelSettingUpProvider(false);
         } else if (PENDING_SHOW_PROVIDER_DETAILS == providerConfigState) {
             showProviderDetails();
         }
@@ -142,7 +149,7 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     }
 
     @Override
-    public void handleProviderSetupFailed(Bundle resultData) {
+    public void handleError(Bundle resultData) {
         reasonToFail = resultData.getString(ERRORS);
         showDownloadFailedDialog();
     }
@@ -156,15 +163,23 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     // -------- DownloadFailedDialogInterface ---v
     @Override
     public void cancelSettingUpProvider() {
-        providerConfigState = PROVIDER_NOT_SET;
-        provider = null;
-        hideProgressBar();
+       cancelSettingUpProvider(true);
     }
 
     @Override
     public void updateProviderDetails() {
         providerConfigState = SETTING_UP_PROVIDER;
         ProviderAPICommand.execute(this, UPDATE_PROVIDER_DETAILS, provider);
+    }
+
+    public void cancelSettingUpProvider(boolean stopTor) {
+        if (stopTor && TorStatusObservable.getStatus() != OFF) {
+            Log.d(TAG, "SHUTDOWN - cancelSettingUpProvider stopTor:" + stopTor);
+            TorServiceCommand.stopTorServiceAsync(this);
+        }
+        providerConfigState = PROVIDER_NOT_SET;
+        provider = null;
+        hideProgressBar();
     }
 
     protected void restoreState(Bundle savedInstanceState) {
@@ -196,7 +211,7 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     /**
      * Once selected a provider, this fragment offers the user to log in,
      * use it anonymously (if possible)
-     * or cancel his/her election pressing the back button.
+     * or cancel their selection pressing the back button.
      */
     public void showProviderDetails() {
         // show only if current activity is shown
@@ -218,6 +233,7 @@ public abstract class ProviderSetupBaseActivity extends ConfigWizardBaseActivity
     public void showDownloadFailedDialog() {
         try {
             providerConfigState = SHOW_FAILED_DIALOG;
+            hideConnectionDetails();
             FragmentTransaction fragmentTransaction = fragmentManager.removePreviousFragment(ProviderSetupFailedDialog.TAG);
             DialogFragment newFragment;
             try {

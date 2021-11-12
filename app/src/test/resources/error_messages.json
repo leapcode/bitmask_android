@@ -13,5 +13,7 @@
   "warning_corrupted_provider_details": "Stored provider details are corrupted. You can either update %s (recommended) or update the provider details using a commercial CA certificate.",
   "warning_corrupted_provider_cert": "Stored provider certificate is invalid. You can either update %s (recommended) or update the provider certificate using a commercial CA certificate.",
   "warning_expired_provider_cert": "Stored provider certificate is expired. You can either update %s (recommended) or update the provider certificate using a commercial CA certificate.",
-  "setup_error_text": "There was an error configuring %s with your chosen provider."
+  "setup_error_text": "There was an error configuring %s with your chosen provider.",
+  "error_tor_timeout": "Starting bridges failed. Do you want to retry or continue with an unobfuscated secure connection to configure %s?",
+  "error_network_connection": "%s has no internet connection. Please check your WiFi and cellular data settings."
 }

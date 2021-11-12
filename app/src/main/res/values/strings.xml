@@ -7,6 +7,7 @@
   <string name="switch_provider_menu_option">Switch provider</string>
   <string name="info">info</string>
   <string name="show_connection_details">Show connection details</string>
+  <string name="connection_details">Connection details</string>
   <string name="routes_info">Routes: %s</string>
   <string name="routes_info6">IPv6 routes: %s</string>
   <string name="error_empty_username">The username must not be empty.</string>
@@ -154,5 +155,31 @@
   <string name="gateway_selection_best_location">Location with best connection</string>
   <string name="gateway_selection_automatic">Automatic</string>
   <string name="gateway_selection_current_location">Your traffic is currently routed through: </string>
+
+  <string name="tor_starting">Starting bridges for censorship circumvention…</string>
+  <string name="tor_stopping">Stopping bridges.</string>
+  <string name="tor_started">Using bridges for censorship circumvention.</string>
+  <string name="log_conn_done_pt">Connected to pluggable transport</string>
+  <string name="log_conn_pt">Connecting to pluggable transport</string>
+  <string name="log_conn_done">Connected to a relay</string>
+  <string name="log_handshake">Handshaking with a relay</string>
+  <string name="log_handshake_done">Handshake with a relay done</string>
+  <string name="log_onehop_create">Establishing an encrypted directory connection</string>
+  <string name="log_requesting_status">Asking for networkstatus consensus</string>
+  <string name="log_loading_status">Loading networkstatus consensus</string>
+  <string name="log_loading_keys">Loading authority key certs</string>
+  <string name="log_requesting_desccriptors">Asking for relay descriptors</string>
+  <string name="log_loading_descriptors">Loading relay descriptors</string>
+  <string name="log_enough_dirinfo">Loaded enough directory info to build circuits</string>
+  <string name="log_ap_handshake_done">Handshake finished with a relay to build circuits</string>
+  <string name="log_circuit_create">Establishing a Tor circuit</string>
+  <string name="log_done">Running</string>
+  <string name="channel_name_tor_service">%s Bridges Service</string>
+  <string name="channel_description_tor_service">Informs about usage of bridges while configuring %s.</string>
+  <string name="error_tor_timeout">Starting bridges failed. Do you want to retry or continue with an unobfuscated secure connection to configure %s?</string>
+  <string name="retry_unobfuscated">Retry unobfuscated</string>
+  <string name="hide_connection_details">Hide connection details</string>
+  <string name="error_network_connection">%s has no internet connection. Please check your WiFi and cellular data settings.</string>
+
 
 </resources>

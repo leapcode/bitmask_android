@@ -1,18 +1,15 @@
 package se.leap.bitmaskclient.providersetup;
 
 import android.content.res.AssetManager;
+
 import androidx.annotation.VisibleForTesting;
 
 import com.pedrogomez.renderers.AdapteeCollection;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -44,8 +41,8 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     private File externalFilesDir;
     private Set<Provider> defaultProviders;
     private Set<Provider> customProviders;
-    private Set<URL> defaultProviderURLs;
-    private Set<URL> customProviderURLs;
+    private Set<String> defaultProviderURLs;
+    private Set<String> customProviderURLs;
 
     private static ProviderManager instance;
 
@@ -76,10 +73,10 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         }
     }
 
-    private Set<URL> getProviderUrlSetFromProviderSet(Set<Provider> providers) {
-        HashSet<URL> providerUrls = new HashSet<>();
+    private Set<String> getProviderUrlSetFromProviderSet(Set<Provider> providers) {
+        HashSet<String> providerUrls = new HashSet<>();
         for (Provider provider : providers) {
-            providerUrls.add(provider.getMainUrl().getUrl());
+            providerUrls.add(provider.getMainUrl().toString());
         }
         return providerUrls;
     }
@@ -167,16 +164,16 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     @Override
     public boolean add(Provider element) {
         return element != null &&
-                !defaultProviderURLs.contains(element.getMainUrl().getUrl()) &&
+                !defaultProviderURLs.contains(element.getMainUrl().toString()) &&
                 customProviders.add(element) &&
-                customProviderURLs.add(element.getMainUrl().getUrl());
+                customProviderURLs.add(element.getMainUrl().toString());
     }
 
     @Override
     public boolean remove(Object element) {
         return element instanceof Provider &&
                 customProviders.remove(element) &&
-                customProviderURLs.remove(((Provider) element).getMainUrl().getUrl());
+                customProviderURLs.remove(((Provider) element).getMainUrl().toString());
     }
 
     @Override
@@ -186,7 +183,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         while (iterator.hasNext()) {
             Provider p = (Provider) iterator.next();
             addedAll = customProviders.add(p) &&
-                    customProviderURLs.add(p.getMainUrl().getUrl()) &&
+                    customProviderURLs.add(p.getMainUrl().toString()) &&
                     addedAll;
         }
         return addedAll;
@@ -199,8 +196,8 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         try {
             while (iterator.hasNext()) {
                 Provider p = (Provider) iterator.next();
-                removedAll = ((defaultProviders.remove(p) && defaultProviderURLs.remove(p.getMainUrl().getUrl())) ||
-                        (customProviders.remove(p) && customProviderURLs.remove(p.getMainUrl().getUrl()))) &&
+                removedAll = ((defaultProviders.remove(p) && defaultProviderURLs.remove(p.getMainUrl().toString())) ||
+                        (customProviders.remove(p) && customProviderURLs.remove(p.getMainUrl().toString()))) &&
                         removedAll;
             }
         } catch (ClassCastException e) {

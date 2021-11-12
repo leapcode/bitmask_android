@@ -28,14 +28,18 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import de.blinkt.openvpn.core.VpnStatus;
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EIP;
+import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.BuildConfig.DEBUG_MODE;
@@ -52,6 +56,8 @@ import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormatted
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
 /**
  * Implements the logic of the provider api http requests. The methods of this class need to be called from
@@ -221,7 +227,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     /**
      * Fetches the geo ip Json, containing a list of gateways sorted by distance from the users current location.
      * Fetching is only allowed if the cache timeout of 1 h was reached, a valid geoip service URL exists and the
-     * vpn is not yet active. The latter condition is needed in order to guarantee that the geoip service sees
+     * vpn or tor is not running. The latter condition is needed in order to guarantee that the geoip service sees
      * the real ip of the client
      *
      * @param provider
@@ -231,7 +237,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     protected Bundle getGeoIPJson(Provider provider) {
         Bundle result = new Bundle();
 
-        if (!provider.shouldUpdateGeoIpJson() || provider.getGeoipUrl().isDefault() || VpnStatus.isVPNActive()) {
+        if (!provider.shouldUpdateGeoIpJson() || provider.getGeoipUrl().isDefault() || VpnStatus.isVPNActive() || TorStatusObservable.getStatus() != OFF) {
             result.putBoolean(BROADCAST_RESULT_KEY, false);
             return result;
         }
@@ -239,7 +245,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         try {
             URL geoIpUrl = provider.getGeoipUrl().getUrl();
 
-            String geoipJsonString = downloadFromUrlWithProviderCA(geoIpUrl.toString(), provider);
+            String geoipJsonString = downloadFromUrlWithProviderCA(geoIpUrl.toString(), provider, false);
             if (DEBUG_MODE) {
                 VpnStatus.logDebug("[API] MENSHEN JSON: " + geoipJsonString);
             }
@@ -285,15 +291,20 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         return result;
     }
 
-    /**
-     * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
-     *
-     */
     private String downloadWithCommercialCA(String stringUrl, Provider provider) {
+        return downloadWithCommercialCA(stringUrl, provider, true);
+    }
+
+        /**
+         * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
+         *
+         */
+    private String downloadWithCommercialCA(String stringUrl, Provider provider, boolean allowRetry) {
+
         String responseString;
         JSONObject errorJson = new JSONObject();
 
-        OkHttpClient okHttpClient = clientGenerator.initCommercialCAHttpClient(errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initCommercialCAHttpClient(errorJson, getProxyPort());
         if (okHttpClient == null) {
             return errorJson.toString();
         }
@@ -314,6 +325,18 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             }
         }
 
+        try {
+            if (allowRetry &&
+                    responseString != null &&
+                    responseString.contains(ERRORS)  &&
+                    TorStatusObservable.getStatus() == OFF &&
+                    startTorProxy()
+            ) {
+                return downloadWithCommercialCA(stringUrl, provider, false);
+            }
+        } catch (InterruptedException | IllegalStateException | TimeoutException e) {
+            e.printStackTrace();
+        }
         return responseString;
     }
 
@@ -330,15 +353,32 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     }
 
     private String downloadFromUrlWithProviderCA(String urlString, Provider provider) {
+        return downloadFromUrlWithProviderCA(urlString, provider, true);
+    }
+
+    private String downloadFromUrlWithProviderCA(String urlString, Provider provider, boolean allowRetry) {
         String responseString;
         JSONObject errorJson = new JSONObject();
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), errorJson);
         if (okHttpClient == null) {
             return errorJson.toString();
         }
 
         List<Pair<String, String>> headerArgs = getAuthorizationHeader();
         responseString = sendGetStringToServer(urlString, headerArgs, okHttpClient);
+
+        try {
+            if (allowRetry &&
+                    responseString != null &&
+                    responseString.contains(ERRORS)  &&
+                    TorStatusObservable.getStatus() == OFF &&
+                    startTorProxy()
+            ) {
+                return downloadFromUrlWithProviderCA(urlString, provider, false);
+            }
+        } catch (InterruptedException | IllegalStateException | TimeoutException e) {
+            e.printStackTrace();
+        }
 
         return responseString;
     }
@@ -354,7 +394,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         JSONObject initError = new JSONObject();
         String responseString;
 
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, initError);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, getProxyPort(), initError);
         if (okHttpClient == null) {
             return initError.toString();
         }

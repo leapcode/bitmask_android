@@ -76,7 +76,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
-import static se.leap.bitmaskclient.base.models.Constants.USE_PLUGGABLE_TRANSPORTS;
+import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.R.string.about_fragment_title;
 import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
 import static se.leap.bitmaskclient.R.string.log_fragment_title;
@@ -84,10 +84,10 @@ import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSaveBattery;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePluggableTransports;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.saveBattery;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.showExperimentalFeatures;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.usePluggableTransports;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -289,8 +289,10 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         if (isDefaultBitmask()) {
             IconTextEntry switchProvider = drawerView.findViewById(R.id.switch_provider);
             switchProvider.setVisibility(VISIBLE);
-            switchProvider.setOnClickListener(v ->
-                    getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER));
+            switchProvider.setOnClickListener(v -> {
+                closeDrawer();
+                getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
+            });
         }
     }
 
@@ -298,12 +300,12 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         IconSwitchEntry useBridges = drawerView.findViewById(R.id.bridges_switch);
         if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
             useBridges.setVisibility(VISIBLE);
-            useBridges.setChecked(getUsePluggableTransports(getContext()));
+            useBridges.setChecked(getUseBridges(getContext()));
             useBridges.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (!buttonView.isPressed()) {
                     return;
                 }
-                usePluggableTransports(getContext(), isChecked);
+                useBridges(getContext(), isChecked);
                 if (VpnStatus.isVPNActive()) {
                     EipCommand.startVPN(getContext(), false);
                     closeDrawer();
@@ -673,7 +675,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(USE_PLUGGABLE_TRANSPORTS)) {
+        if (key.equals(USE_BRIDGES)) {
             initUseBridgesEntry();
         } else if (key.equals(USE_IPv6_FIREWALL)) {
             initFirewallEntry();

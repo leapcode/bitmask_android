@@ -85,7 +85,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICA
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePluggableTransports;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_PROFILE;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
@@ -315,7 +315,7 @@ public final class EIP extends JobIntentService implements Observer {
      */
     private void launchActiveGateway(Gateway gateway, int nClosestGateway, Bundle result) {
         VpnProfile profile;
-        Connection.TransportType transportType = getUsePluggableTransports(this) ? OBFS4 : OPENVPN;
+        Connection.TransportType transportType = getUseBridges(this) ? OBFS4 : OPENVPN;
         if (gateway == null ||
                 (profile = gateway.getProfile(transportType)) == null) {
             String preferredLocation = getPreferredCity(getApplicationContext());
@@ -537,7 +537,7 @@ public final class EIP extends JobIntentService implements Observer {
         if (isManualGatewaySelection) {
             return R.string.warning_no_more_gateways_manual_gw_selection;
         } else if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
-            if (PreferenceHelper.getUsePluggableTransports(getApplicationContext())) {
+            if (PreferenceHelper.getUseBridges(getApplicationContext())) {
                 return R.string.warning_no_more_gateways_use_ovpn;
             } else {
                 return R.string.warning_no_more_gateways_use_pt;

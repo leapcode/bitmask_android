@@ -32,7 +32,7 @@ public interface Constants {
     String CLEARLOG = "clearlogconnect";
     String LAST_USED_PROFILE = "last_used_profile";
     String EXCLUDED_APPS = "excluded_apps";
-    String USE_PLUGGABLE_TRANSPORTS = "usePluggableTransports";
+    String USE_BRIDGES = "usePluggableTransports";
     String ALLOW_TETHERING_BLUETOOTH = "tethering_bluetooth";
     String ALLOW_TETHERING_WIFI = "tethering_wifi";
     String ALLOW_TETHERING_USB = "tethering_usb";
@@ -41,6 +41,7 @@ public interface Constants {
     String RESTART_ON_UPDATE = "restart_on_update";
     String LAST_UPDATE_CHECK = "last_update_check";
     String PREFERRED_CITY = "preferred_city";
+    String USE_TOR = "use_tor";
 
 
      //////////////////////////////////////////////

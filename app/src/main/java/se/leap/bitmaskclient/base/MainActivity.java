@@ -195,13 +195,14 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
             storeProviderInPreferences(preferences, provider);
             ProviderObservable.getInstance().updateProvider(provider);
             if (!provider.supportsPluggableTransports()) {
-                PreferenceHelper.usePluggableTransports(this, false);
+                PreferenceHelper.useBridges(this, false);
             }
             navigationDrawerFragment.refresh();
 
             switch (requestCode) {
                 case REQUEST_CODE_SWITCH_PROVIDER:
                     EipCommand.stopVPN(this.getApplicationContext());
+                    EipCommand.startVPN(this.getApplicationContext(), false);
                     break;
                 case REQUEST_CODE_CONFIGURE_LEAP:
                     Log.d(TAG, "REQUEST_CODE_CONFIGURE_LEAP - onActivityResult - MainActivity");

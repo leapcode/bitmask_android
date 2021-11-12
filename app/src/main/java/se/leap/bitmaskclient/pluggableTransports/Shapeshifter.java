@@ -37,11 +37,11 @@ public class Shapeshifter implements Observer {
     private static final int RETRY_TIME = 4000;
     private static final String TAG = Shapeshifter.class.getSimpleName();
 
-    private ShapeShifter shapeShifter;
+    private final shapeshifter.ShapeShifter shapeShifter;
     private boolean isErrorHandling;
     private boolean noNetwork;
     private int retry = 0;
-    private Handler reconnectHandler;
+    private final Handler reconnectHandler;
 
     public class ShapeshifterLogger implements shapeshifter.Logger {
         @Override

@@ -9,12 +9,17 @@ import android.content.Context;
 import android.net.*;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
+
+import androidx.core.net.ConnectivityManagerCompat;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.util.Vector;
 
 public class NetworkUtils {
+
+    private static final String TAG = NetworkUtils.class.getSimpleName();
 
     public static Vector<String> getLocalNetworks(Context c, boolean ipv6) {
         Vector<String> nets = new Vector<>();
@@ -75,5 +80,4 @@ public class NetworkUtils {
         }
         return nets;
     }
-
 }

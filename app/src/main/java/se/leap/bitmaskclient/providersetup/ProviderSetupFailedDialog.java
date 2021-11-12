@@ -21,19 +21,25 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import org.json.JSONObject;
 
-import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
-import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.DEFAULT;
-import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.valueOf;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORID;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INITIAL_ACTION;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_PROVIDER_DETAILS;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.DEFAULT;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.valueOf;
 
 /**
  * Implements a dialog to show why a download failed.
@@ -43,11 +49,13 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 public class ProviderSetupFailedDialog extends DialogFragment {
 
     public static String TAG = "downloaded_failed_dialog";
-    private final static String KEY_PROVIDER = "key provider";
-    private final static String KEY_REASON_TO_FAIL = "key reason to fail";
-    private final static String KEY_DOWNLOAD_ERROR = "key download error";
+    private final static String KEY_PROVIDER = "key_provider";
+    private final static String KEY_REASON_TO_FAIL = "key_reason_to_fail";
+    private final static String KEY_DOWNLOAD_ERROR = "key_download_error";
+    private final static String KEY_INITAL_ACTION = "key_inital_action";
     private String reasonToFail;
     private DOWNLOAD_ERRORS downloadError = DEFAULT;
+    private String initialAction;
 
     private Provider provider;
 
@@ -59,7 +67,8 @@ public class ProviderSetupFailedDialog extends DialogFragment {
         ERROR_CORRUPTED_PROVIDER_JSON,
         ERROR_INVALID_CERTIFICATE,
         ERROR_CERTIFICATE_PINNING,
-        ERROR_NEW_URL_NO_VPN_PROVIDER
+        ERROR_NEW_URL_NO_VPN_PROVIDER,
+        ERROR_TOR_TIMEOUT
     }
 
     /**
@@ -90,6 +99,10 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                 dialogFragment.downloadError = valueOf(errorJson.getString(ERRORID));
             } else if (testNewURL) {
                 dialogFragment.downloadError = DOWNLOAD_ERRORS.ERROR_NEW_URL_NO_VPN_PROVIDER;
+            }
+
+            if (errorJson.has(INITIAL_ACTION)) {
+                dialogFragment.initialAction = errorJson.getString(INITIAL_ACTION);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,6 +138,14 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                 builder.setPositiveButton(R.string.retry, (dialog, id)
                         -> interfaceWithConfigurationWizard.addAndSelectNewProvider(provider.getMainUrlString()));
                 break;
+            case ERROR_TOR_TIMEOUT:
+                builder.setPositiveButton(R.string.retry, (dialog, id) -> {
+                    handleTorTimeoutError();
+                });
+                builder.setNeutralButton(R.string.retry_unobfuscated, ((dialog, id) -> {
+                    PreferenceHelper.useBridges(getContext(), false);
+                    handleTorTimeoutError();
+                }));
             default:
                 builder.setPositiveButton(R.string.retry, (dialog, id)
                         -> interfaceWithConfigurationWizard.retrySetUpProvider(provider));
@@ -133,6 +154,20 @@ public class ProviderSetupFailedDialog extends DialogFragment {
 
         // Create the AlertDialog object and return it
         return builder.create();
+    }
+
+    private void handleTorTimeoutError() {
+        switch (initialAction) {
+            case SET_UP_PROVIDER:
+            case UPDATE_PROVIDER_DETAILS:
+                interfaceWithConfigurationWizard.retrySetUpProvider(provider);
+                break;
+            case UPDATE_INVALID_VPN_CERTIFICATE:
+                ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider);
+                break;
+            default:
+                break;
+        }
     }
 
     public interface DownloadFailedDialogInterface {
@@ -159,6 +194,12 @@ public class ProviderSetupFailedDialog extends DialogFragment {
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+        interfaceWithConfigurationWizard = null;
+    }
+
+    @Override
     public void onCancel(DialogInterface dialog) {
         dialog.dismiss();
         interfaceWithConfigurationWizard.cancelSettingUpProvider();
@@ -170,6 +211,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
         outState.putParcelable(KEY_PROVIDER, provider);
         outState.putString(KEY_REASON_TO_FAIL, reasonToFail);
         outState.putString(KEY_DOWNLOAD_ERROR, downloadError.toString());
+        outState.putString(KEY_INITAL_ACTION, initialAction);
     }
 
     private void restoreFromSavedInstance(Bundle savedInstanceState) {
@@ -184,6 +226,9 @@ public class ProviderSetupFailedDialog extends DialogFragment {
         }
         if (savedInstanceState.containsKey(KEY_DOWNLOAD_ERROR)) {
             this.downloadError = valueOf(savedInstanceState.getString(KEY_DOWNLOAD_ERROR));
+        }
+        if (savedInstanceState.containsKey(KEY_INITAL_ACTION)) {
+            this.initialAction = savedInstanceState.getString(KEY_INITAL_ACTION);
         }
     }
 }

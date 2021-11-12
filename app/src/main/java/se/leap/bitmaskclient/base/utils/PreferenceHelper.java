@@ -14,6 +14,7 @@ import java.util.Set;
 
 import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static android.content.Context.MODE_PRIVATE;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_BLUETOOTH;
@@ -33,7 +34,8 @@ import static se.leap.bitmaskclient.base.models.Constants.RESTART_ON_UPDATE;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
-import static se.leap.bitmaskclient.base.models.Constants.USE_PLUGGABLE_TRANSPORTS;
+import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
+import static se.leap.bitmaskclient.base.models.Constants.USE_TOR;
 
 /**
  * Created by cyberta on 18.03.18.
@@ -140,12 +142,31 @@ public class PreferenceHelper {
         return getBoolean(context, RESTART_ON_UPDATE, false);
     }
 
-    public static boolean getUsePluggableTransports(Context context) {
-        return getBoolean(context, USE_PLUGGABLE_TRANSPORTS, false);
+
+    public static boolean getUseBridges(SharedPreferences preferences) {
+        return preferences.getBoolean(USE_BRIDGES, false);
     }
 
-    public static void usePluggableTransports(Context context, boolean isEnabled) {
-        putBoolean(context, USE_PLUGGABLE_TRANSPORTS, isEnabled);
+    public static boolean getUseBridges(Context context) {
+        return getBoolean(context, USE_BRIDGES, false);
+    }
+
+    public static void useBridges(Context context, boolean isEnabled) {
+        putBoolean(context, USE_BRIDGES, isEnabled);
+        putBoolean(context, USE_TOR, isEnabled);
+        if (!isEnabled) {
+            TorStatusObservable.setProxyPort(-1);
+        }
+    }
+
+    // in contrast to USE_BRIDGES, USE_TOR in enabled by default
+    // This way the initial provider setup can rely on tor as fallback circumvention mechanism
+    public static Boolean getUseTor(SharedPreferences preferences) {
+        return preferences.getBoolean(USE_TOR, true);
+    }
+
+    public static Boolean getUseTor(Context context) {
+        return getBoolean(context, USE_TOR, true);
     }
 
     public static void saveBattery(Context context, boolean isEnabled) {
@@ -278,5 +299,4 @@ public class PreferenceHelper {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putBoolean(key, value).apply();
     }
-
 }
