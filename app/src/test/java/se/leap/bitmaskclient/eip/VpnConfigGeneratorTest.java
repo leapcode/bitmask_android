@@ -1140,5 +1140,14 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v4_ovpn_udp_tcp.trim()));
     }
 
+    @Test
+    public void testGenerateVpnProfile_v3_ipv6only_allowOpenvpnIPv6Only() throws Exception {
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_ipv6.json"))).getJSONArray("gateways").getJSONObject(0);
+        generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_ipv6.json"))).getJSONObject(OPENVPN_CONFIGURATION);
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 3);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertTrue(vpnProfiles.containsKey(OPENVPN));
+    }
+
 
 }

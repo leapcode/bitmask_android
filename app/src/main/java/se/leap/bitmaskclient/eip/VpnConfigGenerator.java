@@ -162,16 +162,18 @@ public class VpnConfigGenerator {
 
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            String ipAddress = gateway.getString(IP_ADDRESS);
+            String ipAddress = null;
             JSONObject capabilities = gateway.getJSONObject(CAPABILITIES);
             switch (apiVersion) {
                 default:
                 case 1:
                 case 2:
+                     ipAddress = gateway.getString(IP_ADDRESS);
                     gatewayConfigApiv1(stringBuilder, ipAddress, capabilities);
                     break;
                 case 3:
                 case 4:
+                    ipAddress = gateway.optString(IP_ADDRESS);
                     String ipAddress6 = gateway.optString(IP_ADDRESS6);
                     String[] ipAddresses = ipAddress6.isEmpty()  ?
                             new String[]{ipAddress} :
