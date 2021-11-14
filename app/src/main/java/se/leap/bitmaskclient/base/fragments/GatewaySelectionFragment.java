@@ -162,7 +162,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     @Override
     public void onLocationSelected(Location location) {
         String name = location.name;
-        Connection.TransportType selectedTransport = PreferenceHelper.getUsePluggableTransports(getContext()) ? OBFS4 : OPENVPN;
+        Connection.TransportType selectedTransport = PreferenceHelper.getUseBridges(getContext()) ? OBFS4 : OPENVPN;
         if (location.supportedTransports.contains(selectedTransport)) {
             startEipService(name);
         } else {
