@@ -1149,5 +1149,47 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.containsKey(OPENVPN));
     }
 
+    @Test
+    public void testGenerateVpnProfile_v3_obfs4IPv6_skip() throws Exception {
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_ipv6.json"))).getJSONArray("gateways").getJSONObject(0);
+        generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_ipv6.json"))).getJSONObject(OPENVPN_CONFIGURATION);
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 3);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertFalse(vpnProfiles.containsKey(OBFS4));
+    }
+
+    @Test
+    public void testGenerateVpnProfile_v3_obfs4IPv4AndIPv6_skipIPv6() throws Exception {
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_ipv4ipv6.json"))).getJSONArray("gateways").getJSONObject(0);
+        generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_ipv4ipv6.json"))).getJSONObject(OPENVPN_CONFIGURATION);
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 3);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertTrue(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.containsKey(OPENVPN));
+        assertEquals(1, vpnProfiles.get(OBFS4).mConnections.length);
+        assertEquals("37.218.247.60/32", vpnProfiles.get(OBFS4).mExcludedRoutes.trim());
+    }
+
+    @Test
+    public void testGenerateVpnProfile_v3_obfs4udp_skip() throws Exception {
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_udp.json"))).getJSONArray("gateways").getJSONObject(0);
+        generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_udp.json"))).getJSONObject(OPENVPN_CONFIGURATION);
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 3);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertFalse(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.containsKey(OPENVPN));
+    }
+
+    @Test
+    public void testGenerateVpnProfile_v3_obfs4UDPAndTCP_skipUDP() throws Exception {
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_udptcp.json"))).getJSONArray("gateways").getJSONObject(0);
+        generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_udptcp.json"))).getJSONObject(OPENVPN_CONFIGURATION);
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 3);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertTrue(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.containsKey(OPENVPN));
+        assertEquals(1, vpnProfiles.get(OBFS4).mConnections.length);
+        assertFalse(vpnProfiles.get(OBFS4).mConnections[0].isUseUdp());
+    }
 
 }

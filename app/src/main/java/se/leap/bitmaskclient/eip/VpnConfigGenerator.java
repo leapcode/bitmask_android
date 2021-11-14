@@ -29,8 +29,10 @@ import java.util.Iterator;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
+import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
@@ -95,7 +97,11 @@ public class VpnConfigGenerator {
         HashMap<Connection.TransportType, VpnProfile> profiles = new HashMap<>();
         profiles.put(OPENVPN, createProfile(OPENVPN));
         if (supportsObfs4()) {
-            profiles.put(OBFS4, createProfile(OBFS4));
+            try {
+                profiles.put(OBFS4, createProfile(OBFS4));
+            } catch (ConfigParser.ConfigParseError | NumberFormatException | JSONException | IOException e) {
+                e.printStackTrace();
+            }
         }
         return profiles;
     }
@@ -191,6 +197,7 @@ public class VpnConfigGenerator {
         if (remotes.endsWith(newLine)) {
             remotes = remotes.substring(0, remotes.lastIndexOf(newLine));
         }
+
         return remotes;
     }
 
@@ -249,6 +256,7 @@ public class VpnConfigGenerator {
 
     private void obfs4GatewayConfigMinApiv3(StringBuilder stringBuilder, String[] ipAddresses, JSONArray transports) throws JSONException {
         JSONObject obfs4Transport = getTransport(transports, OBFS4);
+        JSONArray protocols = obfs4Transport.getJSONArray(PROTOCOLS);
         //for now only use ipv4 gateway the syntax route remote_host 255.255.255.255 net_gateway is not yet working
         // https://community.openvpn.net/openvpn/ticket/1161
         /*for (String ipAddress : ipAddresses) {
@@ -260,10 +268,38 @@ public class VpnConfigGenerator {
             return;
         }
 
-        String ipAddress = ipAddresses[ipAddresses.length - 1];
+        // check if at least one address is IPv4, IPv6 is currently not supported for obfs4
+        String ipAddress = null;
+        for (String address : ipAddresses) {
+            if (ConfigHelper.isIPv4(address)) {
+                ipAddress = address;
+                break;
+            }
+            VpnStatus.logWarning("Skipping IP address " + address + " while configuring obfs4.");
+        }
+
+        if (ipAddress == null) {
+            VpnStatus.logError("No matching IPv4 address found to configure obfs4.");
+            return;
+        }
+
+        // check if at least one protocol is TCP, UDP is currently not supported for obfs4
+        boolean hasTcp = false;
+        for (int i = 0; i < protocols.length(); i++) {
+            String protocol = protocols.getString(i);
+            if (protocol.contains("tcp")) {
+                hasTcp = true;
+            }
+        }
+
+        if (!hasTcp) {
+            VpnStatus.logError("obfs4 currently only allows TCP! Skipping obfs4 config for ip " + ipAddress);
+            return;
+        }
+
         String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
         stringBuilder.append(route);
-        String remote = REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " " + obfs4Transport.getJSONArray(PROTOCOLS).getString(0) + newLine;
+        String remote = REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " tcp" + newLine;
         stringBuilder.append(remote);
     }
 
