@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Looper;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -206,6 +207,8 @@ public class ConfigHelper {
                 (string1 != null && string1.equals(string2));
     }
 
+    @SuppressWarnings("unused")
+    // FatWeb Flavor uses that for auto-update
     public static String getApkFileName() {
         try {
             return BuildConfig.update_apk_url.substring(BuildConfig.update_apk_url.lastIndexOf("/"));
@@ -214,6 +217,8 @@ public class ConfigHelper {
         }
     }
 
+    @SuppressWarnings("unused")
+    // FatWeb Flavor uses that for auto-update
     public static String getVersionFileName() {
         try {
             return BuildConfig.version_file_url.substring(BuildConfig.version_file_url.lastIndexOf("/"));
@@ -222,6 +227,8 @@ public class ConfigHelper {
         }
     }
 
+    @SuppressWarnings("unused")
+    // FatWeb Flavor uses that for auto-update
     public static String getSignatureFileName() {
         try {
             return BuildConfig.signature_url.substring(BuildConfig.signature_url.lastIndexOf("/"));
