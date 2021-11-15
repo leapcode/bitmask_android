@@ -714,6 +714,10 @@ public class ConfigParser {
 
         Vector<Vector<String>> connectionBlocks = getAllOption("connection", 1, 1);
 
+        if (connectionBlocks == null && np.mConnections.length == 0) {
+            throw new ConfigParseError("No --remote or <connection> block found.");
+        }
+
         if (np.mConnections.length > 0 && connectionBlocks != null) {
             throw new ConfigParseError("Using a <connection> block and --remote is not allowed.");
         }
