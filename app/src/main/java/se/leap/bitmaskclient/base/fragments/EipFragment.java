@@ -61,7 +61,7 @@ import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.views.LocationButton;
-import se.leap.bitmaskclient.base.views.VpnStateImage;
+import se.leap.bitmaskclient.base.views.MainButton;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
@@ -105,8 +105,8 @@ public class EipFragment extends Fragment implements Observer {
     @BindView(R.id.background)
     AppCompatImageView background;
 
-    @BindView(R.id.vpn_state_image)
-    VpnStateImage vpnStateImage;
+    @BindView(R.id.main_button)
+    MainButton mainButton;
 
     @BindView(R.id.gateway_location_button)
     LocationButton locationButton;
@@ -272,7 +272,7 @@ public class EipFragment extends Fragment implements Observer {
         handleIcon();
     }
 
-    @OnClick(R.id.vpn_state_image)
+    @OnClick(R.id.main_button)
     void onVpnStateImageClick() {
         handleIcon();
     }
@@ -323,7 +323,7 @@ public class EipFragment extends Fragment implements Observer {
 
     private void setMainButtonEnabled(boolean enabled) {
         locationButton.setEnabled(enabled);
-        vpnStateImage.setEnabled(enabled);
+        mainButton.setEnabled(enabled);
     }
 
     public void startEipFromScratch() {
@@ -431,8 +431,7 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.setLocationLoad(UNKNOWN);
         } else if (eipStatus.isConnected()) {
             setMainButtonEnabled(true);
-            vpnStateImage.setStateIcon(R.drawable.ic_btn_on_primary_color);
-            vpnStateImage.stopProgress(false);
+            mainButton.updateState(true, false, false);
             locationButton.setLocationLoad(gatewaysManager.getLoadForLocation(VpnStatus.getLastConnectedVpnName()));
             locationButton.setText(VpnStatus.getLastConnectedVpnName());
             locationButton.setVisibility(VISIBLE);
@@ -444,8 +443,7 @@ public class EipFragment extends Fragment implements Observer {
         } else if(isOpenVpnRunningWithoutNetwork()){
             Log.d(TAG, "eip fragment eipStatus - isOpenVpnRunningWithoutNetwork");
             setMainButtonEnabled(true);
-            vpnStateImage.setStateIcon(R.drawable.ic_btn_on_primary_color);
-            vpnStateImage.stopProgress(false);
+            mainButton.updateState(true, false, true);
             locationButton.setVisibility(VISIBLE);
             locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             colorBackgroundALittle();
@@ -466,8 +464,7 @@ public class EipFragment extends Fragment implements Observer {
             subDescription.setText(R.string.connection_not_connected);
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
-            vpnStateImage.setStateIcon(R.drawable.ic_btn_on_primary_color);
-            vpnStateImage.stopProgress(false);
+            mainButton.updateState(true, false, true);
             colorBackgroundALittle();
             locationButton.setText(getString(R.string.finding_best_connection));
             locationButton.setVisibility(VISIBLE);
@@ -477,8 +474,7 @@ public class EipFragment extends Fragment implements Observer {
         } else {
             locationButton.setText(activity.getString(R.string.vpn_button_turn_on));
             setMainButtonEnabled(true);
-            vpnStateImage.setStateIcon(R.drawable.ic_btn_on_disabled);
-            vpnStateImage.stopProgress(false);
+            mainButton.updateState(false, false, false);
             greyscaleBackground();
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.setVisibility(INVISIBLE);
@@ -517,8 +513,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void showConnectionTransitionLayout(boolean isConnecting) {
-        vpnStateImage.setStateIcon(R.drawable.ic_btn_on_connecting);
-        vpnStateImage.showProgress();
+        mainButton.updateState(true, true, false);
         if (isConnecting) {
             colorBackgroundALittle();
         } else {
