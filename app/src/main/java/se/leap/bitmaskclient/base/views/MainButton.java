@@ -5,9 +5,7 @@ import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -18,27 +16,19 @@ import androidx.annotation.DrawableRes;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.content.ContextCompat;
 
-import java.lang.ref.WeakReference;
-
 import se.leap.bitmaskclient.R;
 
 public class MainButton extends RelativeLayout {
 
     private static final String TAG = MainButton.class.getSimpleName();
 
-    interface MainButtonListener {
-        void onButtonClicked();
-    }
-
     AppCompatImageView glow;
     AppCompatImageView shadowLight;
     AnimationDrawable glowAnimation;
-    WeakReference<MainButtonListener> callback;
 
     private boolean isOn = false;
     private boolean isProcessing = false;
     private boolean isError = true;
-
 
 
     public MainButton(Context context) {
@@ -63,10 +53,6 @@ public class MainButton extends RelativeLayout {
         initLayout(context);
     }
 
-    public void setMainButtonListener(MainButtonListener callback) {
-        this.callback = new WeakReference<>(callback);
-    }
-
     private void initLayout(Context context) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rootview = inflater.inflate(R.layout.v_main_btn, this, true);
@@ -74,21 +60,6 @@ public class MainButton extends RelativeLayout {
         glow = rootview.findViewById(R.id.vpn_btn_glow);
         glowAnimation = (AnimationDrawable) glow.getBackground();
         shadowLight = rootview.findViewById(R.id.vpn_btn_shadow_light);
-
-        rootview.setOnGenericMotionListener(new OnGenericMotionListener() {
-            @Override
-            public boolean onGenericMotion(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_BUTTON_PRESS:
-                        Log.d(TAG, "onbuttonPrees");
-                        break;
-                    case MotionEvent.ACTION_BUTTON_RELEASE:
-                        Log.d(TAG, "onButtonRelease");
-                        break;
-                }
-                return false;
-            }
-        });
     }
 
 
