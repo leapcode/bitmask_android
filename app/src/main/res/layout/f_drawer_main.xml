@@ -102,7 +102,7 @@
             android:id="@+id/manualGatewaySelection"
             app:text="@string/gateway_selection_title"
             app:subtitle="@string/gateway_selection_recommended_location"
-            app:icon="@drawable/ic_map_marker_star_black_36dp"
+            app:icon="@drawable/ic_web"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:visibility="gone"

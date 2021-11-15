@@ -8,6 +8,12 @@
     android:background="@drawable/cust_button_primary_rect"
     android:layout_height="match_parent">
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_web"
+        android:layout_gravity="center"
+        />
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/text_location"
         android:paddingStart="@dimen/stdpadding"
