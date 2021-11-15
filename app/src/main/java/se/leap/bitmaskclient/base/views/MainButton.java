@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +17,6 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 
 import java.lang.ref.WeakReference;
 
@@ -33,7 +31,6 @@ public class MainButton extends RelativeLayout {
     }
 
     AppCompatImageView glow;
-    AppCompatImageView shadowDark;
     AppCompatImageView shadowLight;
     AnimationDrawable glowAnimation;
     WeakReference<MainButtonListener> callback;
@@ -76,7 +73,6 @@ public class MainButton extends RelativeLayout {
 
         glow = rootview.findViewById(R.id.vpn_btn_glow);
         glowAnimation = (AnimationDrawable) glow.getBackground();
-        shadowDark = rootview.findViewById(R.id.vpn_btn_shadow_dark);
         shadowLight = rootview.findViewById(R.id.vpn_btn_shadow_light);
 
         rootview.setOnGenericMotionListener(new OnGenericMotionListener() {
@@ -93,34 +89,6 @@ public class MainButton extends RelativeLayout {
                 return false;
             }
         });
-        rootview.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        Log.d(TAG, "motion down");
-                        Drawable drawableDown = context.getResources().getDrawable(R.drawable.on_off_btn_start_2_pressed);
-                        shadowDark.setImageDrawable(drawableDown);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        Log.d(TAG, "motion up");
-                        Drawable drawableUp = isOn ?
-                                context.getResources().getDrawable(R.drawable.on_off_btn_start_2_disabled) :
-                                context.getResources().getDrawable(R.drawable.on_off_btn_start_2_enabled);
-                        shadowDark.setImageDrawable(drawableUp);
-                        break;
-                    case MotionEvent.ACTION_CANCEL:
-                        Log.d(TAG, "motion cancelled");
-                        Drawable drawableRestoreState = isOn ?
-                                context.getResources().getDrawable(R.drawable.on_off_btn_start_2_enabled) :
-                                context.getResources().getDrawable(R.drawable.on_off_btn_start_2_disabled);
-                        shadowDark.setImageDrawable(drawableRestoreState);
-                        break;
-                }
-                return false;
-            }
-        });
-
     }
 
 
@@ -152,10 +120,6 @@ public class MainButton extends RelativeLayout {
     public void updateState(boolean isOn, boolean isProcessing, boolean isError) {
         if (this.isOn != isOn) {
             this.isOn = isOn;
-            Drawable drawableRestoreState = isOn ?
-                    getContext().getResources().getDrawable(R.drawable.on_off_btn_start_2_enabled) :
-                    getContext().getResources().getDrawable(R.drawable.on_off_btn_start_2_disabled);
-            shadowDark.setImageDrawable(drawableRestoreState);
             shadowLight.setVisibility(isOn ? VISIBLE : GONE);
         }
 
