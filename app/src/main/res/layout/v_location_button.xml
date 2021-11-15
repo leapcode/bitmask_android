@@ -10,6 +10,10 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/text_location"
+        android:paddingStart="@dimen/stdpadding"
+        android:paddingLeft="@dimen/stdpadding"
+        android:paddingEnd="@dimen/stdpadding"
+        android:paddingRight="@dimen/stdpadding"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:maxLines="1"
