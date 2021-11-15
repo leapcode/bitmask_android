@@ -541,4 +541,8 @@ public class VpnStatus {
     public static boolean isAlwaysOn() {
         return isAlwaysOnBooting.get();
     }
+
+    public static boolean isUsingBridges() {
+        return lastConnectedProfile != null && lastConnectedProfile.mUsePluggableTransports;
+    }
 }

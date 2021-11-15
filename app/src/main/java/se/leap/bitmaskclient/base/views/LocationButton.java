@@ -4,18 +4,22 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.LinearLayoutCompat;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.GatewaysManager;
 
-public class LocationButton extends LinearLayoutCompat {
+public class LocationButton extends RelativeLayout {
     private LocationIndicator locationIndicator;
     private AppCompatTextView textView;
+    private AppCompatImageView bridgeView;
+
     public LocationButton(@NonNull Context context) {
         super(context);
         initLayout(context);
@@ -32,6 +36,7 @@ public class LocationButton extends LinearLayoutCompat {
         View rootview = inflater.inflate(R.layout.v_location_button, this, true);
         locationIndicator = rootview.findViewById(R.id.load_indicator);
         textView = rootview.findViewById(R.id.text_location);
+        bridgeView = rootview.findViewById(R.id.bridge_icn);
     }
 
     public void setLocationLoad(GatewaysManager.Load load) {
@@ -40,5 +45,9 @@ public class LocationButton extends LinearLayoutCompat {
 
     public void setText(CharSequence text) {
         textView.setText(text);
+    }
+
+    public void showBridgeIndicator(boolean show) {
+        bridgeView.setVisibility(show ? VISIBLE : GONE);
     }
 }
