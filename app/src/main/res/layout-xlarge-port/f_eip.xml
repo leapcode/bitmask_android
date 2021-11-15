@@ -53,8 +53,8 @@
         app:srcCompat="@drawable/background_eip" />
 
 
-    <se.leap.bitmaskclient.base.views.VpnStateImage
-        android:id="@+id/vpn_state_image"
+    <se.leap.bitmaskclient.base.views.MainButton
+        android:id="@+id/main_button"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="@dimen/stdpadding"
@@ -69,7 +69,7 @@
         android:id="@+id/main_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/vpn_state_image"
+        app:layout_constraintTop_toBottomOf="@id/main_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/sub_description"
