@@ -13,7 +13,7 @@
         android:background="@drawable/main_btn_glow"
         tools:visibility="visible"
         android:visibility="gone"
-        android:backgroundTint="@color/colorSecondary"
+        android:backgroundTint="@color/colorMainBtnHighlight"
         />
 
 

@@ -106,9 +106,9 @@ public class MainButton extends RelativeLayout {
         if (this.isError != isError) {
             @DrawableRes int drawableResource = isOn ? R.drawable.on_off_btn_start_2_enabled : R.drawable.on_off_btn_start_2_disabled;
             if (!isError) {
-                setImageWithTint(shadowLight, drawableResource, R.color.colorSecondary);
+                setImageWithTint(shadowLight, drawableResource, R.color.colorMainBtnHighlight);
             } else {
-                setImageWithTint(shadowLight, drawableResource, R.color.colorWarning);
+                setImageWithTint(shadowLight, drawableResource, R.color.colorMainBtnError);
             }
             this.isError = isError;
         }
