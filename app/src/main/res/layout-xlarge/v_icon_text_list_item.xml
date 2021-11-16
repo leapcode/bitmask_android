@@ -15,7 +15,7 @@
         tools:src="@drawable/ic_add_circle_outline_grey600_24dp"
         />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@android:id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
         android:layout_above="@+id/subtitle"
         />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

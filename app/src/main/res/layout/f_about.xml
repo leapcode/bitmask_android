@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/version"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="10sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/terms_of_service"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
             android:paddingBottom="12dp"
             />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
@@ -41,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="10sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
@@ -52,13 +52,13 @@
             android:layout_width="match_parent"
             android:layout_height="10sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
             android:text="@string/repository_url_text" />
 
-	<TextView
+	<androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
@@ -68,7 +68,7 @@
             android:layout_width="match_parent"
             android:layout_height="10sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
@@ -78,7 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="10sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="all"
@@ -88,7 +88,7 @@
             android:layout_width="match_parent"
             android:layout_height="10sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/copyright_others" />
@@ -97,7 +97,7 @@
             android:layout_width="match_parent"
             android:layout_height="10sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/openvpn"
@@ -110,7 +110,7 @@
         android:src="@drawable/openvpnLogo" />
         -->
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/opevpn_copyright" />
@@ -119,13 +119,13 @@
             android:layout_width="match_parent"
             android:layout_height="20sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/lzo"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/lzo_copyright" />
@@ -134,13 +134,13 @@
             android:layout_width="match_parent"
             android:layout_height="20sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/openssl"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/copyright_openssl" />
@@ -149,13 +149,13 @@
             android:layout_width="match_parent"
             android:layout_height="20sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/okhttp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/copyright_okhttp" />
@@ -164,13 +164,13 @@
             android:layout_width="match_parent"
             android:layout_height="20sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/mbetTLS"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autoLink="web"
@@ -180,13 +180,13 @@
             android:layout_width="match_parent"
             android:layout_height="20sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/asio"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/copyright_asio" />
@@ -195,13 +195,13 @@
             android:layout_width="match_parent"
             android:layout_height="20sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/openvpn3"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/copyright_openvpn3" />
@@ -210,13 +210,13 @@
             android:layout_width="match_parent"
             android:layout_height="20sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/shapeshifter_library"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/copyright_shapeshifter_library" />
@@ -225,13 +225,13 @@
             android:layout_width="match_parent"
             android:layout_height="20sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/shapeshifter_dispatcher"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/copyright_shapeshifter_dispatcher" />
@@ -240,13 +240,13 @@
             android:layout_width="match_parent"
             android:layout_height="20sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/shapeshifter_transports"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/copyright_shapeshifter_transports" />
@@ -255,13 +255,13 @@
             android:layout_width="match_parent"
             android:layout_height="20sp" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/circleImageView"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/copyright_circleImageView" />

@@ -27,7 +27,7 @@
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
             android:textAppearance="?android:attr/textAppearanceListItem"
             tools:text=".,m.,msdflksdjflksjdflkjsdflksdlsdflkj lskjdf lkjsdf lkjsdf fsdls" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

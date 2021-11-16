@@ -491,7 +491,7 @@ public class EipFragment extends Fragment implements Observer {
         View layout = inflater.inflate(R.layout.custom_toast,
                 activity.findViewById(R.id.custom_toast_container));
 
-        TextView text = layout.findViewById(R.id.text);
+        AppCompatTextView text = layout.findViewById(R.id.text);
         text.setText(message);
 
         Vibrator v = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);

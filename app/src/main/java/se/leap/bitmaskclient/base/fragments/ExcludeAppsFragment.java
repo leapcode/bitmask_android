@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,7 +26,9 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.TextView;
+
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.fragment.app.Fragment;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,10 +78,10 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     static class AppViewHolder {
         public ApplicationInfo mInfo;
         public View rootView;
-        public TextView appName;
+        public AppCompatTextView appName;
         public ImageView appIcon;
-        //public TextView appSize;
-        //public TextView disabled;
+        //public AppCompatTextView appSize;
+        //public AppCompatTextView disabled;
         public CompoundButton checkBox;
 
         static public AppViewHolder createOrRecycle(LayoutInflater inflater, View convertView, ViewGroup parent) {
