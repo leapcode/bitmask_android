@@ -470,6 +470,7 @@ public class EipFragment extends Fragment implements Observer {
             greyscaleBackground();
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
+            locationButton.setText(getString(R.string.gateway_selection_title));
             mainDescription.setText(R.string.eip_state_insecure);
             subDescription.setText(R.string.connection_not_connected);
         }
