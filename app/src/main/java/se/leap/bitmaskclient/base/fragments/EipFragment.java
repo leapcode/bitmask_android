@@ -417,13 +417,9 @@ public class EipFragment extends Fragment implements Observer {
         if (eipStatus.isConnecting() ) {
             setMainButtonEnabled(true);
             showConnectionTransitionLayout(true);
-            if (eipStatus.isReconnecting()) {
-                subDescription.setText(getString(R.string.reconnecting));
-            } else {
-                subDescription.setText(R.string.connection_not_connected);
-            }
             locationButton.setText(getString(R.string.finding_best_connection));
             mainDescription.setText(R.string.eip_state_insecure);
+            subDescription.setText(null);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
         } else if (eipStatus.isConnected()) {
