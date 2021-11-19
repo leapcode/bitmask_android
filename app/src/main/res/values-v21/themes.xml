@@ -3,7 +3,7 @@
     <style name="BitmaskTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-
+        <item name="android:fontFamily">@font/sofiapro_regular</item>
         <item name="textColorError">@color/colorError</item>
 
         <!-- progressBar color -->
