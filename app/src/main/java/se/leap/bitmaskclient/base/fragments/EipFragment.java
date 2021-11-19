@@ -424,7 +424,6 @@ public class EipFragment extends Fragment implements Observer {
             }
             locationButton.setText(getString(R.string.finding_best_connection));
             mainDescription.setText(R.string.eip_state_insecure);
-            locationButton.setVisibility(VISIBLE);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
         } else if (eipStatus.isConnected()) {
@@ -433,7 +432,6 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.setLocationLoad(gatewaysManager.getLoadForLocation(VpnStatus.getLastConnectedVpnName()));
             locationButton.setText(VpnStatus.getLastConnectedVpnName());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
-            locationButton.setVisibility(VISIBLE);
             colorBackground();
             mainDescription.setText(R.string.eip_state_connected);
             subDescription.setText(getPreferredCity(getContext()) == null ?
@@ -443,7 +441,6 @@ public class EipFragment extends Fragment implements Observer {
             Log.d(TAG, "eip fragment eipStatus - isOpenVpnRunningWithoutNetwork");
             setMainButtonEnabled(true);
             mainButton.updateState(true, false, true);
-            locationButton.setVisibility(VISIBLE);
             locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
             colorBackgroundALittle();
@@ -453,7 +450,6 @@ public class EipFragment extends Fragment implements Observer {
             showConnectionTransitionLayout(true);
             // showRetryToast(activity);
             locationButton.setText(getString(R.string.finding_best_connection));
-            locationButton.setVisibility(VISIBLE);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             mainDescription.setText(R.string.eip_state_insecure);
@@ -478,7 +474,6 @@ public class EipFragment extends Fragment implements Observer {
             greyscaleBackground();
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
-            locationButton.setVisibility(INVISIBLE);
             mainDescription.setText(R.string.eip_state_insecure);
             subDescription.setText(R.string.connection_not_connected);
         }
