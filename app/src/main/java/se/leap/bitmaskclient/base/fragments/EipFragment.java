@@ -444,7 +444,7 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
             colorBackgroundALittle();
-            mainDescription.setText(R.string.eip_state_insecure);
+            mainDescription.setText(R.string.eip_state_connected);
             subDescription.setText(R.string.eip_state_no_network);
         } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
             showConnectionTransitionLayout(true);
