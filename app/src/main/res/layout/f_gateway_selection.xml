@@ -77,6 +77,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/gateway_selection_recommended_location"
+            android:textColor="@color/button_state_font_color"
             />
     </LinearLayout>
 
