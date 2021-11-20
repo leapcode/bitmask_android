@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.view.LayoutInflaterCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,6 +51,7 @@ import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
 
+import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
@@ -199,6 +201,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
             public AppCompatTextView locationLabel;
             public LocationIndicator locationIndicator;
             public AppCompatImageView bridgeView;
+            public AppCompatImageView selectedView;
             public View layout;
 
             public ViewHolder(View v) {
@@ -207,6 +210,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
                 locationLabel = v.findViewById(R.id.location);
                 locationIndicator = v.findViewById(R.id.quality);
                 bridgeView = v.findViewById(R.id.bridge_image);
+                selectedView = v.findViewById(R.id.selected);
             }
         }
 
@@ -249,11 +253,17 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
                 Log.d(TAG, "view at position clicked: " + position);
                 LocationListSelectionListener listener = callback.get();
                 if (listener != null) {
+                    for (Location l : values) {
+                        l.selected = false;
+                    }
+                    location.selected = !location.selected;
+                    notifyDataSetChanged();
                     listener.onLocationSelected(location);
                 }
             });
             holder.locationIndicator.setLoad(GatewaysManager.Load.getLoadByValue(location.averageLoad));
-            holder.bridgeView.setVisibility(location.supportedTransports.contains(OBFS4) ? VISIBLE : View.GONE);
+            holder.bridgeView.setVisibility(location.supportedTransports.contains(OBFS4) ? VISIBLE : GONE);
+            holder.selectedView.setVisibility(location.selected ? VISIBLE : INVISIBLE);
         }
 
 

@@ -1,26 +1,45 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_container"
     android:layout_height="?android:attr/listPreferredItemHeightSmall"
     android:layout_width="match_parent"
     android:orientation="horizontal"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?attr/selectableItemBackground">
 
     <!-- views are composed right to left -->
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/selected"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/ic_check_bold"
+        android:tint="@color/green200"
+        android:visibility="invisible"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingRight="10dp"
+        android:paddingEnd="10dp"
+        tools:visibility="visible"
+        />
     <se.leap.bitmaskclient.base.views.LocationIndicator
         android:id="@+id/quality"
-        android:layout_width="56dp"
+        android:layout_width="30dp"
         android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@id/selected"
+        android:layout_toStartOf="@id/selected"
         android:layout_margin="10dp"
         tools:visibility="visible"
         />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/bridge_image"
-        android:layout_width="56dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:scaleType="fitXY"
         android:layout_toStartOf="@id/quality"
         android:layout_toLeftOf="@id/quality"
         android:src="@drawable/ic_bridge_36"

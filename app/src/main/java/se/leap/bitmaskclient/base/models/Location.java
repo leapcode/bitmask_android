@@ -26,12 +26,14 @@ public class Location {
     @NonNull public HashSet<Connection.TransportType> supportedTransports;
     public double averageLoad;
     public int numberOfGateways;
+    public boolean selected;
 
-    public Location(@NonNull String name, double averageLoad, int numberOfGateways, @NonNull HashSet<Connection.TransportType> supportedTransports) {
+    public Location(@NonNull String name, double averageLoad, int numberOfGateways, @NonNull HashSet<Connection.TransportType> supportedTransports, boolean selected) {
         this.name = name;
         this.averageLoad = averageLoad;
         this.numberOfGateways = numberOfGateways;
         this.supportedTransports = supportedTransports;
+        this.selected = selected;
     }
 
     @Override

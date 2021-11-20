@@ -43,6 +43,7 @@ import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
@@ -138,6 +139,7 @@ public class GatewaysManager {
         HashMap<String, Integer> locationNames = new HashMap<>();
         ArrayList<Location> locations = new ArrayList<>();
         ArrayList<Gateway> gateways = getSortedGateways();
+        String preferredCity = PreferenceHelper.getPreferredCity(context);
         for (Gateway gateway : gateways) {
             String name = gateway.getName();
             if (name == null) {
@@ -145,19 +147,20 @@ public class GatewaysManager {
                 continue;
             }
 
-            if (!locationNames.containsKey(gateway.getName())) {
-                locationNames.put(gateway.getName(), locations.size());
+            if (!locationNames.containsKey(name)) {
+                locationNames.put(name, locations.size());
                 // fake values for now
                 Random rand = new Random();
                 double averageLoad = rand.nextDouble(); //location.averageLoad;
-                Log.d(TAG, "getGatewayLocations - new averageLoad (" + gateway.getName() + " - " + gateway.getHost()+ "): " + averageLoad);
+                Log.d(TAG, "getGatewayLocations - new averageLoad (" + name + " - " + gateway.getHost()+ "): " + averageLoad);
 
                 Location location = new Location(
                         gateway.getName(),
                         averageLoad
                         /*gateway.getFullness()*/,
                         1,
-                        gateway.getSupportedTransports()
+                        gateway.getSupportedTransports(),
+                        name.equals(preferredCity)
                         );
                 locations.add(location);
             } else {
