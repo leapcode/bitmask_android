@@ -47,7 +47,7 @@
                 android:left="1dp"
                 >
                 <shape android:shape="rectangle"  >
-                    <corners android:radius="10dp" />
+                    <corners android:radius="@dimen/stdpadding" />
                     <solid android:color="@color/colorPrimary_transparent"/>
                 </shape>
             </item>
