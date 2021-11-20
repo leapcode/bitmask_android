@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
-import androidx.appcompat.widget.LinearLayoutCompat;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.GatewaysManager;
@@ -19,6 +18,7 @@ public class LocationButton extends RelativeLayout {
     private LocationIndicator locationIndicator;
     private AppCompatTextView textView;
     private AppCompatImageView bridgeView;
+    private AppCompatImageView recommendedView;
 
     public LocationButton(@NonNull Context context) {
         super(context);
@@ -37,6 +37,7 @@ public class LocationButton extends RelativeLayout {
         locationIndicator = rootview.findViewById(R.id.load_indicator);
         textView = rootview.findViewById(R.id.text_location);
         bridgeView = rootview.findViewById(R.id.bridge_icn);
+        recommendedView = rootview.findViewById(R.id.recommended_icn);
     }
 
     public void setLocationLoad(GatewaysManager.Load load) {
@@ -49,5 +50,9 @@ public class LocationButton extends RelativeLayout {
 
     public void showBridgeIndicator(boolean show) {
         bridgeView.setVisibility(show ? VISIBLE : GONE);
+    }
+
+    public void showRecommendedIndicator(boolean show) {
+        recommendedView.setVisibility(show? VISIBLE : GONE );
     }
 }

@@ -18,6 +18,21 @@
         android:src="@drawable/ic_web"
         android:layout_gravity="center"
         />
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/recommended_icn"
+        android:scaleType="fitXY"
+        android:layout_marginRight="-13dp"
+        android:layout_marginEnd="-13dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/text_location"
+        android:layout_alignBottom="@+id/text_location"
+        android:layout_toEndOf="@id/world_icn"
+        android:layout_toRightOf="@id/world_icn"
+        android:src="@drawable/ic_lightning_bolt"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/text_location"
         android:paddingStart="@dimen/stdpadding"
@@ -28,8 +43,8 @@
         android:ellipsize="end"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_toEndOf="@id/world_icn"
-        android:layout_toRightOf="@+id/world_icn"
+        android:layout_toEndOf="@id/recommended_icn"
+        android:layout_toRightOf="@+id/recommended_icn"
         android:layout_toLeftOf="@+id/bridge_icn"
         android:layout_toStartOf="@+id/bridge_icn"
         android:layout_gravity="center_vertical"
