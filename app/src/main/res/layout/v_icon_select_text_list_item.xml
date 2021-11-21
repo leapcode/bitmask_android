@@ -15,7 +15,7 @@
         tools:src="@drawable/ic_bluetooth"
         />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@android:id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

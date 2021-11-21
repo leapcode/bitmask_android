@@ -62,7 +62,7 @@ public abstract class AbstractProviderDetailActivity extends ConfigWizardBaseAct
                 optionsList.toArray(new String[optionsList.size()])
         ));
         options.setOnItemClickListener((parent, view, position, id) -> {
-            String text = ((TextView) view).getText().toString();
+            String text = ((AppCompatTextView) view).getText().toString();
             Intent intent;
             if (text.equals(getString(R.string.login_to_profile))) {
                 Log.d(TAG, "login selected");

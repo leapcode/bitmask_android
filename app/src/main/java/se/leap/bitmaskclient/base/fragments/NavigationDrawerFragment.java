@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -380,7 +381,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     }
 
     private void initShowExperimentalHint() {
-        TextView textView = drawerLayout.findViewById(R.id.show_experimental_features);
+        AppCompatTextView textView = drawerLayout.findViewById(R.id.show_experimental_features);
         textView.setText(showExperimentalFeatures(getContext()) ? R.string.hide_experimental : R.string.show_experimental);
         textView.setOnClickListener(v -> {
             boolean shown = showExperimentalFeatures(getContext());
@@ -388,12 +389,12 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 tethering.setVisibility(GONE);
                 firewall.setVisibility(GONE);
                 experimentalFeatureFooter.setVisibility(GONE);
-                ((TextView) v).setText(R.string.show_experimental);
+                ((AppCompatTextView) v).setText(R.string.show_experimental);
             } else {
                 tethering.setVisibility(VISIBLE);
                 firewall.setVisibility(VISIBLE);
                 experimentalFeatureFooter.setVisibility(VISIBLE);
-                ((TextView) v).setText(R.string.hide_experimental);
+                ((AppCompatTextView) v).setText(R.string.hide_experimental);
             }
             PreferenceHelper.setShowExperimentalFeatures(getContext(), !shown);
         });

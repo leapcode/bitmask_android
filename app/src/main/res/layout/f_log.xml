@@ -21,7 +21,7 @@
 
         <include layout="@layout/f_log_sliders"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:text="@string/speed_waiting"
             android:singleLine="true"
             android:id="@+id/speed"

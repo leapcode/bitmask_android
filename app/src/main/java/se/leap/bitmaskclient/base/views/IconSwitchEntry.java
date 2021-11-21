@@ -24,6 +24,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SwitchCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -36,8 +37,8 @@ import se.leap.bitmaskclient.R;
 
 public class IconSwitchEntry extends LinearLayout {
 
-    private TextView textView;
-    private TextView subtitleView;
+    private AppCompatTextView textView;
+    private AppCompatTextView subtitleView;
     private AppCompatImageView iconView;
     private SwitchCompat switchView;
     private CompoundButton.OnCheckedChangeListener checkedChangeListener;

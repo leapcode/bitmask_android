@@ -10,7 +10,7 @@
     android:minHeight="?android:attr/listPreferredItemHeight"
 >
 
-    <TextView android:id="@+id/provider_domain"
+    <androidx.appcompat.widget.AppCompatTextView android:id="@+id/provider_domain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="?android:attr/listPreferredItemPaddingStart"
@@ -21,7 +21,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
     />
 
-    <TextView android:id="@+id/provider_name"
+    <androidx.appcompat.widget.AppCompatTextView android:id="@+id/provider_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="?android:attr/listPreferredItemPaddingStart"
