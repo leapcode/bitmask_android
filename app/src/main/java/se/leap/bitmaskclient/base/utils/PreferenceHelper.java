@@ -2,6 +2,7 @@ package se.leap.bitmaskclient.base.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
@@ -34,8 +35,8 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICA
 import static se.leap.bitmaskclient.base.models.Constants.RESTART_ON_UPDATE;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.SHOW_EXPERIMENTAL;
-import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
+import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_TOR;
 
 /**
@@ -265,27 +266,42 @@ public class PreferenceHelper {
     }
 
     public static long getLong(Context context, String key, long defValue) {
+        if (context == null) {
+            return defValue;
+        }
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         return preferences.getLong(key, defValue);
     }
 
     public static void putLong(Context context, String key, long value) {
+        if (context == null) {
+            return;
+        }
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putLong(key, value).apply();
     }
 
     public static String getString(Context context, String key, String defValue) {
+        if (context == null) {
+            return defValue;
+        }
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         return preferences.getString(key, defValue);
     }
 
     @WorkerThread
     public static void putStringSync(Context context, String key, String value) {
+        if (context == null) {
+            return;
+        }
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putString(key, value).commit();
     }
 
     public static void putString(Context context, String key, String value) {
+        if (context == null) {
+            return;
+        }
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putString(key, value).apply();
     }
