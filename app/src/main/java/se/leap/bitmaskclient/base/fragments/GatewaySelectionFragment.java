@@ -17,6 +17,7 @@
 package se.leap.bitmaskclient.base.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,10 +27,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
-import androidx.core.view.LayoutInflaterCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -45,14 +42,12 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.base.views.LocationIndicator;
+import se.leap.bitmaskclient.base.views.SelectLocationEntry;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
 
-import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
@@ -61,7 +56,7 @@ import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
 
 interface LocationListSelectionListener {
-    void onLocationSelected(Location location);
+    void onLocationManuallySelected(Location location);
 }
 
 public class GatewaySelectionFragment extends Fragment implements Observer, LocationListSelectionListener {
@@ -71,9 +66,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
 
     private RecyclerView recyclerView;
     private LocationListAdapter locationListAdapter;
-    private AppCompatTextView currentLocationDescription;
-    private AppCompatTextView currentLocation;
-    private AppCompatButton autoSelectionButton;
+    private SelectLocationEntry recommendedLocation;
     private GatewaysManager gatewaysManager;
     private EipStatus eipStatus;
 
@@ -100,8 +93,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initRecyclerView();
-        initAutoSelectionButton();
-        initCurrentLocationInfoPanel();
+        initRecommendedLocationEntry();
     }
 
     @Override
@@ -120,40 +112,40 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         recyclerView.setVisibility(VISIBLE);
     }
 
-    private void initAutoSelectionButton() {
-        autoSelectionButton = getActivity().findViewById(R.id.automatic_gateway_selection_btn);
-        autoSelectionButton.setOnClickListener(v -> {
+    private void initRecommendedLocationEntry() {
+        recommendedLocation = getActivity().findViewById(R.id.recommended_location);
+        recommendedLocation.setTitle(getString(R.string.gateway_selection_automatic_location));
+        recommendedLocation.showDivider(true);
+        recommendedLocation.setOnClickListener(v -> {
+            recommendedLocation.setSelected(true);
+            locationListAdapter.unselectAll();
             startEipService(null);
         });
+        updateRecommendedLocation();
     }
 
-    private void initCurrentLocationInfoPanel() {
-        currentLocationDescription = getActivity().findViewById(R.id.current_location_description);
-        currentLocation = getActivity().findViewById(R.id.current_location);
-        setLocationDescription(EipStatus.getInstance(), PreferenceHelper.getPreferredCity(getContext()));
-    }
-
-    private void setLocationDescription(EipStatus eipStatus, String preferredCity) {
-        if (eipStatus.isConnected()) {
-            currentLocationDescription.setText(preferredCity == null ?
-                    R.string.gateway_selection_automatic_location :
-                    R.string.gateway_selection_manual_location);
-            currentLocation.setText(VpnStatus.getLastConnectedVpnName());
-            currentLocation.setVisibility(VISIBLE);
-        } else if (preferredCity == null) {
-            currentLocationDescription.setText(R.string.gateway_selection_automatic_not_connected);
-            currentLocation.setVisibility(INVISIBLE);
-        } else {
-            currentLocationDescription.setText(R.string.gateway_selection_manual_not_connected);
-            currentLocation.setText(preferredCity);
-            currentLocation.setVisibility(VISIBLE);
+    private void updateRecommendedLocation() {
+        Location location = new Location();
+        boolean isManualSelection = PreferenceHelper.getPreferredCity(getContext()) != null;
+        if (!isManualSelection && eipStatus.isConnected()) {
+            try {
+                location = gatewaysManager.getLocation(VpnStatus.getCurrentlyConnectingVpnName()).clone();
+            } catch (NullPointerException | CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
         }
+        location.selected = !isManualSelection;
+        recommendedLocation.setLocation(location);
     }
 
     protected void startEipService(String preferredCity) {
         new Thread(() -> {
-            PreferenceHelper.setPreferredCity(getContext(), preferredCity);
-            EipCommand.startVPN(getContext(), false);
+            Context context = getContext();
+            if (context == null) {
+                return;
+            }
+            PreferenceHelper.setPreferredCity(context, preferredCity);
+            EipCommand.startVPN(context, false);
             Intent intent = new Intent(getContext(), MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
@@ -162,7 +154,8 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     }
 
     @Override
-    public void onLocationSelected(Location location) {
+    public void onLocationManuallySelected(Location location) {
+        recommendedLocation.setSelected(false);
         String name = location.name;
         Connection.TransportType selectedTransport = PreferenceHelper.getUseBridges(getContext()) ? OBFS4 : OPENVPN;
         if (location.supportedTransports.contains(selectedTransport)) {
@@ -185,32 +178,25 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     @Override
     public void update(Observable o, Object arg) {
         if (o instanceof EipStatus) {
+            eipStatus = (EipStatus) o;
             Activity activity = getActivity();
             if (activity != null) {
-                activity.runOnUiThread(() -> setLocationDescription((EipStatus) o, PreferenceHelper.getPreferredCity(getContext())));
+                activity.runOnUiThread(this::updateRecommendedLocation);
             }
         }
     }
 
     static class LocationListAdapter extends RecyclerView.Adapter<LocationListAdapter.ViewHolder> {
         private static final String TAG = LocationListAdapter.class.getSimpleName();
-        private List<Location> values;
+        private final List<Location> values;
         private final WeakReference<LocationListSelectionListener> callback;
 
         static class ViewHolder extends RecyclerView.ViewHolder {
-            public AppCompatTextView locationLabel;
-            public LocationIndicator locationIndicator;
-            public AppCompatImageView bridgeView;
-            public AppCompatImageView selectedView;
-            public View layout;
+            public SelectLocationEntry entry;
 
-            public ViewHolder(View v) {
+            public ViewHolder(SelectLocationEntry v) {
                 super(v);
-                layout = v;
-                locationLabel = v.findViewById(R.id.location);
-                locationIndicator = v.findViewById(R.id.quality);
-                bridgeView = v.findViewById(R.id.bridge_image);
-                selectedView = v.findViewById(R.id.selected);
+                entry = v;
             }
         }
 
@@ -224,8 +210,10 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
             notifyItemRemoved(position);
         }
 
-        public void updateData(List<Location> data) {
-            values = data;
+        public void unselectAll() {
+            for (Location l : values) {
+                l.selected = false;
+            }
             notifyDataSetChanged();
         }
 
@@ -238,34 +226,26 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         @Override
         public LocationListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                                  int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(
-                    parent.getContext());
-            View v = inflater.inflate(R.layout.v_select_text_list_item, parent, false);
-            return new ViewHolder(v);
+            SelectLocationEntry entry = new SelectLocationEntry(parent.getContext());
+            return new ViewHolder(entry);
         }
 
         // Replace the contents of a view (invoked by the layout manager)
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             final Location location = values.get(position);
-            holder.locationLabel.setText(location.name);
-            holder.layout.setOnClickListener(v -> {
-                Log.d(TAG, "view at position clicked: " + position);
+            holder.entry.setLocation(location);
+            holder.entry.setOnClickListener(v -> {
+                Log.d(TAG, "onClick view at position clicked: " + position);
                 LocationListSelectionListener listener = callback.get();
                 if (listener != null) {
-                    for (Location l : values) {
-                        l.selected = false;
-                    }
-                    location.selected = !location.selected;
+                    unselectAll();
+                    location.selected = true;
+                    listener.onLocationManuallySelected(location);
                     notifyDataSetChanged();
-                    listener.onLocationSelected(location);
                 }
             });
-            holder.locationIndicator.setLoad(GatewaysManager.Load.getLoadByValue(location.averageLoad));
-            holder.bridgeView.setVisibility(location.supportedTransports.contains(OBFS4) ? VISIBLE : GONE);
-            holder.selectedView.setVisibility(location.selected ? VISIBLE : INVISIBLE);
         }
-
 
         @Override
         public int getItemCount() {

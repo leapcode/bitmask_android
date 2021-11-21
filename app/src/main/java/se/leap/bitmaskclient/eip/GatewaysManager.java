@@ -155,7 +155,7 @@ public class GatewaysManager {
                 Log.d(TAG, "getGatewayLocations - new averageLoad (" + name + " - " + gateway.getHost()+ "): " + averageLoad);
 
                 Location location = new Location(
-                        gateway.getName(),
+                        name,
                         averageLoad
                         /*gateway.getFullness()*/,
                         1,

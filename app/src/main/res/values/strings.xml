@@ -153,11 +153,10 @@
   <string name="gateway_selection_title">Select location</string>
   <string name="gateway_selection_warning">%s will find the best connection for you.</string>
   <string name="gateway_selection_recommended_location">Use recommended location</string>
+  <string name="gateway_selection_recommended">Recommended</string>
+  <string name="gateway_selection_manually">Manually select</string>
+  <string name="gateway_selection_automatic_location">Automatically use best connection.</string>
   <string name="gateway_selection_automatic">Automatic</string>
-  <string name="gateway_selection_manual_location">Your traffic is currently routed through: </string>
-  <string name="gateway_selection_manual_not_connected">Your traffic will be routed through: </string>
-  <string name="gateway_selection_automatic_location">Your traffic is automatically routed through the best location:</string>
-  <string name="gateway_selection_automatic_not_connected">Your traffic will be automatically routed through the best location.</string>
   <string name="finding_best_connection">Finding best connection…</string>
   <string name="reconnecting">Reconnecting…</string>
   <string name="tor_starting">Starting bridges for censorship circumvention…</string>

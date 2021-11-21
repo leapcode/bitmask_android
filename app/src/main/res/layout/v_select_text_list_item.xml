@@ -1,75 +1,107 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_container"
-    android:layout_height="?android:attr/listPreferredItemHeightSmall"
+    android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:orientation="horizontal"
-    android:clickable="true"
-    android:focusable="true"
     android:background="?attr/selectableItemBackground">
 
     <!-- views are composed right to left -->
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/selected"
-        android:layout_width="40dp"
-        android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:src="@drawable/ic_check_bold"
-        android:tint="@color/green200"
-        android:visibility="invisible"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingRight="10dp"
-        android:paddingEnd="10dp"
-        tools:visibility="visible"
-        />
     <se.leap.bitmaskclient.base.views.LocationIndicator
         android:id="@+id/quality"
         android:layout_width="30dp"
-        android:layout_height="match_parent"
-        android:layout_toLeftOf="@id/selected"
-        android:layout_toStartOf="@id/selected"
-        android:layout_margin="10dp"
+        android:layout_height="25dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="12dp"
+        android:layout_marginLeft="@dimen/standard_margin"
+        android:layout_marginRight="@dimen/standard_margin"
         tools:visibility="visible"
+        android:visibility="visible"
+        android:layout_alignBottom="@+id/location"
         />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/bridge_image"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="40dp"
+        android:paddingBottom="5dp"
         android:scaleType="fitXY"
         android:layout_toStartOf="@id/quality"
         android:layout_toLeftOf="@id/quality"
         android:src="@drawable/ic_bridge_36"
         tools:visibility="visible"
         android:visibility="gone"
+        android:layout_alignBottom="@+id/location"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/selected"
+        android:layout_toRightOf="@+id/selected"
+        android:layout_toStartOf="@id/bridge_image"
+        android:layout_toLeftOf="@id/bridge_image"
+        android:layout_alignParentTop="true"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/standard_margin"
+        android:paddingLeft="@dimen/standard_margin"
+        android:paddingEnd="@dimen/standard_margin"
+        android:paddingRight="@dimen/standard_margin"
+        android:paddingTop="10dp"
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+        tools:text="this is an interesting text"
+        android:visibility="gone"
+        tools:visibility="gone"
         />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
+        android:layout_toEndOf="@+id/selected"
+        android:layout_toRightOf="@+id/selected"
         android:layout_toStartOf="@id/bridge_image"
         android:layout_toLeftOf="@id/bridge_image"
+        android:layout_below="@id/title"
         android:ellipsize="end"
         android:gravity="center_vertical"
-        android:minHeight="?android:attr/listPreferredItemHeightLarge"
+        android:minHeight="?android:attr/listPreferredItemHeightSmall"
         android:paddingStart="@dimen/standard_margin"
         android:paddingLeft="@dimen/standard_margin"
         android:paddingEnd="@dimen/standard_margin"
         android:paddingRight="@dimen/standard_margin"
+        android:paddingTop="8dp"
         android:textAppearance="?android:attr/textAppearanceListItem"
         android:textStyle="bold"
+        tools:visibility="visible"
+        android:visibility="visible"
         tools:text="Paris" />
 
+
+      <se.leap.bitmaskclient.base.views.SimpleCheckBox
+          android:id="@+id/selected"
+          android:layout_width="32dp"
+          android:layout_height="32dp"
+          android:layout_marginStart="4dp"
+          android:layout_marginLeft="4dp"
+          android:layout_marginBottom="@dimen/stdpadding"
+          android:layout_centerVertical="true"
+          android:src="@drawable/ic_check_bold"
+          android:tint="@color/green200"
+          android:visibility="visible"
+          tools:visibility="visible" />
+
+
     <View
+        android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:background="@android:color/darker_gray"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@id/location"
+        android:visibility="visible"
         />
 </RelativeLayout>

@@ -18,15 +18,19 @@
 package se.leap.bitmaskclient.base.models;
 
 import androidx.annotation.NonNull;
+
 import java.util.HashSet;
+
 import de.blinkt.openvpn.core.connection.Connection;
 
-public class Location {
-    @NonNull public String name;
-    @NonNull public HashSet<Connection.TransportType> supportedTransports;
+public class Location implements Cloneable {
+    @NonNull public String name = "";
+    @NonNull public HashSet<Connection.TransportType> supportedTransports = new HashSet<>();
     public double averageLoad;
     public int numberOfGateways;
     public boolean selected;
+
+    public Location() {}
 
     public Location(@NonNull String name, double averageLoad, int numberOfGateways, @NonNull HashSet<Connection.TransportType> supportedTransports, boolean selected) {
         this.name = name;
@@ -34,6 +38,10 @@ public class Location {
         this.numberOfGateways = numberOfGateways;
         this.supportedTransports = supportedTransports;
         this.selected = selected;
+    }
+
+    public boolean hasLocationInfo() {
+        return numberOfGateways != 0 && supportedTransports.size() != 0 && !name.isEmpty();
     }
 
     @Override
@@ -60,4 +68,15 @@ public class Location {
         result = 31 * result + numberOfGateways;
         return result;
     }
+
+    @Override
+    public Location clone() throws CloneNotSupportedException {
+        Location copy = (Location) super.clone();
+        copy.name = this.name;
+        copy.supportedTransports = (HashSet<Connection.TransportType>) this.supportedTransports.clone();
+        copy.numberOfGateways = this.numberOfGateways;
+        copy.averageLoad = this.averageLoad;
+        return copy;
+    }
+
 }

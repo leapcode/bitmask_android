@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="@dimen/stdpadding"
     tools:context=".base.fragments.GatewaySelectionFragment">
 
     <LinearLayout
@@ -15,39 +15,53 @@
         tools:visibility="visible"
         android:layout_alignParentTop="true"
         >
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/current_location_description"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingStart="@dimen/activity_horizontal_margin"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingEnd="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:orientation="horizontal">
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/recommended_title"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textStyle="bold"
+                android:text="@string/gateway_selection_recommended"
+                android:layout_gravity="bottom"
+                />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_lightning_bolt"
+                />
 
-            android:text="@string/gateway_selection_automatic_location" />
+        </LinearLayout>
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/current_location"
+        <se.leap.bitmaskclient.base.views.SelectLocationEntry
+            android:id="@+id/recommended_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/manual_title"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:paddingStart="@dimen/activity_horizontal_margin"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingEnd="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            tools:text="Paris" />
-
+            android:textStyle="normal"
+            android:paddingTop="15dp"
+            android:text="@string/gateway_selection_manually"
+            android:layout_gravity="bottom"
+            />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/gatewaySelection_list"
         android:layout_below="@id/current_location_container"
-        android:layout_above="@+id/vpn_button_container"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="@dimen/stdpadding"
@@ -58,28 +72,8 @@
         android:visibility="gone"
         tools:visibility="visible"
         android:scrollbars="vertical"
+        tools:listitem="@layout/v_select_text_list_item"
         >
-
     </androidx.recyclerview.widget.RecyclerView>
-
-    <LinearLayout
-        android:id="@+id/vpn_button_container"
-        android:orientation="horizontal"
-        android:gravity="end"
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/activity_margin"
-        >
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/automatic_gateway_selection_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/gateway_selection_recommended_location"
-            android:textColor="@color/button_state_font_color"
-            />
-    </LinearLayout>
-
 
 </RelativeLayout>
