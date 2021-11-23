@@ -206,6 +206,17 @@ public class ConfigHelper {
         return dist;
     }
 
+    /**
+     *
+     * @param remoteTimezone
+     * @return a value between 0.1 and 1.0
+     */
+    public static double getConnectionQualityFromTimezoneDistance(int remoteTimezone) {
+        int localTimeZone = ConfigHelper.getCurrentTimezone();
+        int distance = ConfigHelper.timezoneDistance(localTimeZone, remoteTimezone);
+        return Math.max(distance / 12.0, 0.1);
+    }
+
     public static String getProviderFormattedString(Resources resources, @StringRes int resourceId) {
         String appName = resources.getString(R.string.app_name);
         return resources.getString(resourceId, appName);

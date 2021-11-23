@@ -70,6 +70,7 @@ public class GatewaysManagerTest {
         mockTextUtils();
         when(ConfigHelper.getCurrentTimezone()).thenReturn(-1);
         when(ConfigHelper.stringEqual(anyString(), anyString())).thenCallRealMethod();
+        when(ConfigHelper.getConnectionQualityFromTimezoneDistance(anyInt())).thenCallRealMethod();
         when(ConfigHelper.isIPv4(anyString())).thenCallRealMethod();
         when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
         secrets = new JSONObject(getJsonStringFor("secrets.json"));
@@ -400,6 +401,55 @@ public class GatewaysManagerTest {
 
     }
 
+    @Test
+    public void testGetLocations_noMenshen_obfs4_calculateAverageLoadFromTimezoneDistance() {
+        Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v1.json");
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
+        sharedPreferences.edit().putBoolean(USE_BRIDGES, true).commit();
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+        List<Location> locations = gatewaysManager.getGatewayLocations();
+
+        assertEquals(3, locations.size());
+        for (Location location : locations) {
+            if ("Montreal".equals(location.getName())) {
+                assertEquals(1, location.getNumberOfGateways(OBFS4));
+                assertEquals(1/3.0, location.getAverageLoad(OBFS4));
+            }
+            if ("Paris".equals(location.getName())) {
+                // checks that only gateways supporting obfs4 are taken into account
+                assertEquals(1, location.getNumberOfGateways(OBFS4));
+                assertEquals(0.25, location.getAverageLoad(OBFS4));
+            }
+        }
+    }
+
+    @Test
+    public void testGetLocations_noMenshen_openvpn_calculateAverageLoadFromTimezoneDistance() {
+        Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v1.json");
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
+        sharedPreferences.edit().putBoolean(USE_BRIDGES, false).commit();
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+        List<Location> locations = gatewaysManager.getGatewayLocations();
+
+        assertEquals(3, locations.size());
+        for (Location location : locations) {
+            if ("Montreal".equals(location.getName())) {
+                assertEquals(1, location.getNumberOfGateways(OPENVPN));
+                assertEquals(1/3.0, location.getAverageLoad(OPENVPN));
+            }
+            if ("Paris".equals(location.getName())) {
+                // checks that only gateways supporting obfs4 are taken into account
+                assertEquals(3, location.getNumberOfGateways(OPENVPN));
+                assertEquals(0.25, location.getAverageLoad(OPENVPN));
+            }
+        }
+    }
 
     private String getJsonStringFor(String filename) throws IOException {
         return TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream(filename));

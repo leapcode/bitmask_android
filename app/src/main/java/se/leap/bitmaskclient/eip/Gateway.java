@@ -33,6 +33,7 @@ import java.util.Set;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
+import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 import static se.leap.bitmaskclient.base.models.Constants.FULLNESS;
@@ -156,7 +157,7 @@ public class Gateway {
         try {
             return load.getDouble(FULLNESS);
         } catch (JSONException | NullPointerException e) {
-            return 0;
+            return ConfigHelper.getConnectionQualityFromTimezoneDistance(timezone);
         }
     }
 
