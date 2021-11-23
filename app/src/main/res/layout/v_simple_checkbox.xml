@@ -26,6 +26,7 @@
         app:srcCompat="@drawable/check_bold"
         android:tint="@color/colorSuccess"
         android:layout_centerInParent="true"
+        android:visibility="invisible"
         />
 
 
