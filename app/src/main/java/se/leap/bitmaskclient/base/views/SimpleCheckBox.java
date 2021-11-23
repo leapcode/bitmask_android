@@ -9,11 +9,19 @@ import android.widget.RelativeLayout;
 
 import androidx.appcompat.widget.AppCompatImageView;
 
+import java.lang.ref.WeakReference;
+
 import se.leap.bitmaskclient.R;
 
 public class SimpleCheckBox extends RelativeLayout {
 
     AppCompatImageView checkView;
+    private WeakReference<OnCheckedChangeListener> checkedChangeListener = new WeakReference<OnCheckedChangeListener>(null);
+    private boolean checked;
+
+    public interface OnCheckedChangeListener {
+        void onCheckedChanged(SimpleCheckBox simpleCheckBox, boolean isChecked);
+    }
 
 
     public SimpleCheckBox(Context context) {
@@ -45,6 +53,21 @@ public class SimpleCheckBox extends RelativeLayout {
     }
 
     public void setChecked(boolean checked) {
-        this.checkView.setVisibility(checked ? VISIBLE : INVISIBLE);
+        if (this.checked != checked) {
+            this.checkView.setVisibility(checked ? VISIBLE : INVISIBLE);
+            this.checked = checked;
+            OnCheckedChangeListener listener = checkedChangeListener.get();
+            if (listener != null) {
+                listener.onCheckedChanged(this, this.checked);
+            }
+        }
+    }
+
+    public void setOnCheckedChangeListener(OnCheckedChangeListener listener) {
+        checkedChangeListener = new WeakReference<>(listener);
+    }
+
+    public void toggle() {
+        setChecked(!this.checked);
     }
 }
