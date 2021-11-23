@@ -39,11 +39,12 @@ import java.util.Vector;
 import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.views.SimpleCheckBox;
 
 /**
  * Created by arne on 16.11.14.
  */
-public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemClickListener, CompoundButton.OnCheckedChangeListener, View.OnClickListener {
+public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemClickListener, SimpleCheckBox.OnCheckedChangeListener, View.OnClickListener {
     private ListView mListView;
     private VpnProfile mProfile;
     private PackageAdapter mListAdapter;
@@ -82,7 +83,7 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
         public ImageView appIcon;
         //public AppCompatTextView appSize;
         //public AppCompatTextView disabled;
-        public CompoundButton checkBox;
+        public SimpleCheckBox checkBox;
 
         static public AppViewHolder createOrRecycle(LayoutInflater inflater, View convertView, ViewGroup parent) {
             if (convertView == null) {
@@ -108,7 +109,7 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     }
 
     @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+    public void onCheckedChanged(SimpleCheckBox buttonView, boolean isChecked) {
         String packageName = (String) buttonView.getTag();
 
         if (isChecked) {
