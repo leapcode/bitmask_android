@@ -31,15 +31,16 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Random;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
+import de.blinkt.openvpn.core.connection.Connection.TransportType;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
@@ -98,6 +99,7 @@ public class GatewaysManager {
     private final Type listType = new TypeToken<ArrayList<Gateway>>() {}.getType();
     private final ArrayList<Gateway> presortedList = new ArrayList<>();
     private ArrayList<Location> locations = new ArrayList<>();
+    private TransportType selectedTransport;
 
     public GatewaysManager(Context context) {
         this.context = context;
@@ -114,7 +116,7 @@ public class GatewaysManager {
     }
 
     public Gateway select(int nClosest, String city) {
-        Connection.TransportType transportType = getUseBridges(context) ? OBFS4 : OPENVPN;
+        TransportType transportType = getUseBridges(context) ? OBFS4 : OPENVPN;
         if (presortedList.size() > 0) {
             return getGatewayFromPresortedList(nClosest, transportType, city);
         }
@@ -122,25 +124,26 @@ public class GatewaysManager {
         return getGatewayFromTimezoneCalculation(nClosest, transportType, city);
     }
 
-    public ArrayList<Gateway> getSortedGateways() {
-        if (presortedList.size() > 0) {
-            return presortedList;
-        } else {
-            GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
-            return gatewaySelector.getGatewaysSortedByDistance();
+    public void updateTransport(TransportType transportType) {
+        if (this.selectedTransport == null || transportType != this.selectedTransport) {
+            this.selectedTransport = transportType;
+            locations.clear();
         }
     }
 
     public List<Location> getGatewayLocations() {
+        return getSortedGatewayLocations(null);
+    }
+
+    public List<Location> getSortedGatewayLocations(@Nullable TransportType selectedTransport) {
         if (locations.size() > 0) {
             return locations;
         }
 
         HashMap<String, Integer> locationNames = new HashMap<>();
         ArrayList<Location> locations = new ArrayList<>();
-        ArrayList<Gateway> gateways = getSortedGateways();
         String preferredCity = PreferenceHelper.getPreferredCity(context);
-        for (Gateway gateway : gateways) {
+        for (Gateway gateway : gateways.values()) {
             String name = gateway.getName();
             if (name == null) {
                 Log.e(TAG, "Gateway without location name found. This should never happen. Provider misconfigured?");
@@ -159,13 +162,16 @@ public class GatewaysManager {
                 locations.set(index, location);
             }
         }
-        this.locations = locations;
+        if (selectedTransport != null) {
+            Collections.sort(locations, new Location.SortByAverageLoad(selectedTransport));
+            this.locations = locations;
+        }
         return locations;
     }
 
     private Location initLocation(String name, Gateway gateway, String preferredCity) {
-        HashMap<Connection.TransportType, Double> averageLoadMap = new HashMap<>();
-        HashMap<Connection.TransportType, Integer> numberOfGatewaysMap = new HashMap<>();
+        HashMap<TransportType, Double> averageLoadMap = new HashMap<>();
+        HashMap<TransportType, Integer> numberOfGatewaysMap = new HashMap<>();
         if (gateway.getSupportedTransports().contains(OBFS4)) {
             averageLoadMap.put(OBFS4, gateway.getFullness());
             numberOfGatewaysMap.put(OBFS4, 1);
@@ -203,12 +209,12 @@ public class GatewaysManager {
         return null;
     }
 
-    public Load getLoadForLocation(@Nullable String name, Connection.TransportType transportType) {
+    public Load getLoadForLocation(@Nullable String name, TransportType transportType) {
         Location location = getLocation(name);
         return Load.getLoadByValue(location.getAverageLoad(transportType));
     }
 
-    private Gateway getGatewayFromTimezoneCalculation(int nClosest, Connection.TransportType transportType, @Nullable String city) {
+    private Gateway getGatewayFromTimezoneCalculation(int nClosest, TransportType transportType, @Nullable String city) {
         List<Gateway> list = new ArrayList<>(gateways.values());
         GatewaySelector gatewaySelector = new GatewaySelector(list);
         Gateway gateway;
@@ -227,7 +233,7 @@ public class GatewaysManager {
         return null;
     }
 
-    private Gateway getGatewayFromPresortedList(int nClosest, Connection.TransportType transportType, @Nullable String city) {
+    private Gateway getGatewayFromPresortedList(int nClosest, TransportType transportType, @Nullable String city) {
         int found = 0;
         for (Gateway gateway : presortedList) {
             if ((city == null && gateway.supportsTransport(transportType)) ||
@@ -255,7 +261,7 @@ public class GatewaysManager {
     }
     
     private int getPositionFromPresortedList(VpnProfile profile) {
-        Connection.TransportType transportType = profile.mUsePluggableTransports ? OBFS4 : OPENVPN;
+        TransportType transportType = profile.mUsePluggableTransports ? OBFS4 : OPENVPN;
         int nClosest = 0;
         for (Gateway gateway : presortedList) {
             if (gateway.supportsTransport(transportType)) {
@@ -269,7 +275,7 @@ public class GatewaysManager {
     }
     
     private int getPositionFromTimezoneCalculatedList(VpnProfile profile) {
-        Connection.TransportType transportType = profile.mUsePluggableTransports ? OBFS4 : OPENVPN;
+        TransportType transportType = profile.mUsePluggableTransports ? OBFS4 : OPENVPN;
         GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
         Gateway gateway;
         int nClosest = 0;

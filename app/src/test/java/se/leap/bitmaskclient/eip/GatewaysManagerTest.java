@@ -451,6 +451,63 @@ public class GatewaysManagerTest {
         }
     }
 
+
+    @Test
+    public void testGetSortedLocations_openvpn() {
+        Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4_bad_obfs4_gateway.json");
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+        List<Location> locations = gatewaysManager.getSortedGatewayLocations(OPENVPN);
+
+        assertEquals(3, locations.size());
+
+        /** -> v4/riseup_geoip_v4_bad_obfs4_gateway.json OPENVPN
+         * Paris = 0.527
+         * 0.36 - zarapito
+         * 0.92 - hoazin
+         * 0.3 - mouette
+         *
+         * Montreal = 0.59
+         * 0.59 - yal
+         *
+         * Amsterdam = 0.8
+         * 0.8 - redshank
+         */
+        assertEquals("Paris", locations.get(0).getName());
+        assertEquals("Montreal", locations.get(1).getName());
+        assertEquals("Amsterdam", locations.get(2).getName());
+    }
+
+    @Test
+    public void testGetSortedLocations_obfs4() {
+        Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4_bad_obfs4_gateway.json");
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+        List<Location> locations = gatewaysManager.getSortedGatewayLocations(OBFS4);
+
+        assertEquals(3, locations.size());
+
+        /** -> v4/riseup_geoip_v4_bad_obfs4_gateway.json OBFS4
+         * Paris = 0.92
+         * 0.92 - hoazin
+         *
+         * Montreal = 0.59
+         * 0.59 - yal
+         *
+         * Amsterdam = 0.0 - no obfs4
+         * 0.0 - redshank
+         */
+        assertEquals("Montreal", locations.get(0).getName());
+        assertEquals("Paris", locations.get(1).getName());
+        assertEquals("Amsterdam", locations.get(2).getName());
+    }
+
     private String getJsonStringFor(String filename) throws IOException {
         return TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream(filename));
     }

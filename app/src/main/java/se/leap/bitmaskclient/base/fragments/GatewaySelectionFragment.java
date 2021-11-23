@@ -117,7 +117,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         recyclerView.setLayoutManager(layoutManager);
-        locationListAdapter = new LocationListAdapter(gatewaysManager.getGatewayLocations(), this, selectedTransport);
+        locationListAdapter = new LocationListAdapter(gatewaysManager.getSortedGatewayLocations(selectedTransport), this, selectedTransport);
         recyclerView.setAdapter(locationListAdapter);
         recyclerView.setVisibility(VISIBLE);
     }
@@ -203,14 +203,15 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(USE_BRIDGES)) {
             selectedTransport = PreferenceHelper.getUseBridges(sharedPreferences) ? OBFS4 : OPENVPN;
-            locationListAdapter.updateTransport(selectedTransport);
+            gatewaysManager.updateTransport(selectedTransport);
+            locationListAdapter.updateTransport(selectedTransport, gatewaysManager);
         }
     }
 
     static class LocationListAdapter extends RecyclerView.Adapter<LocationListAdapter.ViewHolder> {
         private static final String TAG = LocationListAdapter.class.getSimpleName();
         private Connection.TransportType transport;
-        private final List<Location> values;
+        private List<Location> values;
         private final WeakReference<LocationListSelectionListener> callback;
 
         static class ViewHolder extends RecyclerView.ViewHolder {
@@ -232,8 +233,9 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
             notifyItemRemoved(position);
         }
 
-        public void updateTransport(Connection.TransportType transportType) {
+        public void updateTransport(Connection.TransportType transportType, GatewaysManager gatewaysManager) {
             transport = transportType;
+            values = gatewaysManager.getSortedGatewayLocations(transportType);
             notifyDataSetChanged();
         }
 

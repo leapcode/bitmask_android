@@ -19,22 +19,25 @@ package se.leap.bitmaskclient.base.models;
 
 import androidx.annotation.NonNull;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.function.ToDoubleFunction;
 
 import de.blinkt.openvpn.core.connection.Connection;
+import de.blinkt.openvpn.core.connection.Connection.TransportType;
 
 public class Location implements Cloneable {
     @NonNull private String name = "";
-    @NonNull private HashMap<Connection.TransportType, Double> averageLoad = new HashMap<>();
-    @NonNull private HashMap<Connection.TransportType, Integer> numberOfGateways = new HashMap<>();
+    @NonNull private HashMap<TransportType, Double> averageLoad = new HashMap<>();
+    @NonNull private HashMap<TransportType, Integer> numberOfGateways = new HashMap<>();
     public boolean selected;
 
     public Location() {}
 
     public Location(@NonNull String name,
-                    @NonNull HashMap<Connection.TransportType, Double> averageLoad,
-                    @NonNull HashMap<Connection.TransportType, Integer> numberOfGateways,
+                    @NonNull HashMap<TransportType, Double> averageLoad,
+                    @NonNull HashMap<TransportType, Integer> numberOfGateways,
                     boolean selected) {
         this.name = name;
         this.averageLoad = averageLoad;
@@ -46,26 +49,26 @@ public class Location implements Cloneable {
         return !numberOfGateways.isEmpty() && !averageLoad.isEmpty() && !name.isEmpty();
     }
 
-    public boolean supportsTransport(Connection.TransportType transportType) {
+    public boolean supportsTransport(TransportType transportType) {
         return numberOfGateways.containsKey(transportType);
     }
 
-    public void setAverageLoad(Connection.TransportType transportType, double load) {
+    public void setAverageLoad(TransportType transportType, double load) {
         averageLoad.put(transportType, load);
     }
 
-    public double getAverageLoad(Connection.TransportType transportType) {
+    public double getAverageLoad(TransportType transportType) {
         if (averageLoad.containsKey(transportType)) {
             return averageLoad.get(transportType);
         }
         return 0;
     }
 
-    public void setNumberOfGateways(Connection.TransportType transportType, int numbers) {
+    public void setNumberOfGateways(TransportType transportType, int numbers) {
         numberOfGateways.put(transportType, numbers);
     }
 
-    public int getNumberOfGateways(Connection.TransportType transportType) {
+    public int getNumberOfGateways(TransportType transportType) {
         if (numberOfGateways.containsKey(transportType)) {
             return numberOfGateways.get(transportType);
         }
@@ -101,8 +104,26 @@ public class Location implements Cloneable {
     public Location clone() throws CloneNotSupportedException {
         Location copy = (Location) super.clone();
         copy.name = this.name;
-        copy.numberOfGateways = (HashMap<Connection.TransportType, Integer>) this.numberOfGateways.clone();
-        copy.averageLoad = (HashMap<Connection.TransportType, Double>) this.averageLoad.clone();
+        copy.numberOfGateways = (HashMap<TransportType, Integer>) this.numberOfGateways.clone();
+        copy.averageLoad = (HashMap<TransportType, Double>) this.averageLoad.clone();
         return copy;
+    }
+
+    public static class SortByAverageLoad implements Comparator<Location> {
+        TransportType transportType;
+        public SortByAverageLoad(TransportType transportType) {
+            this.transportType = transportType;
+        }
+
+        @Override
+        public int compare(Location location1, Location location2) {
+            if (location1.supportsTransport(transportType) && location2.supportsTransport(transportType)) {
+                return (int) (location1.getAverageLoad(transportType) * 100) - (int) (location2.getAverageLoad(transportType) * 100);
+            } else if (location1.supportsTransport(transportType) && !location2.supportsTransport(transportType)) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
     }
 }
