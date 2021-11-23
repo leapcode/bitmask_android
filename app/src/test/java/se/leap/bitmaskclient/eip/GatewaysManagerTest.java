@@ -23,27 +23,28 @@ import de.blinkt.openvpn.core.ConfigParser;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.testutils.MockHelper;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
-import se.leap.bitmaskclient.base.utils.ConfigHelper;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Provider.CA_CERT;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
@@ -69,6 +70,8 @@ public class GatewaysManagerTest {
         mockTextUtils();
         when(ConfigHelper.getCurrentTimezone()).thenReturn(-1);
         when(ConfigHelper.stringEqual(anyString(), anyString())).thenCallRealMethod();
+        when(ConfigHelper.isIPv4(anyString())).thenCallRealMethod();
+        when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
         secrets = new JSONObject(getJsonStringFor("secrets.json"));
         sharedPreferences = new MockSharedPreferences();
         sharedPreferences.edit().
@@ -345,10 +348,7 @@ public class GatewaysManagerTest {
         assertNull(gatewaysManager.select(0, "Stockholm"));
     }
 
-    /*
-        This test is disabled since we fake load values in gateway manager with randomized numbers.
-     */
-   /* @Test
+    @Test
     public void testGetLocations_openvpn() {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4.json");
 
@@ -360,43 +360,45 @@ public class GatewaysManagerTest {
 
         assertEquals(3, locations.size());
         for (Location location : locations) {
-            if ("Paris".equals(location.name)) {
-                assertEquals(3, location.numberOfGateways);
+            if ("Paris".equals(location.getName())) {
+                assertEquals(3, location.getNumberOfGateways(OPENVPN));
                 // manually calculate average load of paris gateways in "v4/riseup_geoip_v4.json"
                 double averageLoad = (0.3 + 0.36 + 0.92) / 3.0;
-                assertEquals(averageLoad, location.averageLoad);
+                assertEquals(averageLoad, location.getAverageLoad(OPENVPN));
             }
         }
-    } */
+    }
 
-    /*
-    This test is disabled since we fake load values in gateway manager with randomized numbers.
-    */
-    /*@Test
+    @Test
     public void testGetLocations_obfs4() {
         Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4.json");
 
         MockHelper.mockProviderObservable(provider);
         mockStatic(PreferenceHelper.class);
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
+        sharedPreferences.edit().putBoolean(USE_BRIDGES, true).commit();
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         List<Location> locations = gatewaysManager.getGatewayLocations();
 
-        assertEquals(2, locations.size());
+        assertEquals(3, locations.size());
         for (Location location : locations) {
-            if ("Montreal".equals(location.name)) {
-                assertEquals(1, location.numberOfGateways);
-                assertEquals(0.59, location.averageLoad);
+            if ("Montreal".equals(location.getName())) {
+                assertEquals(1, location.getNumberOfGateways(OBFS4));
+                assertEquals(0.59, location.getAverageLoad(OBFS4));
+                assertTrue(location.supportsTransport(OBFS4));
             }
-            if ("Paris".equals(location.name)) {
+            if ("Paris".equals(location.getName())) {
                 // checks that only gateways supporting obfs4 are taken into account
-                assertEquals(1, location.numberOfGateways);
-                assertEquals(0.36, location.averageLoad);
+                assertEquals(1, location.getNumberOfGateways(OBFS4));
+                assertEquals(0.36, location.getAverageLoad(OBFS4));
+                assertTrue(location.supportsTransport(OBFS4));
+            }
+            if ("Amsterdam".equals(location.getName())) {
+                assertFalse(location.supportsTransport(OBFS4));
             }
         }
 
     }
-     */
 
 
     private String getJsonStringFor(String filename) throws IOException {

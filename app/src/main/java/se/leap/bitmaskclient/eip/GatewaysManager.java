@@ -149,54 +149,63 @@ public class GatewaysManager {
 
             if (!locationNames.containsKey(name)) {
                 locationNames.put(name, locations.size());
-                // fake values for now
-                Random rand = new Random();
-                double averageLoad = rand.nextDouble(); //location.averageLoad;
-                Log.d(TAG, "getGatewayLocations - new averageLoad (" + name + " - " + gateway.getHost()+ "): " + averageLoad);
-
-                Location location = new Location(
-                        name,
-                        averageLoad
-                        /*gateway.getFullness()*/,
-                        1,
-                        gateway.getSupportedTransports(),
-                        name.equals(preferredCity)
-                        );
+                Location location = initLocation(name, gateway, preferredCity);
                 locations.add(location);
             } else {
                 int index = locationNames.get(gateway.getName());
                 Location location = locations.get(index);
-                location.averageLoad = (location.numberOfGateways * location.averageLoad + gateway.getFullness()) / (location.numberOfGateways + 1);
-                Log.d(TAG, "getGatewayLocations - updated averageLoad: (" + gateway.getName() + " - " + gateway.getHost()+ "): " + location.averageLoad);
-                location.numberOfGateways += 1;
-                location.supportedTransports.addAll(gateway.getSupportedTransports());
+                updateLocation(location, gateway, OBFS4);
+                updateLocation(location, gateway, OPENVPN);
                 locations.set(index, location);
             }
         }
-
         this.locations = locations;
         return locations;
+    }
+
+    private Location initLocation(String name, Gateway gateway, String preferredCity) {
+        HashMap<Connection.TransportType, Double> averageLoadMap = new HashMap<>();
+        HashMap<Connection.TransportType, Integer> numberOfGatewaysMap = new HashMap<>();
+        if (gateway.getSupportedTransports().contains(OBFS4)) {
+            averageLoadMap.put(OBFS4, gateway.getFullness());
+            numberOfGatewaysMap.put(OBFS4, 1);
+        }
+        if (gateway.getSupportedTransports().contains(OPENVPN)) {
+            averageLoadMap.put(OPENVPN, gateway.getFullness());
+            numberOfGatewaysMap.put(OPENVPN, 1);
+        }
+        return new Location(
+                name,
+                averageLoadMap,
+                numberOfGatewaysMap,
+                name.equals(preferredCity));
+    }
+
+    private void updateLocation(Location location, Gateway gateway, Connection.TransportType transportType) {
+        if (gateway.getSupportedTransports().contains(transportType)) {
+            double averageLoad = location.getAverageLoad(transportType);
+            int numberOfGateways = location.getNumberOfGateways(transportType);
+            averageLoad = (numberOfGateways * averageLoad + gateway.getFullness()) / (numberOfGateways + 1);
+            numberOfGateways++;
+            location.setAverageLoad(transportType, averageLoad);
+            location.setNumberOfGateways(transportType, numberOfGateways);
+        }
     }
 
     @Nullable
     public Location getLocation(String name) {
         List <Location> locations = getGatewayLocations();
         for (Location location : locations) {
-            if (location.name.equals(name)) {
+            if (location.getName().equals(name)) {
                 return location;
             }
         }
         return null;
     }
 
-    public Load getLoadForLocation(@Nullable String name) {
+    public Load getLoadForLocation(@Nullable String name, Connection.TransportType transportType) {
         Location location = getLocation(name);
-        if (location != null) {
-            return Load.getLoadByValue(location.averageLoad);
-        }
-
-        // location not found
-        return Load.UNKNOWN;
+        return Load.getLoadByValue(location.getAverageLoad(transportType));
     }
 
     private Gateway getGatewayFromTimezoneCalculation(int nClosest, Connection.TransportType transportType, @Nullable String city) {

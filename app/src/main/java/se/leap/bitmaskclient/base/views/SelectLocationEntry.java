@@ -64,14 +64,14 @@ public class SelectLocationEntry extends RelativeLayout {
         title.setText(text);
         title.setVisibility(text != null ? VISIBLE : GONE);
     }
-    public void setLocation(Location location) {
+    public void setLocation(Location location, Connection.TransportType transportType) {
         boolean valid = location.hasLocationInfo();
         locationText.setVisibility(valid ? VISIBLE : GONE);
         locationIndicator.setVisibility(valid ? VISIBLE : GONE);
         bridgesView.setVisibility(valid ? VISIBLE : GONE);
-        locationText.setText(location.name);
-        locationIndicator.setLoad(Load.getLoadByValue(location.averageLoad));
-        bridgesView.setVisibility(location.supportedTransports.contains(Connection.TransportType.OBFS4) ? VISIBLE : GONE);
+        locationText.setText(location.getName());
+        locationIndicator.setLoad(Load.getLoadByValue(location.getAverageLoad(transportType)));
+        bridgesView.setVisibility(location.supportsTransport(Connection.TransportType.OBFS4) ? VISIBLE : GONE);
         selectedView.setChecked(location.selected);
     }
 

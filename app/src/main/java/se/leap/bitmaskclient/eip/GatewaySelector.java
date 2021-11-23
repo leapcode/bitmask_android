@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getCurrentTimezone;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.timezoneDistance;
 
 public class GatewaySelector {
     private final static String TAG = GatewaySelector.class.getSimpleName();
@@ -67,12 +68,4 @@ public class GatewaySelector {
         return offsets;
     }
 
-    private int timezoneDistance(int local_timezone, int remote_timezone) {
-        // Distance along the numberline of Prime Meridian centric, assumes UTC-11 through UTC+12
-        int dist = Math.abs(local_timezone - remote_timezone);
-        // Farther than 12 timezones and it's shorter around the "back"
-        if (dist > 12)
-            dist = 12 - (dist - 12); // Well i'll be. Absolute values make equations do funny things.
-        return dist;
-    }
 }

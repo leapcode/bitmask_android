@@ -19,29 +19,62 @@ package se.leap.bitmaskclient.base.models;
 
 import androidx.annotation.NonNull;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import de.blinkt.openvpn.core.connection.Connection;
 
 public class Location implements Cloneable {
-    @NonNull public String name = "";
-    @NonNull public HashSet<Connection.TransportType> supportedTransports = new HashSet<>();
-    public double averageLoad;
-    public int numberOfGateways;
+    @NonNull private String name = "";
+    @NonNull private HashMap<Connection.TransportType, Double> averageLoad = new HashMap<>();
+    @NonNull private HashMap<Connection.TransportType, Integer> numberOfGateways = new HashMap<>();
     public boolean selected;
 
     public Location() {}
 
-    public Location(@NonNull String name, double averageLoad, int numberOfGateways, @NonNull HashSet<Connection.TransportType> supportedTransports, boolean selected) {
+    public Location(@NonNull String name,
+                    @NonNull HashMap<Connection.TransportType, Double> averageLoad,
+                    @NonNull HashMap<Connection.TransportType, Integer> numberOfGateways,
+                    boolean selected) {
         this.name = name;
         this.averageLoad = averageLoad;
         this.numberOfGateways = numberOfGateways;
-        this.supportedTransports = supportedTransports;
         this.selected = selected;
     }
 
     public boolean hasLocationInfo() {
-        return numberOfGateways != 0 && supportedTransports.size() != 0 && !name.isEmpty();
+        return !numberOfGateways.isEmpty() && !averageLoad.isEmpty() && !name.isEmpty();
+    }
+
+    public boolean supportsTransport(Connection.TransportType transportType) {
+        return numberOfGateways.containsKey(transportType);
+    }
+
+    public void setAverageLoad(Connection.TransportType transportType, double load) {
+        averageLoad.put(transportType, load);
+    }
+
+    public double getAverageLoad(Connection.TransportType transportType) {
+        if (averageLoad.containsKey(transportType)) {
+            return averageLoad.get(transportType);
+        }
+        return 0;
+    }
+
+    public void setNumberOfGateways(Connection.TransportType transportType, int numbers) {
+        numberOfGateways.put(transportType, numbers);
+    }
+
+    public int getNumberOfGateways(Connection.TransportType transportType) {
+        if (numberOfGateways.containsKey(transportType)) {
+            return numberOfGateways.get(transportType);
+        }
+        return 0;
+    }
+
+    @NonNull
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -51,21 +84,16 @@ public class Location implements Cloneable {
 
         Location location = (Location) o;
 
-        if (Double.compare(location.averageLoad, averageLoad) != 0) return false;
-        if (numberOfGateways != location.numberOfGateways) return false;
         if (!name.equals(location.name)) return false;
-        return supportedTransports.equals(location.supportedTransports);
+        if (!averageLoad.equals(location.averageLoad)) return false;
+        return numberOfGateways.equals(location.numberOfGateways);
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        result = name.hashCode();
-        result = 31 * result + supportedTransports.hashCode();
-        temp = Double.doubleToLongBits(averageLoad);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + numberOfGateways;
+        int result = name.hashCode();
+        result = 31 * result + averageLoad.hashCode();
+        result = 31 * result + numberOfGateways.hashCode();
         return result;
     }
 
@@ -73,10 +101,8 @@ public class Location implements Cloneable {
     public Location clone() throws CloneNotSupportedException {
         Location copy = (Location) super.clone();
         copy.name = this.name;
-        copy.supportedTransports = (HashSet<Connection.TransportType>) this.supportedTransports.clone();
-        copy.numberOfGateways = this.numberOfGateways;
-        copy.averageLoad = this.averageLoad;
+        copy.numberOfGateways = (HashMap<Connection.TransportType, Integer>) this.numberOfGateways.clone();
+        copy.averageLoad = (HashMap<Connection.TransportType, Double>) this.averageLoad.clone();
         return copy;
     }
-
 }

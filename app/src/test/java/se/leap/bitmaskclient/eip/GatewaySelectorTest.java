@@ -27,6 +27,7 @@ import se.leap.bitmaskclient.base.utils.ConfigHelper;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
@@ -75,6 +76,7 @@ public class GatewaySelectorTest {
     @Before
     public void setup() throws IOException, JSONException, ConfigParser.ConfigParseError {
         mockStatic(ConfigHelper.class);
+        when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
         mockTextUtils();
         eipDefinition = new JSONObject(getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-four-gateways.json")));
         JSONArray gateways = eipDefinition.getJSONArray("gateways");

@@ -19,6 +19,7 @@ package se.leap.bitmaskclient.base.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,18 +49,21 @@ import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_DIALOG_FRAGMENT;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
+import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 
 interface LocationListSelectionListener {
     void onLocationManuallySelected(Location location);
 }
 
-public class GatewaySelectionFragment extends Fragment implements Observer, LocationListSelectionListener {
+public class GatewaySelectionFragment extends Fragment implements Observer, LocationListSelectionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = GatewaySelectionFragment.class.getSimpleName();
 
@@ -69,6 +73,8 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     private SelectLocationEntry recommendedLocation;
     private GatewaysManager gatewaysManager;
     private EipStatus eipStatus;
+    private SharedPreferences preferences;
+    private Connection.TransportType selectedTransport;
 
     public GatewaySelectionFragment() {
         // Required empty public constructor
@@ -80,6 +86,9 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         gatewaysManager = new GatewaysManager(getContext());
         eipStatus = EipStatus.getInstance();
         eipStatus.addObserver(this);
+        preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        selectedTransport = PreferenceHelper.getUseBridges(preferences) ? OBFS4 : OPENVPN;
+        preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -100,6 +109,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     public void onDestroyView() {
         super.onDestroyView();
         eipStatus.deleteObserver(this);
+        preferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     private void initRecyclerView() {
@@ -107,7 +117,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         recyclerView.setLayoutManager(layoutManager);
-        locationListAdapter = new LocationListAdapter(gatewaysManager.getGatewayLocations(), this);
+        locationListAdapter = new LocationListAdapter(gatewaysManager.getGatewayLocations(), this, selectedTransport);
         recyclerView.setAdapter(locationListAdapter);
         recyclerView.setVisibility(VISIBLE);
     }
@@ -135,7 +145,10 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
             }
         }
         location.selected = !isManualSelection;
-        recommendedLocation.setLocation(location);
+        if (!isManualSelection) {
+            locationListAdapter.unselectAll();
+        }
+        recommendedLocation.setLocation(location, selectedTransport);
     }
 
     protected void startEipService(String preferredCity) {
@@ -156,11 +169,11 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     @Override
     public void onLocationManuallySelected(Location location) {
         recommendedLocation.setSelected(false);
-        String name = location.name;
-        Connection.TransportType selectedTransport = PreferenceHelper.getUseBridges(getContext()) ? OBFS4 : OPENVPN;
-        if (location.supportedTransports.contains(selectedTransport)) {
+        String name = location.getName();
+        if (location.supportsTransport(selectedTransport)) {
             startEipService(name);
         } else {
+            locationListAdapter.unselectAll();
             askToChangeTransport(name);
         }
     }
@@ -186,8 +199,17 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         }
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(USE_BRIDGES)) {
+            selectedTransport = PreferenceHelper.getUseBridges(sharedPreferences) ? OBFS4 : OPENVPN;
+            locationListAdapter.updateTransport(selectedTransport);
+        }
+    }
+
     static class LocationListAdapter extends RecyclerView.Adapter<LocationListAdapter.ViewHolder> {
         private static final String TAG = LocationListAdapter.class.getSimpleName();
+        private Connection.TransportType transport;
         private final List<Location> values;
         private final WeakReference<LocationListSelectionListener> callback;
 
@@ -210,6 +232,11 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
             notifyItemRemoved(position);
         }
 
+        public void updateTransport(Connection.TransportType transportType) {
+            transport = transportType;
+            notifyDataSetChanged();
+        }
+
         public void unselectAll() {
             for (Location l : values) {
                 l.selected = false;
@@ -217,9 +244,10 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
             notifyDataSetChanged();
         }
 
-        public LocationListAdapter(List<Location> data, LocationListSelectionListener selectionListener) {
+        public LocationListAdapter(List<Location> data, LocationListSelectionListener selectionListener, Connection.TransportType selectedTransport) {
             values = data;
             callback = new WeakReference<>(selectionListener);
+            transport = selectedTransport;
         }
 
         @NonNull
@@ -234,7 +262,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             final Location location = values.get(position);
-            holder.entry.setLocation(location);
+            holder.entry.setLocation(location, transport);
             holder.entry.setOnClickListener(v -> {
                 Log.d(TAG, "onClick view at position clicked: " + position);
                 LocationListSelectionListener listener = callback.get();
