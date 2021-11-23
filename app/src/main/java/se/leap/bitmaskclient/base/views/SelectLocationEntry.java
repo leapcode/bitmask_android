@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import androidx.appcompat.widget.AppCompatImageView;
@@ -15,7 +16,7 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.eip.GatewaysManager.Load;
 
-public class SelectLocationEntry extends RelativeLayout {
+public class SelectLocationEntry extends LinearLayout {
 
     private static final String TAG = SelectLocationEntry.class.getSimpleName();
     AppCompatTextView title;
