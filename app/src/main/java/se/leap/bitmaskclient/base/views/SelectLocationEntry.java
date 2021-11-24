@@ -16,6 +16,8 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.eip.GatewaysManager.Load;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+
 public class SelectLocationEntry extends LinearLayout {
 
     private static final String TAG = SelectLocationEntry.class.getSimpleName();
@@ -25,8 +27,6 @@ public class SelectLocationEntry extends LinearLayout {
     AppCompatImageView bridgesView;
     LocationIndicator locationIndicator;
     View divider;
-
-  //  private OnClickListener onClickListener;
 
     public SelectLocationEntry(Context context) {
         super(context);
@@ -69,10 +69,9 @@ public class SelectLocationEntry extends LinearLayout {
         boolean valid = location.hasLocationInfo();
         locationText.setVisibility(valid ? VISIBLE : GONE);
         locationIndicator.setVisibility(valid ? VISIBLE : GONE);
-        bridgesView.setVisibility(valid ? VISIBLE : GONE);
+        bridgesView.setVisibility(transportType == OBFS4 && location.supportsTransport(OBFS4) ? VISIBLE : GONE);
         locationText.setText(location.getName());
         locationIndicator.setLoad(Load.getLoadByValue(location.getAverageLoad(transportType)));
-        bridgesView.setVisibility(location.supportsTransport(Connection.TransportType.OBFS4) ? VISIBLE : GONE);
         selectedView.setChecked(location.selected);
     }
 
