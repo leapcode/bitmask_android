@@ -8,15 +8,18 @@
     <attr name="text" format="string|reference"/>
     <attr name="icon" format="reference"/>
     <attr name="subtitle" format="string|reference"/>
+    <attr name="singleLine" format="boolean"/>
     <declare-styleable name="IconSwitchEntry">
         <attr name="text"/>
         <attr name="subtitle" />
         <attr name="icon"/>
+        <attr name="singleLine"/>
     </declare-styleable>
 
     <declare-styleable name="IconTextEntry">
         <attr name="text"/>
         <attr name="subtitle" />
         <attr name="icon"/>
+        <attr name="singleLine"/>
     </declare-styleable>
 </resources>
