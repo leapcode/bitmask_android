@@ -17,9 +17,9 @@
 package se.leap.bitmaskclient.base.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,50 +28,53 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.base.views.IconSwitchEntry;
+import se.leap.bitmaskclient.base.views.SelectLocationEntry;
+import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
 
 import static android.content.Context.MODE_PRIVATE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
+import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_DIALOG_FRAGMENT;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
-import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
+import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setPreferredCity;
 
-public class GatewaySelectionFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, Observer {
+interface LocationListSelectionListener {
+    void onLocationManuallySelected(Location location);
+}
+
+public class GatewaySelectionFragment extends Fragment implements Observer, LocationListSelectionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = GatewaySelectionFragment.class.getSimpleName();
 
 
     private RecyclerView recyclerView;
     private LocationListAdapter locationListAdapter;
-    private IconSwitchEntry autoSelectionSwitch;
-    private AppCompatButton vpnButton;
+    private SelectLocationEntry recommendedLocation;
     private GatewaysManager gatewaysManager;
-    private SharedPreferences preferences;
     private EipStatus eipStatus;
+    private SharedPreferences preferences;
+    private Connection.TransportType selectedTransport;
 
     public GatewaySelectionFragment() {
         // Required empty public constructor
@@ -81,8 +84,11 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gatewaysManager = new GatewaysManager(getContext());
-        preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         eipStatus = EipStatus.getInstance();
+        eipStatus.addObserver(this);
+        preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        selectedTransport = PreferenceHelper.getUseBridges(preferences) ? OBFS4 : OPENVPN;
+        preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -96,78 +102,90 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initRecyclerView();
-        initAutoSelectionSwitch();
-        initVpnButton();
-        eipStatus.addObserver(this);
-        preferences.registerOnSharedPreferenceChangeListener(this);
+        initRecommendedLocationEntry();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        preferences.unregisterOnSharedPreferenceChangeListener(this);
         eipStatus.deleteObserver(this);
+        preferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
-
-
     private void initRecyclerView() {
-        recyclerView = (RecyclerView) getActivity().findViewById(R.id.gatewaySelection_list);
+        recyclerView = getActivity().findViewById(R.id.gatewaySelection_list);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         recyclerView.setLayoutManager(layoutManager);
-        locationListAdapter = new LocationListAdapter(gatewaysManager.getGatewayLocations());
+        locationListAdapter = new LocationListAdapter(gatewaysManager.getSortedGatewayLocations(selectedTransport), this, selectedTransport);
         recyclerView.setAdapter(locationListAdapter);
-        recyclerView.setVisibility(getPreferredCity(getContext()) == null ? INVISIBLE : VISIBLE);
+        recyclerView.setVisibility(VISIBLE);
     }
 
-    private void initAutoSelectionSwitch() {
-        autoSelectionSwitch = getActivity().findViewById(R.id.automatic_gateway_switch);
-        autoSelectionSwitch.setSingleLine(false);
-        autoSelectionSwitch.setSubtitle(getString(R.string.gateway_selection_warning, getString(R.string.app_name)));
-        autoSelectionSwitch.setChecked(getPreferredCity(getContext()) == null);
-        autoSelectionSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            recyclerView.setVisibility(!isChecked ? VISIBLE : View.GONE);
-            Log.d(TAG, "autoselection enabled: " + isChecked);
-            if (isChecked) {
-                PreferenceHelper.setPreferredCity(getContext(), null);
-                locationListAdapter.resetSelection();
-            }
-            setVpnButtonState();
+    private void initRecommendedLocationEntry() {
+        recommendedLocation = getActivity().findViewById(R.id.recommended_location);
+        recommendedLocation.setTitle(getString(R.string.gateway_selection_automatic_location));
+        recommendedLocation.showDivider(true);
+        recommendedLocation.setOnClickListener(v -> {
+            recommendedLocation.setSelected(true);
+            locationListAdapter.unselectAll();
+            startEipService(null);
         });
+        updateRecommendedLocation();
     }
 
-    private void initVpnButton() {
-        vpnButton = getActivity().findViewById(R.id.vpn_button);
-        setVpnButtonState();
-        vpnButton.setOnClickListener(v -> {
-            EipCommand.startVPN(getContext(), false);
+    private void updateRecommendedLocation() {
+        Location location = new Location();
+        boolean isManualSelection = PreferenceHelper.getPreferredCity(getContext()) != null;
+        if (!isManualSelection && eipStatus.isConnected()) {
+            try {
+                location = gatewaysManager.getLocation(VpnStatus.getCurrentlyConnectingVpnName()).clone();
+            } catch (NullPointerException | CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+        location.selected = !isManualSelection;
+        if (!isManualSelection) {
+            locationListAdapter.unselectAll();
+        }
+        recommendedLocation.setLocation(location, selectedTransport);
+    }
+
+    protected void startEipService(String preferredCity) {
+        new Thread(() -> {
+            Context context = getContext();
+            if (context == null) {
+                return;
+            }
+            PreferenceHelper.setPreferredCity(context, preferredCity);
+            EipCommand.startVPN(context, false);
             Intent intent = new Intent(getContext(), MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
             startActivity(intent);
-        });
-    }
-
-    private void setVpnButtonState() {
-        if (eipStatus.isDisconnected()) {
-            vpnButton.setText(R.string.vpn_button_turn_on);
-        } else {
-            vpnButton.setText(R.string.reconnect);
-        }
-        vpnButton.setEnabled(
-                (locationListAdapter.selectedLocation != null && locationListAdapter.selectedLocation.selected) ||
-                        autoSelectionSwitch.isChecked());
+        }).start();
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (USE_BRIDGES.equals(key)) {
-            locationListAdapter.updateData(gatewaysManager.getGatewayLocations());
-            setVpnButtonState();
-        } else if (PREFERRED_CITY.equals(key)) {
-            setVpnButtonState();
+    public void onLocationManuallySelected(Location location) {
+        recommendedLocation.setSelected(false);
+        String name = location.getName();
+        if (location.supportsTransport(selectedTransport)) {
+            startEipService(name);
+        } else {
+            locationListAdapter.unselectAll();
+            askToChangeTransport(name);
         }
+    }
+
+    private void askToChangeTransport(String name) {
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setAction(ACTION_SHOW_DIALOG_FRAGMENT);
+        intent.putExtra(EIP.ERRORID, EIP.EIPErrors.TRANSPORT_NOT_SUPPORTED.toString());
+        intent.putExtra(EIP.ERRORS, getString(R.string.warning_bridges_not_supported, name));
+        intent.putExtra(LOCATION, name);
+        startActivity(intent);
     }
 
     @Override
@@ -176,29 +194,32 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
             eipStatus = (EipStatus) o;
             Activity activity = getActivity();
             if (activity != null) {
-                activity.runOnUiThread(this::setVpnButtonState);
+                activity.runOnUiThread(this::updateRecommendedLocation);
             }
         }
+    }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(USE_BRIDGES)) {
+            selectedTransport = PreferenceHelper.getUseBridges(sharedPreferences) ? OBFS4 : OPENVPN;
+            gatewaysManager.updateTransport(selectedTransport);
+            locationListAdapter.updateTransport(selectedTransport, gatewaysManager);
+        }
     }
 
     static class LocationListAdapter extends RecyclerView.Adapter<LocationListAdapter.ViewHolder> {
         private static final String TAG = LocationListAdapter.class.getSimpleName();
+        private Connection.TransportType transport;
         private List<Location> values;
-        private Location selectedLocation = null;
+        private final WeakReference<LocationListSelectionListener> callback;
 
         static class ViewHolder extends RecyclerView.ViewHolder {
-            public AppCompatTextView locationLabel;
-            public AppCompatTextView qualityLabel;
-            public AppCompatImageView checkedIcon;
-            public View layout;
+            public SelectLocationEntry entry;
 
-            public ViewHolder(View v) {
+            public ViewHolder(SelectLocationEntry v) {
                 super(v);
-                layout = v;
-                locationLabel = (AppCompatTextView) v.findViewById(R.id.location);
-                qualityLabel = (AppCompatTextView) v.findViewById(R.id.quality);
-                checkedIcon = (AppCompatImageView) v.findViewById(R.id.checked_icon);
+                entry = v;
             }
         }
 
@@ -212,77 +233,49 @@ public class GatewaySelectionFragment extends Fragment implements SharedPreferen
             notifyItemRemoved(position);
         }
 
-        public void resetSelection() {
-            if (selectedLocation != null) {
-                selectedLocation.selected = false;
-                notifyDataSetChanged();
-            }
-        }
-
-        public void updateData(List<Location> data) {
-            values = data;
+        public void updateTransport(Connection.TransportType transportType, GatewaysManager gatewaysManager) {
+            transport = transportType;
+            values = gatewaysManager.getSortedGatewayLocations(transportType);
             notifyDataSetChanged();
         }
 
-        public LocationListAdapter(List<Location> data) {
+        public void unselectAll() {
+            for (Location l : values) {
+                l.selected = false;
+            }
+            notifyDataSetChanged();
+        }
+
+        public LocationListAdapter(List<Location> data, LocationListSelectionListener selectionListener, Connection.TransportType selectedTransport) {
             values = data;
+            callback = new WeakReference<>(selectionListener);
+            transport = selectedTransport;
         }
 
         @NonNull
         @Override
         public LocationListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                                  int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(
-                    parent.getContext());
-            View v = inflater.inflate(R.layout.v_select_text_list_item, parent, false);
-            return new ViewHolder(v);
+            SelectLocationEntry entry = new SelectLocationEntry(parent.getContext());
+            return new ViewHolder(entry);
         }
 
         // Replace the contents of a view (invoked by the layout manager)
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             final Location location = values.get(position);
-            holder.locationLabel.setText(location.name);
-            holder.layout.setOnClickListener(v -> {
-                Log.d(TAG, "view at position clicked: " + position);
-                if (selectedLocation == null) {
-                    selectedLocation = location;
-                    selectedLocation.selected = true;
-                } else if (selectedLocation.name.equals(location.name)){
-                    selectedLocation.selected = !selectedLocation.selected;
-                } else {
-                    selectedLocation.selected = false;
-                    selectedLocation = location;
-                    selectedLocation.selected = true;
+            holder.entry.setLocation(location, transport);
+            holder.entry.setOnClickListener(v -> {
+                Log.d(TAG, "onClick view at position clicked: " + position);
+                LocationListSelectionListener listener = callback.get();
+                if (listener != null) {
+                    unselectAll();
+                    location.selected = true;
+                    listener.onLocationManuallySelected(location);
+                    notifyDataSetChanged();
                 }
-                setPreferredCity(holder.layout.getContext(), selectedLocation.selected ? selectedLocation.name : null);
-                holder.checkedIcon.setVisibility(selectedLocation.selected ? VISIBLE : INVISIBLE);
-                notifyDataSetChanged();
             });
-            Drawable checkIcon = DrawableCompat.wrap(holder.layout.getContext().getResources().getDrawable(R.drawable.ic_check_bold)).mutate();
-            DrawableCompat.setTint(checkIcon, ContextCompat.getColor(holder.layout.getContext(), R.color.colorSuccess));
-            holder.checkedIcon.setImageDrawable(checkIcon);
-            holder.checkedIcon.setVisibility(location.selected ? VISIBLE : INVISIBLE);
-            holder.qualityLabel.setText(getQualityString(location.averageLoad));
-            if (location.selected) {
-                selectedLocation = location;
-            }
         }
-
-        public String getQualityString(double quality) {
-            if (quality == 0) {
-                return "";
-            } else if (quality < 0.25) {
-                return "BAD";
-            } else if (quality < 0.6) {
-                return "AVERAGE";
-            } else if (quality < 0.8){
-                return "GOOD";
-            } else {
-                return "EXCELLENT";
-            }
-        }
-
 
         @Override
         public int getItemCount() {

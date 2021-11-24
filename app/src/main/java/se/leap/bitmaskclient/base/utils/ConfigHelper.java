@@ -197,6 +197,26 @@ public class ConfigHelper {
         return Calendar.getInstance().get(Calendar.ZONE_OFFSET) / 3600000;
     }
 
+    public static int timezoneDistance(int local_timezone, int remoteTimezone) {
+        // Distance along the numberline of Prime Meridian centric, assumes UTC-11 through UTC+12
+        int dist = Math.abs(local_timezone - remoteTimezone);
+        // Farther than 12 timezones and it's shorter around the "back"
+        if (dist > 12)
+            dist = 12 - (dist - 12); // Well i'll be. Absolute values make equations do funny things.
+        return dist;
+    }
+
+    /**
+     *
+     * @param remoteTimezone
+     * @return a value between 0.1 and 1.0
+     */
+    public static double getConnectionQualityFromTimezoneDistance(int remoteTimezone) {
+        int localTimeZone = ConfigHelper.getCurrentTimezone();
+        int distance = ConfigHelper.timezoneDistance(localTimeZone, remoteTimezone);
+        return Math.max(distance / 12.0, 0.1);
+    }
+
     public static String getProviderFormattedString(Resources resources, @StringRes int resourceId) {
         String appName = resources.getString(R.string.app_name);
         return resources.getString(resourceId, appName);

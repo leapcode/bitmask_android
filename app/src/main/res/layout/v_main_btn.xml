@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/vpn_btn_container"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/vpn_btn_glow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/main_btn_glow"
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:backgroundTint="@color/colorMainBtnHighlight"
+        />
+
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/vpn_btn_shadow_dark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/main_btn_shadow"
+        android:visibility="visible"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/vpn_btn_shadow_light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:visibility="gone"
+        android:visibility="gone"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/vpn_btn_fill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/on_off_btn_start_2_no_shadow"
+        android:visibility="visible"
+        android:tint="@color/colorPrimaryDark"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/vpn_btn_fill_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/on_off_btn_fill"
+        tools:visibility="visible"
+        />
+</RelativeLayout>

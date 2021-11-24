@@ -13,20 +13,20 @@
             android:layout_height="wrap_content"/>
 
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
             android:text="@string/uploaded_data"
             style="@style/logWindowStatusTitle"/>
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
             style="@style/logWindowStatusText"
             android:id="@+id/speedUp"
             tools:text="4 Mbit/s 6.7 GB"/>
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
             android:text="@string/downloaded_data"
             style="@style/logWindowStatusTitle"/>
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
             style="@style/logWindowStatusText"
             android:id="@+id/speedDown"
             tools:text="2 Mbit/s 4.7 GB"/>
@@ -38,11 +38,11 @@
             android:layout_height="wrap_content"/>
 
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
             android:text="@string/vpn_status"
             style="@style/logWindowStatusTitle"/>
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
 
             android:id="@+id/speedStatus"
             tools:text="Connected to a very long ipv4 and 3483489348238824829482384928"

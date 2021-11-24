@@ -48,6 +48,7 @@ public class VpnStatus {
     final static java.lang.Object readFileLock = new Object();
 
     private static VpnProfile lastConnectedProfile;
+    private static VpnProfile currentlyConnectingProfile;
 
     public static TrafficHistory trafficHistory;
 
@@ -167,6 +168,15 @@ public class VpnStatus {
         PreferenceHelper.setLastUsedVpnProfile(context, connectedProfile);
         lastConnectedProfile = connectedProfile;
         setConnectedVPNProfile(lastConnectedProfile.getUUIDString());
+    }
+
+
+    public static void setCurrentlyConnectingProfile(VpnProfile connectingProfile) {
+        currentlyConnectingProfile = connectingProfile;
+    }
+
+    public static String getCurrentlyConnectingVpnName() {
+        return currentlyConnectingProfile != null ? currentlyConnectingProfile.mName : null;
     }
 
 
@@ -530,5 +540,9 @@ public class VpnStatus {
 
     public static boolean isAlwaysOn() {
         return isAlwaysOnBooting.get();
+    }
+
+    public static boolean isUsingBridges() {
+        return lastConnectedProfile != null && lastConnectedProfile.mUsePluggableTransports;
     }
 }

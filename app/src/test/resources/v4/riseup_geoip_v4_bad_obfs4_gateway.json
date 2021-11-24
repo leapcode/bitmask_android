@@ -1,0 +1,41 @@
+{
+  "ip":"51.158.144.32",
+  "cc":"FR",
+  "city":"Paris",
+  "lat":48.8628,
+  "lon":2.3292,
+  "gateways":[
+    "mouette.riseup.net",
+    "hoatzin.riseup.net",
+    "yal.riseup.net",
+    "redshank.riseup.net",
+    "zarapito.riseup.net"
+  ],
+  "sortedGateways": [
+    {
+      "host": "mouette.riseup.net",
+      "fullness": 0.3,
+      "overload": false
+    },
+    {
+      "host": "hoatzin.riseup.net",
+      "fullness": 0.92,
+      "overload": false
+    },
+    {
+      "host": "yal.riseup.net",
+      "fullness": 0.59,
+      "overload": false
+    },
+    {
+      "host": "redshank.riseup.net",
+      "fullness": 0.8,
+      "overload": false
+    },
+    {
+      "host": "zarapito.riseup.net",
+      "fullness": 0.36,
+      "overload": true
+    }
+  ]
+}

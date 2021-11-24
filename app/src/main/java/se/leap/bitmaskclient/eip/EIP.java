@@ -127,7 +127,8 @@ public final class EIP extends JobIntentService implements Observer {
         ERROR_INVALID_VPN_CERTIFICATE,
         NO_MORE_GATEWAYS,
         ERROR_VPN_PREPARE,
-        ERROR_INVALID_PROFILE
+        ERROR_INVALID_PROFILE,
+        TRANSPORT_NOT_SUPPORTED,
     }
 
     /**

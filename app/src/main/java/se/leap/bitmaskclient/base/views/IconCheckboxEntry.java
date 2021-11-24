@@ -7,10 +7,10 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
@@ -23,7 +23,7 @@ import se.leap.bitmaskclient.base.fragments.TetheringDialog;
 public class IconCheckboxEntry extends LinearLayout {
 
     @BindView(android.R.id.text1)
-    TextView textView;
+    AppCompatTextView textView;
 
     @BindView(R.id.material_icon)
     AppCompatImageView iconView;

@@ -2,11 +2,16 @@
 <resources>
     <!--Colors-->
     <!--Color of the action bar-->
-    <color name="colorPrimary">#5e9ee3</color>
+    <color name="colorPrimary">#2E639C</color>
     <!--Color of the status bar-->
-    <color name="colorPrimaryDark">#5c7ce1</color>
+    <color name="colorPrimaryDark">#021122</color>
     <!--Font color of the action bar title-->
     <color name="colorActionBarTitleFont">#ffffff</color>
     <!--Font color of the action bar subtitle-->
     <color name="colorActionBarSubtitleFont">#cccccc</color>
+    <!-- Font color of labels in EipFragment (main screen)-->
+    <color name="colorEipFragmentFont">#ffffff</color>
+    <!-- Font color of rounded standard buttons -->
+    <color name="colorFontBtn">#ffffff</color>
+
 </resources>

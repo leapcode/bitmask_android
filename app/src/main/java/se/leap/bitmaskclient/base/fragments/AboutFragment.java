@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
 
 import butterknife.BindView;
@@ -25,10 +25,10 @@ public class AboutFragment extends Fragment {
     private Unbinder unbinder;
 
     @BindView(R.id.version)
-    TextView versionTextView;
+    AppCompatTextView versionTextView;
 
     @BindView(R.id.terms_of_service)
-    TextView termsOfService;
+    AppCompatTextView termsOfService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_gravity="center_vertical"
+    android:padding="@dimen/stdpadding"
+    android:background="@drawable/cust_button_primary_rect"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/world_icn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/text_location"
+        android:layout_alignBottom="@+id/text_location"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_web"
+        android:layout_gravity="center"
+        />
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/recommended_icn"
+        android:scaleType="fitXY"
+        android:layout_marginRight="-13dp"
+        android:layout_marginEnd="-13dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/text_location"
+        android:layout_alignBottom="@+id/text_location"
+        android:layout_toEndOf="@id/world_icn"
+        android:layout_toRightOf="@id/world_icn"
+        android:src="@drawable/ic_lightning_bolt"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_location"
+        android:paddingStart="@dimen/stdpadding"
+        android:paddingLeft="@dimen/stdpadding"
+        android:paddingEnd="@dimen/stdpadding"
+        android:paddingRight="@dimen/stdpadding"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_toEndOf="@id/recommended_icn"
+        android:layout_toRightOf="@+id/recommended_icn"
+        android:layout_toLeftOf="@+id/bridge_icn"
+        android:layout_toStartOf="@+id/bridge_icn"
+        android:layout_gravity="center_vertical"
+        android:layout_centerInParent="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        tools:text="Seattle along message"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/bridge_icn"
+        android:paddingRight="@dimen/stdpadding"
+        android:paddingEnd="@dimen/stdpadding"
+        android:paddingStart="@dimen/stdpadding"
+        android:paddingLeft="@dimen/stdpadding"
+        android:layout_marginBottom="-5dp"
+        android:layout_marginTop="-5dp"
+        android:scaleType="fitXY"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/text_location"
+        android:layout_alignBottom="@+id/text_location"
+        android:layout_toStartOf="@id/load_indicator"
+        android:layout_toLeftOf="@id/load_indicator"
+        android:src="@drawable/ic_bridge_36"
+        android:visibility="gone"
+        />
+
+    <se.leap.bitmaskclient.base.views.LocationIndicator
+        android:id="@+id/load_indicator"
+        android:layout_marginBottom="4dp"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/text_location"
+        android:layout_alignBottom="@id/text_location"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:visibility="visible"
+        android:layout_gravity="center_vertical"
+        />
+
+
+
+</RelativeLayout>

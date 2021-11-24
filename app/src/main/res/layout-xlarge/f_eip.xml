@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    This is the layout for extra large landscape, extra large portrait
+    can be found in layout-xlarge-port
+-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -14,7 +18,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintGuide_percent="0.3"
+        app:layout_constraintGuide_percent="0.0"
         />
 
     <androidx.constraintlayout.widget.Guideline
@@ -23,7 +27,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.3"
+        app:layout_constraintGuide_percent="0.2"
         />
 
 
@@ -34,7 +38,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintGuide_percent="0.7"
+        app:layout_constraintGuide_percent="0.66"
         />
 
     <androidx.constraintlayout.widget.Guideline
@@ -43,7 +47,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.7"
+        app:layout_constraintGuide_percent="0.8"
         />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -54,23 +58,8 @@
         app:srcCompat="@drawable/background_eip" />
 
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/eipLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/stdpadding"
-        android:paddingRight="@dimen/stdpadding"
-        android:paddingStart="@dimen/stdpadding"
-        android:paddingEnd="@dimen/stdpadding"
-        android:text="@string/eip_service_label"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:gravity="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <se.leap.bitmaskclient.base.views.VpnStateImage
-        android:id="@+id/vpn_state_image"
+    <se.leap.bitmaskclient.base.views.MainButton
+        android:id="@+id/main_button"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="@dimen/stdpadding"
@@ -80,53 +69,57 @@
         app:layout_constraintTop_toTopOf="@+id/guideline_horizontal_top"
         app:layout_constraintDimensionRatio="1:1" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/vpn_main_button"
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/main_description"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:minWidth="200dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/guideline_horizontal_bottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/sub_description"
+        android:padding="@dimen/stdpadding"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:textStyle="bold"
+        android:textColor="@color/colorEipFragmentFont"
+        app:layout_constraintDimensionRatio="1:1"
+        tools:text="CONNETION SECURE"
+        android:maxLines="1"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/sub_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/main_description"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/gateway_location_button"
+        android:padding="@dimen/stdpadding"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:textStyle="bold"
+        android:textColor="@color/colorEipFragmentFont"
+        app:layout_constraintDimensionRatio="1:1"
+        android:maxLines="5"
+        android:ellipsize="end"
+        tools:text="Your traffic is securly routed through"
+        android:gravity="center"
+
+        />
+
+    <se.leap.bitmaskclient.base.views.LocationButton
+        android:id="@+id/gateway_location_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/stdpadding"
         android:layout_marginEnd="@dimen/stdpadding"
         android:layout_marginStart="@dimen/stdpadding"
         android:layout_marginTop="@dimen/stdpadding"
         android:layout_marginLeft="@dimen/stdpadding"
         android:layout_marginRight="@dimen/stdpadding"
-        android:paddingLeft="@dimen/stdpadding"
-        android:paddingRight="@dimen/stdpadding"
         app:layout_constraintBottom_toBottomOf="@+id/background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:text="@string/vpn.button.turn.on"
-        tools:text="Turn on in another language"
-        style="@style/BitmaskButtonBlack"
-        />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/routed_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/stdpadding"
-        android:paddingRight="@dimen/stdpadding"
-        android:paddingStart="@dimen/stdpadding"
-        android:paddingEnd="@dimen/stdpadding"
-        android:text="@string/vpn_securely_routed"
-        android:gravity="center"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eipLabel" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/vpn_route"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/stdpadding"
-        android:paddingRight="@dimen/stdpadding"
-        android:paddingStart="@dimen/stdpadding"
-        android:paddingEnd="@dimen/stdpadding"
-        android:gravity="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routed_text" />
+        tools:text="SEATTLE"
+        android:gravity="center_vertical" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -152,10 +152,13 @@
   <string name="version_update_error_permissions">No permissions to install app.</string>
   <string name="gateway_selection_title">Select location</string>
   <string name="gateway_selection_warning">%s will find the best connection for you.</string>
-  <string name="gateway_selection_best_location">Location with best connection</string>
+  <string name="gateway_selection_recommended_location">Use recommended location</string>
+  <string name="gateway_selection_recommended">Recommended</string>
+  <string name="gateway_selection_manually">Manually select</string>
+  <string name="gateway_selection_automatic_location">Automatically use best connection.</string>
   <string name="gateway_selection_automatic">Automatic</string>
-  <string name="gateway_selection_current_location">Your traffic is currently routed through: </string>
-
+  <string name="finding_best_connection">Finding best connection…</string>
+  <string name="reconnecting">Reconnecting…</string>
   <string name="tor_starting">Starting bridges for censorship circumvention…</string>
   <string name="tor_stopping">Stopping bridges.</string>
   <string name="tor_started">Using bridges for censorship circumvention.</string>
@@ -180,6 +183,5 @@
   <string name="retry_unobfuscated">Retry unobfuscated</string>
   <string name="hide_connection_details">Hide connection details</string>
   <string name="error_network_connection">%s has no internet connection. Please check your WiFi and cellular data settings.</string>
-
 
 </resources>

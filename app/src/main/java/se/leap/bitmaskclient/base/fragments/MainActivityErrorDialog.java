@@ -18,6 +18,8 @@ package se.leap.bitmaskclient.base.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,11 +29,15 @@ import androidx.appcompat.app.AlertDialog;
 import org.json.JSONObject;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.MainActivity;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
 
+import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_DIALOG_FRAGMENT;
+import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setPreferredCity;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
@@ -56,6 +62,7 @@ public class MainActivityErrorDialog extends DialogFragment {
     final private static String KEY_REASON_TO_FAIL = "key reason to fail";
     final private static String KEY_PROVIDER = "key provider";
     private String reasonToFail;
+    private String[] args;
     private EIP.EIPErrors downloadError = UNKNOWN;
 
     private Provider provider;
@@ -70,11 +77,12 @@ public class MainActivityErrorDialog extends DialogFragment {
     /**
      * @return a new instance of this DialogFragment.
      */
-    public static DialogFragment newInstance(Provider provider, String reasonToFail, EIP.EIPErrors error) {
+    public static DialogFragment newInstance(Provider provider, String reasonToFail, EIP.EIPErrors error, String... args) {
         MainActivityErrorDialog dialogFragment = new MainActivityErrorDialog();
         dialogFragment.reasonToFail = reasonToFail;
         dialogFragment.provider = provider;
         dialogFragment.downloadError = error;
+        dialogFragment.args = args;
         return dialogFragment;
     }
 
@@ -124,8 +132,10 @@ public class MainActivityErrorDialog extends DialogFragment {
                 builder.setNegativeButton(R.string.cancel, (dialog, id) -> {});
                 if (getPreferredCity(applicationContext) != null) {
                     builder.setPositiveButton(R.string.warning_option_try_best, (dialog, which) -> {
-                        setPreferredCity(applicationContext, null);
-                        EipCommand.startVPN(applicationContext, false);
+                        new Thread(() -> {
+                            setPreferredCity(applicationContext, null);
+                            EipCommand.startVPN(applicationContext, false);
+                        }).start();
                     });
                 } else if (provider.supportsPluggableTransports()) {
                     if (getUseBridges(applicationContext)) {
@@ -147,6 +157,21 @@ public class MainActivityErrorDialog extends DialogFragment {
                 break;
             case ERROR_VPN_PREPARE:
                 builder.setPositiveButton(android.R.string.ok, (dialog, which) -> { });
+                break;
+            case TRANSPORT_NOT_SUPPORTED:
+
+                builder.setPositiveButton(R.string.option_different_location, (dialog, which) -> { });
+                builder.setNegativeButton(R.string.option_disable_bridges, (dialog, which) -> {
+                    PreferenceHelper.useBridges(applicationContext, false);
+                    PreferenceHelper.setPreferredCity(applicationContext, args[0]);
+
+                    EipCommand.startVPN(applicationContext, false);
+                    // at this point the gateway selection dialog is shown, let's switch to the main view
+                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
+                    startActivity(intent);
+                });
                 break;
             default:
                 break;

@@ -47,6 +47,15 @@
    <!-- gateway selector, move to strings.xml, once the wording is clear -->
     <string name="warning_no_more_gateways_manual_gw_selection" translatable="false">%1$s could not connect to %2$s. Do you want to try to connect automatically with best location?</string>
     <string name="warning_option_try_best" translatable="false">Try best location</string>
-
+    <string name="warning_bridges_not_supported" translatable="false">%1$s doesn\'t support bridges to circumvent VPN filtering. Do you want to choose a different location or disable bridges?</string>
+    <string name="option_disable_bridges" translatable="false">Disable bridges</string>
+    <string name="option_different_location" translatable="false">Choose different location</string>
+    <string name="eip_state_insecure" translatable="false">Connection Insecure</string>
+    <string name="eip_state_connected_recommended" translatable="false">You are connected to the recommended location</string>
+    <string name="eip_state_connected_manual" translatable="false">You are connected to</string>
+    <string name="eip_state_connecting" translatable="false">Connecting...</string>
+    <string name="connection_not_connected" translatable="false">You may be leaking information to your internet provider or local network.</string>
+    <string name="eip_state_no_network" translatable="false">You have no working Internet connection. Once you get it back, you will be automatically connected to</string>
+    <string name="eip_state_blocking" translatable="false">%1$s is blocking all internet traffic.</string>
 
 </resources>

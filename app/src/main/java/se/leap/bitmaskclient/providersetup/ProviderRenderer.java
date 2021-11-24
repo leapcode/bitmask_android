@@ -4,7 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.pedrogomez.renderers.Renderer;
 
@@ -20,9 +21,9 @@ public class ProviderRenderer extends Renderer<Provider> {
     private final Context context;
 
     @BindView(R.id.provider_name)
-    TextView name;
+    AppCompatTextView name;
     @BindView(R.id.provider_domain)
-    TextView domain;
+    AppCompatTextView domain;
 
     public ProviderRenderer(Context context) {
         this.context = context;

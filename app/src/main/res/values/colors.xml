@@ -7,6 +7,8 @@
     <color name="colorError">#ef9a9a</color>
     <color name="colorSuccess">#a5d6a7</color>
     <color name="colorDisabled">#AAAAAA</color>
+    <color name="colorMainBtnHighlight">#03DAC6</color>
+    <color name="colorMainBtnError">#eF2222</color>
 
     <color name="black800">#424242</color>
     <color name="black800_secondary">#3b3b3b</color>
@@ -31,9 +33,14 @@
     <color name="deepOrange200">#ffab91</color>
 
     <color name="white">#ffffff</color>
+    <color name="white_transparent">#20ffffff</color>
+    <color name="black_transparent">#20000000</color>
 
     <color name="colorActionBarTitleFont">@color/white</color>
     <color name="colorActionBarSubtitleFont">@color/black800</color>
+    <color name="colorEipFragmentFont">@color/black800</color>
+    <color name="colorFontBtn">@color/black800</color>
+    <color name="colorFontBtnEnabled">@color/white</color>
 
     <color name="colorWarning">#B33A3A</color>
 

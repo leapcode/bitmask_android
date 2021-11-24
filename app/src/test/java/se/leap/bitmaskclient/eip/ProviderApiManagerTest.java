@@ -112,10 +112,11 @@ public class ProviderApiManagerTest {
         Throwable startTorServiceException;
         boolean hasNetworkConnection;
         TestProviderApiServiceCallback() {
-            new TestProviderApiServiceCallback(null, true);
+            this(null, true);
         }
         TestProviderApiServiceCallback(@Nullable Throwable startTorServiceException, boolean hasNetworkConnection) {
             this.startTorServiceException = startTorServiceException;
+            this.hasNetworkConnection = hasNetworkConnection;
         }
 
         @Override
