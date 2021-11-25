@@ -96,10 +96,11 @@
         android:paddingRight="@dimen/stdpadding"
         android:paddingEnd="@dimen/stdpadding"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:textSize="30sp"
         android:textStyle="bold"
         android:textColor="@color/colorEipFragmentFont"
         app:layout_constraintDimensionRatio="1:1"
-        tools:text="CONNETION SECURE"
+        tools:text="Connection secure"
         />
 
     <androidx.appcompat.widget.AppCompatTextView
