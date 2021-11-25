@@ -64,7 +64,7 @@
         app:layout_constraintBottom_toTopOf="@+id/sub_description"
         android:padding="@dimen/activity_margin"
         android:textAppearance="@android:style/TextAppearance.Large"
-        android:textSize="30sp"
+        android:textSize="26sp"
         android:textStyle="bold"
         android:textColor="@color/colorEipFragmentFont"
         app:layout_constraintDimensionRatio="1:1"
