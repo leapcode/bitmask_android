@@ -10,9 +10,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -46,6 +43,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePref
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
 
 public class SettingsFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -74,7 +72,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initUseSnowflakeEntry(view);
         initFirewallEntry(view);
         initTetheringEntry(view);
-        setActionBarTitle(advanced_settings);
+        setActionBarTitle(this, advanced_settings);
         return view;
     }
 
@@ -245,13 +243,6 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             initUseBridgesEntry(rootView);
         } else if (key.equals(USE_IPv6_FIREWALL)) {
             initFirewallEntry(getView());
-        }
-    }
-
-    private void setActionBarTitle(@StringRes int stringId) {
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setSubtitle(stringId);
         }
     }
 

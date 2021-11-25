@@ -17,6 +17,8 @@ import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 
 import static android.view.View.VISIBLE;
+import static se.leap.bitmaskclient.R.string.about_fragment_title;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
 
 public class AboutFragment extends Fragment {
 
@@ -34,6 +36,7 @@ public class AboutFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.f_about, container, false);
         unbinder = ButterKnife.bind(this, view);
+        setActionBarTitle(this, about_fragment_title);
         return view;
     }
 

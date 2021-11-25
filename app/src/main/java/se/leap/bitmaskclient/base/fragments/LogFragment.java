@@ -60,6 +60,8 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Constants;
 
 import static de.blinkt.openvpn.core.OpenVPNService.humanReadableByteCount;
+import static se.leap.bitmaskclient.R.string.log_fragment_title;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
 
 public class LogFragment extends ListFragment implements StateListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, VpnStatus.ByteCountListener {
     public static final String TAG = LogFragment.class.getSimpleName();
@@ -530,6 +532,8 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
         mConnectStatus = v.findViewById(R.id.speedStatus);
         if (mShowOptionsLayout)
             mOptionsLayout.setVisibility(View.VISIBLE);
+
+        setActionBarTitle(this, log_fragment_title);
         return v;
     }
 

@@ -58,6 +58,7 @@ import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
 
 interface LocationListSelectionListener {
     void onLocationManuallySelected(Location location);
@@ -103,6 +104,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         super.onViewCreated(view, savedInstanceState);
         initRecyclerView();
         initRecommendedLocationEntry();
+        setActionBarTitle(this, R.string.gateway_selection_title);
     }
 
     @Override
