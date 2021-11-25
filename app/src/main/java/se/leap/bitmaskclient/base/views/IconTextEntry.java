@@ -14,6 +14,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import se.leap.bitmaskclient.R;
@@ -22,7 +23,7 @@ import se.leap.bitmaskclient.R;
 public class IconTextEntry extends LinearLayout {
 
     private AppCompatTextView textView;
-    private ImageView iconView;
+    private AppCompatImageView iconView;
     private AppCompatTextView subtitleView;
 
     public IconTextEntry(Context context) {
@@ -72,6 +73,9 @@ public class IconTextEntry extends LinearLayout {
             if (drawable != null) {
                 iconView.setImageDrawable(drawable);
             }
+
+            boolean singleLine = typedArray.getBoolean(R.styleable.IconTextEntry_singleLine, true);
+            subtitleView.setSingleLine(singleLine);
 
             typedArray.recycle();
         }

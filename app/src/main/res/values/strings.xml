@@ -112,6 +112,7 @@
   <string name="require_root">Requires root permissions</string>
   <string name="show_experimental">Show experimental features</string>
   <string name="hide_experimental">Hide experimental features</string>
+  <string name="experimental_features">Experimental features</string>
   <string name="tethering_enabled_message">Please make sure to enable tethering in the <![CDATA[<b>system settings</b>]]> first.</string>
   <string name="tethering_message">Share your VPN with other devices via:</string>
   <string name="tethering_wifi">Wi-Fi hotspot</string>
@@ -183,5 +184,9 @@
   <string name="retry_unobfuscated">Retry unobfuscated</string>
   <string name="hide_connection_details">Hide connection details</string>
   <string name="error_network_connection">%s has no internet connection. Please check your WiFi and cellular data settings.</string>
+  <string name="censorship_circumvention">Censorship circumvention</string>
+  <string name="use_snowflake">Use Snowflake</string>
+  <string name="snowflake_description">Circumvent blocking of the provider\'s configuration server.</string>
+  <string name="vpn_settings">VPN settings</string>
 
 </resources>

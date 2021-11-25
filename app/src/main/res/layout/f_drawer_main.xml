@@ -50,13 +50,12 @@
             app:text="@string/switch_provider_menu_option"
             app:icon="@drawable/ic_switch_provider_36"
             android:visibility="gone"
+            tools:visibility="visible"
             />
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:minHeight="20dp"
+            android:layout_height="20dp"
             android:background="@color/black800_high_transparent"
             />
 
@@ -69,35 +68,6 @@
             app:icon="@drawable/ic_battery_36"
             />
 
-        <se.leap.bitmaskclient.base.views.IconSwitchEntry
-            android:id="@+id/bridges_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:text="@string/nav_drawer_obfuscated_connection"
-            app:subtitle="@string/nav_drawer_subtitle_obfuscated_connection"
-            app:icon="@drawable/ic_bridge_36"
-            android:visibility="gone"
-            />
-
-        <se.leap.bitmaskclient.base.views.IconTextEntry
-            android:id="@+id/always_on_vpn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:text="@string/always_on_vpn"
-            app:subtitle="@string/subtitle_always_on_vpn"
-            app:icon="@drawable/ic_always_on_36"
-            android:visibility="gone"
-            />
-
-        <se.leap.bitmaskclient.base.views.IconTextEntry
-            android:id="@+id/exclude_apps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:text="@string/exclude_apps_fragment_title"
-            app:icon="@drawable/ic_shield_remove_grey600_36dp"
-            android:visibility="gone"
-            />
-
         <se.leap.bitmaskclient.base.views.IconTextEntry
             android:id="@+id/manualGatewaySelection"
             app:text="@string/gateway_selection_title"
@@ -105,50 +75,21 @@
             app:icon="@drawable/ic_web"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:visibility="gone"
-            />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/show_experimental_features"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/show_experimental"
-            android:textColor="@color/colorPrimaryDark"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:gravity="center"
-            android:background="@color/black800_high_transparent"
-            />
-
-        <se.leap.bitmaskclient.base.views.IconSwitchEntry
-            android:id="@+id/enableIPv6Firewall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:text="@string/ipv6Firewall"
-            app:subtitle="@string/require_root"
-            app:icon="@drawable/ic_cancel"
-            android:visibility="gone"
-            tools:visibility="visible"
+            android:visibility="visible"
             />
 
         <se.leap.bitmaskclient.base.views.IconTextEntry
-            android:id="@+id/tethering"
-            android:layout_width="wrap_content"
+            android:id="@+id/advancedSettings"
+            app:icon="@drawable/ic_cog"
             android:layout_height="wrap_content"
-            app:text="@string/tethering"
-            app:subtitle="@string/require_root"
-            app:icon="@drawable/ic_access_point_36"
-            android:visibility="gone"
-            tools:visibility="visible"
+            android:layout_width="wrap_content"
+            app:text="@string/advanced_settings"
             />
 
         <View
-            android:id="@+id/experimental_features_footer"
             android:layout_width="match_parent"
             android:layout_height="20dp"
             android:background="@color/black800_high_transparent"
-            android:visibility="gone"
-            tools:visibility="visible"
             />
 
         <se.leap.bitmaskclient.base.views.IconTextEntry

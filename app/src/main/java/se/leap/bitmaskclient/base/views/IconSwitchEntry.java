@@ -92,6 +92,9 @@ public class IconSwitchEntry extends LinearLayout {
                 iconView.setImageDrawable(drawable);
             }
 
+            boolean singleLine = typedArray.getBoolean(R.styleable.IconTextEntry_singleLine, true);
+            subtitleView.setSingleLine(singleLine);
+
             typedArray.recycle();
         }
     }

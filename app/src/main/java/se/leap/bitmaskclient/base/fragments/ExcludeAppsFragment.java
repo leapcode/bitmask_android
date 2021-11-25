@@ -20,13 +20,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
 
@@ -41,6 +43,8 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.SimpleCheckBox;
 
+import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
+
 /**
  * Created by arne on 16.11.14.
  */
@@ -50,20 +54,6 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     private PackageAdapter mListAdapter;
 
     private Set<String> apps;
-
-    public interface ExcludedAppsCallback {
-        void onAppsExcluded(int number);
-    }
-
-    private ExcludedAppsCallback callback;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof ExcludedAppsCallback) {
-            callback = (ExcludedAppsCallback) context;
-        }
-    }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -119,10 +109,6 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
         } else {
             Log.d("openvpn", "removing from allowed apps" + packageName);
             apps.remove(packageName);
-        }
-
-        if (callback != null) {
-            callback.onAppsExcluded(apps.size());
         }
     }
 
@@ -328,10 +314,18 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
         mListView.setOnItemClickListener(this);
 
         mListView.setEmptyView(v.findViewById(R.id.loading_container));
+        setActionBarTitle(exclude_apps_fragment_title);
 
         new Thread(() -> mListAdapter.populateList(getActivity())).start();
 
         return v;
+    }
+
+    private void setActionBarTitle(@StringRes int stringId) {
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setSubtitle(stringId);
+        }
     }
 
 }
