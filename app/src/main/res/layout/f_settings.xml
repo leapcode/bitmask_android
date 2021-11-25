@@ -1,104 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/stdpadding"
     >
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/general_header"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:text="@string/vpn_settings"
-        android:paddingTop="@dimen/activity_margin"
-        />
+        android:orientation="vertical">
 
-    <se.leap.bitmaskclient.base.views.IconTextEntry
-        android:id="@+id/always_on_vpn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:text="@string/always_on_vpn"
-        app:subtitle="@string/subtitle_always_on_vpn"
-        app:icon="@drawable/ic_always_on_36"
-        android:visibility="visible"
-        />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/general_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:text="@string/vpn_settings"
+            android:paddingTop="@dimen/activity_margin"
+            />
 
-    <se.leap.bitmaskclient.base.views.IconTextEntry
-        android:id="@+id/exclude_apps"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:text="@string/exclude_apps_fragment_title"
-        app:icon="@drawable/ic_shield_remove_grey600_36dp"
-        android:visibility="visible"
-        />
+        <se.leap.bitmaskclient.base.views.IconTextEntry
+            android:id="@+id/always_on_vpn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/always_on_vpn"
+            app:subtitle="@string/subtitle_always_on_vpn"
+            app:icon="@drawable/ic_always_on_36"
+            android:visibility="visible"
+            />
 
-    <se.leap.bitmaskclient.base.views.IconSwitchEntry
-        android:id="@+id/prefer_udp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:text="@string/prefer_udp"
-        app:subtitle="@string/prefer_udp_subtitle"
-        app:icon="@drawable/ic_multiple_stop"
-        app:singleLine="false"
-        />
+        <se.leap.bitmaskclient.base.views.IconTextEntry
+            android:id="@+id/exclude_apps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/exclude_apps_fragment_title"
+            app:icon="@drawable/ic_shield_remove_grey600_36dp"
+            android:visibility="visible"
+            />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/circumvention_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:text="@string/censorship_circumvention"
-        android:paddingTop="@dimen/activity_margin"
-        />
-    <se.leap.bitmaskclient.base.views.IconSwitchEntry
-        android:id="@+id/bridges_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:text="@string/nav_drawer_obfuscated_connection"
-        app:subtitle="@string/nav_drawer_subtitle_obfuscated_connection"
-        app:icon="@drawable/ic_bridge_36"
-        app:singleLine="false"
-        />
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
+            android:id="@+id/prefer_udp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/prefer_udp"
+            app:subtitle="@string/prefer_udp_subtitle"
+            app:icon="@drawable/ic_multiple_stop"
+            app:singleLine="false"
+            />
 
-    <se.leap.bitmaskclient.base.views.IconSwitchEntry
-        android:id="@+id/snowflake_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:icon="@drawable/ic_snowflake"
-        app:text="@string/use_snowflake"
-        app:subtitle="@string/snowflake_description"
-        app:singleLine="false"
-        />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/circumvention_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:text="@string/censorship_circumvention"
+            android:paddingTop="@dimen/activity_margin"
+            />
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
+            android:id="@+id/bridges_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/nav_drawer_obfuscated_connection"
+            app:subtitle="@string/nav_drawer_subtitle_obfuscated_connection"
+            app:icon="@drawable/ic_bridge_36"
+            app:singleLine="false"
+            />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/experimental_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:text="@string/experimental_features"
-        android:paddingTop="@dimen/activity_margin"
-        />
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
+            android:id="@+id/snowflake_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_snowflake"
+            app:text="@string/use_snowflake"
+            app:subtitle="@string/snowflake_description"
+            app:singleLine="false"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/experimental_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:text="@string/experimental_features"
+            android:paddingTop="@dimen/activity_margin"
+            />
 
 
-    <se.leap.bitmaskclient.base.views.IconSwitchEntry
-        android:id="@+id/enableIPv6Firewall"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:text="@string/ipv6Firewall"
-        app:subtitle="@string/require_root"
-        app:icon="@drawable/ic_cancel"
-        />
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
+            android:id="@+id/enableIPv6Firewall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/ipv6Firewall"
+            app:subtitle="@string/require_root"
+            app:icon="@drawable/ic_cancel"
+            />
 
-    <se.leap.bitmaskclient.base.views.IconTextEntry
-        android:id="@+id/tethering"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:text="@string/tethering"
-        app:subtitle="@string/require_root"
-        app:icon="@drawable/ic_access_point_36"
-        />
+        <se.leap.bitmaskclient.base.views.IconTextEntry
+            android:id="@+id/tethering"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="@string/tethering"
+            app:subtitle="@string/require_root"
+            app:icon="@drawable/ic_access_point_36"
+            />
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>
