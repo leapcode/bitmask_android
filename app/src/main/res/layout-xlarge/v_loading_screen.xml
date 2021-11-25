@@ -80,7 +80,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:visibility="visible"
-            tools:text="@string/hide_connection_details"
+            tools:text="@string/hide"
             />
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/connection_details_title"

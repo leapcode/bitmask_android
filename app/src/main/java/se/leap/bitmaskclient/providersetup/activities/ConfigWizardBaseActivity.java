@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -22,7 +21,6 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,7 +29,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import butterknife.BindView;
-import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.views.ProviderHeaderView;
@@ -270,7 +267,7 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
                 logsContainer.setVisibility(VISIBLE);
                 connectionDetailContainer.setVisibility(VISIBLE);
                 connectionDetailsTitle.setVisibility(VISIBLE);
-                connectionDetailBtn.setText(R.string.hide_connection_details);
+                connectionDetailBtn.setText(R.string.hide);
             }
         });
         connectionDetailHeaderContainer.setVisibility(VISIBLE);
