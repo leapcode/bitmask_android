@@ -2,16 +2,18 @@
 <resources>
     <!--Colors-->
     <!--Color of the action bar-->
-    <color name="colorPrimary">#2E639C</color>
+    <color name="colorPrimary">#1565C0</color>
     <!--Color of the status bar-->
-    <color name="colorPrimaryDark">#021122</color>
+    <color name="colorPrimaryDark">#104E95</color>
     <!--Font color of the action bar title-->
     <color name="colorActionBarTitleFont">#ffffff</color>
     <!--Font color of the action bar subtitle-->
     <color name="colorActionBarSubtitleFont">#cccccc</color>
     <!-- Font color of labels in EipFragment (main screen)-->
     <color name="colorEipFragmentFont">#ffffff</color>
-    <!-- Font color of rounded standard buttons -->
-    <color name="colorFontBtn">#ffffff</color>
+    <!-- glow effect color of the on / off button -->
+    <color name="colorMainBtnHighlight">#58FFA9</color>
+    <!-- glow effect color of the on / off button if no network / traffic blocked -->
+    <color name="colorMainBtnError">#eF2222</color>
 
 </resources>

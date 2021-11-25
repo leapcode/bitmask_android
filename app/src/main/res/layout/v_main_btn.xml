@@ -29,7 +29,8 @@
         android:id="@+id/vpn_btn_shadow_light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:visibility="gone"
+        tools:visibility="visible"
+        tools:tint="@color/colorMainBtnHighlight"
         android:visibility="gone"
         />
 
@@ -39,7 +40,7 @@
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/on_off_btn_start_2_no_shadow"
         android:visibility="visible"
-        android:tint="@color/colorPrimaryDark"
+        android:tint="@color/main_button_state_color"
         />
 
     <androidx.appcompat.widget.AppCompatImageView
