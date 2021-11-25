@@ -42,6 +42,7 @@ public interface Constants {
     String LAST_UPDATE_CHECK = "last_update_check";
     String PREFERRED_CITY = "preferred_city";
     String USE_SNOWFLAKE = "use_snowflake";
+    String PREFER_UDP = "prefer_UDP";
 
 
      //////////////////////////////////////////////
@@ -163,6 +164,7 @@ public interface Constants {
     String REMOTE = "remote";
     String PORTS = "ports";
     String PROTOCOLS = "protocols";
+    String UDP = "udp";
     String CAPABILITIES = "capabilities";
     String TRANSPORT = "transport";
     String TYPE = "type";

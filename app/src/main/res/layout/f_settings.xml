@@ -35,7 +35,7 @@
         android:visibility="visible"
         />
 
-  <!--  <se.leap.bitmaskclient.base.views.IconSwitchEntry
+    <se.leap.bitmaskclient.base.views.IconSwitchEntry
         android:id="@+id/prefer_udp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -44,7 +44,6 @@
         app:icon="@drawable/ic_multiple_stop"
         app:singleLine="false"
         />
-        -->
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/circumvention_header"

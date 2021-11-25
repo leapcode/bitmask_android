@@ -114,7 +114,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
         profile.mGatewayIp = "37.218.247.60";
 
@@ -129,7 +129,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
         VpnProfile profile = configGenerator.createProfile(OPENVPN);
         profile.mGatewayIp = "37.218.247.60";
 
@@ -144,7 +144,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
         profile.mGatewayIp = "37.218.247.60";
 
@@ -159,7 +159,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
         VpnProfile profile = configGenerator.createProfile(OPENVPN);
         profile.mGatewayIp = "37.218.247.60";
 
@@ -174,7 +174,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
         profile.mGatewayIp = "37.218.247.61";
 
@@ -189,7 +189,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
         profile.mGatewayIp = "3.21.247.89";
 

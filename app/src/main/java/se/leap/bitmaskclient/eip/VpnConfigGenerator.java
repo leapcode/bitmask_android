@@ -48,6 +48,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICA
 import static se.leap.bitmaskclient.base.models.Constants.REMOTE;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.TYPE;
+import static se.leap.bitmaskclient.base.models.Constants.UDP;
 import static se.leap.bitmaskclient.pluggableTransports.Dispatcher.DISPATCHER_IP;
 import static se.leap.bitmaskclient.pluggableTransports.Dispatcher.DISPATCHER_PORT;
 
@@ -57,16 +58,18 @@ public class VpnConfigGenerator {
     private JSONObject secrets;
     private JSONObject obfs4Transport;
     private int apiVersion;
+    private boolean preferUDP;
 
 
     public final static String TAG = VpnConfigGenerator.class.getSimpleName();
     private final String newLine = System.getProperty("line.separator"); // Platform new line
 
-    public VpnConfigGenerator(JSONObject generalConfiguration, JSONObject secrets, JSONObject gateway, int apiVersion) throws ConfigParser.ConfigParseError {
+    public VpnConfigGenerator(JSONObject generalConfiguration, JSONObject secrets, JSONObject gateway, int apiVersion, boolean preferUDP) throws ConfigParser.ConfigParseError {
         this.generalConfiguration = generalConfiguration;
         this.gateway = gateway;
         this.secrets = secrets;
         this.apiVersion = apiVersion;
+        this.preferUDP = preferUDP;
         checkCapabilities();
     }
 
@@ -174,7 +177,7 @@ public class VpnConfigGenerator {
                 default:
                 case 1:
                 case 2:
-                     ipAddress = gateway.getString(IP_ADDRESS);
+                    ipAddress = gateway.getString(IP_ADDRESS);
                     gatewayConfigApiv1(stringBuilder, ipAddress, capabilities);
                     break;
                 case 3:
@@ -213,9 +216,9 @@ public class VpnConfigGenerator {
         int port;
         String protocol;
         JSONArray ports = capabilities.getJSONArray(PORTS);
+        JSONArray protocols = capabilities.getJSONArray(PROTOCOLS);
         for (int i = 0; i < ports.length(); i++) {
             port = ports.getInt(i);
-            JSONArray protocols = capabilities.getJSONArray(PROTOCOLS);
             for (int j = 0; j < protocols.length(); j++) {
                 protocol = protocols.optString(j);
                 String newRemote = REMOTE + " " + ipAddress + " " + port + " " + protocol + newLine;
@@ -229,14 +232,35 @@ public class VpnConfigGenerator {
         String protocol;
         JSONObject openvpnTransport = getTransport(transports, OPENVPN);
         JSONArray ports = openvpnTransport.getJSONArray(PORTS);
-        for (int j = 0; j < ports.length(); j++) {
-            port = ports.getString(j);
-            JSONArray protocols = openvpnTransport.getJSONArray(PROTOCOLS);
-            for (int k = 0; k < protocols.length(); k++) {
-                protocol = protocols.optString(k);
-                for (String ipAddress : ipAddresses) {
-                    String newRemote = REMOTE + " " + ipAddress + " " + port + " " + protocol + newLine;
-                    stringBuilder.append(newRemote);
+        JSONArray protocols = openvpnTransport.getJSONArray(PROTOCOLS);
+        if (preferUDP) {
+            StringBuilder udpRemotes = new StringBuilder();
+            StringBuilder tcpRemotes = new StringBuilder();
+            for (int i = 0; i < protocols.length(); i++) {
+                protocol = protocols.optString(i);
+                for (int j = 0; j < ports.length(); j++) {
+                    port = ports.optString(j);
+                    for (String ipAddress : ipAddresses) {
+                        String newRemote = REMOTE + " " + ipAddress + " " + port + " " + protocol + newLine;
+                        if (UDP.equals(protocol)) {
+                            udpRemotes.append(newRemote);
+                        } else {
+                            tcpRemotes.append(newRemote);
+                        }
+                    }
+                }
+            }
+            stringBuilder.append(udpRemotes.toString());
+            stringBuilder.append(tcpRemotes.toString());
+        } else {
+            for (int j = 0; j < ports.length(); j++) {
+                port = ports.getString(j);
+                for (int k = 0; k < protocols.length(); k++) {
+                    protocol = protocols.optString(k);
+                    for (String ipAddress : ipAddresses) {
+                        String newRemote = REMOTE + " " + ipAddress + " " + port + " " + protocol + newLine;
+                        stringBuilder.append(newRemote);
+                    }
                 }
             }
         }

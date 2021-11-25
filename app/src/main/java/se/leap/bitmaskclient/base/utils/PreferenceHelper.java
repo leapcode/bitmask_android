@@ -29,6 +29,7 @@ import static se.leap.bitmaskclient.base.models.Constants.EXCLUDED_APPS;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_UPDATE_CHECK;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_USED_PROFILE;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
+import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
@@ -145,6 +146,13 @@ public class PreferenceHelper {
         return getBoolean(context, RESTART_ON_UPDATE, false);
     }
 
+    public static boolean getPreferUDP(Context context) {
+        return getBoolean(context, PREFER_UDP, false);
+    }
+
+    public static void preferUDP(Context context, boolean prefer) {
+        putBoolean(context, PREFER_UDP, prefer);
+    }
 
     public static boolean getUseBridges(SharedPreferences preferences) {
         return preferences.getBoolean(USE_BRIDGES, false);
