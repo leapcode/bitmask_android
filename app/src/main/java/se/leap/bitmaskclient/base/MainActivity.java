@@ -41,6 +41,7 @@ import se.leap.bitmaskclient.base.fragments.ExcludeAppsFragment;
 import se.leap.bitmaskclient.base.fragments.LogFragment;
 import se.leap.bitmaskclient.base.fragments.MainActivityErrorDialog;
 import se.leap.bitmaskclient.base.fragments.NavigationDrawerFragment;
+import se.leap.bitmaskclient.base.fragments.SettingsFragment;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
@@ -76,7 +77,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATE
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 
 
-public class MainActivity extends AppCompatActivity implements EipSetupListener, Observer, ExcludeAppsFragment.ExcludedAppsCallback {
+public class MainActivity extends AppCompatActivity implements EipSetupListener, Observer {
 
     public final static String TAG = MainActivity.class.getSimpleName();
 
@@ -114,12 +115,18 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     public void onBackPressed() {
         FragmentManagerEnhanced fragmentManagerEnhanced = new FragmentManagerEnhanced(getSupportFragmentManager());
         Fragment fragment = fragmentManagerEnhanced.findFragmentByTag(MainActivity.TAG);
-        if (fragment == null || !(fragment instanceof EipFragment)) {
-            Fragment eipFragment = new EipFragment();
-            Bundle bundle = new Bundle();
-            bundle.putParcelable(PROVIDER_KEY, provider);
-            eipFragment.setArguments(bundle);
-            fragmentManagerEnhanced.replace(R.id.main_container, eipFragment, MainActivity.TAG);
+        //FIXME: use proper navigation, this is only a workaround
+        if (!(fragment instanceof EipFragment)) {
+            Fragment newFragment;
+            if (fragment instanceof ExcludeAppsFragment) {
+                newFragment = new SettingsFragment();
+            } else {
+                newFragment = new EipFragment();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(PROVIDER_KEY, provider);
+                newFragment.setArguments(bundle);
+            }
+            fragmentManagerEnhanced.replace(R.id.main_container, newFragment, MainActivity.TAG);
             hideActionBarSubTitle();
         } else {
             super.onBackPressed();
@@ -381,11 +388,5 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
             intent.putExtra(USER_MESSAGE, userMessage);
         }
         startActivityForResult(intent, REQUEST_CODE_LOG_IN);
-    }
-
-
-    @Override
-    public void onAppsExcluded(int number) {
-        navigationDrawerFragment.onAppsExcluded(number);
     }
 }
