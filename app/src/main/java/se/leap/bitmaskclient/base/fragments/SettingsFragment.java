@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -30,6 +33,7 @@ import se.leap.bitmaskclient.firewall.FirewallManager;
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static se.leap.bitmaskclient.R.string.advanced_settings;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
@@ -70,6 +74,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initUseSnowflakeEntry(view);
         initFirewallEntry(view);
         initTetheringEntry(view);
+        setActionBarTitle(advanced_settings);
         return view;
     }
 
@@ -242,4 +247,12 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             initFirewallEntry(getView());
         }
     }
+
+    private void setActionBarTitle(@StringRes int stringId) {
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setSubtitle(stringId);
+        }
+    }
+
 }

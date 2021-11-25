@@ -275,7 +275,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         advancedSettings.setOnClickListener(v -> {
             closeDrawer();
             Fragment fragment = new SettingsFragment();
-            setActionBarTitle(advanced_settings);
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
     }
