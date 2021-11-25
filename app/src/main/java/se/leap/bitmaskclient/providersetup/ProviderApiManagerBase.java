@@ -200,7 +200,7 @@ public abstract class ProviderApiManagerBase {
         }
 
          try {
-             if (PreferenceHelper.getUseBridges(preferences)) {
+             if (PreferenceHelper.hasSnowflakePrefs(preferences)) {
                  startTorProxy();
              }
         } catch (InterruptedException | IllegalStateException e) {
@@ -313,7 +313,7 @@ public abstract class ProviderApiManagerBase {
 
     protected boolean startTorProxy() throws InterruptedException, IllegalStateException, TimeoutException {
         if (EipStatus.getInstance().isDisconnected() &&
-                PreferenceHelper.getUseTor(preferences) &&
+                PreferenceHelper.getUseSnowflake(preferences) &&
             serviceCallback.startTorService()) {
             waitForTorCircuits();
             if (TorStatusObservable.isCancelled()) {
