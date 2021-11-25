@@ -116,6 +116,12 @@
             app:text="@string/about_fragment_title"
             app:icon="@drawable/ic_about_36"
             />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/black800_high_transparent"
+            android:layout_weight="1"
+            />
 
 
     </LinearLayout>

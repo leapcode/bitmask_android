@@ -30,6 +30,7 @@ import se.leap.bitmaskclient.firewall.FirewallManager;
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static se.leap.bitmaskclient.R.string.advanced_settings;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
@@ -42,6 +43,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePref
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
 
 public class SettingsFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -70,6 +72,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initUseSnowflakeEntry(view);
         initFirewallEntry(view);
         initTetheringEntry(view);
+        setActionBarTitle(this, advanced_settings);
         return view;
     }
 
@@ -242,4 +245,5 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             initFirewallEntry(getView());
         }
     }
+
 }

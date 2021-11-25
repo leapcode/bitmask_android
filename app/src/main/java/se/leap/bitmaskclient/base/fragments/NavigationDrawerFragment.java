@@ -54,16 +54,12 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.views.IconSwitchEntry;
 import se.leap.bitmaskclient.base.views.IconTextEntry;
 import se.leap.bitmaskclient.eip.EipStatus;
-import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.providersetup.ProviderListActivity;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static se.leap.bitmaskclient.R.string.about_fragment_title;
-import static se.leap.bitmaskclient.R.string.advanced_settings;
-import static se.leap.bitmaskclient.R.string.log_fragment_title;
 import static se.leap.bitmaskclient.base.BitmaskApp.getRefWatcher;
 import static se.leap.bitmaskclient.base.models.Constants.DONATION_URL;
 import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION;
@@ -275,7 +271,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         advancedSettings.setOnClickListener(v -> {
             closeDrawer();
             Fragment fragment = new SettingsFragment();
-            setActionBarTitle(advanced_settings);
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
     }
@@ -321,7 +316,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
             FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
             closeDrawer();
             Fragment fragment = new GatewaySelectionFragment();
-            setActionBarTitle(R.string.gateway_selection_title);
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
     }
@@ -345,7 +339,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         log.setOnClickListener((buttonView) -> {
             closeDrawer();
             Fragment fragment = new LogFragment();
-            setActionBarTitle(log_fragment_title);
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
     }
@@ -356,7 +349,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         about.setOnClickListener((buttonView) -> {
             closeDrawer();
             Fragment fragment = new AboutFragment();
-            setActionBarTitle(about_fragment_title);
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
     }
@@ -480,13 +472,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
 
     private ActionBar getActionBar() {
         return ((AppCompatActivity) getActivity()).getSupportActionBar();
-    }
-
-    private void setActionBarTitle(@StringRes int resId) {
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setSubtitle(resId);
-        }
     }
 
     private void hideActionBarSubTitle() {

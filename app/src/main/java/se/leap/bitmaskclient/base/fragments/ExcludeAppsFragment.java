@@ -26,9 +26,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
 
@@ -41,6 +38,7 @@ import java.util.Vector;
 import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.SimpleCheckBox;
 
 import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
@@ -314,18 +312,11 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
         mListView.setOnItemClickListener(this);
 
         mListView.setEmptyView(v.findViewById(R.id.loading_container));
-        setActionBarTitle(exclude_apps_fragment_title);
+        ViewHelper.setActionBarTitle(this, exclude_apps_fragment_title);
 
         new Thread(() -> mListAdapter.populateList(getActivity())).start();
 
         return v;
-    }
-
-    private void setActionBarTitle(@StringRes int stringId) {
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setSubtitle(stringId);
-        }
     }
 
 }

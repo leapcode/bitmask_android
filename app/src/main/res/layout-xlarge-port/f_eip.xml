@@ -63,7 +63,7 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_right"
         app:layout_constraintStart_toStartOf="@+id/guideline_vertical_left"
         app:layout_constraintTop_toTopOf="@+id/guideline_horizontal_top"
-        app:layout_constraintVertical_bias="0.4" />
+        app:layout_constraintVertical_bias="0.425" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/main_description"
@@ -75,10 +75,11 @@
         app:layout_constraintBottom_toTopOf="@+id/sub_description"
         android:padding="@dimen/activity_margin"
         android:textAppearance="@android:style/TextAppearance.Large"
+        android:textSize="45sp"
         android:textStyle="bold"
         android:textColor="@color/colorEipFragmentFont"
         app:layout_constraintDimensionRatio="1:1"
-        tools:text="CONNETION"
+        tools:text="Connection Secure"
         android:gravity="center"
         android:maxLines="1"
         />
@@ -92,7 +93,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/gateway_location_button"
         android:padding="@dimen/activity_margin"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
         android:textStyle="bold"
         android:textColor="@color/colorEipFragmentFont"
         app:layout_constraintDimensionRatio="1:1"
@@ -105,7 +106,7 @@
     <se.leap.bitmaskclient.base.views.LocationButton
         android:id="@+id/gateway_location_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="64dp"
         android:layout_marginBottom="@dimen/stdpadding"
         android:layout_marginEnd="@dimen/stdpadding"
         android:layout_marginStart="@dimen/stdpadding"
@@ -117,5 +118,4 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:text="SEATTLE"
         android:gravity="center_vertical" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
