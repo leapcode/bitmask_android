@@ -63,10 +63,10 @@ public class LocationIndicator extends LinearLayout {
                 level3_2.setBackgroundColor(getColor(getContext(), R.color.green200));
                 break;
             case AVERAGE:
-                level1.setBackgroundColor(getColor(getContext(), R.color.yellow200));
-                level1_2.setBackgroundColor(getColor(getContext(), R.color.yellow200));
-                level2.setBackgroundColor(getColor(getContext(), R.color.yellow200));
-                level2_2.setBackgroundColor(getColor(getContext(), R.color.yellow200));
+                level1.setBackgroundColor(getColor(getContext(), R.color.amber200));
+                level1_2.setBackgroundColor(getColor(getContext(), R.color.amber200));
+                level2.setBackgroundColor(getColor(getContext(), R.color.amber200));
+                level2_2.setBackgroundColor(getColor(getContext(), R.color.amber200));
                 level3.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
                 level3_2.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
                 break;
