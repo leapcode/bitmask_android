@@ -138,6 +138,10 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
                 return;
             }
             preferUDP(getContext(), isChecked);
+            if (VpnStatus.isVPNActive()) {
+                EipCommand.startVPN(getContext(), false);
+                showVPNFragment();
+            }
         });
     }
 
