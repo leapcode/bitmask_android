@@ -188,5 +188,8 @@
   <string name="use_snowflake">Use Snowflake</string>
   <string name="snowflake_description">Circumvent blocking of the provider\'s configuration server.</string>
   <string name="vpn_settings">VPN settings</string>
+  <string name="prefer_udp">Use UDP if available</string>
+  <string name="prefer_udp_subtitle">UDP can be faster and better for streaming, but does not work for all networks.</string>
+
 
 </resources>

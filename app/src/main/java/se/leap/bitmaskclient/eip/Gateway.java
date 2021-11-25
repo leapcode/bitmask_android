@@ -174,7 +174,8 @@ public class Gateway {
      */
     private @NonNull HashMap<Connection.TransportType, VpnProfile> createVPNProfiles(Context context)
             throws ConfigParser.ConfigParseError, IOException, JSONException {
-        VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway, apiVersion);
+        boolean preferUDP = PreferenceHelper.getPreferUDP(context);
+        VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway, apiVersion, preferUDP);
         HashMap<Connection.TransportType, VpnProfile> profiles = vpnConfigurationGenerator.generateVpnProfiles();
         addProfileInfos(context, profiles);
         return profiles;

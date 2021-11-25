@@ -34,10 +34,12 @@ import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 
@@ -63,10 +65,11 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         View view = inflater.inflate(R.layout.f_settings, container, false);
         initAlwaysOnVpnEntry(view);
         initExcludeAppsEntry(view);
-        initFirewallEntry(view);
-        initTetheringEntry(view);
+        initPreferUDPEntry(view);
         initUseBridgesEntry(view);
         initUseSnowflakeEntry(view);
+        initFirewallEntry(view);
+        initTetheringEntry(view);
         return view;
     }
 
@@ -124,6 +127,22 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
                 }
             });
         }
+    }
+
+    private void initPreferUDPEntry(View rootView) {
+        IconSwitchEntry useSnowflake = rootView.findViewById(R.id.prefer_udp);
+        useSnowflake.setVisibility(VISIBLE);
+        useSnowflake.setChecked(getPreferUDP(getContext()));
+        useSnowflake.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!buttonView.isPressed()) {
+                return;
+            }
+            preferUDP(getContext(), isChecked);
+            if (VpnStatus.isVPNActive()) {
+                EipCommand.startVPN(getContext(), false);
+                showVPNFragment();
+            }
+        });
     }
 
     private void initExcludeAppsEntry(View rootView) {
