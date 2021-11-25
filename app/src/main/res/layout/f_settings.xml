@@ -17,7 +17,6 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:text="@string/vpn_settings"
-            android:paddingTop="@dimen/activity_margin"
             />
 
         <se.leap.bitmaskclient.base.views.IconTextEntry
