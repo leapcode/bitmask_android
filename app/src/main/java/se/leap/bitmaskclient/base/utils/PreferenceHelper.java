@@ -2,6 +2,7 @@ package se.leap.bitmaskclient.base.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.Preference;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
@@ -37,7 +38,7 @@ import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
-import static se.leap.bitmaskclient.base.models.Constants.USE_TOR;
+import static se.leap.bitmaskclient.base.models.Constants.USE_SNOWFLAKE;
 
 /**
  * Created by cyberta on 18.03.18.
@@ -155,20 +156,29 @@ public class PreferenceHelper {
 
     public static void useBridges(Context context, boolean isEnabled) {
         putBoolean(context, USE_BRIDGES, isEnabled);
-        putBoolean(context, USE_TOR, isEnabled);
+    }
+
+    public static Boolean getUseSnowflake(SharedPreferences preferences) {
+        return preferences.getBoolean(USE_SNOWFLAKE, true);
+    }
+
+    public static void useSnowflake(Context context, boolean isEnabled) {
+        putBoolean(context, USE_SNOWFLAKE, isEnabled);
         if (!isEnabled) {
             TorStatusObservable.setProxyPort(-1);
         }
     }
 
-    // in contrast to USE_BRIDGES, USE_TOR in enabled by default
-    // This way the initial provider setup can rely on tor as fallback circumvention mechanism
-    public static Boolean getUseTor(SharedPreferences preferences) {
-        return preferences.getBoolean(USE_TOR, true);
+    public static boolean hasSnowflakePrefs(SharedPreferences preferences) {
+        return preferences.contains(USE_SNOWFLAKE);
     }
 
-    public static Boolean getUseTor(Context context) {
-        return getBoolean(context, USE_TOR, true);
+    public static boolean hasSnowflakePrefs(Context context) {
+        return hasKey(context, USE_SNOWFLAKE);
+    }
+
+    public static Boolean getUseSnowflake(Context context) {
+        return getBoolean(context, USE_SNOWFLAKE, true);
     }
 
     public static void saveBattery(Context context, boolean isEnabled) {
@@ -306,7 +316,7 @@ public class PreferenceHelper {
         preferences.edit().putString(key, value).apply();
     }
 
-    public static Boolean getBoolean(Context context, String key, Boolean defValue) {
+    public static boolean getBoolean(Context context, String key, Boolean defValue) {
         if (context == null) {
             return false;
         }
@@ -322,5 +332,14 @@ public class PreferenceHelper {
 
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putBoolean(key, value).apply();
+    }
+
+    private static Boolean hasKey(Context context, String key) {
+        if (context == null) {
+            return false;
+        }
+
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        return preferences.contains(key);
     }
 }

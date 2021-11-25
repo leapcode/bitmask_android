@@ -36,7 +36,10 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 
 public class SettingsFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -63,6 +66,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initFirewallEntry(view);
         initTetheringEntry(view);
         initUseBridgesEntry(view);
+        initUseSnowflakeEntry(view);
         return view;
     }
 
@@ -94,6 +98,17 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         }
     }
 
+    private void initUseSnowflakeEntry(View rootView) {
+        IconSwitchEntry useSnowflake = rootView.findViewById(R.id.snowflake_switch);
+        useSnowflake.setVisibility(VISIBLE);
+        useSnowflake.setChecked(hasSnowflakePrefs(getContext()) && getUseSnowflake(getContext()));
+        useSnowflake.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!buttonView.isPressed()) {
+                return;
+            }
+            useSnowflake(getContext(), isChecked);
+        });
+    }
 
     private void initAlwaysOnVpnEntry(View rootView) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
