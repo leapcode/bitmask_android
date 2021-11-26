@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,20 +45,21 @@ import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.SelectLocationEntry;
-import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
-import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_DIALOG_FRAGMENT;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
-import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
 
 interface LocationListSelectionListener {
@@ -76,6 +78,8 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     private EipStatus eipStatus;
     private SharedPreferences preferences;
     private Connection.TransportType selectedTransport;
+    private AppCompatTextView bridgesHint;
+    private AppCompatTextView disableBridges;
 
     public GatewaySelectionFragment() {
         // Required empty public constructor
@@ -88,7 +92,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         eipStatus = EipStatus.getInstance();
         eipStatus.addObserver(this);
         preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        selectedTransport = PreferenceHelper.getUseBridges(preferences) ? OBFS4 : OPENVPN;
+        selectedTransport = getUseBridges(preferences) ? OBFS4 : OPENVPN;
         preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
@@ -104,6 +108,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         super.onViewCreated(view, savedInstanceState);
         initRecyclerView();
         initRecommendedLocationEntry();
+        initBridgesHint(view);
         setActionBarTitle(this, R.string.gateway_selection_title);
     }
 
@@ -134,6 +139,16 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
             startEipService(null);
         });
         updateRecommendedLocation();
+    }
+
+    private void initBridgesHint(@NonNull View view) {
+        bridgesHint = view.findViewById(R.id.manual_subtitle);
+        bridgesHint.setVisibility(getUseBridges(getContext()) ? VISIBLE : GONE);
+        disableBridges = view.findViewById(R.id.disable_bridges);
+        disableBridges.setVisibility(getUseBridges(getContext()) ? VISIBLE : GONE);
+        disableBridges.setOnClickListener(v -> {
+            useBridges(getContext(), false);
+        });
     }
 
     private void updateRecommendedLocation() {
@@ -174,20 +189,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         String name = location.getName();
         if (location.supportsTransport(selectedTransport)) {
             startEipService(name);
-        } else {
-            locationListAdapter.unselectAll();
-            askToChangeTransport(name);
         }
-    }
-
-    private void askToChangeTransport(String name) {
-        Intent intent = new Intent(getContext(), MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.setAction(ACTION_SHOW_DIALOG_FRAGMENT);
-        intent.putExtra(EIP.ERRORID, EIP.EIPErrors.TRANSPORT_NOT_SUPPORTED.toString());
-        intent.putExtra(EIP.ERRORS, getString(R.string.warning_bridges_not_supported, name));
-        intent.putExtra(LOCATION, name);
-        startActivity(intent);
     }
 
     @Override
@@ -204,9 +206,12 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(USE_BRIDGES)) {
-            selectedTransport = PreferenceHelper.getUseBridges(sharedPreferences) ? OBFS4 : OPENVPN;
+            boolean showBridges = getUseBridges(sharedPreferences);
+            selectedTransport = showBridges ? OBFS4 : OPENVPN;
             gatewaysManager.updateTransport(selectedTransport);
             locationListAdapter.updateTransport(selectedTransport, gatewaysManager);
+            bridgesHint.setVisibility(showBridges ? VISIBLE : GONE);
+            disableBridges.setVisibility(showBridges ? VISIBLE : GONE);
         }
     }
 

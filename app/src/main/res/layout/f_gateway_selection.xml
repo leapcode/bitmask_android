@@ -56,6 +56,21 @@
             android:text="@string/gateway_selection_manually"
             android:layout_gravity="bottom"
             />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/manual_subtitle"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:text="@string/hint_bridges"
+
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/disable_bridges"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_disable_bridges"
+                android:textColor="@color/primary"
+                />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

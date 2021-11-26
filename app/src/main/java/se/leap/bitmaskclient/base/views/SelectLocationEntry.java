@@ -65,14 +65,19 @@ public class SelectLocationEntry extends LinearLayout {
         title.setText(text);
         title.setVisibility(text != null ? VISIBLE : GONE);
     }
+
     public void setLocation(Location location, Connection.TransportType transportType) {
-        boolean valid = location.hasLocationInfo();
-        locationText.setVisibility(valid ? VISIBLE : GONE);
-        locationIndicator.setVisibility(valid ? VISIBLE : GONE);
-        bridgesView.setVisibility(transportType == OBFS4 && location.supportsTransport(OBFS4) ? VISIBLE : GONE);
+        boolean hasData = location.hasLocationInfo();
+        boolean supportsSelectedTransport = location.supportsTransport(transportType);
+        locationText.setVisibility(hasData ? VISIBLE : GONE);
+        locationIndicator.setVisibility(hasData ? VISIBLE : GONE);
+        bridgesView.setVisibility(transportType == OBFS4 && supportsSelectedTransport ? VISIBLE : GONE);
         locationText.setText(location.getName());
         locationIndicator.setLoad(Load.getLoadByValue(location.getAverageLoad(transportType)));
         selectedView.setChecked(location.selected);
+        locationText.setEnabled(supportsSelectedTransport);
+        selectedView.setEnabled(supportsSelectedTransport);
+        setEnabled(!hasData || supportsSelectedTransport);
     }
 
     public void showDivider(boolean show) {
