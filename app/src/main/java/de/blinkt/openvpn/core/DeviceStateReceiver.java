@@ -17,6 +17,7 @@ import android.preference.PreferenceManager;
 
 import se.leap.bitmaskclient.R;
 import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 
 import java.util.LinkedList;
