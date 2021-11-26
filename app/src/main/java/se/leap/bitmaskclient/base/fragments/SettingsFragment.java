@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -94,7 +95,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
                 useBridges(getContext(), isChecked);
                 if (VpnStatus.isVPNActive()) {
                     EipCommand.startVPN(getContext(), false);
-                    showVPNFragment();
+                    Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -143,7 +144,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             preferUDP(getContext(), isChecked);
             if (VpnStatus.isVPNActive()) {
                 EipCommand.startVPN(getContext(), false);
-                showVPNFragment();
+                Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -190,14 +191,6 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             }
         });
     }
-
-    private void showVPNFragment() {
-        Intent intent = new Intent(getContext(), MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
-        startActivity(intent);
-    }
-
 
     private void initTetheringEntry(View rootView) {
         tethering = rootView.findViewById(R.id.tethering);
