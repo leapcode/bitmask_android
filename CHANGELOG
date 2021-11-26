@@ -1,3 +1,17 @@
+1.1.0RC2 - UX upgrade beta release
+features:
+- many UI and UX improvements:
+ * updated gateway selector
+ * new settings screen
+ * updated VPN main screen
+ * updated exclude apps screen
+ - show UDP settings
+ - show snowflake settings
+
+ bugfixes:
+ - fix save battery feature
+ - fix disappearing action bar subtitles after orientation change
+
 1.1.0RC1 - early snowflakes release
 features:
 - support of tor and snowflake to circumvent censorship of the API server
