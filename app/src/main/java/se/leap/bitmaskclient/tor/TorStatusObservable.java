@@ -216,7 +216,7 @@ public class TorStatusObservable extends Observable {
             case "loading_keys":
                 return context.getString(R.string.log_loading_keys);
             case "requesting_descriptors":
-                return context.getString(R.string.log_requesting_desccriptors);
+                return context.getString(R.string.log_requesting_descriptors);
             case "loading_descriptors":
                 return context.getString(R.string.log_loading_descriptors);
             case "enough_dirinfo":
