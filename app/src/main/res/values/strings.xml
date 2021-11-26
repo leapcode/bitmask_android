@@ -152,7 +152,6 @@
   <string name="version_update_error">Update failed.</string>
   <string name="version_update_error_permissions">No permissions to install app.</string>
   <string name="gateway_selection_title">Select location</string>
-  <string name="gateway_selection_warning">%s will find the best connection for you.</string>
   <string name="gateway_selection_recommended_location">Use recommended location</string>
   <string name="gateway_selection_recommended">Recommended</string>
   <string name="gateway_selection_manually">Manually select</string>
@@ -172,7 +171,7 @@
   <string name="log_requesting_status">Asking for networkstatus consensus</string>
   <string name="log_loading_status">Loading networkstatus consensus</string>
   <string name="log_loading_keys">Loading authority key certs</string>
-  <string name="log_requesting_desccriptors">Asking for relay descriptors</string>
+  <string name="log_requesting_descriptors">Asking for relay descriptors</string>
   <string name="log_loading_descriptors">Loading relay descriptors</string>
   <string name="log_enough_dirinfo">Loaded enough directory info to build circuits</string>
   <string name="log_ap_handshake_done">Handshake finished with a relay to build circuits</string>
@@ -192,4 +191,8 @@
   <string name="prefer_udp_subtitle">UDP can be faster and better for streaming, but does not work for all networks.</string>
   <string name="hint_bridges">Only locations supporting bridges are currently selectable.</string>
   <string name="option_disable_bridges">Disable bridges</string>
+  <string name="eip_state_insecure">Connection insecure</string>
+  <string name="connection_not_connected" >You may be leaking information to your internet provider or local network.</string>
+  <string name="eip_state_no_network">You have no working Internet connection. Once you get it back, you will be automatically connected to</string>
+  <string name="eip_state_blocking">%1$s is blocking all internet traffic.</string>
 </resources>
