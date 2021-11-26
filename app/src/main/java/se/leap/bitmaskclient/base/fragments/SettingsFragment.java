@@ -134,10 +134,10 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     }
 
     private void initPreferUDPEntry(View rootView) {
-        IconSwitchEntry useSnowflake = rootView.findViewById(R.id.prefer_udp);
-        useSnowflake.setVisibility(VISIBLE);
-        useSnowflake.setChecked(getPreferUDP(getContext()));
-        useSnowflake.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        IconSwitchEntry useUdpEntry = rootView.findViewById(R.id.prefer_udp);
+        useUdpEntry.setVisibility(VISIBLE);
+        useUdpEntry.setChecked(getPreferUDP(getContext()));
+        useUdpEntry.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
@@ -147,6 +147,9 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
                 Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
             }
         });
+        boolean bridgesEnabled = getUseBridges(getContext());
+        useUdpEntry.setEnabled(!bridgesEnabled);
+        useUdpEntry.setSubtitle(getString(bridgesEnabled ? R.string.disabled_while_bridges_on : R.string.prefer_udp_subtitle));
     }
 
     private void initExcludeAppsEntry(View rootView) {
@@ -234,6 +237,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         }
         if (key.equals(USE_BRIDGES)) {
             initUseBridgesEntry(rootView);
+            initPreferUDPEntry(rootView);
         } else if (key.equals(USE_IPv6_FIREWALL)) {
             initFirewallEntry(getView());
         }
