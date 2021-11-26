@@ -419,7 +419,7 @@ public class EipFragment extends Fragment implements Observer {
         if (eipStatus.isConnecting() ) {
             setMainButtonEnabled(true);
             showConnectionTransitionLayout(true);
-            locationButton.setText(getString(R.string.finding_best_connection));
+            locationButton.setText(getString(R.string.eip_status_start_pending));
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
@@ -450,7 +450,7 @@ public class EipFragment extends Fragment implements Observer {
         } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
             showConnectionTransitionLayout(true);
             // showRetryToast(activity);
-            locationButton.setText(getString(R.string.finding_best_connection));
+            locationButton.setText(getString(R.string.eip_status_start_pending));
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
@@ -464,7 +464,7 @@ public class EipFragment extends Fragment implements Observer {
             setMainButtonEnabled(true);
             mainButton.updateState(true, false, true);
             colorBackgroundALittle();
-            locationButton.setText(getString(R.string.finding_best_connection));
+            locationButton.setText(getString(R.string.no_location));
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
