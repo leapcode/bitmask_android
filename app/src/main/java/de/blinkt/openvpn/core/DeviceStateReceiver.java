@@ -137,13 +137,10 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        SharedPreferences prefs = Preferences.getDefaultSharedPreferences(context);
-
-
         if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
             networkStateChange(context);
         } else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
-            boolean screenOffPause = prefs.getBoolean("screenoff", false);
+            boolean screenOffPause = PreferenceHelper.getSaveBattery(context);
             boolean isTethering = TetheringObservable.getInstance().getTetheringState().isVpnTetheringRunning();
             if (screenOffPause && !isTethering) {
                 if (VpnStatus.getLastConnectedVpnProfile() != null && !VpnStatus.getLastConnectedVpnProfile().mPersistTun)
