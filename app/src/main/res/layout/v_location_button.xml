@@ -21,7 +21,7 @@
         />
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/recommended_icn"
-        android:scaleType="fitXY"
+        android:scaleType="fitCenter"
         android:layout_marginRight="-13dp"
         android:layout_marginEnd="-13dp"
         android:layout_width="wrap_content"
@@ -42,11 +42,12 @@
         android:paddingRight="@dimen/stdpadding"
         android:maxLines="1"
         android:ellipsize="end"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
         app:autoSizeTextType="uniform"
         android:gravity="center_vertical"
         app:autoSizeMinTextSize="15sp"
+        app:autoSizeMaxTextSize="24sp"
         android:layout_toEndOf="@id/recommended_icn"
         android:layout_toRightOf="@+id/recommended_icn"
         android:layout_toLeftOf="@+id/bridge_icn"
@@ -61,14 +62,13 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/bridge_icn"
-        android:paddingRight="@dimen/stdpadding"
-        android:paddingEnd="@dimen/stdpadding"
-        android:paddingStart="@dimen/stdpadding"
-        android:paddingLeft="@dimen/stdpadding"
-        android:layout_marginBottom="-5dp"
-        android:layout_marginTop="-5dp"
-        android:scaleType="fitXY"
-        android:layout_width="wrap_content"
+
+        android:paddingStart="@dimen/compact_padding"
+        android:paddingLeft="@dimen/compact_padding"
+        android:paddingRight="@dimen/compact_padding"
+        android:paddingEnd="@dimen/compact_padding"
+        android:scaleType="fitCenter"
+        android:layout_width="48dp"
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/text_location"
         android:layout_alignBottom="@+id/text_location"
@@ -76,17 +76,19 @@
         android:layout_toLeftOf="@id/load_indicator"
         android:src="@drawable/ic_bridge_36"
         android:visibility="gone"
+        tools:visibility="visible"
         />
 
     <se.leap.bitmaskclient.base.views.LocationIndicator
         android:id="@+id/load_indicator"
         android:layout_marginBottom="4dp"
         android:layout_width="48dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/text_location"
-        android:layout_alignBottom="@id/text_location"
+        android:layout_height="40dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:paddingTop="@dimen/stdpadding"
+        android:paddingBottom="@dimen/stdpadding"
         android:visibility="visible"
         android:layout_gravity="center_vertical"
         />
