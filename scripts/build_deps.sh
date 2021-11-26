@@ -50,6 +50,7 @@ else
   then
     ./tor-droid-make.sh fetch -c || quit "failed to checkout tor dependencies"
     ./tor-droid-make.sh build -b release || quit "failed to build tor release binaries"
+    ./gradlew --stop
   else
     quit "expected NDK VERSION: $EXPECTED_NDK_VERSION. But found: $NDK_VERSION"
   fi
@@ -64,6 +65,7 @@ else
     echo "Clean build: starting externalNativeBuild"
     cd ./ics-openvpn || quit "Directory ics-opevpn not found"
     ./gradlew clean main:externalNativeBuildCleanSkeletonRelease main:externalNativeBuildSkeletonRelease --debug --stacktrace || quit "Build ics-openvpn native libraries failed"
+    ./gradlew --stop
     cd ..
 fi
 
