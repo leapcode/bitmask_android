@@ -23,12 +23,10 @@ function quit {
 }
 
 function cleanUp {
-    if [[ -f ${ALIGNED_UNSIGNED_APK} ]]
-    then
+    if [[ -f ${ALIGNED_UNSIGNED_APK} ]]; then
         rm ${ALIGNED_UNSIGNED_APK}
     fi
-    if [[ -f ${ALIGNED_SIGNED_APK} ]]
-    then
+    if [[ -f ${ALIGNED_SIGNED_APK} ]]; then
         rm ${ALIGNED_SIGNED_APK}
     fi
 }
@@ -59,14 +57,12 @@ function sign {
     cleanUp
     
     #---- GPG SIGNING ----
-    if [[ -z ${GPG_KEY} && -z ${GPG_KEY_USER} ]] 
-    then
+    if [[ -z ${GPG_KEY} && -z ${GPG_KEY_USER} ]]; then
         echo -e "${ORANGE}WARNING: Could not do gpg signing!${NC}"
         exit
     fi
     
-    if [[ ${GPG_KEY} ]] 
-    then
+    if [[ ${GPG_KEY} ]]; then
         echo -e "${GREEN} -> gpg sign using key ${GPG_KEY}${NC}"
         gpg --default-key ${GPG_KEY} --armor --output "${FINAL_APK}.sig" --detach-sign ${FINAL_APK} || quit
     else
@@ -114,36 +110,29 @@ export -f cleanUp
 # init parameters
 for ((i=1;i<=$#;i++)); 
 do
-    if [[ ${!i} = "b" || ${!i} = "build" ]] 
-    then 
+    if [[ ${!i} = "b" || ${!i} = "build" ]]; then
         DO_BUILD=true
         
-    elif [[ ${!i} = "s" || ${!i} = "sign" ]] 
-    then 
+    elif [[ ${!i} = "s" || ${!i} = "sign" ]]; then
         DO_SIGN=true
         
-    elif [[ ${!i} = "-f" || ${!i} = "-file" ]] 
-    then 
+    elif [[ ${!i} = "-f" || ${!i} = "-file" ]]; then
         ((i++)) 
         FILE_NAME_STRING=${!i}
         FILE_NAME=${FILE_NAME_STRING##*/} #remove everything till the last '/'
         FILE_DIR=${FILE_NAME_STRING%/*} #remove everything after the last '/'
 
-    elif [[ ${!i} = "-d" || ${!i} = "-dir" ]]
-    then
+    elif [[ ${!i} = "-d" || ${!i} = "-dir" ]]; then
         ((i++))
         FILE_DIR=${!i}
         MULTIPLE_APKS=true
-    elif [[ ${!i} = "-ks" || ${!i} = "-keystore" ]] 
-    then 
+    elif [[ ${!i} = "-ks" || ${!i} = "-keystore" ]]; then
         ((i++)) 
         KEY_STORE_STRING=${!i};
         KEY_STORE_NAME=${KEY_STORE_STRING##*/}
         KEY_STORE_DIR=${KEY_STORE_STRING%/*}
         export KEY_STORE_STRING=${KEY_STORE_STRING}
-
-    elif [[ ${!i} = "-v" || ${!i} = "-version" ]] 
-    then 
+    elif [[ ${!i} = "-v" || ${!i} = "-version" ]]; then
         ((i++)) 
         VERSION_NAME=${!i};
         if [[ -z $(git tag --list | grep -w ${VERSION_NAME}) ]] 
@@ -151,32 +140,25 @@ do
             echo -e "${RED}ERROR: Version name has to be a git tag!${NC}"
             exit
         fi
-    elif [[ ${!i} = "-k" || ${!i} = "-key" ]]
-    then 
+    elif [[ ${!i} = "-k" || ${!i} = "-key" ]]; then
         ((i++)) 
         GPG_KEY=${!i}
         export GPG_KEY=${GPG_KEY}
-    elif [[ ${!i} = "-u" || ${!i} = "-user" ]]
-    then 
+    elif [[ ${!i} = "-u" || ${!i} = "-user" ]]; then
         ((i++)) 
         GPG_KEY_USER=${!i}
         export GPG_KEY_USER=${GPG_KEY_USER}
-    elif [[ ${!i} = "-b" || ${!i} = "-beta" ]]
-    then 
+    elif [[ ${!i} = "-b" || ${!i} = "-beta" ]]; then
         BETA=true
-    elif [[ ${!i} = "-no-tag" ]];
-    then 
+    elif [[ ${!i} = "-no-tag" ]]; then
         NO_TAG=true
-    elif [[ ${!i} = "-s" || ${!i} = "-stacktrace" ]]
-    then
+    elif [[ ${!i} = "-s" || ${!i} = "-stacktrace" ]]; then
         STACKTRACE="--stacktrace"
-    elif [[  ${!i} = "-c" || ${!i} = "-custom" ]]
-    then
+    elif [[  ${!i} = "-c" || ${!i} = "-custom" ]]; then
         ((i++))
         FLAVOR="Custom"
         FLAVOR_LOWERCASE="custom"
-    elif [[ ${!i} = "-h" || ${!i} = "-help" ]]
-    then 
+    elif [[ ${!i} = "-h" || ${!i} = "-help" ]]; then
         echo -e "
         sign [-ks -fp -f -u -k]               sign a given apk (both app signing and GPG signing)
         -ks / -keystore [path] -------------- define path to keystore for signing (required)
@@ -242,21 +224,17 @@ done;
 
 
 # check what to do
-if [[ ${DO_BUILD} == false && ${DO_SIGN} == false ]]
-then
+if [[ ${DO_BUILD} == false && ${DO_SIGN} == false ]]; then
     echo -e "${RED}ERROR: No action set. Please check  ./prepareForDistribution -help!${NC}"
     exit
 fi
 
-if [[ ${DO_BUILD} == true ]]
-then
-    if [[ ${NO_TAG} == false && -z ${VERSION_NAME} ]]
-    then
+if [[ ${DO_BUILD} == true ]]; then
+    if [[ ${NO_TAG} == false && -z ${VERSION_NAME} ]]; then
         echo -e "${RED}ERROR: You didn't enter the version (git tag) to be built. If you really want to force building the current checked out commit, use -no-tag.${NC}"
         quit
     fi
-    if [[ ${NO_TAG} == false ]] 
-    then
+    if [[ ${NO_TAG} == false ]]; then
         #---- COMPARE TAG COMMIT WITH CURRENT COMMIT AND CHECK OUT TAG COMMIT IF NECESSARY ----
         TAG_COMMIT=$(git log -n 1 ${VERSION_NAME} --format="%H")
         CURRENT_COMMIT=$(git log -n 1 --format="%H")
@@ -274,14 +252,12 @@ then
     cd $(base_dir)
     BASE_OUTPUT_DIR="./app/build/outputs/apk"
     RELEASES_FILE_DIR="./currentReleases"
-    if [[ ! -d $RELEASES_FILE_DIR ]]
-    then
+    if [[ ! -d $RELEASES_FILE_DIR ]]; then
         mkdir $RELEASES_FILE_DIR
     fi
     rm -rf $RELEASES_FILE_DIR/*
 
-    if [[ ${BETA} == true ]]
-    then
+    if [[ ${BETA} == true ]]; then
         echo "${GREEN} -> build beta releases for flavor ${FLAVOR}${NC}"
         ./gradlew clean assemble${FLAVOR}ProductionFatBeta $STACKTRACE || quit
  #       echo "copy file:  $(ls $BASE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk)"
@@ -338,36 +314,30 @@ if [[ ${DO_SIGN} == true ]]
 then
     cd $(base_dir)
     # check global vars
-    if [[ -z ${ANDROID_BUILD_TOOLS} ]] 
-    then
+    if [[ -z ${ANDROID_BUILD_TOOLS} ]]; then
         echo -e "${RED}ERROR: Environment variable ANDROID_BUILD_TOOLS not set! Please add it to your environment variables. Exiting.${NC}"
         exit 
     fi
 
-    if [[ -z ${FILE_NAME} && -z ${FILE_DIR} && ${DO_BUILD} == false ]]
-    then
+    if [[ -z ${FILE_NAME} && -z ${FILE_DIR} && ${DO_BUILD} == false ]]; then
         echo -e "${RED}ERROR: Sign only needs a file name or a directory. Please check ./prepareForDistribution -help!${NC}"
         exit
     fi
-    if [[ -z ${KEY_STORE_NAME} ]] 
-    then
+    if [[ -z ${KEY_STORE_NAME} ]]; then
         echo -e "${RED}ERROR: Key store not set. Please check ./prepareForDistribution -help${NC}"
         exit
     fi
-    if [[ -n ${FILE_NAME_STRING} && ${DO_BUILD} == true ]]
-    then
+    if [[ -n ${FILE_NAME_STRING} && ${DO_BUILD} == true ]]; then
         echo -e "${ORANGE}WARNING: Ignoring parameter -file. Built APK will be used instead.${NC}"
     fi
     
     #---- OPT: SELECT APK FROM LAST BUILD ----
-    if [[ ${DO_BUILD} == true ]]
-    then
+    if [[ ${DO_BUILD} == true ]]; then
         FILE_DIR=$RELEASES_FILE_DIR
         echo -e "${GREEN} -> sign apks:${NC}"
         ls -w 1 $FILE_DIR/*\.apk | xargs -I {} echo {}
         xargs -I _ -ra <(ls -w 1 $FILE_DIR/*\.apk) bash -c 'sign _'
-    elif [[ ${MULTIPLE_APKS} == true ]]
-    then
+    elif [[ ${MULTIPLE_APKS} == true ]]; then
         echo -e "${GREEN} -> sign apks:${NC}"
         ls -w 1 $FILE_DIR/*\.apk | xargs -I {} echo {}
         xargs -I _ -ra <(ls -w 1 $FILE_DIR/*\.apk) bash -c 'sign _'
