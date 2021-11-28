@@ -143,7 +143,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                     handleTorTimeoutError();
                 });
                 builder.setNeutralButton(R.string.retry_unobfuscated, ((dialog, id) -> {
-                    PreferenceHelper.useBridges(getContext(), false);
+                    PreferenceHelper.useSnowflake(getContext(), false);
                     handleTorTimeoutError();
                 }));
             default:

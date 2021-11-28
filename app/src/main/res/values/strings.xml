@@ -128,7 +128,7 @@
   <string name="donate_button_donate">Donate</string>
   <string name="obfuscated_connection">Using an obfuscated connection.</string>
   <string name="obfuscated_connection_try">Trying an obfuscated connection.</string>
-  <string name="nav_drawer_obfuscated_connection">Using Bridges</string>
+  <string name="nav_drawer_obfuscated_connection">Use Bridges</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">Circumvent VPN filtering</string>
   <string name="warning_exclude_apps_message">Be careful of excluding apps from VPN. This will reveal your identity and compromise your security.</string>
   <plurals name="subtitle_exclude_apps">
@@ -152,7 +152,7 @@
   <string name="version_update_error">Update failed.</string>
   <string name="version_update_error_permissions">No permissions to install app.</string>
   <string name="gateway_selection_title">Select location</string>
-  <string name="gateway_selection_recommended_location">Use recommended location</string>
+  <string name="gateway_selection_recommended_location">Recommended location</string>
   <string name="gateway_selection_recommended">Recommended</string>
   <string name="gateway_selection_manually">Manually select</string>
   <string name="gateway_selection_automatic_location">Automatically use best connection.</string>
@@ -185,7 +185,7 @@
   <string name="error_network_connection">%s has no internet connection. Please check your WiFi and cellular data settings.</string>
   <string name="censorship_circumvention">Censorship circumvention</string>
   <string name="use_snowflake">Use Snowflake</string>
-  <string name="snowflake_description">Circumvent blocking of the provider\'s configuration server.</string>
+  <string name="snowflake_description">Protect configuration process against censorship.</string>
   <string name="vpn_settings">VPN settings</string>
   <string name="prefer_udp">Use UDP if available</string>
   <string name="prefer_udp_subtitle">UDP can be faster and better for streaming, but does not work for all networks.</string>
@@ -196,4 +196,5 @@
   <string name="connection_not_connected" >You may be leaking information to your internet provider or local network.</string>
   <string name="eip_state_no_network">You have no working Internet connection. Once you get it back, you will be automatically connected to</string>
   <string name="eip_state_blocking">%1$s is blocking all internet traffic.</string>
+  <string name="disabled_while_udp_on">Disabled while UDP is on.</string>
 </resources>

@@ -83,7 +83,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
      * Per the design guidelines, you should show the drawer on launch until the user manually
      * expands it. This shared preference tracks this.
      */
-    private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
     private static final String TAG = NavigationDrawerFragment.class.getName();
     public static final int TWO_SECONDS = 2000;
 
@@ -100,7 +99,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private IconSwitchEntry saveBattery;
 
     private IconTextEntry manualGatewaySelection;
-    private boolean userLearnedDrawer;
     private volatile boolean wasPaused;
     private volatile boolean shouldCloseOnResume;
 
@@ -116,7 +114,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         // Reads in the flag indicating whether or not the user has demonstrated awareness of the
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        userLearnedDrawer = preferences.getBoolean(PREF_USER_LEARNED_DRAWER, false);
         preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
@@ -181,10 +178,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         setupEntries();
         setupActionBarDrawerToggle(activity);
 
-        if (!userLearnedDrawer) {
-            openNavigationDrawerForFirstTimeUsers();
-        }
-
         // Defer code dependent on restoration of previous instance state.
         this.drawerLayout.post(() -> drawerToggle.syncState());
         this.drawerLayout.addDrawerListener(drawerToggle);
@@ -216,12 +209,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                     return;
                 }
 
-                if (!userLearnedDrawer) {
-                    // The user manually opened the drawer; store this flag to prevent auto-showing
-                    // the navigation drawer automatically in the future.
-                    userLearnedDrawer = true;
-                    preferences.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
-                }
                 activity.invalidateOptionsMenu();
             }
         };
@@ -367,15 +354,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
         return actionBar;
-    }
-
-    private void openNavigationDrawerForFirstTimeUsers() {
-        if (userLearnedDrawer) {
-            return;
-        }
-
-        drawerLayout.openDrawer(fragmentContainerView, false);
-        closeDrawerWithDelay();
     }
 
     @NonNull

@@ -18,6 +18,7 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_web"
         android:layout_gravity="center"
+        app:tint="@color/colorLocationButtonTint"
         />
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/recommended_icn"
@@ -31,6 +32,8 @@
         android:layout_toEndOf="@id/world_icn"
         android:layout_toRightOf="@id/world_icn"
         android:src="@drawable/ic_lightning_bolt"
+        app:tint="@color/colorLocationButtonTint"
+
         android:visibility="gone"
         tools:visibility="visible"
         />
@@ -77,6 +80,7 @@
         android:src="@drawable/ic_bridge_36"
         android:visibility="gone"
         tools:visibility="visible"
+        app:tint="@color/colorLocationButtonTint"
         />
 
     <se.leap.bitmaskclient.base.views.LocationIndicator
@@ -91,6 +95,7 @@
         android:paddingBottom="@dimen/stdpadding"
         android:visibility="visible"
         android:layout_gravity="center_vertical"
+        app:tint="@color/colorLocationButtonTintTransparent"
         />
 
 

@@ -32,7 +32,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.R.string.advanced_settings;
-import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
+import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
@@ -53,6 +53,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private IconTextEntry tethering;
     private IconSwitchEntry firewall;
+    IconSwitchEntry useUdpEntry;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -98,8 +99,12 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
                     Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
                 }
             });
-
-
+            //We check the UI state of the useUdpEntry here as well, in order to avoid a situation
+            //where both entries are disabled, because both preferences are enabled.
+            //bridges can be enabled not only from here but also from error handling
+            boolean useUDP = getPreferUDP(getContext()) && useUdpEntry.isEnabled();
+            useBridges.setEnabled(!useUDP);
+            useBridges.setSubtitle(getString(useUDP ? R.string.disabled_while_udp_on : R.string.nav_drawer_subtitle_obfuscated_connection));
         } else {
             useBridges.setVisibility(GONE);
         }
@@ -134,7 +139,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     }
 
     private void initPreferUDPEntry(View rootView) {
-        IconSwitchEntry useUdpEntry = rootView.findViewById(R.id.prefer_udp);
+        useUdpEntry = rootView.findViewById(R.id.prefer_udp);
         useUdpEntry.setVisibility(VISIBLE);
         useUdpEntry.setChecked(getPreferUDP(getContext()));
         useUdpEntry.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -235,7 +240,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         if (rootView == null)  {
             return;
         }
-        if (key.equals(USE_BRIDGES)) {
+        if (key.equals(USE_BRIDGES) || key.equals(PREFER_UDP)) {
             initUseBridgesEntry(rootView);
             initPreferUDPEntry(rootView);
         } else if (key.equals(USE_IPv6_FIREWALL)) {

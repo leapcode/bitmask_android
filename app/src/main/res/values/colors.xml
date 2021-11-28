@@ -41,7 +41,8 @@
     <color name="colorEipFragmentFont">@color/black800</color>
     <color name="colorFontBtn">@color/black800</color>
     <color name="colorFontBtnEnabled">@color/white</color>
-
+    <color name="colorLocationButtonTint">@color/black800</color>
+    <color name="colorLocationButtonTintTransparent">@color/black800_high_transparent</color>
     <color name="colorWarning">#B33A3A</color>
 
 </resources>

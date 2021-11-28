@@ -9,6 +9,7 @@
     <attr name="icon" format="reference"/>
     <attr name="subtitle" format="string|reference"/>
     <attr name="singleLine" format="boolean"/>
+    <attr name="tint" format="reference|color" />
     <declare-styleable name="IconSwitchEntry">
         <attr name="text"/>
         <attr name="subtitle" />
@@ -21,5 +22,8 @@
         <attr name="subtitle" />
         <attr name="icon"/>
         <attr name="singleLine"/>
+    </declare-styleable>
+    <declare-styleable name="LocationIndicator">
+        <attr name="tint"/>
     </declare-styleable>
 </resources>
