@@ -199,7 +199,6 @@ do
     elif [[ ${!i} = "-s" || ${!i} = "-stacktrace" ]]; then
         STACKTRACE="--stacktrace"
     elif [[  ${!i} = "-c" || ${!i} = "-custom" ]]; then
-        ((i++))
         FLAVOR="Custom"
         FLAVOR_LOWERCASE="custom"
     elif [[ ${!i} = "-aab" ]]; then
