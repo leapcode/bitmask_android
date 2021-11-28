@@ -207,8 +207,9 @@ do
         BUILD_APK=true
     elif [[ ${!i} = "-h" || ${!i} = "-help" ]]; then
         echo -e "
-        sign [-ks -fp -f -u -k]               sign a given apk (both app signing and GPG signing)
+        sign [-ks -ka -fp -f -u -k]           sign a given apk (both app signing and GPG signing)
         -ks / -keystore [path] -------------- define path to keystore for signing (required)
+        -ka / -keystorealias ---------------- keystore alias (required if aab is signed)
         -fp / -fingerprint [fingerprint] ---- define the fingerprint for the app (required for non-LEAP
                                               signed apps)
         -f / -file [inputfile] -------------- define path to apk going to be signed
@@ -219,7 +220,7 @@ do
                                               -u will be ignored (optional)                           
         
         
-        build [-v, -c, -b, -no-tag, -s]
+        build [-v, -c, -b, -no-tag, -apk, -aab, -s]
         -v / -version [gittag] -------------- define the git version tag that needs to be checked out 
                                               for building. It's also part of the resulting apk file 
                                               name. (required if you don't use -no-tag)
@@ -239,29 +240,24 @@ do
         example Usages:
         ---------------
         
-        * jarsign only:
+        ${GREEN}* jarsign only:${NC}
         ./prepareForDistribution.sh sign -f app/build/outputs/apk/app-production-beta.apk -ks ~/path/to/bitmask-android.keystore
-        
-        * jarsign and gpg sign only:
+        ${GREEN}* jarsign and gpg sign only:${NC}
         ./prepareForDistribution.sh sign -f app/build/outputs/apk/app-production-beta.apk -ks ~/path/to/bitmask-android.keystore -u GPG_USER
-
-        * jarsign and gpg sign all apks in directory:
+        ${GREEN}* jarsign and gpg sign all apks in directory:${NC}
         ./prepareForDistribution.sh sign -d currentReleases/ -ks ~/path/to/bitmask-android.keystore -u GPG_USER
-
-        * build custom stable
+        ${GREEN}* build custom stable:${NC}
         ./prepareForDistribution.sh build -v 0.9.7 -c
-        
-        * build and sign custom stable:
+        ${GREEN}* build and sign custom stable (apks and aab):${NC}
         ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -c -v 0.9.7
-        
-        * build and sign custom beta:
+        ${GREEN}* build and sign custom beta (apks and aab):${NC}
         ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -c -b -v 0.9.7RC2
-
-        * build and sign stable:
+        ${GREEN}* build and sign stable (apks and aab):${NC}
         ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -v 0.9.7
-        
-        * build and sign current git HEAD
-        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -no-tag"
+        ${GREEN}* build and sign apks and bundle for current git HEAD:${NC}
+        ./prepareForDistribution.sh build sign -ks ~/path/to/bitmask-android.keystore -u GPG_USER -no-tag
+        ${GREEN}* build and sign bundle only for current git HEAD:${NC}
+        ./prepareForDistribution.sh build -aab sign -ks ~/path/to/bitmask-android.keystore -ka exampleAlias -u GPG_USER -no-tag"
         exit
 
     else
@@ -307,9 +303,9 @@ if [[ ${DO_BUILD} == true ]]; then
         fi
     fi
 
-    $(script_dir)/cleanProject.sh || quit
-    $(script_dir)/build_deps.sh || quit
-    $(script_dir)/fix_gradle_lock.sh || quit
+ #   $(script_dir)/cleanProject.sh || quit
+ #   $(script_dir)/build_deps.sh || quit
+ #   $(script_dir)/fix_gradle_lock.sh || quit
     
     cd $(base_dir)
     BASE_APK_OUTPUT_DIR="./app/build/outputs/apk"
