@@ -340,7 +340,8 @@ if [[ ${DO_BUILD} == true ]]; then
               ./gradlew clean assemble${FLAVOR}ProductionArm64Beta $STACKTRACE || quit
               cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArm64/beta/*.apk $RELEASES_FILE_DIR/.
           fi
-        elif [[ -z ${BUILD_APK} ]]; then
+        fi
+        if [[ -z ${BUILD_APK} ]]; then
           echo "${GREEN} -> build beta release (.aab) for flavor ${FLAVOR}${NC}"
           ./gradlew clean bundle${FLAVOR}ProductionFatBeta $STACKTRACE || quit
           cp $BASE_BUNDLE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFatBeta/*.aab $RELEASES_FILE_DIR/.
@@ -371,7 +372,8 @@ if [[ ${DO_BUILD} == true ]]; then
               ./gradlew clean assemble${FLAVOR}ProductionArm64Release $STACKTRACE || quit
               cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArm64/release/*.apk $RELEASES_FILE_DIR/.
           fi
-        elif [[ -z ${BUILD_APK} ]]; then
+        fi
+        if [[ -z ${BUILD_APK} ]]; then
           echo -e "${GREEN} -> build stable release (.aab) for flavor ${FLAVOR}${NC}"
           ./gradlew clean bundle${FLAVOR}ProductionFatRelease $STACKTRACE || quit
           cp $BASE_BUNDLE_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFatRelease/*.aab $RELEASES_FILE_DIR/.
