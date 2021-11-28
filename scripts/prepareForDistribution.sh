@@ -18,11 +18,11 @@
 
 function quit {
     echo -e "${RED}Task failed. Exit value: $?.${NC}"
-    cleanUp
+    clean_up
     exit 1
 }
 
-function cleanUp {
+function clean_up {
     if [[ -f ${ALIGNED_UNSIGNED_APK} ]]; then
         rm ${ALIGNED_UNSIGNED_APK}
     fi
@@ -46,7 +46,7 @@ function sign {
       sign_apk $FILE_NAME $FILE_DIR
     fi
 
-    cleanUp
+    clean_up
 
     gpg_sign $FILE_NAME_STRING
 }
@@ -57,7 +57,7 @@ function sign_apk {
     FINAL_APK="${FILE_DIR}/${FILE_NAME}"
     echo -e "${GREEN} -> apksign ${FINAL_APK}${NC}"
     ${ANDROID_BUILD_TOOLS}/apksigner sign --ks "${KEY_STORE_STRING}" --out ${FINAL_APK} ${FINAL_APK} || quit
-    verifySigned $FINAL_APK
+    verify_signed $FINAL_APK
 }
 
 function sign_bundle {
@@ -77,10 +77,10 @@ function sign_bundle {
     echo "jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore "KEY_STORE_STRING" $FINAL_AAB $KEYSTORE_ALIAS
 "
     jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore "${KEY_STORE_STRING}" $FINAL_AAB $KEYSTORE_ALIAS || quit
-    verifySigned $FINAL_AAB
+    verify_signed $FINAL_AAB
 }
 
-function verifySigned {
+function verify_signed {
     FINAL_FILE=$1
     FINGERPRINT=$(unzip -p ${FINAL_FILE} META-INF/*.RSA | keytool -printcert | grep "SHA256" | tr -d '[:space:]') || quit
 
@@ -141,7 +141,7 @@ export NC=${NC}
 export EXPECTED_FINGERPRINT=${EXPECTED_FINGERPRINT}
 export -f sign
 export -f quit
-export -f cleanUp
+export -f clean_up
 
 
 # init parameters
