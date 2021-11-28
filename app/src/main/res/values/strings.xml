@@ -152,7 +152,7 @@
   <string name="version_update_error">Update failed.</string>
   <string name="version_update_error_permissions">No permissions to install app.</string>
   <string name="gateway_selection_title">Select location</string>
-  <string name="gateway_selection_recommended_location">Use recommended location</string>
+  <string name="gateway_selection_recommended_location">Recommended location</string>
   <string name="gateway_selection_recommended">Recommended</string>
   <string name="gateway_selection_manually">Manually select</string>
   <string name="gateway_selection_automatic_location">Automatically use best connection.</string>
