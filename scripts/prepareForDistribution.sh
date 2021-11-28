@@ -40,28 +40,65 @@ function sign {
         FILE_DIR=${FILE_NAME_STRING%/*} #remove everything after the last '/'
     fi
 
-    FINAL_APK="${FILE_DIR}/${FILE_NAME}"
-    echo -e "${GREEN} -> apksign ${FINAL_APK}${NC}"
-    ${ANDROID_BUILD_TOOLS}/apksigner sign --ks "${KEY_STORE_STRING}" --out ${FINAL_APK} ${FINAL_APK} || quit
-
-    FINGERPRINT=$(unzip -p ${FINAL_APK} META-INF/*.RSA | keytool -printcert | grep "SHA256" | tr -d '[:space:]') || quit
-    
-    if [[ ${FINGERPRINT} == ${EXPECTED_FINGERPRINT} ]] 
-    then
-        echo "Certificate fingerprint matches: ${FINGERPRINT}"
-    else 
-        echo -e "${RED}Certificate fingerprint \n${FINGERPRINT} \ndid not match expected fingerprint \n\t${EXPECTED_FINGERPRINT}${NC}"
-        quit
+    if [[ $FILE_NAME == *.aab ]]; then
+      sign_bundle $FILE_NAME $FILE_DIR
+    else
+      sign_apk $FILE_NAME $FILE_DIR
     fi
 
     cleanUp
-    
-    #---- GPG SIGNING ----
+
+    gpg_sign $FILE_NAME_STRING
+}
+
+function sign_apk {
+    FILE_NAME=$1
+    FILE_DIR=$2
+    FINAL_APK="${FILE_DIR}/${FILE_NAME}"
+    echo -e "${GREEN} -> apksign ${FINAL_APK}${NC}"
+    ${ANDROID_BUILD_TOOLS}/apksigner sign --ks "${KEY_STORE_STRING}" --out ${FINAL_APK} ${FINAL_APK} || quit
+    verifySigned $FINAL_APK
+}
+
+function sign_bundle {
+    FILENAME=$1
+    FILE_DIR=$2
+    FINAL_AAB="${FILE_DIR}/${FILE_NAME}"
+    echo -e "${GREEN} -> jarsign ${FINAL_AAB}${NC}"
+    if [[ -z $(which jarsigner) ]]; then
+        echo -e "${RED}ERROR: jarsigner not in path. Please add it to your path variable. jarsigner is part of your JDK installation. Exiting.${NC}"
+        exit
+    fi;
+
+    if [[ -z $KEYSTORE_ALIAS ]]; then
+        echo -e "${RED}ERROR: keystore alias is missing. Please add flag -ka <yourkeystorealias>. Exiting.${NC}"
+        exit
+    fi;
+    echo "jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore "KEY_STORE_STRING" $FINAL_AAB $KEYSTORE_ALIAS
+"
+    jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore "${KEY_STORE_STRING}" $FINAL_AAB $KEYSTORE_ALIAS || quit
+    verifySigned $FINAL_AAB
+}
+
+function verifySigned {
+    FINAL_FILE=$1
+    FINGERPRINT=$(unzip -p ${FINAL_FILE} META-INF/*.RSA | keytool -printcert | grep "SHA256" | tr -d '[:space:]') || quit
+
+    if [[ ${FINGERPRINT} == ${EXPECTED_FINGERPRINT} ]]; then
+        echo "Certificate fingerprint matches: ${FINGERPRINT}"
+    else
+        echo -e "${RED}Certificate fingerprint \n${FINGERPRINT} \ndid not match expected fingerprint \n\t${EXPECTED_FINGERPRINT}${NC}"
+        quit
+    fi
+}
+
+function gpg_sign {
+    FINAL_APK=$1
     if [[ -z ${GPG_KEY} && -z ${GPG_KEY_USER} ]]; then
         echo -e "${ORANGE}WARNING: Could not do gpg signing!${NC}"
         exit
     fi
-    
+
     if [[ ${GPG_KEY} ]]; then
         echo -e "${GREEN} -> gpg sign using key ${GPG_KEY}${NC}"
         gpg --default-key ${GPG_KEY} --armor --output "${FINAL_APK}.sig" --detach-sign ${FINAL_APK} || quit
@@ -132,6 +169,9 @@ do
         KEY_STORE_NAME=${KEY_STORE_STRING##*/}
         KEY_STORE_DIR=${KEY_STORE_STRING%/*}
         export KEY_STORE_STRING=${KEY_STORE_STRING}
+    elif [[ ${!i} = "-ka" || ${!i} = "-keystorealias" ]]; then
+        ((i++))
+        export KEYSTORE_ALIAS=${!i};
     elif [[ ${!i} = "-v" || ${!i} = "-version" ]]; then
         ((i++)) 
         VERSION_NAME=${!i};
