@@ -15,6 +15,7 @@ DIR_GOLIBS=./bitmaskcore/lib/
 DIR_TORLIBS=./tor-android/external/lib
 EXPECTED_NDK_VERSION="21.4.7075529"
 EXPECTED_ANDROID_NDK_RELEASE_VERSION="r21e"
+BUILD_TOR=false
 
 # init
 # look for empty dir
@@ -36,8 +37,9 @@ echo "ndk version: $NDK_VERSION"
 echo "ANDROID_NDK_HOME: $ANDROID_NDK_HOME"
 
 # build tor libs
-if [[ $(ls -A ${DIR_TORLIBS}) ]]
-then
+if [[ ${BUILD_TOR} == false ]]; then
+  echo "skipping Tor"
+elif [[ $(ls -A ${DIR_TORLIBS}) ]]; then
   echo "Dirty build: Reusing tor libraries"
 else
   echo "Clean build: compiling tor libraries"
