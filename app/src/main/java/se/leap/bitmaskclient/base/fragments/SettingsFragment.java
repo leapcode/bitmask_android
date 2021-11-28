@@ -70,7 +70,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initExcludeAppsEntry(view);
         initPreferUDPEntry(view);
         initUseBridgesEntry(view);
-        initUseSnowflakeEntry(view);
+        //initUseSnowflakeEntry(view);
         initFirewallEntry(view);
         initTetheringEntry(view);
         setActionBarTitle(this, advanced_settings);

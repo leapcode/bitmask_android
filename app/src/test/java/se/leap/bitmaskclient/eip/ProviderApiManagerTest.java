@@ -658,6 +658,10 @@ public class ProviderApiManagerTest {
         providerApiManager.handleIntent(providerApiCommand);
     }
 
+    /**
+     * Disabled as long as we hide snowflake in the UI
+     */
+    /*
     @Test
     public void test_handleIntentSetupProvider_TorFallback_SecondTryHappyPath() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
         Provider provider = getConfiguredProviderAPIv4();
@@ -675,9 +679,12 @@ public class ProviderApiManagerTest {
 
         providerApiManager.handleIntent(providerApiCommand);
         assertEquals(8118, TorStatusObservable.getProxyPort());
-    }
+    }*/
 
-    @Test
+    /**
+     * Disabled as long as we hide snowflake in the UI
+     */
+ /*   @Test
     public void test_handleIntentSetupProvider_TorFallbackStartServiceException_SecondTryFailed() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
         Provider provider = getConfiguredProviderAPIv4();
 
@@ -694,7 +701,7 @@ public class ProviderApiManagerTest {
 
         providerApiManager.handleIntent(providerApiCommand);
         assertEquals(-1, TorStatusObservable.getProxyPort());
-    }
+    } */
 
     @Test
     public void test_handleIntentSetupProvider_TorFallbackTimeoutException_SecondTryFailed() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
