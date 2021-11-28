@@ -61,15 +61,6 @@ android {
     }
   }
 
-  signingConfigs {
-    release {
-      storeFile project.hasProperty('storeFileProperty') ? file(storeFileProperty) : null
-      storePassword project.hasProperty('storePasswordProperty') ?  storePasswordProperty : ""
-      keyAlias project.hasProperty('keyAliasProperty') ?  keyAliasProperty : ""
-      keyPassword project.hasProperty('keyPasswordProperty') ?  keyPasswordProperty : ""
-    }
-  }
-
   flavorDimensions "branding", "implementation", "abi"
   productFlavors {
     productFlavors.all {
@@ -223,8 +214,6 @@ android {
     }
     release {
       //runProguard true
-      if(signingConfigs.contains(release))
-        signingConfig signingConfigs.release.isSigningReady() ? signingConfigs.release : signingConfigs.debug
       //ndk.debugSymbolLevel = "full"
       //minifyEnabled = true
       //shrinkResources true
