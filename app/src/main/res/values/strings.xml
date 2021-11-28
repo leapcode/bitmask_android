@@ -196,4 +196,5 @@
   <string name="connection_not_connected" >You may be leaking information to your internet provider or local network.</string>
   <string name="eip_state_no_network">You have no working Internet connection. Once you get it back, you will be automatically connected to</string>
   <string name="eip_state_blocking">%1$s is blocking all internet traffic.</string>
+  <string name="disabled_while_udp_on">Disabled while UDP is on.</string>
 </resources>
