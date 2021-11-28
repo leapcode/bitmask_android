@@ -303,9 +303,9 @@ if [[ ${DO_BUILD} == true ]]; then
         fi
     fi
 
- #   $(script_dir)/cleanProject.sh || quit
- #   $(script_dir)/build_deps.sh || quit
- #   $(script_dir)/fix_gradle_lock.sh || quit
+    $(script_dir)/cleanProject.sh || quit
+    $(script_dir)/build_deps.sh || quit
+    $(script_dir)/fix_gradle_lock.sh || quit
     
     cd $(base_dir)
     BASE_APK_OUTPUT_DIR="./app/build/outputs/apk"
