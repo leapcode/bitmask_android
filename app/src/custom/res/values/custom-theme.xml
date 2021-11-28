@@ -15,5 +15,7 @@
     <color name="colorMainBtnHighlight">#58FFA9</color>
     <!-- glow effect color of the on / off button if no network / traffic blocked -->
     <color name="colorMainBtnError">#eF2222</color>
-
+    <!-- location button icon tint color -->
+    <color name="colorLocationButtonTint">#ffffff</color>
+    <color name="colorLocationButtonTintTransparent">#22ffffff</color>
 </resources>

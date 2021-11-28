@@ -1,13 +1,13 @@
 package se.leap.bitmaskclient.base.views;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.GatewaysManager;
@@ -22,25 +22,26 @@ public class LocationIndicator extends LinearLayout {
     private View level2_2;
     private View level3;
     private View level3_2;
+    private int tintColor;
 
     public LocationIndicator(Context context) {
         super(context);
-        initLayout(context);
+        initLayout(context, null);
     }
 
     public LocationIndicator(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        initLayout(context);
+        initLayout(context, attrs);
 
     }
 
     public LocationIndicator(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initLayout(context);
+        initLayout(context, attrs);
     }
 
 
-    void initLayout(Context context) {
+    void initLayout(Context context, AttributeSet attrs) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rootview = inflater.inflate(R.layout.v_location_status_indicator, this, true);
@@ -50,6 +51,13 @@ public class LocationIndicator extends LinearLayout {
         level2_2 = rootview.findViewById(R.id.level2_2);
         level3 = rootview.findViewById(R.id.level3);
         level3_2 = rootview.findViewById(R.id.level3_2);
+        if (attrs != null) {
+            TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.LocationIndicator);
+            this.tintColor = typedArray.getColor(R.styleable.LocationIndicator_tint, getColor(context, R.color.black800_high_transparent));
+            typedArray.recycle();
+        } else {
+            this.tintColor = getColor(context, R.color.black800_high_transparent);
+        }
     }
 
     public void setLoad(GatewaysManager.Load load) {
@@ -67,24 +75,24 @@ public class LocationIndicator extends LinearLayout {
                 level1_2.setBackgroundColor(getColor(getContext(), R.color.amber200));
                 level2.setBackgroundColor(getColor(getContext(), R.color.amber200));
                 level2_2.setBackgroundColor(getColor(getContext(), R.color.amber200));
-                level3.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
-                level3_2.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
+                level3.setBackgroundColor(tintColor);
+                level3_2.setBackgroundColor(tintColor);
                 break;
             case CRITICAL:
                 level1.setBackgroundColor(getColor(getContext(), R.color.red200));
                 level1_2.setBackgroundColor(getColor(getContext(), R.color.red200));
-                level2.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
-                level2_2.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
-                level3.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
-                level3_2.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
+                level2.setBackgroundColor(tintColor);
+                level2_2.setBackgroundColor(tintColor);
+                level3.setBackgroundColor(tintColor);
+                level3_2.setBackgroundColor(tintColor);
                 break;
             default:
-                level1.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
-                level1_2.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
-                level2.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
-                level2_2.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
-                level3.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));
-                level3_2.setBackgroundColor(getColor(getContext(), R.color.black800_high_transparent));;
+                level1.setBackgroundColor(tintColor);
+                level1_2.setBackgroundColor(tintColor);
+                level2.setBackgroundColor(tintColor);
+                level2_2.setBackgroundColor(tintColor);
+                level3.setBackgroundColor(tintColor);
+                level3_2.setBackgroundColor(tintColor);
                 break;
         }
     }
