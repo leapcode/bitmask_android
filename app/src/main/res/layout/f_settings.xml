@@ -74,6 +74,7 @@
             app:text="@string/use_snowflake"
             app:subtitle="@string/snowflake_description"
             app:singleLine="false"
+            android:visibility="gone"
             />
 
         <androidx.appcompat.widget.AppCompatTextView
