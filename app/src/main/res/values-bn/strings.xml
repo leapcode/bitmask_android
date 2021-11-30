@@ -102,4 +102,8 @@
   <string name="donate_message">LEAP দান এবং অনুদানের উপর নির্ভরশীল। আপনি যদি নিরাপদ যোগাযোগের মূল্য দেন যা ব্যবহারকারী এবং পরিষেবা সরবরাহকারী উভয়ের জন্য সহজ তবে দান করুন।</string>
   <string name="donate_button_remind_later">আমাকে পরে মনে করিয়ে দিবেন</string>
   <string name="donate_button_donate">দান করুন</string>
+  <string name="log_onehop_create">Establishing an encrypted directory connection</string>
+  <string name="log_circuit_create">একটি টর্ক সার্কিট স্থাপন</string>
+  <string name="log_done">চলমান</string>
+  <string name="hide">লুকাও</string>
 </resources>

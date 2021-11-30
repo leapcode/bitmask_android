@@ -115,7 +115,7 @@
   <string name="donate_button_donate">Maddi dəstək</string>
   <string name="obfuscated_connection">Confusing bağlantısı istifadə edir.</string>
   <string name="obfuscated_connection_try">Aldadıcı əlaqə qurmağa çalışır.</string>
-  <string name="nav_drawer_obfuscated_connection">Körpülərin istifadəsi</string>
+  <string name="nav_drawer_obfuscated_connection">Körpü İstifadə Et</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">VPN filtrini keçmək</string>
   <string name="warning_exclude_apps_message">VPN-dən tətbiq istisna olmaqla diqqətli olun. Bu, şəxsiyyətinizi ortaya qoyacaq və təhlükəsizliyinizi təhlükəyə salacaq.</string>
   <plurals name="subtitle_exclude_apps">
@@ -128,4 +128,9 @@
   <string name="warning_option_try_pt">Obfuksasiya (çaşdırmaq)  üçün cəhd edin</string>
   <string name="warning_option_try_ovpn">Standart əlaqəni cəhd edin</string>
   <string name="vpn_error_establish">Android VPN xidmətini qura bilmədi.</string>
+  <string name="gateway_selection_automatic">Avtomatik</string>
+  <string name="log_onehop_create">Şifrələnmiş kataloq əlaqəsinin yaradılması</string>
+  <string name="log_circuit_create">Tor dövrəsinin yaradılması</string>
+  <string name="log_done">İşləyir</string>
+  <string name="hide">Gizlət</string>
 </resources>

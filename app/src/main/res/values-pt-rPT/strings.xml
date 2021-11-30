@@ -94,4 +94,11 @@
   <string name="donate_message">LEAP depende de doações. Por favor, doe hoje se valoriza a comunicação segura que é fácil, tanto para o utilizador final quanto para o provedor de serviços.</string>
   <string name="donate_button_remind_later">Lembrar-me mais tarde</string>
   <string name="donate_button_donate">Doar</string>
+  <string name="nav_drawer_obfuscated_connection">Usar Pontes</string>
+  <string name="gateway_selection_automatic">Automático</string>
+  <string name="log_onehop_create">A estabelecer uma ligação de diretório encriptada</string>
+  <string name="log_circuit_create">A estabelecer um circuito Tor</string>
+  <string name="log_done">Em execução</string>
+  <string name="hide">Ocultar</string>
+  <string name="use_snowflake">Use o Snowflake</string>
 </resources>

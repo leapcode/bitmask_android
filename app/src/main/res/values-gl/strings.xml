@@ -126,7 +126,7 @@
   <string name="donate_button_donate">Doar</string>
   <string name="obfuscated_connection">Usando unha conexión agochada.</string>
   <string name="obfuscated_connection_try">Intentando facer unha conexión agochada.</string>
-  <string name="nav_drawer_obfuscated_connection">Usando Pontes</string>
+  <string name="nav_drawer_obfuscated_connection">Usar Pontes</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">Evitar o filtro VPN</string>
   <string name="warning_exclude_apps_message">Ten coidado ao excluír apps da VPN. Esto revelará a túa identidade e comprometerá a seguridade.</string>
   <plurals name="subtitle_exclude_apps">
@@ -149,4 +149,10 @@
   <string name="version_update_error_pgp_verification">Fallou a verificación PGP. Ignorando a descarga.</string>
   <string name="version_update_error">Fallou a actualización.</string>
   <string name="version_update_error_permissions">Non tes permiso para instalar a app.</string>
+  <string name="gateway_selection_title">Establecer localización</string>
+  <string name="gateway_selection_automatic">Automática</string>
+  <string name="log_onehop_create">Estabelecendo unha conexión cifrada co directorio</string>
+  <string name="log_circuit_create">Estabelecendo o circuíto Tor</string>
+  <string name="log_done">Executando</string>
+  <string name="hide">Agochar</string>
 </resources>

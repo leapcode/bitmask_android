@@ -56,4 +56,13 @@
   <string name="action_settings">设置</string>
   <string name="donate_title">捐款</string>
   <string name="donate_button_donate">捐款</string>
+  <string name="nav_drawer_obfuscated_connection">使用网桥</string>
+  <string name="gateway_selection_title">选择位置</string>
+  <string name="gateway_selection_recommended">（推荐）</string>
+  <string name="gateway_selection_automatic">自动</string>
+  <string name="log_onehop_create">正在建立加密的目录连接</string>
+  <string name="log_circuit_create">正在建立 Tor 线路</string>
+  <string name="log_done">正在运行</string>
+  <string name="hide">隐藏</string>
+  <string name="use_snowflake">使用 Snowflake</string>
 </resources>

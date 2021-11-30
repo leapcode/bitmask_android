@@ -126,7 +126,6 @@
   <string name="donate_button_donate">လှူဒါန်းမယ်</string>
   <string name="obfuscated_connection">ရှုပ်ထွေးသော ချိတ်ဆက်မှုနဲ့ သုံးနေသည်။</string>
   <string name="obfuscated_connection_try">ရှုပ်ထွေးသော ချိတ်ဆက်မှုနဲ့ စမ်းချိတ်နေသည်။</string>
-  <string name="nav_drawer_obfuscated_connection">Bridges ကိုအသုံးပြုနေသည်</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">VPN စစ်ထုတ်ခြင်းအား သွယ်ဝိုက်၍သုံးမယ်</string>
   <string name="warning_exclude_apps_message">VPN မှ အပ္ပလီကေးရှင်းများ ဖယ်ထုတ်ခြင်းကို သတိထားပါ။ ဖယ်ထုတ်ထားခြင်းကြောင့် သင်၏ ကိုယ်ပိုင်အချက်အလက်များ နှင့် လုံခြုံရေးကို ထိခိုက်စေနိုင်ပါသည်။</string>
   <plurals name="subtitle_exclude_apps">
@@ -148,4 +147,10 @@
   <string name="version_update_error_pgp_verification">PGP အတည်ပြုခြင်း မအောင်မြင်ပါ။ ဒေါင်းလုပ်အား လျစ်လျူရှုနေသည်။</string>
   <string name="version_update_error">အဆင်မြှင့်ခြင်း မအောင်မြင်ပါ။</string>
   <string name="version_update_error_permissions">အပ္ပလီကေးရှင်းကို ဒေါင်းလုပ်ဆွဲရန် ခွင့်ပြုချက်မရှိပါ။</string>
+  <string name="log_onehop_create">ကုဒ်ဖြင့်စာဝှက်ထားသည့် ဖိုင်လမ်းကြောင်း ချိတ်ဆက်မှု တစ်ခု တည်ဆောက်နေသည်</string>
+  <string name="log_circuit_create">Tor ဆားကစ် တစ်ခုကို တည်ဆောက်နေသည်</string>
+  <string name="log_done">လုပ်ဆောင်နေသည်</string>
+  <string name="hide">ဝှက်မည်</string>
+  <string name="use_snowflake">Snowflake အသုံးပြုရန်</string>
+  <string name="vpn_settings">VPN အပြင်အဆင်များ</string>
 </resources>

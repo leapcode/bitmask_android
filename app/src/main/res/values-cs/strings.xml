@@ -18,7 +18,9 @@
   <string name="use_anonymously_button">Použít anonymně</string>
   <string name="username_hint">uživatelské jméno</string>
   <string name="username_ask">Prosím zadejte své uživatelské jméno</string>
+  <string name="password_ask">Zadejte své heslo</string>
   <string name="password_hint">heslo</string>
+  <string name="password_match">Shoda zadání hesla</string>
   <string name="password_mismatch">Zadaná hesla se neshodují</string>
   <string name="user_message">Zpráva uživatele</string>
   <string name="about_fragment_title">O programu</string>
@@ -45,4 +47,11 @@
   <string name="action_settings">Nastavení</string>
   <string name="donate_title">Darujte</string>
   <string name="donate_button_donate">Darujte</string>
+  <string name="nav_drawer_obfuscated_connection">Použít bridge</string>
+  <string name="gateway_selection_automatic">Automaticky</string>
+  <string name="log_onehop_create">Spojování s šifrovaným adresářem</string>
+  <string name="log_circuit_create">Navazování okruhu Tor</string>
+  <string name="log_done">Běží</string>
+  <string name="hide">Skrýt</string>
+  <string name="use_snowflake">Použít Snowflake</string>
 </resources>

@@ -51,4 +51,11 @@
   <string name="donate_title">Donirajte</string>
   <string name="donate_button_remind_later">Podsjeti me kasnije</string>
   <string name="donate_button_donate">Donirajte</string>
+  <string name="nav_drawer_obfuscated_connection">Koristi Mostove</string>
+  <string name="gateway_selection_recommended">Preporučeno</string>
+  <string name="gateway_selection_automatic">Automatski</string>
+  <string name="log_onehop_create">Uspostavljanje šifrirane veze direktorija</string>
+  <string name="log_circuit_create">Uspostavljanje Tor kruga</string>
+  <string name="hide">Sakrij</string>
+  <string name="use_snowflake">Koristi Snowflake</string>
 </resources>

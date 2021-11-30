@@ -126,7 +126,7 @@
   <string name="donate_button_donate">תרום</string>
   <string name="obfuscated_connection">משתמש בחיבור מאופל.</string>
   <string name="obfuscated_connection_try">מנסה חיבור מאופל.</string>
-  <string name="nav_drawer_obfuscated_connection">משתמש בגשרים</string>
+  <string name="nav_drawer_obfuscated_connection">השתמש בגשרים</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">עקוף סינון VPN</string>
   <string name="warning_exclude_apps_message">היזהר מפני שלילת יישומים מן VPN. שלילה תחשוף את זהותך ותפגום באבטחתך.</string>
   <plurals name="subtitle_exclude_apps">
@@ -151,4 +151,9 @@
   <string name="version_update_error_pgp_verification">שגיאת וידוא PGP. מתעלם מהורדה.</string>
   <string name="version_update_error">עדכון נכשל.</string>
   <string name="version_update_error_permissions">אין הרשאות להתקין את היישום.</string>
+  <string name="log_onehop_create">מקים חיבור סיפרייה מוצפן</string>
+  <string name="log_circuit_create">מקים מעגל Tor</string>
+  <string name="log_done">רץ</string>
+  <string name="hide">הסתר</string>
+  <string name="use_snowflake">השתמש ב־Snowflake</string>
 </resources>

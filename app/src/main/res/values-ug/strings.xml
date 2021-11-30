@@ -127,7 +127,6 @@
   <string name="donate_button_donate">ئىئانە</string>
   <string name="obfuscated_connection">بىر مۇجىمەللەشتۈرۈلگەن باغلىنىشنى ئىشلىتىش.</string>
   <string name="obfuscated_connection_try">بىر مۇجىمەللەشتۈرۈلگەن باغلىنىشنى سىناش.</string>
-  <string name="nav_drawer_obfuscated_connection">كۆۋرۈكنى ئىشلىتىش</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">ئايلانما VPN سۈزگۈچ</string>
   <string name="warning_exclude_apps_message">VPN نىڭ سىرتىدا قالغان ئەپلەرگە دىققەت قىلىپ قويۇڭ. بۇ كىملگىڭىزنى ئاشكارىلاپ قويۇشى ۋە بىخەتەرلىكىڭىزگە خەۋپ  يەتكۈزۈشى مۈمكىن.</string>
   <plurals name="subtitle_exclude_apps">
@@ -150,4 +149,8 @@
   <string name="version_update_error_pgp_verification">PGP دەلىللەش خاتاسى: چۈشۈرۈش ئېتىبارغا ئېلىنمايدۇ.</string>
   <string name="version_update_error">يېڭىلاش مەغلۇپ بولدى</string>
   <string name="version_update_error_permissions">بۇ ئەپنى قاچىلاشقا ھوقۇقىڭىز يوق</string>
+  <string name="gateway_selection_title">ئورنىڭىزنى تاللاڭ</string>
+  <string name="gateway_selection_automatic">ئاپتۇماتىك</string>
+  <string name="log_done">ئىجرا قىلىنىۋاتىدۇ</string>
+  <string name="hide">يوشۇر</string>
 </resources>

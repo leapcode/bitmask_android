@@ -125,7 +125,6 @@
   <string name="donate_button_donate">کمک مالی</string>
   <string name="obfuscated_connection">با استفاده از یک ارتباط مبهم شده.</string>
   <string name="obfuscated_connection_try">در حال امتحان یک ارتباط مبهم شده.</string>
-  <string name="nav_drawer_obfuscated_connection">با استفاده از پل‌ها</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">دور زدن فیلترینگ VPN</string>
   <string name="warning_exclude_apps_message">در استثناء کردن برنامه ها از اتصال با VPN احتیاط کنید. این کار هویت شما را آشکار می‌کند و امنیت شما را به خطر می‌اندازد. </string>
   <plurals name="subtitle_exclude_apps">
@@ -148,4 +147,6 @@
   <string name="version_update_error_pgp_verification">خطا در اعتبارسنجی PGP. نادیده‌گرفتن بارگیری.</string>
   <string name="version_update_error">به‌روزرسانی با شکست مواجه شد.</string>
   <string name="version_update_error_permissions">مجوزی برای نصب برنامه داده نشده است.</string>
+  <string name="gateway_selection_recommended">توصیه‌شده</string>
+  <string name="log_done">در حال اجرا</string>
 </resources>

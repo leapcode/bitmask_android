@@ -7,6 +7,7 @@
   <string name="switch_provider_menu_option">Provider wisselen</string>
   <string name="info">info</string>
   <string name="show_connection_details">Details van de verbinding weergeven</string>
+  <string name="connection_details">Verbindingsdetails</string>
   <string name="routes_info">Routes: %s</string>
   <string name="routes_info6">IPv6 routes: %s</string>
   <string name="error_empty_username">De gebruikersnaam moet niet leeg zijn.</string>
@@ -50,7 +51,7 @@
   <string name="setup_error_title">Configuratiefout</string>
   <string name="setup_error_configure_button">Configureren</string>
   <string name="setup_error_close_button">Aflsluiten</string>
-  <string name="setup_error_text">Er is een probleem opgetreden om 1%s te configureren met jou provider.
+  <string name="setup_error_text">Er is een probleem opgetreden om %s te configureren met je gekozen provider.
 
 Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start een provider in te stellen.</string>
   <string name="server_unreachable_message">Server is onbereikbaar, probeer later opnieuw.</string>
@@ -80,8 +81,8 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="vpn.button.turn.on">Inschakelen</string>
   <string name="vpn.button.turn.off">Uitschakelen</string>
   <string name="vpn_button_turn_off_blocking">Stop blokkeren</string>
-  <string name="vpn_securely_routed">Je verkeer wordt beveiligd gerouteerd door:</string>
-  <string name="vpn_securely_routed_no_internet">Geen internetverbinding gevonden, wanneer deze terugkomt, routeren we uw verkeer veilig via:</string>
+  <string name="vpn_securely_routed">Je internetverkeer gaat nu beveiligd via:</string>
+  <string name="vpn_securely_routed_no_internet">Geen internetverbinding gevonden, wanneer deze terugkomt, routeren we je verkeer veilig via:</string>
   <string name="log_fragment_title">Log</string>
   <string name="vpn_fragment_title">VPN</string>
   <string name="navigation_drawer_open">Open navigatiemenu</string>
@@ -105,7 +106,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="vpn_certificate_user_message">Het VPN certificaat in ongeldig. Gelieve opnieuw in te loggen om een nieuw te downloaden.</string>
   <string name="save_battery">Batterij besparen</string>
   <string name="subtitle_save_battery">Uitschakelen wanneer VPN Hotspot is ingeschakeld</string>
-  <string name="save_battery_message">Dataverbindingen in de achtergrond worden in slaapstand gezet wanneer uw telefoon inactief is.</string>
+  <string name="save_battery_message">Dataverbindingen in de achtergrond worden in slaapstand gezet wanneer je telefoon inactief is.</string>
   <string name="always_on_vpn">VPN altijd aan</string>
   <string name="subtitle_always_on_vpn">Open Android systeeminstellingen</string>
   <string name="tethering">VPN Hotspot</string>
@@ -113,6 +114,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="require_root">Vereist root-rechten</string>
   <string name="show_experimental">Toon experimentele functies</string>
   <string name="hide_experimental">Experimentele functies verbergen</string>
+  <string name="experimental_features">Experimentele functies</string>
   <string name="tethering_enabled_message">Zorg er eerst voor dat tethering is ingeschakeld in de  <![CDATA[<b>system settings</b>]]></string>
   <string name="tethering_message">Deel je VPN met andere apparaten via:</string>
   <string name="tethering_wifi">Wifi-hotspot</string>
@@ -128,7 +130,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="donate_button_donate">Doneren</string>
   <string name="obfuscated_connection">Gebruikt een versluierde verbinding</string>
   <string name="obfuscated_connection_try">Probeer een versluierde verbinding op te zetten.</string>
-  <string name="nav_drawer_obfuscated_connection">Gebruik Bridges</string>
+  <string name="nav_drawer_obfuscated_connection">Gebruik bridges</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">VPN-filteren omzeilen</string>
   <string name="warning_exclude_apps_message">Wees voorzichtig met het uitsluiten van apps van de VPN. Dit onthult je identiteit en brengt je veiligheid in gevaar.</string>
   <plurals name="subtitle_exclude_apps">
@@ -151,4 +153,16 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="version_update_error_pgp_verification">PGP verificatiefout.  Download genegeerd.</string>
   <string name="version_update_error">Update mislukt.</string>
   <string name="version_update_error_permissions">Geen toestemming om de app te installeren.</string>
+  <string name="gateway_selection_title">Selecteer locatie</string>
+  <string name="gateway_selection_recommended_location">Aanbevolen locatie</string>
+  <string name="gateway_selection_recommended">Aanbevolen</string>
+  <string name="gateway_selection_manually">Selecteer manueel</string>
+  <string name="gateway_selection_automatic_location">Automatisch de beste verbinding kiezen.</string>
+  <string name="gateway_selection_automatic">Automatisch</string>
+  <string name="log_onehop_create">Een versleutelde adreslijstverbinding maken</string>
+  <string name="log_circuit_create">Maken van een Tor circuit</string>
+  <string name="log_done">Wordt uitgevoerd</string>
+  <string name="hide">Verberg</string>
+  <string name="use_snowflake">Gebruik Snowflake</string>
+  <string name="vpn_settings">VPN instellingen</string>
 </resources>

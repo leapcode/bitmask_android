@@ -7,6 +7,7 @@
   <string name="switch_provider_menu_option">Cambiar de proveedor</string>
   <string name="info">información</string>
   <string name="show_connection_details">Mostrar detalles de la conexión</string>
+  <string name="connection_details">Detalles de la conexión</string>
   <string name="routes_info">Rutas: %s</string>
   <string name="routes_info6">Rutas IPv6: %s</string>
   <string name="error_empty_username">El nombre de usuario no debería estar vacío.</string>
@@ -111,6 +112,7 @@
   <string name="require_root">Requiere permisos de superusuaria</string>
   <string name="show_experimental">Mostrar características experimentales</string>
   <string name="hide_experimental">Ocultar características experimentales</string>
+  <string name="experimental_features">Características experimentales</string>
   <string name="tethering_enabled_message">Por favor asegúrate de habilitar primero tethering en los <![CDATA[<b>ajustes de sistema</b>]]>.</string>
   <string name="tethering_message">Comparte tu VPN con otros dispositivos vía:</string>
   <string name="tethering_wifi">Punto de acceso Wi-fi</string>
@@ -126,7 +128,7 @@
   <string name="donate_button_donate">Donar</string>
   <string name="obfuscated_connection">Usando una conexión ofuscada.</string>
   <string name="obfuscated_connection_try">Probando una conexión ofuscada.</string>
-  <string name="nav_drawer_obfuscated_connection">Usando Puentes</string>
+  <string name="nav_drawer_obfuscated_connection">Usar bridges</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">Evadir cribado de VPN</string>
   <string name="warning_exclude_apps_message">Ten cuidado de excluir aplicaciones de la VPN. Esto revelará tu identidad y comprometerá tu seguridad.</string>
   <plurals name="subtitle_exclude_apps">
@@ -149,4 +151,20 @@
   <string name="version_update_error_pgp_verification">Error de verificación PGP. Ignorando la descarga.</string>
   <string name="version_update_error">Falló la actualización.</string>
   <string name="version_update_error_permissions">No tienes permisos para instalar la aplicación.</string>
+  <string name="gateway_selection_title">Seleccionar ubicación</string>
+  <string name="gateway_selection_recommended_location">Ubicación recomendada</string>
+  <string name="gateway_selection_recommended">Recomendado</string>
+  <string name="gateway_selection_automatic_location">Usa la mejor conexión automáticamente.</string>
+  <string name="gateway_selection_automatic">Automática</string>
+  <string name="finding_best_connection">Encontrando la mejor conexión...</string>
+  <string name="reconnecting">Reconectando...</string>
+  <string name="tor_starting">Iniciando puentes para la evasión de la censura...</string>
+  <string name="tor_stopping">Deteniendo puentes.</string>
+  <string name="tor_started">Usando puentes para la evasión de la censura.</string>
+  <string name="log_onehop_create">Estableciendo una conexión cifrada con el repositorio de repetidores</string>
+  <string name="log_circuit_create">Estableciendo un circuito a través de Tor</string>
+  <string name="log_done">En marcha</string>
+  <string name="hide">Ocultar</string>
+  <string name="use_snowflake">Usa Snowflake</string>
+  <string name="vpn_settings">Ajustes de VPN</string>
 </resources>

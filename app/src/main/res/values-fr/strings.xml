@@ -149,4 +149,13 @@
   <string name="version_update_error_pgp_verification">Erreur de vérification PGP. Le téléchargement est ignoré.</string>
   <string name="version_update_error">Échec de mise à jour.</string>
   <string name="version_update_error_permissions">Manque de droits pour installer l’appli.</string>
+  <string name="gateway_selection_title">Sélectionner l’emplacement</string>
+  <string name="gateway_selection_recommended">Recommandé</string>
+  <string name="gateway_selection_automatic">Automatique</string>
+  <string name="log_onehop_create">Mise en place d’une connexion chiffrée à l’annuaire</string>
+  <string name="log_circuit_create">Mise en place d’un circuit Tor</string>
+  <string name="log_done">En cours</string>
+  <string name="hide">Cacher</string>
+  <string name="use_snowflake">Utiliser Snowflake</string>
+  <string name="vpn_settings">Paramètres du RPV</string>
 </resources>

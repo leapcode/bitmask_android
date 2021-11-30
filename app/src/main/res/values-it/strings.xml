@@ -57,5 +57,15 @@
   <string name="always_on_vpn">VPN sempre attivo</string>
   <string name="tethering_wifi">Hotspot Wi-Fi</string>
   <string name="donate_title">Fai una donazione</string>
+  <string name="donate_button_remind_later">Ricordamelo più tardi</string>
   <string name="donate_button_donate">Fai una donazione</string>
+  <string name="nav_drawer_obfuscated_connection">Utilizza i bridge</string>
+  <string name="gateway_selection_title">Seleziona il percorso</string>
+  <string name="gateway_selection_recommended">Raccomandate</string>
+  <string name="gateway_selection_automatic">Automatica</string>
+  <string name="log_onehop_create">Sto creando una connessione cifrata alla directory</string>
+  <string name="log_circuit_create">Sto creando un circuito Tor</string>
+  <string name="log_done">Attivo</string>
+  <string name="hide">Nascosto</string>
+  <string name="use_snowflake">Usa Snowflake</string>
 </resources>

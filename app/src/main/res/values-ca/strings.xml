@@ -126,7 +126,7 @@
   <string name="donate_button_donate">Fes una donació</string>
   <string name="obfuscated_connection">S\'està utilitzant una connexió ofuscada.</string>
   <string name="obfuscated_connection_try">S\'està provant una connexió ofuscada.</string>
-  <string name="nav_drawer_obfuscated_connection">S\'està utilitzant «Bridges»</string>
+  <string name="nav_drawer_obfuscated_connection">Utilitza ponts</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">Elusió del filtratge VPN</string>
   <string name="warning_exclude_apps_message">Aneu amb compte d’excloure les aplicacions de la VPN. Això revelarà la vostra identitat i comprometrà la vostra seguretat.</string>
   <plurals name="subtitle_exclude_apps">
@@ -149,4 +149,9 @@
   <string name="version_update_error_pgp_verification">Error de verificació PGP. S\'està ignorant la baixada.</string>
   <string name="version_update_error">No s\'ha pogut actualitzar.</string>
   <string name="version_update_error_permissions">No hi ha permisos per instal·lar l\'aplicació.</string>
+  <string name="log_onehop_create">S\'està establint una connexió xifrada amb un directori</string>
+  <string name="log_circuit_create">S\'està establint un circuit Tor</string>
+  <string name="log_done">S\'està executant</string>
+  <string name="hide">Oculta</string>
+  <string name="use_snowflake">Utilitzi Snowflake</string>
 </resources>

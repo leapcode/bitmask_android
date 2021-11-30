@@ -92,4 +92,11 @@
   <string name="donate_message">LEAP avhenger av støtte og fondsmidler. Doner i dag hvis du verdsetter sikker kommunikasjon som er enkel for både sluttbruker og tjenestetilbyder.</string>
   <string name="donate_button_remind_later">Påminn meg senere.</string>
   <string name="donate_button_donate">Doner</string>
+  <string name="nav_drawer_obfuscated_connection">Bruk broer</string>
+  <string name="gateway_selection_automatic">Automatisk</string>
+  <string name="log_onehop_create">Etablerer en kryptert katalogforbindelse</string>
+  <string name="log_circuit_create">Etablerer en Tor-krets</string>
+  <string name="log_done">Kjører</string>
+  <string name="hide">Gjem</string>
+  <string name="use_snowflake">Bruk Snowflake</string>
 </resources>

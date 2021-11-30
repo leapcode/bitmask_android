@@ -126,7 +126,7 @@
   <string name="donate_button_donate">Dirulaguntza</string>
   <string name="obfuscated_connection">Konexio itsutua erabiltzen ari zara</string>
   <string name="obfuscated_connection_try">Konexio itsutua erabiltzen saiatzen ari zara</string>
-  <string name="nav_drawer_obfuscated_connection">Zubiak erabiltzen</string>
+  <string name="nav_drawer_obfuscated_connection">Zubiak erabili</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">Saihestu VPN zerbitzuaren iragaztea</string>
   <string name="warning_exclude_apps_message">Kontuz ibili aplikazioak VPNtik baztertzerako orduan. Zure identitatea jakinarazi eta zure segurtasuna arriskuan jarri dezake.</string>
   <plurals name="subtitle_exclude_apps">
@@ -141,4 +141,7 @@
   <string name="vpn_error_establish">Androidek VPN zerbitzua ezartzean huts egin du</string>
   <string name="root_permission_error">Ezin dira VPNra sarbide-puntua eta IPv6 suebakia funtzionalitateak abiarazi %s-i supererabiltzailearen baimenik eman ez zaiolako</string>
   <string name="qs_enable_vpn">%sabiarazi</string>
+  <string name="log_onehop_create">Enkriptatutako direktorio batera konexioa ezartzen</string>
+  <string name="log_circuit_create">Tor zirkuitu bat ezartzen</string>
+  <string name="hide">Ezkutatu</string>
 </resources>

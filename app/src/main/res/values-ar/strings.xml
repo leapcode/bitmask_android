@@ -126,7 +126,7 @@
   <string name="donate_button_donate">تبرّع</string>
   <string name="obfuscated_connection">جاري استخدام اتصال مموه.</string>
   <string name="obfuscated_connection_try">جارى محاولة استخدام اتصال مموه.</string>
-  <string name="nav_drawer_obfuscated_connection">استخدام الجسور</string>
+  <string name="nav_drawer_obfuscated_connection">استخدم الجسور</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">تخطى تصفية VPN</string>
   <string name="warning_exclude_apps_message">خذ حذرك و أنت تستثنى البرامج من VPN. هذا سيكشف هويتك و سيأخذ من تأمينك.</string>
   <plurals name="subtitle_exclude_apps">
@@ -153,4 +153,11 @@
   <string name="version_update_error_pgp_verification">خطأ في التحقق من صحة التوقيع. تجاهل التحميل.</string>
   <string name="version_update_error">فشل التحديث.</string>
   <string name="version_update_error_permissions">لاتوجد صلاحيات لتثبيت التطبيق.</string>
+  <string name="gateway_selection_automatic">أوتوماتيكي</string>
+  <string name="log_onehop_create">ينشئ اتصالا مشفرا بالدليل</string>
+  <string name="log_circuit_create">ينشئ دائرة تور</string>
+  <string name="log_done">يعمل</string>
+  <string name="hide">إخفاء</string>
+  <string name="use_snowflake">استخدم Snowflake</string>
+  <string name="vpn_settings">إعدادات الشبكة الخاصة الافتراضية</string>
 </resources>

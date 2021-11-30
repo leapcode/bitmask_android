@@ -117,7 +117,7 @@
   <string name="donate_button_donate">Doar</string>
   <string name="obfuscated_connection">Utilizando conexão ofuscada.</string>
   <string name="obfuscated_connection_try">Tentando conexão ofuscada.</string>
-  <string name="nav_drawer_obfuscated_connection">Utilizando Bridges</string>
+  <string name="nav_drawer_obfuscated_connection">Usar pontes</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">Contornar filtragem de VPN</string>
   <string name="warning_exclude_apps_message">Seja cuidadoso ao excluir apps da VPN. Isso pode revelar sua identidade e comprometer sua segurança.</string>
   <plurals name="subtitle_exclude_apps">
@@ -130,4 +130,11 @@
   <string name="warning_option_try_pt">Tentar conexão ofuscada</string>
   <string name="warning_option_try_ovpn">Tentar conexão padrão</string>
   <string name="vpn_error_establish">Android falhou ao estabelecer o serviço VPN.</string>
+  <string name="gateway_selection_recommended">Recomendado</string>
+  <string name="gateway_selection_automatic">Automático</string>
+  <string name="log_onehop_create">Estabelecendo uma conexão de diretório criptografado</string>
+  <string name="log_circuit_create">Estabelecendo um circuito Tor</string>
+  <string name="log_done">Executando</string>
+  <string name="hide">Esconder</string>
+  <string name="use_snowflake">Usar Snowflake</string>
 </resources>

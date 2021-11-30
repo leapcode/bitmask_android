@@ -44,6 +44,15 @@
   <string name="navigation_drawer_open">Deschide sertarul de navigare</string>
   <string name="navigation_drawer_close">Închide sertarul de navigare</string>
   <string name="action_settings">Setări</string>
+  <string name="tethering_wifi">Hotspot Wi-Fi</string>
   <string name="donate_title">Donează</string>
   <string name="donate_button_donate">Donează</string>
+  <string name="nav_drawer_obfuscated_connection">Foloseşte punţi</string>
+  <string name="gateway_selection_title">Alege locația</string>
+  <string name="gateway_selection_automatic">Automatic</string>
+  <string name="log_onehop_create">Se stabileşte o conexiune criptată la director</string>
+  <string name="log_circuit_create">Se stabileşte un circuit Tor</string>
+  <string name="log_done">Rulează</string>
+  <string name="hide">Ascunde</string>
+  <string name="use_snowflake">Folosește Snowflake</string>
 </resources>

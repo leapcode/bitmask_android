@@ -111,4 +111,8 @@
   <string name="donate_message">LEAP sõltub annetustest ja toetustest. Palun anneta täna, kui väärtustad turvalist suhtlust, mis on lihtne nii kasutajale kui teenusepakkujale.</string>
   <string name="donate_button_remind_later">Tuleta hiljem meelde</string>
   <string name="donate_button_donate">Anneta</string>
+  <string name="nav_drawer_obfuscated_connection">Kasuta sildu</string>
+  <string name="log_circuit_create">Tor\'i ringtee sätestamine</string>
+  <string name="log_done">Töötab</string>
+  <string name="hide">Peida</string>
 </resources>

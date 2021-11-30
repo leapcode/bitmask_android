@@ -126,7 +126,7 @@
   <string name="donate_button_donate">寄付</string>
   <string name="obfuscated_connection">難読化された接続を使用します。</string>
   <string name="obfuscated_connection_try">難読化された接続を試行します。</string>
-  <string name="nav_drawer_obfuscated_connection">ブリッジを使用します</string>
+  <string name="nav_drawer_obfuscated_connection">ブリッジを使う</string>
   <string name="nav_drawer_subtitle_obfuscated_connection">VPNフィルタリングを迂回</string>
   <string name="warning_exclude_apps_message">注意してVPNからアプリを除外してください。これにより、身元が明らかになり、セキュリティが侵害される可能性があります。</string>
   <plurals name="subtitle_exclude_apps">
@@ -148,4 +148,11 @@
   <string name="version_update_error_pgp_verification">PGP検証エラー。ダウンロードを無視。</string>
   <string name="version_update_error">アップデート失敗。</string>
   <string name="version_update_error_permissions">アプリをインストールする権限がありません。</string>
+  <string name="gateway_selection_title">場所を選択</string>
+  <string name="gateway_selection_automatic">自動</string>
+  <string name="log_onehop_create">暗号化されたディレクトリとの接続を確立中</string>
+  <string name="log_circuit_create">Tor サーキットを設置しています</string>
+  <string name="log_done">実行中</string>
+  <string name="hide">隠す</string>
+  <string name="use_snowflake">Snowflake を使用</string>
 </resources>
