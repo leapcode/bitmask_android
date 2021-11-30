@@ -151,9 +151,8 @@ public class MainActivityErrorDialog extends DialogFragment {
                 }
                 break;
             case ERROR_VPN_PREPARE:
-                builder.setPositiveButton(android.R.string.ok, (dialog, which) -> { });
-                break;
             default:
+                builder.setPositiveButton(android.R.string.ok, (dialog, which) -> { });
                 break;
         }
 
