@@ -14,7 +14,9 @@ android {
 
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
-    versionCode 158
+    // the factor 1000 is used so that gplay users can upgrade from split apks ((current version number - 1) * 1000) + n
+    // to extracted bundle apks, supplied by google
+    versionCode 158 * 1000
     versionName "1.1.0"
     minSdkVersion 16
     targetSdkVersion 30
@@ -430,7 +432,7 @@ android.applicationVariants.all { variant ->
   variant.outputs.each { output ->
       // if not a fat build
       if (abiDimension.abiVersionCode > 0) {
-          output.versionCodeOverride = android.defaultConfig.versionCode * 1000 + abiDimension.abiVersionCode
+          output.versionCodeOverride = android.defaultConfig.versionCode + abiDimension.abiVersionCode
       }
   }
 
