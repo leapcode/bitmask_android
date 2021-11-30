@@ -1,3 +1,22 @@
+1.1.0 - UX upgrade release
+features:
+- many UI and UX improvements:
+ * updated gateway selector
+ * new settings screen
+ * updated VPN main screen
+ * updated exclude apps screen
+- support of UDP:
+ * settings to optionally prefer UDP over TCP for faster connections
+ * improved fallback mechanism, if UDP is blocked
+- more coming soon...
+
+ bugfixes:
+- fix save battery feature - stay focussed again on what you're doing:
+   * the internet connection is hibernated while the phone screen is off
+   * no distracting notifications while you've put your phone aside
+   * save battery
+ - fix disappearing action bar subtitles after orientation change
+
 1.1.0RC2 - UX upgrade beta release
 features:
 - many UI and UX improvements:
