@@ -61,6 +61,22 @@ android {
       jumboMode true
       multiDexEnabled true
     }
+
+    ndk {
+      abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+    }
+
+    bundle {
+      language {
+        enableSplit = true
+      }
+      density {
+        enableSplit = true
+      }
+      abi {
+        enableSplit = true
+      }
+    }
   }
 
   flavorDimensions "branding", "implementation", "abi"
