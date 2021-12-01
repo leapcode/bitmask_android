@@ -1,3 +1,8 @@
+1.1.1 - Android App Bundle Hotfix
+bugfixes:
+- fix VPN not turning on:
+ * ensure native libraries are extracted from Android App Bundles
+
 1.1.0 - UX upgrade release
 features:
 - many UI and UX improvements:
