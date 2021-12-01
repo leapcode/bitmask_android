@@ -122,6 +122,9 @@ function script_dir {
 # ----Main-----
 
 DO_BUILD=false
+BUILD_SPLIT=false
+BUILD_FAT=false
+BUILD_WEB=false
 DO_SIGN=false
 BETA=false
 NO_TAG=false
@@ -204,7 +207,15 @@ do
     elif [[ ${!i} = "-aab" ]]; then
         BUILD_BUNDLE=true
     elif [[ ${!i} = "-apk" ]]; then
+        ((i++))
+        if [[ ${!i} != "fat" && ${!i} != "split" &&  ${!i} != "web" && ${!i} != "all" ]]; then
+          echo -e "${RED}ERROR: -apk requires fat, web, split or all ${NC}"
+          exit
+        fi
         BUILD_APK=true
+        if [[ ${!i} == "split" || ${!i} == "all" ]]; then BUILD_SPLIT=true; fi;
+        if [[ ${!i} == "fat" || ${!i} == "all" ]]; then BUILD_FAT=true; fi;
+        if [[ ${!i} == "web" || ${!i} == "all" ]]; then BUILD_WEB=true; fi;
     elif [[ ${!i} = "-h" || ${!i} = "-help" ]]; then
         echo -e "
         sign [-ks -ka -fp -f -u -k]           sign a given apk (both app signing and GPG signing)
@@ -227,7 +238,7 @@ do
         -c / -custom ------------------------ build custom Bitmask client instead of main Bitmask client 
                                               (optional)
         -b / -beta -------------------------- build beta version with .beta appended to applicationId (optional)
-        -apk -------------------------------- build only apk(s)
+        -apk [all, split, fat, web] --------- build only apk(s)
         -aab -------------------------------- build only android app bundle
         -no-tag ----------------------------- force to build current checked out git commit instead of an
                                               official release version
@@ -319,26 +330,33 @@ if [[ ${DO_BUILD} == true ]]; then
     if [[ ${BETA} == true ]]; then
         if [[ -z ${BUILD_BUNDLE} ]]; then
           echo "${GREEN} -> build beta releases (.apk) for flavor ${FLAVOR}${NC}"
-          ./gradlew clean assemble${FLAVOR}ProductionFatBeta $STACKTRACE || quit
-   #       echo "copy file:  $(ls $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk)"
-          cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk $RELEASES_FILE_DIR/.
-
-          # custom builds might have disabled split apks -> check if build task exist
-          if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Beta) ]]; then
-              ./gradlew clean assemble${FLAVOR}ProductionX86Beta $STACKTRACE || quit
-              cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86/beta/*.apk $RELEASES_FILE_DIR/.
+          if [[ ${BUILD_WEB} == true ]]; then
+            echo -e "${RED}ERROR: There are no beta apks for web build flavor. Exiting.${NC}"
+            quit
           fi
-          if [[  $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86_64Beta) ]]; then
-              ./gradlew clean assemble${FLAVOR}ProductionX86_64Beta $STACKTRACE || quit
-              cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86_64/beta/*.apk $RELEASES_FILE_DIR/.
+          if [[ ${BUILD_FAT} == true ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionFatBeta $STACKTRACE || quit
+   #        echo "copy file:  $(ls $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk)"
+            cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/beta/*.apk $RELEASES_FILE_DIR/.
           fi
-          if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Beta) ]]; then
-              ./gradlew clean assemble${FLAVOR}ProductionArmv7Beta $STACKTRACE || quit
-              cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArmv7/beta/*.apk $RELEASES_FILE_DIR/.
-          fi
-          if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Beta) ]]; then
-              ./gradlew clean assemble${FLAVOR}ProductionArm64Beta $STACKTRACE || quit
-              cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArm64/beta/*.apk $RELEASES_FILE_DIR/.
+          if [[ ${BUILD_SPLIT} == true ]]; then
+            # custom builds might have disabled split apks -> check if build task exist
+            if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Beta) ]]; then
+                ./gradlew clean assemble${FLAVOR}ProductionX86Beta $STACKTRACE || quit
+                cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86/beta/*.apk $RELEASES_FILE_DIR/.
+            fi
+            if [[  $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86_64Beta) ]]; then
+                ./gradlew clean assemble${FLAVOR}ProductionX86_64Beta $STACKTRACE || quit
+                cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86_64/beta/*.apk $RELEASES_FILE_DIR/.
+            fi
+            if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Beta) ]]; then
+                ./gradlew clean assemble${FLAVOR}ProductionArmv7Beta $STACKTRACE || quit
+                cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArmv7/beta/*.apk $RELEASES_FILE_DIR/.
+            fi
+            if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Beta) ]]; then
+                ./gradlew clean assemble${FLAVOR}ProductionArm64Beta $STACKTRACE || quit
+                cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArm64/beta/*.apk $RELEASES_FILE_DIR/.
+            fi
           fi
         fi
         if [[ -z ${BUILD_APK} ]]; then
@@ -349,28 +367,32 @@ if [[ ${DO_BUILD} == true ]]; then
     else
         if [[ -z ${BUILD_BUNDLE} ]]; then
           echo -e "${GREEN} -> build stable releases (.apk) for flavor ${FLAVOR}${NC}"
-          ./gradlew clean assemble${FLAVOR}ProductionFatRelease $STACKTRACE || quit
-          cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/release/*.apk $RELEASES_FILE_DIR/.
-
-          ./gradlew clean assemble${FLAVOR}ProductionFatwebRelease $STACKTRACE || quit
-          cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFatweb/release/*.apk $RELEASES_FILE_DIR/.
-
-          # custom builds might have disabled split apks -> check if build task exist
-          if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Release) ]]; then
-              ./gradlew clean assemble${FLAVOR}ProductionX86Release $STACKTRACE || quit
-              cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86/release/*.apk $RELEASES_FILE_DIR/.
+          if [[ ${BUILD_FAT} == true ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionFatRelease $STACKTRACE || quit
+            cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFat/release/*.apk $RELEASES_FILE_DIR/.
           fi
-          if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86_64Release) ]]; then
-              ./gradlew clean assemble${FLAVOR}ProductionX86_64Release $STACKTRACE || quit
-              cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86_64/release/*.apk $RELEASES_FILE_DIR/.
+          if [[ ${BUILD_WEB} == true ]]; then
+            ./gradlew clean assemble${FLAVOR}ProductionFatwebRelease $STACKTRACE || quit
+            cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionFatweb/release/*.apk $RELEASES_FILE_DIR/.
           fi
-          if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Release) ]]; then
-              ./gradlew clean assemble${FLAVOR}ProductionArmv7Release $STACKTRACE || quit
-              cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArmv7/release/*.apk $RELEASES_FILE_DIR/.
-          fi
-          if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArm64Release) ]]; then
-              ./gradlew clean assemble${FLAVOR}ProductionArm64Release $STACKTRACE || quit
-              cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArm64/release/*.apk $RELEASES_FILE_DIR/.
+          if [[ ${BUILD_SPLIT} == true ]]; then
+            # custom builds might have disabled split apks -> check if build task exist
+            if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86Release) ]]; then
+                ./gradlew clean assemble${FLAVOR}ProductionX86Release $STACKTRACE || quit
+                cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86/release/*.apk $RELEASES_FILE_DIR/.
+            fi
+            if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionX86_64Release) ]]; then
+                ./gradlew clean assemble${FLAVOR}ProductionX86_64Release $STACKTRACE || quit
+                cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionX86_64/release/*.apk $RELEASES_FILE_DIR/.
+            fi
+            if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArmv7Release) ]]; then
+                ./gradlew clean assemble${FLAVOR}ProductionArmv7Release $STACKTRACE || quit
+                cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArmv7/release/*.apk $RELEASES_FILE_DIR/.
+            fi
+            if [[ $(./gradlew tasks --console plain | grep ${FLAVOR}ProductionArm64Release) ]]; then
+                ./gradlew clean assemble${FLAVOR}ProductionArm64Release $STACKTRACE || quit
+                cp $BASE_APK_OUTPUT_DIR/${FLAVOR_LOWERCASE}ProductionArm64/release/*.apk $RELEASES_FILE_DIR/.
+            fi
           fi
         fi
         if [[ -z ${BUILD_APK} ]]; then
