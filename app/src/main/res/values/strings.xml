@@ -155,7 +155,7 @@
   <string name="gateway_selection_recommended_location">Recommended location</string>
   <string name="gateway_selection_recommended">Recommended</string>
   <string name="gateway_selection_manually">Manually select</string>
-  <string name="gateway_selection_automatic_location">Automatically use best connection.</string>
+  <string name="gateway_selection_automatic_location">Automatically use best connection</string>
   <string name="gateway_selection_automatic">Automatic</string>
   <string name="reconnecting">Reconnecting…</string>
   <string name="tor_starting">Starting bridges for censorship circumvention…</string>
@@ -167,8 +167,8 @@
   <string name="log_handshake">Handshaking with a relay</string>
   <string name="log_handshake_done">Handshake with a relay done</string>
   <string name="log_onehop_create">Establishing an encrypted directory connection</string>
-  <string name="log_requesting_status">Asking for networkstatus consensus</string>
-  <string name="log_loading_status">Loading networkstatus consensus</string>
+  <string name="log_requesting_status">Asking for network status consensus</string>
+  <string name="log_loading_status">Loading network status consensus</string>
   <string name="log_loading_keys">Loading authority key certs</string>
   <string name="log_requesting_descriptors">Asking for relay descriptors</string>
   <string name="log_loading_descriptors">Loading relay descriptors</string>
