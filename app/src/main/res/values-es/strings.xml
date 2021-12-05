@@ -156,7 +156,6 @@
   <string name="gateway_selection_recommended">Recomendado</string>
   <string name="gateway_selection_automatic_location">Usa la mejor conexión automáticamente.</string>
   <string name="gateway_selection_automatic">Automática</string>
-  <string name="finding_best_connection">Encontrando la mejor conexión...</string>
   <string name="reconnecting">Reconectando...</string>
   <string name="tor_starting">Iniciando puentes para la evasión de la censura...</string>
   <string name="tor_stopping">Deteniendo puentes.</string>

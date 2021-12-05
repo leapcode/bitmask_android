@@ -157,7 +157,6 @@
   <string name="gateway_selection_manually">Elle seçim</string>
   <string name="gateway_selection_automatic_location">Otomatik olarak en iyi bağlantıyı kullan.</string>
   <string name="gateway_selection_automatic">Otomatik</string>
-  <string name="finding_best_connection">En iyi bağlantı aranıyor…</string>
   <string name="reconnecting">Yeniden bağlanıyor…</string>
   <string name="tor_starting">Sansürü önlemek için köprüler başlatılıyor…</string>
   <string name="tor_stopping">Köprüler durduruluyor.</string>

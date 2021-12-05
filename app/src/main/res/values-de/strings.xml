@@ -157,7 +157,6 @@
   <string name="gateway_selection_manually">Manuell auswählen</string>
   <string name="gateway_selection_automatic_location">Automatisch die beste Verbindung nutzen.</string>
   <string name="gateway_selection_automatic">Automatisch</string>
-  <string name="finding_best_connection">Finde die beste Verbindung...</string>
   <string name="reconnecting">Wiederverbindung...</string>
   <string name="tor_starting">Brücken werden gestartet, um Zensur zu umgehen...</string>
   <string name="tor_stopping">Brücken werden gestoppt.</string>
