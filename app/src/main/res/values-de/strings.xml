@@ -161,8 +161,8 @@
   <string name="tor_starting">Brücken werden gestartet, um Zensur zu umgehen...</string>
   <string name="tor_stopping">Brücken werden gestoppt.</string>
   <string name="tor_started">Brücken werden genutzt, um Zensur zu umgehen.</string>
-  <string name="log_conn_done_pt">Mit Pluggable Transport verbunden</string>
-  <string name="log_conn_pt">Verbinde mit Pluggable Transport</string>
+  <string name="log_conn_done_pt">Mit der austauschbaren Übertragungsart verbunden</string>
+  <string name="log_conn_pt">Verbinde mit einer austauschbaren Übertragungsart</string>
   <string name="log_conn_done">Verbunden mit einem Tor Relay</string>
   <string name="log_handshake">Verbindungsaufbau mit einem Tor Relay</string>
   <string name="log_handshake_done">Verbindungsaufbau mit einem Tor Relay abgeschlossen</string>
