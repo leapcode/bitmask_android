@@ -196,4 +196,7 @@
   <string name="eip_state_no_network">You have no working Internet connection. Once you get it back, you will be automatically connected to</string>
   <string name="eip_state_blocking">%1$s is blocking all internet traffic.</string>
   <string name="disabled_while_udp_on">Disabled while UDP is on.</string>
+  <string name="advanced_settings">Advanced Settings</string>
+  <string name="cancel_connection">Disconnect</string>
+
 </resources>
