@@ -164,8 +164,8 @@
   <string name="log_conn_done_pt">Connected to pluggable transport</string>
   <string name="log_conn_pt">Connecting to pluggable transport</string>
   <string name="log_conn_done">Connected to a relay</string>
-  <string name="log_handshake">Handshaking with a relay</string>
-  <string name="log_handshake_done">Handshake with a relay done</string>
+  <string name="log_handshake">Negotiating connection with a relay</string>
+  <string name="log_handshake_done">Connection negotiation with a relay done</string>
   <string name="log_onehop_create">Establishing an encrypted directory connection</string>
   <string name="log_requesting_status">Asking for network status consensus</string>
   <string name="log_loading_status">Loading network status consensus</string>
@@ -173,7 +173,7 @@
   <string name="log_requesting_descriptors">Asking for relay descriptors</string>
   <string name="log_loading_descriptors">Loading relay descriptors</string>
   <string name="log_enough_dirinfo">Loaded enough directory info to build circuits</string>
-  <string name="log_ap_handshake_done">Handshake finished with a relay to build circuits</string>
+  <string name="log_ap_handshake_done">Negotiation finished with a relay to build circuits</string>
   <string name="log_circuit_create">Establishing a Tor circuit</string>
   <string name="log_done">Running</string>
   <string name="channel_name_tor_service">%s Bridges Service</string>
