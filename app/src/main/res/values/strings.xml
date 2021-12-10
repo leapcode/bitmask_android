@@ -159,8 +159,8 @@
   <string name="gateway_selection_automatic">Automatic</string>
   <string name="reconnecting">Reconnecting…</string>
   <string name="tor_starting">Starting bridges for censorship circumvention…</string>
-  <string name="tor_stopping">Stopping bridges.</string>
-  <string name="tor_started">Using bridges for censorship circumvention.</string>
+  <string name="tor_stopping">Stopping bridges</string>
+  <string name="tor_started">Using bridges for censorship circumvention</string>
   <string name="log_conn_done_pt">Connected to pluggable transport</string>
   <string name="log_conn_pt">Connecting to pluggable transport</string>
   <string name="log_conn_done">Connected to a relay</string>
