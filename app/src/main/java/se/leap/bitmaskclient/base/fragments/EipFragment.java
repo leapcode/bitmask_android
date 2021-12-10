@@ -336,7 +336,7 @@ public class EipFragment extends Fragment implements Observer {
             Bundle bundle = new Bundle();
             bundle.putBoolean(EIP_ACTION_START, true);
             bundle.putBoolean(EIP_EARLY_ROUTES, false);
-            ProviderAPICommand.execute(getContext().getApplicationContext(), DOWNLOAD_GEOIP_JSON, bundle, provider);
+            ProviderAPICommand.execute(context, DOWNLOAD_GEOIP_JSON, bundle, provider);
         } else {
             EipCommand.startVPN(context, false);
         }
