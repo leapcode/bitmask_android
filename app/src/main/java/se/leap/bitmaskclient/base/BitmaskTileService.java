@@ -43,9 +43,9 @@ public class BitmaskTileService extends TileService implements Observer {
     private void onTileTap() {
         EipStatus eipStatus = EipStatus.getInstance();
         if (eipStatus.isConnecting() || eipStatus.isBlocking() || eipStatus.isConnected() || eipStatus.isReconnecting()) {
-            EipCommand.stopVPN(getApplicationContext());
+            EipCommand.stopVPN(this);
         } else {
-            EipCommand.startVPN(getApplicationContext(), false);
+            EipCommand.startVPN(this, false);
         }
     }
 

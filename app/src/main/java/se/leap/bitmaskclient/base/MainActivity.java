@@ -217,14 +217,14 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
 
             switch (requestCode) {
                 case REQUEST_CODE_SWITCH_PROVIDER:
-                    EipCommand.stopVPN(this.getApplicationContext());
-                    EipCommand.startVPN(this.getApplicationContext(), false);
+                    EipCommand.stopVPN(this);
+                    EipCommand.startVPN(this, false);
                     break;
                 case REQUEST_CODE_CONFIGURE_LEAP:
                     Log.d(TAG, "REQUEST_CODE_CONFIGURE_LEAP - onActivityResult - MainActivity");
                     break;
                 case REQUEST_CODE_LOG_IN:
-                    EipCommand.startVPN(this.getApplicationContext(), true);
+                    EipCommand.startVPN(this, true);
                     break;
             }
         }

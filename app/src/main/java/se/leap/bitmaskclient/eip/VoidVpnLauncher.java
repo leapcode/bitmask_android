@@ -30,14 +30,14 @@ public class VoidVpnLauncher extends Activity {
             startActivityForResult(blockingIntent, VPN_USER_PERMISSION);
         }
         else {
-            EipCommand.startBlockingVPN(getApplicationContext());
+            EipCommand.startBlockingVPN(this);
         }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == VPN_USER_PERMISSION) {
             if (resultCode == RESULT_OK) {
-                EipCommand.launchVoidVPN(getApplicationContext());
+                EipCommand.launchVoidVPN(this);
             }
         }
         finish();

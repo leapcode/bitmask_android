@@ -338,7 +338,7 @@ public class EipFragment extends Fragment implements Observer {
             bundle.putBoolean(EIP_EARLY_ROUTES, false);
             ProviderAPICommand.execute(getContext().getApplicationContext(), DOWNLOAD_GEOIP_JSON, bundle, provider);
         } else {
-            EipCommand.startVPN(context.getApplicationContext(), false);
+            EipCommand.startVPN(context, false);
         }
         EipStatus.getInstance().updateState("UI_CONNECTING", "", 0, ConnectionStatus.LEVEL_START);
     }
@@ -349,7 +349,7 @@ public class EipFragment extends Fragment implements Observer {
             Log.e(TAG, "context is null when trying to stop EIP");
             return;
         }
-        EipCommand.stopVPN(context.getApplicationContext());
+        EipCommand.stopVPN(context);
     }
 
     private void askPendingStartCancellation() {

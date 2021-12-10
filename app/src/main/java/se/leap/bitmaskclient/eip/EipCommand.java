@@ -28,7 +28,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 public class EipCommand {
 
     private static void execute(@NonNull Context context, @NonNull String action) {
-        execute(context.getApplicationContext(), action, null, null);
+        execute(context, action, null, null);
     }
 
     /**
@@ -46,7 +46,7 @@ public class EipCommand {
         vpnIntent.setAction(action);
         if (resultReceiver != null)
             vpnIntent.putExtra(EIP_RECEIVER, resultReceiver);
-        EIP.enqueueWork(context, vpnIntent);
+        EIP.enqueueWork(context.getApplicationContext(), vpnIntent);
     }
 
     public static void startVPN(@NonNull Context context, boolean earlyRoutes) {
