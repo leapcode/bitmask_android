@@ -169,7 +169,7 @@
   <string name="log_onehop_create">Establishing an encrypted directory connection</string>
   <string name="log_requesting_status">Asking for network status consensus</string>
   <string name="log_loading_status">Loading network status consensus</string>
-  <string name="log_loading_keys">Loading authority key certs</string>
+  <string name="log_loading_keys">Loading authority certificates</string>
   <string name="log_requesting_descriptors">Asking for relay descriptors</string>
   <string name="log_loading_descriptors">Loading relay descriptors</string>
   <string name="log_enough_dirinfo">Loaded enough directory info to build circuits</string>
