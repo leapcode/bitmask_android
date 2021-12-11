@@ -410,7 +410,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         // An old running VPN should now be exited
         mStarting = false;
 
-        if (mProfile.mUsePluggableTransports) {
+        if (mProfile.mUsePluggableTransports && connection instanceof Obfs4Connection) {
             Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
             if (shapeshifter == null) {
                 shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
