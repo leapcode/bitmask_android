@@ -193,14 +193,14 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
                 if (EipStatus.getInstance().isDisconnected()) {
-                    EipCommand.startVPN(context.getApplicationContext(), false);
+                    EipCommand.startVPN(context, false);
                 }
                 break;
             case CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
                 provider = resultData.getParcelable(PROVIDER_KEY);
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
-                EipCommand.startVPN(context.getApplicationContext(), false);
+                EipCommand.startVPN(context, false);
                 break;
             case CORRECTLY_DOWNLOADED_GEOIP_JSON:
                 provider = resultData.getParcelable(PROVIDER_KEY);
@@ -235,7 +235,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
     private void maybeStartEipService(Bundle resultData) {
         if (resultData.getBoolean(EIP_ACTION_START)) {
             boolean earlyRoutes = resultData.getBoolean(EIP_EARLY_ROUTES);
-            EipCommand.startVPN(context.getApplicationContext(), earlyRoutes);
+            EipCommand.startVPN(context, earlyRoutes);
         }
     }
 
@@ -262,7 +262,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                     switch (error) {
                         case NO_MORE_GATEWAYS:
                             finishGatewaySetup(false);
-                            EipCommand.startBlockingVPN(context.getApplicationContext());
+                            EipCommand.startBlockingVPN(context);
                             break;
                         case ERROR_INVALID_PROFILE:
                             selectNextGateway();
@@ -364,7 +364,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
     private void selectNextGateway() {
         changingGateway.set(true);
         reconnectTry.set(0);
-        EipCommand.startVPN(context.getApplicationContext(), false, setupNClosestGateway.get() + 1);
+        EipCommand.startVPN(context, false, setupNClosestGateway.get() + 1);
     }
 
     private void finishGatewaySetup(boolean changingGateway) {
@@ -396,7 +396,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 case SHAPESHIFTER:
                     VpnProfile profile = VpnStatus.getLastConnectedVpnProfile();
                     if (profile == null) {
-                        EipCommand.startVPN(context.getApplicationContext(), false, 0);
+                        EipCommand.startVPN(context, false, 0);
                     } else {
                         GatewaysManager gatewaysManager = new GatewaysManager(context.getApplicationContext());
                         int position = gatewaysManager.getPosition(profile);

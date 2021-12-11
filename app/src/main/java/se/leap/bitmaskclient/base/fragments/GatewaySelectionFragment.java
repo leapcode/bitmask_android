@@ -176,10 +176,14 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
             }
             PreferenceHelper.setPreferredCity(context, preferredCity);
             EipCommand.startVPN(context, false);
-            Intent intent = new Intent(getContext(), MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
-            startActivity(intent);
+            try {
+                Intent intent = new Intent(context, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
+                context.startActivity(intent);
+            } catch (NullPointerException npe) {
+                npe.printStackTrace();
+            }
         }).start();
     }
 

@@ -117,7 +117,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
     static void enqueueWork(Context context, Intent work) {
         try {
             ProviderAPI.enqueueWork(context, ProviderAPI.class, JOB_ID, work);
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | IllegalArgumentException e) {
             e.printStackTrace();
         }
     }

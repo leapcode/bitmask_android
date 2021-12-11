@@ -45,7 +45,7 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
     connectState userpause = connectState.SHOULDBECONNECTED;
 
     private String lastStateMsg = null;
-    private java.lang.Runnable mDelayDisconnectRunnable = new Runnable() {
+    private final java.lang.Runnable mDelayDisconnectRunnable = new Runnable() {
         @Override
         public void run() {
             if (!(network == connectState.PENDINGDISCONNECT))
@@ -83,7 +83,7 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
         long data;
     }
 
-    private LinkedList<Datapoint> trafficdata = new LinkedList<>();
+    private final LinkedList<Datapoint> trafficdata;
 
 
     @Override
@@ -128,9 +128,10 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
         }
     }
 
-    public DeviceStateReceiver(OpenVPNManagement magnagement) {
+    public DeviceStateReceiver(OpenVPNManagement management) {
         super();
-        mManagement = magnagement;
+        trafficdata = new LinkedList<>();
+        mManagement = management;
         mManagement.setPauseCallback(this);
         mDisconnectHandler = new Handler();
     }

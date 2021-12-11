@@ -136,7 +136,7 @@ public final class EIP extends JobIntentService implements Observer {
     static void enqueueWork(Context context, Intent work) {
         try {
             enqueueWork(context, EIP.class, JOB_ID, work);
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | IllegalArgumentException e) {
            e.printStackTrace();
         }
     }
