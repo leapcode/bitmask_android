@@ -27,28 +27,32 @@ public class NetworkUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Network[] networks = conn.getAllNetworks();
             for (Network network : networks) {
-                NetworkInfo ni = conn.getNetworkInfo(network);
-                LinkProperties li = conn.getLinkProperties(network);
+                try {
+                    NetworkInfo ni = conn.getNetworkInfo(network);
+                    LinkProperties li = conn.getLinkProperties(network);
 
-                NetworkCapabilities nc = conn.getNetworkCapabilities(network);
+                    NetworkCapabilities nc = conn.getNetworkCapabilities(network);
 
-                if (nc == null) {
-                    continue;
-                }
+                    if (nc == null) {
+                        continue;
+                    }
 
-                // Skip VPN networks like ourselves
-                if (nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN))
-                    continue;
+                    // Skip VPN networks like ourselves
+                    if (nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN))
+                        continue;
 
-                // Also skip mobile networks
-                if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
-                    continue;
+                    // Also skip mobile networks
+                    if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
+                        continue;
 
 
-                for (LinkAddress la : li.getLinkAddresses()) {
-                    if ((la.getAddress() instanceof Inet4Address && !ipv6) ||
-                            (la.getAddress() instanceof Inet6Address && ipv6))
-                        nets.add(la.toString());
+                    for (LinkAddress la : li.getLinkAddresses()) {
+                        if ((la.getAddress() instanceof Inet4Address && !ipv6) ||
+                                (la.getAddress() instanceof Inet6Address && ipv6))
+                            nets.add(la.toString());
+                    }
+                } catch (SecurityException se) {
+                    se.printStackTrace();
                 }
             }
         } else {
