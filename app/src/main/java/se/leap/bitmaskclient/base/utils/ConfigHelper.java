@@ -105,7 +105,7 @@ public class ConfigHelper {
         try {
             cf = CertificateFactory.getInstance("X.509");
 
-            certificateString = certificateString.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
+            certificateString = certificateString.replaceAll("-----BEGIN CERTIFICATE-----", "").trim().replaceAll("-----END CERTIFICATE-----", "").trim();
             byte[] cert_bytes = Base64.decode(certificateString);
             InputStream caInput = new ByteArrayInputStream(cert_bytes);
             try {

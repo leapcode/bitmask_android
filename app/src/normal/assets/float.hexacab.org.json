@@ -1,0 +1,37 @@
+{
+  "api_uri":"https://api.float.hexacab.org:4430",
+  "api_version":"3",
+  "ca_cert_fingerprint":"SHA256: dd919b7513b4a1368faa20e38cd3314156805677f48b787cdd9b4a92dec64eb0",
+  "ca_cert_uri":"https://api.float.hexacab.org/ca.crt",
+  "default_language":"en",
+  "description":{
+    "en":"Riseup Networks"
+  },
+  "domain":"float.hexacab.org",
+  "enrollment_policy":"open",
+  "languages":[
+    "en"
+  ],
+  "name":{
+    "en":"0XACAB Networks"
+  },
+  "service":{
+    "allow_anonymous":true,
+    "allow_free":true,
+    "allow_limited_bandwidth":false,
+    "allow_paid":false,
+    "allow_registration":false,
+    "allow_unlimited_bandwidth":true,
+    "bandwidth_limit":102400,
+    "default_service_level":1,
+    "levels":{
+      "1":{
+        "description":"Please donate.",
+        "name":"free"
+      }
+    }
+  },
+  "services":[
+    "openvpn"
+  ]
+}
