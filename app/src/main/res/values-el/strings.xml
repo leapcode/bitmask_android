@@ -157,7 +157,6 @@
   <string name="gateway_selection_manually">Χειροκίνητη επιλογή</string>
   <string name="gateway_selection_automatic_location">Χρήση της καλύτερης σύνδεσης αυτόματα</string>
   <string name="gateway_selection_automatic">Αυτόματο</string>
-  <string name="finding_best_connection">Βρίσκουμε τη καλύτερη σύνδεση...</string>
   <string name="reconnecting">Επανασυνδέεται...</string>
   <string name="tor_starting">Εκκίνηση γεφυρών για παράκαμψη λογοκρισίας...</string>
   <string name="tor_stopping">Σταμάτημα γεφυρών.</string>

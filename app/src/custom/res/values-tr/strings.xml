@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="donate_message">RiseupVPN, riseup.net tarafından sunulan kolay, hızlı ve güvenli bir VPN hizmetidir. RiseupVPN bir kullanıcı hesabına ihtiyaç duymaz, günlük tutmaz veya sizi hiç bir şekilde izlemez. Bu hizmetin giderleri tamamen sizin gibi kullanıcıların bağışlarıyla ödeniyor. Lütfen https://riseup.net/vpn/donate adresinde bağışta bulunun.</string>
-  <string name="terms_of_service">Bu uygulamayı kullanarak https://riseup.net/tos adresindeki Hizmet Kullanım Şartlarını kabul etmiş olursunuz. Bu hizmet dünyayı daha iyi bir yer kılmak için çabalayan insanlara yönelik olarak olduğu haliyle sağlanmıştır ve herhangi bir garantiye tabi değildir.</string>
+  <string name="donate_message">RiseupVPN, riseup.net tarafından sunulan kolay, hızlı ve güvenli bir VPN hizmetidir. RiseupVPN bir kullanıcı hesabı açılmasına gerek duymaz günlük tutmaz ya da herhangi bir şekilde sizi izlemez. Bu hizmetin maliyeti tamamen sizin gibi kullanıcıların bağışlarıyla karşılanır. Lütfen https://riseup.net/vpn/donate adresinden bağış yapın.</string>
+  <string name="terms_of_service">Bu uygulamayı kullanarak https://riseup.net/tos adresindeki kullanım koşullarını kabul etmiş olursunuz. Bu hizmet dünyayı daha iyi bir yer yapmaya çabalayan insanlar için, herhangi bir garanti vermeden olduğu gibi sunulmaktadır.</string>
 </resources>

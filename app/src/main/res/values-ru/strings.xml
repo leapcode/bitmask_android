@@ -114,7 +114,7 @@ https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="require_root">Требуются права root</string>
   <string name="show_experimental">Показать экспериментальные функции</string>
   <string name="hide_experimental">Скрыть экспериментальные функции</string>
-  <string name="experimental_features">Выбор вручную</string>
+  <string name="experimental_features">Экспериментальные функции</string>
   <string name="tethering_enabled_message">Не забудьте сначала включить модем в <![CDATA[<b>системных настройках</b>]]>.</string>
   <string name="tethering_message">Раздавать VPN другим устройствами через:</string>
   <string name="tethering_wifi">Точка доступа Wi-Fi</string>
@@ -161,7 +161,6 @@ https://www.transifex.com/projects/p/bitmask-android/</string>
   <string name="gateway_selection_manually">Выбор вручную</string>
   <string name="gateway_selection_automatic_location">Автоматически использовать лучшее соединение.</string>
   <string name="gateway_selection_automatic">Автоматически</string>
-  <string name="finding_best_connection">Поиск наилучшего соединения…</string>
   <string name="reconnecting">Повторное подключение…</string>
   <string name="tor_starting">Запуск мостов для обхода цензуры…</string>
   <string name="tor_stopping">Остановка мостов.</string>
