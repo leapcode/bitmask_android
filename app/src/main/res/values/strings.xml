@@ -165,7 +165,7 @@
   <string name="log_conn_pt">Connecting to pluggable transport</string>
   <string name="log_conn_done">Connected to a relay</string>
   <string name="log_handshake">Negotiating connection with a relay</string>
-  <string name="log_handshake_done">Connection negotiation with a relay done</string>
+  <string name="log_handshake_done">Connection with relay negotiated</string>
   <string name="log_onehop_create">Establishing an encrypted directory connection</string>
   <string name="log_requesting_status">Asking for network status consensus</string>
   <string name="log_loading_status">Loading network status consensus</string>
