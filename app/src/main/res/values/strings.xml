@@ -88,7 +88,7 @@
   <string name="action_example">Example action</string>
   <string name="action_settings">Settings</string>
   <string name="void_vpn_establish">%s blocks all outgoing internet traffic.</string>
-  <string name="void_vpn_error_establish">Blocking all outgoing internet traffic failed.</string>
+  <string name="void_vpn_error_establish">Blocking all internet traffic failed.</string>
   <string name="void_vpn_stopped">Stopped blocking all outgoing internet traffic.</string>
   <string name="void_vpn_title">Blocking traffic</string>
   <string name="update_provider_details">Update provider details</string>
