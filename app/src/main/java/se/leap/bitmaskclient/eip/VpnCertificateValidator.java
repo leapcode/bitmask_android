@@ -16,9 +16,12 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -27,7 +30,7 @@ import se.leap.bitmaskclient.base.utils.ConfigHelper;
 public class VpnCertificateValidator {
     public final static String TAG = VpnCertificateValidator.class.getSimpleName();
 
-    private String certificate;
+    private final String certificate;
     private CalendarProviderInterface calendarProvider;
 
     public VpnCertificateValidator(String certificate) {
@@ -35,21 +38,30 @@ public class VpnCertificateValidator {
         this.calendarProvider = new CalendarProvider();
     }
 
+    @VisibleForTesting
     public void setCalendarProvider(CalendarProviderInterface calendarProvider) {
         this.calendarProvider = calendarProvider;
     }
 
     /**
      *
-     * @return true if there's a certificate that is valid for more than 15 more days
+     * @return true if all certificates are valid for more than 15 more days
      */
     public boolean isValid() {
         if (certificate.isEmpty()) {
             return false;
         }
 
-        X509Certificate x509Certificate = ConfigHelper.parseX509CertificateFromString(certificate);
-        return isValid(x509Certificate);
+        ArrayList<X509Certificate> x509Certificates = ConfigHelper.parseX509CertificatesFromString(certificate);
+        if (x509Certificates == null) {
+            return false;
+        }
+        for (X509Certificate cert : x509Certificates) {
+            if (!isValid(cert)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

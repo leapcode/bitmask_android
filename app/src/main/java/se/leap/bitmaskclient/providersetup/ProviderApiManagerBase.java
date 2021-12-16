@@ -849,18 +849,24 @@ public abstract class ProviderApiManagerBase {
     protected boolean validCertificate(Provider provider, String certString) {
         boolean result = false;
         if (!ConfigHelper.checkErroneousDownload(certString)) {
-            X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certString);
+            ArrayList<X509Certificate> certificates = ConfigHelper.parseX509CertificatesFromString(certString);
             try {
-                if (certificate != null) {
-                    JSONObject providerJson = provider.getDefinition();
-                    String fingerprint = providerJson.getString(Provider.CA_CERT_FINGERPRINT);
-                    String encoding = fingerprint.split(":")[0];
-                    String expectedFingerprint = fingerprint.split(":")[1];
-                    String realFingerprint = getFingerprintFromCertificate(certificate, encoding);
-
-                    result = realFingerprint.trim().equalsIgnoreCase(expectedFingerprint.trim());
-                } else
+                if (certificates != null) {
+                    if (certificates.size() == 1) {
+                        JSONObject providerJson = provider.getDefinition();
+                        String fingerprint = providerJson.getString(Provider.CA_CERT_FINGERPRINT);
+                        String encoding = fingerprint.split(":")[0];
+                        String expectedFingerprint = fingerprint.split(":")[1];
+                        String realFingerprint = getFingerprintFromCertificate(certificates.get(0), encoding);
+                        result = realFingerprint.trim().equalsIgnoreCase(expectedFingerprint.trim());
+                    } else {
+                        // otherwise we assume the provider is transitioning the CA certs and thus shipping multiple CA certs
+                        // in that case we don't do cert pinning
+                        result = true;
+                    }
+                } else {
                     result = false;
+                }
             } catch (JSONException | NoSuchAlgorithmException | CertificateEncodingException e) {
                 result = false;
             }
@@ -910,18 +916,24 @@ public abstract class ProviderApiManagerBase {
             return result;
         }
 
-        X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(caCert);
-        if (certificate == null) {
+        ArrayList<X509Certificate> certificates = ConfigHelper.parseX509CertificatesFromString(caCert);
+        if (certificates == null) {
             return setErrorResult(result, warning_corrupted_provider_cert, ERROR_INVALID_CERTIFICATE.toString());
         }
         try {
-            certificate.checkValidity();
             String encoding = provider.getCertificatePinEncoding();
             String expectedFingerprint = provider.getCertificatePin();
 
-            String realFingerprint = getFingerprintFromCertificate(certificate, encoding);
-            if (!realFingerprint.trim().equalsIgnoreCase(expectedFingerprint.trim())) {
-                return setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
+            // Do certificate pinning only if we have 1 cert, otherwise we assume some transitioning of
+            // X509 certs, therefore we cannot do cert pinning
+            if (certificates.size() == 1) {
+                String realFingerprint = getFingerprintFromCertificate(certificates.get(0), encoding);
+                if (!realFingerprint.trim().equalsIgnoreCase(expectedFingerprint.trim())) {
+                    return setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());
+                }
+            }
+            for (X509Certificate certificate : certificates) {
+                certificate.checkValidity();
             }
 
             if (!canConnect(provider, result)) {
@@ -1073,9 +1085,9 @@ public abstract class ProviderApiManagerBase {
             keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
             provider.setPrivateKey( "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----");
 
-            X509Certificate certificate = ConfigHelper.parseX509CertificateFromString(certificateString);
-            certificate.checkValidity();
-            certificateString = Base64.encodeToString(certificate.getEncoded(), Base64.DEFAULT);
+            ArrayList<X509Certificate> certificates = ConfigHelper.parseX509CertificatesFromString(certificateString);
+            certificates.get(0).checkValidity();
+            certificateString = Base64.encodeToString(certificates.get(0).getEncoded(), Base64.DEFAULT);
             provider.setVpnCertificate( "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----");
             result.putBoolean(BROADCAST_RESULT_KEY, true);
         } catch (CertificateException | NullPointerException e) {
