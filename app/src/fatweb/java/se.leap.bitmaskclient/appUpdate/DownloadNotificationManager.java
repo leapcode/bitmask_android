@@ -111,6 +111,7 @@ public class DownloadNotificationManager {
                 NotificationManager.IMPORTANCE_LOW);
         channel.setSound(null, null);
         channel.setDescription(description);
+        channel.setLightColor(Color.BLUE);
         // Register the channel with the system; you can't change the importance
         // or other notification behaviors after this
         notificationManager.createNotificationChannel(channel);
