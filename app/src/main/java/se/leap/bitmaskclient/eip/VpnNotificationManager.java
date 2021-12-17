@@ -238,7 +238,6 @@ public class VpnNotificationManager {
             channel.setDescription(context.getString(R.string.channel_description_status));
             channel.enableLights(true);
 
-            channel.setLightColor(Color.BLUE);
             channel.setSound(null, null);
             compatNotificationManager.createNotificationChannel(channel);
         }
