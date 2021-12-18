@@ -54,6 +54,7 @@ import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
@@ -78,7 +79,7 @@ import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockPr
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBundle;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockConfigHelper;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockFingerprintForCertificate;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockConfigHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockIntent;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockPreferenceHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnector;
@@ -187,7 +188,7 @@ public class ProviderApiManagerTest {
     public void test_handleIntentSetupProvider_happyPath_preseededProviderAndCA() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = getConfiguredProvider();
 
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
@@ -208,7 +209,7 @@ public class ProviderApiManagerTest {
     public void test_handleIntentSetupProvider_happyPath_no_preseededProviderAndCA() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = getConfiguredProvider();
 
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
@@ -251,7 +252,7 @@ public class ProviderApiManagerTest {
     @Test
     public void test_handleIntentSetupProvider_preseededProviderAndCA_failedCAPinning() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = getConfiguredProvider();
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495");
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
@@ -272,7 +273,7 @@ public class ProviderApiManagerTest {
     @Test
     public void test_handleIntentSetupProvider_no_preseededProviderAndCA_failedPinning() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = new Provider("https://riseup.net");
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -417,7 +418,7 @@ public class ProviderApiManagerTest {
 
         Provider provider = getConfiguredProvider();
 
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_CASE_MICONFIGURED_PROVIDER);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -437,11 +438,37 @@ public class ProviderApiManagerTest {
     }
 
     @Test
+    public void test_handleIntentSetupProvider_preseededCustomProviderAndCA_failedConfiguration() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
+
+        Provider provider = getConfiguredProvider();
+
+        mockProviderApiConnector(ERROR_CASE_MICONFIGURED_PROVIDER);
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        when(ConfigHelper.isDefaultBitmask()).thenReturn(false);
+
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
+        Bundle expectedResult = mockBundle();
+        expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
+        expectedResult.putString(ERRORS, "{\"errors\":\"There was an error configuring RiseupVPN.\"}");
+        expectedResult.putParcelable(PROVIDER_KEY, provider);
+
+
+        Intent providerApiCommand = mockIntent();
+
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+
+        providerApiManager.handleIntent(providerApiCommand);
+    }
+
+    @Test
     public void test_handleIntentSetupProvider_outdatedPreseededProviderAndCA_successfulConfiguration() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
 
         Provider provider = getProvider(null, null, null, null, null, "riseup_net_outdated_config.json", null, null);
 
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -467,7 +494,7 @@ public class ProviderApiManagerTest {
 
         Provider provider = new Provider("https://riseup.net");
 
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -495,7 +522,7 @@ public class ProviderApiManagerTest {
         Provider inputProvider = getConfiguredProvider();
         inputProvider.setGeoIpJson(new JSONObject());
         Provider expectedProvider = getConfiguredProvider();
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -525,7 +552,7 @@ public class ProviderApiManagerTest {
         }
 
         Provider provider = getConfiguredProvider();
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_GEOIP_SERVICE_IS_DOWN);
         mockPreferences.edit().putBoolean(USE_BRIDGES, false).putBoolean(USE_SNOWFLAKE, false).commit();
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
@@ -556,7 +583,7 @@ public class ProviderApiManagerTest {
 
         mockTorStatusObservable(null);
         Provider provider = getConfiguredProvider();
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_GEOIP_SERVICE_IS_DOWN_TOR_FALLBACK);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -588,7 +615,7 @@ public class ProviderApiManagerTest {
 
         Provider provider = getConfiguredProvider();
         provider.setLastGeoIpUpdate(System.currentTimeMillis());
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -618,7 +645,7 @@ public class ProviderApiManagerTest {
         Provider provider = getConfiguredProvider();
         provider.setGeoipUrl(null);
         provider.setGeoIpJson(new JSONObject());
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -643,7 +670,7 @@ public class ProviderApiManagerTest {
     public void test_handleIntentSetupProvider_APIv4_happyPath() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = getConfiguredProviderAPIv4();
 
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR_API_V4);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
@@ -668,7 +695,7 @@ public class ProviderApiManagerTest {
     public void test_handleIntentSetupProvider_TorFallback_SecondTryHappyPath() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
         Provider provider = getConfiguredProviderAPIv4();
 
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -690,7 +717,7 @@ public class ProviderApiManagerTest {
     public void test_handleIntentSetupProvider_TorFallbackStartServiceException_SecondTryFailed() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
         Provider provider = getConfiguredProviderAPIv4();
 
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback(new IllegalStateException("Tor service start not failed."), true));
 
@@ -709,7 +736,7 @@ public class ProviderApiManagerTest {
     public void test_handleIntentSetupProvider_TorFallbackTimeoutException_SecondTryFailed() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
         Provider provider = getConfiguredProviderAPIv4();
 
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -728,7 +755,7 @@ public class ProviderApiManagerTest {
     public void test_handleIntentSetupProvider_TorBridgesPreferenceEnabled_Success() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
         Provider provider = getConfiguredProviderAPIv4();
 
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR_API_V4);
 
         mockPreferences.edit().putBoolean(USE_BRIDGES, true).putBoolean(USE_SNOWFLAKE, true).commit();
@@ -749,7 +776,7 @@ public class ProviderApiManagerTest {
     public void test_handleIntentSetupProvider_TorBridgesDisabled_TorNotStarted() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
         Provider provider = getConfiguredProviderAPIv4();
 
-        mockFingerprintForCertificate(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR_API_V4);
 
         mockPreferences.edit().putBoolean(USE_BRIDGES, false).putBoolean(USE_SNOWFLAKE, false).commit();
@@ -793,7 +820,7 @@ public class ProviderApiManagerTest {
     public void test_handleIntentSetupProvider_noNetwork_NetworkError() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
         Provider provider = getConfiguredProvider();
 
-        mockFingerprintForCertificate("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
         providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback(null, false));
         Bundle expectedResult = mockBundle();
