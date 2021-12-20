@@ -416,6 +416,7 @@ public class MockHelper {
         when(ConfigHelper.getProviderFormattedString(any(Resources.class), anyInt())).thenCallRealMethod();
         when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
         when(ConfigHelper.isIPv4(anyString())).thenCallRealMethod();
+        when(ConfigHelper.isDefaultBitmask()).thenReturn(true);
     }
 
     public static void mockPreferenceHelper(final Provider providerFromPrefs) {
@@ -502,14 +503,6 @@ public class MockHelper {
         when(ProviderObservable.getInstance()).thenAnswer((Answer<ProviderObservable>) invocation -> observable);
     }
 
-    public static void mockFingerprintForCertificate(String mockedFingerprint) throws CertificateEncodingException, NoSuchAlgorithmException {
-        mockStatic(ConfigHelper.class);
-        when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
-        when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
-        when(ConfigHelper.parseX509CertificatesFromString(anyString())).thenCallRealMethod();
-        when(ConfigHelper.getProviderFormattedString(any(Resources.class), anyInt())).thenCallRealMethod();
-    }
-
     public static void mockProviderApiConnector(final BackendMockProvider.TestBackendErrorCase errorCase) throws IOException {
         BackendMockProvider.provideBackendResponsesFor(errorCase);
     }
@@ -568,6 +561,8 @@ public class MockHelper {
                 thenReturn(String.format(errorMessages.getString("warning_expired_provider_cert"), "Bitmask"));
         when(mockedResources.getString(eq(R.string.setup_error_text), anyString())).
                 thenReturn(String.format(errorMessages.getString("setup_error_text"), "Bitmask"));
+        when(mockedResources.getString(eq(R.string.setup_error_text_custom), anyString())).
+                thenReturn(String.format(errorMessages.getString("setup_error_text_custom"), "RiseupVPN"));
         when(mockedResources.getString(R.string.app_name)).
                 thenReturn("Bitmask");
         when(mockedResources.getString(eq(R.string.error_tor_timeout), anyString())).
