@@ -38,7 +38,6 @@ import java.util.Vector;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import okhttp3.Connection;
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
@@ -413,7 +412,7 @@ public class MockHelper {
         mockStatic(ConfigHelper.class);
         when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
         when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
-        when(ConfigHelper.parseX509CertificateFromString(anyString())).thenCallRealMethod();
+        when(ConfigHelper.parseX509CertificatesFromString(anyString())).thenCallRealMethod();
         when(ConfigHelper.getProviderFormattedString(any(Resources.class), anyInt())).thenCallRealMethod();
         when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
         when(ConfigHelper.isIPv4(anyString())).thenCallRealMethod();
@@ -507,7 +506,7 @@ public class MockHelper {
         mockStatic(ConfigHelper.class);
         when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
         when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
-        when(ConfigHelper.parseX509CertificateFromString(anyString())).thenCallRealMethod();
+        when(ConfigHelper.parseX509CertificatesFromString(anyString())).thenCallRealMethod();
         when(ConfigHelper.getProviderFormattedString(any(Resources.class), anyInt())).thenCallRealMethod();
     }
 

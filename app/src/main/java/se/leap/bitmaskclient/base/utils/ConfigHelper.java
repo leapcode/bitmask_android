@@ -37,6 +37,7 @@ import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -44,7 +45,9 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,25 +102,28 @@ public class ConfigHelper {
         return ret;
     }
 
-    public static X509Certificate parseX509CertificateFromString(String certificateString) {
-        java.security.cert.Certificate certificate = null;
+    public static ArrayList<X509Certificate> parseX509CertificatesFromString(String certificateString) {
+        Collection<? extends Certificate> certificates;
         CertificateFactory cf;
         try {
             cf = CertificateFactory.getInstance("X.509");
 
-            certificateString = certificateString.replaceFirst("-----BEGIN CERTIFICATE-----", "").replaceFirst("-----END CERTIFICATE-----", "").trim();
-            byte[] cert_bytes = Base64.decode(certificateString);
-            InputStream caInput = new ByteArrayInputStream(cert_bytes);
-            try {
-                certificate = cf.generateCertificate(caInput);
-                System.out.println("ca=" + ((X509Certificate) certificate).getSubjectDN());
-            } finally {
-                caInput.close();
+            certificateString = certificateString.replaceAll("-----BEGIN CERTIFICATE-----", "").trim().replaceAll("-----END CERTIFICATE-----", "").trim();
+            byte[] certBytes = Base64.decode(certificateString);
+            try (InputStream caInput = new ByteArrayInputStream(certBytes)) {
+                certificates = cf.generateCertificates(caInput);
+                if (certificates != null) {
+                    for (Certificate cert : certificates) {
+                        System.out.println("ca=" + ((X509Certificate) cert).getSubjectDN());
+                    }
+                    return (ArrayList<X509Certificate>) certificates;
+                }
             }
-        } catch (NullPointerException | CertificateException | IOException | IllegalArgumentException e) {
-            return null;
+        } catch (NullPointerException | CertificateException | IOException | IllegalArgumentException | ClassCastException e) {
+            e.printStackTrace();
         }
-        return (X509Certificate) certificate;
+
+        return null;
     }
 
     public static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {

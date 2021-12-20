@@ -12,6 +12,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
@@ -55,8 +57,12 @@ public class TLSCompatSocketFactory extends SSLSocketFactory {
         KeyStore keyStore = KeyStore.getInstance(defaultType);
         keyStore.load(null, null);
         if (!TextUtils.isEmpty(trustedSelfSignedCaCert)) {
-            java.security.cert.Certificate provider_certificate = ConfigHelper.parseX509CertificateFromString(trustedSelfSignedCaCert);
-            keyStore.setCertificateEntry("provider_ca_certificate", provider_certificate);
+            ArrayList<X509Certificate> x509Certificates = ConfigHelper.parseX509CertificatesFromString(trustedSelfSignedCaCert);
+            if (x509Certificates != null) {
+                for (int i = 0; i < x509Certificates.size(); i++) {
+                    keyStore.setCertificateEntry("provider_ca_certificate"+i, x509Certificates.get(i));
+                }
+            }
         }
 
         // Create a TrustManager that trusts the CAs in our KeyStore

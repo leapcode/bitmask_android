@@ -1,0 +1,6 @@
+{
+	"main_url" : "https://float.hexacab.org",
+	"provider_ip" : "198.252.153.67",
+	"provider_api_ip" : "198.252.153.106",
+	"geoip_url" : "https://menshen.float.hexacab.org/json"
+}

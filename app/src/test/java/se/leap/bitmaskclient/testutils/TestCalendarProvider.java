@@ -1,4 +1,4 @@
-package se.leap.bitmaskclient.test;
+package se.leap.bitmaskclient.testutils;
 
 import java.util.Calendar;
 
@@ -8,7 +8,7 @@ import se.leap.bitmaskclient.eip.CalendarProviderInterface;
  * Created by cyberta on 13.09.17.
  */
 
-class TestCalendarProvider implements CalendarProviderInterface {
+public class TestCalendarProvider implements CalendarProviderInterface {
 
     private long currentTimeInMillis = 0;
 
