@@ -76,7 +76,7 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
         String front = getCdnFront("snowflake-front");
         String stunServer = getCdnFront("snowflake-stun");
         Log.d(TAG, "startSnowflake. target: " + target + ", front:" + front + ", stunServer" + stunServer);
-        snowflakePort = IPtProxy.startSnowflake( stunServer, target, front, logfile.getAbsolutePath(), false, false, true, 5);
+        snowflakePort = IPtProxy.startSnowflake(stunServer, target, front, null, logfile.getAbsolutePath(), false, false, true, 5);
         Log.d(TAG, "startSnowflake running on port: " + snowflakePort);
         watchLogFile(logfile);
     }
