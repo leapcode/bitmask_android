@@ -1,7 +1,7 @@
-FROM 0xacab.org:4567/leap/docker/debian:stretch_amd64
+FROM 0xacab.org:4567/leap/docker/debian:bullseye_amd64
 
 MAINTAINER LEAP Encryption Access Project <info@leap.se>
-LABEL Description="Android SDK baseimage based on debian:stretch" Vendor="LEAP" Version="27.0.0"
+LABEL Description="Android SDK baseimage based on debian:bullseye" Vendor="LEAP" Version="27.0.0"
 
 # ------------------------------------------------------
 # --- Install System Dependencies
@@ -12,17 +12,19 @@ ENV DEBIAN_FRONTEND noninteractive
 # Need docker package in order to do Docker-in-Docker (DIND)
 RUN apt-get update -qq && \
     apt-get -y dist-upgrade && \
-    apt-get -y install gnupg apt-transport-https
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    apt-get -y install gnupg apt-transport-https curl
+
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
     echo \
-      "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
-      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
+    $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+
 RUN apt-get update -qq && \
-    apt-get install -y docker-ce \
+    apt-get install -y docker-ce docker-ce-cli mesa-utils \
     # the basics
     curl unzip git locales \
     # java stuff
-    openjdk-8-jdk maven && \
+    openjdk-11-jdk maven && \
     apt-get clean && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -41,15 +43,29 @@ ENV LANG en_US.UTF-8
 # --- Install Android SDK Tools
 
 ENV ANDROID_HOME /opt/android-sdk-linux
-ENV ANDROID_SDK_URL https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip
+ENV ANDROID_SDK_URL https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
+ENV ANDROID_SDK_ROOT ${ANDROID_HOME}
 
 # Install SDK Tools
 RUN curl -L $ANDROID_SDK_URL -o sdk-tools.zip  \
+    && mkdir -p /opt/android-sdk-linux \
     && unzip -q sdk-tools.zip -d $ANDROID_HOME \
+    && mv -v $ANDROID_HOME/cmdline-tools $ANDROID_HOME/latest \
+    && echo $(ls -l $ANDROID_HOME) \
+    && mkdir -v $ANDROID_HOME/cmdline-tools \
+    && mv -v $ANDROID_HOME/latest $ANDROID_HOME/cmdline-tools/ \
     && rm -f sdk-tools.zip
 
 # Update PATH
-ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
+ENV PATH ${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/cmdline-tools:${ANDROID_HOME}/cmd-tools/bin:${ANDROID_HOME}/platform-tools
+ENV ANDROID_SDK_ROOT ${ANDROID_HOME}/cmdline-tools/latest
+
+# Debug location and path
+
+RUN echo $PATH && \
+    echo $(ls /opt/) && \
+    echo $(ls /opt/android-sdk-linux)  && \
+    echo $(ls /opt/android-sdk-linux/cmdline-tools/latest)
 
 # ------------------------------------------------------
 # --- Install Android SDK Tools Packages
