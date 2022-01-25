@@ -11,7 +11,7 @@ variables:
   DOCKER_DRIVER: overlay
 
 .job_template: &build_docker_image
-  image: 0xacab.org:4567/leap/docker/debian:buster_amd64
+  image: 0xacab.org:4567/leap/docker/debian:bullseye_amd64
   tags:
     - docker-in-docker
   services:
@@ -25,7 +25,7 @@ variables:
   script:
     - docker --version
     - docker info
-    - if ! .gitlab/build.sh ${DOCKER_IMAGE} >> dockerbuild.log 2>&1; then echo "Image build failed. Please check dockerbuild.log."; echo "tail -n 100 dockerbuild.log:"; tail -n 100 dockerbuild.log; echo "disk space:"; df -h; exit 1; fi;
+    - if ! .gitlab/build.sh ${DOCKER_IMAGE} >> dockerbuild.log 2>&1; then echo "Image build failed. Please check dockerbuild.log."; echo "tail -n 200 dockerbuild.log:"; tail -n 200 dockerbuild.log; echo "disk space:"; df -h; sleep 800; exit 1; fi;
   allow_failure: false
   artifacts:
     expire_in: 3d
@@ -48,6 +48,7 @@ docker_image:emulator:
   stage: docker_image_other
   variables:
     DOCKER_IMAGE: android-emulator
+  allow_failure: true
   <<: *build_docker_image
 
 unit_test:
