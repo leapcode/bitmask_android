@@ -439,7 +439,9 @@ public class ProviderApiManagerTest {
 
     @Test
     public void test_handleIntentSetupProvider_preseededCustomProviderAndCA_failedConfiguration() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
-
+        if ("insecure".equals(BuildConfig.FLAVOR_implementation )) {
+            return;
+        }
         Provider provider = getConfiguredProvider();
 
         mockProviderApiConnector(ERROR_CASE_MICONFIGURED_PROVIDER);
