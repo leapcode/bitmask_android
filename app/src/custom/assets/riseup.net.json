@@ -1,7 +1,7 @@
 {
   "api_uri": "https://api.black.riseup.net:443",
   "api_version": "3",
-  "ca_cert_fingerprint": "SHA256: a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494",
+  "ca_cert_fingerprint": "SHA256: dd919b7513b4a1368faa20e38cd3314156805677f48b787cdd9b4a92dec64eb0",
   "ca_cert_uri": "https://black.riseup.net/ca.crt",
   "default_language": "en",
   "description": {
