@@ -167,7 +167,7 @@ public class PreferenceHelper {
     }
 
     public static Boolean getUseSnowflake(SharedPreferences preferences) {
-        return preferences.getBoolean(USE_SNOWFLAKE, false);
+        return preferences.getBoolean(USE_SNOWFLAKE, true);
     }
 
     public static void useSnowflake(Context context, boolean isEnabled) {
