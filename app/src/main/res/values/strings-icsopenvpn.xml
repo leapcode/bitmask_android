@@ -56,7 +56,6 @@
     <string name="custom_config_title">Enable Custom Options</string>
     <string name="custom_config_summary">Specify custom options. Use with care!</string>
     <string name="route_rejected">Route rejected by Android</string>
-    <string name="cancel_connection">Disconnect</string>
     <string name="cancel_connection_long">Disconnect VPN</string>
     <string name="clear_log">clear log</string>
     <string name="title_cancel">Cancel Confirmation</string>
@@ -343,7 +342,6 @@
     <string name="remote_no_server_selected">You need to define and enable at least one remote server.</string>
     <string name="server_list">Server List</string>
     <string name="vpn_allowed_apps">Allowed Apps</string>
-    <string name="advanced_settings">Advanced Settings</string>
     <string name="payload_options">Payload options</string>
     <string name="tls_settings">TLS Settings</string>
     <string name="no_remote_defined">No remote defined</string>
