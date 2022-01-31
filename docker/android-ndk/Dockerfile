@@ -50,3 +50,5 @@ RUN echo "accept all licenses"
 RUN echo y | sdkmanager --licenses
 RUN sdkmanager --list
 
+# Install Android cmake
+RUN sdkmanager "cmake;3.10.2.4988404"
