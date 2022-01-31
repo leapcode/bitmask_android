@@ -7,4 +7,4 @@
 	url = https://0xacab.org/leap/android_libs/bitmaskcore.git
 [submodule "tor-android"]
 	path = tor-android
-	url = https://0xacab.org/leap/android_snowflake/tor-android.git
+	url = https://0xacab.org/leap/android_libs/tor-android.git
