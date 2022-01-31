@@ -69,6 +69,7 @@ import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormatted
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
 /**
  * Created by cyberta on 04.01.18.
@@ -325,7 +326,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         String responseString;
         JSONObject errorJson = new JSONObject();
 
-        OkHttpClient okHttpClient = clientGenerator.initCommercialCAHttpClient(errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initCommercialCAHttpClient(errorJson, getProxyPort());
         if (okHttpClient == null) {
             return errorJson.toString();
         }
@@ -360,7 +361,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     private String downloadFromUrlWithProviderCA(String urlString, Provider provider, boolean dangerOn) {
         String responseString;
         JSONObject errorJson = new JSONObject();
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), errorJson);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), errorJson);
         if (okHttpClient == null) {
             return errorJson.toString();
         }
@@ -395,7 +396,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         JSONObject initError = new JSONObject();
         String responseString;
 
-        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, initError);
+        OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(caCert, getProxyPort(), initError);
         if (okHttpClient == null) {
             return initError.toString();
         }
