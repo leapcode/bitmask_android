@@ -370,21 +370,20 @@ android {
 dependencies {
   testImplementation 'junit:junit:4.12'
   //outdated mockito-core version due to powermock dependency
-  testImplementation 'org.mockito:mockito-core:2.8.9'
-  testImplementation('org.powermock:powermock-api-mockito2:1.7.3')
-          { exclude group: 'junit' exclude group: 'org.mockito' }
-  testImplementation 'org.powermock:powermock-module-junit4:1.7.3'
-  testImplementation 'org.powermock:powermock-core:1.7.3'
-  testImplementation 'org.powermock:powermock-module-junit4-rule:1.7.3'
+  testImplementation 'org.mockito:mockito-core:3.6.0'
+  testImplementation('org.powermock:powermock-api-mockito2:2.0.9')
+       //   { exclude group: 'junit' exclude group: 'org.mockito' }
+  testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
+  testImplementation 'org.powermock:powermock-core:2.0.9'
+  testImplementation 'org.powermock:powermock-module-junit4-rule:2.0.9'
   testImplementation group: 'com.tngtech.java', name: 'junit-dataprovider', version: '1.10.0'
 
-  androidTestImplementation 'org.mockito:mockito-core:2.8.9'
-  androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
-  androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.1.0'
-  androidTestImplementation 'androidx.test.espresso:espresso-intents:3.1.0'
+  androidTestImplementation 'org.mockito:mockito-core:3.6.0'
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+  androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
+  androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
   //TODO: remove that library
   androidTestImplementation 'com.jayway.android.robotium:robotium-solo:5.6.3'
-  testImplementation 'junit:junit:4.12'
   testImplementation 'org.json:json:20180813'
   debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
   releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
