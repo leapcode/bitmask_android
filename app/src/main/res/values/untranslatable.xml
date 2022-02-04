@@ -40,7 +40,7 @@
     <string name="shapeshifter_transports" translatable="false">Shapeshifter Transports</string>
     <string name="copyright_shapeshifter_transports" translatable="false">Copyright (c) 2020 Operator Foundation. Distributed under MIT license.</string>
     <string name="obfs4" translatable="false">obfs4 - The obfourscator</string>
-    <string name="copyright_obfs4" translatable="false">Copyright (c) 2014, Yawning Angel yawning at schwanenlied dot me \n All rights reserved.</string>
+    <string name="copyright_obfs4" translatable="false">Copyright (c) 2014, Yawning Angel \n yawning at schwanenlied dot me \n All rights reserved.</string>
     <string name="snowflake" translatable="false">Snowflake</string>
     <string name="copyright_snowflake" translatable="false">Copyright (c) 2016, Serene Han, Arlo Breault \n Copyright (c) 2019-2020, The Tor Project, Inc.\nDistributed under 3-clause BSD license.</string>
     <string name="iptproxy" translatable="false">IPtProxy</string>
