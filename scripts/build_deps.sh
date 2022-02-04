@@ -15,7 +15,7 @@ DIR_GOLIBS=./bitmaskcore/lib/
 DIR_TORLIBS=./tor-android/external/lib
 EXPECTED_NDK_VERSION="21.4.7075529"
 EXPECTED_ANDROID_NDK_RELEASE_VERSION="r21e"
-BUILD_TOR=false
+BUILD_TOR=true
 
 # init
 # look for empty dir
