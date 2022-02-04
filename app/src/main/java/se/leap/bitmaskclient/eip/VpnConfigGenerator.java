@@ -49,8 +49,8 @@ import static se.leap.bitmaskclient.base.models.Constants.REMOTE;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.TYPE;
 import static se.leap.bitmaskclient.base.models.Constants.UDP;
-import static se.leap.bitmaskclient.pluggableTransports.Dispatcher.DISPATCHER_IP;
-import static se.leap.bitmaskclient.pluggableTransports.Dispatcher.DISPATCHER_PORT;
+import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_IP;
+import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_PORT;
 
 public class VpnConfigGenerator {
     private JSONObject generalConfiguration;
