@@ -169,24 +169,6 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/mbetTLS"
-            android:textSize="24sp"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:autoLink="web"
-            android:text="@string/copyright_mbetTLS" />
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="20sp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:text="@string/asio"
             android:textSize="24sp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -196,23 +178,6 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:text="@string/copyright_asio" />
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="20sp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/openvpn3"
-            android:textSize="24sp"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:text="@string/copyright_openvpn3" />
 
         <Space
             android:layout_width="match_parent"
@@ -238,7 +203,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/shapeshifter_dispatcher"
+            android:text="@string/obfs4"
             android:textSize="24sp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -246,7 +211,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp"
-            android:text="@string/copyright_shapeshifter_dispatcher" />
+            android:text="@string/copyright_obfs4" />
 
         <Space
             android:layout_width="match_parent"
@@ -264,6 +229,90 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:text="@string/copyright_shapeshifter_transports" />
-    </LinearLayout>
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/circleImageView"
+            android:textSize="24sp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="@string/copyright_circleImageView" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/tor_android"
+            android:textSize="24sp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="@string/copyright_tor_android" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/tor"
+            android:textSize="24sp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="@string/copyright_tor" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/iptproxy"
+            android:textSize="24sp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="@string/copyright_iptproxy" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/snowflake"
+            android:textSize="24sp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="@string/copyright_snowflake" />
+    </LinearLayout>
 </ScrollView>
