@@ -31,9 +31,9 @@ android {
     // and this should not be set/altered anywhere else.
     buildConfigField 'String', 'default_donation_url', '"https://leap.se/donate/"'
     //The field to enable donations in the app.
-    buildConfigField 'boolean', 'enable_donation', 'true'
+    buildConfigField 'boolean', 'enable_donation', 'false'
     //The field to enable donation reminder popup in the app if enable_donation is set to 'false' this will be disabled.
-    buildConfigField 'boolean', 'enable_donation_reminder', 'true'
+    buildConfigField 'boolean', 'enable_donation_reminder', 'false'
     //The duration in days to trigger the donation reminder
     buildConfigField 'int', 'donation_reminder_duration', '30'
     //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
