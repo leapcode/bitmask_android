@@ -228,7 +228,9 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
         if (loadingScreen == null) {
             return;
         }
-
+        if (connectionDetailContainer.getVisibility() == VISIBLE) {
+            connectionDetailBtn.setText(R.string.show_connection_details);
+        }
         connectionDetailHeaderContainer.setVisibility(GONE);
         connectionDetailContainer.setVisibility(GONE);
         logsContainer.setVisibility(GONE);
