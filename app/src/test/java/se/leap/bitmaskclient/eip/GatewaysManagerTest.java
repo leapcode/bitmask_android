@@ -20,6 +20,7 @@ import java.util.List;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
@@ -506,6 +507,13 @@ public class GatewaysManagerTest {
         assertEquals("Montreal", locations.get(0).getName());
         assertEquals("Paris", locations.get(1).getName());
         assertEquals("Amsterdam", locations.get(2).getName());
+    }
+
+    @Test
+    public void testGetLoadForLocation_() {
+        MockHelper.mockProviderObservable(null);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+        assertEquals(GatewaysManager.Load.UNKNOWN, gatewaysManager.getLoadForLocation("unknown city", OPENVPN));
     }
 
     private String getJsonStringFor(String filename) throws IOException {

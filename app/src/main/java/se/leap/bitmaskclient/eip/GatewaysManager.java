@@ -211,6 +211,9 @@ public class GatewaysManager {
 
     public Load getLoadForLocation(@Nullable String name, TransportType transportType) {
         Location location = getLocation(name);
+        if (location == null) {
+            return Load.UNKNOWN;
+        }
         return Load.getLoadByValue(location.getAverageLoad(transportType));
     }
 
