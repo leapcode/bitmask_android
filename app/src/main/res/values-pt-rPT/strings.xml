@@ -76,7 +76,6 @@
   <string name="navigation_drawer_close">Fechar gaveta de navegação</string>
   <string name="action_example">Exemplo de ação</string>
   <string name="action_settings">Definições</string>
-  <string name="void_vpn_error_establish">Não foi possível estabelecer a VPN de bloqueio.</string>
   <string name="void_vpn_stopped">Parado o bloqueio de todo o tráfego de saída da Internet.</string>
   <string name="void_vpn_title">A bloquear tráfego</string>
   <string name="update_provider_details">Atualizar detalhes do provedor</string>
@@ -97,8 +96,11 @@
   <string name="nav_drawer_obfuscated_connection">Usar Pontes</string>
   <string name="gateway_selection_automatic">Automático</string>
   <string name="log_onehop_create">A estabelecer uma ligação de diretório encriptada</string>
+  <string name="log_loading_keys">A carregar os certificados de autoridade</string>
   <string name="log_circuit_create">A estabelecer um circuito Tor</string>
   <string name="log_done">Em execução</string>
   <string name="hide">Ocultar</string>
   <string name="use_snowflake">Use o Snowflake</string>
+  <string name="advanced_settings">Configurações Avançadas</string>
+  <string name="cancel_connection">Desligar</string>
 </resources>

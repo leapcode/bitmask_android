@@ -88,7 +88,6 @@
   <string name="action_example">Példa művelet</string>
   <string name="action_settings">Beállítások</string>
   <string name="void_vpn_establish">%sblokkol minden kimenő internet forgalmat.</string>
-  <string name="void_vpn_error_establish">Sikertelen a blokkoló VPN létrehozása.</string>
   <string name="void_vpn_stopped">Minden kimenő internet forgalom blokkolása leállítva.</string>
   <string name="void_vpn_title">Forgalom blokkolása</string>
   <string name="update_provider_details">Szolgáltató adatainak frissítése</string>
@@ -155,25 +154,17 @@
   <string name="gateway_selection_recommended_location">Ajánlott hely</string>
   <string name="gateway_selection_recommended">Ajánlott</string>
   <string name="gateway_selection_manually">Kézi kiválasztás</string>
-  <string name="gateway_selection_automatic_location">A legjobb kapcsolat automatikus használata.</string>
   <string name="gateway_selection_automatic">Automatikus</string>
   <string name="reconnecting">Újrakapcsolódás...</string>
   <string name="tor_starting">Hidak indítása a cenzúra megkerülése érdekében...</string>
-  <string name="tor_stopping">Hidak leállítása.</string>
-  <string name="tor_started">Hidak használata a cenzúra megkerülése érdekében.</string>
   <string name="log_conn_done_pt">Csatlakoztatva a cserélhető átvitelhez</string>
   <string name="log_conn_pt">Csatlakozás a cserélhető átvitelhez</string>
   <string name="log_conn_done">Csatlakoztatva egy reléhez</string>
-  <string name="log_handshake">Egyeztetés egy relével</string>
-  <string name="log_handshake_done">Egyeztetés egy relével megtörtént</string>
   <string name="log_onehop_create">Titkosított címtárkapcsolat létrehozása</string>
-  <string name="log_requesting_status">A hálózati állapot konszenzus lekérdezése</string>
-  <string name="log_loading_status">A hálózati állapot konszenzus betöltése</string>
-  <string name="log_loading_keys">A tanúsítványkiadó kulcsok tanúsítványainak betöltése</string>
+  <string name="log_loading_keys">Tanúsítványkiadó tanúsítványok betöltése</string>
   <string name="log_requesting_descriptors">Relé leírók kérése</string>
   <string name="log_loading_descriptors">Relé leírók betöltése</string>
   <string name="log_enough_dirinfo">Elegendő könyvtár információ betöltve az áramkörök építéséhez</string>
-  <string name="log_ap_handshake_done">Az egyeztetés megtörtént egy relével az áramkörök építéséhez</string>
   <string name="log_circuit_create">Tor kapcsolat felépítése</string>
   <string name="log_done">Fut</string>
   <string name="channel_name_tor_service">%s híd szolgáltatás</string>
@@ -196,4 +187,5 @@
   <string name="eip_state_no_network">Nincs működő internet kapcsolatod. Ha visszajött, automatikusan csatlakoztatva leszel</string>
   <string name="eip_state_blocking">%1$s blokkolja az internet forgalmat.</string>
   <string name="disabled_while_udp_on">Letiltás, ha az UDP bekapcsolt.</string>
+  <string name="cancel_connection">Kapcsolat bontása</string>
 </resources>

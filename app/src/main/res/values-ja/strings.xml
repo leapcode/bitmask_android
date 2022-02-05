@@ -7,6 +7,7 @@
   <string name="switch_provider_menu_option">プロバイダーを切り替え</string>
   <string name="info">情報</string>
   <string name="show_connection_details">接続の詳細を表示</string>
+  <string name="connection_details">接続の詳細</string>
   <string name="routes_info">経路：%s</string>
   <string name="routes_info6">IPv6 経路: %s</string>
   <string name="error_empty_username">ユーザ名を空に設定することはできません</string>
@@ -51,6 +52,7 @@
   <string name="setup_error_configure_button">構成</string>
   <string name="setup_error_close_button">終了</string>
   <string name="setup_error_text">選択されたプロバイダーで%sを構成中にエラーが発生しました。\n\nもう一度構成するか、終了して次回の起動時にプロバイダーを構成することができます。</string>
+  <string name="setup_error_text_custom">%sを構成中にエラーが発生しました。\n\nもう一度構成するか、終了することができます。</string>
   <string name="server_unreachable_message">サーバーに到達できません。再度実行してください。</string>
   <string name="error.security.pinnedcertificate">セキュリティエラー。アプリをアップデートするか別のプロバイダーを選択してください。</string>
   <string name="malformed_url">%sのプロバイダーではないようです。</string>
@@ -87,7 +89,7 @@
   <string name="action_example">サンプルアクション</string>
   <string name="action_settings">設定</string>
   <string name="void_vpn_establish">%sはすべての送信インターネット通信をブロックします</string>
-  <string name="void_vpn_error_establish">VPNのブロックの確立に失敗しました。</string>
+  <string name="void_vpn_error_establish">すべてのインターネット通信のブロックに失敗しました。</string>
   <string name="void_vpn_stopped">すべての送信インターネット通信のブロックを停止しました。</string>
   <string name="void_vpn_title">通信のブロック</string>
   <string name="update_provider_details">プロバイダーの詳細をアップデート</string>
@@ -111,6 +113,7 @@
   <string name="require_root">root権限が必要です</string>
   <string name="show_experimental">試験的な機能を表示する</string>
   <string name="hide_experimental">試験的な機能を表示しない</string>
+  <string name="experimental_features">試験的な機能</string>
   <string name="tethering_enabled_message">先に <![CDATA[<b>システム設定</b>]]> で、テザリングを有効にしてください。</string>
   <string name="tethering_message">お使いのVPNを他のデバイスと共有:</string>
   <string name="tethering_wifi">Wi-Fiホットスポット</string>
@@ -135,6 +138,8 @@
   <string name="warning_no_more_gateways_use_pt">%sは接続できませんでした。 VPN接続がブロックされている可能性があります。難読化された接続を使用して接続を試みますか?</string>
   <string name="warning_no_more_gateways_no_pt">%s は接続できませんでした。 再試行しますか?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s は難読化されたVPN接続を使用して接続できませんでした。標準VPNを使用して接続を試みますか?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$sは%2$sへ接続できませんでした。最適な場所と自動的な接続を試みますか?</string>
+  <string name="warning_option_try_best">最適な場所を試みる</string>
   <string name="warning_option_try_pt">難読化された接続を試みる</string>
   <string name="warning_option_try_ovpn">標準接続を試みる</string>
   <string name="vpn_error_establish">AndroidはVPNサービスを確立できませんでした。</string>
@@ -149,10 +154,25 @@
   <string name="version_update_error">アップデート失敗。</string>
   <string name="version_update_error_permissions">アプリをインストールする権限がありません。</string>
   <string name="gateway_selection_title">場所を選択</string>
+  <string name="gateway_selection_recommended_location">推奨の場所</string>
+  <string name="gateway_selection_manually">手動で選択</string>
+  <string name="gateway_selection_automatic_location">自動的に最適な接続を使用</string>
   <string name="gateway_selection_automatic">自動</string>
+  <string name="reconnecting">再接続中…</string>
+  <string name="tor_starting">検閲を回避するためにブリッジを起動中…</string>
+  <string name="tor_stopping">ブリッジを停止</string>
+  <string name="tor_started">検閲を回避するためにブリッジを使用</string>
   <string name="log_onehop_create">暗号化されたディレクトリとの接続を確立中</string>
+  <string name="log_loading_keys">認証局の署名を読込中</string>
   <string name="log_circuit_create">Tor サーキットを設置しています</string>
   <string name="log_done">実行中</string>
   <string name="hide">隠す</string>
+  <string name="censorship_circumvention">検閲を回避</string>
   <string name="use_snowflake">Snowflake を使用</string>
+  <string name="vpn_settings">VPN設定</string>
+  <string name="prefer_udp">利用可能であればUDPを使用</string>
+  <string name="prefer_udp_subtitle">UDPは高速になり、ストリーミングに好ましいですが、ネットワークのすべてには動作しません。</string>
+  <string name="disabled_while_bridges_on">ブリッジ使用中に無効化されます。</string>
+  <string name="advanced_settings">詳細な設定</string>
+  <string name="cancel_connection">切断</string>
 </resources>

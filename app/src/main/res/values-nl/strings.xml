@@ -54,6 +54,7 @@
   <string name="setup_error_text">Er is een probleem opgetreden om %s te configureren met je gekozen provider.
 
 Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start een provider in te stellen.</string>
+  <string name="setup_error_text_custom">Er was een probleem bij het configureren van %s.\n\nJe kan opnieuw configureren of afsluiten.</string>
   <string name="server_unreachable_message">Server is onbereikbaar, probeer later opnieuw.</string>
   <string name="error.security.pinnedcertificate">Beveiligingsprobleem, upgrade de app of kies een andere provider.</string>
   <string name="malformed_url">Dit lijkt geen %s provider te zijn.</string>
@@ -90,7 +91,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="action_example">Voorbeeld</string>
   <string name="action_settings">Instellingen</string>
   <string name="void_vpn_establish">%s blokkeert alle uitgaande internetverkeer.</string>
-  <string name="void_vpn_error_establish">Niet gelukt om een blokkerende VPN op te zetten.</string>
+  <string name="void_vpn_error_establish">Blokeren van alle internetverkeerd mislukt.</string>
   <string name="void_vpn_stopped">Gestopt met blokkkeren van alle uitgaande internetverkeer.</string>
   <string name="void_vpn_title">Blokkeert verkeer</string>
   <string name="update_provider_details">Update provider details</string>
@@ -140,6 +141,8 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="warning_no_more_gateways_use_pt">%s kon geen verbinding maken. Het kan zijn dat VPN-verbindingen worden geblokkeerd. Wil je je proberen te verbinden met versluierde verbindingen?</string>
   <string name="warning_no_more_gateways_no_pt">%s kon niet verbinden. Wil je opnieuw proberen?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s kon geen verbinding maken met versluierde VPN-verbindingen. Wil je het opnieuw proberen met een standaard VPN?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s kon niet verbinden met %2$s. Wil je proberen om automatisch met de beste locatie te verbinden?</string>
+  <string name="warning_option_try_best">Probeer de beste locatie</string>
   <string name="warning_option_try_pt">Probeer een versluierde verbinding</string>
   <string name="warning_option_try_ovpn">Probeer een standaard verbinding</string>
   <string name="vpn_error_establish">Android is er niet in geslaagd de VPN-dienst op te zetten.</string>
@@ -157,7 +160,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="gateway_selection_recommended_location">Aanbevolen locatie</string>
   <string name="gateway_selection_recommended">Aanbevolen</string>
   <string name="gateway_selection_manually">Selecteer manueel</string>
-  <string name="gateway_selection_automatic_location">Automatisch de beste verbinding kiezen</string>
+  <string name="gateway_selection_automatic_location">Gebruik automatisch de beste verbinding</string>
   <string name="gateway_selection_automatic">Automatisch</string>
   <string name="reconnecting">Opnieuw verbinden…</string>
   <string name="tor_starting">Bridges starten om censuur te omzeilen…</string>
@@ -166,12 +169,12 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="log_conn_done_pt">Verbonden met inplugbare transport</string>
   <string name="log_conn_pt">Verbinden met inplugbare transport</string>
   <string name="log_conn_done">Verbonden met een relay</string>
-  <string name="log_handshake">Verbinding opbouwen met een relay</string>
-  <string name="log_handshake_done">Verbinding met een relay opgebouwd</string>
+  <string name="log_handshake">Onderhandelen van de verbinding met een relay</string>
+  <string name="log_handshake_done">Verbinding met relay onderhandeld</string>
   <string name="log_onehop_create">Een versleutelde adreslijstverbinding maken</string>
   <string name="log_requesting_status">Netwerk consensus status opvragen</string>
   <string name="log_loading_status">Netwerk consensusstatus status laden</string>
-  <string name="log_loading_keys">Laden van de authoriteitcertificaten</string>
+  <string name="log_loading_keys">Autoriteitscertificaten laden</string>
   <string name="log_requesting_descriptors">Relay beschrijving opvragen</string>
   <string name="log_loading_descriptors">Relay beschrijving laden</string>
   <string name="log_enough_dirinfo">Voldoende directory informatien om circuits te bouwen</string>
@@ -198,4 +201,6 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="eip_state_no_network">Je internetverbinding werkt niet. Zodra die weer werkt, wil je automatisch verbinden met</string>
   <string name="eip_state_blocking">%1$s blokkeert alle internetverkeer.</string>
   <string name="disabled_while_udp_on">Uitgeschakeld wanneer UDP aan is.</string>
+  <string name="advanced_settings">Geavanceerde instellingen</string>
+  <string name="cancel_connection">Verbreek</string>
 </resources>

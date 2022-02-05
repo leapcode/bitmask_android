@@ -87,7 +87,6 @@
   <string name="action_example">Ekintza adibidea</string>
   <string name="action_settings">Ezarpenak</string>
   <string name="void_vpn_establish">%s nterneteko irteerako trafiko guztia blokeatzen du.</string>
-  <string name="void_vpn_error_establish">Ezin izan da VPN blokeoa ezarri.</string>
   <string name="void_vpn_stopped">Interneteko irteera trafikoaren blokeoa gelditu da.</string>
   <string name="void_vpn_title">Trafikoa blokeatzen</string>
   <string name="update_provider_details">Eduneratu hornitzailearen xehetasunak</string>
@@ -142,6 +141,8 @@
   <string name="root_permission_error">Ezin dira VPNra sarbide-puntua eta IPv6 suebakia funtzionalitateak abiarazi %s-i supererabiltzailearen baimenik eman ez zaiolako</string>
   <string name="qs_enable_vpn">%sabiarazi</string>
   <string name="log_onehop_create">Enkriptatutako direktorio batera konexioa ezartzen</string>
+  <string name="log_loading_keys">Aginpide ziurtagiriak kargatzen</string>
   <string name="log_circuit_create">Tor zirkuitu bat ezartzen</string>
   <string name="hide">Ezkutatu</string>
+  <string name="cancel_connection">Deskonektatu</string>
 </resources>

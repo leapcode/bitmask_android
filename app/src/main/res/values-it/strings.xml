@@ -64,8 +64,11 @@
   <string name="gateway_selection_recommended">Raccomandate</string>
   <string name="gateway_selection_automatic">Automatica</string>
   <string name="log_onehop_create">Sto creando una connessione cifrata alla directory</string>
+  <string name="log_loading_keys">Caricamento dei certificati delle authority</string>
   <string name="log_circuit_create">Sto creando un circuito Tor</string>
   <string name="log_done">Attivo</string>
   <string name="hide">Nascosto</string>
   <string name="use_snowflake">Usa Snowflake</string>
+  <string name="advanced_settings">Impostazioni avanzate</string>
+  <string name="cancel_connection">Disconnetti</string>
 </resources>

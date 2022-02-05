@@ -52,6 +52,7 @@
   <string name="setup_error_configure_button">Configurer</string>
   <string name="setup_error_close_button">Quitter</string>
   <string name="setup_error_text">Une erreur est survenue lors de la configuration de %s avec le fournisseur de votre choix.\n\nVous pouvez soit reconfigurer, soit quitter et configurer un fournisseur lors du prochain lancement.</string>
+  <string name="setup_error_text_custom">Une erreur est survenue en configurant %s.\n\nVous pouvez soit reconfigurer soit sortir.</string>
   <string name="server_unreachable_message">Le serveur est inaccessible, veuillez réessayer.</string>
   <string name="error.security.pinnedcertificate">Erreur de sécurité. Mettre l’appli à niveau ou choisir un autre fournisseur.</string>
   <string name="malformed_url">Cela ne semble pas être un fournisseur %s.</string>
@@ -88,7 +89,7 @@
   <string name="action_example">Exemple d’action</string>
   <string name="action_settings">Paramètres</string>
   <string name="void_vpn_establish">%s bloque tout le trafic Internet sortant.</string>
-  <string name="void_vpn_error_establish">Échec de mise en place du RPV bloquant.</string>
+  <string name="void_vpn_error_establish">Échec de blocage de tout le trafic d’Internet</string>
   <string name="void_vpn_stopped">Le trafic Internet sortant n’est plus bloqué.</string>
   <string name="void_vpn_title">Blocage du trafic</string>
   <string name="update_provider_details">Mettre les renseignements de fournisseur à jour</string>
@@ -138,6 +139,8 @@
   <string name="warning_no_more_gateways_use_pt">%s n’a pas pu se connecter. Les connexions RPV sont peut-être bloquées. Voulez-vous tenter de vous connecter en essayant des connexions brouillées ?</string>
   <string name="warning_no_more_gateways_no_pt">%s n’a pas pu se connecter. Voulez-vous réessayer ?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s n’a pas pu se connecter en utilisant des connexions RPV brouillées. Voulez-vous tenter de vous connecter en essayant un RPV normal ?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s n’a pas réussi à se connecter à %2$s. Voulez-vous essayer de vous connecter automatiquement avec le meilleur emplacement ?</string>
+  <string name="warning_option_try_best">Essayer le meilleur emplacement</string>
   <string name="warning_option_try_pt">Essayer une connexion brouillée.</string>
   <string name="warning_option_try_ovpn">Essayer une connexion normal.</string>
   <string name="vpn_error_establish">Android n’a pas réussi à établir le service RPV.</string>
@@ -159,13 +162,13 @@
   <string name="gateway_selection_automatic">Automatique</string>
   <string name="reconnecting">Reconnexion…</string>
   <string name="tor_starting">Démarrage des ponts pour le contournement de la censure…</string>
-  <string name="tor_stopping">Arrêt des ponts.</string>
-  <string name="tor_started">Utilisation de ponts pour le contournement de la censure.</string>
+  <string name="tor_stopping">Arrêt des ponts</string>
+  <string name="tor_started">Utilisation de ponts pour le contournement de la censure</string>
   <string name="log_conn_done_pt">Connecté au transport enfichable</string>
   <string name="log_conn_pt">Connexion au transport enfichable</string>
   <string name="log_conn_done">Connecté au relais</string>
-  <string name="log_handshake">Négociation avec un relais</string>
-  <string name="log_handshake_done">La négociation avec un relais est terminée</string>
+  <string name="log_handshake">Négociation de la connexion avec relais</string>
+  <string name="log_handshake_done">La connexion avec le relais a été négociée</string>
   <string name="log_onehop_create">Mise en place d’une connexion chiffrée vers l’annuaire</string>
   <string name="log_requesting_status">Demande du consensus de l’état du réseau</string>
   <string name="log_loading_status">Chargement du consensus de l’état du réseau</string>
@@ -173,7 +176,7 @@
   <string name="log_requesting_descriptors">Demande des descripteurs de relais</string>
   <string name="log_loading_descriptors">Chargement des descripteurs de relais</string>
   <string name="log_enough_dirinfo">Suffisamment de renseignements d’annuaire ont été chargés pour établir les circuits</string>
-  <string name="log_ap_handshake_done">Négociation terminée avec un relais pour construire les circuits</string>
+  <string name="log_ap_handshake_done">Négociation terminée avec un relais afin de construire les circuits</string>
   <string name="log_circuit_create">Mise en place d’un circuit Tor</string>
   <string name="log_done">En fonction</string>
   <string name="channel_name_tor_service">Service de ponts %s</string>
@@ -196,4 +199,6 @@
   <string name="eip_state_no_network">Vous n’avez pas de connexion Internet fonctionnelle. Une fois qu’elle sera rétablie, vous pourrez automatiquement vous connecter à</string>
   <string name="eip_state_blocking">%1$s bloque tout le trafic Internet.</string>
   <string name="disabled_while_udp_on">Désactivé pendant que l’UDP est activé</string>
+  <string name="advanced_settings">Paramètres avancés</string>
+  <string name="cancel_connection">Se déconnecter</string>
 </resources>

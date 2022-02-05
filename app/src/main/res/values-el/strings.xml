@@ -52,6 +52,7 @@
   <string name="setup_error_configure_button">Ρύθμιση </string>
   <string name="setup_error_close_button">Έξοδος</string>
   <string name="setup_error_text">Υπήρξε ένα σφάλμα κατά τη ρύθμιση του %s με τον πάροχο που επιλέξατε.\n\nΜπορείτε να ξανακάνετε τις ρυθμίσεις ή να κλείσετε την εφαρμογή και να ρυθμίσετε έναν άλλο πάροχο με την επανεκκίνηση της.</string>
+  <string name="setup_error_text_custom">Παρουσιάστηκε σφάλμα κατά τη διαμόρφωση του %s.\n\nΜπορείτε να επιλέξετε επαναδιαμόρφωση ή έξοδο.</string>
   <string name="server_unreachable_message">Ο διακομιστής δεν είναι προσπελάσιμος, παρακαλούμε προσπάθησε ξανά.</string>
   <string name="error.security.pinnedcertificate">Σφάλμα ασφάλειας. Αναβαθμίστε την εφαρμογή ή επιλέξτε άλλο πάροχο.</string>
   <string name="malformed_url">Δεν φαίνεται να είναι πάροχος %s.</string>
@@ -88,7 +89,7 @@
   <string name="action_example">Ενέργεια - παράδειγμα</string>
   <string name="action_settings">Ρυθμίσεις</string>
   <string name="void_vpn_establish">Το %s μπλοκάρει όλη την εξερχόμενη κίνηση διαδικτύου.</string>
-  <string name="void_vpn_error_establish">Αποτυχία εγκαθίδρυσης VPN μπλοκαρίσματος.</string>
+  <string name="void_vpn_error_establish">Ο αποκλεισμός όλης της κίνησης στο διαδίκτυο απέτυχε.</string>
   <string name="void_vpn_stopped">Παύση μπλοκαρίσματος όλης της εξερχόμενης κίνησης διαδικτύου.</string>
   <string name="void_vpn_title">Η κίνηση διαδικτύου μπλοκάρεται</string>
   <string name="update_provider_details">Αναβάθμιση λεπτομερειών παρόχου</string>
@@ -138,6 +139,8 @@
   <string name="warning_no_more_gateways_use_pt">Το %s δεν μπόρεσε να συνδεθεί. Ίσως οι συνδέσεις VPN να μπλοκάρονται. Θέλετε να προσπαθήσετε να συνδεθείτε χρησιμοποιώντας καμουφλαρισμένες συνδέσεις;</string>
   <string name="warning_no_more_gateways_no_pt">Το %s δεν μπόρεσε να συνδεθεί. Θέλετε να προσπαθήσετε ξανά;</string>
   <string name="warning_no_more_gateways_use_ovpn">Το %s δεν μπόρεσε να συνδεθεί χρησιμοποιώντας καμουφλαρισμένες συνδέσεις VPN. Θέλετε να προσπαθήσετε να συνδεθείτε χρησιμοποιώντας ένα κανονικό VPN;</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">Το %1$s δεν μπόρεσε να συνδεθεί στο %2$s. Θέλετε να προσπαθήσετε να συνδεθείτε αυτόματα με την καλύτερη τοποθεσία;</string>
+  <string name="warning_option_try_best">Δοκιμή καλύτερης τοποθεσίας</string>
   <string name="warning_option_try_pt">Δοκιμή καμουφλαρισμένης σύνδεσης</string>
   <string name="warning_option_try_ovpn">Δοκιμή κανονικής σύνδεσης</string>
   <string name="vpn_error_establish">Το Android απέτυχε να εγκαθιδρύσει την υπηρεσία VPN.</string>
@@ -159,21 +162,21 @@
   <string name="gateway_selection_automatic">Αυτόματο</string>
   <string name="reconnecting">Επανασυνδέεται...</string>
   <string name="tor_starting">Εκκίνηση γεφυρών για παράκαμψη λογοκρισίας...</string>
-  <string name="tor_stopping">Σταμάτημα γεφυρών.</string>
-  <string name="tor_started">Χρησιμοποιούνται γέφυρες για παράκαμψη λογοκρισίας.</string>
+  <string name="tor_stopping">Παύση γεφυρών</string>
+  <string name="tor_started">Χρήση γεφυρών για παράκαμψη λογοκρισίας</string>
   <string name="log_conn_done_pt">Συνδέθηκε στο pluggable transport</string>
   <string name="log_conn_pt">Συνδέεται στο pluggable transport</string>
   <string name="log_conn_done">Συνδέθηκε σε αναμεταδότη</string>
-  <string name="log_handshake">Γίνεται χειραψία με αναμεταδότη</string>
-  <string name="log_handshake_done">Ολοκλήρωση χειραψίας με αναμεταδότη</string>
+  <string name="log_handshake">Πραγματοποιείται διαπραγμάτευση σύνδεσης με κόμβο</string>
+  <string name="log_handshake_done">Η διαπραγμάτευση σύνδεσης με κόμβο έχει ολοκληρωθεί</string>
   <string name="log_onehop_create">Πραγματοποιήθηκε σύνδεση σε κρυπτογραφημένο κατάλογο</string>
-  <string name="log_requesting_status">Αίτημα του networkstatus consensus</string>
-  <string name="log_loading_status">Φόρτωση του networkstatus consensus</string>
-  <string name="log_loading_keys">Φόρτωση των πιστοποιητικών κλειδιών του φορέα</string>
+  <string name="log_requesting_status">Αίτηση για συναίνεση κατάστασης δικτύου</string>
+  <string name="log_loading_status">Φόρτωση συναίνεσης κατάστασης δικτύου</string>
+  <string name="log_loading_keys">Φόρτωση των πιστοποιητικών του φορέα</string>
   <string name="log_requesting_descriptors">Αίτημα περιγραφέων του αναμεταδότη</string>
   <string name="log_loading_descriptors">Φόρτωση περιγραφέων αναμεταδότη</string>
   <string name="log_enough_dirinfo">Φορτώθηκαν αρκετές πληροφορίες καταλόγου για τη δημιουργία κυκλωμάτων</string>
-  <string name="log_ap_handshake_done">Ολοκληρώθηκε η χειραψία με αναμεταδότη για τη δημιουργία κυκλωμάτων</string>
+  <string name="log_ap_handshake_done">Η διαπραγμάτευση με κόμβο ολοκληρώθηκε για δημιουργία κυκλωμάτων</string>
   <string name="log_circuit_create">Σύνδεση σε ένα κύκλωμα Tor</string>
   <string name="log_done">Εκτελείται</string>
   <string name="channel_name_tor_service">Υπηρεσία γεφυρών %s</string>
@@ -196,4 +199,6 @@
   <string name="eip_state_no_network">Δεν έχεις σύνδεση στο διαδίκτυο. Μόλις αυτή επανέλθει, θα συνδεθείς αυτόματα στο </string>
   <string name="eip_state_blocking">Το %1$s μπλοκάρει όλη τη κίνηση διαδικτύου.</string>
   <string name="disabled_while_udp_on">Απενεργοποιημένο όταν είναι ενεργό το UDP.</string>
+  <string name="advanced_settings">Προηγμένες ρυθμίσεις</string>
+  <string name="cancel_connection">Αποσύνδεση</string>
 </resources>

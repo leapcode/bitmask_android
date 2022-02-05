@@ -87,7 +87,6 @@
   <string name="action_example">Acción de exemplo</string>
   <string name="action_settings">Axustes</string>
   <string name="void_vpn_establish">%s bloquea todo o tráfico saínte de internet.</string>
-  <string name="void_vpn_error_establish">Fallo ao establecer bloqueo VPN.</string>
   <string name="void_vpn_stopped">Deixou de bloquear todo o tráfico saínte.</string>
   <string name="void_vpn_title">Bloqueando tráfico</string>
   <string name="update_provider_details">Actualizar detalles do provedor</string>
@@ -152,7 +151,9 @@
   <string name="gateway_selection_title">Establecer localización</string>
   <string name="gateway_selection_automatic">Automática</string>
   <string name="log_onehop_create">Estabelecendo unha conexión cifrada co directorio</string>
+  <string name="log_loading_keys">Cargando os certificados de autoridade</string>
   <string name="log_circuit_create">Estabelecendo o circuíto Tor</string>
   <string name="log_done">Executando</string>
   <string name="hide">Agochar</string>
+  <string name="advanced_settings">Configuración avanzada</string>
 </resources>

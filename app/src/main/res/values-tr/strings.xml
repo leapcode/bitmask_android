@@ -52,6 +52,7 @@
   <string name="setup_error_configure_button">Yapılandır</string>
   <string name="setup_error_close_button">Çık</string>
   <string name="setup_error_text">Seçtiğiniz hizmet sağlayıcıda %s yapılandırırken bir sorun çıktı.\n\nHizmet sağlayıcıyı yeniden yapılandırmayı ya da çıkıp bir sonraki açılışta hizmet sağlayıcı yapılandırmayı seçebilirsiniz.</string>
+  <string name="setup_error_text_custom">%s yapılandırılırken bir sorun çıktı.\n\nYeniden yapılandırmayı ya da çıkmayı seçebilirsiniz.</string>
   <string name="server_unreachable_message">Sunucuya ulaşılamıyor. Lütfen yeniden deneyin.</string>
   <string name="error.security.pinnedcertificate">Güvenlik hatası. Uygulamayı yükseltin veya başka bir hizmet sağlayıcı seçin.</string>
   <string name="malformed_url">%s bir hizmet sağlayıcısı gibi görünmüyor.</string>
@@ -88,7 +89,7 @@
   <string name="action_example">Örnek işlem</string>
   <string name="action_settings">Ayarlar</string>
   <string name="void_vpn_establish">%s tüm giden internet trafiğini engeller.</string>
-  <string name="void_vpn_error_establish">VPN engellemesi başlatılamadı.</string>
+  <string name="void_vpn_error_establish">Tüm İnternet trafiği engellenemedi.</string>
   <string name="void_vpn_stopped">Tüm giden İnternet trafiğinin engellenmesi durduruldu.</string>
   <string name="void_vpn_title">Trafik engelleme</string>
   <string name="update_provider_details">Hizmet sağlayıcı bilgilerini güncelle</string>
@@ -138,6 +139,8 @@
   <string name="warning_no_more_gateways_use_pt">%s bağlantı kuramadı. VPN bağlantıları engelleniyor olabilir. Karartılmış bağlantıları kullanarak bağlantı kurmayı denemek ister misiniz?</string>
   <string name="warning_no_more_gateways_no_pt">%s bağlantı kuramadı. Yeniden denemek ister misiniz?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s karartılmış VPN bağlantılarını kullanarak bağlantı kuramadı. Standart VPN bağlantıları kullanarak bağlantı kurmayı denemek ister misiniz?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s ile %2$s bağlantısı kurulamadı. Bağlantı en iyi konumdan kurulmaya çalışılsın mı?</string>
+  <string name="warning_option_try_best">En iyi konum denensin</string>
   <string name="warning_option_try_pt">Karartılmış bağlantıyı dene</string>
   <string name="warning_option_try_ovpn">Standart bağlantıyı dene</string>
   <string name="vpn_error_establish">Android, VPN hizmetini başlatamadı.</string>
@@ -155,25 +158,25 @@
   <string name="gateway_selection_recommended_location">Önerilen konum</string>
   <string name="gateway_selection_recommended">Önerilen</string>
   <string name="gateway_selection_manually">El ile seçim</string>
-  <string name="gateway_selection_automatic_location">Otomatik olarak en iyi bağlantı kullanılır.</string>
+  <string name="gateway_selection_automatic_location">Otomatik olarak en iyi bağlantı kullanılsın</string>
   <string name="gateway_selection_automatic">Otomatik</string>
   <string name="reconnecting">Yeniden bağlantı kuruluyor…</string>
   <string name="tor_starting">Sansürü aşmak için köprüler başlatılıyor…</string>
-  <string name="tor_stopping">Köprüler durduruluyor.</string>
-  <string name="tor_started">Sansürü aşmak için köprüler kullanılır.</string>
+  <string name="tor_stopping">Köprüler durduruluyor</string>
+  <string name="tor_started">Sansürü aşmak için köprüler kullanılıyor</string>
   <string name="log_conn_done_pt">Değiştirilebilir taşıyıcı ile bağlantı kuruldu</string>
   <string name="log_conn_pt">Değiştirilebilir taşıyıcı ile bağlantı kuruluyor</string>
   <string name="log_conn_done">Bir aktarıcı ile bağlantı kuruldu</string>
-  <string name="log_handshake">Bir aktarıcı ile el sıkışılıyor</string>
-  <string name="log_handshake_done">Bir aktarıcı ile el sıkışma tamamlandı</string>
+  <string name="log_handshake">Bir aktarıcı ile bağlantı kuruluyor</string>
+  <string name="log_handshake_done">Aktarıcı ile bağlantı kuruldu</string>
   <string name="log_onehop_create">Bir şifrelenmiş dizin bağlantısı kuruluyor</string>
   <string name="log_requesting_status">Ağ durumu uzlaşması soruluyor</string>
   <string name="log_loading_status">Ağ durumu uzlaşması yükleniyor</string>
-  <string name="log_loading_keys">Otorite anahtar sertifikaları yükleniyor</string>
+  <string name="log_loading_keys">Otorite sertifikaları yükleniyor</string>
   <string name="log_requesting_descriptors">Aktarıcı tanımlayıcıları soruluyor</string>
   <string name="log_loading_descriptors">Aktarıcı tanımlayıcıları yükleniyor</string>
   <string name="log_enough_dirinfo">Devreleri kurmak için yeterli dizin bilgisi yüklendi</string>
-  <string name="log_ap_handshake_done">Devreleri kurmak için bir aktarıcıyla el sıkışma tamamlandı</string>
+  <string name="log_ap_handshake_done">Devreleri kurmak için bir aktarıcıyla uzlaşma tamamlandı</string>
   <string name="log_circuit_create">Bir Tor devresi kuruluyor</string>
   <string name="log_done">Çalışıyor</string>
   <string name="channel_name_tor_service">%s köprü hizmeti</string>
@@ -196,4 +199,6 @@
   <string name="eip_state_no_network">Çalışan bir İnternet bağlantınız yok. Geri geldiğinde, bağlantınız otomatik olarak kurulacak.</string>
   <string name="eip_state_blocking">%1$s tüm İnternet trafiğini engelliyor.</string>
   <string name="disabled_while_udp_on">UDP açıkken devre dışı.</string>
+  <string name="advanced_settings">Gelişmiş ayarlar</string>
+  <string name="cancel_connection">Bağlantıyı kes</string>
 </resources>

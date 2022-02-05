@@ -87,7 +87,6 @@
   <string name="action_example">ئۈلگىلىك ھەرىكەت</string>
   <string name="action_settings">ئورناتمىلار</string>
   <string name="void_vpn_establish">%s پۈتۈن سىرتقا چىقىدىغان ئىنتېرنېت قاتنىشىنى چەكلەش.</string>
-  <string name="void_vpn_error_establish">چەكلەنگەن VPN قۇرالمىدۇق</string>
   <string name="void_vpn_stopped">بارلىق سىرتقا چىقىدىغان ئىنتېرنېت قاتنىشىنى چەكلەشنى توختىتىش</string>
   <string name="void_vpn_title">ئالاقىنى تاقاش</string>
   <string name="update_provider_details">تەمىنلىگۈچىنىڭ تەپسىلاتلىرىنى يېڭىلاش</string>
@@ -153,4 +152,5 @@
   <string name="gateway_selection_automatic">ئاپتۇماتىك</string>
   <string name="log_done">ئىجرا قىلىنىۋاتىدۇ</string>
   <string name="hide">يوشۇر</string>
+  <string name="advanced_settings">ئالىي تەڭشەكلەر</string>
 </resources>

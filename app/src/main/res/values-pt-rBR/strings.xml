@@ -87,7 +87,6 @@
   <string name="action_example">Ação de exemplo</string>
   <string name="action_settings">Configurações</string>
   <string name="void_vpn_establish">%s bloqueia todo o tráfego de saída de internet.</string>
-  <string name="void_vpn_error_establish">Falha ao estabelecer VPN de bloqueio</string>
   <string name="void_vpn_stopped">Parou de bloquear todo o tráfego de saída de internet.</string>
   <string name="void_vpn_title">Bloqueando tráfego</string>
   <string name="update_provider_details">Atualizar detalhes do provedor</string>
@@ -133,8 +132,11 @@
   <string name="gateway_selection_recommended">Recomendado</string>
   <string name="gateway_selection_automatic">Automático</string>
   <string name="log_onehop_create">Estabelecendo uma conexão de diretório criptografado</string>
+  <string name="log_loading_keys">Carregando certificados de autoridade</string>
   <string name="log_circuit_create">Estabelecendo um circuito Tor</string>
   <string name="log_done">Executando</string>
   <string name="hide">Esconder</string>
   <string name="use_snowflake">Usar Snowflake</string>
+  <string name="advanced_settings">Configurações avançadas</string>
+  <string name="cancel_connection">Desconectar</string>
 </resources>

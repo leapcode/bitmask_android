@@ -87,7 +87,6 @@
   <string name="action_example">Exemple d\'acció</string>
   <string name="action_settings">Configuració</string>
   <string name="void_vpn_establish">%s bloqueja tot el trànsit d\'Internet sortint.</string>
-  <string name="void_vpn_error_establish">No s\'ha pogut establir el bloqueig de la VPN.</string>
   <string name="void_vpn_stopped">S\'ha deixat de bloquejar tot el trànsit sortint d\'Internet.</string>
   <string name="void_vpn_title">Bloqueja el trànsit</string>
   <string name="update_provider_details">Actualitza els detalls del proveïdor</string>
@@ -150,8 +149,11 @@
   <string name="version_update_error">No s\'ha pogut actualitzar.</string>
   <string name="version_update_error_permissions">No hi ha permisos per instal·lar l\'aplicació.</string>
   <string name="log_onehop_create">S\'està establint una connexió xifrada amb un directori</string>
+  <string name="log_loading_keys">S\'estan carregant els certificats d\'autoritat</string>
   <string name="log_circuit_create">S\'està establint un circuit Tor</string>
   <string name="log_done">S\'està executant</string>
   <string name="hide">Oculta</string>
   <string name="use_snowflake">Utilitzi Snowflake</string>
+  <string name="advanced_settings">Configuració avançada</string>
+  <string name="cancel_connection">Desconecta</string>
 </resources>

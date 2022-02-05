@@ -74,7 +74,6 @@
   <string name="navigation_drawer_close">Lukk navigasjonsskuff</string>
   <string name="action_example">Eksempelhanding</string>
   <string name="action_settings">Innstillinger</string>
-  <string name="void_vpn_error_establish">Klarte ikke å etablere blokkerings-VPN.</string>
   <string name="void_vpn_stopped">Stoppet blokkering av all utgående internettrafikk.</string>
   <string name="void_vpn_title">Blokkerer trafikk</string>
   <string name="update_provider_details">Oppdater tilbyderdetaljer</string>
@@ -95,8 +94,10 @@
   <string name="nav_drawer_obfuscated_connection">Bruk broer</string>
   <string name="gateway_selection_automatic">Automatisk</string>
   <string name="log_onehop_create">Etablerer en kryptert katalogforbindelse</string>
+  <string name="log_loading_keys">Laster identitetsbekreftende sertifikater</string>
   <string name="log_circuit_create">Etablerer en Tor-krets</string>
   <string name="log_done">Kjører</string>
   <string name="hide">Gjem</string>
   <string name="use_snowflake">Bruk Snowflake</string>
+  <string name="advanced_settings">Avanserte innstillinger</string>
 </resources>

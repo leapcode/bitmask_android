@@ -47,13 +47,17 @@
   <string name="navigation_drawer_close">Sulje navigointilaatikko</string>
   <string name="action_settings">Asetukset</string>
   <string name="donate_title">Lahjoita</string>
+  <string name="donate_button_remind_later">Muistuta minua myöhemmin</string>
   <string name="donate_button_donate">Lahjoita</string>
   <string name="nav_drawer_obfuscated_connection">Käytä siltoja</string>
   <string name="gateway_selection_recommended">Suositeltu</string>
   <string name="gateway_selection_automatic">Automaattinen</string>
   <string name="log_onehop_create">Muodostetaan suojattu yhteys hakemistoon</string>
+  <string name="log_loading_keys">Ladataan juurivarmenteita</string>
   <string name="log_circuit_create">Muodostetaan Tor-kiertotie</string>
   <string name="log_done">Käynnissä</string>
   <string name="hide">Piilota</string>
   <string name="use_snowflake">Käytä Snowflakea</string>
+  <string name="advanced_settings">Lisäasetukset</string>
+  <string name="cancel_connection">Katkaise yhteys</string>
 </resources>

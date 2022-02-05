@@ -74,7 +74,6 @@
   <string name="navigation_drawer_close">Serriñ an diretenn verdeiñ</string>
   <string name="action_example">Skouer obererezh</string>
   <string name="action_settings">Arventennoù</string>
-  <string name="void_vpn_error_establish">Dibosupl eo da ziazezañ ur VPN stankus.</string>
   <string name="void_vpn_stopped">Herzel da stankañ ar froud genrouedadel ezvont a-bezh.</string>
   <string name="void_vpn_title">Stankañ ar froud</string>
   <string name="update_provider_details">Hizivaat munudoù ar pourvezer</string>
@@ -95,4 +94,5 @@
   <string name="donate_button_donate">Reiñ arc\'hant</string>
   <string name="log_done">O vont en-dro</string>
   <string name="hide">Kuzhaat</string>
+  <string name="advanced_settings">Arventennoù araokaet</string>
 </resources>

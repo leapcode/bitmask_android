@@ -52,6 +52,7 @@
   <string name="setup_error_configure_button">Configurar</string>
   <string name="setup_error_close_button">Salir</string>
   <string name="setup_error_text">Hubo un error al configurar %s con tu proveedor seleccionado.\n\nPuedes escoger reconfigurar, o salir y configurar un proveedor en el próximo inicio.</string>
+  <string name="setup_error_text_custom">Hubo un error configurando %s.\n\nPodrías elegir reconfigurar, o salir.</string>
   <string name="server_unreachable_message">No se pudo alcanzar el servidor, por favor inténtalo de nuevo.</string>
   <string name="error.security.pinnedcertificate">Error de seguridad, actualiza la aplicación o escoge otro proveedor.</string>
   <string name="malformed_url">No parece ser un proveedor %s.</string>
@@ -88,7 +89,7 @@
   <string name="action_example">Acción de ejemplo</string>
   <string name="action_settings">Configuración</string>
   <string name="void_vpn_establish">%s bloquea todo el tráfico saliente de internet</string>
-  <string name="void_vpn_error_establish">No se pudo establecer VPN de bloqueo.</string>
+  <string name="void_vpn_error_establish">Fallo al bloquear todo el tráfico de Internet.</string>
   <string name="void_vpn_stopped">Se detuvo el bloqueo de todo el tráfico saliente de Internet.</string>
   <string name="void_vpn_title">Bloqueando el tráfico</string>
   <string name="update_provider_details">Actualizar detalles del proveedor</string>
@@ -138,6 +139,8 @@
   <string name="warning_no_more_gateways_use_pt">%s no se pudo conectar. Puede ser que las conexiones al VPN estén bloqueadas. ¿Quieres intentar a conectar usando conexiones ofuscadas?</string>
   <string name="warning_no_more_gateways_no_pt">%s no se pudo conectar. ¿Quieres intentarlo de nuevo?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s no se pudo conectar al VPN usando conexiones ofuscadas. ¿Quieres intentar a conectar usando el VPN estándar? </string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s no pudo conectarse a %2$s. ¿Quieres intentar conectarte automáticamente con la mejor ubicación?</string>
+  <string name="warning_option_try_best">Intentar la mejor ubicación</string>
   <string name="warning_option_try_pt">Probar conexión ofuscada</string>
   <string name="warning_option_try_ovpn">Probar conexión estándar</string>
   <string name="vpn_error_establish">Android no se pudo establecer el servicio VPN.</string>
@@ -155,25 +158,25 @@
   <string name="gateway_selection_recommended_location">Ubicación recomendada</string>
   <string name="gateway_selection_recommended">Recomendado</string>
   <string name="gateway_selection_manually">Seleccionar manualmente</string>
-  <string name="gateway_selection_automatic_location">Usa la mejor conexión automáticamente.</string>
+  <string name="gateway_selection_automatic_location">Usar la mejor conexión automáticamente</string>
   <string name="gateway_selection_automatic">Automática</string>
   <string name="reconnecting">Reconectando...</string>
   <string name="tor_starting">Iniciando puentes para evasión de censura...</string>
-  <string name="tor_stopping">Deteniendo puentes.</string>
-  <string name="tor_started">Usando puentes para evasión de censura.</string>
+  <string name="tor_stopping">Deteniendo puentes</string>
+  <string name="tor_started">Usando puentes para la evasión de la censura</string>
   <string name="log_conn_done_pt">Conectado al transporte conectable</string>
   <string name="log_conn_pt">Vinculando con transporte conectable</string>
   <string name="log_conn_done">Conectado a un repetidor</string>
-  <string name="log_handshake">Intercambiando con un repetidor</string>
-  <string name="log_handshake_done">Intercambio con repetidor realizado</string>
+  <string name="log_handshake">Negociando la conexión con un repetidor</string>
+  <string name="log_handshake_done">Conexión con repetidor negociada</string>
   <string name="log_onehop_create">Estableciendo una conexión cifrada con el repositorio de repetidores</string>
-  <string name="log_requesting_status">Solicitando consenso del estado de red</string>
-  <string name="log_loading_status">Cargando consenso del estado de red</string>
-  <string name="log_loading_keys">Cargando certificados de claves de autoridad</string>
+  <string name="log_requesting_status">Solicitando consenso de estado de red</string>
+  <string name="log_loading_status">Cargando consenso de estado de red</string>
+  <string name="log_loading_keys">Cargando los certificados de autoridades</string>
   <string name="log_requesting_descriptors">Solicitando descriptores de repetidores</string>
   <string name="log_loading_descriptors">Cargando descriptores de repetidores</string>
   <string name="log_enough_dirinfo">Suficiente información de directorios cargada para establecer circuitos</string>
-  <string name="log_ap_handshake_done">Intercambio con repetidor finalizado para establecer circuitos</string>
+  <string name="log_ap_handshake_done">Negociación con repetidor finalizada para establecer circuitos</string>
   <string name="log_circuit_create">Estableciendo un circuito Tor</string>
   <string name="log_done">En marcha</string>
   <string name="channel_name_tor_service">%s Servicio de Puentes</string>
@@ -196,4 +199,6 @@
   <string name="eip_state_no_network">No tenés una conexión a Internet funcional. Una vez que la tengas, automáticamente vas a estar conectado a</string>
   <string name="eip_state_blocking">%1$s está bloqueando todo el tráfico de Internet.</string>
   <string name="disabled_while_udp_on">Deshabilitado mientras UDP está activado.</string>
+  <string name="advanced_settings">Configuración avanzada</string>
+  <string name="cancel_connection">Desconectar</string>
 </resources>

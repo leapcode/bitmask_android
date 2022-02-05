@@ -82,7 +82,6 @@
   <string name="navigation_drawer_close">Zamknij pasek nawigacyjny</string>
   <string name="action_example">Przykładowa akcja</string>
   <string name="action_settings">Ustawienia</string>
-  <string name="void_vpn_error_establish">Nie udało się ustanowić blokowania VPN.</string>
   <string name="void_vpn_stopped">Zatrzymano blokowanie całego wychodzącego ruchu.</string>
   <string name="void_vpn_title">Blokowanie ruchu</string>
   <string name="update_provider_details">Zaktualizuj szczegóły dostawcy</string>
@@ -95,6 +94,7 @@
   <string name="save_battery">Oszczędzaj baterię</string>
   <string name="save_battery_message">Połączenia w tle zostaną zahibernowane, gdy Twój telefon jest nieaktywny.</string>
   <string name="always_on_vpn">Stałe połączenie VPN</string>
+  <string name="tethering_wifi">Hotspot Wi-Fi</string>
   <string name="do_not_show_again">Nie pokazuj ponownie</string>
   <string name="always_on_vpn_user_message">Aby włączyć stałe połączenie VPN w ustawieniach VPN Androida, kliknij ikonę konfiguracji [img src] i włącz przełącznik.</string>
   <string name="donate_title">Wpłać darowiznę</string>
@@ -107,8 +107,11 @@
   <string name="gateway_selection_recommended">Polecane</string>
   <string name="gateway_selection_automatic">Automatycznie</string>
   <string name="log_onehop_create">Ustanawianie szyfrowanego połączenia z katalogiem</string>
+  <string name="log_loading_keys">Wczytywanie certyfikatów uwierzytelnienia</string>
   <string name="log_circuit_create">Ustanawianie ścieżki Tora</string>
   <string name="log_done">Uruchomiony</string>
   <string name="hide">Ukryj</string>
   <string name="use_snowflake">Użyj Snowflake</string>
+  <string name="advanced_settings">Ustawienia zaawansowane</string>
+  <string name="cancel_connection">Rozłącz</string>
 </resources>

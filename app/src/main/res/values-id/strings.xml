@@ -49,15 +49,19 @@
   <string name="action_settings">Pengaturan</string>
   <string name="always_on_vpn">VPN selalu menyala</string>
   <string name="donate_title">Donasi</string>
+  <string name="donate_button_remind_later">Ingatkan saya nanti</string>
   <string name="donate_button_donate">Donasi</string>
   <string name="nav_drawer_obfuscated_connection">Pakai Bridges</string>
   <string name="gateway_selection_title">Lokasi yang dipilih</string>
   <string name="gateway_selection_recommended">Direkomendasikan</string>
   <string name="gateway_selection_automatic">Otomatis</string>
   <string name="log_onehop_create">Membuat koneksi direktori terenkripsi </string>
+  <string name="log_loading_keys">Memuat sertifikat otoritas</string>
   <string name="log_circuit_create">Membuat sirkuit Tor</string>
   <string name="log_done">Menjalankan</string>
   <string name="hide">Sembunyikan</string>
   <string name="use_snowflake">Gunakan Snowflake</string>
   <string name="vpn_settings">Pengaturan VPN</string>
+  <string name="advanced_settings">Pengaturan lanjutan</string>
+  <string name="cancel_connection">Putus sambungan</string>
 </resources>

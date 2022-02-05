@@ -52,6 +52,7 @@
   <string name="setup_error_configure_button">Konfigurieren</string>
   <string name="setup_error_close_button">Beenden</string>
   <string name="setup_error_text">Es gab einen Fehler beim Konfigurieren von %s. \n\n Starte die Konfiguration erneut oder wähle einen anderen Provider aus, der beim nächsten Start eingerichtet werden soll</string>
+  <string name="setup_error_text_custom">Es gab einen Fehler beim Konfigurieren von %s.\n\nMöchtest du erneut konfigurieren oder die App beenden?</string>
   <string name="server_unreachable_message">Der Server ist nicht erreichbar. Bitte versuche es noch einmal.</string>
   <string name="error.security.pinnedcertificate">Sicherheitsfehler. Aktualisiere die App oder wähle einen anderen Provider.</string>
   <string name="malformed_url">Dies scheint kein Provider für %s zu sein.</string>
@@ -88,7 +89,7 @@
   <string name="action_example">Beispielaktion</string>
   <string name="action_settings">Einstellungen</string>
   <string name="void_vpn_establish"> %s blockt den ausgehenden Internetverkehr. </string>
-  <string name="void_vpn_error_establish">Die Einrichtung des blockierenden VPNs ist fehlgeschlagen. </string>
+  <string name="void_vpn_error_establish">Das Blockieren deines Internetverkehrs schlug fehl. </string>
   <string name="void_vpn_stopped">Blockieren des ausgehenden Internetverkehrs wurde beendet.</string>
   <string name="void_vpn_title">Internetverkehr wird blockiert</string>
   <string name="update_provider_details">Providerdetails werden aktualisiert</string>
@@ -138,6 +139,8 @@
   <string name="warning_no_more_gateways_use_pt">%s konnte sich nicht verbinden. Es kann sein, dass VPN Verkehr geblockt wird. Möchtest du versuchen, eine verschleierte Verbindung herzustellen?</string>
   <string name="warning_no_more_gateways_no_pt">%s konnte sich nicht verbinden. Möchtest du es noch einmal versuchen?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s konnte keine verschleierte Verbindung herstellen. Möchtest du versuchen, eine normale VPN Verbindung herzustellen?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$skonnte sich nicht mit %2$s verbinden. Möchtest du versuchen, dich automatisch mit dem besten Standort zu verbinden?</string>
+  <string name="warning_option_try_best">Versuche besten Standort</string>
   <string name="warning_option_try_pt">Teste verschleierte Verbindung</string>
   <string name="warning_option_try_ovpn">Teste normale Verbindung</string>
   <string name="vpn_error_establish">Android konnte nicht den VPN Dienst starten.</string>
@@ -155,25 +158,25 @@
   <string name="gateway_selection_recommended_location">Empfohlener Standort</string>
   <string name="gateway_selection_recommended">Empfohlen</string>
   <string name="gateway_selection_manually">Manuell auswählen</string>
-  <string name="gateway_selection_automatic_location">Automatisch die beste Verbindung nutzen.</string>
+  <string name="gateway_selection_automatic_location">Benutze automatisch die beste Verbindung</string>
   <string name="gateway_selection_automatic">Automatisch</string>
   <string name="reconnecting">Wiederverbindung...</string>
   <string name="tor_starting">Brücken werden gestartet, um Zensur zu umgehen...</string>
-  <string name="tor_stopping">Brücken werden gestoppt.</string>
-  <string name="tor_started">Brücken werden genutzt, um Zensur zu umgehen.</string>
+  <string name="tor_stopping">Stoppe Brücken</string>
+  <string name="tor_started">Benutze Brücken, um Internetzensur zu umgehen</string>
   <string name="log_conn_done_pt">Mit der austauschbaren Übertragungsart verbunden</string>
   <string name="log_conn_pt">Verbinde mit einer austauschbaren Übertragungsart</string>
   <string name="log_conn_done">Verbunden mit einem Tor Relay</string>
-  <string name="log_handshake">Verbindungsaufbau mit einem Tor Relay</string>
-  <string name="log_handshake_done">Verbindungsaufbau mit einem Tor Relay abgeschlossen</string>
+  <string name="log_handshake">Baue Verbindung mit Relay auf</string>
+  <string name="log_handshake_done">Verbindung mit Relay aufgebaut</string>
   <string name="log_onehop_create">Es wird eine verschlüsselte Verbindung zu einem Verzeichnis hergestellt</string>
-  <string name="log_requesting_status">Netzwerkstatus abfragen</string>
-  <string name="log_loading_status">Lade Netzwerkstatus</string>
-  <string name="log_loading_keys">Lade Schlüsselzertifikate</string>
+  <string name="log_requesting_status">Frage den Konsens zum Netzwerkstatus ab</string>
+  <string name="log_loading_status">Lade den Konsens zum Netzwerkstatus</string>
+  <string name="log_loading_keys">Autorisierungszertifikate werden geladen</string>
   <string name="log_requesting_descriptors">Frage Relay-Deskriptoren ab</string>
   <string name="log_loading_descriptors">Lade Relay-Deskriptoren</string>
   <string name="log_enough_dirinfo">Ausreichend Verzeichnisinformationen geladen, um einen Tor-Kanal aufzubauen</string>
-  <string name="log_ap_handshake_done">Verbindungsaufbau mit Relay abgeschlossen, um einen Tor-Kanal aufzubauen.</string>
+  <string name="log_ap_handshake_done">Relay-Aushandlung zum Aufbau eines Pfades durch das Tor-Netzwerk beendet</string>
   <string name="log_circuit_create">Tor-Kanal wird hergestellt</string>
   <string name="log_done">Läuft</string>
   <string name="channel_name_tor_service">%s Brücken Service</string>
@@ -196,4 +199,6 @@
   <string name="eip_state_no_network">Du hast keine funktionierende Internetverbindung. Sobald sie wieder da ist, wirst du automatisch verbunden mit</string>
   <string name="eip_state_blocking">%1$s blockiert die Intenetverbindung</string>
   <string name="disabled_while_udp_on">Deaktiviert während UDP eingeschaltet ist</string>
+  <string name="advanced_settings">Erweiterte Einstellungen</string>
+  <string name="cancel_connection">Trennen</string>
 </resources>

@@ -87,7 +87,6 @@
   <string name="action_example">פעולת דוגמה</string>
   <string name="action_settings">הגדרות</string>
   <string name="void_vpn_establish">%s חוסם את כל תעבורת האינטרנט היוצאת.</string>
-  <string name="void_vpn_error_establish">נכשל בהקמת VPN חסימה.</string>
   <string name="void_vpn_stopped">הפסיק לחסום את כל תעבורת האינטרנט היוצאת.</string>
   <string name="void_vpn_title">חוסם תעבורה</string>
   <string name="update_provider_details">עדכן פרטי ספק</string>
@@ -152,8 +151,11 @@
   <string name="version_update_error">עדכון נכשל.</string>
   <string name="version_update_error_permissions">אין הרשאות להתקין את היישום.</string>
   <string name="log_onehop_create">מקים חיבור סיפרייה מוצפן</string>
+  <string name="log_loading_keys">טוען אישורי רָשׁוּת</string>
   <string name="log_circuit_create">מקים מעגל Tor</string>
   <string name="log_done">רץ</string>
   <string name="hide">הסתר</string>
   <string name="use_snowflake">השתמש ב־Snowflake</string>
+  <string name="advanced_settings">הגדרות מתקדמות</string>
+  <string name="cancel_connection">התנתק</string>
 </resources>

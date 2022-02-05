@@ -51,8 +51,11 @@
   <string name="gateway_selection_title">Alege locația</string>
   <string name="gateway_selection_automatic">Automatic</string>
   <string name="log_onehop_create">Se stabileşte o conexiune criptată la director</string>
+  <string name="log_loading_keys">Se încarcă certificatele de autoritate</string>
   <string name="log_circuit_create">Se stabileşte un circuit Tor</string>
   <string name="log_done">Rulează</string>
   <string name="hide">Ascunde</string>
   <string name="use_snowflake">Folosește Snowflake</string>
+  <string name="advanced_settings">Setări avansate</string>
+  <string name="cancel_connection">Deconectaţi</string>
 </resources>

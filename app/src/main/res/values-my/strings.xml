@@ -87,7 +87,6 @@
   <string name="action_example">နမူနာ လုပ်ဆောင်ချက်</string>
   <string name="action_settings">အပြင်အဆင်များ</string>
   <string name="void_vpn_establish">%sသည် အထွက်အင်တာနက်အသွားအလာများ ပိတ်ဆို့သည်</string>
-  <string name="void_vpn_error_establish">VPN မခံထားသော အခြားချိတ်ဆက်မှုများအား ပိတ်ဆို့ခြင်းပြုလုပ်သော VPN ထူထောင်ရန် မအောင်မြင်ပါ။</string>
   <string name="void_vpn_stopped">အထွက်အင်တာနက်အသွားအလာများ ပိတ်ဆို့ခြင်း မရှိတော့ပါ။</string>
   <string name="void_vpn_title">လိုင်းပိတ်နေသည်</string>
   <string name="update_provider_details">ဝန်ဆောင်မှုပေးသူ၏ အချက်အလက်များအား အဆင့်မြှင့်မယ်</string>
@@ -148,9 +147,12 @@
   <string name="version_update_error">အဆင်မြှင့်ခြင်း မအောင်မြင်ပါ။</string>
   <string name="version_update_error_permissions">အပ္ပလီကေးရှင်းကို ဒေါင်းလုပ်ဆွဲရန် ခွင့်ပြုချက်မရှိပါ။</string>
   <string name="log_onehop_create">ကုဒ်ဖြင့်စာဝှက်ထားသည့် ဖိုင်လမ်းကြောင်း ချိတ်ဆက်မှု တစ်ခု တည်ဆောက်နေသည်</string>
+  <string name="log_loading_keys">လုပ်ပိုင်ခွင့် လက်မှတ်များကို ရယူနေသည်</string>
   <string name="log_circuit_create">Tor ဆားကစ် တစ်ခုကို တည်ဆောက်နေသည်</string>
   <string name="log_done">လုပ်ဆောင်နေသည်</string>
   <string name="hide">ဝှက်မည်</string>
   <string name="use_snowflake">Snowflake အသုံးပြုရန်</string>
   <string name="vpn_settings">VPN အပြင်အဆင်များ</string>
+  <string name="advanced_settings">အဆင့်မြင့်သော ဆက်တင်များ</string>
+  <string name="cancel_connection">ချိတ်ဆက်မှုဖြတ်တောက်မယ်</string>
 </resources>

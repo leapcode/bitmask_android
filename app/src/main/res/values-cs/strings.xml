@@ -50,8 +50,11 @@
   <string name="nav_drawer_obfuscated_connection">Použít bridge</string>
   <string name="gateway_selection_automatic">Automaticky</string>
   <string name="log_onehop_create">Spojování s šifrovaným adresářem</string>
+  <string name="log_loading_keys">Nahrávání certifikátů autorit</string>
   <string name="log_circuit_create">Navazování okruhu Tor</string>
   <string name="log_done">Běží</string>
   <string name="hide">Skrýt</string>
   <string name="use_snowflake">Použít Snowflake</string>
+  <string name="advanced_settings">Rozšířené nastavení</string>
+  <string name="cancel_connection">Odpojit</string>
 </resources>

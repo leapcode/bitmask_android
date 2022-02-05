@@ -87,7 +87,6 @@
   <string name="action_example">Fəaliyyət nümunəsi</string>
   <string name="action_settings">Tənzimləmələr</string>
   <string name="void_vpn_establish">%s bütün gedən internet trafikini blok etdirir.</string>
-  <string name="void_vpn_error_establish">VPN kilidini qura bilmədi.</string>
   <string name="void_vpn_stopped">Bütün gedən internet trafikini dayandırıldı. </string>
   <string name="void_vpn_title">Trafik kilidi</string>
   <string name="update_provider_details">Provayder məlumatlarının yenilənməsi</string>
@@ -130,7 +129,9 @@
   <string name="vpn_error_establish">Android VPN xidmətini qura bilmədi.</string>
   <string name="gateway_selection_automatic">Avtomatik</string>
   <string name="log_onehop_create">Şifrələnmiş kataloq əlaqəsinin yaradılması</string>
+  <string name="log_loading_keys">Səlahiyyət sertifikatlarının yüklənməsi</string>
   <string name="log_circuit_create">Tor dövrəsinin yaradılması</string>
   <string name="log_done">İşləyir</string>
   <string name="hide">Gizlət</string>
+  <string name="advanced_settings">Təkmilləşdirilmiş tənzimləmələr</string>
 </resources>

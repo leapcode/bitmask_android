@@ -87,7 +87,6 @@
   <string name="action_example">Näidistegevus</string>
   <string name="action_settings">Seaded</string>
   <string name="void_vpn_establish">%s blokeerib kogu väljuva internetiliikluse.</string>
-  <string name="void_vpn_error_establish">Blokeeriva VPNi loomine ebaõnnestus.</string>
   <string name="void_vpn_stopped">Kogu väljuva internetiliikluse blokeerimine peatatud.</string>
   <string name="void_vpn_title">Liikluse blokeerimine</string>
   <string name="update_provider_details">Uuenda pakkuja andmeid</string>
@@ -115,4 +114,6 @@
   <string name="log_circuit_create">Tor\'i ringtee sätestamine</string>
   <string name="log_done">Töötab</string>
   <string name="hide">Peida</string>
+  <string name="advanced_settings">Täpsemad seaded</string>
+  <string name="cancel_connection">Katkesta ühendus</string>
 </resources>

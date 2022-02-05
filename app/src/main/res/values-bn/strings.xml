@@ -82,7 +82,6 @@
   <string name="navigation_drawer_close">ন্যাভিগেশন ড্রয়ার বন্ধ করুন</string>
   <string name="action_example">কাজের উদাহরণ</string>
   <string name="action_settings">সেটিংস</string>
-  <string name="void_vpn_error_establish">VPN ব্লক স্থাপন করতে ব্যর্থ।</string>
   <string name="void_vpn_stopped">সমস্ত বহির্গামী ইন্টারনেট ট্রাফিক ব্লক করা বন্ধ।</string>
   <string name="void_vpn_title">ট্রাফিক ব্লক করা হচ্ছে</string>
   <string name="update_provider_details">প্রদানকারীর বিবরণ আপডেট করুন</string>
@@ -103,7 +102,10 @@
   <string name="donate_button_remind_later">আমাকে পরে মনে করিয়ে দিবেন</string>
   <string name="donate_button_donate">দান করুন</string>
   <string name="log_onehop_create">Establishing an encrypted directory connection</string>
+  <string name="log_loading_keys">কর্তৃপক্ষ সার্টিফিকেট লোড হচ্ছে</string>
   <string name="log_circuit_create">একটি টর্ক সার্কিট স্থাপন</string>
   <string name="log_done">চলমান</string>
   <string name="hide">লুকাও</string>
+  <string name="advanced_settings">আডভান্সড সেটিংস</string>
+  <string name="cancel_connection">সংযোগ বিচ্ছিন্ন করা</string>
 </resources>
