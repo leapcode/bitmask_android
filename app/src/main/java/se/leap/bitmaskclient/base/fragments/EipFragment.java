@@ -416,14 +416,14 @@ public class EipFragment extends Fragment implements Observer {
         }
 
         Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
-        if (eipStatus.isConnecting() ) {
+        if (eipStatus.isConnecting()) {
             setMainButtonEnabled(true);
             showConnectionTransitionLayout(true);
             locationButton.setText(getString(R.string.eip_status_start_pending));
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
-            mainDescription.setText(R.string.eip_state_insecure);
+            mainDescription.setText(null);
             subDescription.setText(null);
         } else if (eipStatus.isConnected()) {
             setMainButtonEnabled(true);
@@ -436,7 +436,7 @@ public class EipFragment extends Fragment implements Observer {
             mainDescription.setText(R.string.eip_state_connected);
             subDescription.setText(null);
             colorBackground();
-        } else if(isOpenVpnRunningWithoutNetwork()){
+        } else if(isOpenVpnRunningWithoutNetwork()) {
             Log.d(TAG, "eip fragment eipStatus - isOpenVpnRunningWithoutNetwork");
             setMainButtonEnabled(true);
             mainButton.updateState(true, false, true);
@@ -454,7 +454,7 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
-            mainDescription.setText(R.string.eip_state_insecure);
+            mainDescription.setText(null);
             subDescription.setText(R.string.reconnecting);
         } else if (eipStatus.isDisconnecting()) {
             setMainButtonEnabled(false);
