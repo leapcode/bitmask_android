@@ -515,7 +515,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void showConnectionTransitionLayout(boolean isConnecting) {
-        mainButton.updateState(true, true, false);
+        mainButton.updateState(true, isConnecting, false);
         if (isConnecting) {
             colorBackgroundALittle();
         } else {
