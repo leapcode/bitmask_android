@@ -17,8 +17,8 @@ android {
     applicationId "se.leap.bitmaskclient"
     // the factor 1000 is used so that gplay users can upgrade from split apks ((current version number - 1) * 1000) + n
     // to extracted bundle apks, supplied by google
-    versionCode 159 * 1000
-    versionName "1.1.1"
+    versionCode 160 * 1000
+    versionName "1.1.2"
     minSdkVersion 16
     targetSdkVersion 30
     vectorDrawables.useSupportLibrary = true

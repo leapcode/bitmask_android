@@ -1,3 +1,14 @@
+1.1.2 - Snowflakes winter wonder release
+features:
+* Tor on Snowflake: use new circumvention tech to unblock the communication from Bitmask to it's configuration servers
+* many, many new translations
+* update dependencies: ics-openvpn, openssl, lz4
+
+bugfixes:
+* some app crash fixes
+* disable LED for VPN status notifications, enable them if app updates are available
+* improvement some wordings
+
 1.1.1 - Android App Bundle Hotfix
 bugfixes:
 - fix VPN not turning on:
