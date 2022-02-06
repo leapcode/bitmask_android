@@ -118,7 +118,7 @@ build_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./scripts/prepareForDistribution.sh build -no-tag >> normalRelease.log 2>&1
+    - ./scripts/prepareForDistribution.sh build -aab -apk web -no-tag >> normalRelease.log 2>&1
   artifacts:
     paths:
       - app/build/outputs/
@@ -146,7 +146,7 @@ build_custom_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./scripts/prepareForDistribution.sh build -no-tag -custom >> customRelease.log 2>&1
+    - ./scripts/prepareForDistribution.sh build -aab -apk web -no-tag -custom >> customRelease.log 2>&1
   artifacts:
     paths:
     - app/build/outputs/
