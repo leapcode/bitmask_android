@@ -54,7 +54,6 @@
   <string name="custom_config_title">Aktifkan pilihan buatan</string>
   <string name="custom_config_summary">Tentukan seting buatan. Gunakan hati-hati</string>
   <string name="route_rejected">Rute ditolak Android</string>
-  <string name="cancel_connection">Putus</string>
   <string name="cancel_connection_long">Memutuskan sambungan VPN</string>
   <string name="clear_log">Bersihkan catatan</string>
   <string name="title_cancel">Batal Konfirmasi</string>

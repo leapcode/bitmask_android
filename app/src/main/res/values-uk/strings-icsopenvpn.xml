@@ -58,7 +58,6 @@
   <string name="custom_config_title">Увімкнути налаштовувані параметри</string>
   <string name="custom_config_summary">Укажіть налаштовувані параметри. Використовуйте з обережністю!</string>
   <string name="route_rejected">Маршрут відхилено Андроїдом</string>
-  <string name="cancel_connection">Від\'єднати</string>
   <string name="cancel_connection_long">Відключити VPN</string>
   <string name="clear_log">очистити журнал</string>
   <string name="title_cancel">Підтвердження скасування</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">Вам потрібно вказати і включити принаймні один сервер.</string>
   <string name="server_list">Список серверів</string>
   <string name="vpn_allowed_apps">Дозволенi програми</string>
-  <string name="advanced_settings">Додаткові налаштування</string>
   <string name="payload_options">Варіанти Payload</string>
   <string name="tls_settings">Налаштування TLS</string>
   <string name="no_remote_defined">Не визначен сервер</string>

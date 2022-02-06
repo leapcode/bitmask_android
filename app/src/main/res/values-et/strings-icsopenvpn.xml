@@ -58,7 +58,6 @@
   <string name="custom_config_title">Luba kohandatud valikud</string>
   <string name="custom_config_summary">Määrake kohandatud valikud. Kasutage ettevaatlikult!</string>
   <string name="route_rejected">Androidi poolt keelatud ruutingud</string>
-  <string name="cancel_connection">Katkesta ühendus</string>
   <string name="cancel_connection_long">Katkesta VPN</string>
   <string name="clear_log">Tühjenda logi</string>
   <string name="title_cancel">Loobu kinnitusest</string>
@@ -341,7 +340,6 @@
   <string name="remote_no_server_selected">Peate määrama vähemalt ühe kaugserveri.</string>
   <string name="server_list">Serverite Nimistu</string>
   <string name="vpn_allowed_apps">Lubatud Programmid</string>
-  <string name="advanced_settings">Täpsemad seaded</string>
   <string name="payload_options">Nimikoormuse valikud</string>
   <string name="tls_settings">TLS Seaded</string>
   <string name="no_remote_defined">Kaugserverid määramata</string>

@@ -58,7 +58,6 @@
   <string name="custom_config_title">"Activer les options personnalisées"</string>
   <string name="custom_config_summary">"Spécifiez les options personnalisées. A utiliser avec précaution !"</string>
   <string name="route_rejected">"Route rejetée par Android"</string>
-  <string name="cancel_connection">Déconnecter</string>
   <string name="cancel_connection_long">Déconnecter le VPN</string>
   <string name="clear_log">effacer le journal</string>
   <string name="title_cancel">"Annuler la confirmation"</string>
@@ -344,7 +343,6 @@ Sur certaines images, cette notification joue un son.\nAndroid à introduit ces 
   <string name="remote_no_server_selected">Vous devez définir et activer au moins un serveur distant.</string>
   <string name="server_list">Liste des serveurs</string>
   <string name="vpn_allowed_apps">Applications autorisées</string>
-  <string name="advanced_settings">Paramètres avancés</string>
   <string name="payload_options">Options Payload</string>
   <string name="tls_settings">Paramètres TLS</string>
   <string name="no_remote_defined">Aucun serveur distant défini</string>

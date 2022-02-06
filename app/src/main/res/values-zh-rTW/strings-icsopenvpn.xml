@@ -58,7 +58,6 @@
   <string name="custom_config_title">啟用自訂選項</string>
   <string name="custom_config_summary">指定自訂選項，請小心使用！</string>
   <string name="route_rejected">路由被 Android 拒絕</string>
-  <string name="cancel_connection">中斷連線</string>
   <string name="cancel_connection_long">中斷 VPN 連線</string>
   <string name="clear_log">清除記錄</string>
   <string name="title_cancel">確認取消</string>
@@ -342,7 +341,6 @@
   <string name="remote_no_server_selected">您需要定義和啟用至少一個遠端伺服器。</string>
   <string name="server_list">伺服器列表</string>
   <string name="vpn_allowed_apps">允許的應用程式</string>
-  <string name="advanced_settings">進階設定</string>
   <string name="payload_options">資料 (payload) 選項</string>
   <string name="tls_settings">TLS 設定</string>
   <string name="no_remote_defined">遠端沒有定義</string>

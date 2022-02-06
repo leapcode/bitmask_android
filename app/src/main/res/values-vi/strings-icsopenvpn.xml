@@ -58,7 +58,6 @@
   <string name="custom_config_title">Kích hoạt tùy chỉnh</string>
   <string name="custom_config_summary">Chỉ định các tùy chỉnh. Dùng cẩn thận!</string>
   <string name="route_rejected">Định tuyến bị từ chối bởi Android</string>
-  <string name="cancel_connection">Ngắt kết nối</string>
   <string name="cancel_connection_long">Ngắt kết nối VPN</string>
   <string name="clear_log">xóa Nhật ký</string>
   <string name="title_cancel">Xác nhận hủy bỏ</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">Bạn cần phải xác định và cho phép ít nhất một máy chủ từ xa.</string>
   <string name="server_list">Danh sách máy chủ</string>
   <string name="vpn_allowed_apps">Cho phép ứng dụng</string>
-  <string name="advanced_settings">Cài đặt nâng cao</string>
   <string name="payload_options">Tùy chọn Payload</string>
   <string name="tls_settings">Cài đặt TLS</string>
   <string name="no_remote_defined">Không xác định điều khiển từ xa</string>

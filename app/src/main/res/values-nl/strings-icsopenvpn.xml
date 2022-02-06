@@ -58,7 +58,6 @@
   <string name="custom_config_title">Aangepaste opties inschakelen</string>
   <string name="custom_config_summary">Geef aangepaste opties op. Wees voorzichtig!</string>
   <string name="route_rejected">Route geweigerd door Android</string>
-  <string name="cancel_connection">Verbinding verbreken</string>
   <string name="cancel_connection_long">VPN verbinding verbreken</string>
   <string name="clear_log">logboek wissen</string>
   <string name="title_cancel">Annuleer bevestiging</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">U moet tenminste één externe server definiëren en inschakelen.</string>
   <string name="server_list">Serverlijst</string>
   <string name="vpn_allowed_apps">Toegestane apps</string>
-  <string name="advanced_settings">Geavanceerde instellingen</string>
   <string name="payload_options">Payload opties</string>
   <string name="tls_settings">TLS-instellingen</string>
   <string name="no_remote_defined">Geen externe verbinding gedefinieerd</string>

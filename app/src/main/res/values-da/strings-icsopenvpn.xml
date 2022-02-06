@@ -58,7 +58,6 @@
   <string name="custom_config_title">Aktiver brugerdefinerede indstillinger</string>
   <string name="custom_config_summary">Angiv brugerdefinerede indstillinger. Brug med omtanke!</string>
   <string name="route_rejected">Rute afvist af Android</string>
-  <string name="cancel_connection">Afbryd</string>
   <string name="cancel_connection_long">Afbryd VPN</string>
   <string name="clear_log">ryd log</string>
   <string name="title_cancel">Annuller bekræftelse</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">Mindst én fjernserver skal definere og aktiveres.</string>
   <string name="server_list">Serverliste</string>
   <string name="vpn_allowed_apps">Tilladte apps</string>
-  <string name="advanced_settings">Avancerede Indstillinger</string>
   <string name="payload_options">Dataindholdsmuligheder</string>
   <string name="tls_settings">TLS-indstillinger</string>
   <string name="no_remote_defined">Ingen fjernserver defineret</string>

@@ -58,7 +58,6 @@
   <string name="custom_config_title">Activează opţiunile particularizate</string>
   <string name="custom_config_summary">Specificaţi opţiunile particularizate. Folosiţi cu grijă!</string>
   <string name="route_rejected">Rută respinsă de Android</string>
-  <string name="cancel_connection">Deconectaţi</string>
   <string name="cancel_connection_long">Deconectați VPN</string>
   <string name="clear_log">Golire jurnal</string>
   <string name="title_cancel">Anulare confirmare</string>
@@ -342,7 +341,6 @@
   <string name="remote_no_server_selected">Trebuie să definiți și să activați cel puțin un server de la distanță.</string>
   <string name="server_list">Listă de Servere</string>
   <string name="vpn_allowed_apps">Aplicații Permise</string>
-  <string name="advanced_settings">Setări Avansate</string>
   <string name="payload_options">Opțiuni de încărcare</string>
   <string name="tls_settings">Setări TLS</string>
   <string name="no_remote_defined">Nici o sursă la distanţă definită</string>

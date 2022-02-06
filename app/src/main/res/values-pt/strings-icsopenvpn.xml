@@ -58,7 +58,6 @@
   <string name="custom_config_title">Ativar opções personalizadas</string>
   <string name="custom_config_summary">Especifique as opções personalizadas. Use com cuidado!</string>
   <string name="route_rejected">Rota rejeitada pelo Android</string>
-  <string name="cancel_connection">Desconectar</string>
   <string name="cancel_connection_long">Desconectar VPN</string>
   <string name="clear_log">Limpar registo</string>
   <string name="title_cancel">Cancelar Confirmação</string>
@@ -292,7 +291,6 @@
   <string name="delete">Eliminar</string>
   <string name="server_list">Lista servidores</string>
   <string name="vpn_allowed_apps">Aplicações permitidas</string>
-  <string name="advanced_settings">Definições avançadas</string>
   <string name="tls_settings">Definições TLS</string>
   <string name="duplicate_vpn">Perfil VPN duplicado</string>
   <string name="show_log">Mostrar registo</string>

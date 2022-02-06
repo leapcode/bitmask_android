@@ -58,7 +58,6 @@
   <string name="custom_config_title">Egyéni Beállítások engedélyezése</string>
   <string name="custom_config_summary">Egyéni beállítások megadása. Óvatosan használja!</string>
   <string name="route_rejected">Az Android elutasította az útvonalat</string>
-  <string name="cancel_connection">Szétkapcsolás</string>
   <string name="cancel_connection_long">VPN kapcsolat szétkapcsolása</string>
   <string name="clear_log">napló törlése</string>
   <string name="title_cancel">Megszakítás jóváhagyása</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">Legalább egy távoli kiszolgálót definiálnia és engedélyeznie kell.</string>
   <string name="server_list">Kiszolgáló lista</string>
   <string name="vpn_allowed_apps">Engedélyezett Alkalmazások</string>
-  <string name="advanced_settings">Haladó Beállítások</string>
   <string name="payload_options">Payload opciók</string>
   <string name="tls_settings">TLS Beállítások</string>
   <string name="no_remote_defined">Nincs kiszolgáló definiálva</string>

@@ -58,7 +58,6 @@
   <string name="custom_config_title">启用自定义选项</string>
   <string name="custom_config_summary">（此处）指定自定义选项。请谨慎使用！</string>
   <string name="route_rejected">路由被安卓系统拒绝</string>
-  <string name="cancel_connection">断开</string>
   <string name="cancel_connection_long">断开VPN</string>
   <string name="clear_log">清除日志</string>
   <string name="title_cancel">确认取消?</string>
@@ -345,7 +344,6 @@
   <string name="remote_no_server_selected">您需要至少定义并启用一个远程服务器。</string>
   <string name="server_list">服务器列表</string>
   <string name="vpn_allowed_apps">允许的应用程序</string>
-  <string name="advanced_settings">高级选项</string>
   <string name="payload_options">负载设置</string>
   <string name="tls_settings">TLS 设置</string>
   <string name="no_remote_defined">未定义任何远程服务器</string>

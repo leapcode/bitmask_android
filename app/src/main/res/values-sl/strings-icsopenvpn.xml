@@ -58,7 +58,6 @@
   <string name="custom_config_title">Omogoči možnosti po meri</string>
   <string name="custom_config_summary">Določite možnosti po meri. Uporabljajte previdno!</string>
   <string name="route_rejected">Android je pot zavrnil</string>
-  <string name="cancel_connection">Prekini</string>
   <string name="cancel_connection_long">Prekini VPN</string>
   <string name="clear_log">Počisti dnevnik</string>
   <string name="title_cancel">Prekliči potrditev</string>
@@ -340,7 +339,6 @@
   <string name="remote_no_server_selected">Določiti in omogočiti morate vsaj en oddaljeni strežnik.</string>
   <string name="server_list">Seznam strežnikov</string>
   <string name="vpn_allowed_apps">Programi z dovoljenjem</string>
-  <string name="advanced_settings">Napredne nastavitve</string>
   <string name="payload_options">Možnosti vsebine</string>
   <string name="tls_settings">Nastavitve TLS</string>
   <string name="no_remote_defined">Noben oddaljeni strežnik ni določen</string>

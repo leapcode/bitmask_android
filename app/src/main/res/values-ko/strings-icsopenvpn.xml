@@ -58,7 +58,6 @@
   <string name="custom_config_title">사용자 지정 옵션 사용</string>
   <string name="custom_config_summary">사용자 지정 옵션을 지정하세요. 주의해서 사용!</string>
   <string name="route_rejected">안드로이드에 의해 거부된 경로</string>
-  <string name="cancel_connection">연결 끊기</string>
   <string name="cancel_connection_long">VPN 연결 끊기</string>
   <string name="clear_log">로그 지우기</string>
   <string name="title_cancel">취소 확인</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">하나 이상의 원격 서버를 정의하고 활성화해야 합니다.</string>
   <string name="server_list">서버 목록</string>
   <string name="vpn_allowed_apps">허용된 앱</string>
-  <string name="advanced_settings">고급 설정</string>
   <string name="payload_options">페이로드 옵션</string>
   <string name="tls_settings">TLS 설정</string>
   <string name="no_remote_defined">정의된 원격 서버 없음</string>
