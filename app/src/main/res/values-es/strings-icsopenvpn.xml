@@ -58,7 +58,6 @@
   <string name="custom_config_title">Habilitar opciones personalizadas</string>
   <string name="custom_config_summary">Especificar opciones personalizadas. ¡Use con cuidado!</string>
   <string name="route_rejected">Ruta rechazada por Android</string>
-  <string name="cancel_connection">Desconectar</string>
   <string name="cancel_connection_long">Desconectar VPN</string>
   <string name="clear_log">Limpiar registro</string>
   <string name="title_cancel">Cancelar confirmación</string>
@@ -344,7 +343,6 @@ hacia/de Móvil)</string>
   <string name="remote_no_server_selected">Es necesario definir y habilitar al menos un servidor remoto.</string>
   <string name="server_list">Lista de servidores</string>
   <string name="vpn_allowed_apps">Aplicaciones permitidas</string>
-  <string name="advanced_settings">Opciones Avanzadas</string>
   <string name="payload_options">Opciones de carga útil</string>
   <string name="tls_settings">Configuración TLS</string>
   <string name="no_remote_defined">Servidor remoto no definido</string>

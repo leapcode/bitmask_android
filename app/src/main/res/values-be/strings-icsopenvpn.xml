@@ -58,7 +58,6 @@
   <string name="custom_config_title">Уключыць карыстацкія параметры</string>
   <string name="custom_config_summary">Карыстацкія параметры. Скарыстайце з асцярожнасцю!</string>
   <string name="route_rejected">Маршрут адхілены Android</string>
-  <string name="cancel_connection">Адключыць</string>
   <string name="cancel_connection_long">Адключыць VPN</string>
   <string name="clear_log">ачысціць журнал</string>
   <string name="title_cancel">Пацверджанне скасавання</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">Вы павінны вызначыць і ўключыць прынамсі адзін выдалены сервер.</string>
   <string name="server_list">Спіс сервераў</string>
   <string name="vpn_allowed_apps">Дазволеныя дадаткі</string>
-  <string name="advanced_settings">Пашыраныя налады</string>
   <string name="payload_options">Налады карыснай нагрузкі</string>
   <string name="tls_settings">Налады TLS</string>
   <string name="no_remote_defined">Няма зададзенай падаленкі</string>

@@ -58,7 +58,6 @@
   <string name="custom_config_title">Włącz opcje niestandardowe</string>
   <string name="custom_config_summary">Określ niestandardowe opcje. Ostrożnie!</string>
   <string name="route_rejected">Trasa odrzucona przez Androida</string>
-  <string name="cancel_connection">Rozłącz</string>
   <string name="cancel_connection_long">Rozłącz VPN</string>
   <string name="clear_log">Wyczyść log</string>
   <string name="title_cancel">Anuluj potwierdzenie</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">Musisz zdefiniować i włączyć co najmniej jeden serwer.</string>
   <string name="server_list">Lista serwerów</string>
   <string name="vpn_allowed_apps">Dozwolone aplikacje</string>
-  <string name="advanced_settings">Opcje zaawansowane</string>
   <string name="payload_options">Opcje ładunku</string>
   <string name="tls_settings">Ustawienia TLS</string>
   <string name="no_remote_defined">Nie ustawiono zdalnego</string>

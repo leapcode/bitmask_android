@@ -58,7 +58,6 @@
   <string name="custom_config_title">Aktivera anpassade alternativ</string>
   <string name="custom_config_summary">Ange anpassade inställningar. Använd med försiktighet!</string>
   <string name="route_rejected">Rutten avvisades av Android</string>
-  <string name="cancel_connection">Koppla från</string>
   <string name="cancel_connection_long">Koppla från VPN</string>
   <string name="clear_log">rensa loggen</string>
   <string name="title_cancel">Avbryt bekräftelse</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">Du måste definiera och aktivera åtminstone en fjärrserver.</string>
   <string name="server_list">Serverlista</string>
   <string name="vpn_allowed_apps">Tillåtna appar</string>
-  <string name="advanced_settings">Avancerade inställningar</string>
   <string name="payload_options">Alternativ för paketinnehåll</string>
   <string name="tls_settings">TLS-inställningar</string>
   <string name="no_remote_defined">Ingen server specifierad</string>

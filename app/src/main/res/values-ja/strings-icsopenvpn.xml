@@ -58,7 +58,6 @@
   <string name="custom_config_title">カスタム オプションを使用する</string>
   <string name="custom_config_summary">カスタムオプションを指定します。注意して使用してください!</string>
   <string name="route_rejected">経路がAndroidにより拒否されました。</string>
-  <string name="cancel_connection">VPNを切断</string>
   <string name="cancel_connection_long">VPN接続を切断</string>
   <string name="clear_log">ログをクリア</string>
   <string name="title_cancel">切断の確認</string>
@@ -382,7 +381,6 @@ Android 4.4以上はポリシールーティングを使用します。route/ifc
   <string name="remote_no_server_selected">少なくとも一つ以上の接続先を設定し有効化する必要があります</string>
   <string name="server_list">接続先リスト</string>
   <string name="vpn_allowed_apps">許可されたアプリ</string>
-  <string name="advanced_settings">詳細設定</string>
   <string name="payload_options">ペイロードオプション</string>
   <string name="tls_settings">TLSの設定</string>
   <string name="no_remote_defined">接続先が設定されていません</string>

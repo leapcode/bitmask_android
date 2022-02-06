@@ -58,7 +58,6 @@
   <string name="custom_config_title">Özel Seçenekleri Etkinleştir</string>
   <string name="custom_config_summary">Özel seçenekleri belirleyin. Dikkatli kullanın!</string>
   <string name="route_rejected">Yol Android tarafından reddedildi</string>
-  <string name="cancel_connection">Bağlantıyı Kes</string>
   <string name="cancel_connection_long">VPN Bağlantısını Kes</string>
   <string name="clear_log">kayıtları temizle</string>
   <string name="title_cancel">İptal Onayı</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">En az bir uzak sunucu tanımlamalı ve etkinleştirmelisiniz.</string>
   <string name="server_list">Sunucu Listesi</string>
   <string name="vpn_allowed_apps">İzin Verilen Uygulamalar</string>
-  <string name="advanced_settings">Gelişmiş Ayarlar</string>
   <string name="payload_options">Yük seçenekleri</string>
   <string name="tls_settings">TLS Ayarları</string>
   <string name="no_remote_defined">Tanımlanmış uzak makine yok</string>

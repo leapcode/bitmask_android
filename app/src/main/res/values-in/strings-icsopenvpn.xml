@@ -58,7 +58,6 @@
   <string name="custom_config_title">Aktifkan pilihan buatan (Custom)</string>
   <string name="custom_config_summary">Tentukan seting buatan (Custom). Gunakan hati-hati!</string>
   <string name="route_rejected">Rute ditolak oleh Android</string>
-  <string name="cancel_connection">Koneksi Putus</string>
   <string name="cancel_connection_long">Memutuskan sambungan VPN</string>
   <string name="clear_log">Bersihkan catatan</string>
   <string name="title_cancel">Membatalkan Konfirmasi</string>
@@ -343,7 +342,6 @@
   <string name="remote_no_server_selected">Anda harus menentukan dan memungkinkan setidaknya satu server jauh.</string>
   <string name="server_list">Daftar Server</string>
   <string name="vpn_allowed_apps">Diizinkan Apps</string>
-  <string name="advanced_settings">Pengaturan lanjutan</string>
   <string name="payload_options">Muatan pilihan</string>
   <string name="tls_settings">Pengaturan TLS</string>
   <string name="no_remote_defined">Didefinisikan Tidak ada remote</string>

@@ -58,7 +58,6 @@
   <string name="custom_config_title">Aktiver egendefinerte valg</string>
   <string name="custom_config_summary">Angi egendefinerte alternativer. Brukes med forsiktighet!</string>
   <string name="route_rejected">Route avvist av Android</string>
-  <string name="cancel_connection">Koble fra</string>
   <string name="cancel_connection_long">Koble fra VPN</string>
   <string name="clear_log">Tøm logg</string>
   <string name="title_cancel">Avbryt bekreftelse</string>

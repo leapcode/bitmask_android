@@ -58,7 +58,6 @@
   <string name="custom_config_title">Povolit vlastní nastavení</string>
   <string name="custom_config_summary">Zadat vlastní nastavení. Používat opatrně!</string>
   <string name="route_rejected">Směrování odmítnuto Androidem</string>
-  <string name="cancel_connection">Odpojit</string>
   <string name="cancel_connection_long">Odpojit VPN</string>
   <string name="clear_log">vymazat log</string>
   <string name="title_cancel">Zrušit potvrzení</string>
@@ -342,7 +341,6 @@
   <string name="remote_no_server_selected">Je potřeba definovat a povolit alespoň jeden vzdálený server.</string>
   <string name="server_list">Seznam serverů</string>
   <string name="vpn_allowed_apps">Povolené aplikace</string>
-  <string name="advanced_settings">Pokročilé nastavení</string>
   <string name="payload_options">Možnosti dat</string>
   <string name="tls_settings">Nastevení TLS</string>
   <string name="no_remote_defined">Nedefinovaná protistrana</string>
