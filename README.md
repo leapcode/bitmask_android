@@ -477,6 +477,6 @@ Please file bug tickets on our main [development platform](https://0xacab.org/le
 
 Please fork this repository and contribute back using [pull requests](https://0xacab.org/leap/bitmask_android/merge_requests).
 
-Our preferred method for receiving translations is our [Transifex project](https://www.transifex.com/projects/p/bitmask-android).
+Our preferred method for receiving translations is our [Transifex project](https://www.transifex.com/projects/p/bitmask).
 
 Any contributions, large or small, major features, bug fixes, additional language translations, unit/integration tests are welcomed and appreciated but will be thoroughly reviewed and discussed.
