@@ -3,7 +3,7 @@
   <string name="retry">Opnieuw proberen</string>
   <string name="repository_url_text">Broncode is beschikbaar op https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Issue tracker https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">Vertalingen zijn welkom en worden gewaardeerd. Kijk voor meer info op onze Transifex pagina: https://www.transifex.com/projects/p/bitmask-android/</string>
+  <string name="translation_project_text">Vertalingen zijnhartelijk welkom. Kijk voor meer info op https://wiki.localizationlab.org/index.php/Bitmask of ga direct naar onze Transifex pagina: https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">Provider wisselen</string>
   <string name="info">info</string>
   <string name="show_connection_details">Details van de verbinding weergeven</string>

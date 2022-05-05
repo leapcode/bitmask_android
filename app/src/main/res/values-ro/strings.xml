@@ -39,6 +39,8 @@
   <string name="eip_cancel_connect_text">Există o încercare de conexiune în progres. Doriți să o anulați?</string>
   <string name="default_username">Anonim</string>
   <string name="logging_in">Autentificare</string>
+  <string name="vpn.button.turn.on">Deschidere</string>
+  <string name="vpn.button.turn.off">Închidere</string>
   <string name="log_fragment_title">Jurnal</string>
   <string name="vpn_fragment_title">VPN</string>
   <string name="navigation_drawer_open">Deschide sertarul de navigare</string>

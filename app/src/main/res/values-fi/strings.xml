@@ -43,6 +43,7 @@
   <string name="default_username">Anonyymi</string>
   <string name="logging_in">Kirjaudutaan</string>
   <string name="log_fragment_title">Loki</string>
+  <string name="vpn_fragment_title">VPN</string>
   <string name="navigation_drawer_open">Avaa navigointilaatikko</string>
   <string name="navigation_drawer_close">Sulje navigointilaatikko</string>
   <string name="action_settings">Asetukset</string>

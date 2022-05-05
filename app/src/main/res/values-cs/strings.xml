@@ -29,6 +29,7 @@
   <string name="error_json_exception_user_message">Zkuste znovu: Špatná odpověď serveru</string>
   <string name="login_button">Přihlásit</string>
   <string name="logout_button">Odhlásit</string>
+  <string name="signup_button">Registrovat</string>
   <string name="setup_error_title">Chyba konfigurace</string>
   <string name="setup_error_configure_button">Konfigurovat</string>
   <string name="setup_error_close_button">Odejít</string>

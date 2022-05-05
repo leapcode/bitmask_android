@@ -3,7 +3,7 @@
   <string name="retry">Wiederholen</string>
   <string name="repository_url_text">Quelltext verfügbar unter: https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Fehlerticketsystem zugänglich unter https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">Übersetzungen sind sehr willkommen. Schau dir unser Transifex Projekt unter https://www.transifex.com/projects/p/bitmask-android an.</string>
+  <string name="translation_project_text">Übersetzungen sind sehr willkommen. Schau dir unser Transifex Projekt unter https://www.transifex.com/projects/p/bitmask an.</string>
   <string name="switch_provider_menu_option">Provider wechseln</string>
   <string name="info">Info</string>
   <string name="show_connection_details">Zeige Verbindungsdetails</string>

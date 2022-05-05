@@ -3,7 +3,7 @@
   <string name="retry">ပြန်စမ်းကြည့်မယ်</string>
   <string name="repository_url_text">အရင်းအမြစ်ကုဒ် ကိုဤ လင့်တွင်ရရှိနိုင်ပါသည် - https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">ခြေရာခံမှတ်တမ်း ကိုဤ လင့်တွင်ရရှိနိုင်ပါသည် - https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">ဘာသာပြန်များကို ကြိုဆိုပြီး တန်ဖိုးထားကြိုဆိုပါသည်။ ကျွန်ုပ်တို့ Transifex စီမံကိန်းကို https://www.transifex.com/projects/p/bitmask-android/ တွင်ကြည့်ရှုနိုင်ပါသည်။</string>
+  <string name="translation_project_text">ဘာသာပြန်များကို ကြိုဆိုပြီး တန်ဖိုးထားကြိုဆိုပါသည်။ ကျွန်ုပ်တို့ Transifex စီမံကိန်းကို https://www.transifex.com/projects/p/bitmask/ တွင်ကြည့်ရှုနိုင်ပါသည်။</string>
   <string name="switch_provider_menu_option">ဝန်ဆောင်မှုပေးသူ ပြောင်းမယ်</string>
   <string name="info">အချက်အလက်များ</string>
   <string name="show_connection_details">ဆက်သွယ်မှုအချက်အလက်များ ဖော်ပြမယ်</string>

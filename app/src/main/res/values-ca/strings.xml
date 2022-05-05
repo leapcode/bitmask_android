@@ -3,7 +3,7 @@
   <string name="retry">Reintenta</string>
   <string name="repository_url_text">El codi font està disponible a https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">El seguidor d\'incidències està disponible a https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">Les traduccions són benvingudes i apreciades. Vegeu el nostre projecte Transifex a https://www.transifex.com/projects/p/bitmask-android/</string>
+  <string name="translation_project_text">Les traduccions són benvingudes i apreciades. Vegeu el nostre projecte Transifex a https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">Canvia el proveïdor</string>
   <string name="info">info</string>
   <string name="show_connection_details">Mostra els detalls de conexió</string>
@@ -148,6 +148,7 @@
   <string name="version_update_error_pgp_verification">Error de verificació PGP. S\'està ignorant la baixada.</string>
   <string name="version_update_error">No s\'ha pogut actualitzar.</string>
   <string name="version_update_error_permissions">No hi ha permisos per instal·lar l\'aplicació.</string>
+  <string name="gateway_selection_automatic">Automàtic</string>
   <string name="log_onehop_create">S\'està establint una connexió xifrada amb un directori</string>
   <string name="log_loading_keys">S\'estan carregant els certificats d\'autoritat</string>
   <string name="log_circuit_create">S\'està establint un circuit Tor</string>

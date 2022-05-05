@@ -57,6 +57,7 @@
   <string name="log_onehop_create">Uspostavljanje šifrirane veze direktorija</string>
   <string name="log_loading_keys">Učitavanje certifikata autoriteta</string>
   <string name="log_circuit_create">Uspostavljanje Tor kruga</string>
+  <string name="log_done">Pokrenuto</string>
   <string name="hide">Sakrij</string>
   <string name="use_snowflake">Koristi Snowflake</string>
   <string name="cancel_connection">Odspoji</string>

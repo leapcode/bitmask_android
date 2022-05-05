@@ -3,7 +3,7 @@
   <string name="retry">Adklask</string>
   <string name="repository_url_text">Kod mammenn hegerz war https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Heulier kudennoù hegerz war https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">Ouzhpenn mat e vez degemeret an troidigezhioù. Gwelet hor raktres Transifex war https://www.transifex.com/projects/p/bitmask-android/</string>
+  <string name="translation_project_text">Ouzhpenn mat e vez degemeret an troidigezhioù. Gwelet hor raktres Transifex war https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">Pourvezer Switch</string>
   <string name="info">Titou</string>
   <string name="show_connection_details">Diskouez munudoù ar c\'hevreañ</string>
@@ -92,6 +92,7 @@
   <string name="donate_message">LEAP a zepand eus ar roadennoù-arc\'hant hag ar sikourioù. Roit arc\'hant hiziv mar plij ma roit un dalvoudegezh d\'ar c\'hehenterezhioù suraet aes d\'ober ganto evit an implijer fin hag ar pourvezer servijoù.</string>
   <string name="donate_button_remind_later">Adkas da soñj din</string>
   <string name="donate_button_donate">Reiñ arc\'hant</string>
+  <string name="gateway_selection_automatic">Emgefreek</string>
   <string name="log_done">O vont en-dro</string>
   <string name="hide">Kuzhaat</string>
   <string name="advanced_settings">Arventennoù araokaet</string>

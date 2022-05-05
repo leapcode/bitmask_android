@@ -3,7 +3,7 @@
   <string name="retry">Təkrar</string>
   <string name="repository_url_text">Başlanğıc kodunu https://0xacab.org/leap/bitmask_android ünvanından əldə edə bilərsiniz</string>
   <string name="leap_tracker">Issue tracker available at https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">Tərcümələri xoşlayır və qiymətləndirir. Bizim Transifex layihəsinə https://www.transifex.com/projects/p/bitmask-android/ səhifəsinə baxın.</string>
+  <string name="translation_project_text">Tərcümələri xoşlayır və qiymətləndirir. Bizim Transifex layihəsinə https://www.transifex.com/projects/p/bitmask/ səhifəsinə baxın.</string>
   <string name="switch_provider_menu_option">Provayderi dəyiş</string>
   <string name="info">Məlumat</string>
   <string name="show_connection_details">Qoşulma məlumatlarını göstər</string>

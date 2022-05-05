@@ -3,7 +3,7 @@
   <string name="retry">আবার চেষ্টা করুন</string>
   <string name="repository_url_text">সোর্স কোড উপলব্ধ আছে- https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">ইস্যু ট্র্যাকার উপলব্ধ আছে- https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">অনুবাদে স্বাগত জানাই এবং প্রশংসা করি। আমাদের Transifex প্রকল্প দেখুন- https://www.transifex.com/projects/p/bitmask-android/</string>
+  <string name="translation_project_text">অনুবাদে স্বাগত জানাই এবং প্রশংসা করি। আমাদের Transifex প্রকল্প দেখুন- https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">সুইচ প্রদানকারী</string>
   <string name="info">তথ্য</string>
   <string name="show_connection_details">সংযোগের তথ্য দেখান</string>
@@ -101,6 +101,7 @@
   <string name="donate_message">LEAP দান এবং অনুদানের উপর নির্ভরশীল। আপনি যদি নিরাপদ যোগাযোগের মূল্য দেন যা ব্যবহারকারী এবং পরিষেবা সরবরাহকারী উভয়ের জন্য সহজ তবে দান করুন।</string>
   <string name="donate_button_remind_later">আমাকে পরে মনে করিয়ে দিবেন</string>
   <string name="donate_button_donate">দান করুন</string>
+  <string name="gateway_selection_automatic">স্বয়ংক্রিয়</string>
   <string name="log_onehop_create">Establishing an encrypted directory connection</string>
   <string name="log_loading_keys">কর্তৃপক্ষ সার্টিফিকেট লোড হচ্ছে</string>
   <string name="log_circuit_create">একটি টর্ক সার্কিট স্থাপন</string>

@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="retry">تلاش دوباره</string>
-  <string name="repository_url_text">دسترسی به منبع کد در https://0xacab.org/leap/bitmask_android </string>
-  <string name="leap_tracker">نظرات، پیشنهادات و گزارش اشکالات در https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">از همکاری شما برای ترجمه استقبال می‌کنیم. پروژه Transifex ما در اینجا ببینید: https://www.transifex.com/projects/p/bitmask-android/</string>
-  <string name="switch_provider_menu_option">تعویض ارائه دهنده</string>
+  <string name="repository_url_text">منبع کد قابل دسترس در  https://0xacab.org/leap/bitmask_android </string>
+  <string name="leap_tracker">سامانهٔ پیگیری اشکالات قابل دسترس در https://0xacab.org/leap/bitmask_android/issues</string>
+  <string name="translation_project_text">از همکاری شما برای ترجمه استقبال می‌کنیم. پروژهٔ Transifex ما را در اینجا ببینید: https://www.transifex.com/projects/p/bitmask/</string>
+  <string name="switch_provider_menu_option">تعویض ارائه‌دهنده</string>
   <string name="info">اطلاعات</string>
-  <string name="show_connection_details">نمایش جزئیات ارتباط</string>
+  <string name="show_connection_details">نمایش جزئیات اتصال</string>
   <string name="connection_details">جزئیات اتصال</string>
   <string name="routes_info">مسیرها: %s</string>
   <string name="routes_info6">مسیرهای IPv6: %s</string>
