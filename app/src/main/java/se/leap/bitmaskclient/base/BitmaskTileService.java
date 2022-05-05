@@ -71,6 +71,11 @@ public class BitmaskTileService extends TileService implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         Tile t = getQsTile();
+        // Tile t should never be null according to https://developer.android.com/reference/kotlin/android/service/quicksettings/TileService.
+        // Hovever we've got crash reports.
+        if (t == null) {
+            return;
+        }
 
         if (o instanceof EipStatus) {
             EipStatus status = (EipStatus) o;
