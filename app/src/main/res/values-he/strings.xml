@@ -3,6 +3,7 @@
   <string name="retry">נסה שוב</string>
   <string name="repository_url_text">קוד מקור זמין בכתובת https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">גשש סוגיות זמין בכתובת https://0xacab.org/leap/bitmask_android/issues</string>
+  <string name="translation_project_text">תרגומים מבורכים ומוערכים. ראה את מיזם Transifex שלנו בכתובת https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">החלף ספק</string>
   <string name="info">מידע</string>
   <string name="show_connection_details">הראה פרטי חיבור</string>

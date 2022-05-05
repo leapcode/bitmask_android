@@ -3,6 +3,8 @@
   <string name="retry">قايتا سىناڭ</string>
   <string name="repository_url_text">ئەسلى كودى بۇ يەردە https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">مەسىلە ئىز قوغلىغۇچى بۇ يەردە https://0xacab.org/leap/bitmask_android/issues</string>
+  <string name="translation_project_text">تەرجىمىلەرنى قارشى ئالىمىز ۋە رەھمەت ئېيتىمىز. بىزنىڭ Transifex تۈرىمىزنى كۆرۈش ئۈچۈن بۇ يەرگە قاراڭ 
+https://www.transifex.com/projects/p/bitmask</string>
   <string name="switch_provider_menu_option">تەمىنلىگۈچىنى ئالماشتۇرۇش</string>
   <string name="info">ئۇچۇر</string>
   <string name="show_connection_details">باغلانمىنىڭ تەپسىلاتىنى كۆرسەت</string>

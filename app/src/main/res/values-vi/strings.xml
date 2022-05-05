@@ -3,6 +3,7 @@
   <string name="retry">Thử lại</string>
   <string name="repository_url_text">Mã nguồn có ở https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Trình theo dõi vấn đề có ở https://0xacab.org/leap/bitmask_android/issues</string>
+  <string name="translation_project_text">Các bản dịch được chào đón và đánh giá cao. Hãy xem dự án Transifex của chúng tôi ở https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">Chuyển nhà cung cấp</string>
   <string name="info">thông tin</string>
   <string name="show_connection_details">Hiện chi tiết kết nối</string>
