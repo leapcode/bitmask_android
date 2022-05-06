@@ -1,7 +1,7 @@
 {
   "api_uri": "https://api.calyx.net:4430",
-  "api_version": "1",
-  "ca_cert_fingerprint": "SHA256: b2ae8b075a0e5634160c4dceec2e651dfabf9e4ea9409cc896cd2e1054c92372",
+  "api_version": "3",
+  "ca_cert_fingerprint": "SHA256: 43683c9ba3862c5384a8c1885072fcac40b5d2d4dd67331443f13a3077fa2e69",
   "ca_cert_uri": "https://calyx.net/ca.crt",
   "default_language": "en",
   "description": {
@@ -20,7 +20,7 @@
     "allow_free": true,
     "allow_limited_bandwidth": false,
     "allow_paid": false,
-    "allow_registration": true,
+    "allow_registration": false,
     "allow_unlimited_bandwidth": true,
     "bandwidth_limit": 102400,
     "default_service_level": 1,
