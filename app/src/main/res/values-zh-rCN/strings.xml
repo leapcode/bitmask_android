@@ -3,7 +3,7 @@
   <string name="retry">重试</string>
   <string name="repository_url_text">源代码在 https://0xacab.org/leap/bitmask_android 开源可用</string>
   <string name="leap_tracker">如果在使用过程中遇到问题，可用到跟踪器 https://0xacab.org/leap/bitmask_android/issues 提交</string>
-  <string name="translation_project_text">欢迎并赞赏翻译者，在 https://www.transifex.com/projects/p/bitmask-android/ 帮助我们翻译</string>
+  <string name="translation_project_text">欢迎并赞赏翻译者，在 https://www.transifex.com/projects/p/bitmask/ 帮助我们翻译</string>
   <string name="switch_provider_menu_option">切换提供商</string>
   <string name="info">信息</string>
   <string name="show_connection_details">显示连接信息</string>

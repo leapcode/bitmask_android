@@ -3,7 +3,8 @@
   <string name="retry">Proovi uuesti</string>
   <string name="repository_url_text">Lähtekood saadaval aadressil https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Vealoend saadaval aadressil https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">Tõlked on teretulnud ja väärtustatud. Vaata meie Transifexi projekti aadressil https://www.transifex.com/projects/p/bitmask-android/</string>
+  <string name="translation_project_text">Tõlked on teretulnud ja väärtustatud. Vaata meie Transifexi projekti aadressil https://www.transifex.com/projects/p/bitmask/
+</string>
   <string name="switch_provider_menu_option">Vaheta pakkujat</string>
   <string name="info">info</string>
   <string name="show_connection_details">Näita ühenduse andmeid</string>

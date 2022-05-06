@@ -3,7 +3,7 @@
   <string name="retry">Tente novamente</string>
   <string name="repository_url_text">Código fonte disponível em https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">O gerenciador de bugs está disponível em https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">Traduções são bem-vindas. Veja nosso projeto do Transifex em https://www.transifex.com/projects/p/bitmask-android/</string>
+  <string name="translation_project_text">Traduções são bem-vindas. Veja nosso projeto do Transifex em https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">Trocar provedor</string>
   <string name="info">info</string>
   <string name="show_connection_details">Mostrar os detalhes da conexão</string>
@@ -106,6 +106,7 @@
   <string name="subtitle_always_on_vpn">Abrir configurações do Android</string>
   <string name="show_experimental">Mostrar recursos experimentais</string>
   <string name="hide_experimental">Esconder recursos experimentais</string>
+  <string name="tethering_wifi">Hotspot Wi-Fi</string>
   <string name="do_not_show_again">Não mostrar novamente</string>
   <string name="always_on_vpn_user_message">Para habilitar VPN sempre ativa nas configurações de VPN clique no ícone de configurar [img src] e mude para ligado. </string>
   <string name="always_on_blocking_vpn_user_message">Para proteger sua privacidade da melhor forma, você deveria ativar também a opção \"Bloqueie conexões sem VPN\"</string>

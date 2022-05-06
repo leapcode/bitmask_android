@@ -15,6 +15,7 @@
   <string name="about_fragment_title">Про</string>
   <string name="error_bad_user_password_user_message">Неправильний логін або пароль</string>
   <string name="login_button">Вхід у систему</string>
+  <string name="logout_button">Вийти</string>
   <string name="setup_error_configure_button">Налаштування</string>
   <string name="setup_error_close_button">Вихід</string>
   <string name="succesful_authentication_message">Автентифіковано</string>
@@ -26,7 +27,18 @@
   <string name="navigation_drawer_close">Закрити панель навігації</string>
   <string name="action_settings">Налаштування</string>
   <string name="always_on_vpn">Завжди-VPN</string>
+  <string name="tethering_wifi">Точка доступу Wi-Fi</string>
   <string name="donate_title">Пожертвування</string>
   <string name="donate_button_remind_later">Нагадайте мені пізніше</string>
   <string name="donate_button_donate">Пожертвування</string>
+  <string name="nav_drawer_obfuscated_connection">Використати Мости</string>
+  <string name="gateway_selection_automatic">Автоматично</string>
+  <string name="log_onehop_create">Встановлення зашифрованого з\'єднання до каталогу</string>
+  <string name="log_loading_keys">Завантаження сертифікатів авторизації</string>
+  <string name="log_circuit_create">Створення ланцюга Tor </string>
+  <string name="log_done">Запуск</string>
+  <string name="hide">Приховати</string>
+  <string name="use_snowflake">Використовувати Snowflake</string>
+  <string name="advanced_settings">Додаткові налаштування</string>
+  <string name="cancel_connection">Від\'єднати</string>
 </resources>

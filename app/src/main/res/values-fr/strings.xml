@@ -3,7 +3,7 @@
   <string name="retry">Réessayer</string>
   <string name="repository_url_text">Le code source se trouve sur https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Le système de suivi des problèmes se trouve sur https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">Les traductions sont les bienvenues et nous les valorisons. Consulter notre projet Transifex sur https://www.transifex.com/projects/p/bitmask-android/</string>
+  <string name="translation_project_text">Les traductions sont les bienvenues et nous les valorisons. Consulter notre projet Transifex sur https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">Changer de fournisseur</string>
   <string name="info">renseignements</string>
   <string name="show_connection_details">Afficher les détails de connexion</string>
@@ -40,7 +40,7 @@
   <string name="error_client_http_user_message">Réessayez : erreur HTTP du client</string>
   <string name="error_io_exception_user_message">Réessayez : erreur E/S</string>
   <string name="error_json_exception_user_message">Réessayez : mauvaise réponse du serveur</string>
-  <string name="error_no_such_algorithm_exception_user_message">L’algorithme de chiffrement est introuvable. Veuillez mettre votre Android à niveau !</string>
+  <string name="error_no_such_algorithm_exception_user_message">L’algorithme de chiffrement est introuvable. Veuillez mettre votre Android à niveau.</string>
   <string name="signup_or_login_button">Inscription/Connexion</string>
   <string name="login_button">Connexion</string>
   <string name="login_to_profile">Connexion au profil</string>
@@ -67,10 +67,10 @@
   <string name="authentication_failed_message">Échec d’authentification</string>
   <string name="registration_failed_message">L’inscription a échoué</string>
   <string name="eip_status_start_pending">Initialisation de la connexion</string>
-  <string name="eip_cancel_connect_title">Annuler la connexion ?</string>
-  <string name="eip_cancel_connect_text">Une tentative de connexion est en cours. Voulez-vous l’annuler ?</string>
-  <string name="eip.warning.browser_inconsistency">Désactiver la connexion RPV ? Si votre RPV est désactivé, vous pourriez divulguer des renseignements personnels à votre fournisseur d’accès à Internet ou à votre réseau local.</string>
-  <string name="eip_state_not_connected">Ne s’exécute pas ! La connexion n’est pas sécurisée !</string>
+  <string name="eip_cancel_connect_title">Annuler la connexion ?</string>
+  <string name="eip_cancel_connect_text">Une tentative de connexion est en cours. Voulez-vous l’annuler ?</string>
+  <string name="eip.warning.browser_inconsistency">Désactiver la connexion RPV ? Si votre RPV est désactivé, vous pourriez divulguer des renseignements personnels à votre fournisseur d’accès à Internet ou à votre réseau local.</string>
+  <string name="eip_state_not_connected">Ne s’exécute pas ! La connexion n’est pas sécurisée !</string>
   <string name="eip_state_connected">La connexion est sécurisée</string>
   <string name="provider_problem">Il semble que le fournisseur pose un problème.</string>
   <string name="try_another_provider">Veuillez essayer un autre fournisseur ou nous contacter.</string>
@@ -136,10 +136,10 @@
     <item quantity="one">%d appli non protégée</item>
     <item quantity="other">%d applis non protégées</item>
   </plurals>
-  <string name="warning_no_more_gateways_use_pt">%s n’a pas pu se connecter. Les connexions RPV sont peut-être bloquées. Voulez-vous tenter de vous connecter en essayant des connexions brouillées ?</string>
-  <string name="warning_no_more_gateways_no_pt">%s n’a pas pu se connecter. Voulez-vous réessayer ?</string>
-  <string name="warning_no_more_gateways_use_ovpn">%s n’a pas pu se connecter en utilisant des connexions RPV brouillées. Voulez-vous tenter de vous connecter en essayant un RPV normal ?</string>
-  <string name="warning_no_more_gateways_manual_gw_selection">%1$s n’a pas réussi à se connecter à %2$s. Voulez-vous essayer de vous connecter automatiquement avec le meilleur emplacement ?</string>
+  <string name="warning_no_more_gateways_use_pt">%s n’a pas pu se connecter. Les connexions RPV sont peut-être bloquées. Voulez-vous tenter de vous connecter en essayant des connexions brouillées ?</string>
+  <string name="warning_no_more_gateways_no_pt">%s n’a pas pu se connecter. Voulez-vous réessayer ?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s n’a pas pu se connecter en utilisant des connexions RPV brouillées. Voulez-vous tenter de vous connecter en essayant un RPV normal ?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s n’a pas réussi à se connecter à %2$s. Voulez-vous essayer de vous connecter automatiquement avec le meilleur emplacement ?</string>
   <string name="warning_option_try_best">Essayer le meilleur emplacement</string>
   <string name="warning_option_try_pt">Essayer une connexion brouillée.</string>
   <string name="warning_option_try_ovpn">Essayer une connexion normal.</string>
@@ -181,7 +181,7 @@
   <string name="log_done">En fonction</string>
   <string name="channel_name_tor_service">Service de ponts %s</string>
   <string name="channel_description_tor_service">Renseigne sur l’utilisation des ponts lors de la configuration %s.</string>
-  <string name="error_tor_timeout">Échec de démarrage des ponts. Voulez-vous réessayer ou poursuivre avec une connexion sécurisée non brouillée pour configurer %s ?</string>
+  <string name="error_tor_timeout">Échec de démarrage des ponts. Voulez-vous réessayer ou poursuivre avec une connexion sécurisée non brouillée pour configurer %s ?</string>
   <string name="retry_unobfuscated">Réessayer sans brouillage</string>
   <string name="hide">Cacher</string>
   <string name="error_network_connection">%s n’as pas de connexion Internet. Veuillez vérifier vos paramètres Wi-Fi et de données mobiles.</string>

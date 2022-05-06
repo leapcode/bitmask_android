@@ -3,7 +3,7 @@
   <string name="retry">Yeniden dene</string>
   <string name="repository_url_text">Kaynak kodlar https://0xacab.org/leap/bitmask_android adresinde bulunabilir.</string>
   <string name="leap_tracker">Hata izleme sistemi https://0xacab.org/leap/bitmask_android/issues adresinde bulunabilir.</string>
-  <string name="translation_project_text">Çevirileri minnettarlıkla kabul ederiz. Transifex projemizi https://www.transifex.com/projects/p/bitmask-android/ adresinde bulabilirsiniz.</string>
+  <string name="translation_project_text">Çevirileri minnettarlıkla kabul ederiz. Transifex projemizi https://www.transifex.com/projects/p/bitmask/ adresinde bulabilirsiniz.</string>
   <string name="switch_provider_menu_option">Hizmet sağlayıcı değiştir</string>
   <string name="info">bilgiler</string>
   <string name="show_connection_details">Bağlantı bilgilerini görüntüle</string>
@@ -192,7 +192,7 @@
   <string name="prefer_udp">Olabiliyorsa UDP kullanılsın</string>
   <string name="prefer_udp_subtitle">UDP akışlar için daha iyi ve daha hızlı olabilir, ancak tüm ağlarda çalışmaz.</string>
   <string name="disabled_while_bridges_on">Köprüler kullanılırken devre dışıdır.</string>
-  <string name="hint_bridges">Şu an yalnız köprüleri destekleyen konumlar seçilebilir</string>
+  <string name="hint_bridges">Şu an yalnızca köprüleri destekleyen konumlar seçilebilir</string>
   <string name="option_disable_bridges">Köprüleri devre dışı bırak</string>
   <string name="eip_state_insecure">Güvenli olmayan bağlantı</string>
   <string name="connection_not_connected">Bilgileriniz İnternet hizmeti sağlayıcınıza ya da yerel ağınıza sızıyor olabilir.</string>

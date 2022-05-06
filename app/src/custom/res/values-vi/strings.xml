@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="donate_message">RiseupVPN là một dịch vụ VPN dễ dàng, nhanh và bảo mật từ riseup.net. RiseupVPN không yêu cầu tài khoản người dùng, giữ nhật ký hoặc theo dõi bạn theo bất kỳ cách nào. Dịch vụ này được trả tiền hoàn toàn từ các khoản quyên góp từ những người dùng như bạn. Vui lòng quyên góp tại https://riseup.net/vpn/donate. </string>
+  <string name="terms_of_service">Bằng cách sử dụng ứng dụng này, bạn đồng ý với Điều khoản dịch vụ có sẵn tại https://riseup.net/tos. Dịch vụ này được cung cấp theo kiểu \"có thế dùng thế\", không có sự đảm bảo nào và dành cho những người hoạt động để biến thế giới thành một nơi tốt hơn.</string>
+</resources>

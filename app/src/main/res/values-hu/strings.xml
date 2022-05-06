@@ -3,7 +3,7 @@
   <string name="retry">Ismétlés</string>
   <string name="repository_url_text">A forráskód elérhető itt: https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Az Issue tracker elérhető itt: https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">A fordításokat szívesen vesszük. Tekintse meg Transifex projektünket a https://www.transifex.com/projects/p/bitmask-android/ címen.</string>
+  <string name="translation_project_text">A fordításokat szívesen vesszük. Tekintse meg Transifex projektünket a https://www.transifex.com/projects/p/bitmask/ címen.</string>
   <string name="switch_provider_menu_option">Szolgáltató váltása</string>
   <string name="info">Információ</string>
   <string name="show_connection_details">Kapcsolat adatok mutatása</string>

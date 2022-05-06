@@ -3,7 +3,7 @@
   <string name="retry">Thử lại</string>
   <string name="repository_url_text">Mã nguồn có ở https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Trình theo dõi vấn đề có ở https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">Các bản dịch được chào đón và đánh giá cao. Hãy xem dự án Transifex của chúng tôi ở https://www.transifex.com/projects/p/bitmask-android/</string>
+  <string name="translation_project_text">Các bản dịch được chào đón và đánh giá cao. Hãy xem dự án Transifex của chúng tôi ở https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">Chuyển nhà cung cấp</string>
   <string name="info">thông tin</string>
   <string name="show_connection_details">Hiện chi tiết kết nối</string>
@@ -52,6 +52,7 @@
   <string name="setup_error_configure_button">Thiết lập</string>
   <string name="setup_error_close_button">Thoát</string>
   <string name="setup_error_text">Đã xảy ra lỗi khi thiết lập %s với nhà cung cấp đã chọn.\n\nBạn có thể chọn thiết lập lại, hoặc thoát và thiết lập một nhà cung cấp vào lần khởi động sau.</string>
+  <string name="setup_error_text_custom">Có lỗi khi thiết lập %s.\n\nBạn có thể chọn thiết lập lại hoặc thoát.</string>
   <string name="server_unreachable_message">Máy chủ không thể kết nối đến được, vui lòng thử lại.</string>
   <string name="error.security.pinnedcertificate">Lỗi bảo mật, hãy nâng cấp ứng dụng hoặc chọn một nhà cung cấp khác.</string>
   <string name="malformed_url">Nó không có vẻ là một nhà cung cấp %s.</string>

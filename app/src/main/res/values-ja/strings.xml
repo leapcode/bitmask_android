@@ -3,7 +3,7 @@
   <string name="retry">再試行</string>
   <string name="repository_url_text">ソースコードは https://0xacab.org/leap/bitmask_android で利用できます</string>
   <string name="leap_tracker">問題トラッカーは https://0xacab.org/leap/bitmask_android/issues で利用できます</string>
-  <string name="translation_project_text">翻訳を歓迎、感謝します。 Transifex プロジェクトをご覧ください https://www.transifex.com/projects/p/bitmask-android/</string>
+  <string name="translation_project_text">翻訳を歓迎、感謝します。 Transifex プロジェクトをご覧ください https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">プロバイダーを切り替え</string>
   <string name="info">情報</string>
   <string name="show_connection_details">接続の詳細を表示</string>
@@ -173,6 +173,10 @@
   <string name="prefer_udp">利用可能であればUDPを使用</string>
   <string name="prefer_udp_subtitle">UDPは高速になり、ストリーミングに好ましいですが、ネットワークのすべてには動作しません。</string>
   <string name="disabled_while_bridges_on">ブリッジ使用中に無効化されます。</string>
+  <string name="eip_state_insecure">接続は安全ではありません</string>
+  <string name="connection_not_connected">あなたのインターネットプロバイダまたはローカルネットワークに情報が漏洩するかもしれません。</string>
+  <string name="eip_state_blocking">%1$sはすべてのインターネット転送をプロックしています。</string>
+  <string name="disabled_while_udp_on">UDPがオンの間は無効化されます。</string>
   <string name="advanced_settings">詳細な設定</string>
   <string name="cancel_connection">切断</string>
 </resources>

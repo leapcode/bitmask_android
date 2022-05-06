@@ -8,7 +8,10 @@
   <string name="new_provider_uri">Име на домейна</string>
   <string name="username_hint">потребителско име</string>
   <string name="username_ask">Моля въведете потребителско име</string>
+  <string name="password_ask">Моля въведете вашата парола</string>
   <string name="password_hint">Парола</string>
+  <string name="password_match">Паролоте съответстват</string>
+  <string name="password_mismatch">Паролите не съвпадат</string>
   <string name="user_message">Съобщение за потребителя</string>
   <string name="about_fragment_title">Относно</string>
   <string name="login_button">Влизане</string>
@@ -19,8 +22,20 @@
   <string name="succesful_authentication_message">Удостоверен</string>
   <string name="authentication_failed_message">Проверката за самоличност е неуспешна</string>
   <string name="eip_status_start_pending">Започване на връзка</string>
+  <string name="logging_in">Влизане</string>
   <string name="log_fragment_title">Лог</string>
+  <string name="vpn_fragment_title">VPN</string>
   <string name="action_settings">Настройки</string>
+  <string name="tethering_wifi">Безжична точка за достъп</string>
   <string name="donate_title">Дарете</string>
   <string name="donate_button_donate">Дарете</string>
+  <string name="nav_drawer_obfuscated_connection">Използвай Бриджове</string>
+  <string name="gateway_selection_automatic">Автоматично</string>
+  <string name="log_onehop_create">Осъществяване на връзка с криптираната директория</string>
+  <string name="log_loading_keys">Зареждане на сертификати от достоверен източник</string>
+  <string name="log_circuit_create">Осъществяване на Тор верига</string>
+  <string name="log_done">Изпълнява се</string>
+  <string name="hide">Скриване</string>
+  <string name="advanced_settings">Разширени настройки</string>
+  <string name="cancel_connection">Прекъсване</string>
 </resources>

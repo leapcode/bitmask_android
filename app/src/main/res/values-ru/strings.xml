@@ -5,7 +5,7 @@
   <string name="leap_tracker">Отслеживание проблем доступно на
 https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="translation_project_text">Переводы приветствуются. Смотрите наш проект Transifex на
-https://www.transifex.com/projects/p/bitmask-android/</string>
+https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">Смена провайдера</string>
   <string name="info">Информация</string>
   <string name="show_connection_details">Показать подробности о соединении</string>
