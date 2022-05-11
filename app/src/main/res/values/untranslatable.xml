@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="notifcation_title_bitmask" translatable="false">%s - %s</string>
-    <string name="copyright_leapgui" translatable="false">Copyright (c) 2012-2020\nLEAP Encryption Access Project &lt;info@leap.se></string>
+    <string name="copyright_leapgui" translatable="false">Copyright (c) 2012-2022\nLEAP Encryption Access Project &lt;info@leap.se></string>
     <string name="opevpn_copyright" translatable="false">Copyright (c) 2002-2019 OpenVPN Technologies, Inc. &lt;sales@openvpn.net>\n
 	  "OpenVPN" is a trademark of OpenVPN Technologies, Inc.</string>
     <string name="lzo_copyright" translatable="false">Copyright (c) 1996 - 2011 Markus Franz Xaver Johannes Oberhumer</string>
