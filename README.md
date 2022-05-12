@@ -94,7 +94,7 @@ Once you've installed Android SDK & NDK packages, you need to modify your PATH s
 
 ```shell
 export ANDROID_HOME=<path/where/you/installed/android/sdk>
-export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
+export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/20.1.5948944
 export PATH=$ANDROID_NDK_HOME:$PATH
 export PATH=$ANDROID_HOME/platform-tools:$PATH
 export PATH=$ANDROID_HOME/tools/bin:$PATH
