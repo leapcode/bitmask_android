@@ -140,7 +140,7 @@ git submodule update --init --recursive
 ```
 
 ## Compiling <a name="compiling"></a>
-pend on several [git submodule](https://git-scm.com/
+
 ### Just Build It! <a name="just-build-it"></a>
 
 If you compile the project for the first time you'll have to compile the dependencies. This can be done with:
