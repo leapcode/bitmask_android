@@ -127,7 +127,7 @@ docker run --rm -it -v`pwd`:/bitmask_android -t registry.0xacab.org/leap/bitmask
 
 ### Submodules <a name="submodules"></a>
 
-We depend on several [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to build Bitmask Android: 
+We depend on several [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to build Bitmask Android: 
 * [ics-openvpn](https://github.com/schwabe/ics-openvpn) as an interface to Android's OpenVPN implementation.
 * [bitmaskcore](https://0xacab.org/leap/android_libs/bitmaskcore.git) mainly as a library for Pluggable Transports (censorship circumvention functionality),
 * [tor-android](https://0xacab.org/leap/android_libs/tor-android.git) to protect the communication to configuration servers from being blocked.
