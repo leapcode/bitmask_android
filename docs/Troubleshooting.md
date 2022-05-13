@@ -26,19 +26,19 @@ As [documented here](https://stackoverflow.com/questions/42554337/cannot-launch-
 
 **Fixes:**
 
-You have a couple options. The second is more robust:
+You have a couple options. The fist is more robust:
 
-1. Always run emulator from within its own directory (clunky!):
+1. Insert a line in your `~/.bashrc` to automatically navigate to the correct directory (and back) whenever you invoke `emulator`:
+
+ ```shell
+function emulator { pushd `pwd`; cd "$(dirname "$(which emulator)")" && ./emulator "$@"; popd;}
+```
+
+2. Always run emulator from within its own directory (clunky!):
 
 ``` shell
  cd "$(dirname "$(which emulator)")"
  emulator <name_of_your_emulator>
-```
-
-2. Insert a line in your `~/.bashrc` to automatically navigate to the correct directory (and back) whenever you invoke `emulator`:
-
- ```shell
-function emulator { pushd `pwd`; cd "$(dirname "$(which emulator)")" && ./emulator "$@"; popd;}
 ```
 
 #### 3. Outdated GL Libraries <a name="outdated-gl-libraries"></a>
@@ -91,7 +91,7 @@ This means never using the desktop launcher. :(
 
 ## Updating Submodules <a name="updating-submodules"></a>
 
-If you need to refresh of our upstream dependency on ics-openvpn, you may do so with:
+If you need to refresh our upstream dependency on ics-openvpn, you may do so with:
 
 ``` shell
 cd <path/to/bitmask_android>
