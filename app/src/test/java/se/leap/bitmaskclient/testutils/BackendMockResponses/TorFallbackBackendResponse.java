@@ -49,6 +49,14 @@ public class TorFallbackBackendResponse extends BaseBackendResponse {
                     }
                     // download geoip json, containing a sorted list of gateways
                     return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.geoip.json"));
+                } else if (url.contains("/cert")) {
+                    if (requestAttempt == 0) {
+                        requestAttempt++;
+                        throw new UnknownHostException("DNS blocked by censor ;)");
+                    }
+                    // download vpn certificate for authentication
+                    return getInputAsString(getClass().getClassLoader().getResourceAsStream("v4/riseup.net.cert"));
+
                 }
 
                 return null;

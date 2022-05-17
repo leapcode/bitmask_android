@@ -201,6 +201,10 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
                 EipCommand.startVPN(context, false);
+                EipStatus.getInstance().setUpdatingVpnCert(false);
+                if (TorStatusObservable.getStatus() != OFF) {
+                    TorServiceCommand.stopTorServiceAsync(context);
+                }
                 break;
             case CORRECTLY_DOWNLOADED_GEOIP_JSON:
                 provider = resultData.getParcelable(PROVIDER_KEY);
@@ -211,8 +215,12 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             case INCORRECTLY_DOWNLOADED_GEOIP_JSON:
                 maybeStartEipService(resultData);
                 break;
-            case PROVIDER_NOK:
             case INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
+                EipStatus.getInstance().setUpdatingVpnCert(false);
+                if (TorStatusObservable.getStatus() != OFF) {
+                    TorServiceCommand.stopTorServiceAsync(context);
+                }
+            case PROVIDER_NOK:
             case INCORRECTLY_DOWNLOADED_EIP_SERVICE:
             case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 if (TorStatusObservable.getStatus() != OFF) {

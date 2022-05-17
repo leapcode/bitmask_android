@@ -53,6 +53,9 @@ public class NoErrorBackendResponseAPIv4 extends BaseBackendResponse {
                 } else if (url.contains(":9001/json")) {
                     // download geoip json, containing a sorted list of gateways
                     return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.geoip.json"));
+                } else if (url.contains("/cert")) {
+                    // download vpn key and cert
+                    return getInputAsString(getClass().getClassLoader().getResourceAsStream("v4/riseup.net.cert"));
                 } else if (url.contains("/users.json")) {
                     //create new user
                     //TODO: implement me

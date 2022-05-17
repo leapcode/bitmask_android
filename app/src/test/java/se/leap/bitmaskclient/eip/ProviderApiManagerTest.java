@@ -54,6 +54,7 @@ import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.when;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
@@ -61,8 +62,11 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SNOWFLAKE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.MISSING_NETWORK_CONNECTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
@@ -76,6 +80,7 @@ import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockPr
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.ERROR_GEOIP_SERVICE_IS_DOWN_TOR_FALLBACK;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR;
 import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider.TestBackendErrorCase.NO_ERROR_API_V4;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockBase64;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBundle;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockConfigHelper;
@@ -98,7 +103,7 @@ import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
  */
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ProviderApiManager.class, TextUtils.class, ConfigHelper.class, ProviderApiConnector.class, PreferenceHelper.class, TorStatusObservable.class})
+@PrepareForTest({ProviderApiManager.class, TextUtils.class, ConfigHelper.class, ProviderApiConnector.class, PreferenceHelper.class, TorStatusObservable.class, android.util.Base64.class})
 public class ProviderApiManagerTest {
 
     private SharedPreferences mockPreferences;
@@ -787,6 +792,71 @@ public class ProviderApiManagerTest {
 
         providerApiManager.handleIntent(providerApiCommand);
         assertEquals(-1, TorStatusObservable.getProxyPort());
+    }
+
+    @Test
+    public void test_handleIntentUpdateVPNCertificate_TorBridgesPreferencesNotConfigured_TorStartedAndSuccess() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
+        Provider provider = getConfiguredProviderAPIv4();
+
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockBase64();
+        mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
+
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
+        Intent providerApiCommand = mockIntent();
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.setAction(ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE));
+
+        mockTorStatusObservable(null);
+
+        providerApiManager.handleIntent(providerApiCommand);
+        assertNotEquals(-1, TorStatusObservable.getProxyPort());
+    }
+
+    @Test
+    public void test_handleIntentUpdateVPNCertificate_TorBridgesPreferencesFalse_TorNotStartedAndFailure() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
+        Provider provider = getConfiguredProviderAPIv4();
+
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockBase64();
+        mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
+        mockPreferences.edit().putBoolean(USE_BRIDGES, false).putBoolean(USE_SNOWFLAKE, false).commit();
+
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
+        Intent providerApiCommand = mockIntent();
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.setAction(ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE));
+
+        mockTorStatusObservable(new TimeoutException("This timeout exception is never thrown"));
+
+        providerApiManager.handleIntent(providerApiCommand);
+        assertEquals(-1, TorStatusObservable.getProxyPort());
+    }
+
+    @Test
+    public void test_handleIntentUpdateVPNCertificate_TorBridgesPreferencesTrue_TorStartedAndSuccess() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
+        Provider provider = getConfiguredProviderAPIv4();
+
+        mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockBase64();
+        mockProviderApiConnector(NO_ERROR_API_V4);
+        mockPreferences.edit().putBoolean(USE_BRIDGES, true).putBoolean(USE_SNOWFLAKE, true).commit();
+
+        providerApiManager = new ProviderApiManager(mockPreferences, mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
+
+        Intent providerApiCommand = mockIntent();
+        providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.setAction(ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE);
+        providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE));
+
+        mockTorStatusObservable(null);
+
+        providerApiManager.handleIntent(providerApiCommand);
+        assertNotEquals(-1, TorStatusObservable.getProxyPort());
     }
 
     @Test
