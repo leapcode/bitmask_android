@@ -201,7 +201,7 @@ public abstract class ProviderApiManagerBase {
         }
 
          try {
-             if (PreferenceHelper.hasSnowflakePrefs(preferences)) {
+             if (PreferenceHelper.hasSnowflakePrefs(preferences) && !VpnStatus.isVPNActive()) {
                  startTorProxy();
              }
         } catch (InterruptedException | IllegalStateException e) {
