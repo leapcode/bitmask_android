@@ -92,6 +92,9 @@ import se.leap.bitmaskclient.providersetup.ProviderListActivity;
 import se.leap.bitmaskclient.providersetup.activities.CustomProviderSetupActivity;
 import se.leap.bitmaskclient.providersetup.activities.LoginActivity;
 import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
+import se.leap.bitmaskclient.tor.TorServiceCommand;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
+import se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus;
 
 public class EipFragment extends Fragment implements Observer {
 
@@ -272,7 +275,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     void handleIcon() {
-        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnected() || eipStatus.isConnecting())
+        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnected() || eipStatus.isConnecting() || eipStatus.isUpdatingVpnCert())
             handleSwitchOff();
         else
             handleSwitchOn();
@@ -308,7 +311,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleSwitchOff() {
-        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnecting()) {
+        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnecting() || eipStatus.isUpdatingVpnCert()) {
             askPendingStartCancellation();
         } else if (eipStatus.isConnected()) {
             askToStopEIP();
@@ -359,7 +362,14 @@ public class EipFragment extends Fragment implements Observer {
             showPendingStartCancellation = true;
             alertDialog = alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
                     .setMessage(activity.getString(R.string.eip_cancel_connect_text))
-                    .setPositiveButton((android.R.string.yes), (dialog, which) -> stopEipIfPossible())
+                    .setPositiveButton((android.R.string.yes), (dialog, which) -> {
+                        Context context = getContext();
+                        if (context != null && eipStatus.isUpdatingVpnCert() &&
+                                TorStatusObservable.isRunning()) {
+                            TorServiceCommand.stopTorServiceAsync(context.getApplicationContext());
+                        }
+                        stopEipIfPossible();
+                    })
                     .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> {
                     }).setOnDismissListener(dialog -> showPendingStartCancellation = false).show();
         } catch (IllegalStateException e) {
@@ -412,7 +422,7 @@ public class EipFragment extends Fragment implements Observer {
 
         Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
         if (eipStatus.isUpdatingVpnCert()) {
-            setMainButtonEnabled(false);
+            setMainButtonEnabled(true);
             showConnectionTransitionLayout(true);
             locationButton.setText(getString(R.string.eip_status_start_pending));
             locationButton.setLocationLoad(UNKNOWN);
@@ -578,7 +588,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void updateInvalidVpnCertificate() {
-        EipStatus.getInstance().setUpdatingVpnCert(true);
+        eipStatus.setUpdatingVpnCert(true);
         ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider);
     }
 
