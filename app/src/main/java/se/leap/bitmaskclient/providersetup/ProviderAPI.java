@@ -93,7 +93,8 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             CORRECTLY_DOWNLOADED_GEOIP_JSON = 17,
             INCORRECTLY_DOWNLOADED_GEOIP_JSON = 18,
             TOR_TIMEOUT = 19,
-            MISSING_NETWORK_CONNECTION = 20;
+            MISSING_NETWORK_CONNECTION = 20,
+            TOR_EXCEPTION = 21;
 
     ProviderApiManager providerApiManager;
     private volatile TorServiceConnection torServiceConnection;
