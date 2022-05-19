@@ -327,7 +327,6 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 JSONObject errorJson = new JSONObject(reasonToFail);
                 newFragment = MainActivityErrorDialog.newInstance(provider, errorJson);
             } catch (JSONException e) {
-                e.printStackTrace();
                 newFragment = MainActivityErrorDialog.newInstance(provider, reasonToFail);
             }
             newFragment.show(fragmentTransaction, MainActivityErrorDialog.TAG);
