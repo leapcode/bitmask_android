@@ -123,6 +123,7 @@ public class EipFragment extends Fragment implements Observer {
 
     private Unbinder unbinder;
     private EipStatus eipStatus;
+    private ProviderObservable providerObservable;
     private TorStatusObservable torStatusObservable;
 
     private GatewaysManager gatewaysManager;
@@ -173,6 +174,7 @@ public class EipFragment extends Fragment implements Observer {
         super.onCreate(savedInstanceState);
         openVpnConnection = new EipFragmentServiceConnection();
         eipStatus = EipStatus.getInstance();
+        providerObservable = ProviderObservable.getInstance();
         torStatusObservable = TorStatusObservable.getInstance();
         Activity activity = getActivity();
         if (activity != null) {
@@ -190,6 +192,7 @@ public class EipFragment extends Fragment implements Observer {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         eipStatus.addObserver(this);
         torStatusObservable.addObserver(this);
+        providerObservable.addObserver(this);
         View view = inflater.inflate(R.layout.f_eip, container, false);
         unbinder = ButterKnife.bind(this, view);
 
@@ -267,6 +270,7 @@ public class EipFragment extends Fragment implements Observer {
     public void onDestroyView() {
         super.onDestroyView();
         eipStatus.deleteObserver(this);
+        providerObservable.deleteObserver(this);
         torStatusObservable.deleteObserver(this);
         unbinder.unbind();
     }
