@@ -81,7 +81,8 @@ public class TorServiceCommand {
 
     @WorkerThread
     public static void stopTorService(Context context) {
-        if (TorStatusObservable.getStatus() == TorStatusObservable.TorStatus.OFF) {
+        if (TorStatusObservable.getStatus() == TorStatusObservable.TorStatus.STOPPING ||
+            TorStatusObservable.getStatus() == TorStatusObservable.TorStatus.OFF) {
             return;
         }
         TorStatusObservable.markCancelled();
@@ -102,6 +103,9 @@ public class TorServiceCommand {
     }
 
     public static void stopTorServiceAsync(Context context) {
+        if (!TorStatusObservable.isRunning()) {
+            return;
+        }
         TorStatusObservable.markCancelled();
         new Thread(() -> stopTorService(context)).start();
     }
