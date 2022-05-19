@@ -287,4 +287,9 @@ public class TorStatusObservable extends Observable {
     public static boolean isCancelled() {
         return getInstance().cancelled;
     }
+
+    public static boolean isRunning() {
+        return !TorStatusObservable.isCancelled() &&
+                TorStatusObservable.getStatus() != TorStatusObservable.TorStatus.OFF;
+    }
 }
