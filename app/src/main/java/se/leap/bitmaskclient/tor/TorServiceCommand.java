@@ -42,7 +42,9 @@ public class TorServiceCommand {
     public static boolean startTorService(Context context, String action) throws InterruptedException {
         Log.d(TAG, "startTorService");
         try {
-            waitUntil(TorServiceCommand::isNotCancelled, 30);
+            if (TorStatusObservable.isCancelled()) {
+                waitUntil(TorServiceCommand::isNotCancelled, 30);
+            }
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
