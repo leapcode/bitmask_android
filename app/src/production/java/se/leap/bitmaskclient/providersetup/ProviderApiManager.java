@@ -25,7 +25,6 @@ import android.util.Pair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -204,7 +203,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             VpnStatus.logDebug("[API] VPN CERT: " + certString);
         }
         if (ConfigHelper.checkErroneousDownload(certString)) {
-            if (TorStatusObservable.getStatus() != OFF && TorStatusObservable.getProxyPort() != -1) {
+            if (TorStatusObservable.isRunning()) {
                 setErrorResult(result, downloading_vpn_certificate_failed, null);
             } else if (certString == null || certString.isEmpty() ){
                 // probably 204
