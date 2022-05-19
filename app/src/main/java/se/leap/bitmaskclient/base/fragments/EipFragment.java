@@ -17,7 +17,6 @@
 package se.leap.bitmaskclient.base.fragments;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
-import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
@@ -48,6 +47,10 @@ import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -94,7 +97,6 @@ import se.leap.bitmaskclient.providersetup.activities.LoginActivity;
 import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
 import se.leap.bitmaskclient.tor.TorServiceCommand;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
-import se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus;
 
 public class EipFragment extends Fragment implements Observer {
 
@@ -121,6 +123,7 @@ public class EipFragment extends Fragment implements Observer {
 
     private Unbinder unbinder;
     private EipStatus eipStatus;
+    private TorStatusObservable torStatusObservable;
 
     private GatewaysManager gatewaysManager;
 
@@ -170,6 +173,7 @@ public class EipFragment extends Fragment implements Observer {
         super.onCreate(savedInstanceState);
         openVpnConnection = new EipFragmentServiceConnection();
         eipStatus = EipStatus.getInstance();
+        torStatusObservable = TorStatusObservable.getInstance();
         Activity activity = getActivity();
         if (activity != null) {
             preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
@@ -185,6 +189,7 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         eipStatus.addObserver(this);
+        torStatusObservable.addObserver(this);
         View view = inflater.inflate(R.layout.f_eip, container, false);
         unbinder = ButterKnife.bind(this, view);
 
@@ -262,6 +267,7 @@ public class EipFragment extends Fragment implements Observer {
     public void onDestroyView() {
         super.onDestroyView();
         eipStatus.deleteObserver(this);
+        torStatusObservable.deleteObserver(this);
         unbinder.unbind();
     }
 
@@ -402,14 +408,20 @@ public class EipFragment extends Fragment implements Observer {
     public void update(Observable observable, Object data) {
         if (observable instanceof EipStatus) {
             eipStatus = (EipStatus) observable;
-            Activity activity = getActivity();
-            if (activity != null) {
-                activity.runOnUiThread(this::handleNewState);
-            } else {
-                Log.e("EipFragment", "activity is null");
-            }
+            handleNewStateOnMain();
         } else if (observable instanceof ProviderObservable) {
             provider = ((ProviderObservable) observable).getCurrentProvider();
+        } else if (observable instanceof TorStatusObservable && EipStatus.getInstance().isUpdatingVpnCert()) {
+            handleNewStateOnMain();
+        }
+    }
+
+    private void handleNewStateOnMain() {
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(this::handleNewState);
+        } else {
+            Log.e("EipFragment", "activity is null");
         }
     }
 
@@ -429,7 +441,15 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
             mainDescription.setText(null);
-            subDescription.setText(getString(R.string.updating_certificate_message));
+            String torStatus = TorStatusObservable.getStringForCurrentStatus(getContext());
+            subDescription.setText(torStatus);
+            if (!TextUtils.isEmpty(torStatus)) {
+                Spannable spannable = new SpannableString(torStatus);
+                spannable.setSpan(new RelativeSizeSpan(0.75f), 0, spannable.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                subDescription.setText(TextUtils.concat(getString(R.string.updating_certificate_message) + "\n", spannable));
+            } else {
+                subDescription.setText(getString(R.string.updating_certificate_message));
+            }
         } else if (eipStatus.isConnecting()) {
             setMainButtonEnabled(true);
             showConnectionTransitionLayout(true);
