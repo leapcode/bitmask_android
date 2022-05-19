@@ -87,7 +87,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
     private static final String TAG = EipSetupObserver.class.getName();
 
     private static final int UPDATE_CHECK_TIMEOUT = 1000*60*60*24*7;
-    private Context context;
+    private final Context appContext;
     private VpnProfile setupVpnProfile;
     private String observedProfileFromVpnStatus;
     AtomicInteger reconnectTry = new AtomicInteger();
@@ -98,7 +98,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
     private static EipSetupObserver instance;
 
     private EipSetupObserver(Context context, SharedPreferences preferences) {
-        this.context = context;
+        this.appContext = context.getApplicationContext();
         this.preferences = preferences;
         IntentFilter updateIntentFilter = new IntentFilter(BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT);
         updateIntentFilter.addAction(BROADCAST_EIP_EVENT);
@@ -106,7 +106,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         updateIntentFilter.addAction(TorService.ACTION_STATUS);
         updateIntentFilter.addAction(TorService.ACTION_ERROR);
         updateIntentFilter.addCategory(CATEGORY_DEFAULT);
-        LocalBroadcastManager.getInstance(context.getApplicationContext()).registerReceiver(this, updateIntentFilter);
+        LocalBroadcastManager.getInstance(context).registerReceiver(this, updateIntentFilter);
         instance = this;
         VpnStatus.addLogListener(this);
     }
@@ -175,7 +175,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         Log.d(TAG, "handle Tor status event: " + status);
         Integer bootstrap = intent.getIntExtra(TorService.EXTRA_STATUS_DETAIL_BOOTSTRAP, -1);
         String logKey = intent.getStringExtra(TorService.EXTRA_STATUS_DETAIL_LOGKEY);
-        TorStatusObservable.updateState(context, status, bootstrap, logKey);
+        TorStatusObservable.updateState(appContext, status, bootstrap, logKey);
     }
 
 
@@ -194,17 +194,17 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
                 if (EipStatus.getInstance().isDisconnected()) {
-                    EipCommand.startVPN(context, false);
+                    EipCommand.startVPN(appContext, false);
                 }
                 break;
             case CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
                 provider = resultData.getParcelable(PROVIDER_KEY);
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(preferences, provider);
-                EipCommand.startVPN(context, false);
+                EipCommand.startVPN(appContext, false);
                 EipStatus.getInstance().setUpdatingVpnCert(false);
                 if (TorStatusObservable.isRunning()) {
-                    TorServiceCommand.stopTorServiceAsync(context);
+                    TorServiceCommand.stopTorServiceAsync(appContext);
                 }
                 break;
             case CORRECTLY_DOWNLOADED_GEOIP_JSON:
@@ -219,14 +219,14 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             case INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
                 EipStatus.getInstance().setUpdatingVpnCert(false);
                 if (TorStatusObservable.isRunning()) {
-                    TorServiceCommand.stopTorServiceAsync(context);
+                    TorServiceCommand.stopTorServiceAsync(appContext);
                 }
                 break;
             case PROVIDER_NOK:
             case INCORRECTLY_DOWNLOADED_EIP_SERVICE:
             case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 if (TorStatusObservable.isRunning()) {
-                    TorServiceCommand.stopTorServiceAsync(context);
+                    TorServiceCommand.stopTorServiceAsync(appContext);
                 }
                 Log.d(TAG, "PROVIDER NOK - FETCH FAILED");
                 break;
@@ -257,7 +257,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
     private void maybeStartEipService(Bundle resultData) {
         if (resultData.getBoolean(EIP_ACTION_START)) {
             boolean earlyRoutes = resultData.getBoolean(EIP_EARLY_ROUTES);
-            EipCommand.startVPN(context, earlyRoutes);
+            EipCommand.startVPN(appContext, earlyRoutes);
         }
     }
 
@@ -284,14 +284,14 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                     switch (error) {
                         case NO_MORE_GATEWAYS:
                             finishGatewaySetup(false);
-                            EipCommand.startBlockingVPN(context);
+                            EipCommand.startBlockingVPN(appContext);
                             break;
                         case ERROR_INVALID_PROFILE:
                             selectNextGateway();
                             break;
                         default:
                             finishGatewaySetup(false);
-                            EipCommand.stopVPN(context);
+                            EipCommand.stopVPN(appContext);
                             EipStatus.refresh();
                     }
                 }
@@ -367,11 +367,11 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             Provider provider = ProviderObservable.getInstance().getCurrentProvider();
             if (setupNClosestGateway.get() > 0 || provider.shouldUpdateEipServiceJson()) {
                 //setupNClostestGateway > 0: at least one failed gateway -> did the provider change it's gateways?
-                ProviderAPICommand.execute(context, ProviderAPI.DOWNLOAD_SERVICE_JSON, provider);
+                ProviderAPICommand.execute(appContext, ProviderAPI.DOWNLOAD_SERVICE_JSON, provider);
             }
 
             if (shouldCheckAppUpdate()) {
-                DownloadServiceCommand.execute(context, CHECK_VERSION_FILE);
+                DownloadServiceCommand.execute(appContext, CHECK_VERSION_FILE);
             }
             finishGatewaySetup(false);
         } else if ("TCP_CONNECT".equals(state)) {
@@ -380,13 +380,13 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
     }
 
     private boolean shouldCheckAppUpdate() {
-        return System.currentTimeMillis() - PreferenceHelper.getLastAppUpdateCheck(context) >= UPDATE_CHECK_TIMEOUT;
+        return System.currentTimeMillis() - PreferenceHelper.getLastAppUpdateCheck(appContext) >= UPDATE_CHECK_TIMEOUT;
     }
 
     private void selectNextGateway() {
         changingGateway.set(true);
         reconnectTry.set(0);
-        EipCommand.startVPN(context, false, setupNClosestGateway.get() + 1);
+        EipCommand.startVPN(appContext, false, setupNClosestGateway.get() + 1);
     }
 
     private void finishGatewaySetup(boolean changingGateway) {
@@ -397,7 +397,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         this.changingGateway.set(changingGateway);
         this.reconnectTry.set(0);
         if (TorStatusObservable.isRunning()) {
-            TorServiceCommand.stopTorServiceAsync(context);
+            TorServiceCommand.stopTorServiceAsync(appContext);
         }
     }
 
@@ -418,9 +418,9 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 case SHAPESHIFTER:
                     VpnProfile profile = VpnStatus.getLastConnectedVpnProfile();
                     if (profile == null) {
-                        EipCommand.startVPN(context, false, 0);
+                        EipCommand.startVPN(appContext, false, 0);
                     } else {
-                        GatewaysManager gatewaysManager = new GatewaysManager(context.getApplicationContext());
+                        GatewaysManager gatewaysManager = new GatewaysManager(appContext);
                         int position = gatewaysManager.getPosition(profile);
                         setupNClosestGateway.set(position >= 0 ? position : 0);
                         selectNextGateway();
