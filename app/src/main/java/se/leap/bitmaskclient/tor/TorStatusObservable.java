@@ -263,6 +263,10 @@ public class TorStatusObservable extends Observable {
     }
 
     public static String getStringForCurrentStatus(Context context) {
+        if (context == null) {
+            return "";
+        }
+
         switch (getInstance().status) {
             case ON:
                 return context.getString(R.string.tor_started);
