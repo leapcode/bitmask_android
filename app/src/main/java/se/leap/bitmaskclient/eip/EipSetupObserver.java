@@ -237,8 +237,8 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             case TOR_EXCEPTION:
                 try {
                     JSONObject jsonObject = new JSONObject(resultData.getString(ProviderAPI.ERRORS));
-                    String initalAction = jsonObject.getString(ProviderAPI.INITIAL_ACTION);
-                    if (UPDATE_INVALID_VPN_CERTIFICATE.equals(initalAction)) {
+                    String initialAction = jsonObject.optString(ProviderAPI.INITIAL_ACTION);
+                    if (UPDATE_INVALID_VPN_CERTIFICATE.equals(initialAction)) {
                         EipStatus.getInstance().setUpdatingVpnCert(false);
                     }
                 } catch (Exception e) {
