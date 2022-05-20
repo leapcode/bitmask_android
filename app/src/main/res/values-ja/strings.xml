@@ -138,7 +138,7 @@
   <string name="warning_no_more_gateways_use_pt">%sは接続できませんでした。 VPN接続がブロックされている可能性があります。難読化された接続を使用して接続を試みますか?</string>
   <string name="warning_no_more_gateways_no_pt">%s は接続できませんでした。 再試行しますか?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s は難読化されたVPN接続を使用して接続できませんでした。標準VPNを使用して接続を試みますか?</string>
-  <string name="warning_no_more_gateways_manual_gw_selection">%1$sは%2$sへ接続できませんでした。最適な場所と自動的な接続を試みますか?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$sは%2$sへ接続できませんでした。最適な場所へ自動的な接続を試みますか?</string>
   <string name="warning_option_try_best">最適な場所を試みる</string>
   <string name="warning_option_try_pt">難読化された接続を試みる</string>
   <string name="warning_option_try_ovpn">標準接続を試みる</string>
@@ -155,6 +155,7 @@
   <string name="version_update_error_permissions">アプリをインストールする権限がありません。</string>
   <string name="gateway_selection_title">場所を選択</string>
   <string name="gateway_selection_recommended_location">推奨の場所</string>
+  <string name="gateway_selection_recommended">推奨</string>
   <string name="gateway_selection_manually">手動で選択</string>
   <string name="gateway_selection_automatic_location">自動的に最適な接続を使用</string>
   <string name="gateway_selection_automatic">自動</string>
@@ -167,12 +168,16 @@
   <string name="log_circuit_create">Tor サーキットを設置しています</string>
   <string name="log_done">実行中</string>
   <string name="hide">隠す</string>
+  <string name="error_network_connection">%sはインターネット接続がありません。WiFiとセルラーデータの設定を確認してください。</string>
   <string name="censorship_circumvention">検閲を回避</string>
   <string name="use_snowflake">Snowflake を使用</string>
+  <string name="snowflake_description">検閲から設定処理を保護する。</string>
   <string name="vpn_settings">VPN設定</string>
   <string name="prefer_udp">利用可能であればUDPを使用</string>
   <string name="prefer_udp_subtitle">UDPは高速になり、ストリーミングに好ましいですが、ネットワークのすべてには動作しません。</string>
   <string name="disabled_while_bridges_on">ブリッジ使用中に無効化されます。</string>
+  <string name="hint_bridges">現在選択できるのは、ブリッジをサポートしている場所のみです。</string>
+  <string name="option_disable_bridges">ブリッジを無効化</string>
   <string name="eip_state_insecure">接続は安全ではありません</string>
   <string name="connection_not_connected">あなたのインターネットプロバイダまたはローカルネットワークに情報が漏洩するかもしれません。</string>
   <string name="eip_state_blocking">%1$sはすべてのインターネット転送をプロックしています。</string>
