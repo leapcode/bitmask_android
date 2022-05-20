@@ -196,7 +196,8 @@ public class VpnNotificationManager {
     }
 
     public void cancelAll() {
-        compatNotificationManager.cancelAll();
+        compatNotificationManager.cancel(OpenVPNService.NOTIFICATION_CHANNEL_NEWSTATUS_ID.hashCode());
+        compatNotificationManager.cancel(VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID.hashCode());
     }
 
 
