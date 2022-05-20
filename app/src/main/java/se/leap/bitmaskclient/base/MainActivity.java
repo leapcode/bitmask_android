@@ -49,6 +49,8 @@ import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipSetupListener;
 import se.leap.bitmaskclient.eip.EipSetupObserver;
+import se.leap.bitmaskclient.eip.EipStatus;
+import se.leap.bitmaskclient.providersetup.ProviderAPI;
 import se.leap.bitmaskclient.providersetup.activities.LoginActivity;
 import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
 
@@ -74,6 +76,9 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORID;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_EXCEPTION;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 
 
@@ -301,6 +306,19 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                     showMainActivityErrorDialog(getString(downloading_vpn_certificate_failed));
                 } else {
                     askUserToLogIn(getString(vpn_certificate_user_message));
+                }
+                break;
+            case TOR_TIMEOUT:
+            case TOR_EXCEPTION:
+                try {
+                    Bundle resultData = intent.getParcelableExtra(BROADCAST_RESULT_KEY);
+                    JSONObject jsonObject = new JSONObject(resultData.getString(ProviderAPI.ERRORS));
+                    String initialAction = jsonObject.optString(ProviderAPI.INITIAL_ACTION);
+                    if (UPDATE_INVALID_VPN_CERTIFICATE.equals(initialAction)) {
+                        showMainActivityErrorDialog(getString(downloading_vpn_certificate_failed));
+                    }
+                } catch (Exception e) {
+                    //ignore
                 }
                 break;
         }
