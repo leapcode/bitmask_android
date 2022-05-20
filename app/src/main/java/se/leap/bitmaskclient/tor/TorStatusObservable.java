@@ -178,7 +178,6 @@ public class TorStatusObservable extends Observable {
             if (getInstance().status == TorStatus.OFF) {
                 getInstance().torNotificationManager.cancelNotifications(context);
                 getInstance().cancelled = false;
-                getInstance().port = -1;
             } else {
                 if (logKey != null) {
                     getInstance().lastTorLog = getStringFor(context, logKey);
@@ -264,6 +263,10 @@ public class TorStatusObservable extends Observable {
     }
 
     public static String getStringForCurrentStatus(Context context) {
+        if (context == null) {
+            return "";
+        }
+
         switch (getInstance().status) {
             case ON:
                 return context.getString(R.string.tor_started);
@@ -280,11 +283,18 @@ public class TorStatusObservable extends Observable {
     public static void markCancelled() {
         if (!getInstance().cancelled) {
             getInstance().cancelled = true;
+            getInstance().port = -1;
+            getInstance().setChanged();
             getInstance().notifyObservers();
         }
     }
 
     public static boolean isCancelled() {
         return getInstance().cancelled;
+    }
+
+    public static boolean isRunning() {
+        return !TorStatusObservable.isCancelled() &&
+                TorStatusObservable.getStatus() != TorStatusObservable.TorStatus.OFF;
     }
 }

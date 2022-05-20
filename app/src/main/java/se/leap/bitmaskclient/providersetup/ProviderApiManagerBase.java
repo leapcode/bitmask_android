@@ -17,57 +17,6 @@
 
 package se.leap.bitmaskclient.providersetup;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.os.ResultReceiver;
-import android.util.Base64;
-import android.util.Log;
-import android.util.Pair;
-
-import androidx.annotation.NonNull;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.ConnectException;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.net.UnknownServiceException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.concurrent.TimeoutException;
-
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
-
-import de.blinkt.openvpn.core.VpnStatus;
-import okhttp3.OkHttpClient;
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.base.models.Constants.CREDENTIAL_ERRORS;
-import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.base.utils.ConfigHelper;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.eip.EipStatus;
-import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
-import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
-import se.leap.bitmaskclient.providersetup.models.SrpCredentials;
-import se.leap.bitmaskclient.providersetup.models.SrpRegistrationData;
-import se.leap.bitmaskclient.tor.TorStatusObservable;
-
 import static se.leap.bitmaskclient.R.string.certificate_error;
 import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
 import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
@@ -128,6 +77,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.SIGN_UP;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_LOGIN;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_LOGOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SUCCESSFUL_SIGNUP;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_EXCEPTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_PROVIDER_DETAILS;
@@ -139,6 +89,57 @@ import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWN
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.ON;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.util.Base64;
+import android.util.Log;
+import android.util.Pair;
+
+import androidx.annotation.NonNull;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.net.UnknownServiceException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.TimeoutException;
+
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+import de.blinkt.openvpn.core.VpnStatus;
+import okhttp3.OkHttpClient;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.Constants.CREDENTIAL_ERRORS;
+import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.eip.EipStatus;
+import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
+import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
+import se.leap.bitmaskclient.providersetup.models.SrpCredentials;
+import se.leap.bitmaskclient.providersetup.models.SrpRegistrationData;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 /**
  * Implements the logic of the http api calls. The methods of this class needs to be called from
@@ -200,11 +201,14 @@ public abstract class ProviderApiManagerBase {
         }
 
          try {
-             if (PreferenceHelper.hasSnowflakePrefs(preferences)) {
+             if (PreferenceHelper.hasSnowflakePrefs(preferences) && !VpnStatus.isVPNActive()) {
                  startTorProxy();
              }
         } catch (InterruptedException | IllegalStateException e) {
             e.printStackTrace();
+             Bundle result = new Bundle();
+             setErrorResultAction(result, action);
+             sendToReceiverOrBroadcast(receiver, TOR_EXCEPTION, result, provider);
             return;
         } catch (TimeoutException e) {
              serviceCallback.stopTorService();
@@ -369,7 +373,7 @@ public abstract class ProviderApiManagerBase {
 
     private void addErrorMessageToJson(JSONObject jsonObject, String errorMessage, String errorId, String initialAction) {
         try {
-            jsonObject.put(ERRORS, errorMessage);
+            jsonObject.putOpt(ERRORS, errorMessage);
             jsonObject.putOpt(ERRORID, errorId);
             jsonObject.putOpt(INITIAL_ACTION, initialAction);
         } catch (JSONException e) {
@@ -598,6 +602,10 @@ public abstract class ProviderApiManagerBase {
                 break;
             case INCORRECTLY_DOWNLOADED_GEOIP_JSON:
                 event = "download menshen service json.";
+                break;
+            case TOR_TIMEOUT:
+            case TOR_EXCEPTION:
+                event = "start tor for censorship circumvention";
                 break;
             default:
                 break;
@@ -955,6 +963,15 @@ public abstract class ProviderApiManagerBase {
         String reasonToFail = pickErrorMessage(stringJsonErrorMessage);
         VpnStatus.logWarning("[API] error: " + reasonToFail);
         result.putString(ERRORS, reasonToFail);
+        result.putBoolean(BROADCAST_RESULT_KEY, false);
+        return result;
+    }
+
+    Bundle setErrorResultAction(Bundle result, String initialAction) {
+        JSONObject errorJson = new JSONObject();
+        addErrorMessageToJson(errorJson, null, null, initialAction);
+        VpnStatus.logWarning("[API] error: " + initialAction + " failed.");
+        result.putString(ERRORS, errorJson.toString());
         result.putBoolean(BROADCAST_RESULT_KEY, false);
         return result;
     }

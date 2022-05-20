@@ -113,13 +113,16 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
     @Override
     public void stop() {
         IPtProxy.stopSnowflake();
-         try {
+        try {
             TorStatusObservable.waitUntil(this::isSnowflakeOff, 10);
         } catch (InterruptedException | TimeoutException e) {
             e.printStackTrace();
         }
         snowflakePort = -1;
-        logFileObserver.stopWatching();
+        if (logFileObserver != null) {
+            logFileObserver.stopWatching();
+            logFileObserver = null;
+        }
     }
 
     private boolean isSnowflakeOff() {

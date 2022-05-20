@@ -42,7 +42,9 @@ public class TorServiceCommand {
     public static boolean startTorService(Context context, String action) throws InterruptedException {
         Log.d(TAG, "startTorService");
         try {
-            waitUntil(TorServiceCommand::isNotCancelled, 30);
+            if (TorStatusObservable.isCancelled()) {
+                waitUntil(TorServiceCommand::isNotCancelled, 30);
+            }
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
@@ -79,7 +81,8 @@ public class TorServiceCommand {
 
     @WorkerThread
     public static void stopTorService(Context context) {
-        if (TorStatusObservable.getStatus() == TorStatusObservable.TorStatus.OFF) {
+        if (TorStatusObservable.getStatus() == TorStatusObservable.TorStatus.STOPPING ||
+            TorStatusObservable.getStatus() == TorStatusObservable.TorStatus.OFF) {
             return;
         }
         TorStatusObservable.markCancelled();
@@ -100,6 +103,9 @@ public class TorServiceCommand {
     }
 
     public static void stopTorServiceAsync(Context context) {
+        if (!TorStatusObservable.isRunning()) {
+            return;
+        }
         TorStatusObservable.markCancelled();
         new Thread(() -> stopTorService(context)).start();
     }

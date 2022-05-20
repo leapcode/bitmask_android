@@ -25,7 +25,6 @@ import android.util.Pair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -199,29 +198,22 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     @Override
     protected Bundle updateVpnCertificate(Provider provider) {
         Bundle result = new Bundle();
-        try {
-            URL newCertStringUrl = new URL(provider.getApiUrlWithVersion() + "/" + PROVIDER_VPN_CERTIFICATE);
-
-            String certString = downloadWithProviderCA(provider.getCaCert(), newCertStringUrl.toString());
-            if (DEBUG_MODE) {
-                VpnStatus.logDebug("[API] VPN CERT: " + certString);
-            }
-            if (ConfigHelper.checkErroneousDownload(certString)) {
-                if (certString == null || certString.isEmpty()) {
-                    // probably 204
-                    setErrorResult(result, error_io_exception_user_message, null);
-                } else {
-                    setErrorResult(result, certString);
-                    return result;
-                }
-            }
-            return loadCertificate(provider, certString);
-        } catch (IOException e) {
-            // TODO try to get Provider Json
-            setErrorResult(result, downloading_vpn_certificate_failed, null);
-            e.printStackTrace();
+        String certString = downloadFromVersionedApiUrlWithProviderCA("/" + PROVIDER_VPN_CERTIFICATE, provider);
+        if (DEBUG_MODE) {
+            VpnStatus.logDebug("[API] VPN CERT: " + certString);
         }
-        return result;
+        if (ConfigHelper.checkErroneousDownload(certString)) {
+            if (TorStatusObservable.isRunning()) {
+                setErrorResult(result, downloading_vpn_certificate_failed, null);
+            } else if (certString == null || certString.isEmpty() ){
+                // probably 204
+                setErrorResult(result, error_io_exception_user_message, null);
+            } else {
+                setErrorResult(result, certString);
+            }
+            return result;
+        }
+        return loadCertificate(provider, certString);
     }
 
     /**
@@ -348,6 +340,17 @@ public class ProviderApiManager extends ProviderApiManagerBase {
      */
     private String downloadFromApiUrlWithProviderCA(String path, Provider provider) {
         String baseUrl = provider.getApiUrlString();
+        String urlString = baseUrl + path;
+        return downloadFromUrlWithProviderCA(urlString, provider);
+    }
+
+    /**
+     * Tries to download the contents of $base_url/$version/$path using not commercially validated CA certificate from chosen provider.
+     *
+     * @return an empty string if it fails, the response body if not.
+     */
+    private String downloadFromVersionedApiUrlWithProviderCA(String path, Provider provider) {
+        String baseUrl = provider.getApiUrlWithVersion();
         String urlString = baseUrl + path;
         return downloadFromUrlWithProviderCA(urlString, provider);
     }

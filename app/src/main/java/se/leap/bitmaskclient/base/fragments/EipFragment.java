@@ -16,6 +16,26 @@
  */
 package se.leap.bitmaskclient.base.fragments;
 
+import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
+import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
+import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_LOG_IN;
+import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
+import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.convertDimensionToPx;
+import static se.leap.bitmaskclient.eip.EipSetupObserver.gatewayOrder;
+import static se.leap.bitmaskclient.eip.EipSetupObserver.reconnectingWithDifferentGateway;
+import static se.leap.bitmaskclient.eip.GatewaysManager.Load.UNKNOWN;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_GEOIP_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,18 +47,19 @@ import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.DialogFragment;
@@ -74,29 +95,8 @@ import se.leap.bitmaskclient.providersetup.ProviderListActivity;
 import se.leap.bitmaskclient.providersetup.activities.CustomProviderSetupActivity;
 import se.leap.bitmaskclient.providersetup.activities.LoginActivity;
 import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
-
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
-import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
-import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
-import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
-import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
-import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_LOG_IN;
-import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
-import static se.leap.bitmaskclient.base.utils.ViewHelper.convertDimensionToPx;
-import static se.leap.bitmaskclient.eip.EipSetupObserver.gatewayOrder;
-import static se.leap.bitmaskclient.eip.EipSetupObserver.reconnectingWithDifferentGateway;
-import static se.leap.bitmaskclient.eip.GatewaysManager.Load.UNKNOWN;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_GEOIP_JSON;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
+import se.leap.bitmaskclient.tor.TorServiceCommand;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 public class EipFragment extends Fragment implements Observer {
 
@@ -123,6 +123,8 @@ public class EipFragment extends Fragment implements Observer {
 
     private Unbinder unbinder;
     private EipStatus eipStatus;
+    private ProviderObservable providerObservable;
+    private TorStatusObservable torStatusObservable;
 
     private GatewaysManager gatewaysManager;
 
@@ -172,6 +174,8 @@ public class EipFragment extends Fragment implements Observer {
         super.onCreate(savedInstanceState);
         openVpnConnection = new EipFragmentServiceConnection();
         eipStatus = EipStatus.getInstance();
+        providerObservable = ProviderObservable.getInstance();
+        torStatusObservable = TorStatusObservable.getInstance();
         Activity activity = getActivity();
         if (activity != null) {
             preferences = getActivity().getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
@@ -187,6 +191,8 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         eipStatus.addObserver(this);
+        torStatusObservable.addObserver(this);
+        providerObservable.addObserver(this);
         View view = inflater.inflate(R.layout.f_eip, container, false);
         unbinder = ButterKnife.bind(this, view);
 
@@ -264,6 +270,8 @@ public class EipFragment extends Fragment implements Observer {
     public void onDestroyView() {
         super.onDestroyView();
         eipStatus.deleteObserver(this);
+        providerObservable.deleteObserver(this);
+        torStatusObservable.deleteObserver(this);
         unbinder.unbind();
     }
 
@@ -277,7 +285,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     void handleIcon() {
-        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnected() || eipStatus.isConnecting())
+        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnected() || eipStatus.isConnecting() || eipStatus.isUpdatingVpnCert())
             handleSwitchOff();
         else
             handleSwitchOn();
@@ -313,7 +321,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleSwitchOff() {
-        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnecting()) {
+        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnecting() || eipStatus.isUpdatingVpnCert()) {
             askPendingStartCancellation();
         } else if (eipStatus.isConnected()) {
             askToStopEIP();
@@ -364,7 +372,14 @@ public class EipFragment extends Fragment implements Observer {
             showPendingStartCancellation = true;
             alertDialog = alertBuilder.setTitle(activity.getString(R.string.eip_cancel_connect_title))
                     .setMessage(activity.getString(R.string.eip_cancel_connect_text))
-                    .setPositiveButton((android.R.string.yes), (dialog, which) -> stopEipIfPossible())
+                    .setPositiveButton((android.R.string.yes), (dialog, which) -> {
+                        Context context = getContext();
+                        if (context != null && eipStatus.isUpdatingVpnCert() &&
+                                TorStatusObservable.isRunning()) {
+                            TorServiceCommand.stopTorServiceAsync(context.getApplicationContext());
+                        }
+                        stopEipIfPossible();
+                    })
                     .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> {
                     }).setOnDismissListener(dialog -> showPendingStartCancellation = false).show();
         } catch (IllegalStateException e) {
@@ -397,14 +412,20 @@ public class EipFragment extends Fragment implements Observer {
     public void update(Observable observable, Object data) {
         if (observable instanceof EipStatus) {
             eipStatus = (EipStatus) observable;
-            Activity activity = getActivity();
-            if (activity != null) {
-                activity.runOnUiThread(this::handleNewState);
-            } else {
-                Log.e("EipFragment", "activity is null");
-            }
+            handleNewStateOnMain();
         } else if (observable instanceof ProviderObservable) {
             provider = ((ProviderObservable) observable).getCurrentProvider();
+        } else if (observable instanceof TorStatusObservable && EipStatus.getInstance().isUpdatingVpnCert()) {
+            handleNewStateOnMain();
+        }
+    }
+
+    private void handleNewStateOnMain() {
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(this::handleNewState);
+        } else {
+            Log.e("EipFragment", "activity is null");
         }
     }
 
@@ -416,7 +437,23 @@ public class EipFragment extends Fragment implements Observer {
         }
 
         Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
-        if (eipStatus.isConnecting()) {
+        if (eipStatus.isUpdatingVpnCert()) {
+            setMainButtonEnabled(true);
+            showConnectionTransitionLayout(true);
+            locationButton.setText(getString(R.string.eip_status_start_pending));
+            locationButton.setLocationLoad(UNKNOWN);
+            locationButton.showBridgeIndicator(false);
+            locationButton.showRecommendedIndicator(false);
+            mainDescription.setText(null);
+            String torStatus = TorStatusObservable.getStringForCurrentStatus(getContext());
+            if (!TextUtils.isEmpty(torStatus)) {
+                Spannable spannable = new SpannableString(torStatus);
+                spannable.setSpan(new RelativeSizeSpan(0.75f), 0, spannable.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                subDescription.setText(TextUtils.concat(getString(R.string.updating_certificate_message) + "\n", spannable));
+            } else {
+                subDescription.setText(getString(R.string.updating_certificate_message));
+            }
+        } else if (eipStatus.isConnecting()) {
             setMainButtonEnabled(true);
             showConnectionTransitionLayout(true);
             locationButton.setText(getString(R.string.eip_status_start_pending));
@@ -574,6 +611,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void updateInvalidVpnCertificate() {
+        eipStatus.setUpdatingVpnCert(true);
         ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider);
     }
 

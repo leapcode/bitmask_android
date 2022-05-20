@@ -56,6 +56,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     private int lastErrorLine = 0;
     private String state, logMessage;
     private int localizedResId;
+    private boolean isUpdatingVPNCertificate;
 
     public static EipStatus getInstance() {
         if (currentStatus == null) {
@@ -176,6 +177,15 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
                 refresh();
             }
         }
+    }
+
+    public void setUpdatingVpnCert(boolean isUpdating) {
+        isUpdatingVPNCertificate = isUpdating;
+        refresh();
+    }
+
+    public boolean isUpdatingVpnCert() {
+        return isUpdatingVPNCertificate;
     }
 
     public boolean isConnecting() {
