@@ -446,7 +446,6 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.showRecommendedIndicator(false);
             mainDescription.setText(null);
             String torStatus = TorStatusObservable.getStringForCurrentStatus(getContext());
-            subDescription.setText(torStatus);
             if (!TextUtils.isEmpty(torStatus)) {
                 Spannable spannable = new SpannableString(torStatus);
                 spannable.setSpan(new RelativeSizeSpan(0.75f), 0, spannable.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
