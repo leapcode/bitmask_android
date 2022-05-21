@@ -142,6 +142,7 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="warning_no_more_gateways_use_pt">%s לא היה יכול להתחבר. ייתכן שחיבורי VPN נחסמו. האם אתה רוצה לנסות להתחבר ע״י שימוש בחיבורים מאופלים?</string>
   <string name="warning_no_more_gateways_no_pt">%s לא היה יכול להתחבר. הם אתה רוצה לנסות מחדש?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s לא היה יכול להתחבר ע״י שימוש בחיבורי VPN מאורפלים. האם אתה רוצה לנסות להתחבר ע״י שימוש בחיבור VPN תקני?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s לא היה יכול להתחבר אל %2$s. האם אתה רוצה לנסות להתחבר באופן אוטומטי עם המיקום הטוב ביותר?</string>
   <string name="warning_option_try_best">נסה את המיקום הטוב ביותר</string>
   <string name="warning_option_try_pt">נסה חיבור מאופל</string>
   <string name="warning_option_try_ovpn">נסה חיבור תקני</string>

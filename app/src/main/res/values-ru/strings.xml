@@ -143,6 +143,7 @@ https://www.transifex.com/projects/p/bitmask/</string>
   <string name="warning_no_more_gateways_use_pt">%s не удалось подключиться. Возможно, что VPN-соединения блокируются. Попробовать подключиться с помощью запутанных соединений?</string>
   <string name="warning_no_more_gateways_no_pt">%s не удалось подключиться. Повторить попытку?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s не удалось подключиться с помощью запутанных VPN-подключений. Попробовать подключиться с помощью стандартного VPN?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s не может подключиться к %2$s. Использовать автоматический выбор лучшего расположения?</string>
   <string name="warning_option_try_best">Попробовать лучшее расположение</string>
   <string name="warning_option_try_pt">Попробовать запутать соединение</string>
   <string name="warning_option_try_ovpn">Попробовать стандартное соединение</string>

@@ -139,6 +139,7 @@
   <string name="warning_no_more_gateways_use_pt">%s no se pudo conectar. Puede ser que las conexiones al VPN estén bloqueadas. ¿Quieres intentar a conectar usando conexiones ofuscadas?</string>
   <string name="warning_no_more_gateways_no_pt">%s no se pudo conectar. ¿Quieres intentarlo de nuevo?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s no se pudo conectar al VPN usando conexiones ofuscadas. ¿Quieres intentar a conectar usando el VPN estándar? </string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s no pudo conectarse a %2$s. ¿Quieres intentar conectarte automáticamente con la mejor ubicación?</string>
   <string name="warning_option_try_best">Intentar la mejor ubicación</string>
   <string name="warning_option_try_pt">Probar conexión ofuscada</string>
   <string name="warning_option_try_ovpn">Probar conexión estándar</string>

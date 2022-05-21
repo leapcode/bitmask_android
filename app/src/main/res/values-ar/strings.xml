@@ -2,8 +2,10 @@
 <resources>
   <string name="retry">حاول مجدداً</string>
   <string name="repository_url_text">كود المصدر متواجد هنا  https://0xacab.org/leap/bitmask_android</string>
-  <string name="leap_tracker">متتبع الأعطال متوافر هنا https://0xacab.org/leap/bitmask_android/issues</string>
-  <string name="translation_project_text">يمكنك الترجمة؟ اطلع على مشروع الترجمة الخاص بنا عبر هذا الرابط https://www.transifex.com/projects/p/bitmask/</string>
+  <string name="leap_tracker">متتبع الأعطال متوافر هنا 
+https://0xacab.org/leap/bitmask_android/issues</string>
+  <string name="translation_project_text">يمكنك الترجمة؟ اطلع على مشروع الترجمة الخاص بنا عبر هذا الرابط
+https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">بدّل مزود الخدمة</string>
   <string name="info">معلومات</string>
   <string name="show_connection_details">عرض تفاصيل الاتصال</string>

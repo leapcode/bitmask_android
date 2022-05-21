@@ -138,6 +138,7 @@
   <string name="warning_no_more_gateways_use_pt">%s không thể kết nối. Có thể là các kết nối VPN bị chặn. Bạn có muốn thử kết nối bằng các kết nối được làm rối tung không?</string>
   <string name="warning_no_more_gateways_no_pt">%s không thể kết nối. Bạn có muốn thử lại không?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s không thể kết nối bằng các kết nối VPN được làm rối tung. Bạn có muốn thử kết nối bằng VPN tiêu chuẩn không?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s không thể kết nối đến %2$s. Bạn có muốn thử kết nối tự động với vị trí tốt nhất không?</string>
   <string name="warning_option_try_best">Thử vị trí tốt nhất</string>
   <string name="warning_option_try_pt">Thử kết nối được làm rối tung</string>
   <string name="warning_option_try_ovpn">Thử kết nối tiêu chuẩn</string>

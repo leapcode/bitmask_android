@@ -163,8 +163,16 @@
   <string name="tor_starting">検閲を回避するためにブリッジを起動中…</string>
   <string name="tor_stopping">ブリッジを停止</string>
   <string name="tor_started">検閲を回避するためにブリッジを使用</string>
+  <string name="log_conn_done_pt">pluggable transportへ接続しました</string>
+  <string name="log_conn_pt">pluggable transportへ接続中です</string>
+  <string name="log_conn_done">中継へ接続しました</string>
+  <string name="log_handshake">中継と接続をネゴシエート中です</string>
+  <string name="log_handshake_done">中継と接続をネゴシエートしました</string>
   <string name="log_onehop_create">暗号化されたディレクトリとの接続を確立中</string>
   <string name="log_loading_keys">認証局の署名を読込中</string>
+  <string name="log_requesting_descriptors">中継の記述子を尋ねています</string>
+  <string name="log_loading_descriptors">中継の記述子を読み込み中です</string>
+  <string name="log_ap_handshake_done">中継で回路を構築するネゴシエーションが終了しました</string>
   <string name="log_circuit_create">Tor サーキットを設置しています</string>
   <string name="log_done">実行中</string>
   <string name="hide">隠す</string>
@@ -180,6 +188,7 @@
   <string name="option_disable_bridges">ブリッジを無効化</string>
   <string name="eip_state_insecure">接続は安全ではありません</string>
   <string name="connection_not_connected">あなたのインターネットプロバイダまたはローカルネットワークに情報が漏洩するかもしれません。</string>
+  <string name="eip_state_no_network">インターネットに接続できない状態です。インターネット接続が戻れば、自動的に接続します</string>
   <string name="eip_state_blocking">%1$sはすべてのインターネット転送をプロックしています。</string>
   <string name="disabled_while_udp_on">UDPがオンの間は無効化されます。</string>
   <string name="advanced_settings">詳細な設定</string>
