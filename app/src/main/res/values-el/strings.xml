@@ -139,7 +139,7 @@
   <string name="warning_no_more_gateways_use_pt">Το %s δεν μπόρεσε να συνδεθεί. Ίσως οι συνδέσεις VPN να μπλοκάρονται. Θέλετε να προσπαθήσετε να συνδεθείτε χρησιμοποιώντας καμουφλαρισμένες συνδέσεις;</string>
   <string name="warning_no_more_gateways_no_pt">Το %s δεν μπόρεσε να συνδεθεί. Θέλετε να προσπαθήσετε ξανά;</string>
   <string name="warning_no_more_gateways_use_ovpn">Το %s δεν μπόρεσε να συνδεθεί χρησιμοποιώντας καμουφλαρισμένες συνδέσεις VPN. Θέλετε να προσπαθήσετε να συνδεθείτε χρησιμοποιώντας ένα κανονικό VPN;</string>
-  <string name="warning_no_more_gateways_manual_gw_selection">Το %1$s δεν μπόρεσε να συνδεθεί στο %2$s. Θέλετε να προσπαθήσετε να συνδεθείτε αυτόματα με την καλύτερη τοποθεσία;</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">Το %1$s δεν μπόρεσε να συνδεθεί στο %2$s. Θέλετε να δοκιμάσετε να συνδεθείτε αυτόματα με την καλύτερη τοποθεσία;</string>
   <string name="warning_option_try_best">Δοκιμή καλύτερης τοποθεσίας</string>
   <string name="warning_option_try_pt">Δοκιμή καμουφλαρισμένης σύνδεσης</string>
   <string name="warning_option_try_ovpn">Δοκιμή κανονικής σύνδεσης</string>

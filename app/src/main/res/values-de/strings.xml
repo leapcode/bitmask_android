@@ -139,7 +139,7 @@
   <string name="warning_no_more_gateways_use_pt">%s konnte sich nicht verbinden. Es kann sein, dass VPN Verkehr geblockt wird. Möchtest du versuchen, eine verschleierte Verbindung herzustellen?</string>
   <string name="warning_no_more_gateways_no_pt">%s konnte sich nicht verbinden. Möchtest du es noch einmal versuchen?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s konnte keine verschleierte Verbindung herstellen. Möchtest du versuchen, eine normale VPN Verbindung herzustellen?</string>
-  <string name="warning_no_more_gateways_manual_gw_selection">%1$skonnte sich nicht mit %2$s verbinden. Möchtest du versuchen, dich automatisch mit dem besten Standort zu verbinden?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s konnte sich nicht mit %2$s verbinden. Möchtest du versuchen, dich automatisch mit dem besten Standort zu verbinden?</string>
   <string name="warning_option_try_best">Versuche besten Standort</string>
   <string name="warning_option_try_pt">Teste verschleierte Verbindung</string>
   <string name="warning_option_try_ovpn">Teste normale Verbindung</string>

@@ -139,7 +139,7 @@
   <string name="warning_no_more_gateways_use_pt">%s n’a pas pu se connecter. Les connexions RPV sont peut-être bloquées. Voulez-vous tenter de vous connecter en essayant des connexions brouillées ?</string>
   <string name="warning_no_more_gateways_no_pt">%s n’a pas pu se connecter. Voulez-vous réessayer ?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s n’a pas pu se connecter en utilisant des connexions RPV brouillées. Voulez-vous tenter de vous connecter en essayant un RPV normal ?</string>
-  <string name="warning_no_more_gateways_manual_gw_selection">%1$s n’a pas réussi à se connecter à %2$s. Voulez-vous essayer de vous connecter automatiquement avec le meilleur emplacement ?</string>
+  <string name="warning_no_more_gateways_manual_gw_selection">%1$s n’a pas réussi à se connecter à %2$s. Voulez-vous essayer de vous connecter automatiquement au meilleur emplacement ?</string>
   <string name="warning_option_try_best">Essayer le meilleur emplacement</string>
   <string name="warning_option_try_pt">Essayer une connexion brouillée.</string>
   <string name="warning_option_try_ovpn">Essayer une connexion normal.</string>
