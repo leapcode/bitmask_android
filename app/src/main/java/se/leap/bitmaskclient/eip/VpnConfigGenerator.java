@@ -31,6 +31,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
@@ -46,9 +47,12 @@ import static se.leap.bitmaskclient.base.models.Constants.PROTOCOLS;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.REMOTE;
+import static se.leap.bitmaskclient.base.models.Constants.SOCKS_PROXY;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.TYPE;
 import static se.leap.bitmaskclient.base.models.Constants.UDP;
+import static se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient.SOCKS_IP;
+import static se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient.SOCKS_PORT;
 import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_IP;
 import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_PORT;
 
@@ -140,7 +144,7 @@ public class VpnConfigGenerator {
         String cert = transportOptions.getString("cert");
         String port = obfs4Transport.getJSONArray(PORTS).getString(0);
         String ip = gateway.getString(IP_ADDRESS);
-        return new Obfs4Options(ip, port, cert, iatMode);
+        return new Obfs4Options(ip, port, cert, iatMode, false);
     }
 
     private String generalConfiguration() {
@@ -321,10 +325,24 @@ public class VpnConfigGenerator {
             return;
         }
 
+        JSONArray ports = obfs4Transport.getJSONArray(PORTS);
+        if (ports.isNull(0)){
+            VpnStatus.logError("Misconfigured provider: no ports defined in obfs4 transport JSON.");
+            return;
+        }
+
         String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
         stringBuilder.append(route);
-        String remote = REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " tcp" + newLine;
-        stringBuilder.append(remote);
+        if (BuildConfig.use_obfsvpn) {
+            String proxy = SOCKS_PROXY + " " + SOCKS_IP + " " + SOCKS_PORT + newLine;
+            stringBuilder.append(proxy);
+
+            String remote = REMOTE + " " + ipAddress + " " + ports.getString(0) + newLine;
+            stringBuilder.append(remote);
+        } else {
+            String remote = REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " tcp" + newLine;
+            stringBuilder.append(remote);
+        }
     }
 
     private String secretsConfiguration() {

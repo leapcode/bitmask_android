@@ -59,7 +59,7 @@ public class VpnProfileTest {
     @Test
     public void toJson_obfs4() throws JSONException {
         VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OBFS4);
-        mockVpnProfile.mConnections[0] = new Obfs4Connection(new Obfs4Options("192.168.0.1", "1234", "CERT", "1"));
+        mockVpnProfile.mConnections[0] = new Obfs4Connection(new Obfs4Options("192.168.0.1", "1234", "CERT", "1", false));
         mockVpnProfile.mConnections[0].setUseUdp(false);
         mockVpnProfile.mLastUsed = 0;
         String s = mockVpnProfile.toJson();

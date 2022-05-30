@@ -1,6 +1,8 @@
 package de.blinkt.openvpn.core.connection;
 
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
+import se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient;
 
 import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_IP;
 import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_PORT;
@@ -16,14 +18,23 @@ public class Obfs4Connection extends Connection {
     private Obfs4Options options;
 
     public Obfs4Connection(Obfs4Options options) {
-        setUseUdp(false);
-        setServerName(DISPATCHER_IP);
-        setServerPort(DISPATCHER_PORT);
-        setProxyName("");
-        setProxyPort("");
+        if (BuildConfig.use_obfsvpn) {
+            setUseUdp(options.udp);
+            setServerName(options.remoteIP);
+            setServerPort(options.remotePort);
+            setProxyName(ObfsVpnClient.SOCKS_IP);
+            setProxyPort(ObfsVpnClient.SOCKS_PORT);
+            setProxyType(ProxyType.SOCKS5);
+        } else {
+            setUseUdp(false);
+            setServerName(DISPATCHER_IP);
+            setServerPort(DISPATCHER_PORT);
+            setProxyName("");
+            setProxyPort("");
+            setProxyType(ProxyType.NONE);
+        }
         setProxyAuthUser(null);
         setProxyAuthPassword(null);
-        setProxyType(ProxyType.NONE);
         setUseProxyAuth(false);
         this.options = options;
     }

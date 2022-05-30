@@ -43,10 +43,12 @@ import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VpnNotificationManager;
 import se.leap.bitmaskclient.firewall.FirewallManager;
+import se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient;
 import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
 
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
@@ -89,6 +91,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Runnable mOpenVPNThread;
     private VpnNotificationManager notificationManager;
     private Shapeshifter shapeshifter;
+    private ObfsVpnClient obfsVpnClient;
     private FirewallManager firewallManager;
 
     private final IBinder mBinder = new IOpenVPNServiceInternal.Stub() {
@@ -241,6 +244,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     if (shapeshifter != null) {
                         shapeshifter.stop();
                         shapeshifter = null;
+                    } else if (obfsVpnClient != null) {
+                        obfsVpnClient.stop();
+                        obfsVpnClient = null;
                     }
                     VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 }
@@ -412,7 +418,12 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         if (mProfile.mUsePluggableTransports && connection instanceof Obfs4Connection) {
             Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
-            if (shapeshifter == null) {
+            if (BuildConfig.use_obfsvpn) {
+                if (obfsVpnClient == null) {
+                    obfsVpnClient = new ObfsVpnClient(obfs4Connection.getDispatcherOptions());
+                    obfsVpnClient.start();
+                }
+            } else if (shapeshifter == null) {
                 shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
                 shapeshifter.start();
             }
@@ -474,6 +485,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     Log.d(TAG, "-> stop shapeshifter");
                     shapeshifter.stop();
                     shapeshifter = null;
+                } else if (obfsVpnClient != null) {
+                    Log.d(TAG, "-> stop obfsvpnClient");
+                    obfsVpnClient.stop();
+                    obfsVpnClient = null;
                 }
                 try {
                     Thread.sleep(1000);

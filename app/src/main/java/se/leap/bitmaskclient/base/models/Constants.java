@@ -163,6 +163,7 @@ public interface Constants {
     String IP_ADDRESS = "ip_address";
     String IP_ADDRESS6 = "ip_address6";
     String REMOTE = "remote";
+    String SOCKS_PROXY = "socks-proxy";
     String PORTS = "ports";
     String PROTOCOLS = "protocols";
     String UDP = "udp";
