@@ -27,18 +27,16 @@ public class ObfsVpnClient implements Observer {
     }
 
     public void start() {
-        new Thread(() -> {
-            synchronized (LOCK) {
-                Log.d(TAG, "aquired LOCK");
-                new Thread(obfsVpnClient::start).start();
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Log.d(TAG, "returning LOCK after 500 ms");
+        synchronized (LOCK) {
+            Log.d(TAG, "aquired LOCK");
+            new Thread(obfsVpnClient::start).start();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        }).start();
+            Log.d(TAG, "returning LOCK after 500 ms");
+        }
     }
 
     public void stop() {
