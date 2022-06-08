@@ -561,7 +561,11 @@ public class ConfigParser {
             }
         } else if (!TextUtils.isEmpty(np.mCipher) && !np.mCipher.equals("AES-128-GCM") && !np.mCipher.equals("AES-256"))
         {
-            np.mDataCiphers += "AES-256-GCM:AES-128-GCM:" + np.mCipher;
+            if (np.mCipher.contains("AES-256-GCM")) {
+                np.mDataCiphers += np.mCipher;
+            } else {
+                np.mDataCiphers += "AES-256-GCM:AES-128-GCM:" + np.mCipher;
+            }
         }
 
         Vector<String> auth = getOption("auth", 1, 1);
