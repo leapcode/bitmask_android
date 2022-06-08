@@ -156,7 +156,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
-            "crl-verify file missing in config profile\n" +
+            "# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
             "cipher AES-128-CBC\n" +
@@ -275,7 +275,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
-            "crl-verify file missing in config profile\n" +
+            "# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
             "cipher AES-128-CBC\n" +
@@ -393,7 +393,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
-            "crl-verify file missing in config profile\n" +
+            "# crl-verify file missing in config profile\n" +
             "route 37.218.247.60  255.255.255.255 net_gateway\n"+
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
@@ -513,7 +513,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
-            "crl-verify file missing in config profile\n" +
+            "# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
             "cipher AES-128-CBC\n" +
@@ -632,7 +632,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
-            "crl-verify file missing in config profile\n" +
+            "# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
             "cipher AES-128-CBC\n" +
@@ -751,7 +751,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
-            "crl-verify file missing in config profile\n" +
+            "# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-256-GCM:AES-128-GCM:AES-128-CBC\n" +
             "cipher AES-128-CBC\n" +
@@ -872,7 +872,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
-            "crl-verify file missing in config profile\n" +
+            "# crl-verify file missing in config profile\n" +
             "comp-lzo\n" +
             "nobind\n"+
             "remote-cert-tls server\n" +
@@ -997,7 +997,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
-            "crl-verify file missing in config profile\n" +
+            "# crl-verify file missing in config profile\n" +
             "comp-lzo\n" +
             "nobind\n"+
             "remote-cert-tls server\n" +
@@ -1130,7 +1130,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
-            "crl-verify file missing in config profile\n" +
+            "# crl-verify file missing in config profile\n" +
             "comp-lzo\n" +
             "nobind\n"+
             "remote-cert-tls server\n" +

@@ -229,7 +229,7 @@ public class VpnProfile implements Serializable, Cloneable {
     //! Put inline data inline and other data as normal escaped filename
     public static String insertFileData(String cfgentry, String filedata) {
         if (filedata == null) {
-            return String.format("%s %s\n", cfgentry, "file missing in config profile");
+            return String.format("# %s %s\n", cfgentry, "file missing in config profile");
         } else if (isEmbedded(filedata)) {
             String dataWithOutHeader = getEmbeddedContent(filedata);
             return String.format(Locale.ENGLISH, "<%s>\n%s\n</%s>\n", cfgentry, dataWithOutHeader, cfgentry);
