@@ -105,5 +105,14 @@
             app:icon="@drawable/ic_access_point_36"
             />
 
+        <se.leap.bitmaskclient.base.views.IconTextEntry
+            android:id="@+id/gateway_pinning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="Gateway pinning"
+            app:singleLine="false"
+            app:subtitle="Connect to a specific Gateway for debugging purposes"
+            />
+
     </LinearLayout>
 </ScrollView>

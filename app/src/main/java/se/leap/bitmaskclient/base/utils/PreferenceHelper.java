@@ -26,6 +26,7 @@ import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_WIFI;
 import static se.leap.bitmaskclient.base.models.Constants.ALWAYS_ON_SHOW_DIALOG;
 import static se.leap.bitmaskclient.base.models.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
 import static se.leap.bitmaskclient.base.models.Constants.EXCLUDED_APPS;
+import static se.leap.bitmaskclient.base.models.Constants.GATEWAY_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_UPDATE_CHECK;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_USED_PROFILE;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
@@ -152,6 +153,14 @@ public class PreferenceHelper {
 
     public static void preferUDP(Context context, boolean prefer) {
         putBoolean(context, PREFER_UDP, prefer);
+    }
+
+    public static String getPinnedGateway(Context context) {
+        return getString(context, GATEWAY_PINNING, null);
+    }
+
+    public static void pinGateway(Context context, String value) {
+        putString(context, GATEWAY_PINNING, value);
     }
 
     public static boolean getUseBridges(SharedPreferences preferences) {
