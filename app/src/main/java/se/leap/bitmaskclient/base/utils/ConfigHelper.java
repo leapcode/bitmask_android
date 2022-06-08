@@ -16,6 +16,8 @@
  */
 package se.leap.bitmaskclient.base.utils;
 
+import static se.leap.bitmaskclient.base.models.Constants.DEFAULT_BITMASK;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
@@ -37,7 +39,6 @@ import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -47,7 +48,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,20 +55,20 @@ import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.providersetup.ProviderAPI;
 
-import static se.leap.bitmaskclient.base.models.Constants.DEFAULT_BITMASK;
-
 /**
  * Stores constants, and implements auxiliary methods used across all Bitmask Android classes.
  * Wraps BuildConfigFields for to support easier unit testing
  *
  * @author parmegv
  * @author MeanderingCode
+ * @author cyberta
  */
 public class ConfigHelper {
     final public static String NG_1024 =
             "eeaf0ab9adb38dd69c33f80afa8fc5e86072618775ff3c0b9ea2314c9c256576d674df7496ea81d3383b4813d692c6e0e0d5d8e250b98be48e495c1d6089dad15dc7d7b46154d6b6ce8ef4ad69b15d4982559b297bcf1885c529f566660e57ec68edbc3c05726cc02fd4cbf4976eaa9afd5138fe8376435b9fc61d2fc0eb06e3";
     final public static BigInteger G = new BigInteger("2");
     final public static Pattern IPv4_PATTERN = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$");
+    final public static Pattern PEM_CERTIFICATE_PATTERN = Pattern.compile("((-----BEGIN CERTIFICATE-----)([A-Za-z0-9+/=\\n]+)(-----END CERTIFICATE-----)+)");
 
     public static boolean checkErroneousDownload(String downloadedString) {
         try {
@@ -103,23 +103,26 @@ public class ConfigHelper {
     }
 
     public static ArrayList<X509Certificate> parseX509CertificatesFromString(String certificateString) {
-        Collection<? extends Certificate> certificates;
+        ArrayList<X509Certificate> certificates = new ArrayList<>();
         CertificateFactory cf;
         try {
             cf = CertificateFactory.getInstance("X.509");
 
-            certificateString = certificateString.replaceAll("-----BEGIN CERTIFICATE-----", "").trim().replaceAll("-----END CERTIFICATE-----", "").trim();
-            byte[] certBytes = Base64.decode(certificateString);
-            try (InputStream caInput = new ByteArrayInputStream(certBytes)) {
-                certificates = cf.generateCertificates(caInput);
-                if (certificates != null) {
-                    for (Certificate cert : certificates) {
-                        System.out.println("ca=" + ((X509Certificate) cert).getSubjectDN());
-                    }
-                    return (ArrayList<X509Certificate>) certificates;
+            Matcher matcher = PEM_CERTIFICATE_PATTERN.matcher(certificateString);
+            while (matcher.find()) {
+                String certificate = matcher.group(3);
+                if (certificate == null) continue;
+                byte[] certBytes = Base64.decode(certificate.trim());
+                try (InputStream caInput = new ByteArrayInputStream(certBytes)) {
+                    X509Certificate x509certificate = (X509Certificate) cf.generateCertificate(caInput);
+                    certificates.add(x509certificate);
+                    System.out.println("ca=" + x509certificate.getSubjectDN() + ", SAN= " + x509certificate.getSubjectAlternativeNames());
+                } catch (IOException | CertificateException | NullPointerException | IllegalArgumentException | ClassCastException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (NullPointerException | CertificateException | IOException | IllegalArgumentException | ClassCastException e) {
+            return certificates;
+        } catch (CertificateException e) {
             e.printStackTrace();
         }
 
