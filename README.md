@@ -183,6 +183,16 @@ If you want to build and sign apks and aab bundles for the current commit, run:
 
 Please check `./prepareFordistribution.sh -h` for all options!
 
+### Running unit tests
+
+Unit tests should always run against release builds, it is expected that some tests fail in debug builds.
+
+You can execute all unit tests from the command line with:
+
+```bash
+  ./gradlew testCustomProductionFatReleaseUnitTest testNormalProductionFatReleaseUnitTest
+```
+
 ## Supported Versions <a name="supported-versions"></a>
 
 Currently API 16 (Android 4.1) - API 30 (Android 11) are officially supported. Keep backwards compatibility in mind if you plan to contribute new features.

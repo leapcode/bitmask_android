@@ -1,37 +1,10 @@
 package se.leap.bitmaskclient.base.fragments;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-
-import java.util.Set;
-
-import de.blinkt.openvpn.core.VpnStatus;
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
-import se.leap.bitmaskclient.base.MainActivity;
-import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.base.views.IconSwitchEntry;
-import se.leap.bitmaskclient.base.views.IconTextEntry;
-import se.leap.bitmaskclient.eip.EipCommand;
-import se.leap.bitmaskclient.firewall.FirewallManager;
-
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.R.string.advanced_settings;
+import static se.leap.bitmaskclient.base.models.Constants.GATEWAY_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
@@ -45,6 +18,39 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import java.util.Set;
+
+import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.BuildConfig;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
+import se.leap.bitmaskclient.base.MainActivity;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.views.IconSwitchEntry;
+import se.leap.bitmaskclient.base.views.IconTextEntry;
+import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.firewall.FirewallManager;
 
 public class SettingsFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -74,6 +80,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initUseSnowflakeEntry(view);
         initFirewallEntry(view);
         initTetheringEntry(view);
+        initGatewayPinningEntry(view);
         setActionBarTitle(this, advanced_settings);
         return view;
     }
@@ -207,6 +214,41 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         });
     }
 
+    private void initGatewayPinningEntry(View rootView) {
+        if (!BuildConfig.BUILD_TYPE.equals("debug")) {
+            return;
+        }
+        Context context = this.getContext();
+        if (context == null) {
+            return;
+        }
+        IconTextEntry gatewayPinning = rootView.findViewById(R.id.gateway_pinning);
+        String pinnedGateway = PreferenceHelper.getPinnedGateway(rootView.getContext());
+        gatewayPinning.setSubtitle(pinnedGateway != null ? pinnedGateway : "Connect to a specific Gateway for debugging purposes");
+
+        gatewayPinning.setOnClickListener(v -> {
+            EditText gatewayPinningEditText = new EditText(rootView.getContext());
+            gatewayPinningEditText.setText(pinnedGateway);
+                new AlertDialog.Builder(context)
+                    .setTitle("Gateway Pinning")
+                    .setMessage("Enter the domain name of the gateway")
+                    .setView(gatewayPinningEditText)
+                    .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+                        if (gatewayPinningEditText.getText() != null) {
+                            String editTextInput = gatewayPinningEditText.getText().toString();
+                            if (!TextUtils.isEmpty(editTextInput)) {
+                                PreferenceHelper.setPreferredCity(context, null);
+                                PreferenceHelper.pinGateway(context, editTextInput);
+                            } else {
+                                PreferenceHelper.pinGateway(context, null);
+                            }
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .create().show();
+        });
+    }
+
     public void showTetheringAlert() {
         try {
 
@@ -245,6 +287,8 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             initPreferUDPEntry(rootView);
         } else if (key.equals(USE_IPv6_FIREWALL)) {
             initFirewallEntry(getView());
+        } if (key.equals(GATEWAY_PINNING)) {
+            initGatewayPinningEntry(rootView);
         }
     }
 

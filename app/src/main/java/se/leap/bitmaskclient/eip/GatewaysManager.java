@@ -41,6 +41,7 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Connection.TransportType;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
@@ -419,7 +420,9 @@ public class GatewaysManager {
     private void configureFromCurrentProvider() {
          Provider provider = ProviderObservable.getInstance().getCurrentProvider();
          parseDefaultGateways(provider);
-         if (hasSortedGatewaysWithLoad(provider)) {
+         if (BuildConfig.BUILD_TYPE.equals("debug")) {
+             keepOnlyPinnedGateway();
+         } else if (hasSortedGatewaysWithLoad(provider)) {
              parseGatewaysWithLoad(provider);
          } else {
              parseSimpleGatewayList(provider);
@@ -427,5 +430,16 @@ public class GatewaysManager {
 
     }
 
+    private void keepOnlyPinnedGateway() {
+         String host = PreferenceHelper.getPinnedGateway(this.context);
+         if (host == null) {
+             return;
+         }
+         Gateway gateway = gateways.get(host);
+         gateways.clear();
+         if (gateway != null) {
+             gateways.put(host, gateway);
+         }
+    }
 
 }

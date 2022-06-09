@@ -43,6 +43,7 @@ public interface Constants {
     String PREFERRED_CITY = "preferred_city";
     String USE_SNOWFLAKE = "use_snowflake";
     String PREFER_UDP = "prefer_UDP";
+    String GATEWAY_PINNING = "gateway_pinning";
 
 
      //////////////////////////////////////////////
