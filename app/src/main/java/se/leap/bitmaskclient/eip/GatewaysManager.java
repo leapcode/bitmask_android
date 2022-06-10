@@ -420,9 +420,10 @@ public class GatewaysManager {
     private void configureFromCurrentProvider() {
          Provider provider = ProviderObservable.getInstance().getCurrentProvider();
          parseDefaultGateways(provider);
-         if (BuildConfig.BUILD_TYPE.equals("debug")) {
-             keepOnlyPinnedGateway();
-         } else if (hasSortedGatewaysWithLoad(provider)) {
+         if (BuildConfig.BUILD_TYPE.equals("debug") && handleGatewayPinning()) {
+             return;
+         }
+         if (hasSortedGatewaysWithLoad(provider)) {
              parseGatewaysWithLoad(provider);
          } else {
              parseSimpleGatewayList(provider);
@@ -430,16 +431,17 @@ public class GatewaysManager {
 
     }
 
-    private void keepOnlyPinnedGateway() {
+    private boolean handleGatewayPinning() {
          String host = PreferenceHelper.getPinnedGateway(this.context);
          if (host == null) {
-             return;
+             return false;
          }
          Gateway gateway = gateways.get(host);
          gateways.clear();
          if (gateway != null) {
              gateways.put(host, gateway);
          }
+         return true;
     }
 
 }
