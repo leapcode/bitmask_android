@@ -339,9 +339,11 @@ public class GatewaysManager {
                      if (gateways.get(aux.getHost()) == null) {
                          addGateway(aux);
                      }
-                 } catch (JSONException | ConfigParser.ConfigParseError | IOException e) {
+                 } catch (JSONException | IOException e) {
                      e.printStackTrace();
                      VpnStatus.logError("Unable to parse gateway config!");
+                 } catch (ConfigParser.ConfigParseError e) {
+                     VpnStatus.logError("Unable to parse gateway config: " + e.getLocalizedMessage());
                  }
              }
          } catch (NullPointerException npe) {
