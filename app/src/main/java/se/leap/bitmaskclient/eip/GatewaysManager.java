@@ -339,9 +339,11 @@ public class GatewaysManager {
                      if (gateways.get(aux.getHost()) == null) {
                          addGateway(aux);
                      }
-                 } catch (JSONException | ConfigParser.ConfigParseError | IOException e) {
+                 } catch (JSONException | IOException e) {
                      e.printStackTrace();
                      VpnStatus.logError("Unable to parse gateway config!");
+                 } catch (ConfigParser.ConfigParseError e) {
+                     VpnStatus.logError("Unable to parse gateway config: " + e.getLocalizedMessage());
                  }
              }
          } catch (NullPointerException npe) {
@@ -420,9 +422,10 @@ public class GatewaysManager {
     private void configureFromCurrentProvider() {
          Provider provider = ProviderObservable.getInstance().getCurrentProvider();
          parseDefaultGateways(provider);
-         if (BuildConfig.BUILD_TYPE.equals("debug")) {
-             keepOnlyPinnedGateway();
-         } else if (hasSortedGatewaysWithLoad(provider)) {
+         if (BuildConfig.BUILD_TYPE.equals("debug") && handleGatewayPinning()) {
+             return;
+         }
+         if (hasSortedGatewaysWithLoad(provider)) {
              parseGatewaysWithLoad(provider);
          } else {
              parseSimpleGatewayList(provider);
@@ -430,16 +433,17 @@ public class GatewaysManager {
 
     }
 
-    private void keepOnlyPinnedGateway() {
+    private boolean handleGatewayPinning() {
          String host = PreferenceHelper.getPinnedGateway(this.context);
          if (host == null) {
-             return;
+             return false;
          }
          Gateway gateway = gateways.get(host);
          gateways.clear();
          if (gateway != null) {
              gateways.put(host, gateway);
          }
+         return true;
     }
 
 }
