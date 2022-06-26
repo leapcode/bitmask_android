@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import client.Client_;
 import de.blinkt.openvpn.core.ConnectionStatus;
@@ -15,9 +16,9 @@ public class ObfsVpnClient implements Observer {
     public static final String SOCKS_IP = "127.0.0.1";
 
     private static final String TAG = ObfsVpnClient.class.getSimpleName();
-    private boolean noNetwork;
+    private volatile boolean noNetwork;
     // TODO: implement error signaling go->java
-    private boolean isErrorHandling;
+    private AtomicBoolean isErrorHandling = new AtomicBoolean(false);
 
     private final client.Client_ obfsVpnClient;
     private final Object LOCK = new Object();
@@ -34,6 +35,9 @@ public class ObfsVpnClient implements Observer {
                     obfsVpnClient.start();
                 } catch (Exception e) {
                     e.printStackTrace();
+                    if (noNetwork) {
+                        isErrorHandling.set(true);
+                    }
                 }
             }).start();
 
@@ -56,6 +60,7 @@ public class ObfsVpnClient implements Observer {
                 e.printStackTrace();
                 VpnStatus.logError("[obfsvpn] " + e.getLocalizedMessage());
             }
+            isErrorHandling.set(false);
             Log.d(TAG, "stopping obfsVpnClient releasing LOCK ...");
         }
     }
@@ -73,8 +78,7 @@ public class ObfsVpnClient implements Observer {
                 noNetwork = true;
             } else {
                 noNetwork = false;
-                if (isErrorHandling) {
-                    isErrorHandling = false;
+                if (isErrorHandling.getAndSet(false)) {
                     stop();
                     start();
                 }
