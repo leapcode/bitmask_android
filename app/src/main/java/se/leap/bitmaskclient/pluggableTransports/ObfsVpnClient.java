@@ -29,7 +29,14 @@ public class ObfsVpnClient implements Observer {
     public void start() {
         synchronized (LOCK) {
             Log.d(TAG, "aquired LOCK");
-            new Thread(obfsVpnClient::start).start();
+            new Thread(() -> {
+                try {
+                    obfsVpnClient.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -42,8 +49,19 @@ public class ObfsVpnClient implements Observer {
     public void stop() {
         synchronized (LOCK) {
             Log.d(TAG, "stopping obfsVpnClient...");
-            obfsVpnClient.stop();
+            try {
+                obfsVpnClient.stop();
+                Thread.sleep(500);
+            } catch (Exception e) {
+                e.printStackTrace();
+                VpnStatus.logError("[obfsvpn] " + e.getLocalizedMessage());
+            }
+            Log.d(TAG, "stopping obfsVpnClient releasing LOCK ...");
         }
+    }
+
+    public boolean isStarted() {
+        return obfsVpnClient.isStarted();
     }
 
     @Override
