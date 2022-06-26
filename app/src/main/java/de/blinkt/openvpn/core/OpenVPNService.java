@@ -244,7 +244,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     if (shapeshifter != null) {
                         shapeshifter.stop();
                         shapeshifter = null;
-                    } else if (obfsVpnClient != null) {
+                    } else if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
                         obfsVpnClient.stop();
                         obfsVpnClient = null;
                     }
@@ -419,10 +419,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if (mProfile.mUsePluggableTransports && connection instanceof Obfs4Connection) {
             Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
             if (BuildConfig.use_obfsvpn) {
-                if (obfsVpnClient == null) {
-                    obfsVpnClient = new ObfsVpnClient(obfs4Connection.getDispatcherOptions());
-                    obfsVpnClient.start();
+                if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
+                    obfsVpnClient.stop();
                 }
+                obfsVpnClient = new ObfsVpnClient(obfs4Connection.getDispatcherOptions());
+                obfsVpnClient.start();
             } else if (shapeshifter == null) {
                 shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
                 shapeshifter.start();
@@ -485,7 +486,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     Log.d(TAG, "-> stop shapeshifter");
                     shapeshifter.stop();
                     shapeshifter = null;
-                } else if (obfsVpnClient != null) {
+                } else if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
                     Log.d(TAG, "-> stop obfsvpnClient");
                     obfsVpnClient.stop();
                     obfsVpnClient = null;
