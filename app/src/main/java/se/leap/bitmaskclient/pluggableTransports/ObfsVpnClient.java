@@ -8,9 +8,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import client.Client_;
 import de.blinkt.openvpn.core.ConnectionStatus;
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipStatus;
 
-public class ObfsVpnClient implements Observer {
+public class ObfsVpnClient implements Observer, client.EventLogger {
 
     public static final String SOCKS_PORT = "4430";
     public static final String SOCKS_IP = "127.0.0.1";
@@ -25,6 +26,7 @@ public class ObfsVpnClient implements Observer {
 
     public ObfsVpnClient(Obfs4Options options) {
         obfsVpnClient = new Client_(options.udp, SOCKS_IP+":"+SOCKS_PORT, options.cert);
+        obfsVpnClient.setEventLogger(this);
     }
 
     public void start() {
@@ -35,6 +37,7 @@ public class ObfsVpnClient implements Observer {
                     obfsVpnClient.start();
                 } catch (Exception e) {
                     e.printStackTrace();
+                    VpnStatus.logError("[obfsvpn] " + e.getLocalizedMessage());
                     if (noNetwork) {
                         isErrorHandling.set(true);
                     }
@@ -85,4 +88,15 @@ public class ObfsVpnClient implements Observer {
             }
         }
     }
+
+    @Override
+    public void error(String s) {
+        VpnStatus.logError("[obfsvpn] " + s);
+    }
+
+    @Override
+    public void log(String state, String message) {
+        VpnStatus.logDebug("[obfsvpn] " + state + " " + message);
+    }
+
 }
