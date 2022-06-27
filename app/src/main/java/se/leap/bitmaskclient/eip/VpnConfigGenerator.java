@@ -56,6 +56,8 @@ import static se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient.SOCKS_PORT
 import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_IP;
 import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_PORT;
 
+import android.os.Build;
+
 public class VpnConfigGenerator {
     private JSONObject generalConfiguration;
     private JSONObject gateway;
@@ -144,7 +146,15 @@ public class VpnConfigGenerator {
         String cert = transportOptions.getString("cert");
         String port = obfs4Transport.getJSONArray(PORTS).getString(0);
         String ip = gateway.getString(IP_ADDRESS);
-        return new Obfs4Options(ip, port, cert, iatMode, false);
+        boolean udp = false;
+
+        if (BuildConfig.obfsvpn_pinning) {
+            cert = BuildConfig.obfsvpn_cert;
+            port = BuildConfig.obfsvpn_port;
+            ip = BuildConfig.obfsvpn_port;
+            udp = BuildConfig.obfsvpn_use_kcp;
+        }
+        return new Obfs4Options(ip, port, cert, iatMode, udp);
     }
 
     private String generalConfiguration() {
@@ -334,10 +344,13 @@ public class VpnConfigGenerator {
         String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
         stringBuilder.append(route);
         if (BuildConfig.use_obfsvpn) {
-            String proxy = SOCKS_PROXY + " " + SOCKS_IP + " " + SOCKS_PORT + newLine;
-            stringBuilder.append(proxy);
+            String remote;
+            if (BuildConfig.obfsvpn_pinning) {
+                remote = REMOTE + " " + BuildConfig.obfsvpn_ip + " " + BuildConfig.obfsvpn_port + newLine;
+            } else {
+                remote = REMOTE + " " + ipAddress + " " + ports.getString(0) + newLine;
+            }
 
-            String remote = REMOTE + " " + ipAddress + " " + ports.getString(0) + newLine;
             stringBuilder.append(remote);
         } else {
             String remote = REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " tcp" + newLine;

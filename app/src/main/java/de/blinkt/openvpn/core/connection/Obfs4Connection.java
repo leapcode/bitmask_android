@@ -19,20 +19,21 @@ public class Obfs4Connection extends Connection {
 
     public Obfs4Connection(Obfs4Options options) {
         if (BuildConfig.use_obfsvpn) {
-            setUseUdp(options.udp);
             setServerName(options.remoteIP);
             setServerPort(options.remotePort);
             setProxyName(ObfsVpnClient.SOCKS_IP);
             setProxyPort(ObfsVpnClient.SOCKS_PORT);
             setProxyType(ProxyType.SOCKS5);
         } else {
-            setUseUdp(false);
             setServerName(DISPATCHER_IP);
             setServerPort(DISPATCHER_PORT);
             setProxyName("");
             setProxyPort("");
             setProxyType(ProxyType.NONE);
         }
+        // while udp/kcp might be used on the wire,
+        // we don't use udp for openvpn in case of a obfs4 connection
+        setUseUdp(false);
         setProxyAuthUser(null);
         setProxyAuthPassword(null);
         setUseProxyAuth(false);
