@@ -19,7 +19,7 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
     private static final String TAG = ObfsVpnClient.class.getSimpleName();
     private volatile boolean noNetwork;
     // TODO: implement error signaling go->java
-    private AtomicBoolean isErrorHandling = new AtomicBoolean(false);
+    private final AtomicBoolean isErrorHandling = new AtomicBoolean(false);
 
     private final client.Client_ obfsVpnClient;
     private final Object LOCK = new Object();
