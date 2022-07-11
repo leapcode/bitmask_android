@@ -274,4 +274,11 @@ public class ConfigHelper {
         return matcher.matches();
     }
 
+    // ObfsVpnHelper class allows us to mock BuildConfig.use_obfsvpn while
+    // not mocking the whole ConfigHelper class
+    public static class ObfsVpnHelper {
+        public static boolean useObfsVpn() {
+            return BuildConfig.use_obfsvpn;
+        }
+    }
 }

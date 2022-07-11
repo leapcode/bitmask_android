@@ -16,6 +16,24 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
+import static se.leap.bitmaskclient.base.models.Constants.CAPABILITIES;
+import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
+import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS6;
+import static se.leap.bitmaskclient.base.models.Constants.OPTIONS;
+import static se.leap.bitmaskclient.base.models.Constants.PORTS;
+import static se.leap.bitmaskclient.base.models.Constants.PROTOCOLS;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.models.Constants.REMOTE;
+import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
+import static se.leap.bitmaskclient.base.models.Constants.TYPE;
+import static se.leap.bitmaskclient.base.models.Constants.UDP;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
+import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_IP;
+import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_PORT;
+
 import androidx.annotation.VisibleForTesting;
 
 import org.json.JSONArray;
@@ -35,28 +53,6 @@ import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
-
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
-import static se.leap.bitmaskclient.base.models.Constants.CAPABILITIES;
-import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
-import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS6;
-import static se.leap.bitmaskclient.base.models.Constants.OPTIONS;
-import static se.leap.bitmaskclient.base.models.Constants.PORTS;
-import static se.leap.bitmaskclient.base.models.Constants.PROTOCOLS;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.base.models.Constants.REMOTE;
-import static se.leap.bitmaskclient.base.models.Constants.SOCKS_PROXY;
-import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
-import static se.leap.bitmaskclient.base.models.Constants.TYPE;
-import static se.leap.bitmaskclient.base.models.Constants.UDP;
-import static se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient.SOCKS_IP;
-import static se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient.SOCKS_PORT;
-import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_IP;
-import static se.leap.bitmaskclient.pluggableTransports.Shapeshifter.DISPATCHER_PORT;
-
-import android.os.Build;
 
 public class VpnConfigGenerator {
     private JSONObject generalConfiguration;
@@ -343,7 +339,7 @@ public class VpnConfigGenerator {
 
         String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
         stringBuilder.append(route);
-        if (BuildConfig.use_obfsvpn) {
+        if (useObfsVpn()) {
             String remote;
             if (BuildConfig.obfsvpn_pinning) {
                 remote = REMOTE + " " + BuildConfig.obfsvpn_ip + " " + BuildConfig.obfsvpn_port + newLine;

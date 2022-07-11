@@ -5,6 +5,12 @@
 
 package de.blinkt.openvpn.core;
 
+import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
+import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
+import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
+
 import android.Manifest.permission;
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -43,18 +49,12 @@ import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
-import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VpnNotificationManager;
 import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient;
 import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
-
-import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
-import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
-import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 
 
 public class OpenVPNService extends VpnService implements StateListener, Callback, ByteCountListener, IOpenVPNServiceInternal, VpnNotificationManager.VpnServiceCallback {
@@ -418,7 +418,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         if (mProfile.mUsePluggableTransports && connection instanceof Obfs4Connection) {
             Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
-            if (BuildConfig.use_obfsvpn) {
+            if (useObfsVpn()) {
                 if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
                     obfsVpnClient.stop();
                 }
