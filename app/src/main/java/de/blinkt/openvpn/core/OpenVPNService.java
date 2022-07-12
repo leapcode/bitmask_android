@@ -423,7 +423,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     obfsVpnClient.stop();
                 }
                 obfsVpnClient = new ObfsVpnClient(obfs4Connection.getDispatcherOptions());
-                obfsVpnClient.start();
+                int runningSocksPort = obfsVpnClient.start();
+                connection.setProxyPort(String.valueOf(runningSocksPort));
             } else if (shapeshifter == null) {
                 shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
                 shapeshifter.start();

@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import client.Client_;
 import de.blinkt.openvpn.core.ConnectionStatus;
@@ -13,43 +14,66 @@ import se.leap.bitmaskclient.eip.EipStatus;
 
 public class ObfsVpnClient implements Observer, client.EventLogger {
 
-    public static final String SOCKS_PORT = "4430";
+    public static final AtomicInteger SOCKS_PORT = new AtomicInteger(4430);
     public static final String SOCKS_IP = "127.0.0.1";
+    private static final String ERR_BIND = "bind: address already in use";
 
     private static final String TAG = ObfsVpnClient.class.getSimpleName();
     private volatile boolean noNetwork;
-    // TODO: implement error signaling go->java
     private final AtomicBoolean isErrorHandling = new AtomicBoolean(false);
+    private final AtomicInteger reconnectRetry = new AtomicInteger(0);
+    private static final int MAX_RETRY = 5;
 
     private final client.Client_ obfsVpnClient;
     private final Object LOCK = new Object();
 
     public ObfsVpnClient(Obfs4Options options) {
-        obfsVpnClient = new Client_(options.udp, SOCKS_IP+":"+SOCKS_PORT, options.cert);
+        obfsVpnClient = new Client_(options.udp, SOCKS_IP+":"+SOCKS_PORT.get(), options.cert);
         obfsVpnClient.setEventLogger(this);
     }
 
-    public void start() {
+    /**
+     * starts the client
+     * @return the port ObfsVpn is running on
+     */
+    public int start() {
         synchronized (LOCK) {
             Log.d(TAG, "aquired LOCK");
-            new Thread(() -> {
-                try {
-                    obfsVpnClient.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    VpnStatus.logError("[obfsvpn] " + e.getLocalizedMessage());
-                    if (noNetwork) {
-                        isErrorHandling.set(true);
-                    }
-                }
-            }).start();
+            new Thread(this::startSync).start();
+            waitUntilStarted();
+            Log.d(TAG, "returning LOCK after " + (reconnectRetry.get() + 1) * 200 +" ms");
+        }
+        return SOCKS_PORT.get();
+    }
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    private void waitUntilStarted() {
+        int count = -1;
+        try {
+            while (count < reconnectRetry.get() && reconnectRetry.get() < MAX_RETRY) {
+                Thread.sleep(200);
+                count++;
             }
-            Log.d(TAG, "returning LOCK after 500 ms");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startSync() {
+        try {
+            obfsVpnClient.start();
+        } catch (Exception e) {
+            Log.e(TAG, "[obfsvpn] exception: " + e.getLocalizedMessage());
+            VpnStatus.logError("[obfsvpn] " + e.getLocalizedMessage());
+            if (e.getLocalizedMessage() != null && e.getLocalizedMessage().contains(ERR_BIND) && reconnectRetry.get() < MAX_RETRY) {
+                reconnectRetry.addAndGet(1);
+                SOCKS_PORT.addAndGet(1);
+                obfsVpnClient.setSocksAddr(SOCKS_IP+":"+SOCKS_PORT.get());
+                Log.d(TAG, "[obfsvpn] reconnecting on different port... " + SOCKS_PORT.get());
+                VpnStatus.logDebug("[obfsvpn] reconnecting on different port... " + SOCKS_PORT.get());
+                startSync();
+            } else if (noNetwork) {
+                isErrorHandling.set(true);
+            }
         }
     }
 
@@ -58,7 +82,9 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
             Log.d(TAG, "stopping obfsVpnClient...");
             try {
                 obfsVpnClient.stop();
-                Thread.sleep(500);
+                reconnectRetry.set(0);
+                SOCKS_PORT.set(4430);
+                Thread.sleep(100);
             } catch (Exception e) {
                 e.printStackTrace();
                 VpnStatus.logError("[obfsvpn] " + e.getLocalizedMessage());
@@ -76,7 +102,6 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
     public void update(Observable observable, Object arg) {
         if (observable instanceof EipStatus) {
             EipStatus status = (EipStatus) observable;
-            //This doesn't do anything yet, since the error handling is still missing
             if (status.getLevel() == ConnectionStatus.LEVEL_NONETWORK) {
                 noNetwork = true;
             } else {

@@ -22,7 +22,7 @@ public class Obfs4Connection extends Connection {
             setServerName(options.remoteIP);
             setServerPort(options.remotePort);
             setProxyName(ObfsVpnClient.SOCKS_IP);
-            setProxyPort(ObfsVpnClient.SOCKS_PORT);
+            setProxyPort(String.valueOf(ObfsVpnClient.SOCKS_PORT.get()));
             setProxyType(ProxyType.SOCKS5);
         } else {
             setServerName(DISPATCHER_IP);
