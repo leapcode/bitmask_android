@@ -317,7 +317,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);
         notificationManager.buildOpenVpnNotification(
                 mProfile != null ? mProfile.mName : "",
-                mProfile != null && mProfile.mUsePluggableTransports,
+                mProfile != null && mProfile.usePluggableTransports(),
                 VpnStatus.getLastCleanLogMessage(this),
                 VpnStatus.getLastCleanLogMessage(this),
                 ConnectionStatus.LEVEL_START,
@@ -416,7 +416,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         // An old running VPN should now be exited
         mStarting = false;
 
-        if (mProfile.mUsePluggableTransports && connection instanceof Obfs4Connection) {
+        if (mProfile.usePluggableTransports() && connection instanceof Obfs4Connection) {
             Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
             if (useObfsVpn()) {
                 if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
@@ -1033,7 +1033,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         notificationManager.buildOpenVpnNotification(
                 mProfile != null ? mProfile.mName : "",
-                mProfile != null && mProfile.mUsePluggableTransports,
+                mProfile != null && mProfile.usePluggableTransports(),
                 VpnStatus.getLastCleanLogMessage(this),
                 VpnStatus.getLastCleanLogMessage(this),
                 level,
@@ -1064,7 +1064,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     humanReadableByteCount(diffOut / OpenVPNManagement.mBytecountInterval, true, getResources()));
             notificationManager.buildOpenVpnNotification(
                     mProfile != null ? mProfile.mName : "",
-                    mProfile != null && mProfile.mUsePluggableTransports,
+                    mProfile != null && mProfile.usePluggableTransports(),
                     netstat,
                     null,
                     LEVEL_CONNECTED,
@@ -1108,7 +1108,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.updateStateString("NEED", "need " + needed, resid, LEVEL_WAITING_FOR_USER_INPUT);
         notificationManager.buildOpenVpnNotification(
                 mProfile != null ? mProfile.mName : "",
-                mProfile != null && mProfile.mUsePluggableTransports,
+                mProfile != null && mProfile.usePluggableTransports(),
                 getString(resid),
                 getString(resid),
                 LEVEL_WAITING_FOR_USER_INPUT,

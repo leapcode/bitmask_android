@@ -70,6 +70,8 @@ import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.stringEqual;
 
@@ -191,7 +193,8 @@ public class VpnProfile implements Serializable, Cloneable {
     private int mProfileVersion;
     public boolean mBlockUnusedAddressFamilies = true;
     public String mGatewayIp;
-    public boolean mUsePluggableTransports;
+    private boolean mUseObfs4;
+    private boolean mUseObfs4Kcp;
 
     public VpnProfile(String name, Connection.TransportType transportType) {
         mUuid = UUID.randomUUID();
@@ -200,7 +203,8 @@ public class VpnProfile implements Serializable, Cloneable {
 
         mConnections = new Connection[1];
         mLastUsed = System.currentTimeMillis();
-        mUsePluggableTransports = transportType == OBFS4;
+        mUseObfs4 = transportType == OBFS4;
+        mUseObfs4Kcp = transportType == OBFS4_KCP;
     }
 
     public static String openVpnEscape(String unescaped) {
@@ -266,7 +270,8 @@ public class VpnProfile implements Serializable, Cloneable {
         if (obj instanceof VpnProfile) {
             VpnProfile vp = (VpnProfile) obj;
             return stringEqual(vp.mGatewayIp, mGatewayIp) &&
-                    vp.mUsePluggableTransports == mUsePluggableTransports;
+                    vp.mUseObfs4 == mUseObfs4 &&
+                    vp.mUseObfs4Kcp == mUseObfs4Kcp;
         }
         return false;
     }
@@ -294,6 +299,20 @@ public class VpnProfile implements Serializable, Cloneable {
     // Only used for the special case of managed profiles
     public void setUUID(UUID uuid) {
         mUuid = uuid;
+    }
+
+    public boolean usePluggableTransports() {
+        return mUseObfs4Kcp || mUseObfs4;
+    }
+
+    public Connection.TransportType getTransportType() {
+        if (mUseObfs4) {
+            return OBFS4;
+        } else if (mUseObfs4Kcp) {
+            return OBFS4_KCP;
+        } else {
+            return OPENVPN;
+        }
     }
 
     public String getName() {
@@ -478,7 +497,7 @@ public class VpnProfile implements Serializable, Cloneable {
             cfg.append(insertFileData("crl-verify", mCrlFilename));
 
         // compression does not work in conjunction with shapeshifter-dispatcher so far
-        if (mUseLzo && !mUsePluggableTransports) {
+        if (mUseLzo && !usePluggableTransports()) {
             cfg.append("comp-lzo\n");
         }
 

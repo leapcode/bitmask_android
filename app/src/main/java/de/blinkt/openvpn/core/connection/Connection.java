@@ -39,7 +39,10 @@ public abstract class Connection implements Serializable, Cloneable {
 
     public enum TransportType {
         OBFS4("obfs4"),
-        OPENVPN("openvpn");
+        OPENVPN("openvpn"),
+        OBFS4_KCP("obfs4-1"),
+
+        PT("metaTransport");
 
         String transport;
 
@@ -50,6 +53,17 @@ public abstract class Connection implements Serializable, Cloneable {
         @Override
         public String toString() {
             return transport;
+        }
+
+        public boolean isPluggableTransport() {
+            return this == OBFS4 || this == OBFS4_KCP || this == PT;
+        }
+
+        public TransportType getMetaType() {
+            if (this == OBFS4 || this == OBFS4_KCP || this == PT) {
+                return PT;
+            }
+            return OPENVPN;
         }
     }
 

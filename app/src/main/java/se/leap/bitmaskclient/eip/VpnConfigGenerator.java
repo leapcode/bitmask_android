@@ -17,6 +17,7 @@
 package se.leap.bitmaskclient.eip;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.base.models.Constants.CAPABILITIES;
 import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
@@ -55,28 +56,30 @@ import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
 
 public class VpnConfigGenerator {
-    private JSONObject generalConfiguration;
-    private JSONObject gateway;
-    private JSONObject secrets;
+    private final JSONObject generalConfiguration;
+    private final JSONObject gateway;
+    private final JSONObject secrets;
     private JSONObject obfs4Transport;
-    private int apiVersion;
-    private boolean preferUDP;
+    private JSONObject obfs4TKcpTransport;
+    private final int apiVersion;
+    private final boolean preferUDP;
+    private final boolean experimentalTransports;
 
 
     public final static String TAG = VpnConfigGenerator.class.getSimpleName();
     private final String newLine = System.getProperty("line.separator"); // Platform new line
 
-    public VpnConfigGenerator(JSONObject generalConfiguration, JSONObject secrets, JSONObject gateway, int apiVersion, boolean preferUDP) throws ConfigParser.ConfigParseError {
+    public VpnConfigGenerator(JSONObject generalConfiguration, JSONObject secrets, JSONObject gateway, int apiVersion, boolean preferUDP, boolean experimentalTransports) throws ConfigParser.ConfigParseError {
         this.generalConfiguration = generalConfiguration;
         this.gateway = gateway;
         this.secrets = secrets;
         this.apiVersion = apiVersion;
         this.preferUDP = preferUDP;
+        this.experimentalTransports = experimentalTransports;
         checkCapabilities();
     }
 
     public void checkCapabilities() throws ConfigParser.ConfigParseError {
-
         try {
             if (apiVersion >= 3) {
                 JSONArray supportedTransports = gateway.getJSONObject(CAPABILITIES).getJSONArray(TRANSPORT);
@@ -84,7 +87,11 @@ public class VpnConfigGenerator {
                     JSONObject transport = supportedTransports.getJSONObject(i);
                     if (transport.getString(TYPE).equals(OBFS4.toString())) {
                         obfs4Transport = transport;
-                        break;
+                        if (!experimentalTransports) {
+                            break;
+                        }
+                    } else if (experimentalTransports && transport.getString(TYPE).equals(OBFS4_KCP.toString())) {
+                        obfs4TKcpTransport = transport;
                     }
                 }
             }
@@ -108,11 +115,22 @@ public class VpnConfigGenerator {
                 e.printStackTrace();
             }
         }
+        if (supportsObfs4Kcp()) {
+            try {
+                profiles.put(OBFS4_KCP, createProfile(OBFS4_KCP));
+            } catch (ConfigParser.ConfigParseError | NumberFormatException | JSONException | IOException e) {
+                e.printStackTrace();
+            }
+        }
         return profiles;
     }
 
     private boolean supportsObfs4(){
         return obfs4Transport != null;
+    }
+
+    private boolean supportsObfs4Kcp() {
+        return obfs4TKcpTransport != null;
     }
 
     private String getConfigurationString(Connection.TransportType transportType) {
@@ -131,18 +149,20 @@ public class VpnConfigGenerator {
         ConfigParser icsOpenvpnConfigParser = new ConfigParser();
         icsOpenvpnConfigParser.parseConfig(new StringReader(configuration));
         if (transportType == OBFS4) {
-            icsOpenvpnConfigParser.setObfs4Options(getObfs4Options());
+            icsOpenvpnConfigParser.setObfs4Options(getObfs4Options(obfs4Transport, false));
+        } else if (transportType == OBFS4_KCP) {
+            icsOpenvpnConfigParser.setObfs4Options(getObfs4Options(obfs4TKcpTransport, true));
         }
         return icsOpenvpnConfigParser.convertProfile(transportType);
     }
 
-    private Obfs4Options getObfs4Options() throws JSONException {
-        JSONObject transportOptions = obfs4Transport.getJSONObject(OPTIONS);
+    private Obfs4Options getObfs4Options(JSONObject transportJson, boolean useUdp) throws JSONException {
+        JSONObject transportOptions = transportJson.getJSONObject(OPTIONS);
         String iatMode = transportOptions.getString("iatMode");
         String cert = transportOptions.getString("cert");
         String port = obfs4Transport.getJSONArray(PORTS).getString(0);
         String ip = gateway.getString(IP_ADDRESS);
-        boolean udp = false;
+        boolean udp = useUdp;
 
         if (BuildConfig.obfsvpn_pinning) {
             cert = BuildConfig.obfsvpn_cert;
