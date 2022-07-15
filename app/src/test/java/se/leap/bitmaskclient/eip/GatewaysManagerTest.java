@@ -32,6 +32,7 @@ import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -509,6 +510,38 @@ public class GatewaysManagerTest {
         assertEquals("Paris", locations.get(1).getName());
         assertEquals("Amsterdam", locations.get(2).getName());
     }
+
+    // Currently all pluggable transports are handled the same, there's no UI to select a specific one
+    // when requesting a sorted list for any pluggabled transport, a sorted list of all pluiggable transports
+    // will be returned
+    @Test
+    public void testGetSortedLocations_obfs4kcp_generalizedAsPT() {
+        Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4_bad_obfs4_gateway.json");
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+        List<Location> locations = gatewaysManager.getSortedGatewayLocations(OBFS4_KCP);
+
+        assertEquals(3, locations.size());
+    }
+
+    @Test
+    public void testgetAverageLoad_isSameForAllTransports() {
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_kcp_gateways.json", "ptdemo_kcp_gateways_geoip.json");
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+
+        assertEquals(0.3, gatewaysManager.getLocation("Amsterdam").getAverageLoad(OBFS4_KCP));
+        assertEquals(0.3, gatewaysManager.getLocation("Amsterdam").getAverageLoad(OBFS4));
+        assertEquals(0.3, gatewaysManager.getLocation("Amsterdam").getAverageLoad(OPENVPN));
+    }
+
+
 
     @Test
     public void testGetLoadForLocation_() {

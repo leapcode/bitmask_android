@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.base.models.Constants.OPENVPN_CONFIGURATION;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
@@ -1429,7 +1430,6 @@ public class VpnConfigGeneratorTest {
         when(preferences.getBoolean("usesystemproxy", true)).thenReturn(true);
         when(context.getCacheDir()).thenReturn(new File("/data/data/se.leap.bitmask"));
         mockStatic(ConfigHelper.ObfsVpnHelper.class);
-
     }
 
     @Test
@@ -1628,10 +1628,21 @@ public class VpnConfigGeneratorTest {
     public void testGenerateVpnProfile_testNewCiphers() throws Exception {
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("v4/ptdemo_pt_tcp_udp_new_ciphers.eip-service.json"))).getJSONArray("gateways").getJSONObject(0);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("v4/ptdemo_pt_tcp_udp_new_ciphers.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
-        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 4, false);
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 4, false, false);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         System.out.println(vpnProfiles.get(OPENVPN).getConfigFile(context, false));
         assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v4_ovpn_tcp_udp_new_ciphers.trim()));
+    }
+
+    public void testGenerateVpnProfileExperimentalTransportsEnabled () throws Exception {
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_kcp_gateways.json"))).getJSONArray("gateways").getJSONObject(0);
+        generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_kcp_gateways.json"))).getJSONObject(OPENVPN_CONFIGURATION);
+        vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 3, true, true);
+        HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
+        assertTrue(vpnProfiles.containsKey(OBFS4));
+        assertTrue(vpnProfiles.containsKey(OBFS4_KCP));
+        assertTrue(vpnProfiles.containsKey(OPENVPN));
+
     }
 
 }
