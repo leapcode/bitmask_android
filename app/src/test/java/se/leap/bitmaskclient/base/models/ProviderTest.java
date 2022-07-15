@@ -1,20 +1,35 @@
 package se.leap.bitmaskclient.base.models;
 
+import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
-
-import static junit.framework.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by cyberta on 12.02.18.
  */
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ConfigHelper.ObfsVpnHelper.class})
 public class ProviderTest {
+
+    @Before
+    public void setup() {
+        mockStatic(ConfigHelper.ObfsVpnHelper.class);
+        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(false);
+    }
 
     @Test
     public void testEquals_sameFields_returnsTrue() throws Exception {
@@ -82,6 +97,66 @@ public class ProviderTest {
                 "eip-service-two-gateways.json",
                 null);
         assertFalse(p1.supportsPluggableTransports());
+    }
+
+    @Test
+    public void testIsExperimentalPluggableTransportsSupported_Obfs4_returnsFalse() throws Exception {
+        Provider p1 = TestSetupHelper.getProvider(
+                "https://pt.demo.bitmask.net",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "ptdemo.bitmask.eip-service.json",
+                null);
+        assertFalse(p1.supportsExperimentalPluggableTransports());
+    }
+
+    @Test
+    public void testIsExperimentalPluggableTransportsSupported_Obfs4Kcp_returnsTrue() throws Exception {
+        Provider p1 = TestSetupHelper.getProvider(
+                "https://pt.demo.bitmask.net",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "ptdemo_kcp_gateways.json",
+                null);
+        assertTrue(p1.supportsExperimentalPluggableTransports());
+    }
+
+    @Test
+    public void testSupportsPluggableTransports_Obfs4Kcp_noObsvpn_returnsFalse() throws Exception {
+        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(false);
+
+        Provider p1 = TestSetupHelper.getProvider(
+                "https://pt.demo.bitmask.net",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "ptdemo_only_experimental_transports_gateways.json",
+                null);
+        assertFalse(p1.supportsPluggableTransports());
+    }
+
+    @Test
+    public void testSupportsPluggableTransports_Obfs4Kcp_obsvpn_returnsTrue() throws Exception {
+        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(true);
+
+        Provider p1 = TestSetupHelper.getProvider(
+                "https://pt.demo.bitmask.net",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "ptdemo_only_experimental_transports_gateways.json",
+                null);
+        assertTrue(p1.supportsPluggableTransports());
     }
 
 }

@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.Locale;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
 import static se.leap.bitmaskclient.base.models.Constants.CAPABILITIES;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
 import static se.leap.bitmaskclient.base.models.Constants.LOCATIONS;
@@ -37,7 +38,11 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOWED_REGIS
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.TYPE;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
+
+import de.blinkt.openvpn.core.connection.Connection;
+import de.blinkt.openvpn.core.connection.Connection.TransportType;
 
 /**
  * @author Sean Leonard <meanderingcode@aetherislands.net>
@@ -161,6 +166,17 @@ public final class Provider implements Parcelable {
     }
 
     public boolean supportsPluggableTransports() {
+        if (useObfsVpn()) {
+            return supportsTransports(new TransportType[]{OBFS4, OBFS4_KCP});
+        }
+        return supportsTransports(new TransportType[]{OBFS4});
+    }
+
+    public boolean supportsExperimentalPluggableTransports() {
+        return supportsTransports(new TransportType[]{OBFS4_KCP});
+    }
+
+    private boolean supportsTransports(TransportType[] transportTypes) {
         try {
             JSONArray gatewayJsons = eipServiceJson.getJSONArray(GATEWAYS);
             for (int i = 0; i < gatewayJsons.length(); i++) {
@@ -168,15 +184,18 @@ public final class Provider implements Parcelable {
                         getJSONObject(CAPABILITIES).
                         getJSONArray(TRANSPORT);
                 for (int j = 0; j < transports.length(); j++) {
-                    if (OBFS4.toString().equals(transports.getJSONObject(j).getString(TYPE))) {
-                        return true;
+                    String supportedTransportType = transports.getJSONObject(j).getString(TYPE);
+                    for (TransportType transportType : transportTypes) {
+                        if (transportType.toString().equals(supportedTransportType)) {
+                            return true;
+                        }
                     }
                 }
             }
         } catch (Exception e) {
-           // ignore
+            // ignore
         }
-       return false;
+        return false;
     }
 
     public String getIpForHostname(String host) {

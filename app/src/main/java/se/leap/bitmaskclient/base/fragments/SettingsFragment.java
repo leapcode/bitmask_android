@@ -9,12 +9,15 @@ import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setAllowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
@@ -81,6 +84,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initFirewallEntry(view);
         initTetheringEntry(view);
         initGatewayPinningEntry(view);
+        initExperimentalTransportsEntry(view);
         setActionBarTitle(this, advanced_settings);
         return view;
     }
@@ -247,6 +251,23 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
                     .setNegativeButton(android.R.string.cancel, null)
                     .create().show();
         });
+    }
+
+    public void initExperimentalTransportsEntry(View rootView) {
+        IconSwitchEntry experimentalTransports = rootView.findViewById(R.id.experimental_transports);
+        if (useObfsVpn() && ProviderObservable.getInstance().getCurrentProvider().supportsExperimentalPluggableTransports()) {
+            experimentalTransports.setVisibility(VISIBLE);
+            experimentalTransports.setChecked(allowExperimentalTransports(this.getContext()));
+            experimentalTransports.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (!buttonView.isPressed()) {
+                    return;
+                }
+                setAllowExperimentalTransports(getContext(), isChecked);
+            });
+        } else {
+            experimentalTransports.setVisibility(GONE);
+        }
+
     }
 
     public void showTetheringAlert() {

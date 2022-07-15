@@ -114,5 +114,14 @@
             app:subtitle="Connect to a specific Gateway for debugging purposes"
             />
 
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
+            android:id="@+id/experimental_transports"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="Experimental transports"
+            app:singleLine="false"
+            app:subtitle="These transports might circumvent censorship, but are still in a testing phase"
+            />
+
     </LinearLayout>
 </ScrollView>
