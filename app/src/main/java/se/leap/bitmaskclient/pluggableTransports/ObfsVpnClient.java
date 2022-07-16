@@ -20,7 +20,7 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
 
     private static final String TAG = ObfsVpnClient.class.getSimpleName();
     private volatile boolean noNetwork;
-    private final AtomicBoolean isErrorHandling = new AtomicBoolean(false);
+    private final AtomicBoolean pendingNetworkErrorHandling = new AtomicBoolean(false);
     private final AtomicInteger reconnectRetry = new AtomicInteger(0);
     private static final int MAX_RETRY = 5;
 
@@ -72,7 +72,7 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
                 VpnStatus.logDebug("[obfsvpn] reconnecting on different port... " + SOCKS_PORT.get());
                 startSync();
             } else if (noNetwork) {
-                isErrorHandling.set(true);
+                pendingNetworkErrorHandling.set(true);
             }
         }
     }
@@ -89,7 +89,7 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
                 e.printStackTrace();
                 VpnStatus.logError("[obfsvpn] " + e.getLocalizedMessage());
             }
-            isErrorHandling.set(false);
+            pendingNetworkErrorHandling.set(false);
             Log.d(TAG, "stopping obfsVpnClient releasing LOCK ...");
         }
     }
@@ -106,7 +106,7 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
                 noNetwork = true;
             } else {
                 noNetwork = false;
-                if (isErrorHandling.getAndSet(false)) {
+                if (pendingNetworkErrorHandling.getAndSet(false)) {
                     stop();
                     start();
                 }
