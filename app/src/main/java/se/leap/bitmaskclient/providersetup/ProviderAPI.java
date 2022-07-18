@@ -162,7 +162,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
                 return activeNetwork != null &&
-                        activeNetwork.isConnectedOrConnecting();
+                        activeNetwork.isConnected();
             } else {
                 NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
                 if (capabilities != null) {
