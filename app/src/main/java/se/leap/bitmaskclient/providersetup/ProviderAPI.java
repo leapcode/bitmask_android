@@ -103,7 +103,6 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             TOR_EXCEPTION = 21;
 
     ProviderApiManager providerApiManager;
-    private volatile TorServiceConnection torServiceConnection;
 
     //TODO: refactor me, please!
     //used in insecure flavor only
