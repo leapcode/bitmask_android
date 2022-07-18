@@ -52,6 +52,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOAD
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.DELAY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_SERVICE_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
@@ -71,6 +72,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.MISSING_NETWORK_CO
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.QUIETLY_UPDATE_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.RECEIVER_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SIGN_UP;
@@ -193,6 +195,14 @@ public abstract class ProviderApiManagerBase {
             return;
         }
 
+        if (parameters.containsKey(DELAY)) {
+            try {
+                Thread.sleep(parameters.getLong(DELAY));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (!serviceCallback.hasNetworkConnection()) {
             Bundle result = new Bundle();
             setErrorResult(result, R.string.error_network_connection, null);
@@ -274,6 +284,17 @@ public abstract class ProviderApiManagerBase {
                     sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);
                 } else {
                     sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);
+                }
+                ProviderObservable.getInstance().setProviderForDns(null);
+                break;
+            case QUIETLY_UPDATE_VPN_CERTIFICATE:
+                ProviderObservable.getInstance().setProviderForDns(provider);
+                result = updateVpnCertificate(provider);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    Log.d(TAG, "successfully downloaded VPN certificate");
+                    provider.setShouldUpdateVpnCertificate(false);
+                    PreferenceHelper.storeProviderInPreferences(preferences, provider);
+                    ProviderObservable.getInstance().updateProvider(provider);
                 }
                 ProviderObservable.getInstance().setProviderForDns(null);
                 break;

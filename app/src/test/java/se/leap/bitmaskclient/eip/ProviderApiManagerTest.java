@@ -186,6 +186,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiManager.handleIntent(providerApiCommand);
     }
@@ -207,6 +208,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiManager.handleIntent(providerApiCommand);
     }
@@ -228,6 +230,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiManager.handleIntent(providerApiCommand);
     }
@@ -249,7 +252,7 @@ public class ProviderApiManagerTest {
         Intent providerApiCommand = mockIntent();
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -270,6 +273,7 @@ public class ProviderApiManagerTest {
 
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
 
@@ -292,6 +296,7 @@ public class ProviderApiManagerTest {
 
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
 
@@ -318,7 +323,7 @@ public class ProviderApiManagerTest {
 
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -341,7 +346,7 @@ public class ProviderApiManagerTest {
 
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -365,7 +370,7 @@ public class ProviderApiManagerTest {
 
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -388,6 +393,7 @@ public class ProviderApiManagerTest {
 
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
 
@@ -413,6 +419,7 @@ public class ProviderApiManagerTest {
 
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
 
@@ -433,12 +440,12 @@ public class ProviderApiManagerTest {
         expectedResult.putString(ERRORS, "{\"errors\":\"There was an error configuring Bitmask with your chosen provider.\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-
         Intent providerApiCommand = mockIntent();
 
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiManager.handleIntent(providerApiCommand);
     }
@@ -461,12 +468,12 @@ public class ProviderApiManagerTest {
         expectedResult.putString(ERRORS, "{\"errors\":\"There was an error configuring RiseupVPN.\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-
         Intent providerApiCommand = mockIntent();
 
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiManager.handleIntent(providerApiCommand);
     }
@@ -484,12 +491,12 @@ public class ProviderApiManagerTest {
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, true);
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
-
         Intent providerApiCommand = mockIntent();
 
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiManager.handleIntent(providerApiCommand);
     }
@@ -510,12 +517,12 @@ public class ProviderApiManagerTest {
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
         expectedResult.putParcelable(PROVIDER_KEY, provider);
         expectedResult.putString(ERRORS, "This is not a trusted Bitmask provider.");
-
         Intent providerApiCommand = mockIntent();
 
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK, expectedResult));
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiManager.handleIntent(providerApiCommand);
     }
@@ -685,12 +692,12 @@ public class ProviderApiManagerTest {
 
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, true);
         expectedResult.putParcelable(PROVIDER_KEY, provider);
-
         Intent providerApiCommand = mockIntent();
 
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK, expectedResult));
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
 
         providerApiManager.handleIntent(providerApiCommand);
     }
@@ -707,7 +714,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         mockTorStatusObservable(null);
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -727,7 +734,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         mockTorStatusObservable(null);
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -746,7 +753,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_NOK));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         mockTorStatusObservable(new TimeoutException("Tor took too long to start."));
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -767,7 +774,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         mockTorStatusObservable(null);
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -788,7 +795,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(PROVIDER_OK));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         mockTorStatusObservable(new TimeoutException("This timeout exception is never thrown"));
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -809,7 +816,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         mockTorStatusObservable(null);
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -831,7 +838,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         mockTorStatusObservable(new TimeoutException("This timeout exception is never thrown"));
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -853,7 +860,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         mockTorStatusObservable(null);
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -880,7 +887,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(TOR_EXCEPTION, expectedResult));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         mockTorStatusObservable(new InterruptedException("Tor thread was interrupted."));
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -903,7 +910,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(TOR_TIMEOUT, expectedResult));
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         mockTorStatusObservable(new TimeoutException("Tor took too long to start."));
 
         providerApiManager.handleIntent(providerApiCommand);
@@ -928,7 +935,7 @@ public class ProviderApiManagerTest {
         providerApiCommand.setAction(ProviderAPI.SET_UP_PROVIDER);
         providerApiCommand.putExtra(ProviderAPI.RECEIVER_KEY, mockResultReceiver(MISSING_NETWORK_CONNECTION, expectedResult));
         providerApiCommand.putExtra(PROVIDER_KEY, provider);
-
+        providerApiCommand.putExtra(PARAMETERS, mockBundle());
         providerApiManager.handleIntent(providerApiCommand);
     }
 

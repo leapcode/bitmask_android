@@ -45,9 +45,22 @@ public class VpnCertificateValidator {
 
     /**
      *
-     * @return true if all certificates are valid for more than 15 more days
+     * @return true if all certificates are valid for 1 more day
      */
     public boolean isValid() {
+        return isValid(1);
+    }
+
+    /**
+     *
+     * @return return true if certificates will expire in 8 days or less
+     */
+    public boolean shouldBeUpdated() {
+        return !isValid(8);
+    }
+
+
+    private boolean isValid(int offsetDays) {
         if (certificate.isEmpty()) {
             return false;
         }
@@ -57,7 +70,7 @@ public class VpnCertificateValidator {
             return false;
         }
         for (X509Certificate cert : x509Certificates) {
-            if (!isValid(cert)) {
+            if (!isValid(cert, offsetDays)) {
                 return false;
             }
         }
@@ -65,12 +78,12 @@ public class VpnCertificateValidator {
     }
 
 
-    private boolean isValid(X509Certificate certificate) {
+    private boolean isValid(X509Certificate certificate, int offsetDays) {
         if (certificate == null) {
             return false;
         }
 
-        Calendar offsetDate = calculateOffsetCertificateValidity(certificate);
+        Calendar offsetDate = calculateOffsetCertificateValidity(certificate, offsetDays);
         try {
             certificate.checkValidity(offsetDate.getTime());
             return true;
@@ -81,15 +94,15 @@ public class VpnCertificateValidator {
         }
     }
 
-    private Calendar calculateOffsetCertificateValidity(X509Certificate certificate) {
+    private Calendar calculateOffsetCertificateValidity(X509Certificate certificate, int offsetDays) {
         Calendar limitDate = calendarProvider.getCalendar();
         Date startDate = certificate.getNotBefore();
         // if certificates start date is before current date just return the current date without an offset
         if (startDate.getTime() >= limitDate.getTime().getTime()) {
             return limitDate;
         }
-        // else add an offset of 15 days to the current date
-        limitDate.add(Calendar.DAY_OF_YEAR, 15);
+        // else add an offset to the current date
+        limitDate.add(Calendar.DAY_OF_YEAR, offsetDays);
 
         return limitDate;
     }

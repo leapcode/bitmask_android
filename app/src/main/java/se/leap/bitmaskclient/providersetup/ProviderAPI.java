@@ -63,9 +63,15 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             SIGN_UP = "srpRegister",
             LOG_IN = "srpAuth",
             LOG_OUT = "logOut",
+            // all vpn certificate download commands are used in different scenarios with different error handling
+            // command key used for the initial vpn certificate download during the provider setup
             DOWNLOAD_VPN_CERTIFICATE = "downloadUserAuthedVPNCertificate",
+            // command key used to update soon expiring but yet valid certificates after connecting to the vpn
+            QUIETLY_UPDATE_VPN_CERTIFICATE = "ProviderAPI.QUIETLY_UPDATE_VPN_CERTIFICATE",
+            // command key used to update invalid certificates, connecting to the vpn is impossible
             UPDATE_INVALID_VPN_CERTIFICATE = "ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE",
             PARAMETERS = "parameters",
+            DELAY = "delay",
             RECEIVER_KEY = "receiver",
             ERRORS = "errors",
             ERRORID = "errorId",
