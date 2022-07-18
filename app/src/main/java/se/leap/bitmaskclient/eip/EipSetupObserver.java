@@ -39,12 +39,14 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.DELAY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.QUIETLY_UPDATE_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_EXCEPTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
@@ -367,11 +369,21 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             Provider provider = ProviderObservable.getInstance().getCurrentProvider();
             if (setupNClosestGateway.get() > 0 || provider.shouldUpdateEipServiceJson()) {
                 //setupNClostestGateway > 0: at least one failed gateway -> did the provider change it's gateways?
-                ProviderAPICommand.execute(appContext, ProviderAPI.DOWNLOAD_SERVICE_JSON, provider);
+                Bundle parameters = new Bundle();
+                parameters.putLong(DELAY, 500);
+                ProviderAPICommand.execute(appContext, ProviderAPI.DOWNLOAD_SERVICE_JSON, parameters, provider);
             }
 
             if (shouldCheckAppUpdate()) {
-                DownloadServiceCommand.execute(appContext, CHECK_VERSION_FILE);
+                Bundle parameters = new Bundle();
+                parameters.putLong(DELAY, 500);
+                DownloadServiceCommand.execute(appContext, CHECK_VERSION_FILE, parameters);
+            }
+
+            if (provider.shouldUpdateVpnCertificate()) {
+                Bundle parameters = new Bundle();
+                parameters.putLong(DELAY, 500);
+                ProviderAPICommand.execute(appContext, QUIETLY_UPDATE_VPN_CERTIFICATE, parameters, provider);
             }
             finishGatewaySetup(false);
         } else if ("TCP_CONNECT".equals(state)) {

@@ -56,6 +56,7 @@ import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.OnBootReceiver;
+import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
@@ -242,6 +243,12 @@ public final class EIP extends JobIntentService implements Observer {
             return;
         }
 
+        if (shouldUpdateVPNCertificate()) {
+            Provider p = ProviderObservable.getInstance().getCurrentProvider();
+            p.setShouldUpdateVpnCertificate(true);
+            ProviderObservable.getInstance().updateProvider(p);
+        }
+
         GatewaysManager gatewaysManager = new GatewaysManager(getApplicationContext());
         if (gatewaysManager.isEmpty()) {
             setErrorResult(result, warning_client_parsing_error_gateways, null);
@@ -266,6 +273,12 @@ public final class EIP extends JobIntentService implements Observer {
         GatewaysManager gatewaysManager = new GatewaysManager(getApplicationContext());
         Gateway gateway = gatewaysManager.select(0);
         Bundle result = new Bundle();
+
+        if (shouldUpdateVPNCertificate()) {
+            Provider p = ProviderObservable.getInstance().getCurrentProvider();
+            p.setShouldUpdateVpnCertificate(true);
+            ProviderObservable.getInstance().updateProvider(p);
+        }
 
         launchActiveGateway(gateway, 0, result);
         if (result.containsKey(BROADCAST_RESULT_KEY) && !result.getBoolean(BROADCAST_RESULT_KEY)){
@@ -414,6 +427,12 @@ public final class EIP extends JobIntentService implements Observer {
         VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
         return validator.isValid();
     }
+
+    private boolean shouldUpdateVPNCertificate() {
+        VpnCertificateValidator validator = new VpnCertificateValidator(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
+        return validator.shouldBeUpdated();
+    }
+
 
     /**
      * helper function to add error to result bundle

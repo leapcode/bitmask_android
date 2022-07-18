@@ -48,6 +48,8 @@ import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_DOWNLOAD_SER
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.utils.FileHelper.readPublicKey;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.DELAY;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.RECEIVER_KEY;
 
 public class UpdateDownloadManager implements Logger, DownloadConnector.DownloadProgress {
@@ -93,6 +95,15 @@ public class UpdateDownloadManager implements Logger, DownloadConnector.Download
             receiver = command.getParcelableExtra(RECEIVER_KEY);
         }
         String action = command.getAction();
+        Bundle parameters = command.getBundleExtra(PARAMETERS);
+
+        if (parameters.containsKey(DELAY)) {
+            try {
+                Thread.sleep(parameters.getLong(DELAY));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
         Bundle result = new Bundle();
         switch (action) {

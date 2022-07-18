@@ -63,6 +63,7 @@ public final class Provider implements Parcelable {
     private String vpnCertificate = "";
     private long lastEipServiceUpdate = 0L;
     private long lastGeoIpUpdate = 0L;
+    private boolean shouldUpdateVpnCertificate;
 
     private boolean allowAnonymous;
     private boolean allowRegistered;
@@ -361,6 +362,7 @@ public final class Provider implements Parcelable {
         parcel.writeString(getVpnCertificate());
         parcel.writeLong(lastEipServiceUpdate);
         parcel.writeLong(lastGeoIpUpdate);
+        parcel.writeInt(shouldUpdateVpnCertificate ? 0 : 1);
     }
 
 
@@ -407,6 +409,7 @@ public final class Provider implements Parcelable {
             }
             this.lastEipServiceUpdate = in.readLong();
             this.lastGeoIpUpdate = in.readLong();
+            this.shouldUpdateVpnCertificate = in.readInt()  == 0;
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -492,6 +495,13 @@ public final class Provider implements Parcelable {
         return System.currentTimeMillis() - lastEipServiceUpdate >= EIP_SERVICE_TIMEOUT;
     }
 
+    public void setShouldUpdateVpnCertificate(Boolean update) {
+        shouldUpdateVpnCertificate = update;
+    }
+
+    public boolean shouldUpdateVpnCertificate() {
+        return shouldUpdateVpnCertificate;
+    }
 
     public void setLastGeoIpUpdate(long timestamp) {
         lastGeoIpUpdate = timestamp;
