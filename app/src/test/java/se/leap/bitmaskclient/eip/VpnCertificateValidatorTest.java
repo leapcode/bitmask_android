@@ -38,9 +38,9 @@ public class VpnCertificateValidatorTest {
     }
 
     @Test
-    public void test_isValid_lessThan15days_returnFalse() throws NoSuchAlgorithmException, CertificateEncodingException, IOException {
+    public void test_isValid_lessThan1day_returnFalse() throws NoSuchAlgorithmException, CertificateEncodingException, IOException {
         String cert = getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"));
-        Calendar c = new Calendar.Builder().setDate(2024, 4, 14).setCalendarType("gregorian").build();
+        Calendar c = new Calendar.Builder().setDate(2024, 3, 28).setCalendarType("gregorian").build();
         mockConfigHelper("falseFingerPrint");
         VpnCertificateValidator validator = new VpnCertificateValidator(cert);
         validator.setCalendarProvider(new TestCalendarProvider(c.getTimeInMillis()));
@@ -50,7 +50,7 @@ public class VpnCertificateValidatorTest {
     @Test
     public void test_isValid_multipleCerts_failIfOneExpires() throws NoSuchAlgorithmException, CertificateEncodingException, IOException {
         String cert = getInputAsString(getClass().getClassLoader().getResourceAsStream("float.hexacab.org.pem"));
-        Calendar c = new Calendar.Builder().setDate(2024, 4, 14).setCalendarType("gregorian").build();
+        Calendar c = new Calendar.Builder().setDate(2024, 3, 28).setCalendarType("gregorian").build();
         mockConfigHelper("falseFingerPrint");
         VpnCertificateValidator validator = new VpnCertificateValidator(cert);
         validator.setCalendarProvider(new TestCalendarProvider(c.getTimeInMillis()));
@@ -60,10 +60,30 @@ public class VpnCertificateValidatorTest {
     @Test
     public void test_isValid_multipleCerts_allValid() throws NoSuchAlgorithmException, CertificateEncodingException, IOException {
         String cert = getInputAsString(getClass().getClassLoader().getResourceAsStream("float.hexacab.org.pem"));
-        Calendar c = new Calendar.Builder().setDate(2024, 4, 13).setCalendarType("gregorian").build();
+        Calendar c = new Calendar.Builder().setDate(2024, 3, 27).setCalendarType("gregorian").build();
         mockConfigHelper("falseFingerPrint");
         VpnCertificateValidator validator = new VpnCertificateValidator(cert);
         validator.setCalendarProvider(new TestCalendarProvider(c.getTimeInMillis()));
-        assertFalse(validator.isValid());
+        assertTrue(validator.isValid());
+    }
+
+    @Test
+    public void test_shouldBeUpdated_lessThan8days_returnTrue() throws NoSuchAlgorithmException, CertificateEncodingException, IOException {
+        String cert = getInputAsString(getClass().getClassLoader().getResourceAsStream("float.hexacab.org.pem"));
+        Calendar c = new Calendar.Builder().setDate(2024, 3, 21).setCalendarType("gregorian").build();
+        mockConfigHelper("falseFingerPrint");
+        VpnCertificateValidator validator = new VpnCertificateValidator(cert);
+        validator.setCalendarProvider(new TestCalendarProvider(c.getTimeInMillis()));
+        assertTrue(validator.shouldBeUpdated());
+    }
+
+    @Test
+    public void test_shouldBeUpdated_moreThan8days_returnFalse() throws NoSuchAlgorithmException, CertificateEncodingException, IOException {
+        String cert = getInputAsString(getClass().getClassLoader().getResourceAsStream("float.hexacab.org.pem"));
+        Calendar c = new Calendar.Builder().setDate(2024, 3, 20).setCalendarType("gregorian").build();
+        mockConfigHelper("falseFingerPrint");
+        VpnCertificateValidator validator = new VpnCertificateValidator(cert);
+        validator.setCalendarProvider(new TestCalendarProvider(c.getTimeInMillis()));
+        assertFalse(validator.shouldBeUpdated());
     }
 }
