@@ -373,7 +373,9 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             }
 
             if (shouldCheckAppUpdate()) {
-                DownloadServiceCommand.execute(appContext, CHECK_VERSION_FILE);
+                Bundle parameters = new Bundle();
+                parameters.putLong(DELAY, 500);
+                DownloadServiceCommand.execute(appContext, CHECK_VERSION_FILE, parameters);
             }
 
             if (provider.shouldUpdateVpnCertificate()) {
