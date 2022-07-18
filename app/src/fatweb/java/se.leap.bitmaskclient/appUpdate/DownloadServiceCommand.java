@@ -18,6 +18,7 @@ package se.leap.bitmaskclient.appUpdate;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import androidx.annotation.NonNull;
@@ -31,18 +32,27 @@ public class DownloadServiceCommand {
             CHECK_VERSION_FILE = "checkVersionFile",
             DOWNLOAD_UPDATE = "downloadUpdate";
 
-    private Context context;
-    private String action;
-    private ResultReceiver resultReceiver;
+    private final Context context;
+    private final String action;
+    private Bundle parameters;
+    private final ResultReceiver resultReceiver;
 
     private DownloadServiceCommand(@NonNull Context context, @NonNull String action) {
-        this(context.getApplicationContext(), action, null);
+        this(context.getApplicationContext(), action, null, null);
     }
 
+    private DownloadServiceCommand(@NonNull Context context, @NonNull String action, @Nullable Bundle parameters) {
+        this(context.getApplicationContext(), action, parameters, null);
+    }
     private DownloadServiceCommand(@NonNull Context context, @NonNull String action, @Nullable ResultReceiver resultReceiver) {
+        this(context.getApplicationContext(), action, null, resultReceiver);
+    }
+
+    private DownloadServiceCommand(@NonNull Context context, @NonNull String action, @Nullable Bundle parameters, @Nullable ResultReceiver resultReceiver) {
         super();
         this.context = context;
         this.action = action;
+        this.parameters = parameters;
         this.resultReceiver = resultReceiver;
     }
 
@@ -53,6 +63,10 @@ public class DownloadServiceCommand {
         if (resultReceiver != null) {
             command.putExtra(ProviderAPI.RECEIVER_KEY, resultReceiver);
         }
+        if (parameters == null) {
+            parameters = Bundle.EMPTY;
+        }
+        command.putExtra(ProviderAPI.PARAMETERS, parameters);
         return command;
     }
 
@@ -73,7 +87,12 @@ public class DownloadServiceCommand {
         command.execute();
     }
 
-    public static void execute(Context context, String action, ResultReceiver resultReceiver) {
+    public static void execute(Context context, String action, Bundle parameters) {
+        DownloadServiceCommand command = new DownloadServiceCommand(context, action, parameters);
+        command.execute();
+    }
+
+    public static void execute(Context context, String action, Bundle parameters, ResultReceiver resultReceiver) {
         DownloadServiceCommand command = new DownloadServiceCommand(context, action, resultReceiver);
         command.execute();
     }

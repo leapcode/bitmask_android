@@ -369,7 +369,9 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             Provider provider = ProviderObservable.getInstance().getCurrentProvider();
             if (setupNClosestGateway.get() > 0 || provider.shouldUpdateEipServiceJson()) {
                 //setupNClostestGateway > 0: at least one failed gateway -> did the provider change it's gateways?
-                ProviderAPICommand.execute(appContext, ProviderAPI.DOWNLOAD_SERVICE_JSON, provider);
+                Bundle parameters = new Bundle();
+                parameters.putLong(DELAY, 500);
+                ProviderAPICommand.execute(appContext, ProviderAPI.DOWNLOAD_SERVICE_JSON, parameters, provider);
             }
 
             if (shouldCheckAppUpdate()) {
