@@ -84,6 +84,7 @@ public class DownloadNotificationManager {
         notificationBuilder
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setAutoCancel(false)
+                .setNotificationSilent()
                 .setOngoing(true)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentTitle(context.getString(R.string.version_update_apk_description, context.getString(R.string.app_name)))
