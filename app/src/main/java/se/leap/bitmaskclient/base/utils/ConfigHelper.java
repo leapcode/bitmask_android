@@ -273,6 +273,11 @@ public class ConfigHelper {
         Matcher matcher = IPv4_PATTERN.matcher(ipv4);
         return matcher.matches();
     }
+    
+    public static boolean isCalyxOSWithTetheringSupport(Context context) {
+        return SystemPropertiesHelper.contains("ro.calyxos.version", context) &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
+    }
 
     // ObfsVpnHelper class allows us to mock BuildConfig.use_obfsvpn while
     // not mocking the whole ConfigHelper class

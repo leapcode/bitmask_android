@@ -43,6 +43,7 @@ import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.appUpdate.DownloadBroadcastReceiver.ACTION_DOWNLOAD;
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.CHECK_VERSION_FILE;
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.DOWNLOAD_UPDATE;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheringSupport;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 
 /**
@@ -75,7 +76,9 @@ public class BitmaskApp extends MultiDexApplication {
         torStatusObservable = TorStatusObservable.getInstance();
         EipSetupObserver.init(this, preferences);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        TetheringStateManager.getInstance().init(this);
+        if (!isCalyxOSWithTetheringSupport(this)) {
+            TetheringStateManager.getInstance().init(this);
+        }
         if (BuildConfig.FLAVOR.contains("Fatweb")) {
             downloadBroadcastReceiver = new DownloadBroadcastReceiver();
             IntentFilter intentFilter = new IntentFilter(BROADCAST_DOWNLOAD_SERVICE_EVENT);

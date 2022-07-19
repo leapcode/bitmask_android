@@ -11,6 +11,7 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheringSupport;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
@@ -213,6 +214,12 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void initTetheringEntry(View rootView) {
         tethering = rootView.findViewById(R.id.tethering);
+
+        if (isCalyxOSWithTetheringSupport(this.getContext())) {
+            tethering.setVisibility(GONE);
+            return;
+        }
+
         tethering.setOnClickListener((buttonView) -> {
             showTetheringAlert();
         });
