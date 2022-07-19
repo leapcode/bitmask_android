@@ -543,6 +543,6 @@ public class VpnStatus {
     }
 
     public static boolean isUsingBridges() {
-        return lastConnectedProfile != null && lastConnectedProfile.mUsePluggableTransports;
+        return lastConnectedProfile != null && lastConnectedProfile.usePluggableTransports();
     }
 }

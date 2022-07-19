@@ -65,7 +65,6 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOAD
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.MISSING_NETWORK_CONNECTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PARAMETERS;
@@ -84,7 +83,6 @@ import static se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockPr
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBase64;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockBundle;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockConfigHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockConfigHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockIntent;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockPreferenceHelper;

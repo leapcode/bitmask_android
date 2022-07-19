@@ -55,6 +55,7 @@ unit_test:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: test
   script:
+    - ./scripts/prepareForTests.sh
     - ./gradlew testCustomProductionFatReleaseUnitTest testNormalProductionFatReleaseUnitTest
   artifacts:
     paths:

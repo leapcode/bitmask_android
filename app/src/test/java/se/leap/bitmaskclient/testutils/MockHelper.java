@@ -36,7 +36,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
 
 import java.io.File;
 import java.io.FileNotFoundException;

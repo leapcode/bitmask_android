@@ -21,10 +21,7 @@ import androidx.annotation.NonNull;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.function.ToDoubleFunction;
 
-import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Connection.TransportType;
 
 public class Location implements Cloneable {
@@ -50,27 +47,27 @@ public class Location implements Cloneable {
     }
 
     public boolean supportsTransport(TransportType transportType) {
-        return numberOfGateways.containsKey(transportType);
+        return numberOfGateways.containsKey(transportType.getMetaType());
     }
 
     public void setAverageLoad(TransportType transportType, double load) {
-        averageLoad.put(transportType, load);
+        averageLoad.put(transportType.getMetaType(), load);
     }
 
     public double getAverageLoad(TransportType transportType) {
-        if (averageLoad.containsKey(transportType)) {
-            return averageLoad.get(transportType);
+        if (averageLoad.containsKey(transportType.getMetaType())) {
+            return averageLoad.get(transportType.getMetaType());
         }
         return 0;
     }
 
     public void setNumberOfGateways(TransportType transportType, int numbers) {
-        numberOfGateways.put(transportType, numbers);
+        numberOfGateways.put(transportType.getMetaType(), numbers);
     }
 
     public int getNumberOfGateways(TransportType transportType) {
-        if (numberOfGateways.containsKey(transportType)) {
-            return numberOfGateways.get(transportType);
+        if (numberOfGateways.containsKey(transportType.getMetaType())) {
+            return numberOfGateways.get(transportType.getMetaType());
         }
         return 0;
     }
@@ -112,7 +109,7 @@ public class Location implements Cloneable {
     public static class SortByAverageLoad implements Comparator<Location> {
         TransportType transportType;
         public SortByAverageLoad(TransportType transportType) {
-            this.transportType = transportType;
+            this.transportType = transportType.getMetaType();
         }
 
         @Override

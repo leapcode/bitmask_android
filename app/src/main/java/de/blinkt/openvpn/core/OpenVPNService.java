@@ -5,6 +5,12 @@
 
 package de.blinkt.openvpn.core;
 
+import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
+import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
+import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
+
 import android.Manifest.permission;
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -47,12 +53,8 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VpnNotificationManager;
 import se.leap.bitmaskclient.firewall.FirewallManager;
+import se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient;
 import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
-
-import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
-import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
-import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 
 
 public class OpenVPNService extends VpnService implements StateListener, Callback, ByteCountListener, IOpenVPNServiceInternal, VpnNotificationManager.VpnServiceCallback {
@@ -89,6 +91,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Runnable mOpenVPNThread;
     private VpnNotificationManager notificationManager;
     private Shapeshifter shapeshifter;
+    private ObfsVpnClient obfsVpnClient;
     private FirewallManager firewallManager;
 
     private final IBinder mBinder = new IOpenVPNServiceInternal.Stub() {
@@ -241,6 +244,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     if (shapeshifter != null) {
                         shapeshifter.stop();
                         shapeshifter = null;
+                    } else if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
+                        obfsVpnClient.stop();
+                        obfsVpnClient = null;
                     }
                     VpnStatus.updateStateString("NOPROCESS", "VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
                 }
@@ -311,7 +317,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.updateStateString("VPN_GENERATE_CONFIG", "", R.string.building_configration, ConnectionStatus.LEVEL_START);
         notificationManager.buildOpenVpnNotification(
                 mProfile != null ? mProfile.mName : "",
-                mProfile != null && mProfile.mUsePluggableTransports,
+                mProfile != null && mProfile.usePluggableTransports(),
                 VpnStatus.getLastCleanLogMessage(this),
                 VpnStatus.getLastCleanLogMessage(this),
                 ConnectionStatus.LEVEL_START,
@@ -410,9 +416,16 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         // An old running VPN should now be exited
         mStarting = false;
 
-        if (mProfile.mUsePluggableTransports && connection instanceof Obfs4Connection) {
+        if (mProfile.usePluggableTransports() && connection instanceof Obfs4Connection) {
             Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
-            if (shapeshifter == null) {
+            if (useObfsVpn()) {
+                if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
+                    obfsVpnClient.stop();
+                }
+                obfsVpnClient = new ObfsVpnClient(obfs4Connection.getDispatcherOptions());
+                int runningSocksPort = obfsVpnClient.start();
+                connection.setProxyPort(String.valueOf(runningSocksPort));
+            } else if (shapeshifter == null) {
                 shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
                 shapeshifter.start();
             }
@@ -474,6 +487,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     Log.d(TAG, "-> stop shapeshifter");
                     shapeshifter.stop();
                     shapeshifter = null;
+                } else if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
+                    Log.d(TAG, "-> stop obfsvpnClient");
+                    obfsVpnClient.stop();
+                    obfsVpnClient = null;
                 }
                 try {
                     Thread.sleep(1000);
@@ -1016,7 +1033,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
         notificationManager.buildOpenVpnNotification(
                 mProfile != null ? mProfile.mName : "",
-                mProfile != null && mProfile.mUsePluggableTransports,
+                mProfile != null && mProfile.usePluggableTransports(),
                 VpnStatus.getLastCleanLogMessage(this),
                 VpnStatus.getLastCleanLogMessage(this),
                 level,
@@ -1047,7 +1064,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     humanReadableByteCount(diffOut / OpenVPNManagement.mBytecountInterval, true, getResources()));
             notificationManager.buildOpenVpnNotification(
                     mProfile != null ? mProfile.mName : "",
-                    mProfile != null && mProfile.mUsePluggableTransports,
+                    mProfile != null && mProfile.usePluggableTransports(),
                     netstat,
                     null,
                     LEVEL_CONNECTED,
@@ -1091,7 +1108,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         VpnStatus.updateStateString("NEED", "need " + needed, resid, LEVEL_WAITING_FOR_USER_INPUT);
         notificationManager.buildOpenVpnNotification(
                 mProfile != null ? mProfile.mName : "",
-                mProfile != null && mProfile.mUsePluggableTransports,
+                mProfile != null && mProfile.usePluggableTransports(),
                 getString(resid),
                 getString(resid),
                 LEVEL_WAITING_FOR_USER_INPUT,

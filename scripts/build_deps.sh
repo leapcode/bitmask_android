@@ -15,7 +15,8 @@ DIR_GOLIBS=./bitmaskcore/lib/
 DIR_TORLIBS=./tor-android/external/lib
 EXPECTED_NDK_VERSION="21.4.7075529"
 EXPECTED_ANDROID_NDK_RELEASE_VERSION="r21e"
-BUILD_TOR=true
+if [[ -z $BUILD_TOR ]]; then BUILD_TOR=true; fi
+if [[ -z $BUILD_OPENVPN_LIBS ]]; then BUILD_OPENVPN_LIBS=true; fi
 
 # init
 # look for empty dir
@@ -60,8 +61,9 @@ else
 fi
 
 # build openvpn libs
-if [[ $(ls -A ${DIR_OVPNASSETS}) && $(ls -A ${DIR_OVPNLIBS}) ]]
-then
+if [[ ${BUILD_OPENVPN_LIBS} == false ]]; then
+  echo "skipping openvpn"
+elif [[ $(ls -A ${DIR_OVPNASSETS}) && $(ls -A ${DIR_OVPNLIBS}) ]]; then
     echo "Dirty build: skipped externalNativeBuild - reusing existing libs"
 else
     echo "Clean build: starting externalNativeBuild"

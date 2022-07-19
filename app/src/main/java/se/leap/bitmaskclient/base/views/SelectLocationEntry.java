@@ -6,7 +6,6 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
@@ -71,7 +70,7 @@ public class SelectLocationEntry extends LinearLayout {
         boolean supportsSelectedTransport = location.supportsTransport(transportType);
         locationText.setVisibility(hasData ? VISIBLE : GONE);
         locationIndicator.setVisibility(hasData ? VISIBLE : GONE);
-        bridgesView.setVisibility(transportType == OBFS4 && supportsSelectedTransport ? VISIBLE : GONE);
+        bridgesView.setVisibility(transportType.isPluggableTransport()  && supportsSelectedTransport ? VISIBLE : GONE);
         locationText.setText(location.getName());
         locationIndicator.setLoad(Load.getLoadByValue(location.getAverageLoad(transportType)));
         selectedView.setChecked(location.selected);

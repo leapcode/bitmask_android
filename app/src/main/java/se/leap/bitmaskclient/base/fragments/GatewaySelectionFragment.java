@@ -51,10 +51,10 @@ import se.leap.bitmaskclient.eip.GatewaysManager;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
@@ -92,7 +92,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         eipStatus = EipStatus.getInstance();
         eipStatus.addObserver(this);
         preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        selectedTransport = getUseBridges(preferences) ? OBFS4 : OPENVPN;
+        selectedTransport = getUseBridges(preferences) ? PT : OPENVPN;
         preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
@@ -211,7 +211,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(USE_BRIDGES)) {
             boolean showBridges = getUseBridges(sharedPreferences);
-            selectedTransport = showBridges ? OBFS4 : OPENVPN;
+            selectedTransport = showBridges ? PT : OPENVPN;
             gatewaysManager.updateTransport(selectedTransport);
             locationListAdapter.updateTransport(selectedTransport, gatewaysManager);
             bridgesHint.setVisibility(showBridges ? VISIBLE : GONE);

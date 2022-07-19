@@ -16,6 +16,17 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import static se.leap.bitmaskclient.base.models.Constants.FULLNESS;
+import static se.leap.bitmaskclient.base.models.Constants.HOST;
+import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
+import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
+import static se.leap.bitmaskclient.base.models.Constants.LOCATIONS;
+import static se.leap.bitmaskclient.base.models.Constants.NAME;
+import static se.leap.bitmaskclient.base.models.Constants.OPENVPN_CONFIGURATION;
+import static se.leap.bitmaskclient.base.models.Constants.OVERLOAD;
+import static se.leap.bitmaskclient.base.models.Constants.TIMEZONE;
+import static se.leap.bitmaskclient.base.models.Constants.VERSION;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -35,17 +46,6 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-
-import static se.leap.bitmaskclient.base.models.Constants.FULLNESS;
-import static se.leap.bitmaskclient.base.models.Constants.HOST;
-import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
-import static se.leap.bitmaskclient.base.models.Constants.LOCATION;
-import static se.leap.bitmaskclient.base.models.Constants.LOCATIONS;
-import static se.leap.bitmaskclient.base.models.Constants.NAME;
-import static se.leap.bitmaskclient.base.models.Constants.OPENVPN_CONFIGURATION;
-import static se.leap.bitmaskclient.base.models.Constants.OVERLOAD;
-import static se.leap.bitmaskclient.base.models.Constants.TIMEZONE;
-import static se.leap.bitmaskclient.base.models.Constants.VERSION;
 
 /**
  * Gateway provides objects defining gateways and their metadata.
@@ -175,7 +175,8 @@ public class Gateway {
     private @NonNull HashMap<Connection.TransportType, VpnProfile> createVPNProfiles(Context context)
             throws ConfigParser.ConfigParseError, IOException, JSONException {
         boolean preferUDP = PreferenceHelper.getPreferUDP(context);
-        VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway, apiVersion, preferUDP);
+        boolean allowExperimentalTransports = PreferenceHelper.allowExperimentalTransports(context);
+        VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway, apiVersion, preferUDP, allowExperimentalTransports);
         HashMap<Connection.TransportType, VpnProfile> profiles = vpnConfigurationGenerator.generateVpnProfiles();
         addProfileInfos(context, profiles);
         return profiles;
@@ -194,11 +195,23 @@ public class Gateway {
     }
 
     public boolean supportsTransport(Connection.TransportType transportType) {
+        if (transportType == Connection.TransportType.PT) {
+            return supportsPluggableTransports();
+        }
         return vpnProfiles.get(transportType) != null;
     }
 
     public HashSet<Connection.TransportType> getSupportedTransports() {
         return new HashSet<>(vpnProfiles.keySet());
+    }
+
+    public boolean supportsPluggableTransports() {
+        for (Connection.TransportType transportType : vpnProfiles.keySet()) {
+            if (transportType.isPluggableTransport() && vpnProfiles.get(transportType) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getTimezone() {

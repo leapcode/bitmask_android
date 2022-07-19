@@ -44,6 +44,7 @@ public interface Constants {
     String USE_SNOWFLAKE = "use_snowflake";
     String PREFER_UDP = "prefer_UDP";
     String GATEWAY_PINNING = "gateway_pinning";
+    String ALLOW_EXPERIMENTAL_TRANSPORTS = "allow_experimental_transports";
 
 
      //////////////////////////////////////////////
@@ -163,6 +164,7 @@ public interface Constants {
     String IP_ADDRESS = "ip_address";
     String IP_ADDRESS6 = "ip_address6";
     String REMOTE = "remote";
+    String SOCKS_PROXY = "socks-proxy";
     String PORTS = "ports";
     String PROTOCOLS = "protocols";
     String UDP = "udp";

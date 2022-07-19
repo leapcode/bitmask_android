@@ -22,6 +22,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.base.models.Location;
+import se.leap.bitmaskclient.base.models.Pair;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
@@ -31,6 +32,7 @@ import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -115,7 +117,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false, false);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
         profile.mGatewayIp = "37.218.247.60";
 
@@ -130,7 +132,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false, false);
         VpnProfile profile = configGenerator.createProfile(OPENVPN);
         profile.mGatewayIp = "37.218.247.60";
 
@@ -145,7 +147,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false, false);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
         profile.mGatewayIp = "37.218.247.60";
 
@@ -160,7 +162,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false, false);
         VpnProfile profile = configGenerator.createProfile(OPENVPN);
         profile.mGatewayIp = "37.218.247.60";
 
@@ -175,7 +177,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false, false);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
         profile.mGatewayIp = "37.218.247.61";
 
@@ -190,7 +192,7 @@ public class GatewaysManagerTest {
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, 3, false, false);
         VpnProfile profile = configGenerator.createProfile(OBFS4);
         profile.mGatewayIp = "3.21.247.89";
 
@@ -206,7 +208,7 @@ public class GatewaysManagerTest {
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("37.12.247.10", gatewaysManager.select(0).getRemoteIP());
+        assertEquals("37.12.247.10", gatewaysManager.select(0).first.getRemoteIP());
     }
 
     @Test
@@ -219,9 +221,9 @@ public class GatewaysManagerTest {
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("manila.bitmask.net", gatewaysManager.select(0).getHost());
-        assertEquals("moscow.bitmask.net", gatewaysManager.select(1).getHost());
-        assertEquals("pt.demo.bitmask.net", gatewaysManager.select(2).getHost());
+        assertEquals("manila.bitmask.net", gatewaysManager.select(0).first.getHost());
+        assertEquals("moscow.bitmask.net", gatewaysManager.select(1).first.getHost());
+        assertEquals("pt.demo.bitmask.net", gatewaysManager.select(2).first.getHost());
     }
 
     @Test
@@ -234,8 +236,8 @@ public class GatewaysManagerTest {
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("moscow.bitmask.net", gatewaysManager.select(0).getHost());
-        assertEquals("pt.demo.bitmask.net", gatewaysManager.select(1).getHost());
+        assertEquals("moscow.bitmask.net", gatewaysManager.select(0).first.getHost());
+        assertEquals("pt.demo.bitmask.net", gatewaysManager.select(1).first.getHost());
         assertNull(gatewaysManager.select(2));
     }
 
@@ -251,9 +253,9 @@ public class GatewaysManagerTest {
         when(PreferenceHelper.getPreferredCity(any(Context.class))).thenReturn("Paris");
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("mouette.riseup.net", gatewaysManager.select(0).getHost());
-        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1).getHost());
-        assertEquals("zarapito.riseup.net", gatewaysManager.select(2).getHost());
+        assertEquals("mouette.riseup.net", gatewaysManager.select(0).first.getHost());
+        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1).first.getHost());
+        assertEquals("zarapito.riseup.net", gatewaysManager.select(2).first.getHost());
     }
 
     @Test
@@ -267,9 +269,9 @@ public class GatewaysManagerTest {
         when(PreferenceHelper.getPreferredCity(any(Context.class))).thenReturn("Paris");
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("mouette.riseup.net", gatewaysManager.select(0).getHost());
-        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1).getHost());
-        assertEquals("zarapito.riseup.net", gatewaysManager.select(2).getHost());
+        assertEquals("mouette.riseup.net", gatewaysManager.select(0).first.getHost());
+        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1).first.getHost());
+        assertEquals("zarapito.riseup.net", gatewaysManager.select(2).first.getHost());
     }
 
     @Test
@@ -284,9 +286,9 @@ public class GatewaysManagerTest {
         when(PreferenceHelper.getPreferredCity(any(Context.class))).thenReturn("Paris");
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("Paris", gatewaysManager.select(0).getName());
-        assertEquals("Paris", gatewaysManager.select(1).getName());
-        assertEquals("Paris", gatewaysManager.select(2).getName());
+        assertEquals("Paris", gatewaysManager.select(0).first.getName());
+        assertEquals("Paris", gatewaysManager.select(1).first.getName());
+        assertEquals("Paris", gatewaysManager.select(2).first.getName());
         assertEquals(null, gatewaysManager.select(3));
     }
 
@@ -300,9 +302,9 @@ public class GatewaysManagerTest {
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("mouette.riseup.net", gatewaysManager.select(0, "Paris").getHost());
-        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1, "Paris").getHost());
-        assertEquals("zarapito.riseup.net", gatewaysManager.select(2, "Paris").getHost());
+        assertEquals("mouette.riseup.net", gatewaysManager.select(0, "Paris").first.getHost());
+        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1, "Paris").first.getHost());
+        assertEquals("zarapito.riseup.net", gatewaysManager.select(2, "Paris").first.getHost());
     }
 
     @Test
@@ -315,9 +317,9 @@ public class GatewaysManagerTest {
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("mouette.riseup.net", gatewaysManager.select(0, "Paris").getHost());
-        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1, "Paris").getHost());
-        assertEquals("zarapito.riseup.net", gatewaysManager.select(2, "Paris").getHost());
+        assertEquals("mouette.riseup.net", gatewaysManager.select(0, "Paris").first.getHost());
+        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1, "Paris").first.getHost());
+        assertEquals("zarapito.riseup.net", gatewaysManager.select(2, "Paris").first.getHost());
     }
 
     @Test
@@ -331,9 +333,9 @@ public class GatewaysManagerTest {
         when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("Paris", gatewaysManager.select(0, "Paris").getName());
-        assertEquals("Paris", gatewaysManager.select(1, "Paris").getName());
-        assertEquals("Paris", gatewaysManager.select(2, "Paris").getName());
+        assertEquals("Paris", gatewaysManager.select(0, "Paris").first.getName());
+        assertEquals("Paris", gatewaysManager.select(1, "Paris").first.getName());
+        assertEquals("Paris", gatewaysManager.select(2, "Paris").first.getName());
         assertEquals(null, gatewaysManager.select(3, "Paris"));
     }
 
@@ -508,6 +510,38 @@ public class GatewaysManagerTest {
         assertEquals("Paris", locations.get(1).getName());
         assertEquals("Amsterdam", locations.get(2).getName());
     }
+
+    // Currently all pluggable transports are handled the same, there's no UI to select a specific one
+    // when requesting a sorted list for any pluggabled transport, a sorted list of all pluiggable transports
+    // will be returned
+    @Test
+    public void testGetSortedLocations_obfs4kcp_generalizedAsPT() {
+        Provider provider = getProvider(null, null, null, null, null, null, "v4/riseup_eipservice_for_geoip_v4.json", "v4/riseup_geoip_v4_bad_obfs4_gateway.json");
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+        List<Location> locations = gatewaysManager.getSortedGatewayLocations(OBFS4_KCP);
+
+        assertEquals(3, locations.size());
+    }
+
+    @Test
+    public void testgetAverageLoad_isSameForAllTransports() {
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_kcp_gateways.json", "ptdemo_kcp_gateways_geoip.json");
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(false);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+
+        assertEquals(0.3, gatewaysManager.getLocation("Amsterdam").getAverageLoad(OBFS4_KCP));
+        assertEquals(0.3, gatewaysManager.getLocation("Amsterdam").getAverageLoad(OBFS4));
+        assertEquals(0.3, gatewaysManager.getLocation("Amsterdam").getAverageLoad(OPENVPN));
+    }
+
+
 
     @Test
     public void testGetLoadForLocation_() {

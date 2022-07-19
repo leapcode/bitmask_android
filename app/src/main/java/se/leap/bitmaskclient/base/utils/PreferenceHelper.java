@@ -1,25 +1,7 @@
 package se.leap.bitmaskclient.base.utils;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.Preference;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.WorkerThread;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
-
-import de.blinkt.openvpn.VpnProfile;
-import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.tor.TorStatusObservable;
-
 import static android.content.Context.MODE_PRIVATE;
+import static se.leap.bitmaskclient.base.models.Constants.ALLOW_EXPERIMENTAL_TRANSPORTS;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_BLUETOOTH;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_USB;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_WIFI;
@@ -41,6 +23,24 @@ import static se.leap.bitmaskclient.base.models.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SNOWFLAKE;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
+
+import de.blinkt.openvpn.VpnProfile;
+import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 /**
  * Created by cyberta on 18.03.18.
@@ -236,6 +236,14 @@ public class PreferenceHelper {
 
     public static boolean showExperimentalFeatures(Context context) {
         return getBoolean(context, SHOW_EXPERIMENTAL, false);
+    }
+
+    public static void setAllowExperimentalTransports(Context context, boolean show) {
+        putBoolean(context, ALLOW_EXPERIMENTAL_TRANSPORTS, show);
+    }
+
+    public static boolean allowExperimentalTransports(Context context) {
+        return getBoolean(context, ALLOW_EXPERIMENTAL_TRANSPORTS, false);
     }
 
     public static void setUseIPv6Firewall(Context context, boolean useFirewall) {

@@ -16,6 +16,36 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
+import static se.leap.bitmaskclient.R.string.warning_client_parsing_error_gateways;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.CLEARLOG;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_IS_RUNNING;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_LAUNCH_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_BLOCKING_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_N_CLOSEST_GATEWAY;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_RECEIVER;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_PROFILE;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.NO_MORE_GATEWAYS;
+import static se.leap.bitmaskclient.eip.EipResultBroadcast.tellToReceiverOrBroadcast;
+
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
@@ -31,6 +61,7 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.WorkerThread;
 import androidx.core.app.JobIntentService;
@@ -57,41 +88,9 @@ import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.OnBootReceiver;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.models.Pair;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-
-import static android.app.Activity.RESULT_CANCELED;
-import static android.app.Activity.RESULT_OK;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
-import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
-import static se.leap.bitmaskclient.R.string.warning_client_parsing_error_gateways;
-import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_GATEWAY_SETUP_OBSERVER_EVENT;
-import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
-import static se.leap.bitmaskclient.base.models.Constants.CLEARLOG;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_CHECK_CERT_VALIDITY;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_IS_RUNNING;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_LAUNCH_VPN;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_BLOCKING_VPN;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_N_CLOSEST_GATEWAY;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_RECEIVER;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
-import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_PROFILE;
-import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
-import static se.leap.bitmaskclient.eip.EIP.EIPErrors.NO_MORE_GATEWAYS;
-import static se.leap.bitmaskclient.eip.EipResultBroadcast.tellToReceiverOrBroadcast;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -256,8 +255,8 @@ public final class EIP extends JobIntentService implements Observer {
             return;
         }
 
-        Gateway gateway = gatewaysManager.select(nClosestGateway);
-        launchActiveGateway(gateway, nClosestGateway, result);
+        Pair<Gateway, Connection.TransportType> gatewayTransportTypePair = gatewaysManager.select(nClosestGateway);
+        launchActiveGateway(gatewayTransportTypePair, nClosestGateway, result);
         if (result.containsKey(BROADCAST_RESULT_KEY) && !result.getBoolean(BROADCAST_RESULT_KEY)) {
             tellToReceiverOrBroadcast(this, EIP_ACTION_START, RESULT_CANCELED, result);
         } else {
@@ -271,7 +270,7 @@ public final class EIP extends JobIntentService implements Observer {
      */
     private void startEIPAlwaysOnVpn() {
         GatewaysManager gatewaysManager = new GatewaysManager(getApplicationContext());
-        Gateway gateway = gatewaysManager.select(0);
+        Pair<Gateway, Connection.TransportType> gatewayTransportTypePair = gatewaysManager.select(0);
         Bundle result = new Bundle();
 
         if (shouldUpdateVPNCertificate()) {
@@ -280,7 +279,7 @@ public final class EIP extends JobIntentService implements Observer {
             ProviderObservable.getInstance().updateProvider(p);
         }
 
-        launchActiveGateway(gateway, 0, result);
+        launchActiveGateway(gatewayTransportTypePair, 0, result);
         if (result.containsKey(BROADCAST_RESULT_KEY) && !result.getBoolean(BROADCAST_RESULT_KEY)){
             VpnStatus.logWarning("ALWAYS-ON VPN: " + getString(R.string.no_vpn_profiles_defined));
         }
@@ -324,13 +323,13 @@ public final class EIP extends JobIntentService implements Observer {
     /**
      * starts the VPN and connects to the given gateway
      *
-     * @param gateway to connect to
+     * @param gatewayTransportTypePair Pair of Gateway and associated transport used to connect
      */
-    private void launchActiveGateway(Gateway gateway, int nClosestGateway, Bundle result) {
+    private void launchActiveGateway(@Nullable Pair<Gateway, Connection.TransportType> gatewayTransportTypePair, int nClosestGateway, Bundle result) {
         VpnProfile profile;
-        Connection.TransportType transportType = getUseBridges(this) ? OBFS4 : OPENVPN;
-        if (gateway == null ||
-                (profile = gateway.getProfile(transportType)) == null) {
+
+        if (gatewayTransportTypePair == null || gatewayTransportTypePair.first == null ||
+                (profile = gatewayTransportTypePair.first.getProfile(gatewayTransportTypePair.second)) == null) {
             String preferredLocation = getPreferredCity(getApplicationContext());
             if (preferredLocation != null) {
                 setErrorResult(result, NO_MORE_GATEWAYS.toString(), getStringResourceForNoMoreGateways(), getString(R.string.app_name), preferredLocation);

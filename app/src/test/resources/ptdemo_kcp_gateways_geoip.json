@@ -1,0 +1,29 @@
+{
+  "ip":"51.158.144.32",
+  "cc":"FR",
+  "city":"Paris",
+  "lat":48.8628,
+  "lon":2.3292,
+  "gateways":[
+    "pt.demo.bitmask.net",
+    "moscow.bitmask.net",
+    "manila.bitmask.net"
+  ],
+  "sortedGateways": [
+    {
+      "host": "pt.demo.bitmask.net",
+      "fullness": 0.3,
+      "overload": false
+    },
+    {
+      "host": "moscow.bitmask.net",
+      "fullness": 0.36,
+      "overload": false
+    },
+    {
+      "host": "manila.bitmask.net",
+      "fullness": 0.59,
+      "overload": false
+    }
+  ]
+}
