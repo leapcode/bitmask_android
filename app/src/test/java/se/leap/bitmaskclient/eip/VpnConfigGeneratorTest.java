@@ -520,7 +520,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
-            "crl-verify file missing in config profile\n" +
+            "# crl-verify file missing in config profile\n" +
             "route 37.218.247.60  255.255.255.255 net_gateway\n"+
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
@@ -1407,6 +1407,8 @@ public class VpnConfigGeneratorTest {
             "persist-tun\n" +
             "# persist-tun also enables pre resolving to avoid DNS resolve problem\n" +
             "preresolve\n" +
+            "# Use system proxy setting\n" +
+            "management-query-proxy\n" +
             "# Custom configuration options\n" +
             "# You are on your on own here :)\n" +
             "# These options found in the config file do not map to config settings:\n" +
@@ -1438,7 +1440,7 @@ public class VpnConfigGeneratorTest {
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 1, false, false);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         assertFalse(vpnProfiles.containsKey(OBFS4));
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v1_tcp_udp.trim()));
+        assertEquals(expectedVPNConfig_v1_tcp_udp.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1447,7 +1449,7 @@ public class VpnConfigGeneratorTest {
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 1, false, false);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         assertFalse(vpnProfiles.containsKey(OBFS4));
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v1_udp_tcp.trim()));
+        assertEquals(expectedVPNConfig_v1_udp_tcp.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1456,7 +1458,7 @@ public class VpnConfigGeneratorTest {
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 2, false, false);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         assertFalse(vpnProfiles.containsKey(OBFS4));
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v1_tcp_udp.trim()));
+        assertEquals(expectedVPNConfig_v1_tcp_udp.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1465,7 +1467,7 @@ public class VpnConfigGeneratorTest {
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 2, false, false);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         assertFalse(vpnProfiles.containsKey(OBFS4));
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v1_udp_tcp.trim()));
+        assertEquals(expectedVPNConfig_v1_udp_tcp.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
 
@@ -1478,7 +1480,7 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.containsKey(OBFS4));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
         System.out.println(vpnProfiles.get(OBFS4).getConfigFile(context, false));
-        assertTrue(vpnProfiles.get(OBFS4).getConfigFile(context, false).trim().equals(expectedVPNConfig_v3_obfs4.trim()));
+        assertEquals(expectedVPNConfig_v3_obfs4.trim(), vpnProfiles.get(OBFS4).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1490,7 +1492,7 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.containsKey(OBFS4));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
         System.out.println(vpnProfiles.get(OBFS4).getConfigFile(context, false));
-        assertTrue(vpnProfiles.get(OBFS4).getConfigFile(context, false).trim().equals(expectedVPNConfig_v3_obfsvpn_obfs4.trim()));
+        assertEquals(expectedVPNConfig_v3_obfsvpn_obfs4.trim(), vpnProfiles.get(OBFS4).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1501,7 +1503,7 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.containsKey(OBFS4));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
         System.out.println(vpnProfiles.get(OPENVPN).getConfigFile(context, false));
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v3_ovpn_tcp_udp.trim()));
+        assertEquals(expectedVPNConfig_v3_ovpn_tcp_udp.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1512,7 +1514,7 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.containsKey(OBFS4));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
         System.out.println(vpnProfiles.get(OPENVPN).getConfigFile(context, false));
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v3_ovpn_udp_tcp.trim()));
+        assertEquals(expectedVPNConfig_v3_ovpn_udp_tcp.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1525,7 +1527,7 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.containsKey(OBFS4));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
         System.out.println(vpnProfiles.get(OPENVPN).getConfigFile(context, false));
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v3_ovpn_udp_tcp_defaultDataCiphers.trim()));
+        assertEquals(expectedVPNConfig_v3_ovpn_udp_tcp_defaultDataCiphers.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1537,7 +1539,7 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.containsKey(OBFS4));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
         System.out.println(vpnProfiles.get(OPENVPN).getConfigFile(context, false));
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v4_ovpn_tcp_udp.trim()));
+        assertEquals(expectedVPNConfig_v4_ovpn_tcp_udp.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1549,8 +1551,7 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.containsKey(OBFS4));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
         System.out.println(vpnProfiles.get(OPENVPN).getConfigFile(context, false));
-        System.out.println(expectedVPNConfig_v4_ovpn_udp_tcp.trim());
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v4_ovpn_udp_tcp.trim()));
+        assertEquals(expectedVPNConfig_v4_ovpn_udp_tcp.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1620,8 +1621,7 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.containsKey(OBFS4));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
         System.out.println(vpnProfiles.get(OPENVPN).getConfigFile(context, false));
-        System.out.println(expectedVPNConfig_v4_ovpn_multiport_tcpudp.trim());
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v4_ovpn_multiport_tcpudp.trim()));
+        assertEquals(expectedVPNConfig_v4_ovpn_multiport_tcpudp.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
     @Test
@@ -1631,7 +1631,7 @@ public class VpnConfigGeneratorTest {
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, 4, false, false);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         System.out.println(vpnProfiles.get(OPENVPN).getConfigFile(context, false));
-        assertTrue(vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim().equals(expectedVPNConfig_v4_ovpn_tcp_udp_new_ciphers.trim()));
+        assertEquals(expectedVPNConfig_v4_ovpn_tcp_udp_new_ciphers.trim(), vpnProfiles.get(OPENVPN).getConfigFile(context, false).trim());
     }
 
     public void testGenerateVpnProfileExperimentalTransportsEnabled () throws Exception {
