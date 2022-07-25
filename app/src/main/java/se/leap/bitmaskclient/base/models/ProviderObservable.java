@@ -1,5 +1,7 @@
 package se.leap.bitmaskclient.base.models;
 
+import androidx.annotation.NonNull;
+
 import java.util.Observable;
 
 /**
@@ -17,7 +19,7 @@ public class ProviderObservable extends Observable {
         return instance;
     }
 
-    public synchronized void updateProvider(Provider provider) {
+    public synchronized void updateProvider(@NonNull Provider provider) {
         instance.currentProvider = provider;
         instance.providerForDns = null;
         instance.setChanged();
