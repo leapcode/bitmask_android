@@ -89,7 +89,6 @@ public class StartActivity extends Activity{
 
             case UPGRADE:
                 executeUpgrade();
-                // TODO show donation dialog
                 break;
         }
 
@@ -154,7 +153,19 @@ public class StartActivity extends Activity{
             Provider provider = ProviderObservable.getInstance().getCurrentProvider();
             if (provider != null && !provider.isDefault()) {
                 PreferenceHelper.deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
-                ProviderObservable.getInstance().updateProvider(null);
+                ProviderObservable.getInstance().updateProvider(new Provider());
+            }
+        }
+
+        if (hasNewFeature(FeatureVersionCode.CALYX_PROVIDER_LILYPAD_UPDATE) && (
+                getPackageName().equals("org.calyxinstitute.vpn") ||
+                        ProviderObservable.getInstance().getCurrentProvider().getDomain().equals("calyx.net"))) {
+            // deletion of current configured provider so that a new provider setup is triggered
+            Provider provider = ProviderObservable.getInstance().getCurrentProvider();
+            if (provider != null && !provider.isDefault()) {
+                PreferenceHelper.deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
+                PreferenceHelper.deleteCurrentProviderDetailsFromPreferences(preferences);
+                ProviderObservable.getInstance().updateProvider(new Provider());
             }
         }
 
@@ -181,24 +192,19 @@ public class StartActivity extends Activity{
     }
 
     private void prepareEIP() {
-        boolean providerExists = ProviderObservable.getInstance().getCurrentProvider() != null;
-        if (providerExists) {
-            Provider provider =  ProviderObservable.getInstance().getCurrentProvider();
-            if(!provider.isConfigured()) {
-                configureLeapProvider();
+        Provider provider =  ProviderObservable.getInstance().getCurrentProvider();
+        if (provider.isConfigured()) {
+            Log.d(TAG, "vpn provider is configured");
+            if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
+                EipCommand.startVPN(this, true);
+                finish();
+            } else if (PreferenceHelper.getRestartOnUpdate(this.getApplicationContext())) {
+                PreferenceHelper.restartOnUpdate(this.getApplicationContext(), false);
+                EipCommand.startVPN(this, false);
+                showMainActivity();
+                finish();
             } else {
-                Log.d(TAG, "vpn provider is configured");
-                if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
-                    EipCommand.startVPN(this, true);
-                    finish();
-                } else if (PreferenceHelper.getRestartOnUpdate(this.getApplicationContext())) {
-                    PreferenceHelper.restartOnUpdate(this.getApplicationContext(), false);
-                    EipCommand.startVPN(this, false);
-                    showMainActivity();
-                    finish();
-                } else {
-                    showMainActivity();
-                }
+                showMainActivity();
             }
         } else {
             configureLeapProvider();

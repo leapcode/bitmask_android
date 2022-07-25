@@ -131,6 +131,20 @@ public class PreferenceHelper {
                 apply();
     }
 
+    public static void deleteCurrentProviderDetailsFromPreferences(@NonNull SharedPreferences preferences) {
+        preferences.edit().
+                remove(Provider.KEY).
+                remove(Provider.CA_CERT).
+                remove(Provider.PROVIDER_IP).
+                remove(Provider.PROVIDER_API_IP).
+                remove(Provider.MAIN_URL).
+                remove(Provider.GEOIP_URL).
+                remove(PROVIDER_EIP_DEFINITION).
+                remove(PROVIDER_PRIVATE_KEY).
+                remove(PROVIDER_VPN_CERTIFICATE).
+                apply();
+    }
+
     public static void setLastAppUpdateCheck(Context context) {
         putLong(context, LAST_UPDATE_CHECK, System.currentTimeMillis());
     }
