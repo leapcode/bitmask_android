@@ -13,6 +13,10 @@ android {
     sourceCompatibility 1.8
   }
 
+  viewBinding {
+    enabled = true
+  }
+
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
     // the factor 1000 is used so that gplay users can upgrade from split apks ((current version number - 1) * 1000) + n

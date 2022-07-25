@@ -8,7 +8,8 @@
     android:layout_marginStart="@dimen/stdpadding"
     android:layout_marginEnd="@dimen/stdpadding"
     android:layout_marginRight="@dimen/stdpadding"
-    tools:context=".base.MainActivity" >
+    tools:context=".base.MainActivity"
+    tools:viewBindingIgnore="true">
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -6,7 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".providersetup.activities.CustomProviderSetupActivity"
     android:padding="@dimen/stdpadding"
-    style="@style/BitmaskActivity" >
+    style="@style/BitmaskActivity"
+    tools:viewBindingIgnore="true"
+    >
 
     <!-- a "content" view that is required for
     ConfigWizardBaseActivities -->

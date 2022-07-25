@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:orientation="vertical"
+<LinearLayout android:orientation="vertical"
     android:padding="@dimen/stdpadding"
     style="@style/BitmaskActivity"
     android:layout_width="0dp"
@@ -13,7 +12,9 @@
     app:layout_constraintStart_toStartOf="@+id/guideline_left"
     app:layout_constraintTop_toTopOf="@+id/guideline_top"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:viewBindingIgnore="true"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <include layout="@layout/v_loading_screen" />
 

@@ -3,6 +3,7 @@
     android:orientation="vertical"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
+    tools:viewBindingIgnore="true"
     >
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@android:id/text1"

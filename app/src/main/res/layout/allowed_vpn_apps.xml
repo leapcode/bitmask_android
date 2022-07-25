@@ -8,7 +8,9 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     tools:ignore="RtlCompat"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:viewBindingIgnore="true"
+    >
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="match_parent"

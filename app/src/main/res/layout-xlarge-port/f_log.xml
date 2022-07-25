@@ -10,7 +10,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="@dimen/activity_margin"
-    android:id="@+id/log_layout">
+    android:id="@+id/log_layout"
+    tools:viewBindingIgnore="true">
 
     <LinearLayout
         android:background="@drawable/white_rect"

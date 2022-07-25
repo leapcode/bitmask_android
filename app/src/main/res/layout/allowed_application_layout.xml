@@ -14,7 +14,9 @@
     android:paddingTop="8dip"
     android:paddingBottom="8dip"
     android:columnCount="4"
-    tools:ignore="RtlCompat">
+    tools:ignore="RtlCompat"
+    tools:viewBindingIgnore="true"
+    >
 
     <ImageView
         android:id="@+id/app_icon"
