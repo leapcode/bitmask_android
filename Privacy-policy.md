@@ -3,7 +3,8 @@ Privacy Policy for Bitmask
 
 Bitmask does not communicate with any server other than the servers of the selected LEAP VPN provider.
 
-The logs are kept on the device in the app's storage and are deleted by default with each new successful connection attempt. These logs are not accessible by the author or (under normal circumstances, e.g. phone not rooted or hacked) by other apps.
+The authors don't collect any data nor logs. Logs that are created don't leave the app's storage and are deleted by default with each new successful connection. They are only accessible in the app.
+
 For the privacy policy of the LEAP VPN service you are using, please refer to the respective privacy policy.
 
 End of service
