@@ -11,6 +11,13 @@ import static se.leap.bitmaskclient.base.models.Constants.EXCLUDED_APPS;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAY_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_UPDATE_CHECK;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_USED_PROFILE;
+import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_CERT;
+import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_GW_HOST;
+import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_GW_IP;
+import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_IP;
+import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_KCP;
+import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_LOCATION;
+import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_PORT;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
 import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_CONFIGURED;
@@ -22,10 +29,12 @@ import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
+import static se.leap.bitmaskclient.base.models.Constants.USE_OBFUSCATION_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SNOWFLAKE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
@@ -258,6 +267,77 @@ public class PreferenceHelper {
 
     public static boolean allowExperimentalTransports(Context context) {
         return getBoolean(context, ALLOW_EXPERIMENTAL_TRANSPORTS, false);
+    }
+
+    public static void setUseObfuscationPinning(Context context, Boolean pinning) {
+        putBoolean(context, USE_OBFUSCATION_PINNING, pinning);
+    }
+
+    public static boolean useObfuscationPinning(Context context) {
+        return ConfigHelper.ObfsVpnHelper.useObfsVpn() &&
+                getUseBridges(context) &&
+                getBoolean(context, USE_OBFUSCATION_PINNING, false) &&
+                !TextUtils.isEmpty(getObfuscationPinningIP(context)) &&
+                !TextUtils.isEmpty(getObfuscationPinningCert(context)) &&
+                !TextUtils.isEmpty(getObfuscationPinningPort(context)) &&
+                !TextUtils.isEmpty(getObfuscationPinningGatewayHost(context));
+    }
+
+    public static void setObfuscationPinningIP(Context context, String ip) {
+        putString(context, OBFUSCATION_PINNING_IP, ip);
+    }
+
+    public static String getObfuscationPinningIP(Context context) {
+        return getString(context, OBFUSCATION_PINNING_IP, null);
+    }
+
+    public static void setObfuscationPinningPort(Context context, String port) {
+        putString(context, OBFUSCATION_PINNING_PORT, port);
+    }
+
+    public static String getObfuscationPinningPort(Context context) {
+        return getString(context, OBFUSCATION_PINNING_PORT, null);
+    }
+
+    public static void setObfuscationPinningCert(Context context, String cert) {
+        putString(context, OBFUSCATION_PINNING_CERT, cert);
+    }
+
+    public static String getObfuscationPinningCert(Context context) {
+        return getString(context, OBFUSCATION_PINNING_CERT, null);
+    }
+
+    public static void setObfuscationPinningGatewayHost(Context context, String gatewayIP) {
+        putString(context, OBFUSCATION_PINNING_GW_HOST, gatewayIP);
+    }
+
+    public static String getObfuscationPinningGatewayHost(Context context) {
+        return getString(context, OBFUSCATION_PINNING_GW_HOST, null);
+    }
+
+
+    public static void setObfuscationPinningGatewayIP(Context context, String ipForHost) {
+        putString(context, OBFUSCATION_PINNING_GW_IP, ipForHost);
+    }
+
+    public static String getObfuscationPinningGatewayIP(Context context) {
+        return getString(context, OBFUSCATION_PINNING_GW_IP, null);
+    }
+
+    public static void setObfuscationPinningGatewayLocation(Context context, String location) {
+        putString(context, OBFUSCATION_PINNING_LOCATION, location);
+    }
+
+    public static String getObfuscationPinningGatewayLocation(Context context) {
+        return getString(context, OBFUSCATION_PINNING_LOCATION, null);
+    }
+
+    public static Boolean getObfuscationPinningKCP(Context context) {
+        return getBoolean(context, OBFUSCATION_PINNING_KCP, false);
+    }
+
+    public static void setObfuscationPinningKCP(Context context, boolean isKCP) {
+        putBoolean(context, OBFUSCATION_PINNING_KCP, isKCP);
     }
 
     public static void setUseIPv6Firewall(Context context, boolean useFirewall) {

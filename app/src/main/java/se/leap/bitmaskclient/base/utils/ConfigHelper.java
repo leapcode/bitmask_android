@@ -285,5 +285,32 @@ public class ConfigHelper {
         public static boolean useObfsVpn() {
             return BuildConfig.use_obfsvpn;
         }
+
+        public static boolean hasObfuscationPinningDefaults() {
+            return BuildConfig.obfsvpn_ip != null &&
+                    BuildConfig.obfsvpn_port != null &&
+                    BuildConfig.obfsvpn_cert != null &&
+                    BuildConfig.obfsvpn_gateway_host != null &&
+                    !BuildConfig.obfsvpn_ip.isEmpty() &&
+                    !BuildConfig.obfsvpn_port.isEmpty() &&
+                    !BuildConfig.obfsvpn_cert.isEmpty() &&
+                    !BuildConfig.obfsvpn_gateway_host.isEmpty();
+        }
+        public static String obfsvpnIP() {
+            return BuildConfig.obfsvpn_ip;
+        }
+        public static String obfsvpnPort() {
+            return BuildConfig.obfsvpn_port;
+        }
+        public static String obfsvpnCert() {
+            return BuildConfig.obfsvpn_cert;
+        }
+        public static String gatewayHost() {
+            return BuildConfig.obfsvpn_gateway_host;
+        }
+
+        public static boolean useKcp() {
+            return BuildConfig.obfsvpn_use_kcp;
+        }
     }
 }

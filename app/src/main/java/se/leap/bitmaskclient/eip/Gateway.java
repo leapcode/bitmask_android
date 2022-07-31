@@ -26,6 +26,17 @@ import static se.leap.bitmaskclient.base.models.Constants.OPENVPN_CONFIGURATION;
 import static se.leap.bitmaskclient.base.models.Constants.OVERLOAD;
 import static se.leap.bitmaskclient.base.models.Constants.TIMEZONE;
 import static se.leap.bitmaskclient.base.models.Constants.VERSION;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningCert;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningGatewayHost;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningGatewayIP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningGatewayLocation;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningIP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningPort;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 
 import android.content.Context;
 
@@ -45,7 +56,6 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 /**
  * Gateway provides objects defining gateways and their metadata.
@@ -87,26 +97,35 @@ public class Gateway {
         this.secrets = secrets;
         this.load = load;
 
+        apiVersion = getApiVersion(eipDefinition);
+        VpnConfigGenerator.Configuration configuration = getProfileConfig(context, eipDefinition, apiVersion);
         generalConfiguration = getGeneralConfiguration(eipDefinition);
         timezone = getTimezone(eipDefinition);
-        name = locationAsName(eipDefinition);
-        apiVersion = getApiVersion(eipDefinition);
-        vpnProfiles = createVPNProfiles(context);
+        name = configuration.profileName;
+        vpnProfiles = createVPNProfiles(configuration);
+    }
+
+    private VpnConfigGenerator.Configuration getProfileConfig(Context context, JSONObject eipDefinition, int apiVersion) {
+        VpnConfigGenerator.Configuration config = new VpnConfigGenerator.Configuration();
+        config.apiVersion = apiVersion;
+        config.preferUDP = getPreferUDP(context);
+        config.experimentalTransports = allowExperimentalTransports(context);
+        config.excludedApps = getExcludedApps(context);
+
+        config.useObfuscationPinning = useObfuscationPinning(context);
+        config.profileName = config.useObfuscationPinning ? getObfuscationPinningGatewayLocation(context) : locationAsName(eipDefinition);
+        config.remoteGatewayIP = config.useObfuscationPinning ? getObfuscationPinningGatewayIP(context) : gateway.optString(IP_ADDRESS);
+        if (config.useObfuscationPinning) {
+            config.obfuscationProxyIP = getObfuscationPinningIP(context);
+            config.obfuscationProxyPort = getObfuscationPinningPort(context);
+            config.obfuscationProxyCert = getObfuscationPinningCert(context);
+            config.obfuscationProxyKCP = getObfuscationPinningKCP(context);
+        }
+        return config;
     }
 
     public void updateLoad(JSONObject load) {
         this.load = load;
-    }
-
-    private void addProfileInfos(Context context, HashMap<Connection.TransportType, VpnProfile> profiles) {
-        Set<String> excludedAppsVpn = PreferenceHelper.getExcludedApps(context);
-        for (VpnProfile profile : profiles.values()) {
-            profile.mName = name;
-            profile.mGatewayIp = gateway.optString(IP_ADDRESS);
-            if (excludedAppsVpn != null) {
-                profile.mAllowedAppsVpn = new HashSet<>(excludedAppsVpn);
-            }
-        }
     }
 
     private JSONObject getGeneralConfiguration(JSONObject eipDefinition) {
@@ -172,13 +191,10 @@ public class Gateway {
     /**
      * Create and attach the VpnProfile to our gateway object
      */
-    private @NonNull HashMap<Connection.TransportType, VpnProfile> createVPNProfiles(Context context)
+    private @NonNull HashMap<Connection.TransportType, VpnProfile> createVPNProfiles(VpnConfigGenerator.Configuration profileConfig)
             throws ConfigParser.ConfigParseError, IOException, JSONException {
-        boolean preferUDP = PreferenceHelper.getPreferUDP(context);
-        boolean allowExperimentalTransports = PreferenceHelper.allowExperimentalTransports(context);
-        VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway, apiVersion, preferUDP, allowExperimentalTransports);
+        VpnConfigGenerator vpnConfigurationGenerator = new VpnConfigGenerator(generalConfiguration, secrets, gateway, profileConfig);
         HashMap<Connection.TransportType, VpnProfile> profiles = vpnConfigurationGenerator.generateVpnProfiles();
-        addProfileInfos(context, profiles);
         return profiles;
     }
 

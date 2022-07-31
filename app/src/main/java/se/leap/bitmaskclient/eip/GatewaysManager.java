@@ -16,6 +16,20 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
+import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
+import static se.leap.bitmaskclient.base.models.Constants.HOST;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.models.Constants.SORTED_GATEWAYS;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -47,18 +61,6 @@ import se.leap.bitmaskclient.base.models.Pair;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
-import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
-import static se.leap.bitmaskclient.base.models.Constants.HOST;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.base.models.Constants.SORTED_GATEWAYS;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 
 /**
  * @author parmegv
@@ -115,6 +117,13 @@ public class GatewaysManager {
       * @return the n closest Gateway
      */
     public Pair<Gateway, TransportType> select(int nClosest) {
+        if (PreferenceHelper.useObfuscationPinning(context)) {
+            Gateway gateway = gateways.get(PreferenceHelper.getObfuscationPinningGatewayHost(context));
+            if (gateway == null) {
+                return null;
+            }
+            return new Pair<>(gateway, getObfuscationPinningKCP(context) ? OBFS4_KCP : OBFS4);
+        }
         String selectedCity = getPreferredCity(context);
         return select(nClosest, selectedCity);
     }
@@ -133,6 +142,23 @@ public class GatewaysManager {
             this.selectedTransport = transportType;
             locations.clear();
         }
+    }
+
+    public ArrayList<String> getHosts() {
+        ArrayList<String> hosts = new ArrayList<>();
+        for (Gateway gateway : gateways.values()) {
+            hosts.add(gateway.getHost());
+        }
+        return hosts;
+    }
+
+
+    public String getIpForHost(String gatewayHostName) {
+        Gateway gateway = gateways.get(gatewayHostName);
+        if (gateway == null) {
+            return null;
+        }
+        return gateway.getRemoteIP();
     }
 
     public List<Location> getGatewayLocations() {
@@ -200,6 +226,14 @@ public class GatewaysManager {
             location.setAverageLoad(transportType, averageLoad);
             location.setNumberOfGateways(transportType, numberOfGateways);
         }
+    }
+
+    public String getLocationNameForHost(String name) {
+        Gateway gateway = gateways.get(name);
+        if (gateway != null) {
+            return gateway.getName();
+        }
+        return "Unknown Location";
     }
 
     @Nullable

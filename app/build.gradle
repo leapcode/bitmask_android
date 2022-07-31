@@ -50,10 +50,10 @@ android {
     // decide if we use obfsvpn or shapeshifter as obfs4 lib
     buildConfigField 'boolean', 'use_obfsvpn', 'true'
     // obfsvpn Debugging config fields to pin and configure a particular proxy
-    buildConfigField 'boolean', 'obfsvpn_pinning', 'false'
-    buildConfigField "String", "obfsvpn_port", '""'
-    buildConfigField "String", "obfsvpn_ip", '""'
-    buildConfigField "String", "obfsvpn_cert", '""'
+    buildConfigField "String", "obfsvpn_port", '"443"'
+    buildConfigField "String", "obfsvpn_ip", '"163.172.58.132"'
+    buildConfigField "String", "obfsvpn_cert", '"/ntRNI6JYP7R6kGKldibKWj0aCsv96Hdu/jSGncPy+rcverCLI7Emod+vRkz61hM7F/udA"'
+    buildConfigField "String", "obfsvpn_gateway_host", '"vpn03-par.float.hexacab.org"'
     buildConfigField 'boolean', 'obfsvpn_use_kcp', 'false'
 
     // static update url pointing to the latest stable release apk
@@ -148,10 +148,10 @@ android {
       // decide if we use obfsvpn or shapeshifter as obfs4 lib
       buildConfigField 'boolean', 'use_obfsvpn', 'true'
       // obfsvpn Debugging config fields to pin and configure a particular proxy
-      buildConfigField 'boolean', 'obfsvpn_pinning', 'false'
       buildConfigField "String", "obfsvpn_port", '""'
       buildConfigField "String", "obfsvpn_ip", '""'
       buildConfigField "String", "obfsvpn_cert", '""'
+      buildConfigField "String", "obfsvpn_gateway_host", '""'
       buildConfigField 'boolean', 'obfsvpn_use_kcp', 'false'
 
       //Build Config Fields for automatic apk update checks

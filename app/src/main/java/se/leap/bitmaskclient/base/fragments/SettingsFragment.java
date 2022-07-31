@@ -9,9 +9,10 @@ import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
+import static se.leap.bitmaskclient.base.models.Constants.USE_OBFUSCATION_PINNING;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheringSupport;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
@@ -19,7 +20,9 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setAllowExperimentalTransports;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
 
@@ -86,6 +89,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initTetheringEntry(view);
         initGatewayPinningEntry(view);
         initExperimentalTransportsEntry(view);
+        initObfuscationPinningEntry(view);
         setActionBarTitle(this, advanced_settings);
         return view;
     }
@@ -260,6 +264,47 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         });
     }
 
+    public void initObfuscationPinningEntry(View rootView) {
+        IconSwitchEntry obfuscationPinning = rootView.findViewById(R.id.obfuscation_proxy_pinning);
+        if (useObfsVpn()) {
+            obfuscationPinning.setVisibility(VISIBLE);
+            boolean useBridges = getUseBridges(getContext());
+            obfuscationPinning.setEnabled(useBridges);
+            obfuscationPinning.setSubtitle(useBridges ? "Connect to a specific obfuscation proxy for debugging purposes" : "Enable Bridges to use this option");
+            obfuscationPinning.setChecked(useObfuscationPinning(getContext()));
+            obfuscationPinning.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (!buttonView.isPressed()) {
+                    return;
+                }
+                if (!isChecked) {
+                    setUseObfuscationPinning(getContext(), false);
+                } else {
+                    showObfuscationPinningDialog();
+                }
+            });
+            obfuscationPinning.setOnClickListener(v -> {
+                if (obfuscationPinning.isChecked()) {
+                    showObfuscationPinningDialog();
+                }
+            });
+        } else {
+            obfuscationPinning.setVisibility(GONE);
+        }
+    }
+
+    public void showObfuscationPinningDialog() {
+        try {
+            FragmentTransaction fragmentTransaction = new FragmentManagerEnhanced(
+                    getActivity().getSupportFragmentManager()).removePreviousFragment(
+                    ObfuscationProxyDialog.TAG);
+            DialogFragment newFragment = new ObfuscationProxyDialog();
+            newFragment.setCancelable(false);
+            newFragment.show(fragmentTransaction, ObfuscationProxyDialog.TAG);
+        } catch (IllegalStateException | NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void initExperimentalTransportsEntry(View rootView) {
         IconSwitchEntry experimentalTransports = rootView.findViewById(R.id.experimental_transports);
         if (useObfsVpn() && ProviderObservable.getInstance().getCurrentProvider().supportsExperimentalPluggableTransports()) {
@@ -315,8 +360,12 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             initPreferUDPEntry(rootView);
         } else if (key.equals(USE_IPv6_FIREWALL)) {
             initFirewallEntry(getView());
-        } if (key.equals(GATEWAY_PINNING)) {
+        } else if (key.equals(GATEWAY_PINNING)) {
             initGatewayPinningEntry(rootView);
+        }
+
+        if (key.equals(USE_OBFUSCATION_PINNING) || key.equals(USE_BRIDGES)) {
+            initObfuscationPinningEntry(rootView);
         }
     }
 

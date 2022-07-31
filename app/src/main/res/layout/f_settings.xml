@@ -124,13 +124,14 @@
             app:subtitle="These transports might circumvent censorship, but are still in a testing phase"
             />
 
-        <se.leap.bitmaskclient.base.views.IconTextEntry
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
             android:id="@+id/obfuscation_proxy_pinning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:text="Obfuscation proxy pinning"
             app:singleLine="false"
             app:subtitle="Connect to a specific obfuscation proxy for debugging purposes"
+            android:visibility="gone"
             />
 
     </LinearLayout>
