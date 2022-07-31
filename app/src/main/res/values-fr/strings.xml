@@ -134,6 +134,7 @@
   <string name="warning_exclude_apps_message">Soyez prudent en excluant des applis du RPV. Cela divulguera votre identité et compromettra votre sécurité.</string>
   <plurals name="subtitle_exclude_apps">
     <item quantity="one">%d appli non protégée</item>
+    <item quantity="many">%d applis non protégées</item>
     <item quantity="other">%d applis non protégées</item>
   </plurals>
   <string name="warning_no_more_gateways_use_pt">%s n’a pas pu se connecter. Les connexions RPV sont peut-être bloquées. Voulez-vous tenter de vous connecter en essayant des connexions brouillées ?</string>

@@ -7,7 +7,9 @@
     android:layout_gravity="center_vertical"
     android:padding="@dimen/stdpadding"
     android:background="@drawable/cust_button_primary_rect"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:viewBindingIgnore="true"
+    >
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/world_icn"

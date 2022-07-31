@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/stdpadding"
-    tools:context=".providersetup.AddProviderActivity">
+    tools:context=".providersetup.AddProviderActivity"
+    tools:viewBindingIgnore="true"
+    >
 
     <LinearLayout
         android:id="@+id/content"

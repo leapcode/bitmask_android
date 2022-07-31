@@ -12,7 +12,9 @@
     app:layout_constraintStart_toStartOf="@+id/guideline_left"
     app:layout_constraintTop_toTopOf="@+id/guideline_top"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:viewBindingIgnore="true">
 
     <include layout="@layout/v_loading_screen" />
 

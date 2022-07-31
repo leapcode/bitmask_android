@@ -13,13 +13,17 @@ android {
     sourceCompatibility 1.8
   }
 
+  viewBinding {
+    enabled = true
+  }
+
   defaultConfig {
     applicationId "se.leap.bitmaskclient"
     // the factor 1000 is used so that gplay users can upgrade from split apks ((current version number - 1) * 1000) + n
     // to extracted bundle apks, supplied by google
     // however we don't calculate the versionCode here, because F-Droid doesn't like that
-    versionCode 162000
-    versionName "1.1.4"
+    versionCode 163000
+    versionName "1.1.5"
     minSdkVersion 16
     targetSdkVersion 30
     vectorDrawables.useSupportLibrary = true
@@ -46,10 +50,10 @@ android {
     // decide if we use obfsvpn or shapeshifter as obfs4 lib
     buildConfigField 'boolean', 'use_obfsvpn', 'true'
     // obfsvpn Debugging config fields to pin and configure a particular proxy
-    buildConfigField 'boolean', 'obfsvpn_pinning', 'false'
-    buildConfigField "String", "obfsvpn_port", '""'
-    buildConfigField "String", "obfsvpn_ip", '""'
-    buildConfigField "String", "obfsvpn_cert", '""'
+    buildConfigField "String", "obfsvpn_port", '"443"'
+    buildConfigField "String", "obfsvpn_ip", '"163.172.58.132"'
+    buildConfigField "String", "obfsvpn_cert", '"/ntRNI6JYP7R6kGKldibKWj0aCsv96Hdu/jSGncPy+rcverCLI7Emod+vRkz61hM7F/udA"'
+    buildConfigField "String", "obfsvpn_gateway_host", '"vpn03-par.float.hexacab.org"'
     buildConfigField 'boolean', 'obfsvpn_use_kcp', 'false'
 
     // static update url pointing to the latest stable release apk
@@ -144,10 +148,10 @@ android {
       // decide if we use obfsvpn or shapeshifter as obfs4 lib
       buildConfigField 'boolean', 'use_obfsvpn', 'true'
       // obfsvpn Debugging config fields to pin and configure a particular proxy
-      buildConfigField 'boolean', 'obfsvpn_pinning', 'false'
       buildConfigField "String", "obfsvpn_port", '""'
       buildConfigField "String", "obfsvpn_ip", '""'
       buildConfigField "String", "obfsvpn_cert", '""'
+      buildConfigField "String", "obfsvpn_gateway_host", '""'
       buildConfigField 'boolean', 'obfsvpn_use_kcp', 'false'
 
       //Build Config Fields for automatic apk update checks

@@ -45,6 +45,14 @@ public interface Constants {
     String PREFER_UDP = "prefer_UDP";
     String GATEWAY_PINNING = "gateway_pinning";
     String ALLOW_EXPERIMENTAL_TRANSPORTS = "allow_experimental_transports";
+    String USE_OBFUSCATION_PINNING = "use_obfuscation_pinning";
+    String OBFUSCATION_PINNING_IP = "obfuscation_pinning_ip";
+    String OBFUSCATION_PINNING_PORT = "obfuscation_pinning_port";
+    String OBFUSCATION_PINNING_CERT = "obfuscation_pinning_cert";
+    String OBFUSCATION_PINNING_KCP = "obfuscation_pinning_udp";
+    String OBFUSCATION_PINNING_GW_HOST = "obfuscation_pinning_gw_host";
+    String OBFUSCATION_PINNING_GW_IP = "obfuscation_pinning_gw_ip";
+    String OBFUSCATION_PINNING_LOCATION = "obfuscation_pinning_location";
 
 
      //////////////////////////////////////////////

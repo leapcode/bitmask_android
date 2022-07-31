@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:scrollbars="none">
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:orientation = "vertical"
+         android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:padding="@dimen/activity_margin"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Obfuscation Proxy Pinning"
+            android:textStyle="bold"
+            android:gravity="center_horizontal"
+            android:textAppearance="@android:style/TextAppearance.Large"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Proxy IP"
+            android:paddingTop="@dimen/activity_margin"
+            android:textStyle="bold"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/ip_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Proxy Port"
+            android:paddingTop="@dimen/activity_margin"
+            android:textStyle="bold"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+
+            />
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/port_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Certificate"
+            android:textStyle="bold"
+            android:paddingTop="@dimen/activity_margin"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/cert_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gateway Host Name"
+            android:textStyle="bold"
+            android:paddingTop="@dimen/activity_margin"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+        <!--<androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/gateway_ip_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>-->
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/gateway_host"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
+            android:id="@+id/kcp_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:text="KCP"
+            app:subtitle="UDP based network protocol"
+            app:icon="@drawable/ic_multiple_stop"
+            >
+
+        </se.leap.bitmaskclient.base.views.IconSwitchEntry>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="@dimen/activity_margin"
+            android:gravity="right"
+            android:orientation="vertical">
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_defaults"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Use defaults"
+                android:background="@drawable/cust_button_secondary"
+                android:layout_marginHorizontal="@dimen/stdpadding"
+                />
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stdpadding"
+                android:orientation="horizontal">
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/button_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/stdpadding"
+                    android:text="@string/cancel"
+                    />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/button_save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/stdpadding"
+                    android:text="@string/save"
+                    />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</ScrollView>

@@ -134,6 +134,7 @@
   <string name="warning_exclude_apps_message">Tené cuidado de excluir aplicaciones de la VPN. Esto va a revelar tu identidad y comprometer a tu seguridad.</string>
   <plurals name="subtitle_exclude_apps">
     <item quantity="one">%d aplicación desprotegida</item>
+    <item quantity="many">%d aplicaciones desprotegidas</item>
     <item quantity="other">%d aplicaciones desprotegidas</item>
   </plurals>
   <string name="warning_no_more_gateways_use_pt">%s no se pudo conectar. Puede ser que las conexiones al VPN estén bloqueadas. ¿Querés intentar conectar usando conexiones ofuscadas?</string>

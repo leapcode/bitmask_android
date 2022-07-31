@@ -1,0 +1,160 @@
+{
+  "gateways":[
+    {
+      "capabilities":{
+        "adblock":false,
+        "filter_dns":false,
+        "limited":false,
+        "transport":[
+          {
+            "type":"obfs4",
+            "protocols":[
+              "tcp"
+            ],
+            "ports":[
+              "23049"
+            ],
+            "options": {
+              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1",
+              "iatMode": "0"
+            }
+          },
+          {
+            "type":"obfs4-1",
+            "protocols":[
+              "udp"
+            ],
+            "ports":[
+              "23050"
+            ],
+            "options": {
+              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1",
+              "iatMode": "0"
+            }
+          },
+          {
+            "type":"openvpn",
+            "protocols":[
+              "tcp"
+            ],
+            "ports":[
+              "1195"
+            ]
+          }
+        ],
+        "user_ips":false
+      },
+      "host":"pt.demo.bitmask.net",
+      "ip_address":"37.218.247.60",
+      "location":"Amsterdam"
+    },
+    {
+      "capabilities":{
+        "adblock":false,
+        "filter_dns":false,
+        "limited":false,
+        "transport":[
+          {
+            "type":"obfs4",
+            "protocols":[
+              "tcp"
+            ],
+            "ports":[
+              "443"
+            ],
+            "options": {
+              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX2",
+              "iatMode": "0"
+            }
+          },
+          {
+            "type":"openvpn",
+            "protocols":[
+              "tcp"
+            ],
+            "ports":[
+              "1195"
+            ]
+          }
+        ],
+        "user_ips":false
+      },
+      "host":"moscow.bitmask.net",
+      "ip_address":"3.21.247.89",
+      "location":"moscow"
+    },
+    {
+      "capabilities":{
+        "adblock":false,
+        "filter_dns":false,
+        "limited":false,
+        "transport":[
+          {
+            "type":"openvpn",
+            "protocols":[
+              "tcp",
+              "udp"
+            ],
+
+            "ports":[
+              "1195"
+            ]
+          },
+          {
+            "type":"obfs4-1",
+            "protocols":[
+              "udp"
+            ],
+            "ports":[
+              "23050"
+            ],
+            "options": {
+              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1",
+              "iatMode": "0"
+            }
+          }
+        ],
+        "user_ips":false
+      },
+      "host":"manila.bitmask.net",
+      "ip_address":"37.12.247.10",
+      "location":"manila"
+    }
+  ],
+  "locations":{
+    "Amsterdam":{
+      "country_code":"NL",
+      "hemisphere":"N",
+      "name":"Amsterdam",
+      "timezone":"-1"
+    },
+    "moscow": {
+      "country_code": "RU",
+      "hemisphere": "N",
+      "name": "Moscow",
+      "timezone": "+3"
+    },
+    "manila": {
+      "country_code": "PH",
+      "hemisphere": "N",
+      "name": "Manila",
+      "timezone": "+8"
+    }
+  },
+  "openvpn_configuration":{
+    "auth":"SHA1",
+    "cipher":"AES-256-CBC",
+    "keepalive":"10 30",
+    "tls-cipher":"DHE-RSA-AES128-SHA",
+    "tun-ipv6":true,
+    "dev" : "tun",
+    "sndbuf" : "0",
+    "rcvbuf" : "0",
+    "nobind" : true,
+    "persist-key" : true,
+    "key-direction" : "1",
+    "verb" : "3"
+  },
+  "serial":2,
+  "version":3
+}

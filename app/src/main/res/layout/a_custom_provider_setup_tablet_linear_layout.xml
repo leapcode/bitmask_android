@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="0dp"
     android:layout_height="0dp"
@@ -10,7 +11,8 @@
     app:layout_constraintEnd_toStartOf="@+id/guideline_right"
     app:layout_constraintHeight_min="411dp"
     app:layout_constraintStart_toStartOf="@+id/guideline_left"
-    app:layout_constraintTop_toTopOf="@+id/guideline_top">
+    app:layout_constraintTop_toTopOf="@+id/guideline_top"
+    tools:viewBindingIgnore="true">
     <!-- a "content" view that is required for
     ConfigWizardBaseActivities -->
     <LinearLayout

@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     tools:context=".providersetup.ProviderListActivity"
     android:padding="@dimen/stdpadding"
-    style="@style/BitmaskActivity" >
+    style="@style/BitmaskActivity"
+    tools:viewBindingIgnore="true">
 
     <include layout="@layout/v_loading_screen" />
 

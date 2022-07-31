@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/stdpadding"
-    tools:context=".base.fragments.GatewaySelectionFragment">
+    tools:context=".base.fragments.GatewaySelectionFragment"
+    tools:viewBindingIgnore="true"
+    >
 
     <LinearLayout
         android:id="@+id/current_location_container"
