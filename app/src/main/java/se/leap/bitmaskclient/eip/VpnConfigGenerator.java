@@ -455,17 +455,18 @@ public class VpnConfigGenerator {
         }
 
         String route = "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
-        stringBuilder.append(route);
         String remote;
         if (useObfsVpn()) {
             if (useObfuscationPinning) {
                 remote = REMOTE + " " + obfuscationPinningIP + " " + obfuscationPinningPort + newLine;
+                route = "route " + obfuscationPinningIP + " 255.255.255.255 net_gateway" + newLine;
             } else {
                 remote = REMOTE + " " + ipAddress + " " + ports.getString(0) + newLine;
             }
         } else {
             remote = REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " tcp" + newLine;
         }
+        stringBuilder.append(route);
         stringBuilder.append(remote);
     }
 
