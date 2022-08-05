@@ -51,8 +51,8 @@ android {
     buildConfigField 'boolean', 'use_obfsvpn', 'true'
     // obfsvpn Debugging config fields to pin and configure a particular proxy
     buildConfigField "String", "obfsvpn_port", '"443"'
-    buildConfigField "String", "obfsvpn_ip", '"163.172.58.132"'
-    buildConfigField "String", "obfsvpn_cert", '"/ntRNI6JYP7R6kGKldibKWj0aCsv96Hdu/jSGncPy+rcverCLI7Emod+vRkz61hM7F/udA"'
+    buildConfigField "String", "obfsvpn_ip", '"159.223.173.205"'
+    buildConfigField "String", "obfsvpn_cert", '"8nuAbPJwFrKc/29KcCfL5LBuEWxQrjBASYXdUbwcm9d9pKseGK4r2Tg47e23+t6WghxGGw"'
     buildConfigField "String", "obfsvpn_gateway_host", '"vpn03-par.float.hexacab.org"'
     buildConfigField 'boolean', 'obfsvpn_use_kcp', 'false'
 
