@@ -68,6 +68,7 @@ public class ObfuscationProxyDialog extends AppCompatDialogFragment {
             PreferenceHelper.setObfuscationPinningCert(v.getContext(), cert);
             PreferenceHelper.setObfuscationPinningKCP(v.getContext(), kcpSwitch.isChecked());
             PreferenceHelper.setUseObfuscationPinning(v.getContext(), ip != null && port != null && cert != null);
+            PreferenceHelper.setObfuscationPinningGatewayLocation(v.getContext(), gatewaysManager.getLocationNameForIP(ip, v.getContext()));
             dismiss();
         });
 

@@ -201,5 +201,6 @@
   <string name="disabled_while_udp_on">Disabled while UDP is on.</string>
   <string name="advanced_settings">Advanced settings</string>
   <string name="cancel_connection">Disconnect</string>
+  <string name="unknown_location">Unknown location</string>
 
 </resources>

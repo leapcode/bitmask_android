@@ -238,12 +238,13 @@ public class GatewaysManager {
         }
     }
 
-    public String getLocationNameForHost(String name) {
-        Gateway gateway = gateways.get(name);
-        if (gateway != null) {
-            return gateway.getName();
+    public String getLocationNameForIP(String ip, Context context) {
+        for (Gateway gateway : gateways.values()) {
+            if (gateway.getRemoteIP().equals(ip)) {
+                return gateway.getName();
+            }
         }
-        return "Unknown Location";
+        return context.getString(R.string.unknown_location);
     }
 
     @Nullable
