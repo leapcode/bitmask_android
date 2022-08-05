@@ -337,7 +337,7 @@ public class PreferenceHelper {
     }
 
     public static String getPreferredCity(Context context) {
-        return getString(context, PREFERRED_CITY, null);
+        return useObfuscationPinning(context) ? null : getString(context, PREFERRED_CITY, null);
     }
 
     @WorkerThread
