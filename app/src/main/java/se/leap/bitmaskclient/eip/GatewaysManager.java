@@ -25,10 +25,12 @@ import static se.leap.bitmaskclient.base.models.Constants.HOST;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.SORTED_GATEWAYS;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningCert;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningIP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningPort;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 
 import android.content.Context;
 import android.util.Log;
@@ -56,10 +58,13 @@ import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Connection.TransportType;
 import se.leap.bitmaskclient.BuildConfig;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.GatewayJson;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.models.Pair;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.models.Transport;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 /**
@@ -99,6 +104,7 @@ public class GatewaysManager {
     }
 
     private static final String TAG = GatewaysManager.class.getSimpleName();
+    public static final String PINNED_OBFUSCATION_PROXY = "pinned.obfuscation.proxy";
 
     private final Context context;
     private final LinkedHashMap<String, Gateway> gateways = new LinkedHashMap<>();
@@ -118,7 +124,11 @@ public class GatewaysManager {
      */
     public Pair<Gateway, TransportType> select(int nClosest) {
         if (PreferenceHelper.useObfuscationPinning(context)) {
-            Gateway gateway = gateways.get(PreferenceHelper.getObfuscationPinningGatewayHost(context));
+            if (nClosest > 2) {
+                // no need to try again the pinned proxy, probably configuration error
+                return null;
+            }
+            Gateway gateway = gateways.get(PINNED_OBFUSCATION_PROXY);
             if (gateway == null) {
                 return null;
             }
@@ -374,18 +384,35 @@ public class GatewaysManager {
                  e.printStackTrace();
              }
 
-             for (int i = 0; i < gatewaysDefined.length(); i++) {
+             if (PreferenceHelper.useObfuscationPinning(context)) {
                  try {
-                     JSONObject gw = gatewaysDefined.getJSONObject(i);
-                     Gateway aux = new Gateway(eipDefinition, secrets, gw, this.context);
-                     if (gateways.get(aux.getHost()) == null) {
-                         addGateway(aux);
-                     }
-                 } catch (JSONException | IOException e) {
+                     TransportType transportType = getObfuscationPinningKCP(context) ? OBFS4_KCP : OBFS4;
+                     Transport[] transports = new Transport[]{
+                             new Transport(transportType.toString(),
+                                     new String[]{"tcp"},
+                                     new String[]{getObfuscationPinningPort(context)},
+                                     getObfuscationPinningCert(context))};
+                     GatewayJson.Capabilities capabilities = new GatewayJson.Capabilities(false, false, false, transports, false);
+                     GatewayJson gatewayJson = new GatewayJson(context.getString(R.string.unknown_location), getObfuscationPinningIP(context), null, PINNED_OBFUSCATION_PROXY, capabilities);
+                     Gateway gateway = new Gateway(eipDefinition, secrets, new JSONObject(gatewayJson.toString()), this.context);
+                     addGateway(gateway);
+                 } catch (JSONException | ConfigParser.ConfigParseError | IOException e) {
                      e.printStackTrace();
-                     VpnStatus.logError("Unable to parse gateway config!");
-                 } catch (ConfigParser.ConfigParseError e) {
-                     VpnStatus.logError("Unable to parse gateway config: " + e.getLocalizedMessage());
+                 }
+             } else {
+                 for (int i = 0; i < gatewaysDefined.length(); i++) {
+                     try {
+                         JSONObject gw = gatewaysDefined.getJSONObject(i);
+                         Gateway aux = new Gateway(eipDefinition, secrets, gw, this.context);
+                         if (gateways.get(aux.getHost()) == null) {
+                             addGateway(aux);
+                         }
+                     } catch (JSONException | IOException e) {
+                         e.printStackTrace();
+                         VpnStatus.logError("Unable to parse gateway config!");
+                     } catch (ConfigParser.ConfigParseError e) {
+                         VpnStatus.logError("Unable to parse gateway config: " + e.getLocalizedMessage());
+                     }
                  }
              }
          } catch (NullPointerException npe) {
