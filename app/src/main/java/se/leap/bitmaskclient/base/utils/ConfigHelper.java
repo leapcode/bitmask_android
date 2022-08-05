@@ -290,11 +290,9 @@ public class ConfigHelper {
             return BuildConfig.obfsvpn_ip != null &&
                     BuildConfig.obfsvpn_port != null &&
                     BuildConfig.obfsvpn_cert != null &&
-                    BuildConfig.obfsvpn_gateway_host != null &&
                     !BuildConfig.obfsvpn_ip.isEmpty() &&
                     !BuildConfig.obfsvpn_port.isEmpty() &&
-                    !BuildConfig.obfsvpn_cert.isEmpty() &&
-                    !BuildConfig.obfsvpn_gateway_host.isEmpty();
+                    !BuildConfig.obfsvpn_cert.isEmpty();
         }
         public static String obfsvpnIP() {
             return BuildConfig.obfsvpn_ip;
@@ -305,10 +303,6 @@ public class ConfigHelper {
         public static String obfsvpnCert() {
             return BuildConfig.obfsvpn_cert;
         }
-        public static String gatewayHost() {
-            return BuildConfig.obfsvpn_gateway_host;
-        }
-
         public static boolean useKcp() {
             return BuildConfig.obfsvpn_use_kcp;
         }

@@ -12,8 +12,6 @@ import static se.leap.bitmaskclient.base.models.Constants.GATEWAY_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_UPDATE_CHECK;
 import static se.leap.bitmaskclient.base.models.Constants.LAST_USED_PROFILE;
 import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_CERT;
-import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_GW_HOST;
-import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_GW_IP;
 import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_IP;
 import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_KCP;
 import static se.leap.bitmaskclient.base.models.Constants.OBFUSCATION_PINNING_LOCATION;
@@ -279,8 +277,7 @@ public class PreferenceHelper {
                 getBoolean(context, USE_OBFUSCATION_PINNING, false) &&
                 !TextUtils.isEmpty(getObfuscationPinningIP(context)) &&
                 !TextUtils.isEmpty(getObfuscationPinningCert(context)) &&
-                !TextUtils.isEmpty(getObfuscationPinningPort(context)) &&
-                !TextUtils.isEmpty(getObfuscationPinningGatewayHost(context));
+                !TextUtils.isEmpty(getObfuscationPinningPort(context));
     }
 
     public static void setObfuscationPinningIP(Context context, String ip) {
@@ -305,23 +302,6 @@ public class PreferenceHelper {
 
     public static String getObfuscationPinningCert(Context context) {
         return getString(context, OBFUSCATION_PINNING_CERT, null);
-    }
-
-    public static void setObfuscationPinningGatewayHost(Context context, String gatewayIP) {
-        putString(context, OBFUSCATION_PINNING_GW_HOST, gatewayIP);
-    }
-
-    public static String getObfuscationPinningGatewayHost(Context context) {
-        return getString(context, OBFUSCATION_PINNING_GW_HOST, null);
-    }
-
-
-    public static void setObfuscationPinningGatewayIP(Context context, String ipForHost) {
-        putString(context, OBFUSCATION_PINNING_GW_IP, ipForHost);
-    }
-
-    public static String getObfuscationPinningGatewayIP(Context context) {
-        return getString(context, OBFUSCATION_PINNING_GW_IP, null);
     }
 
     public static void setObfuscationPinningGatewayLocation(Context context, String location) {
