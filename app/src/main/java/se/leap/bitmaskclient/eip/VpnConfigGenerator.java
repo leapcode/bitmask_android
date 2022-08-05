@@ -116,16 +116,6 @@ public class VpnConfigGenerator {
 
     public void checkCapabilities() throws ConfigParser.ConfigParseError {
         try {
-            if (useObfuscationPinning) {
-                if (obfuscationPinningKCP) {
-                    // the protocol TCP refers to the allowed openvpn protocol
-                    obfs4TKcpTransport = new JSONObject(new Transport(OBFS4_KCP.toString(), new String[]{"tcp"}, new String[]{obfuscationPinningPort}, obfuscationPinningCert).toString());
-                } else {
-                    String jsonTransportString = new Transport(OBFS4.toString(), new String[]{"tcp"}, new String[]{obfuscationPinningPort}, obfuscationPinningCert).toString();
-                    obfs4Transport = new JSONObject(jsonTransportString);
-                }
-                return;
-            }
 
             if (apiVersion >= 3) {
                 JSONArray supportedTransports = gateway.getJSONObject(CAPABILITIES).getJSONArray(TRANSPORT);
