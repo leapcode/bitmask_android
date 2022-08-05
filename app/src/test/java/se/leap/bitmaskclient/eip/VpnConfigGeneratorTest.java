@@ -1726,7 +1726,7 @@ public class VpnConfigGeneratorTest {
         configuration.remoteGatewayIP = "1.2.3.4";
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
-        assertTrue("has openvpn profile", vpnProfiles.containsKey(OPENVPN));
+        assertFalse("has no openvpn profile", vpnProfiles.containsKey(OPENVPN));
         assertTrue("has obfs4 profile", vpnProfiles.containsKey(OBFS4));
         assertFalse("has no obfs4 kcp profile", vpnProfiles.containsKey(OBFS4_KCP));
     }
@@ -1746,7 +1746,7 @@ public class VpnConfigGeneratorTest {
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         assertTrue("has obfs4_kcp profile", vpnProfiles.containsKey(OBFS4_KCP));
-        assertTrue("has openvpn profile", vpnProfiles.containsKey(OPENVPN));
+        assertFalse("has openvpn profile", vpnProfiles.containsKey(OPENVPN));
         assertFalse("has no obfs4 profile", vpnProfiles.containsKey(OBFS4));
     }
 
@@ -1766,7 +1766,7 @@ public class VpnConfigGeneratorTest {
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         assertTrue("has obfs4_kcp profile", vpnProfiles.containsKey(OBFS4_KCP));
-        assertTrue("has openvpn profile", vpnProfiles.containsKey(OPENVPN));
+        assertFalse("has openvpn profile", vpnProfiles.containsKey(OPENVPN));
         assertFalse("has no obfs4 profile", vpnProfiles.containsKey(OBFS4));
     }
 
