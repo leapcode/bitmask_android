@@ -31,12 +31,10 @@ public class ObfuscationProxyDialog extends AppCompatDialogFragment {
     AppCompatEditText ipField;
     AppCompatEditText portField;
     AppCompatEditText certificateField;
-    AppCompatSpinner gatewayHost;
     AppCompatButton saveButton;
     AppCompatButton useDefaultsButton;
     AppCompatButton cancelButton;
     IconSwitchEntry kcpSwitch;
-    ArrayAdapter<String> gatewayHosts;
 
     @NonNull
     @Override
@@ -49,7 +47,6 @@ public class ObfuscationProxyDialog extends AppCompatDialogFragment {
         ipField = binding.ipField;
         portField = binding.portField;
         certificateField = binding.certField;
-        gatewayHost = binding.gatewayHost;
         saveButton = binding.buttonSave;
         useDefaultsButton = binding.buttonDefaults;
         cancelButton = binding.buttonCancel;
@@ -61,16 +58,6 @@ public class ObfuscationProxyDialog extends AppCompatDialogFragment {
         kcpSwitch.setChecked(PreferenceHelper.getObfuscationPinningKCP(getContext()));
 
         GatewaysManager gatewaysManager = new GatewaysManager(getContext());
-        ArrayList<String> hostsList = gatewaysManager.getHosts();
-
-        hostsList.add(0, "Select a Gateway");
-        gatewayHosts = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, hostsList);
-        gatewayHosts.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        gatewayHost.setAdapter(gatewayHosts);
-        String selectedHost = PreferenceHelper.getObfuscationPinningGatewayHost(getContext());
-        if (selectedHost != null) {
-            gatewayHost.setSelection(gatewayHosts.getPosition(selectedHost));
-        }
 
         saveButton.setOnClickListener(v -> {
             String ip = TextUtils.isEmpty(ipField.getText()) ? null : ipField.getText().toString();
@@ -79,12 +66,9 @@ public class ObfuscationProxyDialog extends AppCompatDialogFragment {
             PreferenceHelper.setObfuscationPinningPort(v.getContext(), port);
             String cert = TextUtils.isEmpty(certificateField.getText()) ? null : certificateField.getText().toString();
             PreferenceHelper.setObfuscationPinningCert(v.getContext(), cert);
-            String gatewayHostName = gatewayHost.getSelectedItemPosition() == 0 ? null : gatewayHosts.getItem(gatewayHost.getSelectedItemPosition());
-            PreferenceHelper.setObfuscationPinningGatewayHost(v.getContext(), gatewayHostName);
-            PreferenceHelper.setObfuscationPinningGatewayIP(v.getContext(), gatewaysManager.getIpForHost(gatewayHostName));
             PreferenceHelper.setObfuscationPinningKCP(v.getContext(), kcpSwitch.isChecked());
-            PreferenceHelper.setUseObfuscationPinning(v.getContext(), ip != null && port != null && cert != null && gatewayHostName != null);
-            PreferenceHelper.setObfuscationPinningGatewayLocation(v.getContext(), gatewaysManager.getLocationNameForHost(gatewayHostName));
+            PreferenceHelper.setUseObfuscationPinning(v.getContext(), ip != null && port != null && cert != null);
+            PreferenceHelper.setObfuscationPinningGatewayLocation(v.getContext(), gatewaysManager.getLocationNameForIP(ip, v.getContext()));
             dismiss();
         });
 
@@ -93,11 +77,6 @@ public class ObfuscationProxyDialog extends AppCompatDialogFragment {
            ipField.setText(ObfsVpnHelper.obfsvpnIP());
            portField.setText(ObfsVpnHelper.obfsvpnPort());
            certificateField.setText(ObfsVpnHelper.obfsvpnCert());
-           int position = gatewayHosts.getPosition(ObfsVpnHelper.gatewayHost());
-           if (position == -1) {
-               position = 0;
-           }
-           gatewayHost.setSelection(position);
            kcpSwitch.setChecked(ObfsVpnHelper.useKcp());
         });
 
