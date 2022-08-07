@@ -4,9 +4,9 @@ import java.util.regex.Pattern
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 30
+  compileSdkVersion 31
   ndkVersion "21.4.7075529"
-  buildToolsVersion '30.0.3'
+  buildToolsVersion '31.0.0'
 
   compileOptions {
     targetCompatibility 1.8
@@ -25,7 +25,7 @@ android {
     versionCode 163000
     versionName "1.1.5"
     minSdkVersion 16
-    targetSdkVersion 30
+    targetSdkVersion 31
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
 
@@ -404,9 +404,7 @@ dependencies {
   //TODO: remove that library
   androidTestImplementation 'com.jayway.android.robotium:robotium-solo:5.6.3'
   testImplementation 'org.json:json:20180813'
-  debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
-  releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
-  betaImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
+  debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
   annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
   annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.2'
   implementation 'com.jakewharton:butterknife:10.2.1'
@@ -416,15 +414,15 @@ dependencies {
   implementation 'com.google.code.gson:gson:2.8.6'
   implementation 'com.squareup.okhttp3:okhttp:3.12.12'
   implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
-  implementation 'androidx.annotation:annotation:1.1.0'
+  implementation 'androidx.annotation:annotation:1.4.0'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-  implementation 'androidx.appcompat:appcompat:1.2.0'
-  implementation 'com.google.android.material:material:1.2.1'
-  implementation 'androidx.fragment:fragment:1.2.5'
-  implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+  implementation 'androidx.appcompat:appcompat:1.4.2'
+  implementation 'com.google.android.material:material:1.6.1'
+  implementation 'androidx.fragment:fragment:1.5.1'
+  implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
   implementation 'androidx.multidex:multidex:2.0.1'
   implementation 'androidx.cardview:cardview:1.0.0'
-  implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+  implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
   implementation 'de.hdodenhof:circleimageview:3.1.0'
 
 
@@ -486,23 +484,11 @@ android.applicationVariants.all { variant ->
   }
 }
 
-
-// Ensure the no-op dependency is always used in JVM tests.
-configurations.all { config ->
-  if (config.name.contains('UnitTest')) {
-    config.resolutionStrategy.eachDependency { details ->
-      if (details.requested.group == 'com.squareup.leakcanary' && details.requested.name == 'leakcanary-android') {
-        details.useTarget(group: details.requested.group, name: 'leakcanary-android-no-op', version: details.requested.version)
-      }
-    }
-  }
-}
-
 subprojects {
   afterEvaluate {project ->
     if (project.hasProperty("android")) {
       android {
-        compileSdkVersion 30
+        compileSdkVersion 31
       }
     }
   }

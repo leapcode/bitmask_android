@@ -17,6 +17,20 @@
 package se.leap.bitmaskclient.base.fragments;
 
 
+import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static se.leap.bitmaskclient.base.models.Constants.DONATION_URL;
+import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION;
+import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
+import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSaveBattery;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.saveBattery;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -55,21 +69,6 @@ import se.leap.bitmaskclient.base.views.IconTextEntry;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.providersetup.ProviderListActivity;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
-
-import static android.content.Context.MODE_PRIVATE;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static se.leap.bitmaskclient.base.BitmaskApp.getRefWatcher;
-import static se.leap.bitmaskclient.base.models.Constants.DONATION_URL;
-import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION;
-import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
-import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSaveBattery;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.saveBattery;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -433,7 +432,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     @Override
     public void onDestroy() {
         super.onDestroy();
-        getRefWatcher(getActivity()).watch(this);
         preferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 

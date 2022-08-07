@@ -17,6 +17,15 @@
 
 package se.leap.bitmaskclient.base;
 
+import static android.content.Intent.CATEGORY_DEFAULT;
+import static se.leap.bitmaskclient.appUpdate.DownloadBroadcastReceiver.ACTION_DOWNLOAD;
+import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.CHECK_VERSION_FILE;
+import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.DOWNLOAD_UPDATE;
+import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
+import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheringSupport;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
+
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -25,26 +34,13 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.multidex.MultiDexApplication;
 
-import com.squareup.leakcanary.LeakCanary;
-import com.squareup.leakcanary.RefWatcher;
-
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.appUpdate.DownloadBroadcastReceiver;
-import se.leap.bitmaskclient.eip.EipSetupObserver;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.tethering.TetheringStateManager;
 import se.leap.bitmaskclient.base.utils.PRNGFixes;
-import se.leap.bitmaskclient.tor.TorNotificationManager;
+import se.leap.bitmaskclient.eip.EipSetupObserver;
+import se.leap.bitmaskclient.tethering.TetheringStateManager;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
-
-import static android.content.Intent.CATEGORY_DEFAULT;
-import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.appUpdate.DownloadBroadcastReceiver.ACTION_DOWNLOAD;
-import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.CHECK_VERSION_FILE;
-import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.DOWNLOAD_UPDATE;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheringSupport;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 
 /**
  * Created by cyberta on 24.10.17.
@@ -53,7 +49,6 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProvider
 public class BitmaskApp extends MultiDexApplication {
 
     private final static String TAG = BitmaskApp.class.getSimpleName();
-    private RefWatcher refWatcher;
     private ProviderObservable providerObservable;
     private DownloadBroadcastReceiver downloadBroadcastReceiver;
     private TorStatusObservable torStatusObservable;
@@ -62,12 +57,6 @@ public class BitmaskApp extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            // This process is dedicated to LeakCanary for heap analysis.
-            // You should not init your app in this process.
-            return;
-        }
-        refWatcher = LeakCanary.install(this);
         // Normal app init code...*/
         PRNGFixes.apply();
         SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
@@ -89,17 +78,4 @@ public class BitmaskApp extends MultiDexApplication {
             LocalBroadcastManager.getInstance(this.getApplicationContext()).registerReceiver(downloadBroadcastReceiver, intentFilter);
         }
     }
-
-    /**
-     * Use this method to get a RefWatcher object that checks for memory leaks in the given context.
-     * Call refWatcher.watch(this) to check if all references get garbage collected.
-     * @param context
-     * @return the RefWatcher object
-     */
-    public static RefWatcher getRefWatcher(Context context) {
-        BitmaskApp application = (BitmaskApp) context.getApplicationContext();
-        return application.refWatcher;
-    }
-
-
 }
