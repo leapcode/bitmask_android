@@ -58,6 +58,7 @@ public final class Provider implements Parcelable {
     private DefaultedURL mainUrl = new DefaultedURL();
     private DefaultedURL apiUrl = new DefaultedURL();
     private DefaultedURL geoipUrl = new DefaultedURL();
+    private String domain = "";
     private String providerIp = ""; // ip of the provider main url
     private String providerApiIp = ""; // ip of the provider api url
     private String certificatePin = "";
@@ -253,7 +254,7 @@ public final class Provider implements Parcelable {
     }
 
     public String getDomain() {
-        return mainUrl.getDomain();
+        return domain;
     }
 
     public String getMainUrlString() {
@@ -369,6 +370,7 @@ public final class Provider implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(getDomain());
         parcel.writeString(getMainUrlString());
         parcel.writeString(getProviderIp());
         parcel.writeString(getProviderApiIp());
@@ -388,6 +390,7 @@ public final class Provider implements Parcelable {
     //TODO: write a test for marshalling!
     private Provider(Parcel in) {
         try {
+            domain = in.readString();
             mainUrl.setUrl(new URL(in.readString()));
             String tmpString = in.readString();
             if (!tmpString.isEmpty()) {
@@ -439,7 +442,8 @@ public final class Provider implements Parcelable {
     public boolean equals(Object o) {
         if (o instanceof Provider) {
             Provider p = (Provider) o;
-            return p.getDomain().equals(getDomain()) &&
+            return getDomain().equals(p.getDomain()) &&
+            mainUrl.getDomain().equals(p.mainUrl.getDomain()) &&
             definition.toString().equals(p.getDefinition().toString()) &&
             eipServiceJson.toString().equals(p.getEipServiceJsonString()) &&
             geoIpJson.toString().equals(p.getGeoIpJsonString()) &&
@@ -471,7 +475,7 @@ public final class Provider implements Parcelable {
 
     @Override
     public int hashCode() {
-        return getDomain().hashCode();
+        return getMainUrlString().hashCode();
     }
 
     @Override
@@ -488,6 +492,7 @@ public final class Provider implements Parcelable {
             this.allowAnonymous = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS);
             this.allowRegistered = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED);
             this.apiVersion = getDefinition().getString(Provider.API_VERSION);
+            this.domain = getDefinition().getString(Provider.DOMAIN);
             return true;
         } catch (JSONException | ArrayIndexOutOfBoundsException | MalformedURLException e) {
             return false;

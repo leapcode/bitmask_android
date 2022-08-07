@@ -51,6 +51,7 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.internal.publicsuffix.PublicSuffixDatabase;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.providersetup.ProviderAPI;
@@ -272,6 +273,10 @@ public class ConfigHelper {
         }
         Matcher matcher = IPv4_PATTERN.matcher(ipv4);
         return matcher.matches();
+    }
+
+    public static String getDomainFromMainURL(@NonNull String mainUrl) throws NullPointerException {
+        return PublicSuffixDatabase.get().getEffectiveTldPlusOne(mainUrl).replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
     }
     
     public static boolean isCalyxOSWithTetheringSupport(Context context) {

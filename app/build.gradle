@@ -123,7 +123,7 @@ android {
       //Set app name here
       appName = "Riseup VPN"
       //Provider base url, e.g. '"https://example.com"'
-      def customProviderUrl = '"https://riseup.net"'
+      def customProviderUrl = '"https://black.riseup.net"'
       buildConfigField "String", "customProviderUrl", customProviderUrl
       //static ip address of provider, using a commercially validated CA certificate to serve the provider.json
       def customProviderIp = '"198.252.153.70"'

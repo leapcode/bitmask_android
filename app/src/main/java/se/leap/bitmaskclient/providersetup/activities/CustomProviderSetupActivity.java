@@ -31,6 +31,7 @@ import java.io.IOException;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
 
 import static se.leap.bitmaskclient.BuildConfig.customProviderApiIp;
@@ -72,8 +73,9 @@ public class CustomProviderSetupActivity extends ProviderSetupBaseActivity {
         try {
             AssetManager assetsManager = getAssets();
             Provider customProvider = new Provider(customProviderUrl, geoipUrl, customProviderIp, customProviderApiIp);
-            String certificate = loadInputStreamAsString(assetsManager.open(customProvider.getDomain() + EXT_PEM));
-            String providerDefinition = loadInputStreamAsString(assetsManager.open(customProvider.getDomain() + EXT_JSON));
+            String domain = ConfigHelper.getDomainFromMainURL(customProviderUrl);
+            String certificate = loadInputStreamAsString(assetsManager.open(domain + EXT_PEM));
+            String providerDefinition = loadInputStreamAsString(assetsManager.open(domain + EXT_JSON));
             customProvider.setCaCert(certificate);
             customProvider.define(new JSONObject(providerDefinition));
             setProvider(customProvider);

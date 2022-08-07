@@ -263,7 +263,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         Bundle result = new Bundle();
         try {
             String caCertUrl = provider.getDefinition().getString(Provider.CA_CERT_URI);
-            String providerDomain = getDomainFromMainURL(provider.getMainUrlString());
+            String providerDomain = provider.getDomain();
             String certString = downloadWithCommercialCA(caCertUrl, provider);
 
             if (validCertificate(provider, certString)) {

@@ -1,5 +1,7 @@
 package se.leap.bitmaskclient.base.utils;
 
+import static org.junit.Assert.assertEquals;
+
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -8,8 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(DataProviderRunner.class)
@@ -44,5 +44,17 @@ public class ConfigHelperTest {
     @UseDataProvider("dataProviderIPs")
     public void testisIPv4_validIPs_returnsTrue(String ip, boolean isValidExpected) {
         assertEquals(isValidExpected, ConfigHelper.isIPv4(ip));
+    }
+
+    @Test
+    public void testGetDomainFromMainURL_ignoreSubdomain() {
+        assertEquals("riseup.net", ConfigHelper.getDomainFromMainURL("https://black.riseup.net"));
+        assertEquals("riseup.net", ConfigHelper.getDomainFromMainURL("https://riseup.net"));
+    }
+
+    @Test
+    public void testGetDomainFromMainURL_handleSuffix() {
+        assertEquals("domain.co.uk", ConfigHelper.getDomainFromMainURL("https://subdomain.domain.co.uk"));
+        assertEquals("domain.co.uk", ConfigHelper.getDomainFromMainURL("https://domain.co.uk"));
     }
 }
