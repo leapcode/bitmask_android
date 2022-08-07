@@ -41,6 +41,7 @@ import static se.leap.bitmaskclient.base.models.Provider.CA_CERT;
 import static se.leap.bitmaskclient.base.models.Provider.GEOIP_URL;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_API_IP;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_IP;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getDomainFromMainURL;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getFingerprintFromCertificate;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.parseRsaKeyFromString;
@@ -1046,11 +1047,6 @@ public abstract class ProviderApiManagerBase {
 
     protected boolean hasUpdatedProviderDetails(String domain) {
         return preferences.contains(Provider.KEY + "." + domain) && preferences.contains(CA_CERT + "." + domain);
-    }
-
-    protected String getDomainFromMainURL(String mainUrl) {
-        return mainUrl.replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
-
     }
 
     /**

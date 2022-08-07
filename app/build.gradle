@@ -22,8 +22,8 @@ android {
     // the factor 1000 is used so that gplay users can upgrade from split apks ((current version number - 1) * 1000) + n
     // to extracted bundle apks, supplied by google
     // however we don't calculate the versionCode here, because F-Droid doesn't like that
-    versionCode 163000
-    versionName "1.1.5"
+    versionCode 164000
+    versionName "1.1.5RC2"
     minSdkVersion 16
     targetSdkVersion 30
     vectorDrawables.useSupportLibrary = true
@@ -36,7 +36,7 @@ android {
     // and this should not be set/altered anywhere else.
     buildConfigField 'String', 'default_donation_url', '"https://riseuplabs.org/leap"'
     //The field to enable donations in the app.
-    buildConfigField 'boolean', 'enable_donation', 'true'
+    buildConfigField 'boolean', 'enable_donation', 'false'
     //The field to enable donation reminder popup in the app if enable_donation is set to 'false' this will be disabled.
     buildConfigField 'boolean', 'enable_donation_reminder', 'true'
     //The duration in days to trigger the donation reminder
@@ -123,7 +123,7 @@ android {
       //Set app name here
       appName = "Riseup VPN"
       //Provider base url, e.g. '"https://example.com"'
-      def customProviderUrl = '"https://riseup.net"'
+      def customProviderUrl = '"https://black.riseup.net"'
       buildConfigField "String", "customProviderUrl", customProviderUrl
       //static ip address of provider, using a commercially validated CA certificate to serve the provider.json
       def customProviderIp = '"198.252.153.70"'

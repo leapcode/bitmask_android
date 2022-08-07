@@ -425,6 +425,7 @@ public class MockHelper {
         when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
         when(ConfigHelper.isIPv4(anyString())).thenCallRealMethod();
         when(ConfigHelper.isDefaultBitmask()).thenReturn(true);
+        when(ConfigHelper.getDomainFromMainURL(anyString())).thenCallRealMethod();
         when(ConfigHelper.parseRsaKeyFromString(anyString())).thenReturn(new RSAPrivateKey() {
             @Override
             public BigInteger getPrivateExponent() {

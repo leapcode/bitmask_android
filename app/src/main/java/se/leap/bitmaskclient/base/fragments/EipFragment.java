@@ -69,6 +69,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -138,7 +139,8 @@ public class EipFragment extends Fragment implements Observer {
     AlertDialog alertDialog;
 
     private IOpenVPNServiceInternal mService;
-    private ServiceConnection openVpnConnection;
+    // We use this service connection to detect if openvpn is running without network
+    private EipFragmentServiceConnection openVpnConnection;
 
     @Override
     public void onAttach(Context context) {
@@ -229,20 +231,16 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public void onResume() {
         super.onResume();
-        //FIXME: avoid race conditions while checking certificate an logging in at about the same time
-        //eipCommand(Constants.EIP_ACTION_CHECK_CERT_VALIDITY);
-        bindOpenVpnService();
+        if (!eipStatus.isDisconnected()) {
+            openVpnConnection.bindService();
+        }
         handleNewState();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
-        Activity activity = getActivity();
-        if (activity != null) {
-            getActivity().unbindService(openVpnConnection);
-        }
+        openVpnConnection.unbindService();
     }
 
     @Override
@@ -414,6 +412,14 @@ public class EipFragment extends Fragment implements Observer {
         if (observable instanceof EipStatus) {
             eipStatus = (EipStatus) observable;
             handleNewStateOnMain();
+
+            if (eipStatus.isConnecting()) {
+                openVpnConnection.bindService();
+            }
+            if ("NOPROCESS".equals(EipStatus.getInstance().getState())) {
+                //assure that the Service is shutdown completely if openvpn was stopped
+                openVpnConnection.unbindService();
+            }
         } else if (observable instanceof ProviderObservable) {
             provider = ((ProviderObservable) observable).getCurrentProvider();
         } else if (observable instanceof TorStatusObservable && EipStatus.getInstance().isUpdatingVpnCert()) {
@@ -574,19 +580,6 @@ public class EipFragment extends Fragment implements Observer {
         return isRunning;
     }
 
-    private void bindOpenVpnService() {
-        Activity activity = getActivity();
-        if (activity == null) {
-            Log.e(TAG, "activity is null when binding OpenVpn");
-            return;
-        }
-
-        Intent intent = new Intent(activity, OpenVPNService.class);
-        intent.setAction(OpenVPNService.START_SERVICE);
-        activity.bindService(intent, openVpnConnection, Context.BIND_AUTO_CREATE);
-
-    }
-
     private void greyscaleBackground() {
         if (BuildConfig.use_color_filter) {
             ColorMatrix matrix = new ColorMatrix();
@@ -631,6 +624,38 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private class EipFragmentServiceConnection implements ServiceConnection {
+        private final AtomicBoolean bind = new AtomicBoolean(false);
+
+        void bindService() {
+            Activity activity = getActivity();
+            if (activity == null) {
+                Log.e(TAG, "activity is null when binding OpenVpn");
+                return;
+            }
+            if (!bind.get()) {
+                activity.runOnUiThread(() -> {
+                        Intent intent = new Intent(activity, OpenVPNService.class);
+                        intent.setAction(OpenVPNService.START_SERVICE);
+
+                        activity.bindService(intent, EipFragmentServiceConnection.this, Context.BIND_AUTO_CREATE);
+                        bind.set(true);
+                });
+            }
+        }
+
+        void unbindService() {
+            Activity activity = getActivity();
+            if (activity == null) {
+                return;
+            }
+            if (bind.get()) {
+                activity.runOnUiThread(() -> {
+                    activity.unbindService(EipFragmentServiceConnection.this);
+                    bind.set(false);
+                });
+            }
+        }
+
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
