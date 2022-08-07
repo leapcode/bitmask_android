@@ -169,6 +169,18 @@ public class StartActivity extends Activity{
             }
         }
 
+        if (hasNewFeature(FeatureVersionCode.RISEUP_PROVIDER_LILYPAD_UPDATE) && (
+                getPackageName().equals("se.leap.riseupvpn") ||
+                        ProviderObservable.getInstance().getCurrentProvider().getDomain().equals("riseup.net"))) {
+            // deletion of current configured provider so that a new provider setup is triggered
+            Provider provider = ProviderObservable.getInstance().getCurrentProvider();
+            if (provider != null && !provider.isDefault()) {
+                PreferenceHelper.deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
+                PreferenceHelper.deleteCurrentProviderDetailsFromPreferences(preferences);
+                ProviderObservable.getInstance().updateProvider(new Provider());
+            }
+        }
+
         // always check if manual gateway selection feature switch has been disabled
         if (!BuildConfig.allow_manual_gateway_selection && PreferenceHelper.getPreferredCity(this) != null) {
             PreferenceHelper.setPreferredCity(this, null);
