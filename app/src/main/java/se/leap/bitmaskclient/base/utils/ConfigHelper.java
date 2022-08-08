@@ -18,6 +18,7 @@ package se.leap.bitmaskclient.base.utils;
 
 import static se.leap.bitmaskclient.base.models.Constants.DEFAULT_BITMASK;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
@@ -311,5 +312,13 @@ public class ConfigHelper {
         public static boolean useKcp() {
             return BuildConfig.obfsvpn_use_kcp;
         }
+    }
+
+    public static int getPendingIntentFlags() {
+        int flags = PendingIntent.FLAG_CANCEL_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        return flags;
     }
 }

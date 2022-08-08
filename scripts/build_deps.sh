@@ -8,7 +8,7 @@ function quit {
 SCRIPT_DIR=$(dirname "$0")
 BASE_DIR="$SCRIPT_DIR/.."
 DIR_OVPNASSETS=./ics-openvpn/main/build/ovpnassets
-DIR_OVPNLIBS=./ics-openvpn/main/build/intermediates/cmake/noovpn3/release/obj
+DIR_OVPNLIBS=./ics-openvpn/main/build/intermediates/cmake/skeletonRelease/obj
 DIR_GOLIBS=./bitmaskcore/lib/
 #FILE_X86=./go/out/x86/piedispatcherlib
 #FILE_ARM=./go/out/armeabi-v7a/piedispatcherlib

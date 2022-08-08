@@ -457,7 +457,7 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
         }
 
         // atuo detection of proxy
-        if (proxyType == Connection.ProxyType.NONE) {
+        if (proxyType == Connection.ProxyType.NONE && mProfile != null) {
             SocketAddress proxyaddr = ProxyDetection.detectProxy(mProfile);
             if (proxyaddr instanceof InetSocketAddress) {
                 InetSocketAddress isa = (InetSocketAddress) proxyaddr;
