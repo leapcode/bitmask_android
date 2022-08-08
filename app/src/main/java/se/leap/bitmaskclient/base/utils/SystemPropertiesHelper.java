@@ -30,7 +30,7 @@ public class SystemPropertiesHelper {
             e.printStackTrace();
         }
 
-        return result != null;
+        return result != null && !result.isEmpty();
     }
 }
 
