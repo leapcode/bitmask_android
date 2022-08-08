@@ -13,6 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 
 import se.leap.bitmaskclient.R;
@@ -133,7 +134,7 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
         trafficdata = new LinkedList<>();
         mManagement = management;
         mManagement.setPauseCallback(this);
-        mDisconnectHandler = new Handler();
+        mDisconnectHandler = new Handler(Looper.getMainLooper());
     }
 
 
