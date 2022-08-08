@@ -33,6 +33,7 @@ import se.leap.bitmaskclient.R;
 
 import static android.content.Intent.CATEGORY_DEFAULT;
 import static se.leap.bitmaskclient.appUpdate.DownloadBroadcastReceiver.ACTION_DOWNLOAD;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getPendingIntentFlags;
 
 public class DownloadNotificationManager {
     private Context context;
@@ -130,12 +131,13 @@ public class DownloadNotificationManager {
     private PendingIntent getDownloadIntent() {
         Intent downloadIntent = new Intent(context, DownloadBroadcastReceiver.class);
         downloadIntent.setAction(ACTION_DOWNLOAD);
-        return PendingIntent.getBroadcast(context, 0, downloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        return PendingIntent.getBroadcast(context, 0, downloadIntent, getPendingIntentFlags());
     }
 
     private PendingIntent getInstallIntent() {
         Intent installIntent = new Intent(context, InstallActivity.class);
-        return PendingIntent.getActivity(context, 0, installIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        return PendingIntent.getActivity(context, 0, installIntent, getPendingIntentFlags());
     }
 
     public void cancelNotifications() {

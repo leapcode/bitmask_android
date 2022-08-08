@@ -55,6 +55,7 @@ import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getPendingIntentFlags;
 
 /**
  * Created by cyberta on 14.01.18.
@@ -305,19 +306,19 @@ public class VpnNotificationManager {
 
     private PendingIntent getMainActivityIntent() {
         Intent startActivity = new Intent(context, StartActivity.class);
-        return PendingIntent.getActivity(context, 0, startActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        return PendingIntent.getActivity(context, 0, startActivity, getPendingIntentFlags());
     }
 
     private PendingIntent getStartOpenvpnIntent() {
         Intent startIntent = new Intent(context, EIP.class);
         startIntent.setAction(EIP_ACTION_START);
-        return PendingIntent.getService(context, 0, startIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        return PendingIntent.getService(context, 0, startIntent, getPendingIntentFlags());
     }
 
     private PendingIntent getStopVoidVpnIntent() {
         Intent stopVoidVpnIntent = new Intent (context, VoidVpnService.class);
         stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
-        return PendingIntent.getService(context, 0, stopVoidVpnIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        return PendingIntent.getService(context, 0, stopVoidVpnIntent, getPendingIntentFlags());
     }
 
     private PendingIntent getDisconnectIntent() {
@@ -325,7 +326,7 @@ public class VpnNotificationManager {
         disconnectVPN.setAction(ACTION_SHOW_VPN_FRAGMENT);
         disconnectVPN.putExtra(ASK_TO_CANCEL_VPN, true);
         disconnectVPN.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        return PendingIntent.getActivity(context, 0, disconnectVPN, PendingIntent.FLAG_CANCEL_CURRENT);
+        return PendingIntent.getActivity(context, 0, disconnectVPN, getPendingIntentFlags());
     }
 
     private PendingIntent getUserInputIntent(String needed) {
@@ -334,7 +335,7 @@ public class VpnNotificationManager {
         intent.putExtra("need", needed);
         Bundle b = new Bundle();
         b.putString("need", needed);
-        PendingIntent pIntent = PendingIntent.getActivity(context, 12, intent, 0);
+        PendingIntent pIntent = PendingIntent.getActivity(context, 12, intent, getPendingIntentFlags());
         return pIntent;
     }
 
