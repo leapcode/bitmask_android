@@ -79,7 +79,7 @@
   <string name="signing_up">Am Registrieren</string>
   <string name="vpn.button.turn.on">Einschalten</string>
   <string name="vpn.button.turn.off">Ausschalten</string>
-  <string name="vpn_button_turn_off_blocking">Blocken beenden.</string>
+  <string name="vpn_button_turn_off_blocking">Blocken beenden</string>
   <string name="vpn_securely_routed">Dein Internetverkehr wird sicher durchgeleitet durch:</string>
   <string name="vpn_securely_routed_no_internet">Keine Internetverbindung vorhanden. Sobald du wieder online bist verbindest du dich automatisch mit:</string>
   <string name="log_fragment_title">Log</string>

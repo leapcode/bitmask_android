@@ -16,8 +16,22 @@
  */
 package se.leap.bitmaskclient.base.fragments;
 
+import static se.leap.bitmaskclient.R.string.warning_option_try_ovpn;
+import static se.leap.bitmaskclient.R.string.warning_option_try_pt;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setPreferredCity;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.UNKNOWN;
+import static se.leap.bitmaskclient.eip.EIP.EIPErrors.valueOf;
+import static se.leap.bitmaskclient.eip.EIP.ERRORID;
+import static se.leap.bitmaskclient.eip.EIP.ERRORS;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
+
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -31,19 +45,8 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.eip.VoidVpnService;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
-
-import static se.leap.bitmaskclient.R.string.warning_option_try_ovpn;
-import static se.leap.bitmaskclient.R.string.warning_option_try_pt;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setPreferredCity;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
-import static se.leap.bitmaskclient.eip.EIP.EIPErrors.UNKNOWN;
-import static se.leap.bitmaskclient.eip.EIP.EIPErrors.valueOf;
-import static se.leap.bitmaskclient.eip.EIP.ERRORID;
-import static se.leap.bitmaskclient.eip.EIP.ERRORS;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 
 /**
  * Implements an error dialog for the main activity.
@@ -56,6 +59,8 @@ public class MainActivityErrorDialog extends DialogFragment {
     final public static String TAG = "downloaded_failed_dialog";
     final private static String KEY_REASON_TO_FAIL = "key reason to fail";
     final private static String KEY_PROVIDER = "key provider";
+    final private static String KEY_DOWNLOAD_ERROR = "key_download_error";
+    final private static String KEY_ARGS = "key_args";
     private String reasonToFail;
     private String[] args;
     private EIP.EIPErrors downloadError = UNKNOWN;
@@ -124,7 +129,11 @@ public class MainActivityErrorDialog extends DialogFragment {
                 builder.setNegativeButton(R.string.cancel, (dialog, id) -> {});
                 break;
             case NO_MORE_GATEWAYS:
-                builder.setNegativeButton(R.string.cancel, (dialog, id) -> {});
+                builder.setNegativeButton(R.string.vpn_button_turn_off_blocking, (dialog, id) -> {
+                    Intent stopVoidVpnIntent = new Intent (getContext(), VoidVpnService.class);
+                    stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
+                    getContext().startService(stopVoidVpnIntent);
+                });
                 if (getPreferredCity(applicationContext) != null) {
                     builder.setPositiveButton(R.string.warning_option_try_best, (dialog, which) -> {
                         new Thread(() -> {
@@ -166,6 +175,10 @@ public class MainActivityErrorDialog extends DialogFragment {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_REASON_TO_FAIL, reasonToFail);
         outState.putParcelable(KEY_PROVIDER, provider);
+        outState.putString(KEY_DOWNLOAD_ERROR, downloadError.toString());
+        if (args != null) {
+            outState.putStringArray(KEY_ARGS, args);
+        }
     }
 
     private void restoreFromSavedInstance(Bundle savedInstanceState) {
@@ -177,6 +190,12 @@ public class MainActivityErrorDialog extends DialogFragment {
         }
         if (savedInstanceState.containsKey(KEY_REASON_TO_FAIL)) {
             this.reasonToFail = savedInstanceState.getString(KEY_REASON_TO_FAIL);
+        }
+        if (savedInstanceState.containsKey(KEY_DOWNLOAD_ERROR)) {
+            this.downloadError = EIP.EIPErrors.valueOf(savedInstanceState.getString(KEY_DOWNLOAD_ERROR));
+        }
+        if (savedInstanceState.containsKey(KEY_ARGS)) {
+            this.args = savedInstanceState.getStringArray(KEY_ARGS);
         }
     }
 
