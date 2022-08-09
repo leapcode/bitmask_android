@@ -45,6 +45,7 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.eip.VoidVpnService;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
 
 /**
@@ -128,7 +129,11 @@ public class MainActivityErrorDialog extends DialogFragment {
                 builder.setNegativeButton(R.string.cancel, (dialog, id) -> {});
                 break;
             case NO_MORE_GATEWAYS:
-                builder.setNegativeButton(R.string.cancel, (dialog, id) -> {});
+                builder.setNegativeButton(R.string.vpn_button_turn_off_blocking, (dialog, id) -> {
+                    Intent stopVoidVpnIntent = new Intent (getContext(), VoidVpnService.class);
+                    stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
+                    getContext().startService(stopVoidVpnIntent);
+                });
                 if (getPreferredCity(applicationContext) != null) {
                     builder.setPositiveButton(R.string.warning_option_try_best, (dialog, which) -> {
                         new Thread(() -> {
