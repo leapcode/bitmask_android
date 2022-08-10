@@ -1,3 +1,11 @@
+1.1.5RC2 Beta
+* improvements of obfuscation proxy pinning
+* support for Android API 31 (Android S)
+* updated dependencies (ics-openvpn, OpenSSL, Asio, IPtProxy, Snowflake)
+* show option to disable blocking if the client fails to connect to any gateway of a given transport
+* disable donation page for Bitmask for now
+* fix notification not disappearing after vpn has been turned off
+
 1.1.5 Beta
 * integrate obfsvpn - a new pluggable transports library
 * pin single obfuscation proxies
