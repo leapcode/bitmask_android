@@ -93,6 +93,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Shapeshifter shapeshifter;
     private ObfsVpnClient obfsVpnClient;
     private FirewallManager firewallManager;
+    private boolean mIsLockdownEnabled = false;
 
     private final IBinder mBinder = new IOpenVPNServiceInternal.Stub() {
 
@@ -576,9 +577,37 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         return cfg;
     }
 
+    public void determineLockdownState() {
+        Builder builder = new Builder();
+
+        try {
+            builder.addAddress(mLocalIP.mIp, mLocalIP.len);
+        } catch (IllegalArgumentException iae) {
+            return;
+        }
+
+        ParcelFileDescriptor tun = null;
+        try {
+            tun = builder.establish();
+            mIsLockdownEnabled = isLockdownEnabledCompat();
+        } catch (Exception e) {
+            VpnStatus.logError(getString(R.string.error) + e.getLocalizedMessage());
+        } finally {
+            if (tun != null) {
+                try {
+                    tun.close();
+                } catch (Exception e) {
+                    VpnStatus.logError(getString(R.string.error) + e.getLocalizedMessage());
+                }
+            }
+        }
+    }
+
     public ParcelFileDescriptor openTun() {
 
         //Debug.startMethodTracing(getExternalFilesDir(null).toString() + "/opentun.trace", 40* 1024 * 1024);
+
+        determineLockdownState();
 
         if (mProfile == null) {
             VpnStatus.logError("Refusing to open tun device without profile.");
@@ -639,6 +668,15 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             builder.setMtu(1280);
         } else {
             builder.setMtu(mMtu);
+        }
+
+        // Don't exclude local addresses at all in lockdown mode.
+        // Otherwise, incoming traffic can still bypass lockdown (AOSP quirk/bug).
+        if (mIsLockdownEnabled) {
+            mRoutes.clear();
+            mRoutesv6.clear();
+            addRoute(new CIDRIP("0.0.0.0", 0), true);
+            addRoutev6("::/0", true);
         }
 
         Collection<IpAddress> positiveIPv4Routes = mRoutes.getPositiveIPList();
@@ -715,7 +753,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             ipv6info = mLocalIPv6;
         }
 
-        if ((!mRoutes.getNetworks(false).isEmpty() || !mRoutesv6.getNetworks(false).isEmpty()) && isLockdownEnabledCompat())
+        if ((!mRoutes.getNetworks(false).isEmpty() || !mRoutesv6.getNetworks(false).isEmpty()) && mIsLockdownEnabled)
         {
             VpnStatus.logInfo("VPN lockdown enabled (do not allow apps to bypass VPN) enabled. Route exclusion will not allow apps to bypass VPN (e.g. bypass VPN for local networks)");
         }
