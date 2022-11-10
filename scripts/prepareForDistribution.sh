@@ -409,7 +409,7 @@ if [[ ${DO_BUILD} == true ]]; then
         fi
     else
         # default: neither -aab nor -apk is passed: build apks
-        if ([[ -z ${BUILD_BUNDLE} ]] && [[-z ${BUILD_APK} ]]) || ([[ -n ${BUILD_APK} ]]); then
+        if ([[ -z ${BUILD_BUNDLE} ]] && [[ -z ${BUILD_APK} ]]) || ([[ -n ${BUILD_APK} ]]); then
           if [[ -z ${FLAVOR2} ]]; then
             echo -e "${GREEN} -> build stable releases (.apk) for flavor ${FLAVOR}${NC}"
           else
