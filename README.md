@@ -82,7 +82,7 @@ You can download Android studio here:
 
 https://developer.android.com/studio/index.html
 
-Once you've got it installed, use the `SDK Manager` tool (Android figure Icon with blue arrow second from the right in the tool pane) to download all the Android SDK and NDK depencencies listed above.
+Once you've got it installed, use the `SDK Manager` tool (Android figure Icon with blue arrow second from the right in the tool pane) to download all the Android SDK and NDK dependencies listed above.
 
 #### With Bash <a name="with-bash"></a>
 
