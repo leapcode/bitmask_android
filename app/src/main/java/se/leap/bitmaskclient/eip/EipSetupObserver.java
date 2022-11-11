@@ -40,6 +40,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOAD
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DELAY;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_MOTD;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
@@ -384,6 +385,12 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 Bundle parameters = new Bundle();
                 parameters.putLong(DELAY, 500);
                 ProviderAPICommand.execute(appContext, QUIETLY_UPDATE_VPN_CERTIFICATE, parameters, provider);
+            }
+
+            if (provider.shouldUpdateMotdJson()) {
+                Bundle parameters = new Bundle();
+                parameters.putLong(DELAY, 500);
+                ProviderAPICommand.execute(appContext, DOWNLOAD_MOTD, parameters, provider);
             }
             finishGatewaySetup(false);
         } else if ("TCP_CONNECT".equals(state)) {
