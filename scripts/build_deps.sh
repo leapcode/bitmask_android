@@ -27,6 +27,9 @@ cd $BASE_DIR
 if [[ $(ls -A ${ANDROID_HOME}/ndk/${EXPECTED_NDK_VERSION}) ]]
 then
   ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/${EXPECTED_NDK_VERSION}
+elif [[ -f ${ANDROID_HOME/android-ndk-}${EXPECTED_ANDOID_NDK_RELEASE_VERSION }} ]]; then
+  echo "make sure you have the right ndk version installed and paths are set correctly"
+  exit 1
 else
   # ndk was manually downloaded from http://dl.google.com/android/repository
   ANDROID_NDK_HOME=${ANDROID_HOME}/android-ndk-${EXPECTED_ANDROID_NDK_RELEASE_VERSION}
