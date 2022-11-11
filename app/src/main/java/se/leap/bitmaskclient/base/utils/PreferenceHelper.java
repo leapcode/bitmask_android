@@ -20,6 +20,10 @@ import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
 import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_HASHES;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_LAST_SEEN;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_LAST_UPDATED;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.RESTART_ON_UPDATE;
@@ -62,11 +66,16 @@ public class PreferenceHelper {
             provider.setProviderIp(preferences.getString(Provider.PROVIDER_IP, ""));
             provider.setProviderApiIp(preferences.getString(Provider.PROVIDER_API_IP, ""));
             provider.setGeoipUrl(preferences.getString(Provider.GEOIP_URL, ""));
+            provider.setMotdUrl(preferences.getString(Provider.MOTD_URL, ""));
             provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
             provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
             provider.setVpnCertificate(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
             provider.setPrivateKey(preferences.getString(PROVIDER_PRIVATE_KEY, ""));
             provider.setEipServiceJson(new JSONObject(preferences.getString(PROVIDER_EIP_DEFINITION, "")));
+            provider.setMotdJson(new JSONObject(preferences.getString(PROVIDER_MOTD, "")));
+            provider.setLastMotdSeen(preferences.getLong(PROVIDER_MOTD_LAST_SEEN, 0L));
+            provider.setLastMotdUpdate(preferences.getLong(PROVIDER_MOTD_LAST_UPDATED, 0L));
+            provider.setMotdLastSeenHashes(preferences.getStringSet(PROVIDER_MOTD_HASHES, new HashSet<>()));
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -78,12 +87,31 @@ public class PreferenceHelper {
         return preferences.getString(toFetch + "." + providerDomain, "");
     }
 
+    public static long getLongFromPersistedProvider(String toFetch, String providerDomain, SharedPreferences preferences) {
+        return preferences.getLong(toFetch + "." + providerDomain, 0L);
+    }
+
+    public static Set<String> getStringSetFromPersistedProvider(String toFetch, String providerDomain, SharedPreferences preferences) {
+        return preferences.getStringSet(toFetch + "." + providerDomain, new HashSet<>());
+    }
+
+    public static void persistProvider(Context context, Provider provider) {
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        storeProviderInPreferences(preferences, provider, true);
+    }
+
+    public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider) {
+        storeProviderInPreferences(preferences, provider, false);
+    }
+
     // TODO: replace commit with apply after refactoring EIP
     //FIXME: don't save private keys in shared preferences! use the keystore
-    public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider) {
-        preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
+    public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider, boolean apply) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(PROVIDER_CONFIGURED, true).
                 putString(Provider.PROVIDER_IP, provider.getProviderIp()).
                 putString(Provider.GEOIP_URL, provider.getGeoipUrl().toString()).
+                putString(Provider.MOTD_URL, provider.getMotdUrl().toString()).
                 putString(Provider.PROVIDER_API_IP, provider.getProviderApiIp()).
                 putString(Provider.MAIN_URL, provider.getMainUrlString()).
                 putString(Provider.KEY, provider.getDefinitionString()).
@@ -91,7 +119,15 @@ public class PreferenceHelper {
                 putString(PROVIDER_EIP_DEFINITION, provider.getEipServiceJsonString()).
                 putString(PROVIDER_PRIVATE_KEY, provider.getPrivateKey()).
                 putString(PROVIDER_VPN_CERTIFICATE, provider.getVpnCertificate()).
-                commit();
+                putString(PROVIDER_MOTD, provider.getMotdJsonString()).
+                putStringSet(PROVIDER_MOTD_HASHES, provider.getMotdLastSeenHashes()).
+                putLong(PROVIDER_MOTD_LAST_SEEN, provider.getLastMotdSeen()).
+                putLong(PROVIDER_MOTD_LAST_UPDATED, provider.getLastMotdUpdate());
+        if (apply) {
+            editor.apply();
+        } else {
+            editor.commit();
+        }
 
         String providerDomain = provider.getDomain();
         preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
@@ -99,9 +135,14 @@ public class PreferenceHelper {
                 putString(Provider.PROVIDER_API_IP + "." + providerDomain, provider.getProviderApiIp()).
                 putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString()).
                 putString(Provider.GEOIP_URL + "." + providerDomain, provider.getGeoipUrl().toString()).
+                putString(Provider.MOTD_URL + "." + providerDomain, provider.getMotdUrl().toString()).
                 putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
                 putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
                 putString(PROVIDER_EIP_DEFINITION + "." + providerDomain, provider.getEipServiceJsonString()).
+                putString(PROVIDER_MOTD + "." + providerDomain, provider.getMotdJsonString()).
+                putStringSet(PROVIDER_MOTD_HASHES + "." + providerDomain, provider.getMotdLastSeenHashes()).
+                putLong(PROVIDER_MOTD_LAST_SEEN + "." + providerDomain, provider.getLastMotdSeen()).
+                putLong(PROVIDER_MOTD_LAST_UPDATED + "." + providerDomain, provider.getLastMotdUpdate()).
                 apply();
     }
 
@@ -132,9 +173,14 @@ public class PreferenceHelper {
                 remove(Provider.PROVIDER_API_IP + "." + providerDomain).
                 remove(Provider.MAIN_URL + "." + providerDomain).
                 remove(Provider.GEOIP_URL + "." + providerDomain).
+                remove(Provider.MOTD_URL + "." + providerDomain).
                 remove(PROVIDER_EIP_DEFINITION + "." + providerDomain).
                 remove(PROVIDER_PRIVATE_KEY + "." + providerDomain).
                 remove(PROVIDER_VPN_CERTIFICATE + "." + providerDomain).
+                remove(PROVIDER_MOTD + "." + providerDomain).
+                remove(PROVIDER_MOTD_HASHES + "." + providerDomain).
+                remove(PROVIDER_MOTD_LAST_SEEN + "." + providerDomain).
+                remove(PROVIDER_MOTD_LAST_UPDATED + "." + providerDomain).
                 apply();
     }
 
@@ -146,9 +192,14 @@ public class PreferenceHelper {
                 remove(Provider.PROVIDER_API_IP).
                 remove(Provider.MAIN_URL).
                 remove(Provider.GEOIP_URL).
+                remove(Provider.MOTD_URL).
                 remove(PROVIDER_EIP_DEFINITION).
                 remove(PROVIDER_PRIVATE_KEY).
                 remove(PROVIDER_VPN_CERTIFICATE).
+                remove(PROVIDER_MOTD).
+                remove(PROVIDER_MOTD_HASHES).
+                remove(PROVIDER_MOTD_LAST_SEEN).
+                remove(PROVIDER_MOTD_LAST_UPDATED).
                 apply();
     }
 
@@ -360,10 +411,7 @@ public class PreferenceHelper {
     }
 
     public static void setExcludedApps(Context context, Set<String> apps) {
-        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        SharedPreferences.Editor prefsedit = prefs.edit();
-        prefsedit.putStringSet(EXCLUDED_APPS, apps);
-        prefsedit.apply();
+        putStringSet(context, EXCLUDED_APPS, apps);
     }
 
     public static Set<String> getExcludedApps(Context context) {
@@ -413,6 +461,14 @@ public class PreferenceHelper {
         }
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putString(key, value).apply();
+    }
+
+    public static void putStringSet(Context context, String key, Set<String> value) {
+        if (context == null) {
+            return;
+        }
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putStringSet(key, value).apply();
     }
 
     public static boolean getBoolean(Context context, String key, Boolean defValue) {
