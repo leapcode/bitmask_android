@@ -95,6 +95,7 @@ public abstract class ProviderListBaseActivity extends ProviderSetupBaseActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
             if (resultCode == RESULT_OK) {
                 setResult(resultCode, data);
