@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <!--
+            *****************************************************
+            Used to create the image to be shown in the motd fragment
+            example: <item android:drawable="@drawable/mybackground" />
+            *****************************************************
+    -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_motd"
+        android:gravity="fill_horizontal|fill_vertical"/>
+</layer-list>
+
