@@ -16,9 +16,11 @@
  */
 package se.leap.bitmaskclient.base;
 
+import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_MOTD_FRAGMENT;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.base.models.Constants.EXTRA_MOTD_MSG;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
@@ -265,7 +267,7 @@ public class StartActivity extends Activity{
                 Log.e(TAG, "Couldn't show Motd. Invalid timestamp.");
             }
         }
-        showMainActivity();
+        showVPNFragment();
     }
 
     private void showMotd(Provider p, IMessage message) {
@@ -277,14 +279,22 @@ public class StartActivity extends Activity{
             PreferenceHelper.persistProvider(this, p);
             ProviderObservable.getInstance().updateProvider(p);
         }
-        //TODO: show Motd Activity!
-        showMainActivity();
+        showMotdFragment(message);
     }
 
-    private void showMainActivity() {
+    private void showVPNFragment() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
+        startActivity(intent);
+        finish();
+    }
+
+    private void showMotdFragment(IMessage message) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setAction(ACTION_SHOW_MOTD_FRAGMENT);
+        intent.putExtra(EXTRA_MOTD_MSG, message.toJson());
         startActivity(intent);
         finish();
     }

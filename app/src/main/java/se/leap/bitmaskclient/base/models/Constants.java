@@ -77,6 +77,7 @@ public interface Constants {
 
 
     String ASK_TO_CANCEL_VPN = "ask_to_cancel_vpn";
+    String EXTRA_MOTD_MSG = "extra_motd_message";
 
 
     //////////////////////////////////////////////
