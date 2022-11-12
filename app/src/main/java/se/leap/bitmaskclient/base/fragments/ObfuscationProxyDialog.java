@@ -7,7 +7,6 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,9 +14,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
-import androidx.appcompat.widget.AppCompatSpinner;
-
-import java.util.ArrayList;
 
 import se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;

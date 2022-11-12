@@ -19,7 +19,6 @@ import android.content.Context;
 import android.os.FileObserver;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.torproject.jni.ClientTransportPluginInterface;
