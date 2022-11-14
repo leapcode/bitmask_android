@@ -30,7 +30,6 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -302,10 +301,7 @@ public final class Provider implements Parcelable {
     public void setMotdUrl(String url) {
         try {
             this.motdUrl.setUrl(new URL(url));
-            Log.d("PROVIDER", "setMotdUrl provider: " + this.domain + " - motd url: " + motdUrl.toString());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
-            Log.d("PROVIDER", "setMotdUrl exception!!! provider: " + this.domain + " - motd url: " + motdUrl.toString() + " obj:" + this.toString());
             this.motdUrl = new DefaultedURL();
         }
     }
