@@ -54,7 +54,7 @@ import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VpnNotificationManager;
 import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient;
-import se.leap.bitmaskclient.pluggableTransports.Shapeshifter;
+import se.leap.bitmaskclient.pluggableTransports.ShapeshifterClient;
 
 
 public class OpenVPNService extends VpnService implements StateListener, Callback, ByteCountListener, IOpenVPNServiceInternal, VpnNotificationManager.VpnServiceCallback {
@@ -90,7 +90,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Toast mlastToast;
     private Runnable mOpenVPNThread;
     private VpnNotificationManager notificationManager;
-    private Shapeshifter shapeshifter;
+    private ShapeshifterClient shapeshifter;
     private ObfsVpnClient obfsVpnClient;
     private FirewallManager firewallManager;
 
@@ -426,7 +426,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 int runningSocksPort = obfsVpnClient.start();
                 connection.setProxyPort(String.valueOf(runningSocksPort));
             } else if (shapeshifter == null) {
-                shapeshifter = new Shapeshifter(obfs4Connection.getDispatcherOptions());
+                shapeshifter = new ShapeshifterClient(obfs4Connection.getDispatcherOptions());
                 shapeshifter.start();
             }
         }
