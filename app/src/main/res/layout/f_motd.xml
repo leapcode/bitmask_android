@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/BitmaskTheme"
+    tools:context=".base.fragments.MotdFragment"
+    android:fitsSystemWindows="true">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/next_btn"
+        />
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/guideline_bottom"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:clipChildren="true"
+        android:fillViewport="true"
+        android:background="@drawable/background_motd"
+        >
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            >
+
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_sv_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.15" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_sv_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.85" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_sv_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.1" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_sv_center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.4" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/motd_icon_circle"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                app:layout_constraintTop_toTopOf="@id/guideline_sv_top"
+                app:layout_constraintBottom_toTopOf="@+id/guideline_sv_center"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:src="@drawable/motd_img"
+                android:visibility="visible"
+                />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/motd_content"
+                app:layout_constraintLeft_toLeftOf="@id/guideline_sv_left"
+                app:layout_constraintRight_toRightOf="@+id/guideline_sv_right"
+                app:layout_constraintTop_toBottomOf="@+id/guideline_sv_center"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/standard_margin"
+                android:gravity="center_horizontal"
+                android:keepScreenOn="true"
+                android:padding="@dimen/stdpadding"
+                android:elegantTextHeight="true"
+                android:autoSizeTextType="uniform"
+                android:text=" aaa aaa aaa aaaaaaaaaaaaaaaaaaaa \n\n\”ssdfsdf Riseup's services are funded by donations from people like you. We try not to ask too often, but we have to ask sometimes. Please consider making a https://riseup.net/donate donation if you value this freely available service, appreciate that we don't track or sell your data, or want to support people around the world working towards liberatory social change."
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/next_btn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/ic_arrow_right"
+        android:background="?attr/selectableItemBackground"
+        android:text="next"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

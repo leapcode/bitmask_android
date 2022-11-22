@@ -35,6 +35,7 @@
     <color name="white">#ffffff</color>
     <color name="white_transparent">#20ffffff</color>
     <color name="black_transparent">#20000000</color>
+    <color name="black_high_transparent">#05000000</color>
 
     <color name="colorActionBarTitleFont">@color/white</color>
     <color name="colorActionBarSubtitleFont">@color/black800</color>

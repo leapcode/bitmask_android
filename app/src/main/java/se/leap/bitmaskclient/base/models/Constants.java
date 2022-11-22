@@ -53,7 +53,7 @@ public interface Constants {
     String OBFUSCATION_PINNING_LOCATION = "obfuscation_pinning_location";
 
 
-     //////////////////////////////////////////////
+    //////////////////////////////////////////////
     // REQUEST CODE CONSTANTS
     /////////////////////////////////////////////
 
@@ -77,6 +77,7 @@ public interface Constants {
 
 
     String ASK_TO_CANCEL_VPN = "ask_to_cancel_vpn";
+    String EXTRA_MOTD_MSG = "extra_motd_message";
 
 
     //////////////////////////////////////////////
@@ -114,6 +115,10 @@ public interface Constants {
     String PROVIDER_EIP_DEFINITION = "Constants.EIP_DEFINITION";
     String PROVIDER_PROFILE_UUID = "Constants.PROVIDER_PROFILE_UUID";
     String PROVIDER_PROFILE = "Constants.PROVIDER_PROFILE";
+    String PROVIDER_MOTD = "Constants.PROVIDER_MOTD";
+    String PROVIDER_MOTD_HASHES = "Constants.PROVIDER_MOTD_HASHES";
+    String PROVIDER_MOTD_LAST_SEEN = "Constants.PROVIDER_MOTD_LAST_SEEN";
+    String PROVIDER_MOTD_LAST_UPDATED = "Constants.PROVIDER_MOTD_LAST_UPDATED";
 
     ////////////////////////////////////////////////
     // PRESHIPPED PROVIDER CONFIG

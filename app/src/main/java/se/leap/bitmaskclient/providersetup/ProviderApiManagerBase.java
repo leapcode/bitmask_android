@@ -35,10 +35,15 @@ import static se.leap.bitmaskclient.base.models.Constants.CREDENTIALS_PASSWORD;
 import static se.leap.bitmaskclient.base.models.Constants.CREDENTIALS_USERNAME;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_HASHES;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_LAST_SEEN;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_LAST_UPDATED;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Provider.CA_CERT;
 import static se.leap.bitmaskclient.base.models.Provider.GEOIP_URL;
+import static se.leap.bitmaskclient.base.models.Provider.MOTD_URL;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_API_IP;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_IP;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getDomainFromMainURL;
@@ -47,6 +52,8 @@ import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormatted
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.parseRsaKeyFromString;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getFromPersistedProvider;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getLongFromPersistedProvider;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getStringSetFromPersistedProvider;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.BACKEND_ERROR_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.BACKEND_ERROR_MESSAGE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
@@ -55,6 +62,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOAD
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DELAY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_GEOIP_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_MOTD;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_SERVICE_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORID;
@@ -124,6 +132,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -138,6 +147,7 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EipStatus;
+import se.leap.bitmaskclient.motd.MotdClient;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
 import se.leap.bitmaskclient.providersetup.models.SrpCredentials;
@@ -299,6 +309,17 @@ public abstract class ProviderApiManagerBase {
                 }
                 ProviderObservable.getInstance().setProviderForDns(null);
                 break;
+            case DOWNLOAD_MOTD:
+                MotdClient client = new MotdClient(provider);
+                JSONObject motd = client.fetchJson();
+                if (motd != null) {
+                    provider.setMotdJson(motd);
+                    provider.setLastMotdUpdate(System.currentTimeMillis());
+                }
+                PreferenceHelper.storeProviderInPreferences(preferences, provider);
+                ProviderObservable.getInstance().updateProvider(provider);
+                break;
+
             case UPDATE_INVALID_VPN_CERTIFICATE:
                 ProviderObservable.getInstance().setProviderForDns(provider);
                 result = updateVpnCertificate(provider);
@@ -914,7 +935,11 @@ public abstract class ProviderApiManagerBase {
             provider.setVpnCertificate(getPersistedVPNCertificate(providerDomain));
             provider.setProviderApiIp(getPersistedProviderApiIp(providerDomain));
             provider.setProviderIp(getPersistedProviderIp(providerDomain));
-            provider.setGeoipUrl(getPersistedGeoIp(providerDomain));
+            provider.setGeoipUrl(getPersistedGeoIp(providerDomain)); // TODO: do we really need to persist the Geoip URL??
+            provider.setLastMotdSeen(getPersistedMotdLastSeen(providerDomain));
+            provider.setMotdLastSeenHashes(getPersistedMotdHashes(providerDomain));
+            provider.setLastMotdUpdate(getPersistedMotdLastUpdate(providerDomain));
+            provider.setMotdJson(getPersistedMotd(providerDomain));
         }
     }
 
@@ -1044,6 +1069,27 @@ public abstract class ProviderApiManagerBase {
     protected String getPersistedGeoIp(String providerDomain) {
         return getFromPersistedProvider(GEOIP_URL, providerDomain, preferences);
     }
+
+    protected JSONObject getPersistedMotd(String providerDomain) {
+        try {
+            return new JSONObject(getFromPersistedProvider(PROVIDER_MOTD, providerDomain, preferences));
+        } catch (JSONException e) {
+            return new JSONObject();
+        }
+    }
+
+    protected long getPersistedMotdLastSeen(String providerDomain) {
+        return getLongFromPersistedProvider(PROVIDER_MOTD_LAST_SEEN, providerDomain, preferences);
+    }
+
+    protected long getPersistedMotdLastUpdate(String providerDomain) {
+        return getLongFromPersistedProvider(PROVIDER_MOTD_LAST_UPDATED, providerDomain, preferences);
+    }
+
+    protected Set<String> getPersistedMotdHashes(String providerDomain) {
+        return getStringSetFromPersistedProvider(PROVIDER_MOTD_HASHES, providerDomain, preferences);
+    }
+
 
     protected boolean hasUpdatedProviderDetails(String domain) {
         return preferences.contains(Provider.KEY + "." + domain) && preferences.contains(CA_CERT + "." + domain);

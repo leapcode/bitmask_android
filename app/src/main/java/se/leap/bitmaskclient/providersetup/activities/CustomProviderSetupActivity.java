@@ -36,6 +36,7 @@ import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
 
 import static se.leap.bitmaskclient.BuildConfig.customProviderApiIp;
 import static se.leap.bitmaskclient.BuildConfig.customProviderIp;
+import static se.leap.bitmaskclient.BuildConfig.customProviderMotdUrl;
 import static se.leap.bitmaskclient.BuildConfig.customProviderUrl;
 import static se.leap.bitmaskclient.BuildConfig.geoipUrl;
 import static se.leap.bitmaskclient.base.models.Constants.EXT_JSON;
@@ -72,7 +73,7 @@ public class CustomProviderSetupActivity extends ProviderSetupBaseActivity {
     private void setDefaultProvider() {
         try {
             AssetManager assetsManager = getAssets();
-            Provider customProvider = new Provider(customProviderUrl, geoipUrl, customProviderIp, customProviderApiIp);
+            Provider customProvider = new Provider(customProviderUrl, geoipUrl, customProviderMotdUrl, customProviderIp, customProviderApiIp);
             String domain = ConfigHelper.getDomainFromMainURL(customProviderUrl);
             String certificate = loadInputStreamAsString(assetsManager.open(domain + EXT_PEM));
             String providerDefinition = loadInputStreamAsString(assetsManager.open(domain + EXT_JSON));
@@ -81,7 +82,7 @@ public class CustomProviderSetupActivity extends ProviderSetupBaseActivity {
             setProvider(customProvider);
         } catch (IOException | JSONException e) {
             e.printStackTrace();
-            setProvider(new Provider(customProviderUrl, geoipUrl, customProviderIp, customProviderApiIp));
+            setProvider(new Provider(customProviderUrl, geoipUrl, customProviderMotdUrl, customProviderIp, customProviderApiIp));
         }
     }
 

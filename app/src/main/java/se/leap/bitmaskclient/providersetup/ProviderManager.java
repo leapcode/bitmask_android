@@ -24,6 +24,7 @@ import static se.leap.bitmaskclient.base.models.Constants.EXT_PEM;
 import static se.leap.bitmaskclient.base.models.Constants.URLS;
 import static se.leap.bitmaskclient.base.models.Provider.GEOIP_URL;
 import static se.leap.bitmaskclient.base.models.Provider.MAIN_URL;
+import static se.leap.bitmaskclient.base.models.Provider.MOTD_URL;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_API_IP;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_IP;
 import static se.leap.bitmaskclient.base.utils.FileHelper.createFile;
@@ -91,6 +92,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                 String certificate = null;
                 String providerDefinition = null;
                 String geoipUrl = null;
+                String motdUrl = null;
                 try {
                     String provider = file.substring(0, file.length() - ".url".length());
                     InputStream providerFile = assetsManager.open(directory + "/" + file);
@@ -98,12 +100,13 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                     providerIp = extractKeyFromInputStream(providerFile, PROVIDER_IP);
                     providerApiIp = extractKeyFromInputStream(providerFile, PROVIDER_API_IP);
                     geoipUrl =  extractKeyFromInputStream(providerFile, GEOIP_URL);
+                    motdUrl = extractKeyFromInputStream(providerFile, MOTD_URL);
                     certificate = loadInputStreamAsString(assetsManager.open(provider + EXT_PEM));
                     providerDefinition = loadInputStreamAsString(assetsManager.open(provider + EXT_JSON));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                providers.add(new Provider(mainUrl, geoipUrl, providerIp, providerApiIp, certificate, providerDefinition));
+                providers.add(new Provider(mainUrl, geoipUrl, motdUrl, providerIp, providerApiIp, certificate, providerDefinition));
             }
 
         return providers;

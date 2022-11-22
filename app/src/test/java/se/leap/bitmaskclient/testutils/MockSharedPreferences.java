@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,7 +49,7 @@ public class MockSharedPreferences implements SharedPreferences {
     @Nullable
     @Override
     public Set<String> getStringSet(String key, @Nullable Set<String> defValues) {
-        return null;
+        return new HashSet<>();
     }
 
     @Override

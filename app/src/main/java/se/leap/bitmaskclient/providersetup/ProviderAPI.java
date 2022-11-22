@@ -60,6 +60,7 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             SET_UP_PROVIDER = "setUpProvider",
             UPDATE_PROVIDER_DETAILS = "updateProviderDetails",
             DOWNLOAD_GEOIP_JSON = "downloadGeoIpJson",
+            DOWNLOAD_MOTD = "downloadMotd",
             SIGN_UP = "srpRegister",
             LOG_IN = "srpAuth",
             LOG_OUT = "logOut",

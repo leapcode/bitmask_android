@@ -16,6 +16,19 @@
  */
 package se.leap.bitmaskclient.base;
 
+import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_MOTD_FRAGMENT;
+import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
+import static se.leap.bitmaskclient.base.models.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.base.models.Constants.EXTRA_MOTD_MSG;
+import static se.leap.bitmaskclient.base.models.Constants.PREFERENCES_APP_VERSION;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
+import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInPreferences;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,27 +41,22 @@ import androidx.annotation.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Set;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import motd.IMessage;
+import motd.IMessages;
+import motd.IStringCollection;
+import motd.Motd;
 import se.leap.bitmaskclient.BuildConfig;
-import se.leap.bitmaskclient.providersetup.ProviderListActivity;
-import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.base.models.FeatureVersionCode;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.providersetup.activities.CustomProviderSetupActivity;
+import se.leap.bitmaskclient.base.utils.DateHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-
-import static se.leap.bitmaskclient.base.models.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
-import static se.leap.bitmaskclient.base.models.Constants.PREFERENCES_APP_VERSION;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
-import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInPreferences;
+import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.providersetup.ProviderListActivity;
+import se.leap.bitmaskclient.providersetup.activities.CustomProviderSetupActivity;
 
 /**
  * Activity shown at startup. Evaluates if App is started for the first time or has been upgraded
@@ -202,12 +210,13 @@ public class StartActivity extends Activity{
                 EipCommand.startVPN(this, true);
                 finish();
             } else if (PreferenceHelper.getRestartOnUpdate(this.getApplicationContext())) {
+                // This is relevant for web build flavor apks
                 PreferenceHelper.restartOnUpdate(this.getApplicationContext(), false);
                 EipCommand.startVPN(this, false);
-                showMainActivity();
+                showNextActivity(provider);
                 finish();
             } else {
-                showMainActivity();
+                showNextActivity(provider);
             }
         } else {
             configureLeapProvider();
@@ -234,17 +243,58 @@ public class StartActivity extends Activity{
                 storeProviderInPreferences(preferences, provider);
                 ProviderObservable.getInstance().updateProvider(provider);
                 EipCommand.startVPN(this, false);
-                showMainActivity();
+                showNextActivity(provider);
             } else if (resultCode == RESULT_CANCELED) {
                 finish();
             }
         }
     }
 
-    private void showMainActivity() {
+    private void showNextActivity(Provider provider) {
+        if (provider.shouldShowMotdSeen()) {
+            try {
+                IMessages messages = Motd.newMessages(provider.getMotdJsonString());
+
+                IStringCollection stringCollection =  Motd.newStringCollection(); //provider.getMotdLastSeenHashCollection();
+                String formattedDate = DateHelper.getFormattedDateWithTimezone(provider.getLastMotdSeen());
+                IMessage message = messages.getFirstMessage(formattedDate, stringCollection);
+                if (message != null) {
+                    IMessage imessage = Motd.newMessage(message.toJson());
+                    showMotd(provider, imessage);
+                    return;
+                }
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Couldn't show Motd. Invalid timestamp.");
+            }
+        }
+        showVPNFragment();
+    }
+
+    private void showMotd(Provider p, IMessage message) {
+        if (message.mType().equals(Motd.MESSAGE_TYPE_ONCE)) {
+            Set<String> lastSeenHashes = p.getMotdLastSeenHashes();
+            String hash = message.hash();
+            lastSeenHashes.add(hash);
+            p.setMotdLastSeenHashes(lastSeenHashes);
+            PreferenceHelper.persistProvider(this, p);
+            ProviderObservable.getInstance().updateProvider(p);
+        }
+        showMotdFragment(message);
+    }
+
+    private void showVPNFragment() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
+        startActivity(intent);
+        finish();
+    }
+
+    private void showMotdFragment(IMessage message) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setAction(ACTION_SHOW_MOTD_FRAGMENT);
+        intent.putExtra(EXTRA_MOTD_MSG, message.toJson());
         startActivity(intent);
         finish();
     }

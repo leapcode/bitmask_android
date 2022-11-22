@@ -68,6 +68,7 @@ android {
     buildConfigField "String", "customProviderIp", '""'
     buildConfigField "String", "customProviderApiIp", '""'
     buildConfigField "String", "geoipUrl", '""'
+    buildConfigField "String", "customProviderMotdUrl", '""'
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     dexOptions {
@@ -133,6 +134,9 @@ android {
       buildConfigField "String", "customProviderApiIp", customProviderApiIp
       def geoipUrl = '"https://api.black.riseup.net:9001/json"'
       buildConfigField "String", "geoipUrl", geoipUrl
+      //URL for the message of the day, see https://0xacab.org/leap/motd#motd-message-of-the-day
+      def customProviderMotdUrl = '"https://static.riseup.net/vpn/motd.json"'
+      buildConfigField "String", "customProviderMotdUrl", customProviderMotdUrl
       //Change the versionCode as needed
       //versionCode 1
       //Change the versionName as needed

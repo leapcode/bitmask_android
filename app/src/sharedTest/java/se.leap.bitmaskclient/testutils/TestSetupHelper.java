@@ -84,6 +84,7 @@ public class TestSetupHelper {
             Provider p = new Provider(
                     domain,
                     geoipUrl,
+                    null,
                     providerIp,
                     providerApiIp,
                     getInputAsString(TestSetupHelper.class.getClassLoader().getResourceAsStream(caCertFile)),
