@@ -14,6 +14,7 @@ public class DateHelperTest {
         Pattern datePattern = Pattern.compile("^10 Nov 22 11:26 [+-][0-9]{4}$");
         String formattedDate = DateHelper.getFormattedDateWithTimezone(1668075969744L);
         Matcher matcher = datePattern.matcher(formattedDate);
-        assertTrue(matcher.find());
+        System.out.println(formattedDate);
+        assertTrue("date should be formatted similar to 10 Nov 22 11:26 +0100", matcher.find());
     }
 }
