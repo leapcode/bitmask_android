@@ -27,17 +27,16 @@ import java.util.Observer;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipStatus;
-import shapeshifter.ShapeShifter;
 
-public class Shapeshifter implements Observer {
+public class ShapeshifterClient implements Observer {
 
     public static final String DISPATCHER_PORT = "4430";
     public static final String DISPATCHER_IP = "127.0.0.1";
     private static final int MAX_RETRY = 5;
     private static final int RETRY_TIME = 4000;
-    private static final String TAG = Shapeshifter.class.getSimpleName();
+    private static final String TAG = ShapeshifterClient.class.getSimpleName();
 
-    private final shapeshifter.ShapeShifter shapeShifter;
+    private final shapeshifter.Shapeshifter_ shapeShifter;
     private boolean isErrorHandling;
     private boolean noNetwork;
     private int retry = 0;
@@ -53,15 +52,15 @@ public class Shapeshifter implements Observer {
 
             if (retry < MAX_RETRY && !noNetwork) {
                 retry++;
-                reconnectHandler.postDelayed(Shapeshifter.this::reconnect, RETRY_TIME);
+                reconnectHandler.postDelayed(ShapeshifterClient.this::reconnect, RETRY_TIME);
             } else {
                 VpnStatus.logError(VpnStatus.ErrorType.SHAPESHIFTER);
             }
         }
     }
 
-    public Shapeshifter(Obfs4Options options) {
-        shapeShifter = new ShapeShifter();
+    public ShapeshifterClient(Obfs4Options options) {
+        shapeShifter = new shapeshifter.Shapeshifter_();
         shapeShifter.setLogger(new ShapeshifterLogger());
         setup(options);
         Looper.prepare();
