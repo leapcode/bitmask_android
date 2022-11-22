@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
- <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
  <item android:drawable="@drawable/ic_splash_background"
      android:gravity="fill_horizontal|fill_vertical"/>
 
- <item>
+ <item
+     android:top="@dimen/splash_text_top_padding"
+     >
   <bitmap
-      android:src="@drawable/logo"
-      android:gravity="center" />
+      android:src="@drawable/bitmask_text"
+      android:gravity="center_horizontal|top" />
  </item>
+ <item
+     android:drawable="@drawable/footer_text_drawable"
+     android:gravity="bottom|fill_horizontal" />
 
 </layer-list>
