@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--<item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white"/>
+            <size android:width="250dp" android:height="250dp"/>
+        </shape>
+    </item>-->
+   <item
+       android:bottom="15dp"
+       android:top="15dp"
+        >
+        <shape android:shape="oval">
+           <solid android:color="@color/btn_red"/>
+            <size android:width="250dp" android:height="250dp" />
+        </shape>
+    </item>
+    <item
+        android:bottom="15dp"
+        android:top="15dp"
+        >
+        <shape
+            android:shape="ring"
+            android:innerRadius="125dp"
+            android:useLevel="false"
+            android:thickness="10dp">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="125dp"
+                android:centerX="0.51"
+                android:centerY="0.54"
+                android:startColor="#000000"
+                android:centerColor="#000000"
+                android:endColor="@color/transparent" />
+
+        </shape>
+    </item>
+    <item
+        android:top="65dp"
+        android:bottom="65dp"
+        android:left="50dp"
+        android:right="50dp"
+        >
+        <bitmap android:src="@drawable/ic_btn_on" />
+    </item>
+</layer-list>

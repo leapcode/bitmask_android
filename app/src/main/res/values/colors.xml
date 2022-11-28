@@ -14,6 +14,7 @@
     <color name="black800_secondary">#3b3b3b</color>
     <color name="black800_transparent">#AA424242</color>
     <color name="black800_high_transparent">#22424242</color>
+    <color name="transparent">#00000000</color>
 
     <color name="red200">#ef9a9a</color>
     <color name="pink200">#f48fb1</color>
@@ -45,5 +46,11 @@
     <color name="colorLocationButtonTint">@color/black800</color>
     <color name="colorLocationButtonTintTransparent">@color/black800_high_transparent</color>
     <color name="colorWarning">#B33A3A</color>
+    <color name="btn_red">#FF7D7D</color>
+    <color name="btn_red_dark">#c84c51</color>
+    <color name="btn_yellow">#FFBF00</color>
+    <color name="btn_yellow_dark">#C78F00</color>
+    <color name="btn_green">#9FC17F</color>
+    <color name="btn_green_dark">#709152</color>
 
 </resources>
