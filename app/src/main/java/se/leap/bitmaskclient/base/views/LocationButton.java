@@ -1,24 +1,17 @@
 package se.leap.bitmaskclient.base.views;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.ColorRes;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.LayoutInflaterCompat;
-import androidx.core.view.ViewCompat;
 
-import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.databinding.VLocationButtonBinding;
 import se.leap.bitmaskclient.eip.GatewaysManager;
 
