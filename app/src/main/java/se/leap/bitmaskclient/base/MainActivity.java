@@ -34,6 +34,7 @@ import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInPreferences;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.isBrightColor;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORID;
@@ -47,12 +48,18 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -74,6 +81,7 @@ import se.leap.bitmaskclient.base.fragments.SettingsFragment;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipSetupListener;
@@ -81,7 +89,6 @@ import se.leap.bitmaskclient.eip.EipSetupObserver;
 import se.leap.bitmaskclient.providersetup.ProviderAPI;
 import se.leap.bitmaskclient.providersetup.activities.LoginActivity;
 import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
-
 
 public class MainActivity extends AppCompatActivity implements EipSetupListener, Observer {
 
@@ -95,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     public final static String ACTION_SHOW_LOG_FRAGMENT = "action_show_log_fragment";
     public final static String ACTION_SHOW_DIALOG_FRAGMENT = "action_show_dialog_fragment";
     public final static String ACTION_SHOW_MOTD_FRAGMENT = "action_show_motd_fragment";
+
+    private @ColorRes int actionBarTextColor;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -225,6 +234,41 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         if (actionBar != null) {
             actionBar.setSubtitle(stringId);
         }
+    }
+
+    public @ColorRes int getActionBarTitleColor() {
+        return actionBarTextColor;
+    }
+
+    public void setDefaultActivityBarColor() {
+        setActivityBarColor(R.color.colorPrimary, R.color.colorPrimaryDark, R.color.colorActionBarTitleFont);
+    }
+
+    public void setActivityBarColor(@ColorRes int primaryColor, @ColorRes int secondaryColor, @ColorRes int textColor) {
+        ActionBar bar = getSupportActionBar();
+        if (bar == null) {
+            return;
+        }
+        int color = ContextCompat.getColor(this, secondaryColor);
+        bar.setBackgroundDrawable(new ColorDrawable(color));
+        if (Build.VERSION.SDK_INT  >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = this.getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(this, primaryColor));
+        }
+
+        if (bar.getTitle() == null) {
+            return;
+        }
+
+        if (textColor == 0) {
+            actionBarTextColor = isBrightColor(color) ? R.color.actionbar_dark_color : R.color.actionbar_light_color;
+        } else {
+            actionBarTextColor = textColor;
+        }
+
+        ViewHelper.setActionBarTextColor(bar, actionBarTextColor);
     }
 
     @Override

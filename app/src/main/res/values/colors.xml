@@ -54,8 +54,12 @@
     <color name="btn_green_dark">#709152</color>
     <color name="btn_white_transparent">#CCFFFEFE</color>
     <color name="btn_white_transparent_dark">#CCCCCBCB</color>
-    <color name="bg_red_1">#EC6767</color>
-    <color name="bg_red_2">#DB6F66</color>
-    <color name="bg_red_3">#D05D59</color>
-
+    <color name="bg_red_top">#EC6767</color>
+    <color name="bg_red_top_light_transparent">#CCff9895</color>
+    <color name="bg_yellow_top">#FADD85</color>
+    <color name="bg_yellow_top_light_transparent">#CCffffb6</color>
+    <color name="bg_green_top">#CCDCB8</color>
+    <color name="bg_green_top_light_transparent">#ffffea</color>
+    <color name="actionbar_dark_color">@color/black800</color>
+    <color name="actionbar_light_color">@color/white</color>
 </resources>
