@@ -71,7 +71,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        android:layout_margin="-100dp"
+        android:layout_marginLeft="-300dp"
+        android:layout_marginRight="-300dp"
+        android:layout_marginTop="-300dp"
+        android:layout_marginBottom="-300dp"
         app:srcCompat="@drawable/bg_red" />
 
 
