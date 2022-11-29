@@ -17,12 +17,6 @@ public class MainButton extends RelativeLayout {
     private static final String TAG = MainButton.class.getSimpleName();
 
     AppCompatImageView button;
-    VMainButtonBinding binding;
-
-    private boolean isOn = false;
-    private boolean isProcessing = false;
-    private boolean isError = true;
-
 
     public MainButton(Context context) {
         super(context);
@@ -47,7 +41,7 @@ public class MainButton extends RelativeLayout {
     }
 
     private void initLayout(Context context) {
-        binding = VMainButtonBinding.inflate(LayoutInflater.from(context), this, true);
+        VMainButtonBinding binding = VMainButtonBinding.inflate(LayoutInflater.from(context), this, true);
         button = binding.button;
     }
 
@@ -60,5 +54,4 @@ public class MainButton extends RelativeLayout {
                     isOn ? R.drawable.button_circle_stop : R.drawable.button_circle_start));
         }
     }
-
 }

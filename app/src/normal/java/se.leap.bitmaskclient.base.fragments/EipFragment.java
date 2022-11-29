@@ -268,6 +268,12 @@ public class EipFragment extends Fragment implements Observer {
         eipStatus.deleteObserver(this);
         providerObservable.deleteObserver(this);
         torStatusObservable.deleteObserver(this);
+        background = null;
+        mainButton = null;
+        locationButton = null;
+        mainDescription = null;
+        subDescription = null;
+        stateView = null;
     }
 
     private void saveStatus(boolean restartOnBoot) {
