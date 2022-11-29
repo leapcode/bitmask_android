@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     public final static String ACTION_SHOW_DIALOG_FRAGMENT = "action_show_dialog_fragment";
     public final static String ACTION_SHOW_MOTD_FRAGMENT = "action_show_motd_fragment";
 
-    private @ColorRes int actionBarTextColor;
+    private @ColorRes int actionBarTextColor = R.color.colorActionBarTitleFont;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
