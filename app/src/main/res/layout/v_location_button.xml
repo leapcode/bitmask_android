@@ -8,7 +8,6 @@
     android:padding="@dimen/stdpadding"
     android:background="@drawable/cust_button_primary_rect"
     android:layout_height="match_parent"
-    tools:viewBindingIgnore="true"
     >
 
     <androidx.appcompat.widget.AppCompatImageView
