@@ -9,7 +9,6 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/eipServiceFragment"
-    tools:viewBindingIgnore="true"
     >
 
     <androidx.constraintlayout.widget.Guideline
@@ -17,16 +16,22 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintGuide_percent="0.1"
-        app:layout_constraintRight_toRightOf="parent" />
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_horizontal_center"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.25"
+        />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_vertical_left"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintGuide_percent="0.3" />
 
 
@@ -35,16 +40,13 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintGuide_percent="0.55"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintGuide_percent="0.45" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_horizontal_button_top"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintGuide_percent="0.8"
         />
 
@@ -53,9 +55,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintGuide_percent="0.98"
-        app:layout_constraintRight_toRightOf="parent" />
+        />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_vertical_right"
@@ -70,26 +71,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        app:srcCompat="@drawable/background_eip" />
+        android:layout_margin="-100dp"
+        app:srcCompat="@drawable/bg_red" />
 
-
-    <se.leap.bitmaskclient.base.views.MainButton
-        android:id="@+id/main_button"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="@dimen/stdpadding"
-        app:layout_constraintTop_toBottomOf="@id/guideline_horizontal_top"
-        app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal_bottom"
-        app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_right"
-        app:layout_constraintStart_toStartOf="@+id/guideline_vertical_left"
-        app:layout_constraintDimensionRatio="1:1"
-        />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/main_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/guideline_horizontal_bottom"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/sub_description"
@@ -112,7 +102,7 @@
         app:layout_constraintTop_toBottomOf="@id/main_description"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/gateway_location_button"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal_center"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
         android:textStyle="bold"
         android:textColor="@color/colorEipFragmentFont"
@@ -126,6 +116,31 @@
         android:maxLines="2"
         android:gravity="center"
         />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/state_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/guideline_horizontal_bottom"
+        app:layout_constraintTop_toBottomOf="@id/guideline_horizontal_center"
+        app:layout_constraintLeft_toLeftOf="@id/guideline_vertical_left"
+        app:layout_constraintRight_toRightOf="@id/guideline_vertical_right"
+        app:layout_constraintVertical_bias="1"
+        app:srcCompat="@drawable/red_mask"
+        />
+
+    <se.leap.bitmaskclient.base.views.MainButton
+        android:id="@+id/main_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/stdpadding"
+        app:layout_constraintTop_toBottomOf="@id/guideline_horizontal_bottom"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal_button_top"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_right"
+        app:layout_constraintStart_toStartOf="@+id/guideline_vertical_left"
+        app:layout_constraintDimensionRatio="1:1"
+        />
+
 
     <se.leap.bitmaskclient.base.views.LocationButton
         android:id="@+id/gateway_location_button"

@@ -52,5 +52,10 @@
     <color name="btn_yellow_dark">#C78F00</color>
     <color name="btn_green">#9FC17F</color>
     <color name="btn_green_dark">#709152</color>
+    <color name="btn_white_transparent">#CCFFFEFE</color>
+    <color name="btn_white_transparent_dark">#CCCCCBCB</color>
+    <color name="bg_red_1">#EC6767</color>
+    <color name="bg_red_2">#DB6F66</color>
+    <color name="bg_red_3">#D05D59</color>
 
 </resources>

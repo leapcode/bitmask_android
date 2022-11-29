@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:state_pressed="true" >
+        <layer-list
+            android:paddingLeft="@dimen/button_bevel"
+            android:paddingRight="@dimen/button_bevel">
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/black_transparent"/>
+                    <corners android:radius="@dimen/stdpadding"/>
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/btn_white_transparent_dark"/>
+                    <corners android:radius="@dimen/stdpadding"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item android:state_focused="true">
+        <layer-list
+            android:paddingLeft="@dimen/button_bevel"
+            android:paddingRight="@dimen/button_bevel">
+            <item>
+                <shape android:shape="rectangle"  >
+                    <solid android:color="@color/black_transparent"/>
+                    <corners android:radius="@dimen/stdpadding"/>
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/btn_white_transparent_dark"/>
+                    <corners android:radius="@dimen/stdpadding"/>
+                </shape>
+            </item>
+
+        </layer-list>
+    </item>
+    <item >
+        <layer-list
+            android:paddingLeft="@dimen/button_bevel"
+            android:paddingRight="@dimen/button_bevel">
+            <!-- shadow -->
+            <item
+                android:top="@dimen/button_bevel"
+                android:left="1dp"
+                >
+                <shape android:shape="rectangle"  >
+                    <corners android:radius="@dimen/stdpadding" />
+                    <solid android:color="@color/black_transparent"/>
+                </shape>
+            </item>
+            <!-- fill -->
+            <item
+                android:bottom="@dimen/button_bevel"
+                android:right="1dp"
+                >
+                <shape android:shape="rectangle"  >
+                    <solid android:color="@color/btn_white_transparent"/>
+                    <corners android:radius="@dimen/stdpadding"/>
+                </shape>
+            </item>
+            <!-- gradient -->
+           <item
+                android:bottom="@dimen/button_bevel"
+                android:right="1dp"
+                >
+                <shape android:shape="rectangle">
+                    <gradient android:startColor="@color/btn_white_transparent_dark"
+                        android:endColor="@color/white_transparent"
+                        android:angle="90"
+                        />
+                    <corners android:radius="@dimen/stdpadding"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>
