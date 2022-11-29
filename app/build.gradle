@@ -46,7 +46,7 @@ android {
     //allow manual gateway selection
     buildConfigField 'boolean', 'allow_manual_gateway_selection', 'true'
     // grey out background in EipFragment (main screen) if VPN is not running
-    buildConfigField 'boolean', 'use_color_filter', 'true'
+    buildConfigField 'boolean', 'use_color_filter', 'false'
     // decide if we use obfsvpn or shapeshifter as obfs4 lib
     buildConfigField 'boolean', 'use_obfsvpn', 'true'
     // obfsvpn Debugging config fields to pin and configure a particular proxy
