@@ -29,8 +29,6 @@ import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PR
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
-import static se.leap.bitmaskclient.base.utils.ViewHelper.convertDimensionToPx;
-import static se.leap.bitmaskclient.eip.EipSetupObserver.gatewayOrder;
 import static se.leap.bitmaskclient.eip.EipSetupObserver.reconnectingWithDifferentGateway;
 import static se.leap.bitmaskclient.eip.GatewaysManager.Load.UNKNOWN;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_GEOIP_JSON;
@@ -43,26 +41,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Vibrator;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -71,16 +66,11 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
-import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.base.MainActivity;
@@ -89,6 +79,7 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.LocationButton;
 import se.leap.bitmaskclient.base.views.MainButton;
+import se.leap.bitmaskclient.databinding.FEipBinding;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
@@ -108,22 +99,13 @@ public class EipFragment extends Fragment implements Observer {
     private SharedPreferences preferences;
     private Provider provider;
 
-    @BindView(R.id.background)
     AppCompatImageView background;
-
-    @BindView(R.id.main_button)
+    AppCompatImageView stateView;
     MainButton mainButton;
-
-    @BindView(R.id.gateway_location_button)
     LocationButton locationButton;
-
-    @BindView(R.id.main_description)
     AppCompatTextView mainDescription;
-
-    @BindView(R.id.sub_description)
     AppCompatTextView subDescription;
 
-    private Unbinder unbinder;
     private EipStatus eipStatus;
     private ProviderObservable providerObservable;
     private TorStatusObservable torStatusObservable;
@@ -193,11 +175,18 @@ public class EipFragment extends Fragment implements Observer {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        FEipBinding binding = FEipBinding.inflate(LayoutInflater.from(getContext()), container, false);
+        background = binding.background;
+        mainButton = binding.mainButton;
+        locationButton = binding.gatewayLocationButton;
+        locationButton.setTextColor(R.color.black800);
+        mainDescription = binding.mainDescription;
+        subDescription = binding.subDescription;
+        stateView = binding.stateView;
+
         eipStatus.addObserver(this);
         torStatusObservable.addObserver(this);
         providerObservable.addObserver(this);
-        View view = inflater.inflate(R.layout.f_eip, container, false);
-        unbinder = ButterKnife.bind(this, view);
 
         try {
             Bundle arguments = getArguments();
@@ -217,7 +206,11 @@ public class EipFragment extends Fragment implements Observer {
                 Fragment fragment = new GatewaySelectionFragment();
                 fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
-        return view;
+
+        mainButton.setOnClickListener(v -> {
+            handleIcon();
+        });
+        return binding.getRoot();
     }
 
     @Override
@@ -268,19 +261,23 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        Activity activity = getActivity();
+        if (activity != null) {
+            ((MainActivity) activity).setDefaultActivityBarColor();
+        }
         eipStatus.deleteObserver(this);
         providerObservable.deleteObserver(this);
         torStatusObservable.deleteObserver(this);
-        unbinder.unbind();
+        background = null;
+        mainButton = null;
+        locationButton = null;
+        mainDescription = null;
+        subDescription = null;
+        stateView = null;
     }
 
     private void saveStatus(boolean restartOnBoot) {
         preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, restartOnBoot).apply();
-    }
-
-    @OnClick(R.id.main_button)
-    void onButtonClick() {
-        handleIcon();
     }
 
     void handleIcon() {
@@ -436,6 +433,14 @@ public class EipFragment extends Fragment implements Observer {
         }
     }
 
+    private void setActivityBarColor(@ColorRes int primaryColor, @ColorRes int secondaryColor) {
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        ((MainActivity) getActivity()).setActivityBarColor(primaryColor, secondaryColor, R.color.actionbar_dark_color);
+    }
+
     private void handleNewState() {
         Activity activity = getActivity();
         if (activity == null) {
@@ -446,12 +451,15 @@ public class EipFragment extends Fragment implements Observer {
         Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
         if (eipStatus.isUpdatingVpnCert()) {
             setMainButtonEnabled(true);
-            showConnectionTransitionLayout(true);
-            locationButton.setText(getString(R.string.eip_status_start_pending));
+            String city = getPreferredCity(getContext());
+            String locationName = VpnStatus.getCurrentlyConnectingVpnName() != null ?
+                    VpnStatus.getCurrentlyConnectingVpnName() :
+                    city == null ? getString(R.string.gateway_selection_recommended_location) : city;
+            locationButton.setText(locationName);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
-            mainDescription.setText(null);
+            mainDescription.setText(R.string.eip_status_connecting);
             String torStatus = TorStatusObservable.getStringForCurrentStatus(getContext());
             if (!TextUtils.isEmpty(torStatus)) {
                 Spannable spannable = new SpannableString(torStatus);
@@ -460,15 +468,26 @@ public class EipFragment extends Fragment implements Observer {
             } else {
                 subDescription.setText(getString(R.string.updating_certificate_message));
             }
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_connecting));
+            stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.yellow_mask));
+            mainButton.updateState(false, true, false);
+            setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isConnecting()) {
             setMainButtonEnabled(true);
-            showConnectionTransitionLayout(true);
-            locationButton.setText(getString(R.string.eip_status_start_pending));
+            String city = getPreferredCity(getContext());
+            String locationName = VpnStatus.getCurrentlyConnectingVpnName() != null ?
+                    VpnStatus.getCurrentlyConnectingVpnName() :
+                    city == null ? getString(R.string.gateway_selection_recommended_location) : city;
+            locationButton.setText(locationName);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
-            mainDescription.setText(null);
+            mainDescription.setText(R.string.eip_status_connecting);
             subDescription.setText(null);
+            background.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.bg_connecting));
+            stateView.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.yellow_mask));
+            mainButton.updateState(false, true, false);
+            setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isConnected()) {
             setMainButtonEnabled(true);
             mainButton.updateState(true, false, false);
@@ -476,10 +495,12 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.setLocationLoad(PreferenceHelper.useObfuscationPinning(getContext()) ? GatewaysManager.Load.UNKNOWN : gatewaysManager.getLoadForLocation(VpnStatus.getLastConnectedVpnName(), transportType));
             locationButton.setText(VpnStatus.getLastConnectedVpnName());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
-            locationButton.showRecommendedIndicator(getPreferredCity(getContext())== null);
-            mainDescription.setText(R.string.eip_state_connected);
+            locationButton.showRecommendedIndicator(getPreferredCity(getContext()) == null);
+            mainDescription.setText(R.string.eip_status_secured);
             subDescription.setText(null);
-            colorBackground();
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_connected));
+            stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.green_mask));
+            setActivityBarColor(R.color.bg_running_top, R.color.bg_running_top_light_transparent);
         } else if(isOpenVpnRunningWithoutNetwork()) {
             Log.d(TAG, "eip fragment eipStatus - isOpenVpnRunningWithoutNetwork");
             setMainButtonEnabled(true);
@@ -488,82 +509,55 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
             locationButton.showRecommendedIndicator(getPreferredCity(getContext())== null);
-            colorBackgroundALittle();
             mainDescription.setText(R.string.eip_state_connected);
             subDescription.setText(R.string.eip_state_no_network);
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_connecting));
+            stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.yellow_mask));
+            setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
-            showConnectionTransitionLayout(true);
-            // showRetryToast(activity);
-            locationButton.setText(getString(R.string.eip_status_start_pending));
+            locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
-            mainDescription.setText(null);
+            mainDescription.setText(R.string.eip_status_connecting);
             subDescription.setText(R.string.reconnecting);
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_connecting));
+            stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.yellow_mask));
+            setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
+
         } else if (eipStatus.isDisconnecting()) {
             setMainButtonEnabled(false);
-            showConnectionTransitionLayout(false);
-            mainDescription.setText(R.string.eip_state_insecure);
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_disconnected));
+            stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.red_mask));
+            mainButton.updateState(false, false, false);
+            mainDescription.setText(R.string.eip_status_unsecured);
+            setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
             mainButton.updateState(true, false, true);
-            colorBackgroundALittle();
             locationButton.setText(getString(R.string.no_location));
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
             mainDescription.setText(R.string.eip_state_connected);
             subDescription.setText(getString(R.string.eip_state_blocking, getString(R.string.app_name)));
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_disconnected));
+            stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.red_mask));
+            setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         } else {
-            locationButton.setText(activity.getString(R.string.vpn_button_turn_on));
+            locationButton.setText(getContext().getString(R.string.vpn_button_turn_on));
             setMainButtonEnabled(true);
             mainButton.updateState(false, false, false);
-            greyscaleBackground();
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             String city = getPreferredCity(getContext());
             locationButton.setText(city == null ? getString(R.string.gateway_selection_recommended_location) : city);
             locationButton.showRecommendedIndicator(false);
-            mainDescription.setText(R.string.eip_state_insecure);
-            subDescription.setText(R.string.connection_not_connected);
-        }
-    }
-
-    private void showToast(Activity activity, String message, boolean vibrateLong) {
-        LayoutInflater inflater = getLayoutInflater();
-        View layout = inflater.inflate(R.layout.custom_toast,
-                activity.findViewById(R.id.custom_toast_container));
-
-        AppCompatTextView text = layout.findViewById(R.id.text);
-        text.setText(message);
-
-        Vibrator v = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibrateLong) {
-            v.vibrate(100);
-            v.vibrate(200);
-        } else {
-            v.vibrate(100);
-        }
-
-        Toast toast = new Toast(activity.getApplicationContext());
-        toast.setGravity(Gravity.BOTTOM, 0, convertDimensionToPx(this.getContext(), R.dimen.stdpadding));
-        toast.setDuration(Toast.LENGTH_LONG);
-        toast.setView(layout);
-        toast.show();
-    }
-
-    private void showRetryToast(Activity activity) {
-        int nClosestGateway = gatewayOrder();
-        String message = String.format("Server number " + nClosestGateway + " not reachable. Trying next gateway.");
-        showToast(activity, message, true );
-    }
-
-    private void showConnectionTransitionLayout(boolean isConnecting) {
-        mainButton.updateState(true, isConnecting, false);
-        if (isConnecting) {
-            colorBackgroundALittle();
-        } else {
-            greyscaleBackground();
+            mainDescription.setText(R.string.eip_status_unsecured);
+            subDescription.setText(null);
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_disconnected));
+            stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.red_mask));
+            setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         }
     }
 
@@ -578,30 +572,6 @@ public class EipFragment extends Fragment implements Observer {
         }
 
         return isRunning;
-    }
-
-    private void greyscaleBackground() {
-        if (BuildConfig.use_color_filter) {
-            ColorMatrix matrix = new ColorMatrix();
-            matrix.setSaturation(0);
-            ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
-            background.setColorFilter(cf);
-            background.setImageAlpha(255);
-        }
-    }
-
-    private void colorBackgroundALittle() {
-        if (BuildConfig.use_color_filter) {
-            background.setColorFilter(null);
-            background.setImageAlpha(144);
-        }
-    }
-
-    private void colorBackground() {
-        if (BuildConfig.use_color_filter) {
-            background.setColorFilter(null);
-            background.setImageAlpha(210);
-        }
     }
 
     private void updateInvalidVpnCertificate() {

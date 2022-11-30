@@ -5,9 +5,9 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_gravity="center_vertical"
+    android:layout_height="match_parent"
     android:padding="@dimen/stdpadding"
     android:background="@drawable/cust_button_light_rect"
-    android:layout_height="match_parent"
     >
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -38,30 +38,31 @@
         android:visibility="gone"
         tools:visibility="visible"
         />
-
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/text_location"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center_vertical"
-        android:layout_toStartOf="@+id/bridge_icn"
-        android:layout_toLeftOf="@+id/bridge_icn"
-        android:layout_toEndOf="@id/recommended_icn"
-        android:layout_toRightOf="@+id/recommended_icn"
-        android:ellipsize="end"
-        android:gravity="center_vertical"
-        android:maxLines="1"
         android:paddingStart="@dimen/stdpadding"
         android:paddingLeft="@dimen/stdpadding"
         android:paddingEnd="@dimen/stdpadding"
         android:paddingRight="@dimen/stdpadding"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        app:autoSizeTextType="uniform"
+        android:gravity="center_vertical"
+        app:autoSizeMinTextSize="15sp"
+        app:autoSizeMaxTextSize="24sp"
+        android:layout_toEndOf="@id/recommended_icn"
+        android:layout_toRightOf="@+id/recommended_icn"
+        android:layout_toLeftOf="@+id/bridge_icn"
+        android:layout_toStartOf="@+id/bridge_icn"
+        android:layout_gravity="center_vertical"
+        android:layout_centerInParent="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textStyle="bold"
-        app:autoSizeMaxTextSize="24sp"
-        app:autoSizeMinTextSize="15sp"
-        app:autoSizeTextType="uniform"
-        tools:text="Seattle along message" />
+        android:textColor="@color/white"
+        tools:text="Seattle along message"
+        />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/bridge_icn"

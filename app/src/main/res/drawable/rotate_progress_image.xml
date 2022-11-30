@@ -1,0 +1,12 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt"
+    android:name="circle"
+    android:viewportWidth="91"
+    android:viewportHeight="91"
+    android:width="91dp"
+    android:height="91dp">
+
+<!--
+    // implement your rotation animation vector image here
+-->
+
+</vector>
