@@ -11,7 +11,7 @@
        android:top="15dp"
         >
         <shape android:shape="oval">
-           <solid android:color="@color/btn_red"/>
+           <solid android:color="@color/btn_start"/>
             <size android:width="250dp" android:height="250dp" />
         </shape>
     </item>

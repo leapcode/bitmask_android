@@ -7,7 +7,7 @@
     android:layout_gravity="center_vertical"
     android:layout_height="match_parent"
     android:padding="@dimen/stdpadding"
-    android:background="@drawable/cust_button_primary_rect"
+    android:background="@drawable/cust_button_light_rect"
     >
 
     <androidx.appcompat.widget.AppCompatImageView

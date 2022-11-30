@@ -32,34 +32,43 @@
     <color name="amber200">#ffe082</color>
     <color name="orange200">#ffcc80</color>
     <color name="deepOrange200">#ffab91</color>
-
     <color name="white">#ffffff</color>
     <color name="white_transparent">#20ffffff</color>
     <color name="black_transparent">#20000000</color>
     <color name="black_high_transparent">#05000000</color>
 
-    <color name="colorActionBarTitleFont">@color/white</color>
-    <color name="colorActionBarSubtitleFont">@color/black800</color>
+
     <color name="colorEipFragmentFont">@color/black800</color>
     <color name="colorFontBtn">@color/black800</color>
     <color name="colorFontBtnEnabled">@color/white</color>
     <color name="colorLocationButtonTint">@color/black800</color>
     <color name="colorLocationButtonTintTransparent">@color/black800_high_transparent</color>
     <color name="colorWarning">#B33A3A</color>
-    <color name="btn_red">#FF7D7D</color>
-    <color name="btn_red_dark">#c84c51</color>
-    <color name="btn_yellow">#FFBF00</color>
-    <color name="btn_yellow_dark">#C78F00</color>
-    <color name="btn_green">#9FC17F</color>
-    <color name="btn_green_dark">#709152</color>
-    <color name="btn_white_transparent">#CCFFFEFE</color>
-    <color name="btn_white_transparent_dark">#CCCCCBCB</color>
-    <color name="bg_red_top">#EC6767</color>
-    <color name="bg_red_top_light_transparent">#CCff9895</color>
-    <color name="bg_yellow_top">#FADD85</color>
-    <color name="bg_yellow_top_light_transparent">#CCffffb6</color>
-    <color name="bg_green_top">#CCDCB8</color>
-    <color name="bg_green_top_light_transparent">#ffffea</color>
+
+    <!-- main UI on/off button colors -->
+    <color name="btn_start">#FF7D7D</color>
+    <color name="btn_start_dark">#c84c51</color>
+    <color name="btn_cancel">#FFBF00</color>
+    <color name="btn_cancel_dark">#C78F00</color>
+    <color name="btn_stop">#9FC17F</color>
+    <color name="btn_stop_dark">#709152</color>
+
+    <!-- location button background colors -->
+    <color name="btn_light_transparent">#CCFFFEFE</color>
+    <color name="btn_light_transparent_dark">#CCCCCBCB</color>
+
+    <!-- actionbar and status bar colors for different connection states -->
+    <color name="bg_disconnected_top">#EC6767</color>
+    <color name="bg_disconnected_top_light_transparent">#CCff9895</color>
+    <color name="bg_connecting_top">#FADD85</color>
+    <color name="bg_connecting_top_light_transparent">#CCffffb6</color>
+    <color name="bg_running_top">#CCDCB8</color>
+    <color name="bg_running_top_light_transparent">#ffffea</color>
+
+    <!-- action bar text colors for per state colored action bar -->
     <color name="actionbar_dark_color">@color/black800</color>
     <color name="actionbar_light_color">@color/white</color>
+    <!-- default action bar colors used in other fragments than EipFragment -->
+    <color name="colorActionBarTitleFont">@color/white</color>
+    <color name="colorActionBarSubtitleFont">@color/black800</color>
 </resources>

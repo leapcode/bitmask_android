@@ -12,7 +12,7 @@
             </item>
             <item>
                 <shape android:shape="rectangle">
-                    <solid android:color="@color/btn_white_transparent_dark"/>
+                    <solid android:color="@color/btn_light_transparent_dark"/>
                     <corners android:radius="@dimen/stdpadding"/>
                 </shape>
             </item>
@@ -30,7 +30,7 @@
             </item>
             <item>
                 <shape android:shape="rectangle">
-                    <solid android:color="@color/btn_white_transparent_dark"/>
+                    <solid android:color="@color/btn_light_transparent_dark"/>
                     <corners android:radius="@dimen/stdpadding"/>
                 </shape>
             </item>
@@ -57,7 +57,7 @@
                 android:right="1dp"
                 >
                 <shape android:shape="rectangle"  >
-                    <solid android:color="@color/btn_white_transparent"/>
+                    <solid android:color="@color/btn_light_transparent"/>
                     <corners android:radius="@dimen/stdpadding"/>
                 </shape>
             </item>
@@ -67,7 +67,7 @@
                 android:right="1dp"
                 >
                 <shape android:shape="rectangle">
-                    <gradient android:startColor="@color/btn_white_transparent_dark"
+                    <gradient android:startColor="@color/btn_light_transparent_dark"
                         android:endColor="@color/white_transparent"
                         android:angle="90"
                         />

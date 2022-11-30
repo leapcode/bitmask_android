@@ -11,7 +11,7 @@
         android:bottom="12dp"
         >
         <shape android:shape="oval">
-            <solid android:color="@color/btn_green_dark"/>
+            <solid android:color="@color/btn_stop_dark"/>
             <size android:width="250dp" android:height="250dp" />
         </shape>
     </item>

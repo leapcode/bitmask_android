@@ -27,7 +27,7 @@
         android:top="15dp"
         >
         <shape android:shape="oval">
-           <solid android:color="@color/btn_yellow"/>
+           <solid android:color="@color/btn_cancel"/>
             <size android:width="250dp" android:height="250dp" />
         </shape>
     </item>

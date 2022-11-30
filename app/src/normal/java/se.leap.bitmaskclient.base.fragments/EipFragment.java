@@ -468,10 +468,10 @@ public class EipFragment extends Fragment implements Observer {
             } else {
                 subDescription.setText(getString(R.string.updating_certificate_message));
             }
-            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_yellow));
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_connecting));
             stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.yellow_mask));
             mainButton.updateState(false, true, false);
-            setActivityBarColor(R.color.bg_yellow_top, R.color.bg_yellow_top_light_transparent);
+            setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isConnecting()) {
             setMainButtonEnabled(true);
             String city = getPreferredCity(getContext());
@@ -484,10 +484,10 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.showRecommendedIndicator(false);
             mainDescription.setText(R.string.eip_status_connecting);
             subDescription.setText(null);
-            background.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.bg_yellow));
+            background.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.bg_connecting));
             stateView.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.yellow_mask));
             mainButton.updateState(false, true, false);
-            setActivityBarColor(R.color.bg_yellow_top, R.color.bg_yellow_top_light_transparent);
+            setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isConnected()) {
             setMainButtonEnabled(true);
             mainButton.updateState(true, false, false);
@@ -498,9 +498,9 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.showRecommendedIndicator(getPreferredCity(getContext()) == null);
             mainDescription.setText(R.string.eip_status_secured);
             subDescription.setText(null);
-            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_green));
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_connected));
             stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.green_mask));
-            setActivityBarColor(R.color.bg_green_top, R.color.bg_green_top_light_transparent);
+            setActivityBarColor(R.color.bg_running_top, R.color.bg_running_top_light_transparent);
         } else if(isOpenVpnRunningWithoutNetwork()) {
             Log.d(TAG, "eip fragment eipStatus - isOpenVpnRunningWithoutNetwork");
             setMainButtonEnabled(true);
@@ -511,9 +511,9 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.showRecommendedIndicator(getPreferredCity(getContext())== null);
             mainDescription.setText(R.string.eip_state_connected);
             subDescription.setText(R.string.eip_state_no_network);
-            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_yellow));
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_connecting));
             stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.yellow_mask));
-            setActivityBarColor(R.color.bg_yellow_top, R.color.bg_yellow_top_light_transparent);
+            setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
             locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             locationButton.setLocationLoad(UNKNOWN);
@@ -521,17 +521,17 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.showRecommendedIndicator(false);
             mainDescription.setText(R.string.eip_status_connecting);
             subDescription.setText(R.string.reconnecting);
-            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_yellow));
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_connecting));
             stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.yellow_mask));
-            setActivityBarColor(R.color.bg_yellow_top, R.color.bg_yellow_top_light_transparent);
+            setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
 
         } else if (eipStatus.isDisconnecting()) {
             setMainButtonEnabled(false);
-            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_red));
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_disconnected));
             stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.red_mask));
             mainButton.updateState(false, false, false);
             mainDescription.setText(R.string.eip_status_unsecured);
-            setActivityBarColor(R.color.bg_red_top, R.color.bg_red_top_light_transparent);
+            setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
             mainButton.updateState(true, false, true);
@@ -541,9 +541,9 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.showRecommendedIndicator(false);
             mainDescription.setText(R.string.eip_state_connected);
             subDescription.setText(getString(R.string.eip_state_blocking, getString(R.string.app_name)));
-            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_red));
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_disconnected));
             stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.red_mask));
-            setActivityBarColor(R.color.bg_red_top, R.color.bg_red_top_light_transparent);
+            setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         } else {
             locationButton.setText(getContext().getString(R.string.vpn_button_turn_on));
             setMainButtonEnabled(true);
@@ -555,9 +555,9 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.showRecommendedIndicator(false);
             mainDescription.setText(R.string.eip_status_unsecured);
             subDescription.setText(null);
-            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_red));
+            background.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_disconnected));
             stateView.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.red_mask));
-            setActivityBarColor(R.color.bg_red_top, R.color.bg_red_top_light_transparent);
+            setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         }
     }
 
