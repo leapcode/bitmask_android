@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_gravity="center_vertical"
+    android:layout_height="match_parent"
+    android:padding="@dimen/stdpadding"
+    android:background="@drawable/cust_button_light_rect"
+    >
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/world_icn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/text_location"
+        android:layout_alignBottom="@+id/text_location"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_web"
+        android:layout_gravity="center"
+        app:tint="@color/colorLocationButtonTint"
+        />
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/recommended_icn"
+        android:scaleType="fitCenter"
+        android:layout_marginRight="-13dp"
+        android:layout_marginEnd="-13dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/text_location"
+        android:layout_alignBottom="@+id/text_location"
+        android:layout_toEndOf="@id/world_icn"
+        android:layout_toRightOf="@id/world_icn"
+        android:src="@drawable/ic_lightning_bolt"
+        app:tint="@color/colorLocationButtonTint"
+
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_location"
+        android:paddingStart="@dimen/stdpadding"
+        android:paddingLeft="@dimen/stdpadding"
+        android:paddingEnd="@dimen/stdpadding"
+        android:paddingRight="@dimen/stdpadding"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        app:autoSizeTextType="uniform"
+        android:gravity="center_vertical"
+        app:autoSizeMinTextSize="15sp"
+        app:autoSizeMaxTextSize="24sp"
+        android:layout_toEndOf="@id/recommended_icn"
+        android:layout_toRightOf="@+id/recommended_icn"
+        android:layout_toLeftOf="@+id/bridge_icn"
+        android:layout_toStartOf="@+id/bridge_icn"
+        android:layout_gravity="center_vertical"
+        android:layout_centerInParent="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        tools:text="Seattle along message"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/bridge_icn"
+
+        android:paddingStart="@dimen/compact_padding"
+        android:paddingLeft="@dimen/compact_padding"
+        android:paddingRight="@dimen/compact_padding"
+        android:paddingEnd="@dimen/compact_padding"
+        android:scaleType="fitCenter"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/text_location"
+        android:layout_alignBottom="@+id/text_location"
+        android:layout_toStartOf="@id/load_indicator"
+        android:layout_toLeftOf="@id/load_indicator"
+        android:src="@drawable/ic_bridge_36"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:tint="@color/colorLocationButtonTint"
+        />
+
+    <se.leap.bitmaskclient.base.views.LocationIndicator
+        android:id="@+id/load_indicator"
+        android:layout_marginBottom="4dp"
+        android:layout_width="48dp"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:paddingTop="@dimen/stdpadding"
+        android:paddingBottom="@dimen/stdpadding"
+        android:visibility="visible"
+        android:layout_gravity="center_vertical"
+        app:tint="@color/colorLocationButtonTintTransparent"
+        />
+
+
+
+</RelativeLayout>
