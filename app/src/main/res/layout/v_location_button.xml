@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_gravity="center_vertical"
     android:padding="@dimen/stdpadding"
-    android:background="@drawable/cust_button_light_rect"
+    android:background="@drawable/cust_button_primary_rect"
     android:layout_height="match_parent"
     >
 
@@ -58,6 +58,7 @@
         android:paddingRight="@dimen/stdpadding"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textStyle="bold"
+        android:textColor="@color/colorLocationButtonTint"
         app:autoSizeMaxTextSize="24sp"
         app:autoSizeMinTextSize="15sp"
         app:autoSizeTextType="uniform"
