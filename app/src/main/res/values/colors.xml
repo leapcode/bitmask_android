@@ -37,7 +37,6 @@
     <color name="black_transparent">#20000000</color>
     <color name="black_high_transparent">#05000000</color>
 
-
     <color name="colorEipFragmentFont">@color/black800</color>
     <color name="colorFontBtn">@color/black800</color>
     <color name="colorFontBtnEnabled">@color/white</color>
