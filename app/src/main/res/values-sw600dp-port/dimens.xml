@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="footer_text_padding">20dp</dimen>
+    <dimen name="splash_text_top_padding">240dp</dimen>
+
+</resources>

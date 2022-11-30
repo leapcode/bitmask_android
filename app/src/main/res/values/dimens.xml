@@ -10,6 +10,9 @@
     <dimen name="standard_margin">8dp</dimen>
     <dimen name="mainbutton_padding">20dp</dimen>
     <bool name="logSildersAlwaysVisible">false</bool>
+    <!-- landscape layout dimens -->
+    <dimen name="footer_text_padding">12dp</dimen>
+    <dimen name="splash_text_top_padding">80dp</dimen>
 
     <dimen name="diameter">48dp</dimen>
     <dimen name="elevation_low">1dp</dimen>
