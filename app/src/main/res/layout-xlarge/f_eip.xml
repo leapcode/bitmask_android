@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/eipServiceFragment"
+    tools:viewBindingIgnore="true"
+    >
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_horizontal_top"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintGuide_percent="0.0"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_vertical_left"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintGuide_percent="0.2"
+        />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_horizontal_bottom"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintGuide_percent="0.7"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_vertical_right"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintGuide_percent="0.8"
+        />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/background_eip" />
+
+
+    <se.leap.bitmaskclient.base.views.MainButton
+        android:id="@+id/main_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/stdpadding"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal_bottom"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_right"
+        app:layout_constraintStart_toStartOf="@+id/guideline_vertical_left"
+        app:layout_constraintTop_toTopOf="@+id/guideline_horizontal_top"
+        app:layout_constraintVertical_bias="0.425" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/main_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/main_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/sub_description"
+        android:padding="@dimen/activity_margin"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:textSize="45sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorEipFragmentFont"
+        app:layout_constraintDimensionRatio="1:1"
+        tools:text="Connection Secure"
+        android:gravity="center"
+        android:maxLines="1"
+        />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/sub_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/main_description"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/gateway_location_button"
+        android:padding="@dimen/activity_margin"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+        android:textStyle="bold"
+        android:textColor="@color/colorEipFragmentFont"
+        app:layout_constraintDimensionRatio="1:1"
+        tools:text="A LONG TEXT WITH SEVERAL THINGS BLABLkk"
+        android:gravity="center"
+        android:maxLines="2"
+        android:ellipsize="end"
+        />
+
+    <se.leap.bitmaskclient.base.views.LocationButton
+        android:id="@+id/gateway_location_button"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginBottom="@dimen/stdpadding"
+        android:layout_marginEnd="@dimen/stdpadding"
+        android:layout_marginStart="@dimen/stdpadding"
+        android:layout_marginTop="@dimen/stdpadding"
+        android:layout_marginLeft="@dimen/stdpadding"
+        android:layout_marginRight="@dimen/stdpadding"
+        app:layout_constraintBottom_toBottomOf="@+id/background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="SEATTLE"
+        android:gravity="center_vertical" />
+</androidx.constraintlayout.widget.ConstraintLayout>
