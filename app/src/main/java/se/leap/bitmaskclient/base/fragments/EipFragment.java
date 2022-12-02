@@ -542,7 +542,7 @@ public class EipFragment extends Fragment implements Observer {
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
             mainButton.updateState(true, false, true);
-            locationButton.setText(getString(R.string.no_location));
+            locationButton.setText(R.string.no_location);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
@@ -552,7 +552,7 @@ public class EipFragment extends Fragment implements Observer {
             animateState(R.drawable.state_disconnected);
             setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         } else {
-            locationButton.setText(getContext().getString(R.string.vpn_button_turn_on));
+            locationButton.setText(R.string.vpn_button_turn_on);
             setMainButtonEnabled(true);
             mainButton.updateState(false, false, false);
             locationButton.setLocationLoad(UNKNOWN);

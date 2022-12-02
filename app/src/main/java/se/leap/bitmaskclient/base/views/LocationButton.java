@@ -8,6 +8,7 @@ import android.widget.RelativeLayout;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
@@ -50,6 +51,10 @@ public class LocationButton extends RelativeLayout {
 
     public void setText(CharSequence text) {
         textView.setText(text);
+    }
+
+    public void setText(@StringRes int resId) {
+        textView.setText(resId);
     }
 
     public void showBridgeIndicator(boolean show) {
