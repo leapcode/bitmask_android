@@ -42,6 +42,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Animatable2;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Spannable;
@@ -59,9 +61,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -111,6 +117,7 @@ public class EipFragment extends Fragment implements Observer {
     private ProviderObservable providerObservable;
     private TorStatusObservable torStatusObservable;
 
+    private @DrawableRes int pendingAnimationState;
     private GatewaysManager gatewaysManager;
 
     //---saved Instance -------
@@ -530,7 +537,7 @@ public class EipFragment extends Fragment implements Observer {
             mainButton.updateState(false, false, false);
             mainDescription.setText(R.string.eip_status_unsecured);
             background.setImageResource(R.drawable.bg_disconnected);
-            animateState(R.drawable.state_disconnected);
+            animateState(R.drawable.state_transition_connected_disconnected);
             setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
@@ -556,25 +563,45 @@ public class EipFragment extends Fragment implements Observer {
             mainDescription.setText(R.string.eip_status_unsecured);
             subDescription.setText(null);
             background.setImageResource(R.drawable.bg_disconnected);
+
             animateState(R.drawable.state_disconnected);
             setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         }
     }
 
     private void animateState(@DrawableRes int drawableRes) {
+        @DrawableRes int lastDrawableId;
         try {
-            int lastDrawableId = (int) stateView.getTag();
+            lastDrawableId = (int) stateView.getTag();
             if (lastDrawableId == drawableRes) {
                 return;
             }
+
+            Drawable lastDrawable = ContextCompat.getDrawable(getContext(), lastDrawableId);
+            if (lastDrawable instanceof  Animatable && ((Animatable) lastDrawable).isRunning()) {
+                pendingAnimationState = drawableRes;
+            }
+
         } catch (NullPointerException | ClassCastException e) {
             // eat me
         }
+
 
         stateView.setImageResource(drawableRes);
         stateView.setTag(drawableRes);
         if (stateView.getDrawable() instanceof Animatable) {
             Animatable animatedDrawable = (Animatable) stateView.getDrawable();
+            AnimatedVectorDrawableCompat.registerAnimationCallback(stateView.getDrawable(), new AnimationCallback() {
+                @Override
+                public void onAnimationEnd(Drawable drawable) {
+                    super.onAnimationEnd(drawable);
+                    if (pendingAnimationState != 0) {
+                        int newAnimationRes = pendingAnimationState;
+                        pendingAnimationState = 0;
+                        animateState(newAnimationRes);
+                    }
+                }
+            });
             animatedDrawable.start();
         }
     }
