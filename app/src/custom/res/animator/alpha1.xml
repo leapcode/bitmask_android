@@ -6,6 +6,6 @@
         android:valueFrom="#00000000"
         android:valueTo="#000000"
         android:valueType="colorType"
-        android:startOffset="2000"
         />
 </set>
+
