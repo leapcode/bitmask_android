@@ -21,14 +21,14 @@
         >
         <shape
             android:shape="ring"
-            android:innerRadius="125dp"
+            android:innerRadius="122dp"
             android:useLevel="false"
-            android:thickness="10dp">
+            android:thickness="15dp">
             <gradient
                 android:type="radial"
                 android:gradientRadius="125dp"
                 android:centerX="0.51"
-                android:centerY="0.54"
+                android:centerY="0.58"
                 android:startColor="#000000"
                 android:centerColor="#000000"
                 android:endColor="@color/transparent" />

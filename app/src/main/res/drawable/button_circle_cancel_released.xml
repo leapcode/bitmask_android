@@ -8,10 +8,10 @@
     </item>-->
 
     <item
-        android:left="-23dp"
-        android:right="-23dp"
-        android:top="-8dp"
-        android:bottom="-8dp"
+        android:left="-25dp"
+        android:right="-25dp"
+        android:top="-10dp"
+        android:bottom="-10dp"
         >
         <animated-rotate
             android:drawable="@drawable/rotate_progress_image"
@@ -37,14 +37,14 @@
         >
         <shape
             android:shape="ring"
-            android:innerRadius="125dp"
+            android:innerRadius="123dp"
             android:useLevel="false"
-            android:thickness="10dp">
+            android:thickness="15dp">
             <gradient
                 android:type="radial"
                 android:gradientRadius="125dp"
                 android:centerX="0.51"
-                android:centerY="0.54"
+                android:centerY="0.58"
                 android:startColor="#000000"
                 android:centerColor="#000000"
                 android:endColor="@color/transparent" />
