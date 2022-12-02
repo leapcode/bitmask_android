@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         }
 
         if (textColor == 0) {
-            actionBarTextColor = isBrightColor(color) ? R.color.actionbar_dark_color : R.color.actionbar_light_color;
+            actionBarTextColor = isBrightColor(color) ? R.color.actionbar_connectivity_state_text_color_dark : R.color.actionbar_connectivity_state_text_color_light;
         } else {
             actionBarTextColor = textColor;
         }
