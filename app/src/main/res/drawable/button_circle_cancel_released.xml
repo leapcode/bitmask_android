@@ -56,7 +56,6 @@
         android:bottom="65dp"
         android:left="50dp"
         android:right="50dp"
-        >
-        <bitmap android:src="@drawable/ic_btn_cancel" />
-    </item>
+        android:drawable="@drawable/ic_btn_cancel"
+        />
 </layer-list>
