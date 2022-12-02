@@ -4,9 +4,11 @@
     android:viewportHeight="91"
     android:width="91dp"
     android:height="91dp">
-
-<!--
-    // implement your rotation animation vector image here
--->
-
+    <path
+        android:pathData="M0 0"
+        android:fillColor="#00000000" />
+    <!--
+    Implement your progress animation vector graphic here.
+    The graphic will rotate behind the cancel button in EipFragment.
+    -->
 </vector>
