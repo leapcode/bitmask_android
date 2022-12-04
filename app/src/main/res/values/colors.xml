@@ -57,6 +57,11 @@
     <color name="btn_light_transparent">#CCFFFEFE</color>
     <color name="btn_light_transparent_dark">#CCCCCBCB</color>
 
+    <!-- main UI background colors -->
+    <color name="bg_disconnected">#DC6F6B</color>
+    <color name="bg_connecting">#FADD85</color>
+    <color name="bg_running">#CCDCB8</color>
+
     <!-- actionbar and status bar colors for different connection states -->
     <color name="bg_disconnected_top">#EC6767</color>
     <color name="bg_disconnected_top_light_transparent">#CCff9895</color>
