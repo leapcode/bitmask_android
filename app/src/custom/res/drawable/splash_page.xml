@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+********************************************************************
+Splash screen for Android 4.1 - Android 11
+
+You need to adapt:
+> splash_branding.xml
+> splash_icon.xml
+for Android 12+.
+********************************************************************
+-->
  <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
  <!--Replace custom/res/drawable-hdpi/ic_splash_background with background image-->
