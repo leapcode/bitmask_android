@@ -3,6 +3,9 @@
     android:drawable="@drawable/ravens"
     >
     <target
+        android:animation="@animator/alpha4"
+        android:name="ravens" />
+    <target
         android:animation="@animator/alpha1"
         android:name="raven1path"/>
     <target

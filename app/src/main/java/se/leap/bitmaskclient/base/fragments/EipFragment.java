@@ -599,6 +599,8 @@ public class EipFragment extends Fragment implements Observer {
                         int newAnimationRes = pendingAnimationState;
                         pendingAnimationState = 0;
                         animateState(newAnimationRes);
+                    } else if (drawable instanceof Animatable){
+                        ((Animatable) drawable).start();
                     }
                 }
             });
