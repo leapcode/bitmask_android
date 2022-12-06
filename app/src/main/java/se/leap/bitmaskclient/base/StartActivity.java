@@ -276,7 +276,8 @@ public class StartActivity extends Activity{
             String hash = message.hash();
             lastSeenHashes.add(hash);
             p.setMotdLastSeenHashes(lastSeenHashes);
-            PreferenceHelper.persistProvider(this, p);
+            p.setLastMotdSeen(System.currentTimeMillis());
+            PreferenceHelper.persistProviderAsync(this, p);
             ProviderObservable.getInstance().updateProvider(p);
         }
         showMotdFragment(message);
