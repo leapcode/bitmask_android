@@ -95,7 +95,7 @@ public class PreferenceHelper {
         return preferences.getStringSet(toFetch + "." + providerDomain, new HashSet<>());
     }
 
-    public static void persistProvider(Context context, Provider provider) {
+    public static void persistProviderAsync(Context context, Provider provider) {
         SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         storeProviderInPreferences(preferences, provider, true);
     }
@@ -106,7 +106,7 @@ public class PreferenceHelper {
 
     // TODO: replace commit with apply after refactoring EIP
     //FIXME: don't save private keys in shared preferences! use the keystore
-    public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider, boolean apply) {
+    public static void storeProviderInPreferences(SharedPreferences preferences, Provider provider, boolean async) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean(PROVIDER_CONFIGURED, true).
                 putString(Provider.PROVIDER_IP, provider.getProviderIp()).
@@ -123,7 +123,7 @@ public class PreferenceHelper {
                 putStringSet(PROVIDER_MOTD_HASHES, provider.getMotdLastSeenHashes()).
                 putLong(PROVIDER_MOTD_LAST_SEEN, provider.getLastMotdSeen()).
                 putLong(PROVIDER_MOTD_LAST_UPDATED, provider.getLastMotdUpdate());
-        if (apply) {
+        if (async) {
             editor.apply();
         } else {
             editor.commit();
