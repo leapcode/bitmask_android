@@ -25,7 +25,6 @@
         android:layout_rowSpan="1"
         android:layout_marginEnd="8dip"
         android:scaleType="centerInside"
-        tools:background="@drawable/ic_btn_on_connecting"
         android:contentDescription="@null" />
 
     <androidx.appcompat.widget.AppCompatTextView

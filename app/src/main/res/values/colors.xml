@@ -10,6 +10,7 @@
     <color name="colorMainBtnHighlight">#03DAC6</color>
     <color name="colorMainBtnError">#eF2222</color>
 
+    <color name="black800_dark">#1b1b1b</color>
     <color name="black800">#424242</color>
     <color name="black800_secondary">#3b3b3b</color>
     <color name="black800_transparent">#AA424242</color>
@@ -37,7 +38,6 @@
     <color name="black_transparent">#20000000</color>
     <color name="black_high_transparent">#05000000</color>
 
-
     <color name="colorEipFragmentFont">@color/black800</color>
     <color name="colorFontBtn">@color/black800</color>
     <color name="colorFontBtnEnabled">@color/white</color>
@@ -57,6 +57,11 @@
     <color name="btn_light_transparent">#CCFFFEFE</color>
     <color name="btn_light_transparent_dark">#CCCCCBCB</color>
 
+    <!-- main UI background colors -->
+    <color name="bg_disconnected">#DC6F6B</color>
+    <color name="bg_connecting">#FADD85</color>
+    <color name="bg_running">#CCDCB8</color>
+
     <!-- actionbar and status bar colors for different connection states -->
     <color name="bg_disconnected_top">#EC6767</color>
     <color name="bg_disconnected_top_light_transparent">#CCff9895</color>
@@ -66,8 +71,8 @@
     <color name="bg_running_top_light_transparent">#ffffea</color>
 
     <!-- action bar text colors for per state colored action bar -->
-    <color name="actionbar_dark_color">@color/black800</color>
-    <color name="actionbar_light_color">@color/white</color>
+    <color name="actionbar_connectivity_state_text_color_dark">@color/black800</color>
+    <color name="actionbar_connectivity_state_text_color_light">@color/white</color>
     <!-- default action bar colors used in other fragments than EipFragment -->
     <color name="colorActionBarTitleFont">@color/white</color>
     <color name="colorActionBarSubtitleFont">@color/black800</color>

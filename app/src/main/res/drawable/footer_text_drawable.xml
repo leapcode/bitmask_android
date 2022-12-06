@@ -13,6 +13,8 @@
         android:gravity="center"
         android:top="@dimen/footer_text_padding"
         android:bottom="@dimen/footer_text_padding"
+        android:left="20dp"
+        android:right="20dp"
         >
         <bitmap android:src="@drawable/leap_footer_en"/>
     </item>

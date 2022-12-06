@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt"
+    android:name="circle"
+    android:viewportWidth="91"
+    android:viewportHeight="91"
+    android:width="91dp"
+    android:height="91dp">
+    <path
+        android:pathData="M0 0"
+        android:fillColor="#00000000" />
+    <!--
+    Implement your progress animation vector graphic here.
+    The graphic will rotate behind the cancel button in EipFragment.
+    -->
+</vector>

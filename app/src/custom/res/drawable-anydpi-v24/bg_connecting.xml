@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="fill">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/bg_connecting"/>
+        </shape>
+    </item>
+    <item android:gravity="fill"
+        android:bottom="80dp"
+        android:drawable="@drawable/bg_connecting_effect"
+        >
+    </item>
+</layer-list>

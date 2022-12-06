@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/rotate_progress_image"
+        android:height="198dp"
+        android:width="198dp"
+        android:gravity="fill"/>
+    <item
+        android:gravity="center"
+        android:height="52.75dp"
+        android:width="80dp"
+        >
+        <bitmap android:src="@drawable/logo"/>
+    </item>
+</layer-list>

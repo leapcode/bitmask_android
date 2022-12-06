@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="fill">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/bg_disconnected"/>
+        </shape>
+    </item>
+    <item
+        android:gravity="fill"
+        android:drawable="@drawable/bg_disconnected_effect"
+        >
+    </item>
+</layer-list>

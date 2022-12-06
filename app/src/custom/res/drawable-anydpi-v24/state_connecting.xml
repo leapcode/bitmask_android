@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ravens"
+    >
+    <target
+        android:animation="@animator/alpha4"
+        android:name="ravens" />
+    <target
+        android:animation="@animator/alpha1"
+        android:name="raven1path"/>
+    <target
+        android:animation="@animator/alpha2"
+        android:name="raven2path"/>
+    <target
+        android:animation="@animator/alpha3"
+        android:name="raven3path"/>
+
+</animated-vector>
