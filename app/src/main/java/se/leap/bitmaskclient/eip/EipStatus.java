@@ -129,8 +129,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         }
     }
 
-    @VisibleForTesting
-    EipLevel getEipLevel() {
+    public EipLevel getEipLevel() {
         return currentEipLevel;
     }
 

@@ -113,6 +113,7 @@ public class EipFragment extends Fragment implements Observer {
     AppCompatTextView mainDescription;
     AppCompatTextView subDescription;
 
+    private EipStatus.EipLevel previousEipLevel = EipStatus.EipLevel.UNKNOWN;
     private EipStatus eipStatus;
     private ProviderObservable providerObservable;
     private TorStatusObservable torStatusObservable;
@@ -415,6 +416,7 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public void update(Observable observable, Object data) {
         if (observable instanceof EipStatus) {
+            previousEipLevel = eipStatus.getEipLevel();
             eipStatus = (EipStatus) observable;
             handleNewStateOnMain();
 
@@ -537,7 +539,11 @@ public class EipFragment extends Fragment implements Observer {
             mainButton.updateState(false, false, false);
             mainDescription.setText(R.string.eip_status_unsecured);
             background.setImageResource(R.drawable.bg_disconnected);
-            animateState(R.drawable.state_transition_connected_disconnected);
+            if (previousEipLevel == EipStatus.EipLevel.CONNECTED) {
+                animateState(R.drawable.state_transition_connected_disconnected);
+            } else {
+                animateState(R.drawable.state_disconnected);
+            }
             setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
