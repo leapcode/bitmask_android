@@ -1,3 +1,8 @@
+1.1.6RC1 Beta
+* updated UI
+* support for Android 12's new splash screen design
+* Message of the day: allows the provider to show a message on app start
+
 1.1.5RC2 Beta
 * improvements of obfuscation proxy pinning
 * support for Android API 31 (Android S)
