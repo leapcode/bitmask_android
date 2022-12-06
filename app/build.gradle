@@ -22,8 +22,8 @@ android {
     // the factor 1000 is used so that gplay users can upgrade from split apks ((current version number - 1) * 1000) + n
     // to extracted bundle apks, supplied by google
     // however we don't calculate the versionCode here, because F-Droid doesn't like that
-    versionCode 164000
-    versionName "1.1.5RC2"
+    versionCode 165000
+    versionName "1.1.6RC1"
     minSdkVersion 16
     targetSdkVersion 31
     vectorDrawables.useSupportLibrary = true
@@ -45,8 +45,6 @@ android {
     buildConfigField 'boolean', 'priotize_anonymous_usage', 'false'
     //allow manual gateway selection
     buildConfigField 'boolean', 'allow_manual_gateway_selection', 'true'
-    // grey out background in EipFragment (main screen) if VPN is not running
-    buildConfigField 'boolean', 'use_color_filter', 'false'
     // decide if we use obfsvpn or shapeshifter as obfs4 lib
     buildConfigField 'boolean', 'use_obfsvpn', 'true'
     // obfsvpn Debugging config fields to pin and configure a particular proxy
@@ -146,8 +144,6 @@ android {
       buildConfigField 'boolean', 'priotize_anonymous_usage', 'true'
       //allow manual gateway selection
       buildConfigField 'boolean', 'allow_manual_gateway_selection', 'true'
-      // grey out background in EipFragment (main screen) if VPN is not running
-      buildConfigField 'boolean', 'use_color_filter', 'false'
       // decide if we use obfsvpn or shapeshifter as obfs4 lib
       buildConfigField 'boolean', 'use_obfsvpn', 'true'
       // obfsvpn Debugging config fields to pin and configure a particular proxy
@@ -285,15 +281,13 @@ android {
       assets.srcDirs = ['assets',
                         'ovpnlibs/assets',
                         '../ics-openvpn/main/build/ovpnassets',
-                        // '../go/out' TODO: uncomment this line as soon as we want to use PT in production
                         ]
       jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/skeletonRelease/obj/']
       jni.srcDirs = [] //disable automatic ndk-build
 
     }
     debug {
-      assets.srcDirs = ['src/debug/assets',
-                        /*'../go/out'*/]
+      assets.srcDirs = ['src/debug/assets']
     }
 
     test {
