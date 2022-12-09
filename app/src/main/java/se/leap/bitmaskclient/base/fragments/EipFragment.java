@@ -547,16 +547,16 @@ public class EipFragment extends Fragment implements Observer {
             setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
-            mainButton.updateState(true, false, true);
+            mainButton.updateState(false, true, true);
             locationButton.setText(R.string.no_location);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             locationButton.showRecommendedIndicator(false);
             mainDescription.setText(R.string.eip_state_connected);
             subDescription.setText(getString(R.string.eip_state_blocking, getString(R.string.app_name)));
-            background.setImageResource(R.drawable.bg_disconnected);
-            animateState(R.drawable.state_disconnected);
-            setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
+            background.setImageResource(R.drawable.bg_connecting);
+            animateState(R.drawable.state_connecting);
+            setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else {
             locationButton.setText(R.string.vpn_button_turn_on);
             setMainButtonEnabled(true);
