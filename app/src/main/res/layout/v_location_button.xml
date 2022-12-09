@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_gravity="center_vertical"
     android:layout_height="match_parent"
-    android:padding="@dimen/stdpadding"
+    android:paddingLeft="@dimen/stdpadding"
+    android:paddingRight="@dimen/stdpadding"
     android:background="@drawable/cust_button_light_rect"
     >
 
@@ -86,18 +87,15 @@
 
     <se.leap.bitmaskclient.base.views.LocationIndicator
         android:id="@+id/load_indicator"
-        android:layout_marginBottom="4dp"
         android:layout_width="48dp"
-        android:layout_height="40dp"
+        android:layout_height="28dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:paddingTop="@dimen/stdpadding"
-        android:paddingBottom="@dimen/stdpadding"
-        android:visibility="visible"
         android:layout_gravity="center_vertical"
-        app:tint="@color/colorLocationButtonTintTransparent"
-        />
+        android:paddingBottom="4dp"
+        android:visibility="visible"
+        app:tint="@color/colorLocationButtonTintTransparent" />
 
 
 
