@@ -39,8 +39,11 @@
     <color name="black_high_transparent">#05000000</color>
 
     <color name="colorEipFragmentFont">@color/black800</color>
-    <color name="colorFontBtn">@color/black800</color>
-    <color name="colorFontBtnEnabled">@color/white</color>
+    <!-- button text colors in Alerts etc. -->
+    <color name="color_font_btn">@color/black800</color>
+    <!-- pill style button text colors -->
+    <color name="color_font_btn_primary">@color/black800</color>
+    <color name="color_font_btn_secondary">@color/black800</color>
     <color name="colorLocationButtonTint">@color/black800</color>
     <color name="colorLocationButtonTintTransparent">@color/black800_high_transparent</color>
     <color name="colorWarning">#B33A3A</color>

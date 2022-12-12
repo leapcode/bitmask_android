@@ -81,6 +81,7 @@
                 android:layout_height="wrap_content"
                 android:text="Use defaults"
                 android:background="@drawable/cust_button_secondary"
+                android:textColor="@color/color_font_btn_secondary"
                 android:layout_marginHorizontal="@dimen/stdpadding"
                 />
             <androidx.appcompat.widget.LinearLayoutCompat
@@ -93,6 +94,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/stdpadding"
+                    android:textColor="@color/color_font_btn_primary"
                     android:text="@string/cancel"
                     />
 
@@ -101,6 +103,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/stdpadding"
+                    android:textColor="@color/color_font_btn_primary"
                     android:text="@string/save"
                     />
             </androidx.appcompat.widget.LinearLayoutCompat>
