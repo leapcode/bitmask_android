@@ -15,10 +15,17 @@ package se.leap.bitmaskclient.tor;
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.RETRY_AMP_CACHE_RENDEZVOUS;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.RETRY_HTTP_RENDEZVOUS;
+
 import android.content.Context;
 import android.os.FileObserver;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.torproject.jni.ClientTransportPluginInterface;
@@ -31,6 +38,9 @@ import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Vector;
 import java.util.concurrent.TimeoutException;
@@ -39,7 +49,7 @@ import java.util.regex.Pattern;
 
 import IPtProxy.IPtProxy;
 
-public class ClientTransportPlugin implements ClientTransportPluginInterface {
+public class ClientTransportPlugin implements ClientTransportPluginInterface, Observer {
     public static String TAG = ClientTransportPlugin.class.getSimpleName();
 
     private HashMap<String, String> mFronts;
@@ -47,9 +57,14 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
     private long snowflakePort = -1;
     private FileObserver logFileObserver;
     private static final Pattern SNOWFLAKE_LOG_TIMESTAMP_PATTERN = Pattern.compile("((19|2[0-9])[0-9]{2}\\/\\d{1,2}\\/\\d{1,2} \\d{1,2}:\\d{1,2}:\\d{1,2}) ([\\S|\\s]+)");
+    private TorStatusObservable.SnowflakeStatus snowflakeStatus;
+    private String logfilePath;
+    Handler handler;
+    HandlerThread handlerThread;
 
     public ClientTransportPlugin(Context context) {
         this.contextRef = new WeakReference<>(context);
+        handlerThread = new HandlerThread("clientTransportPlugin", Thread.MIN_PRIORITY);
         loadCdnFronts(context);
     }
 
@@ -59,6 +74,9 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
         if (context == null) {
             return;
         }
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
+        TorStatusObservable.getInstance().addObserver(this);
         File logfile = new File(context.getApplicationContext().getCacheDir(), "snowflake.log");
         Log.d(TAG, "logfile at " + logfile.getAbsolutePath());
         try {
@@ -69,15 +87,34 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        this.logfilePath = logfile.getAbsolutePath();
+        Random random = new Random();
+        boolean useAmpCache = random.nextInt(2) == 0;
+        startConnectionAttempt(useAmpCache, logfilePath);
+        watchLogFile(logfile);
+    }
 
+    private void startConnectionAttempt(boolean useAmpCache, @NonNull String logfilePath) {
         //this is using the current, default Tor snowflake infrastructure
         String target = getCdnFront("snowflake-target");
         String front = getCdnFront("snowflake-front");
         String stunServer = getCdnFront("snowflake-stun");
         Log.d(TAG, "startSnowflake. target: " + target + ", front:" + front + ", stunServer" + stunServer);
-        snowflakePort = IPtProxy.startSnowflake(stunServer, target, front, null, logfile.getAbsolutePath(), false, false, true, 5);
+        String ampCache = null;
+        if (useAmpCache) {
+            Log.d(TAG, "using ampcache for rendez-vous");
+            target = "https://snowflake-broker.torproject.net/";
+            ampCache = "https://cdn.ampproject.org/";
+            front = "www.google.com";
+        }
+        snowflakePort = IPtProxy.startSnowflake(stunServer, target, front, ampCache, logfilePath, false, false, true, 5);
         Log.d(TAG, "startSnowflake running on port: " + snowflakePort);
-        watchLogFile(logfile);
+    }
+
+    private void retryConnectionAttempt(boolean useAmpCache) {
+        Log.d(TAG, ">> retryConnectionAttempt - " + (useAmpCache ? "amp cache" : "http domain fronting"));
+        stopConnectionAttempt();
+        startConnectionAttempt(useAmpCache, logfilePath);
     }
 
     private void watchLogFile(File logfile) {
@@ -111,6 +148,18 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
 
     @Override
     public void stop() {
+        stopConnectionAttempt();
+        if (logFileObserver != null) {
+            logFileObserver.stopWatching();
+            logFileObserver = null;
+        }
+        TorStatusObservable.getInstance().deleteObserver(this);
+        handlerThread.quit();
+        handler = null;
+        handlerThread = null;
+    }
+
+    private void stopConnectionAttempt() {
         IPtProxy.stopSnowflake();
         try {
             TorStatusObservable.waitUntil(this::isSnowflakeOff, 10);
@@ -118,14 +167,10 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
             e.printStackTrace();
         }
         snowflakePort = -1;
-        if (logFileObserver != null) {
-            logFileObserver.stopWatching();
-            logFileObserver = null;
-        }
     }
 
     private boolean isSnowflakeOff() {
-        return TorStatusObservable.getSnowflakeStatus() == TorStatusObservable.SnowflakeStatus.OFF;
+        return TorStatusObservable.getSnowflakeStatus() == TorStatusObservable.SnowflakeStatus.STOPPED;
     }
 
     @Override
@@ -170,11 +215,28 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface {
                 if (strippedString.length() > 0) {
                     TorStatusObservable.logSnowflakeMessage(contextRef.get(), strippedString);
                 }
-            } catch (IndexOutOfBoundsException | IllegalStateException e) {
+            } catch (IndexOutOfBoundsException | IllegalStateException | NullPointerException e) {
                 e.printStackTrace();
             }
         } else {
             TorStatusObservable.logSnowflakeMessage(contextRef.get(), message);
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o instanceof TorStatusObservable) {
+            TorStatusObservable.SnowflakeStatus snowflakeStatus = TorStatusObservable.getSnowflakeStatus();
+            if (snowflakeStatus == this.snowflakeStatus) {
+                return;
+            }
+            Log.d(TAG, "clientTransportPlugin: snowflake status " + this.snowflakeStatus);
+            if (snowflakeStatus == RETRY_HTTP_RENDEZVOUS) {
+                handler.post(() -> retryConnectionAttempt(false));
+            } else if (snowflakeStatus == RETRY_AMP_CACHE_RENDEZVOUS) {
+                handler.post(() -> retryConnectionAttempt(true));
+            }
+            this.snowflakeStatus = snowflakeStatus;
         }
     }
 }
