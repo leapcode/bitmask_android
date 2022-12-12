@@ -61,7 +61,7 @@ public class ViewHelper {
 
     public static void setActionBarTextColor(ActionBar bar, @ColorRes int titleColor) {
         CharSequence titleCharSequence = bar.getTitle();
-        if (titleCharSequence == null) {
+        if (titleCharSequence == null || titleCharSequence.length() == 0) {
             return;
         }
         String title = titleCharSequence.toString();
