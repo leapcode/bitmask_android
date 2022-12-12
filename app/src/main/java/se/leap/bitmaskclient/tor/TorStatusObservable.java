@@ -149,28 +149,22 @@ public class TorStatusObservable extends Observable {
         //TODO: implement proper state signalling in IPtProxy
         message = message.trim();
         if (SNOWFLAKE_STARTED.equals(message)) {
-            Log.d(TAG, "snowflakeStatus ON");
             getInstance().snowflakeStatus = STARTED;
         } else if (SNOWFLAKE_NEGOTIATING_HTTP.equals(message)) {
-            Log.d(TAG, "snowflake negotiating via http");
             getInstance().snowflakeStatus = NEGOTIATING_RENDEZVOUS_VIA_HTTP;
         } else if (SNOWFLAKE_NEGOTIATING_AMP_CACHE.equals(message)) {
-            Log.d(TAG, "snowflake negotiating via amp cache");
             getInstance().snowflakeStatus = NEGOTIATING_RENDEZVOUS_VIA_AMP_CACHE;
         } else if (SNOWFLAKE_STOPPED_COLLECTING.equals(message) ||
                 SNOWFLAKE_COPY_LOOP_STOPPED.equals(message) ||
                 message.contains(SNOWFLAKE_SOCKS_ERROR)) {
-            Log.d(TAG, "snowflakeStatus OFF");
             getInstance().snowflakeStatus = STOPPED;
         } else if (SNOWFLAKE_CONNECTION_CLOSING.equals(message)) {
-            Log.d(TAG, "snowflake connection closing...");
             if (getInstance().snowflakeStatus == NEGOTIATING_RENDEZVOUS_VIA_HTTP) {
                 if (getInstance().retrySnowflakeRendezVous < 3) {
                     getInstance().retrySnowflakeRendezVous += 1;
                 } else {
                     getInstance().retrySnowflakeRendezVous = 0;
                     getInstance().snowflakeStatus = RETRY_AMP_CACHE_RENDEZVOUS;
-                    Log.d(TAG, "snowflake retry amp cache");
                 }
             } else if (getInstance().snowflakeStatus == NEGOTIATING_RENDEZVOUS_VIA_AMP_CACHE) {
                 if (getInstance().retrySnowflakeRendezVous < 3) {
@@ -178,14 +172,13 @@ public class TorStatusObservable extends Observable {
                 } else {
                     getInstance().retrySnowflakeRendezVous = 0;
                     getInstance().snowflakeStatus = RETRY_HTTP_RENDEZVOUS;
-                    Log.d(TAG, "snowflake retry http domain fronting");
                 }
             }
         } else if (SNOWFLAKE_AMP_CACHE_RESPONSE_200.equals(message) || SNOWFLAKE_HTTP_RESPONSE_200.equals(message)) {
             getInstance().snowflakeStatus = BROKER_REPLIED_SUCCESS;
             getInstance().retrySnowflakeRendezVous = 0;
-            Log.d(TAG, "snowflake broker replied success");
         }
+        Log.d(TAG, "snowflake status " + getInstance().snowflakeStatus);
         instance.setChanged();
         instance.notifyObservers();
     }

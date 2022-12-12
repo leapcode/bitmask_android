@@ -78,7 +78,6 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface, Ob
         handler = new Handler(handlerThread.getLooper());
         TorStatusObservable.getInstance().addObserver(this);
         File logfile = new File(context.getApplicationContext().getCacheDir(), "snowflake.log");
-        Log.d(TAG, "logfile at " + logfile.getAbsolutePath());
         try {
             if (logfile.exists()) {
                 logfile.delete();
@@ -99,10 +98,8 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface, Ob
         String target = getCdnFront("snowflake-target");
         String front = getCdnFront("snowflake-front");
         String stunServer = getCdnFront("snowflake-stun");
-        Log.d(TAG, "startSnowflake. target: " + target + ", front:" + front + ", stunServer" + stunServer);
         String ampCache = null;
         if (useAmpCache) {
-            Log.d(TAG, "using ampcache for rendez-vous");
             target = "https://snowflake-broker.torproject.net/";
             ampCache = "https://cdn.ampproject.org/";
             front = "www.google.com";
@@ -230,7 +227,6 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface, Ob
             if (snowflakeStatus == this.snowflakeStatus) {
                 return;
             }
-            Log.d(TAG, "clientTransportPlugin: snowflake status " + this.snowflakeStatus);
             if (snowflakeStatus == RETRY_HTTP_RENDEZVOUS) {
                 handler.post(() -> retryConnectionAttempt(false));
             } else if (snowflakeStatus == RETRY_AMP_CACHE_RENDEZVOUS) {
