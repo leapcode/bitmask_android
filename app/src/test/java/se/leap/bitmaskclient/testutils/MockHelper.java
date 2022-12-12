@@ -550,9 +550,9 @@ public class MockHelper {
         });
         when(TorStatusObservable.getSnowflakeStatus()).thenAnswer((Answer<TorStatusObservable.SnowflakeStatus>) invocation -> {
             if (waitUntilSuccess.get()) {
-                return TorStatusObservable.SnowflakeStatus.ON;
+                return TorStatusObservable.SnowflakeStatus.STARTED;
             }
-            return TorStatusObservable.SnowflakeStatus.OFF;
+            return TorStatusObservable.SnowflakeStatus.STOPPED;
         });
 
         if (exception != null) {
