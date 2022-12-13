@@ -90,16 +90,16 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         super.onCreate(savedInstanceState);
         gatewaysManager = new GatewaysManager(getContext());
         eipStatus = EipStatus.getInstance();
-        eipStatus.addObserver(this);
         preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
-        selectedTransport = getUseBridges(preferences) ? PT : OPENVPN;
-        preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        selectedTransport = getUseBridges(preferences) ? PT : OPENVPN;
+        preferences.registerOnSharedPreferenceChangeListener(this);
+        eipStatus.addObserver(this);
         return inflater.inflate(R.layout.f_gateway_selection, container, false);
     }
 
