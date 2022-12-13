@@ -307,6 +307,10 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         manualGatewaySelection.setOnClickListener(v -> {
             FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
             closeDrawer();
+            Fragment current = fragmentManager.findFragmentByTag(MainActivity.TAG);
+            if (current instanceof GatewaySelectionFragment) {
+                return;
+            }
             Fragment fragment = new GatewaySelectionFragment();
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
