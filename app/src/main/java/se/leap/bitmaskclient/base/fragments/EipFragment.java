@@ -459,7 +459,7 @@ public class EipFragment extends Fragment implements Observer {
             }
             background.setImageResource(R.drawable.bg_connecting);
             animateState(R.drawable.state_connecting);
-            mainButton.updateState(false, true, false);
+            mainButton.updateState(false, true);
             setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isConnecting()) {
             setMainButtonEnabled(true);
@@ -475,11 +475,11 @@ public class EipFragment extends Fragment implements Observer {
             subDescription.setText(null);
             background.setImageResource(R.drawable.bg_connecting);
             animateState(R.drawable.state_connecting);
-            mainButton.updateState(false, true, false);
+            mainButton.updateState(false, true);
             setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isConnected()) {
             setMainButtonEnabled(true);
-            mainButton.updateState(true, false, false);
+            mainButton.updateState(true, false);
             Connection.TransportType transportType = PreferenceHelper.getUseBridges(getContext()) ? Connection.TransportType.OBFS4 : Connection.TransportType.OPENVPN;
             locationButton.setLocationLoad(PreferenceHelper.useObfuscationPinning(getContext()) ? GatewaysManager.Load.UNKNOWN : gatewaysManager.getLoadForLocation(VpnStatus.getLastConnectedVpnName(), transportType));
             locationButton.setText(VpnStatus.getLastConnectedVpnName());
@@ -493,7 +493,7 @@ public class EipFragment extends Fragment implements Observer {
         } else if(eipStatus.isVPNRunningWithoutNetwork()) {
             Log.d(TAG, "eip fragment eipStatus - isOpenVpnRunningWithoutNetwork");
             setMainButtonEnabled(true);
-            mainButton.updateState(true, false, true);
+            mainButton.updateState(false, true);
             locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
@@ -504,6 +504,8 @@ public class EipFragment extends Fragment implements Observer {
             animateState(R.drawable.state_connecting);
             setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
+            setMainButtonEnabled(true);
+            mainButton.updateState(false, true);
             locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
@@ -515,7 +517,7 @@ public class EipFragment extends Fragment implements Observer {
             setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isDisconnecting()) {
             setMainButtonEnabled(false);
-            mainButton.updateState(false, false, false);
+            mainButton.updateState(false, false);
             mainDescription.setText(R.string.eip_status_unsecured);
             background.setImageResource(R.drawable.bg_disconnected);
             if (previousEipLevel == EipStatus.EipLevel.CONNECTED) {
@@ -526,7 +528,7 @@ public class EipFragment extends Fragment implements Observer {
             setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
-            mainButton.updateState(false, true, true);
+            mainButton.updateState(false, true);
             locationButton.setText(R.string.no_location);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
@@ -539,7 +541,7 @@ public class EipFragment extends Fragment implements Observer {
         } else {
             locationButton.setText(R.string.vpn_button_turn_on);
             setMainButtonEnabled(true);
-            mainButton.updateState(false, false, false);
+            mainButton.updateState(false, false);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             String city = getPreferredCity(getContext());
