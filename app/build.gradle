@@ -24,7 +24,7 @@ android {
     // however we don't calculate the versionCode here, because F-Droid doesn't like that
     versionCode 165000
     versionName "1.1.6RC1"
-    minSdkVersion 16
+    minSdkVersion 21
     targetSdkVersion 31
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
