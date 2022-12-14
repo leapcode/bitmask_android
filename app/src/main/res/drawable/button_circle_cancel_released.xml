@@ -52,10 +52,10 @@
         </shape>
     </item>
     <item
-        android:top="65dp"
-        android:bottom="65dp"
-        android:left="50dp"
-        android:right="50dp"
+        android:top="85dp"
+        android:bottom="85dp"
+        android:left="70dp"
+        android:right="70dp"
         android:drawable="@drawable/ic_btn_cancel"
         />
 </layer-list>

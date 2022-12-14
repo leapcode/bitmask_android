@@ -36,9 +36,9 @@
         </shape>
     </item>
     <item
-        android:top="68dp"
-        android:bottom="62dp"
-        android:left="50dp"
-        android:right="50dp"
+        android:top="78dp"
+        android:bottom="72dp"
+        android:left="60dp"
+        android:right="60dp"
         android:drawable="@drawable/ic_btn_on" />
 </layer-list>
