@@ -10,6 +10,7 @@
     <color name="colorMainBtnHighlight">#03DAC6</color>
     <color name="colorMainBtnError">#eF2222</color>
 
+    <color name="black">#000000</color>
     <color name="black800_dark">#1b1b1b</color>
     <color name="black800">#424242</color>
     <color name="black800_secondary">#3b3b3b</color>
@@ -44,7 +45,7 @@
     <!-- pill style button text colors -->
     <color name="color_font_btn_primary">@color/black800</color>
     <color name="color_font_btn_secondary">@color/black800</color>
-    <color name="colorLocationButtonTint">@color/black800</color>
+    <color name="colorLocationButtonTint">@color/black</color>
     <color name="colorLocationButtonTintTransparent">@color/black800_high_transparent</color>
     <color name="colorWarning">#B33A3A</color>
 

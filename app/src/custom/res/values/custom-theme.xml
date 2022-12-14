@@ -19,7 +19,7 @@
     <!-- glow effect color of the on / off button if no network / traffic blocked -->
     <color name="colorMainBtnError">#eF2222</color>
     <!-- location button icon tint color -->
-    <color name="colorLocationButtonTint">@color/black800</color>
+    <color name="colorLocationButtonTint">@color/black</color>
     <color name="colorLocationButtonTintTransparent">@color/black800_transparent</color>
     <!-- pill style button text colors -->
     <color name="color_font_btn_primary">@color/white</color>
