@@ -28,7 +28,7 @@
                 android:type="radial"
                 android:gradientRadius="125dp"
                 android:centerX="0.51"
-                android:centerY="0.58"
+                android:centerY="0.55"
                 android:startColor="#000000"
                 android:centerColor="#000000"
                 android:endColor="@color/transparent" />
