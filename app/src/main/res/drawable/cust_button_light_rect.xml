@@ -61,19 +61,6 @@
                     <corners android:radius="@dimen/stdpadding"/>
                 </shape>
             </item>
-            <!-- gradient -->
-           <item
-                android:bottom="@dimen/button_bevel"
-                android:right="1dp"
-                >
-                <shape android:shape="rectangle">
-                    <gradient android:startColor="@color/btn_light_transparent_dark"
-                        android:endColor="@color/white_transparent"
-                        android:angle="90"
-                        />
-                    <corners android:radius="@dimen/stdpadding"/>
-                </shape>
-            </item>
         </layer-list>
     </item>
 </selector>
