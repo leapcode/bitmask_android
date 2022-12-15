@@ -18,13 +18,13 @@
     <item
             android:id="@+id/clearlog"
             android:icon="@drawable/ic_menu_delete"
-            app:showAsAction="ifRoom"
+            app:showAsAction="never"
             android:title="@string/clear_log"
             android:titleCondensed="@string/clear"/>
     <item
             android:id="@+id/send"
             android:icon="@drawable/ic_menu_share"
-            app:showAsAction="ifRoom"
+            app:showAsAction="never"
             android:title="@string/send_logfile"
             android:titleCondensed="@string/send"/>
 
