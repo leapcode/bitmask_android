@@ -52,7 +52,6 @@ import se.leap.bitmaskclient.eip.GatewaysManager;
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
 import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
@@ -60,7 +59,7 @@ import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
-import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
 
 interface LocationListSelectionListener {
     void onLocationManuallySelected(Location location);
@@ -109,7 +108,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         initRecyclerView();
         initRecommendedLocationEntry();
         initBridgesHint(view);
-        setActionBarTitle(this, R.string.gateway_selection_title);
+        setActionBarSubtitle(this, R.string.gateway_selection_title);
     }
 
     @Override

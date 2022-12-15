@@ -312,7 +312,7 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
         mListView.setOnItemClickListener(this);
 
         mListView.setEmptyView(v.findViewById(R.id.loading_container));
-        ViewHelper.setActionBarTitle(this, exclude_apps_fragment_title);
+        ViewHelper.setActionBarSubtitle(this, exclude_apps_fragment_title);
 
         new Thread(() -> mListAdapter.populateList(getActivity())).start();
 

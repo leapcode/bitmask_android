@@ -75,6 +75,7 @@ import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.LocationButton;
 import se.leap.bitmaskclient.base.views.MainButton;
 import se.leap.bitmaskclient.databinding.FEipBinding;
@@ -164,8 +165,6 @@ public class EipFragment extends Fragment implements Observer {
         }
 
         gatewaysManager = new GatewaysManager(getContext());
-
-
     }
 
     @Override
@@ -178,6 +177,7 @@ public class EipFragment extends Fragment implements Observer {
         mainDescription = binding.mainDescription;
         subDescription = binding.subDescription;
         stateView = binding.stateView;
+        ViewHelper.setActionBarTitle(this, R.string.app_name);
 
         eipStatus.addObserver(this);
         torStatusObservable.addObserver(this);
@@ -256,10 +256,7 @@ public class EipFragment extends Fragment implements Observer {
         super.onDestroyView();
         Log.d(TAG, "onDestroyView");
 
-        Activity activity = getActivity();
-        if (activity != null) {
-            ((MainActivity) activity).setDefaultActivityBarColor();
-        }
+        ViewHelper.setDefaultActivityBarColor(getActivity());
         eipStatus.deleteObserver(this);
         providerObservable.deleteObserver(this);
         torStatusObservable.deleteObserver(this);
@@ -423,11 +420,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void setActivityBarColor(@ColorRes int primaryColor, @ColorRes int secondaryColor) {
-        Activity activity = getActivity();
-        if (activity == null) {
-            return;
-        }
-        ((MainActivity) getActivity()).setActivityBarColor(primaryColor, secondaryColor, R.color.actionbar_connectivity_state_text_color_dark);
+        ViewHelper.setActivityBarColor(getActivity(), primaryColor, secondaryColor, R.color.actionbar_connectivity_state_text_color_dark);
     }
 
     private void handleNewState() {

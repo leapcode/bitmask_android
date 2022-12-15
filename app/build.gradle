@@ -60,6 +60,10 @@ android {
     // the version file contains the versionCode of the latest release
     buildConfigField "String", "version_file_url", '"https://dl.bitmask.net/client/android/versioncode.txt"'
 
+    // if center_actionbar_title is set to true, the actionbar title and subtitle will be centered, otherwise default
+    buildConfigField 'boolean', 'actionbar_center_title', 'true'
+    buildConfigField 'boolean', 'actionbar_capitalize_title', 'true'
+
     //ignore the following configs, only used in custom flavor
     buildConfigField 'String', 'donation_url', 'null'
     buildConfigField "String", "customProviderUrl", '""'
@@ -173,6 +177,12 @@ android {
       buildConfigField 'boolean', 'enable_donation_reminder', 'true'
       //The duration in days to trigger the donation reminder
       buildConfigField 'int', 'donation_reminder_duration', '7'
+
+      // ActionBar design
+
+      // if center_actionbar_title is set to true, the actionbar title and subtitle will be centered, otherwise default
+      buildConfigField 'boolean', 'actionbar_center_title', 'true'
+      buildConfigField 'boolean', 'actionbar_capitalize_title', 'false'
 
       // Build apks for each architecture, in addition to one 'fat' apk containing libraries for all all architectures
       // enable this if you're publishing in gplay

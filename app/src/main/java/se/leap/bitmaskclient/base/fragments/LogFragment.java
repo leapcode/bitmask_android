@@ -5,6 +5,10 @@
 
 package se.leap.bitmaskclient.base.fragments;
 
+import static de.blinkt.openvpn.core.OpenVPNService.humanReadableByteCount;
+import static se.leap.bitmaskclient.R.string.log_fragment_title;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
@@ -58,10 +62,6 @@ import de.blinkt.openvpn.core.VpnStatus.LogListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Constants;
-
-import static de.blinkt.openvpn.core.OpenVPNService.humanReadableByteCount;
-import static se.leap.bitmaskclient.R.string.log_fragment_title;
-import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
 
 public class LogFragment extends ListFragment implements StateListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, VpnStatus.ByteCountListener {
     public static final String TAG = LogFragment.class.getSimpleName();
@@ -533,7 +533,7 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
         if (mShowOptionsLayout)
             mOptionsLayout.setVisibility(View.VISIBLE);
 
-        setActionBarTitle(this, log_fragment_title);
+        setActionBarSubtitle(this, log_fragment_title);
         return v;
     }
 
@@ -557,7 +557,6 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
 
