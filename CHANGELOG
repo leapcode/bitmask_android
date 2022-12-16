@@ -1,3 +1,14 @@
+1.1.6RC2 Beta
+bugfixes:
+* fixed memory leaks: less memory consumption
+* fixed empty gateway selection screen
+* fixed manual provider addition
+* improved UI regarding the new design
+
+features:
+* improved and updated circumvention mechanism to protect provider bootstrapping
+* updated translations
+
 1.1.6RC1 Beta
 * updated UI
 * support for Android 12's new splash screen design
