@@ -38,7 +38,7 @@ import se.leap.bitmaskclient.providersetup.activities.ProviderListBaseActivity;
  */
 
 public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
-    private WeakReference<ProviderSetupInterface> setupInterfaceRef;
+    private final WeakReference<ProviderSetupInterface> setupInterfaceRef;
 
     public ProviderApiSetupBroadcastReceiver(ProviderSetupInterface setupInterface) {
         this.setupInterfaceRef = new WeakReference<>(setupInterface);
