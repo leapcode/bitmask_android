@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="donate_message">RiseupVPN 是由 riseup.net 制作的一款易于使用，快速又安全的 VPN 服务。RiseupVPN 无需注册账号即可使用，也绝不会以任何手段保存日志或追踪您的踪迹。此服务的费用完全由像您一样的用户捐助支付。请在 https://riseup.net/vpn/donate 进行捐助。</string>
+  <string name="terms_of_service">您必须同意地址为 https://riseup.net/tos 的服务条款才能使用本应用。此服务按原样提供，不提供任何保证，且旨在提供给那些不平则鸣的人们。</string>
+</resources>

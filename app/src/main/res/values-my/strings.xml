@@ -146,6 +146,7 @@
   <string name="version_update_error_pgp_verification">PGP အတည်ပြုခြင်း မအောင်မြင်ပါ။ ဒေါင်းလုပ်အား လျစ်လျူရှုနေသည်။</string>
   <string name="version_update_error">အဆင်မြှင့်ခြင်း မအောင်မြင်ပါ။</string>
   <string name="version_update_error_permissions">အပ္ပလီကေးရှင်းကို ဒေါင်းလုပ်ဆွဲရန် ခွင့်ပြုချက်မရှိပါ။</string>
+  <string name="gateway_selection_automatic">အလိုအလျောက်</string>
   <string name="log_onehop_create">ကုဒ်ဖြင့်စာဝှက်ထားသည့် ဖိုင်လမ်းကြောင်း ချိတ်ဆက်မှု တစ်ခု တည်ဆောက်နေသည်</string>
   <string name="log_loading_keys">လုပ်ပိုင်ခွင့် လက်မှတ်များကို ရယူနေသည်</string>
   <string name="log_circuit_create">Tor ဆားကစ် တစ်ခုကို တည်ဆောက်နေသည်</string>

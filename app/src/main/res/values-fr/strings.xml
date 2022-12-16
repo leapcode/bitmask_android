@@ -67,6 +67,9 @@
   <string name="authentication_failed_message">Échec d’authentification</string>
   <string name="registration_failed_message">L’inscription a échoué</string>
   <string name="eip_status_start_pending">Initialisation de la connexion</string>
+  <string name="eip_status_connecting">Connecter au RPV</string>
+  <string name="eip_status_unsecured">Connexion non sécurisée</string>
+  <string name="eip_status_secured">Connexion sécurisée</string>
   <string name="eip_cancel_connect_title">Annuler la connexion ?</string>
   <string name="eip_cancel_connect_text">Une tentative de connexion est en cours. Voulez-vous l’annuler ?</string>
   <string name="eip.warning.browser_inconsistency">Désactiver la connexion RPV ? Si votre RPV est désactivé, vous pourriez divulguer des renseignements personnels à votre fournisseur d’accès à Internet ou à votre réseau local.</string>
@@ -202,4 +205,6 @@
   <string name="disabled_while_udp_on">Désactivé pendant que l’UDP est activé</string>
   <string name="advanced_settings">Paramètres avancés</string>
   <string name="cancel_connection">Se déconnecter</string>
+  <string name="unknown_location">Site inconnu</string>
+  <string name="splash_footer">Développé par : LEAP</string>
 </resources>

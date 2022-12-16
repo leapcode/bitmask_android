@@ -1,7 +1,7 @@
 [main]
 host = https://www.transifex.com
 
-lang_map = es_AR:es-rAR, fa_IR:fa-rIR, kn_IN:kn-rIN, pt_BR:pt-rBR, pt_PT:pt-rPT, zh_CN:zh-rCN, zh_TW:zh-rTW, nb:no
+lang_map = es_AR: es-rAR, fa_IR: fa-rIR, kn_IN: kn-rIN, pt_BR: pt-rBR, pt_PT: pt-rPT, zh: zh-rCN, zh_TW: zh-rTW, nb: no
 
 [bitmask.strings]
 file_filter = app/src/main/res/values-<lang>/strings.xml
