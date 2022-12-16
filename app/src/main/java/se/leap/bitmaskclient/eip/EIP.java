@@ -594,7 +594,7 @@ public final class EIP extends JobIntentService implements Observer {
     }
 
     public static class VoidVpnServiceConnection implements Closeable {
-        private final Context context;
+        private Context context;
         private ServiceConnection serviceConnection;
         private VoidVpnService voidVpnService;
 
@@ -608,6 +608,9 @@ public final class EIP extends JobIntentService implements Observer {
         @Override
         public void close() {
             context.unbindService(serviceConnection);
+            serviceConnection = null;
+            voidVpnService = null;
+            context = null;
         }
 
         private void initSynchronizedServiceConnection(final Context context) throws InterruptedException {
@@ -649,7 +652,7 @@ public final class EIP extends JobIntentService implements Observer {
      */
     @WorkerThread
     public static class OpenVpnServiceConnection implements Closeable {
-        private final Context context;
+        private Context context;
         private ServiceConnection serviceConnection;
         private IOpenVPNServiceInternal service;
 
@@ -686,6 +689,9 @@ public final class EIP extends JobIntentService implements Observer {
 
         @Override public void close() {
             context.unbindService(serviceConnection);
+            serviceConnection = null;
+            service = null;
+            context = null;
         }
 
         public IOpenVPNServiceInternal getService() {

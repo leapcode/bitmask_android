@@ -15,6 +15,9 @@ package se.leap.bitmaskclient.tor;
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,13 +33,9 @@ import java.io.Closeable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import se.leap.bitmaskclient.providersetup.ProviderAPI;
-
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
-
 public class TorServiceConnection implements Closeable {
     private static final String TAG = TorServiceConnection.class.getSimpleName();
-    private final Context context;
+    private Context context;
     private ServiceConnection serviceConnection;
     private TorService torService;
 
@@ -50,6 +49,9 @@ public class TorServiceConnection implements Closeable {
     @Override
     public void close() {
         context.unbindService(serviceConnection);
+        context = null;
+        serviceConnection = null;
+        torService = null;
     }
 
     private void initSynchronizedServiceConnection(final Context context) throws InterruptedException {

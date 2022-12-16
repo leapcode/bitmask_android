@@ -22,8 +22,6 @@
             android:minHeight="?attr/actionBarSize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:titleTextColor="@color/colorActionBarTitleFont"
-            app:subtitleTextColor="@color/colorActionBarSubtitleFont"
             android:background="?attr/colorPrimary">
         </androidx.appcompat.widget.Toolbar>
 

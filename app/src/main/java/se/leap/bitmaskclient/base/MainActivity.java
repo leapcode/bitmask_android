@@ -17,6 +17,7 @@
 package se.leap.bitmaskclient.base;
 
 
+import static androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM;
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
@@ -34,7 +35,6 @@ import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInPreferences;
-import static se.leap.bitmaskclient.base.utils.ViewHelper.isBrightColor;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORID;
@@ -46,17 +46,14 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.Gravity;
 
-import androidx.annotation.ColorRes;
-import androidx.annotation.StringRes;
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -70,6 +67,7 @@ import org.json.JSONObject;
 import java.util.Observable;
 import java.util.Observer;
 
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.fragments.EipFragment;
 import se.leap.bitmaskclient.base.fragments.ExcludeAppsFragment;
@@ -81,7 +79,7 @@ import se.leap.bitmaskclient.base.fragments.SettingsFragment;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.base.utils.ViewHelper;
+import se.leap.bitmaskclient.base.views.ActionBarTitle;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipSetupListener;
@@ -103,8 +101,6 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     public final static String ACTION_SHOW_DIALOG_FRAGMENT = "action_show_dialog_fragment";
     public final static String ACTION_SHOW_MOTD_FRAGMENT = "action_show_motd_fragment";
 
-    private @ColorRes int actionBarTextColor = R.color.colorActionBarTitleFont;
-
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -113,8 +109,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_main);
-        setSupportActionBar(findViewById(R.id.toolbar));
-
+        setupActionBar();
         navigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
@@ -143,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 newFragment.setArguments(bundle);
             }
             fragmentManagerEnhanced.replace(R.id.main_container, newFragment, MainActivity.TAG);
-            hideActionBarSubTitle();
         } else {
             super.onBackPressed();
         }
@@ -171,7 +165,6 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 }
                 bundle.putParcelable(PROVIDER_KEY, provider);
                 fragment.setArguments(bundle);
-                hideActionBarSubTitle();
                 showActionBar();
                 break;
             case ACTION_SHOW_MOTD_FRAGMENT:
@@ -181,12 +174,10 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                     motdBundle.putString(EXTRA_MOTD_MSG, intent.getStringExtra(EXTRA_MOTD_MSG));
                 }
                 fragment.setArguments(motdBundle);
-                hideActionBarSubTitle();
                 hideActionBar();
                 break;
             case ACTION_SHOW_LOG_FRAGMENT:
                 fragment = new LogFragment();
-                setActionBarTitle(R.string.log_fragment_title);
                 showActionBar();
                 break;
             case ACTION_SHOW_DIALOG_FRAGMENT:
@@ -209,6 +200,31 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         }
     }
 
+    private void setupActionBar() {
+        setSupportActionBar(findViewById(R.id.toolbar));
+        final ActionBar actionBar = getSupportActionBar();
+        Context context = actionBar.getThemedContext();
+        actionBar.setDisplayOptions(DISPLAY_SHOW_CUSTOM);
+
+        ActionBarTitle actionBarTitle = new ActionBarTitle(context);
+        actionBarTitle.setTitleCaps(BuildConfig.actionbar_capitalize_title);
+        actionBarTitle.setTitle(getString(R.string.app_name));
+
+        @ColorInt int titleColor = ContextCompat.getColor(context, R.color.colorActionBarTitleFont);
+        actionBarTitle.setTitleTextColor(titleColor);
+
+        actionBarTitle.setCentered(BuildConfig.actionbar_center_title);
+        if (BuildConfig.actionbar_center_title) {
+            ActionBar.LayoutParams params = new ActionBar.LayoutParams(
+                    ActionBar.LayoutParams.WRAP_CONTENT,
+                    ActionBar.LayoutParams.MATCH_PARENT,
+                    Gravity.CENTER);
+            actionBar.setCustomView(actionBarTitle, params);
+        } else {
+            actionBar.setCustomView(actionBarTitle);
+        }
+    }
+
     private void hideActionBar() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -223,53 +239,6 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         }
     }
 
-    private void hideActionBarSubTitle() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setSubtitle(null);
-        }
-    }
-    private void setActionBarTitle(@StringRes int stringId) {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setSubtitle(stringId);
-        }
-    }
-
-    public @ColorRes int getActionBarTitleColor() {
-        return actionBarTextColor;
-    }
-
-    public void setDefaultActivityBarColor() {
-        setActivityBarColor(R.color.colorPrimary, R.color.colorPrimaryDark, R.color.colorActionBarTitleFont);
-    }
-
-    public void setActivityBarColor(@ColorRes int primaryColor, @ColorRes int secondaryColor, @ColorRes int textColor) {
-        ActionBar bar = getSupportActionBar();
-        if (bar == null) {
-            return;
-        }
-        int color = ContextCompat.getColor(this, secondaryColor);
-        bar.setBackgroundDrawable(new ColorDrawable(color));
-        if (Build.VERSION.SDK_INT  >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = this.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, primaryColor));
-        }
-
-        if (bar.getTitle() == null) {
-            return;
-        }
-
-        if (textColor == 0) {
-            actionBarTextColor = isBrightColor(color) ? R.color.actionbar_connectivity_state_text_color_dark : R.color.actionbar_connectivity_state_text_color_light;
-        } else {
-            actionBarTextColor = textColor;
-        }
-
-        ViewHelper.setActionBarTextColor(bar, actionBarTextColor);
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -313,7 +282,6 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         fragment.setArguments(arguments);
         new FragmentManagerEnhanced(getSupportFragmentManager())
                 .replace(R.id.main_container, fragment, MainActivity.TAG);
-        hideActionBarSubTitle();
     }
 
     @Override

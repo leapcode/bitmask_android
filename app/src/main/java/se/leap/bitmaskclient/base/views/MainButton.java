@@ -45,7 +45,7 @@ public class MainButton extends RelativeLayout {
         button = binding.button;
     }
 
-    public void updateState(boolean isOn, boolean isProcessing, boolean isError) {
+    public void updateState(boolean isOn, boolean isProcessing) {
         if (isProcessing) {
             button.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.button_circle_cancel));
         } else {

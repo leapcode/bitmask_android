@@ -50,7 +50,7 @@
             android:layout_marginTop="@dimen/add_button_margin"
             android:background="@drawable/cust_button_primary"
             android:text="@string/donate_button_donate"
-            android:textColor="@color/white"
+            android:textColor="@color/color_font_btn_primary"
             android:textStyle="bold" />
 
         <Button
@@ -63,7 +63,7 @@
             android:layout_marginTop="@dimen/standard_margin"
             android:background="@drawable/cust_button_secondary"
             android:text="@string/donate_button_remind_later"
-            android:textColor="@android:color/tab_indicator_text"
+            android:textColor="@color/color_font_btn_secondary"
             android:textStyle="bold" />
 
     </LinearLayout>

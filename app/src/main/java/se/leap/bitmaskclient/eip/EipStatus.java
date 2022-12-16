@@ -16,6 +16,8 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
+
 import android.content.Context;
 import android.os.AsyncTask;
 import androidx.annotation.VisibleForTesting;
@@ -90,6 +92,11 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     public boolean isReconnecting() {
         Log.d(TAG, "eip currentVPNStatus : " + currentStatus.getState() );
         return "RECONNECTING".equals(currentStatus.getState());
+    }
+
+    public boolean isVPNRunningWithoutNetwork() {
+        return currentStatus.getLevel() == LEVEL_NONETWORK &&
+                !"NO_PROCESS".equals(currentStatus.getState());
     }
 
     private void setEipLevel(ConnectionStatus level) {

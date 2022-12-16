@@ -24,7 +24,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfuscatio
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
-import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarTitle;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -90,7 +90,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initGatewayPinningEntry(view);
         initExperimentalTransportsEntry(view);
         initObfuscationPinningEntry(view);
-        setActionBarTitle(this, advanced_settings);
+        setActionBarSubtitle(this, advanced_settings);
         return view;
     }
 

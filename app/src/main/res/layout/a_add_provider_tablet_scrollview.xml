@@ -75,6 +75,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:minWidth="80dp"
+                    android:textColor="@color/color_font_btn_primary"
                     android:text="@string/cancel" />
 
                 <Button
@@ -84,6 +85,7 @@
                     android:minWidth="80dp"
                     android:layout_marginLeft="@dimen/add_button_margin"
                     android:layout_marginStart="@dimen/add_button_margin"
+                    android:textColor="@color/color_font_btn_primary"
                     android:enabled="false"
                     android:text="@string/save" />
             </LinearLayout>

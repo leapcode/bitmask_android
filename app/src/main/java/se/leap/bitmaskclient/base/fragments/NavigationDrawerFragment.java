@@ -38,9 +38,6 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,15 +45,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.ViewUtils;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -70,7 +63,6 @@ import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.IconSwitchEntry;
 import se.leap.bitmaskclient.base.views.IconTextEntry;
 import se.leap.bitmaskclient.eip.EipStatus;
@@ -179,7 +171,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         toolbar = this.drawerLayout.findViewById(R.id.toolbar);
 
-        setupActionBar();
         setupEntries();
         setupActionBarDrawerToggle(activity);
 
@@ -240,7 +231,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
             Bundle arguments = new Bundle();
             arguments.putParcelable(PROVIDER_KEY, currentProvider);
             fragment.setArguments(arguments);
-            hideActionBarSubTitle();
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
             closeDrawer();
         });
@@ -307,6 +297,10 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         manualGatewaySelection.setOnClickListener(v -> {
             FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
             closeDrawer();
+            Fragment current = fragmentManager.findFragmentByTag(MainActivity.TAG);
+            if (current instanceof GatewaySelectionFragment) {
+                return;
+            }
             Fragment fragment = new GatewaySelectionFragment();
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
@@ -351,15 +345,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         }
     }
 
-    private ActionBar setupActionBar() {
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
-        activity.setSupportActionBar(toolbar);
-        final ActionBar actionBar = activity.getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(true);
-        return actionBar;
-    }
+
 
     @NonNull
     private void closeDrawerWithDelay() {
@@ -421,14 +407,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (drawerLayout != null && isDrawerOpen()) {
-            showGlobalContextActionBar();
-        }
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
@@ -440,33 +418,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     public void onDestroy() {
         super.onDestroy();
         preferences.unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    /**
-     * Per the navigation drawer design guidelines, updates the action bar to show the global app
-     * 'context', rather than just what's in the current screen.
-     */
-    private void showGlobalContextActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(R.string.app_name);
-        Activity activity = getActivity();
-        if (activity == null) {
-            return;
-        }
-        @ColorRes int titleColor = ((MainActivity) activity).getActionBarTitleColor();
-        ViewHelper.setActionBarTextColor(actionBar, titleColor);
-    }
-
-    private ActionBar getActionBar() {
-        return ((AppCompatActivity) getActivity()).getSupportActionBar();
-    }
-
-    private void hideActionBarSubTitle() {
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setSubtitle(null);
-        }
     }
 
     public void refresh() {

@@ -16,7 +16,6 @@
  */
 package se.leap.bitmaskclient.base.fragments;
 
-import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
@@ -36,16 +35,12 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Animatable;
-import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -65,17 +60,13 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
-import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.R;
@@ -84,6 +75,7 @@ import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.LocationButton;
 import se.leap.bitmaskclient.base.views.MainButton;
 import se.leap.bitmaskclient.databinding.FEipBinding;
@@ -129,10 +121,6 @@ public class EipFragment extends Fragment implements Observer {
     //------------------------
     AlertDialog alertDialog;
 
-    private IOpenVPNServiceInternal mService;
-    // We use this service connection to detect if openvpn is running without network
-    private EipFragmentServiceConnection openVpnConnection;
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -166,7 +154,6 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        openVpnConnection = new EipFragmentServiceConnection();
         eipStatus = EipStatus.getInstance();
         providerObservable = ProviderObservable.getInstance();
         torStatusObservable = TorStatusObservable.getInstance();
@@ -178,8 +165,6 @@ public class EipFragment extends Fragment implements Observer {
         }
 
         gatewaysManager = new GatewaysManager(getContext());
-
-
     }
 
     @Override
@@ -192,6 +177,7 @@ public class EipFragment extends Fragment implements Observer {
         mainDescription = binding.mainDescription;
         subDescription = binding.subDescription;
         stateView = binding.stateView;
+        ViewHelper.setActionBarTitle(this, R.string.app_name);
 
         eipStatus.addObserver(this);
         torStatusObservable.addObserver(this);
@@ -233,16 +219,14 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public void onResume() {
         super.onResume();
-        if (!eipStatus.isDisconnected()) {
-            openVpnConnection.bindService();
-        }
+        Log.d(TAG, "onResume");
         handleNewState();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        openVpnConnection.unbindService();
+        Log.d(TAG, "onPause");
     }
 
     @Override
@@ -270,10 +254,9 @@ public class EipFragment extends Fragment implements Observer {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Activity activity = getActivity();
-        if (activity != null) {
-            ((MainActivity) activity).setDefaultActivityBarColor();
-        }
+        Log.d(TAG, "onDestroyView");
+
+        ViewHelper.setDefaultActivityBarColor(getActivity());
         eipStatus.deleteObserver(this);
         providerObservable.deleteObserver(this);
         torStatusObservable.deleteObserver(this);
@@ -290,7 +273,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     void handleIcon() {
-        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnected() || eipStatus.isConnecting() || eipStatus.isUpdatingVpnCert())
+        if (eipStatus.isVPNRunningWithoutNetwork() || eipStatus.isConnected() || eipStatus.isConnecting() || eipStatus.isUpdatingVpnCert())
             handleSwitchOff();
         else
             handleSwitchOn();
@@ -326,7 +309,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void handleSwitchOff() {
-        if (isOpenVpnRunningWithoutNetwork() || eipStatus.isConnecting() || eipStatus.isUpdatingVpnCert()) {
+        if (eipStatus.isVPNRunningWithoutNetwork() || eipStatus.isConnecting() || eipStatus.isUpdatingVpnCert()) {
             askPendingStartCancellation();
         } else if (eipStatus.isConnected()) {
             askToStopEIP();
@@ -420,13 +403,6 @@ public class EipFragment extends Fragment implements Observer {
             eipStatus = (EipStatus) observable;
             handleNewStateOnMain();
 
-            if (eipStatus.isConnecting()) {
-                openVpnConnection.bindService();
-            }
-            if ("NOPROCESS".equals(EipStatus.getInstance().getState())) {
-                //assure that the Service is shutdown completely if openvpn was stopped
-                openVpnConnection.unbindService();
-            }
         } else if (observable instanceof ProviderObservable) {
             provider = ((ProviderObservable) observable).getCurrentProvider();
         } else if (observable instanceof TorStatusObservable && EipStatus.getInstance().isUpdatingVpnCert()) {
@@ -444,11 +420,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void setActivityBarColor(@ColorRes int primaryColor, @ColorRes int secondaryColor) {
-        Activity activity = getActivity();
-        if (activity == null) {
-            return;
-        }
-        ((MainActivity) getActivity()).setActivityBarColor(primaryColor, secondaryColor, R.color.actionbar_connectivity_state_text_color_dark);
+        ViewHelper.setActivityBarColor(getActivity(), primaryColor, secondaryColor, R.color.actionbar_connectivity_state_text_color_dark);
     }
 
     private void handleNewState() {
@@ -480,7 +452,7 @@ public class EipFragment extends Fragment implements Observer {
             }
             background.setImageResource(R.drawable.bg_connecting);
             animateState(R.drawable.state_connecting);
-            mainButton.updateState(false, true, false);
+            mainButton.updateState(false, true);
             setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isConnecting()) {
             setMainButtonEnabled(true);
@@ -496,11 +468,11 @@ public class EipFragment extends Fragment implements Observer {
             subDescription.setText(null);
             background.setImageResource(R.drawable.bg_connecting);
             animateState(R.drawable.state_connecting);
-            mainButton.updateState(false, true, false);
+            mainButton.updateState(false, true);
             setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isConnected()) {
             setMainButtonEnabled(true);
-            mainButton.updateState(true, false, false);
+            mainButton.updateState(true, false);
             Connection.TransportType transportType = PreferenceHelper.getUseBridges(getContext()) ? Connection.TransportType.OBFS4 : Connection.TransportType.OPENVPN;
             locationButton.setLocationLoad(PreferenceHelper.useObfuscationPinning(getContext()) ? GatewaysManager.Load.UNKNOWN : gatewaysManager.getLoadForLocation(VpnStatus.getLastConnectedVpnName(), transportType));
             locationButton.setText(VpnStatus.getLastConnectedVpnName());
@@ -511,10 +483,10 @@ public class EipFragment extends Fragment implements Observer {
             background.setImageResource(R.drawable.bg_connected);
             animateState(R.drawable.state_connected);
             setActivityBarColor(R.color.bg_running_top, R.color.bg_running_top_light_transparent);
-        } else if(isOpenVpnRunningWithoutNetwork()) {
+        } else if(eipStatus.isVPNRunningWithoutNetwork()) {
             Log.d(TAG, "eip fragment eipStatus - isOpenVpnRunningWithoutNetwork");
             setMainButtonEnabled(true);
-            mainButton.updateState(true, false, true);
+            mainButton.updateState(false, true);
             locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
@@ -525,6 +497,8 @@ public class EipFragment extends Fragment implements Observer {
             animateState(R.drawable.state_connecting);
             setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isDisconnected() && reconnectingWithDifferentGateway()) {
+            setMainButtonEnabled(true);
+            mainButton.updateState(false, true);
             locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
@@ -536,7 +510,7 @@ public class EipFragment extends Fragment implements Observer {
             setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isDisconnecting()) {
             setMainButtonEnabled(false);
-            mainButton.updateState(false, false, false);
+            mainButton.updateState(false, false);
             mainDescription.setText(R.string.eip_status_unsecured);
             background.setImageResource(R.drawable.bg_disconnected);
             if (previousEipLevel == EipStatus.EipLevel.CONNECTED) {
@@ -547,7 +521,7 @@ public class EipFragment extends Fragment implements Observer {
             setActivityBarColor(R.color.bg_disconnected_top, R.color.bg_disconnected_top_light_transparent);
         } else if (eipStatus.isBlocking()) {
             setMainButtonEnabled(true);
-            mainButton.updateState(false, true, true);
+            mainButton.updateState(false, true);
             locationButton.setText(R.string.no_location);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
@@ -560,7 +534,7 @@ public class EipFragment extends Fragment implements Observer {
         } else {
             locationButton.setText(R.string.vpn_button_turn_on);
             setMainButtonEnabled(true);
-            mainButton.updateState(false, false, false);
+            mainButton.updateState(false, false);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
             String city = getPreferredCity(getContext());
@@ -614,19 +588,6 @@ public class EipFragment extends Fragment implements Observer {
         }
     }
 
-    private boolean isOpenVpnRunningWithoutNetwork() {
-        boolean isRunning = false;
-        try {
-            isRunning = eipStatus.getLevel() == LEVEL_NONETWORK &&
-                    mService.isVpnRunning();
-        } catch (Exception e) {
-            //eat me
-            e.printStackTrace();
-        }
-
-        return isRunning;
-    }
-
     private void updateInvalidVpnCertificate() {
         eipStatus.setUpdatingVpnCert(true);
         ProviderAPICommand.execute(getContext(), UPDATE_INVALID_VPN_CERTIFICATE, provider);
@@ -643,52 +604,6 @@ public class EipFragment extends Fragment implements Observer {
         Activity activity = getActivity();
         if (activity != null) {
             activity.startActivityForResult(intent, REQUEST_CODE_LOG_IN);
-        }
-    }
-
-    private class EipFragmentServiceConnection implements ServiceConnection {
-        private final AtomicBoolean bind = new AtomicBoolean(false);
-
-        void bindService() {
-            Activity activity = getActivity();
-            if (activity == null) {
-                Log.e(TAG, "activity is null when binding OpenVpn");
-                return;
-            }
-            if (!bind.get()) {
-                activity.runOnUiThread(() -> {
-                        Intent intent = new Intent(activity, OpenVPNService.class);
-                        intent.setAction(OpenVPNService.START_SERVICE);
-
-                        activity.bindService(intent, EipFragmentServiceConnection.this, Context.BIND_AUTO_CREATE);
-                        bind.set(true);
-                });
-            }
-        }
-
-        void unbindService() {
-            Activity activity = getActivity();
-            if (activity == null) {
-                return;
-            }
-            if (bind.get()) {
-                activity.runOnUiThread(() -> {
-                    activity.unbindService(EipFragmentServiceConnection.this);
-                    bind.set(false);
-                });
-            }
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
-            handleNewState();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mService = null;
         }
     }
 
