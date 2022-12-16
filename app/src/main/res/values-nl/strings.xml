@@ -69,6 +69,9 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="authentication_failed_message">Authenticatie is mislukt</string>
   <string name="registration_failed_message">Registratie mislukt</string>
   <string name="eip_status_start_pending">Verbinding wordt geïnitialiseerd</string>
+  <string name="eip_status_connecting">Verbinden met VPN</string>
+  <string name="eip_status_unsecured">Onbeveiligde Verbinding</string>
+  <string name="eip_status_secured">Beveiligde Verbinding</string>
   <string name="eip_cancel_connect_title">Verbinding verbreken?</string>
   <string name="eip_cancel_connect_text">We proberen een verbinding tot stand te brengen. Wil je dit annuleren?</string>
   <string name="eip.warning.browser_inconsistency">VPN verbinding verbreken? Wanneer de VPN uitstaat, kan je persoonlijke data lekken naar je internetprovider of je lokale netwerk.</string>
@@ -203,4 +206,6 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="disabled_while_udp_on">Uitgeschakeld wanneer UDP aan is.</string>
   <string name="advanced_settings">Geavanceerde instellingen</string>
   <string name="cancel_connection">Verbreek</string>
+  <string name="unknown_location">Onbekende locatie</string>
+  <string name="splash_footer">Ontwikkeld door LEAP</string>
 </resources>

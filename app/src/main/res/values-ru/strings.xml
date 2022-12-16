@@ -23,7 +23,7 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="save">Сохранить</string>
   <string name="new_provider_uri">Доменное имя</string>
   <string name="valid_url_entered">URL действителен</string>
-  <string name="not_valid_url_entered">Неверный URL</string>
+  <string name="not_valid_url_entered">Неправильный URL</string>
   <string name="provider_details_title">Информация о провайдере</string>
   <string name="use_anonymously_button">Использовать анонимно</string>
   <string name="username_hint">имя пользователя</string>
@@ -68,6 +68,9 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="authentication_failed_message">Ошибка аутентификации</string>
   <string name="registration_failed_message">Регистрация не выполнена</string>
   <string name="eip_status_start_pending">Установка соединения</string>
+  <string name="eip_status_connecting">Подключение VPN</string>
+  <string name="eip_status_unsecured">Небезопасное соединение</string>
+  <string name="eip_status_secured">Безопасное соединение</string>
   <string name="eip_cancel_connect_title">Отменить соединение?</string>
   <string name="eip_cancel_connect_text">Идёт попытка подключения. Вы хотите её отменить?</string>
   <string name="eip.warning.browser_inconsistency">Отключить VPN-соединение? При отключённой VPN ваша персональная информация может стать доступна провайдеру или в местной сети.</string>
@@ -204,4 +207,6 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="disabled_while_udp_on">Отключено при использовании UDP.</string>
   <string name="advanced_settings">Дополнительно</string>
   <string name="cancel_connection">Отключить</string>
+  <string name="unknown_location">Неизвестное местоположение</string>
+  <string name="splash_footer">Разработано LEAP</string>
 </resources>

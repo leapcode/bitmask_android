@@ -67,6 +67,9 @@
   <string name="authentication_failed_message">Αποτυχία πιστοποίησης</string>
   <string name="registration_failed_message">Η εγγραφή απέτυχε</string>
   <string name="eip_status_start_pending">Έναρξη σύνδεσης</string>
+  <string name="eip_status_connecting">Σύνδεση σε VPN</string>
+  <string name="eip_status_unsecured">Μη ασφαλής σύνδεση</string>
+  <string name="eip_status_secured">Ασφαλής σύνδεση</string>
   <string name="eip_cancel_connect_title">Ακύρωση σύνδεσης;</string>
   <string name="eip_cancel_connect_text">Υπάρχει μια προσπάθεια σύνδεσης σε εξέλιξη. Θέλετε να την ακυρώσετε;</string>
   <string name="eip.warning.browser_inconsistency">Κλείσιμο της σύνδεσης VPN; Όταν το VPN είναι κλειστό, μπορεί να διαρρέουν προσωπικές σας πληροφορίες στον πάροχο σας ή στο τοπικό δίκτυο.</string>
@@ -201,4 +204,6 @@
   <string name="disabled_while_udp_on">Απενεργοποιημένο όταν είναι ενεργό το UDP.</string>
   <string name="advanced_settings">Προηγμένες ρυθμίσεις</string>
   <string name="cancel_connection">Αποσύνδεση</string>
+  <string name="unknown_location">Άγνωστη τοποθεσία</string>
+  <string name="splash_footer">Αναπτύχθηκε από την LEAP</string>
 </resources>

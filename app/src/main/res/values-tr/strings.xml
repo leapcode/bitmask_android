@@ -67,6 +67,9 @@
   <string name="authentication_failed_message">Kimlik doğrulanamadı</string>
   <string name="registration_failed_message">Hesap açılamadı</string>
   <string name="eip_status_start_pending">Bağlantı kuruluyor</string>
+  <string name="eip_status_connecting">VPN bağlantısı kuruluyor</string>
+  <string name="eip_status_unsecured">Güvenli olmayan bağlantı</string>
+  <string name="eip_status_secured">Güvenli bağlantı</string>
   <string name="eip_cancel_connect_title">Bağlantı iptal edilsin mi?</string>
   <string name="eip_cancel_connect_text">Sürmekte olan bir bağlantı kurma girişimi var. İptal etmek istediğinize emin misiniz?</string>
   <string name="eip.warning.browser_inconsistency">VPN bağlantısını kapatmak istiyor musunuz? VPN kapalıyken, kişisel bilgileriniz Internet hizmeti sağlayıcınıza veya yerel ağınıza sızabilir.</string>
@@ -201,4 +204,6 @@
   <string name="disabled_while_udp_on">UDP açıkken devre dışı.</string>
   <string name="advanced_settings">Gelişmiş ayarlar</string>
   <string name="cancel_connection">Bağlantıyı kes</string>
+  <string name="unknown_location">Konum bilinmiyor</string>
+  <string name="splash_footer">LEAP tarafından geliştirildi</string>
 </resources>
