@@ -38,7 +38,7 @@ import se.leap.bitmaskclient.providersetup.activities.ProviderListBaseActivity;
  */
 
 public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
-    private WeakReference<ProviderSetupInterface> setupInterfaceRef;
+    private final WeakReference<ProviderSetupInterface> setupInterfaceRef;
 
     public ProviderApiSetupBroadcastReceiver(ProviderSetupInterface setupInterface) {
         this.setupInterfaceRef = new WeakReference<>(setupInterface);
@@ -62,7 +62,7 @@ public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
             Provider handledProvider = resultData.getParcelable(Constants.PROVIDER_KEY);
 
             if (handledProvider != null && setupInterface.getProvider() != null &&
-                    handledProvider.getDomain().equalsIgnoreCase(setupInterface.getProvider().getDomain())) {
+                    handledProvider.getMainUrlString().equalsIgnoreCase(setupInterface.getProvider().getMainUrlString())) {
                 switch (resultCode) {
                     case ProviderAPI.PROVIDER_OK:
                         setupInterface.handleProviderSetUp(handledProvider);
