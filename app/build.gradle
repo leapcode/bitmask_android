@@ -22,8 +22,8 @@ android {
     // the factor 1000 is used so that gplay users can upgrade from split apks ((current version number - 1) * 1000) + n
     // to extracted bundle apks, supplied by google
     // however we don't calculate the versionCode here, because F-Droid doesn't like that
-    versionCode 165000
-    versionName "1.1.6RC1"
+    versionCode 166000
+    versionName "1.1.6RC2"
     minSdkVersion 21
     targetSdkVersion 31
     vectorDrawables.useSupportLibrary = true
