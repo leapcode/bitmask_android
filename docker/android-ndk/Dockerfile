@@ -24,7 +24,7 @@ RUN apt-get update -qq && \
 # JNI build dependencies w/ 32-bit compatible C libs
 RUN apt-get update -qq && \
     apt-get -y install docker-ce docker-ce-cli make gcc swig file lib32stdc++6 lib32z1 \
-    autoconf autogen automake autopoint autotools-dev gettext-base libtool patch pkg-config && \
+    autoconf autogen automake autopoint autotools-dev gettext-base libtool patch pkg-config po4a && \
     apt-get clean && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
