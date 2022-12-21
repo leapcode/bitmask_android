@@ -2,7 +2,7 @@
 <resources>
   <string name="retry">重试</string>
   <string name="repository_url_text">源代码可在 https://0xacab.org/leap/bitmask_android 找到</string>
-  <string name="leap_tracker">问题追踪器可在 https://0xacab.org/leap/bitmask_android 找到</string>
+  <string name="leap_tracker">问题追踪器可在 https://0xacab.org/leap/bitmask_android/issues 找到</string>
   <string name="translation_project_text">我们鼓励并感谢诸位提供翻译。请在 https://www.transifex.com/projects/p/bitmask/ 参阅我们的 Transifex 项目</string>
   <string name="switch_provider_menu_option">切换提供商</string>
   <string name="info">信息</string>
