@@ -45,16 +45,15 @@ public class VPNLaunchHelper {
             }
         }
 
-        throw new RuntimeException("Cannot find any execulte for this device's ABIs " + abis.toString());
+        throw new RuntimeException("Cannot find any execute for this device's ABIs " + abis.toString());
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static String[] getSupportedABIsLollipop() {
         return Build.SUPPORTED_ABIS;
     }
 
     private static String getMiniVPNExecutableName() {
-        return MININONPIEVPN;
+        return MINIPIEVPN;
     }
 
     public static String[] replacePieWithNoPie(String[] mArgv) {
