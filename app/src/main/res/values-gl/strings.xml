@@ -111,7 +111,7 @@
   <string name="require_root">Require permiso root</string>
   <string name="show_experimental">Mostrar funcións experimentais</string>
   <string name="hide_experimental">Agochar funcións experimentais</string>
-  <string name="tethering_enabled_message">Asegúrate de ter antes activada a compartición da conexión en <![CDATA[1system settings1]]>.</string>
+  <string name="tethering_enabled_message">Asegúrate de ter antes activada a compartición da conexión en <![CDATA[<b>system settings</b>]]>.</string>
   <string name="tethering_message">Comparte a túa VPN con outros dispositivos vía:</string>
   <string name="tethering_wifi">Punto de acceso Wi-Fi</string>
   <string name="tethering_usb">Compartición USB</string>

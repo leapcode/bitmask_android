@@ -114,7 +114,7 @@
   <string name="show_experimental">Mostrar recursos experimentais</string>
   <string name="hide_experimental">Esconder recursos experimentais</string>
   <string name="experimental_features">Funcionalidades experimentais</string>
-  <string name="tethering_enabled_message">Por favor tenha certeza de primeiro habilitar tethering nas &lt;![CDATA[&lt;b&gt;configurações de sistema&lt;/b&gt;]].</string>
+  <string name="tethering_enabled_message">Por favor tenha certeza de primeiro habilitar tethering nas <![CDATA[<b>configurações de sistema</b>]]>.</string>
   <string name="tethering_message">Compartilhe sua VPN com outros dispositivos através de:</string>
   <string name="tethering_wifi">Hotspot Wi-Fi</string>
   <string name="tethering_usb">Tethering USB</string>
