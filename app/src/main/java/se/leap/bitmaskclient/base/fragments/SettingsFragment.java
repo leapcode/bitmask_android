@@ -174,19 +174,17 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     }
 
     private void initExcludeAppsEntry(View rootView) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            IconTextEntry excludeApps = rootView.findViewById(R.id.exclude_apps);
-            excludeApps.setVisibility(VISIBLE);
-            Set<String> apps = PreferenceHelper.getExcludedApps(this.getContext());
-            if (apps != null) {
-                updateExcludeAppsSubtitle(excludeApps, apps.size());
-            }
-            FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
-            excludeApps.setOnClickListener((buttonView) -> {
-                Fragment fragment = new ExcludeAppsFragment();
-                fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
-            });
+        IconTextEntry excludeApps = rootView.findViewById(R.id.exclude_apps);
+        excludeApps.setVisibility(VISIBLE);
+        Set<String> apps = PreferenceHelper.getExcludedApps(this.getContext());
+        if (apps != null) {
+            updateExcludeAppsSubtitle(excludeApps, apps.size());
         }
+        FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
+        excludeApps.setOnClickListener((buttonView) -> {
+            Fragment fragment = new ExcludeAppsFragment();
+            fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
+        });
     }
 
     private void updateExcludeAppsSubtitle(IconTextEntry excludeApps, int number) {

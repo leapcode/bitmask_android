@@ -30,11 +30,7 @@ public class VPNLaunchHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
             return new File(context.getApplicationInfo().nativeLibraryDir, "libovpnexec.so").getPath();
         String[] abis;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            abis = getSupportedABIsLollipop();
-        else
-            //noinspection deprecation
-            abis = new String[]{Build.CPU_ABI, Build.CPU_ABI2};
+        abis = getSupportedABIsLollipop();
 
         if (!nativeAPI.equals(abis[0])) {
             VpnStatus.logWarning(R.string.abi_mismatch, Arrays.toString(abis), nativeAPI);
@@ -58,12 +54,8 @@ public class VPNLaunchHelper {
     }
 
     private static String getMiniVPNExecutableName() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            return MINIPIEVPN;
-        else
-            return MININONPIEVPN;
+        return MININONPIEVPN;
     }
-
 
     public static String[] replacePieWithNoPie(String[] mArgv) {
         mArgv[0] = mArgv[0].replace(MINIPIEVPN, MININONPIEVPN);

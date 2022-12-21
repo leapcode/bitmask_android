@@ -38,8 +38,6 @@ public class NativeUtils {
     static {
         if (!isRoboUnitTest() && !isUnitTest()) {
             System.loadLibrary("ovpnutil");
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN)
-                System.loadLibrary("jbcrypto");
         }
     }
 

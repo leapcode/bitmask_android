@@ -242,12 +242,10 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
                 VpnStatus.logWarning("Could not protect VPN socket");
 
 
-            //ParcelFileDescriptor pfd = ParcelFileDescriptor.fromFd(fdint);
-            //pfd.close();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                fdCloseLollipop(fd);
-            } else {
-                NativeUtils.jniclose(fdint);
+            try {
+                Os.close(fd);
+            } catch (Exception e) {
+                VpnStatus.logException("Failed to close fd (" + fd + ")", e);
             }
             return;
         } catch ( NoSuchMethodException | IllegalArgumentException | InvocationTargetException | IllegalAccessException | NullPointerException e) {
@@ -256,15 +254,6 @@ public class OpenVpnManagementThread implements Runnable, OpenVPNManagement {
 
         Log.d("Openvpn", "Failed to retrieve fd from socket: " + fd);
 
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void fdCloseLollipop(FileDescriptor fd) {
-        try {
-            Os.close(fd);
-        } catch (Exception e) {
-            VpnStatus.logException("Failed to close fd (" + fd + ")", e);
-        }
     }
 
     private String processInput(String pendingInput) {
