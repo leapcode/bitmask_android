@@ -77,13 +77,11 @@
         android:textAppearance="@android:style/TextAppearance.Large"
         android:textStyle="bold"
         android:textSize="48sp"
-        app:autoSizeMinTextSize="32sp"
-        app:autoSizeTextType="uniform"
         android:textColor="@color/colorEipFragmentFont"
         app:layout_constraintDimensionRatio="1:1"
         tools:text="Connection secure"
         android:gravity="center"
-        android:maxLines="1"
+        android:maxLines="2"
         />
 
     <androidx.appcompat.widget.AppCompatTextView

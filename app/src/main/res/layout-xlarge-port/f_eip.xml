@@ -83,6 +83,7 @@
         android:textColor="@color/colorEipFragmentFont"
         app:layout_constraintDimensionRatio="1:1"
         tools:text="Connection secure"
+        android:maxLines="2"
         />
 
     <androidx.appcompat.widget.AppCompatTextView
