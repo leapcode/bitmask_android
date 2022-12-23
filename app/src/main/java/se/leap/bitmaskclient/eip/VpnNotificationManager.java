@@ -128,7 +128,7 @@ public class VpnNotificationManager {
 
     public void buildOpenVpnNotification(String profileName, boolean isObfuscated, String msg,
                                          String tickerText, ConnectionStatus status, long when,
-                                         String notificationChannelNewstatusId, VpnServiceCallback vpnServiceCallback) {
+                                         String channelId, VpnServiceCallback vpnServiceCallback) {
         String cancelString;
         CharSequence bigmessage = null;
         String bridgeIcon = new String(Character.toChars(0x1f309));
@@ -183,7 +183,7 @@ public class VpnNotificationManager {
                 bigmessage,
                 tickerText,
                 status,
-                notificationChannelNewstatusId,
+                channelId,
                 PRIORITY_DEFAULT,
                 when,
                 contentIntent,
@@ -245,9 +245,9 @@ public class VpnNotificationManager {
     }
 
     private void buildVpnNotification(String title, String message, CharSequence bigMessage, String tickerText,
-                                      ConnectionStatus status, String notificationChannelNewstatusId, int priority,
+                                      ConnectionStatus status, String channelId, int priority,
                                       long when, PendingIntent contentIntent, NotificationCompat.Action notificationAction, VpnServiceCallback vpnServiceCallback) {
-        NotificationCompat.Builder nCompatBuilder = new NotificationCompat.Builder(context, notificationChannelNewstatusId);
+        NotificationCompat.Builder nCompatBuilder = new NotificationCompat.Builder(context, channelId);
         int icon = getIconByConnectionStatus(status);
 
         nCompatBuilder.setStyle(new NotificationCompat.BigTextStyle().
@@ -271,11 +271,13 @@ public class VpnNotificationManager {
         }
 
         Notification notification = nCompatBuilder.build();
-        int notificationId = notificationChannelNewstatusId.hashCode();
+        int notificationId = channelId.hashCode();
 
-        compatNotificationManager.notify(notificationId, notification);
         if (vpnServiceCallback != null) {
             vpnServiceCallback.onNotificationBuild(notificationId, notification);
+        } else {
+            compatNotificationManager.notify(notificationId, notification);
+
         }
     }
 

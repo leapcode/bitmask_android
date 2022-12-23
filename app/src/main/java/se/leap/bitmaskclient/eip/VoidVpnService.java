@@ -203,7 +203,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
                     blockingMessage,
                     blockingMessage,
                     eipStatus.getLevel(),
-                    this
+                    null
             );
         } else {
             stopForeground(true);
