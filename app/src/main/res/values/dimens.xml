@@ -46,5 +46,6 @@
     <dimen name="button_bevel">3dp</dimen>
     <dimen name="button_radius">16dp</dimen>
     <dimen name="mainbutton_padding">8dp</dimen>
+    <dimen name="donation_reminder_padding">8dp</dimen>
 
 </resources>

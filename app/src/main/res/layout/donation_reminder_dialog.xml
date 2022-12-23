@@ -30,7 +30,7 @@
             android:id="@+id/tvMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/standard_margin"
+            android:layout_margin="@dimen/donation_reminder_padding"
             android:gravity="center"
             android:text="@string/donate_message" />
 
