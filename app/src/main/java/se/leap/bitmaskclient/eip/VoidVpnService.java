@@ -91,7 +91,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
                 }
             });
             thread.run();
-        } else if (action.equals("android.net.VpnService") && Build.VERSION.SDK_INT >= ALWAYS_ON_MIN_API_LEVEL) {
+        } else if (intent == null || action.equals("android.net.VpnService") && Build.VERSION.SDK_INT >= ALWAYS_ON_MIN_API_LEVEL) {
             //only always-on feature triggers this
             startWithForegroundNotification();
             thread = new Thread(new Runnable() {
