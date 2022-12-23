@@ -118,7 +118,7 @@
         android:id="@+id/main_button"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="@dimen/stdpadding"
+        android:layout_margin="@dimen/mainbutton_padding"
         app:layout_constraintTop_toBottomOf="@+id/guideline_horizontal_bottom"
         app:layout_constraintBottom_toTopOf="@id/gateway_location_button"
         app:layout_constraintDimensionRatio="1:1"
