@@ -39,7 +39,7 @@
     <color name="black_transparent">#20000000</color>
     <color name="black_high_transparent">#05000000</color>
 
-    <color name="colorEipFragmentFont">@color/black800</color>
+    <color name="colorEipFragmentFont">@color/black800_dark</color>
     <!-- button text colors in Alerts etc. -->
     <color name="color_font_btn">@color/black800</color>
     <!-- pill style button text colors -->
