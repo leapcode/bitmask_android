@@ -473,9 +473,6 @@ public class VpnProfile implements Serializable, Cloneable {
                         cfg.append("management-external-key nopadding\n");
                     } else {
                         cfg.append(context.getString(R.string.keychain_access)).append("\n");
-                        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN)
-                            if (!mAlias.matches("^[a-zA-Z0-9]$"))
-                                cfg.append(context.getString(R.string.jelly_keystore_alphanumeric_bug)).append("\n");
                     }
                 }
                 break;
@@ -932,11 +929,6 @@ public class VpnProfile implements Serializable, Cloneable {
             VpnStatus.logError(R.string.keyChainAccessError, e.getLocalizedMessage());
 
             VpnStatus.logError(R.string.keychain_access);
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN) {
-                if (!mAlias.matches("^[a-zA-Z0-9]$")) {
-                    VpnStatus.logError(R.string.jelly_keystore_alphanumeric_bug);
-                }
-            }
             return null;
 
         } catch (AssertionError e) {
@@ -1196,12 +1188,6 @@ public class VpnProfile implements Serializable, Cloneable {
     private byte[] getKeyChainSignedData(byte[] data, boolean pkcs1padding) {
 
         PrivateKey privkey = getKeystoreKey();
-        // The Jelly Bean *evil* Hack
-        // 4.2 implements the RSA/ECB/PKCS1PADDING in the OpenSSLprovider
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN) {
-            return processSignJellyBeans(privkey, data);
-        }
-
 
         try {
             @SuppressLint("GetInstance")
@@ -1233,32 +1219,6 @@ public class VpnProfile implements Serializable, Cloneable {
             return signed_bytes;
         } catch (NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException
                 | BadPaddingException | NoSuchPaddingException | SignatureException e) {
-            VpnStatus.logError(R.string.error_rsa_sign, e.getClass().toString(), e.getLocalizedMessage());
-            return null;
-        }
-    }
-
-    private byte[] processSignJellyBeans(PrivateKey privkey, byte[] data) {
-        try {
-            Method getKey = privkey.getClass().getSuperclass().getDeclaredMethod("getOpenSSLKey");
-            getKey.setAccessible(true);
-
-            // Real object type is OpenSSLKey
-            Object opensslkey = getKey.invoke(privkey);
-
-            getKey.setAccessible(false);
-
-            Method getPkeyContext = opensslkey.getClass().getDeclaredMethod("getPkeyContext");
-
-            // integer pointer to EVP_pkey
-            getPkeyContext.setAccessible(true);
-            int pkey = (Integer) getPkeyContext.invoke(opensslkey);
-            getPkeyContext.setAccessible(false);
-
-            // 112 with TLS 1.2 (172 back with 4.3), 36 with TLS 1.0
-            return NativeUtils.rsasign(data, pkey);
-
-        } catch (NoSuchMethodException | InvalidKeyException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
             VpnStatus.logError(R.string.error_rsa_sign, e.getClass().toString(), e.getLocalizedMessage());
             return null;
         }

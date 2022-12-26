@@ -209,10 +209,18 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
         int endIndex = 0;
         if (matcher.matches()) {
             startIndex = matcher.start(2);
-            endIndex = startIndex + matcher.group(3).length();
+            try {
+                endIndex = startIndex + matcher.group(3).length();
+            } catch (NullPointerException npe) {
+                endIndex = -1;
+            }
         }
         systemSettingsMessage = systemSettingsMessage.replace("<b>", "").replace("</b>", "");
         String wholeMessage = systemSettingsMessage + "\n\n" + tetheringMessage;
+        if (startIndex == -1 || endIndex == -1) {
+            Log.e(TAG, "Tethering string has wrong formatting!");
+            return wholeMessage;
+        }
         Spannable spannable = new SpannableString(wholeMessage);
         spannable.setSpan(new ClickableSpan() {
             @Override

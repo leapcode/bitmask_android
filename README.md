@@ -104,7 +104,7 @@ export PATH=$ANDROID_HOME/tools/bin:$PATH
 
 Geesh! If all that above seems like a lot, it is!
 
-To keep ourselves from messing it up all the time someone new joins the project, we made a Dockerfile that creates the above environment with one line. You can pull the image and run builds from inside it, or consult the [Dockerfile](/docker/android-sdk.dockerfile) itself for requirements that your system might need but be missing.
+To keep ourselves from messing it up all the time someone new joins the project, we made a Dockerfile that creates the above environment with one line. You can pull the image and run builds from inside it, or consult [android-sdk Dockerfile](/docker/android-sdk/Dockerfile) and [android-ndk Dockerfile](/docker/android-ndk/Dockerfile) itself for requirements that your system might need but be missing.
 
 Assuming you've already [installed docker](https://docs.docker.com/engine/installation/), you can pull the image with:
 
@@ -143,18 +143,23 @@ git submodule update --init --recursive
 
 ### Just Build It! <a name="just-build-it"></a>
 
-If you compile the project for the first time you'll have to compile the dependencies. This can be done with:
-
-```
-./scripts/build_deps.sh
-```
-This command will create all libs we need for Bitmask.
- 
-If you want to to have a clean build of all submodules run
+If you compile the project for the first time you'll have to compile the dependencies.
+In order to get a clean build and fetch all submodules run:
 ```
 ./cleanProject.sh
 ```
-before you call `./build_deps.sh`. That script removes all build files and does the git submodule init and update job for you.  
+
+The following command will create all libs we need for Bitmask.
+```
+./scripts/build_deps.sh
+```
+ 
+If you run into errors, you may miss some dependencies on your system. Again, please check the `RUN apt-get` commands of [android-sdk Dockerfile](/docker/android-sdk/Dockerfile) and [android-ndk Dockerfile](/docker/android-ndk/Dockerfile) to get an idea what might be missing.
+Please note that tor-android can only be build on Linux machines right now. Fixes for Windows and MacOS are more than welcome!
+In order to temporarily disable building tor you can run:
+```
+BUILD_TOR=false ./scripts/build_deps.sh
+```
 
 ### Debug APKs <a name="debug-apks"></a>
 

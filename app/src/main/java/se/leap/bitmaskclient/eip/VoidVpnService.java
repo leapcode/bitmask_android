@@ -91,7 +91,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
                 }
             });
             thread.run();
-        } else if (action.equals("android.net.VpnService") && Build.VERSION.SDK_INT >= ALWAYS_ON_MIN_API_LEVEL) {
+        } else if (intent == null || action.equals("android.net.VpnService") && Build.VERSION.SDK_INT >= ALWAYS_ON_MIN_API_LEVEL) {
             //only always-on feature triggers this
             startWithForegroundNotification();
             thread = new Thread(new Runnable() {
@@ -154,15 +154,12 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
         builder.addRoute("::",0);
         builder.addAddress("fc00::", 7);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            allowAllAFFamilies(builder);
-        }
+        allowAllAFFamilies(builder);
 
         return builder;
 
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void allowAllAFFamilies(Builder builder) {
         builder.allowFamily(OsConstants.AF_INET);
         builder.allowFamily(OsConstants.AF_INET6);
@@ -174,9 +171,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
             VpnStatus.updateStateString(STATE_ESTABLISH, "",
                     R.string.void_vpn_establish, ConnectionStatus.LEVEL_BLOCKING);
             Builder builder = prepareBlockingVpnProfile();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)  {
-                builder.addDisallowedApplication(getPackageName());
-            }
+            builder.addDisallowedApplication(getPackageName());
 
             fd = builder.establish();
         } catch (Exception e) {
@@ -208,7 +203,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
                     blockingMessage,
                     blockingMessage,
                     eipStatus.getLevel(),
-                    this
+                    null
             );
         } else {
             stopForeground(true);

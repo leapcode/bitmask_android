@@ -8,7 +8,6 @@
     <dimen name="stdpadding">8dp</dimen>
     <dimen name="compact_padding">3dp</dimen>
     <dimen name="standard_margin">8dp</dimen>
-    <dimen name="mainbutton_padding">20dp</dimen>
     <bool name="logSildersAlwaysVisible">false</bool>
     <!-- landscape layout dimens -->
     <dimen name="footer_text_padding">12dp</dimen>
@@ -46,4 +45,7 @@
     <dimen name="toast_bottom_padding">20dp</dimen>
     <dimen name="button_bevel">3dp</dimen>
     <dimen name="button_radius">16dp</dimen>
+    <dimen name="mainbutton_padding">8dp</dimen>
+    <dimen name="donation_reminder_padding">8dp</dimen>
+
 </resources>

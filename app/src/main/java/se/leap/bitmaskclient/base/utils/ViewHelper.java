@@ -96,12 +96,10 @@ public class ViewHelper {
         }
         int color = ContextCompat.getColor(activity, secondaryColor);
         bar.setBackgroundDrawable(new ColorDrawable(color));
-        if (Build.VERSION.SDK_INT  >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = activity.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(activity, primaryColor));
-        }
+        Window window = activity.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(ContextCompat.getColor(activity, primaryColor));
 
         int actionBarTextColor;
         if (textColor == 0) {

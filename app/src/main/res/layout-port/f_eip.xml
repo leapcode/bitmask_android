@@ -64,8 +64,6 @@
         android:scaleType="fitXY"
         />
 
-
-
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/main_description"
         android:layout_width="wrap_content"
@@ -78,9 +76,7 @@
         android:layout_marginTop="@dimen/activity_margin"
         android:textAppearance="@android:style/TextAppearance.Large"
         android:textStyle="bold"
-        android:textSize="34sp"
-        app:autoSizeMinTextSize="28sp"
-        app:autoSizeTextType="uniform"
+        android:textSize="32sp"
         android:textColor="@color/colorEipFragmentFont"
         app:layout_constraintDimensionRatio="1:1"
         tools:text="Connection secure"
@@ -122,7 +118,7 @@
         android:id="@+id/main_button"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="@dimen/stdpadding"
+        android:layout_margin="@dimen/mainbutton_padding"
         app:layout_constraintTop_toBottomOf="@+id/guideline_horizontal_bottom"
         app:layout_constraintBottom_toTopOf="@id/gateway_location_button"
         app:layout_constraintDimensionRatio="1:1"

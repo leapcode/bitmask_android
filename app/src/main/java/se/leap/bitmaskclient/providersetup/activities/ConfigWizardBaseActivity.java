@@ -161,7 +161,6 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
         if (provider != null) {
             setProviderHeaderText(provider.getName());
         }
-        setProgressbarColorForPreLollipop();
         setDefaultGuidelineValues();
         setGlobalLayoutChangeListener();
     }
@@ -172,16 +171,6 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
             defaultGuidelineBottomPercentage = ((ConstraintLayout.LayoutParams) guideline_bottom.getLayoutParams()).guidePercent;
         }
     }
-
-    private void setProgressbarColorForPreLollipop() {
-        if (progressBar == null || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return;
-        }
-        progressBar.getIndeterminateDrawable().setColorFilter(
-                ContextCompat.getColor(this, R.color.colorPrimary),
-                PorterDuff.Mode.SRC_IN);
-    }
-
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

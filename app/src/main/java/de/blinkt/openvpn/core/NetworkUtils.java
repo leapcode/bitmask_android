@@ -24,63 +24,35 @@ public class NetworkUtils {
     public static Vector<String> getLocalNetworks(Context c, boolean ipv6) {
         Vector<String> nets = new Vector<>();
         ConnectivityManager conn = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Network[] networks = conn.getAllNetworks();
-            for (Network network : networks) {
-                try {
-                    NetworkInfo ni = conn.getNetworkInfo(network);
-                    LinkProperties li = conn.getLinkProperties(network);
+        Network[] networks = conn.getAllNetworks();
+        for (Network network : networks) {
+            try {
+                NetworkInfo ni = conn.getNetworkInfo(network);
+                LinkProperties li = conn.getLinkProperties(network);
 
-                    NetworkCapabilities nc = conn.getNetworkCapabilities(network);
+                NetworkCapabilities nc = conn.getNetworkCapabilities(network);
 
-                    if (nc == null) {
-                        continue;
-                    }
-
-                    // Skip VPN networks like ourselves
-                    if (nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN))
-                        continue;
-
-                    // Also skip mobile networks
-                    if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
-                        continue;
-
-
-                    for (LinkAddress la : li.getLinkAddresses()) {
-                        if ((la.getAddress() instanceof Inet4Address && !ipv6) ||
-                                (la.getAddress() instanceof Inet6Address && ipv6))
-                            nets.add(la.toString());
-                    }
-                } catch (SecurityException se) {
-                    se.printStackTrace();
-                }
-            }
-        } else {
-            // Old Android Version, use native utils via ifconfig instead
-            // Add local network interfaces
-            if (ipv6)
-                return nets;
-
-            String[] localRoutes = NativeUtils.getIfconfig();
-
-            // The format of mLocalRoutes is kind of broken because I don't really like JNI
-            for (int i = 0; i < localRoutes.length; i += 3) {
-                String intf = localRoutes[i];
-                String ipAddr = localRoutes[i + 1];
-                String netMask = localRoutes[i + 2];
-
-                if (intf == null || intf.equals("lo") ||
-                        intf.startsWith("tun") || intf.startsWith("rmnet"))
-                    continue;
-
-                if (ipAddr == null || netMask == null) {
-                    VpnStatus.logError("Local routes are broken?! (Report to author) " + TextUtils.join("|", localRoutes));
+                if (nc == null) {
                     continue;
                 }
-                nets.add(ipAddr + "/" + CIDRIP.calculateLenFromMask(netMask));
 
+                // Skip VPN networks like ourselves
+                if (nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN))
+                    continue;
+
+                // Also skip mobile networks
+                if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
+                    continue;
+
+
+                for (LinkAddress la : li.getLinkAddresses()) {
+                    if ((la.getAddress() instanceof Inet4Address && !ipv6) ||
+                            (la.getAddress() instanceof Inet6Address && ipv6))
+                        nets.add(la.toString());
+                }
+            } catch (SecurityException se) {
+                se.printStackTrace();
             }
-
         }
         return nets;
     }

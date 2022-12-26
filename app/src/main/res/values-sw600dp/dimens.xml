@@ -14,5 +14,7 @@
     <!-- landscape dimens -->
     <dimen name="footer_text_padding">20dp</dimen>
     <dimen name="splash_text_top_padding">140dp</dimen>
+    <dimen name="mainbutton_padding">32dp</dimen>
+    <dimen name="donation_reminder_padding">24dp</dimen>
 
 </resources>

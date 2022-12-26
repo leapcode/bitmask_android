@@ -206,5 +206,5 @@
   <string name="advanced_settings">Paramètres avancés</string>
   <string name="cancel_connection">Se déconnecter</string>
   <string name="unknown_location">Site inconnu</string>
-  <string name="splash_footer">Développé par : LEAP</string>
+  <string name="splash_footer">Développé par LEAP</string>
 </resources>
