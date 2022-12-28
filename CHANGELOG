@@ -1,3 +1,17 @@
+1.1.6 new year release
+features:
+* updated snowflake, tor, openvpn
+* updated UI
+* circumvention improvements
+* updated translations
+* support for the Message of the Day: providers can inform users about important events
+
+bugfixes:
+* fixed app crashes
+* fixed memory leaks
+* fixed empty gateway selection screen
+* fixed manual provider addition
+
 1.1.6RC2 Beta
 bugfixes:
 * fixed memory leaks: less memory consumption
