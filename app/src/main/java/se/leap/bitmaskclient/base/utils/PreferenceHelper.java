@@ -50,6 +50,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.blinkt.openvpn.VpnProfile;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
@@ -220,7 +221,7 @@ public class PreferenceHelper {
     }
 
     public static boolean getPreferUDP(Context context) {
-        return getBoolean(context, PREFER_UDP, false);
+        return getBoolean(context, PREFER_UDP, BuildConfig.prefer_udp);
     }
 
     public static void preferUDP(Context context, boolean prefer) {
