@@ -227,6 +227,12 @@ public class EipFragment extends Fragment implements Observer {
     public void onPause() {
         super.onPause();
         Log.d(TAG, "onPause");
+        if (stateView.getDrawable() instanceof Animatable) {
+            Animatable animatedDrawable = (Animatable) stateView.getDrawable();
+            if (animatedDrawable.isRunning()) {
+                animatedDrawable.stop();
+            }
+        }
     }
 
     @Override
@@ -575,6 +581,9 @@ public class EipFragment extends Fragment implements Observer {
                 @Override
                 public void onAnimationEnd(Drawable drawable) {
                     super.onAnimationEnd(drawable);
+                    if (!isResumed()) {
+                        return;
+                    }
                     if (pendingAnimationState != 0) {
                         int newAnimationRes = pendingAnimationState;
                         pendingAnimationState = 0;
