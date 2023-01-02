@@ -7,7 +7,6 @@ import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.anything;
-
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 
 import android.content.SharedPreferences;
@@ -22,14 +21,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Locale;
-
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.base.StartActivity;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.ProviderListActivity;
-import se.leap.bitmaskclient.providersetup.activities.ProviderSetupBaseActivity;
-import se.leap.bitmaskclient.testutils.ForceLocaleRule;
 import tools.fastlane.screengrab.Screengrab;
 import tools.fastlane.screengrab.UiAutomatorScreenshotStrategy;
 import tools.fastlane.screengrab.locale.LocaleTestRule;
