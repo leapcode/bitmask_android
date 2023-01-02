@@ -106,3 +106,6 @@ lib-bitmask-core-x86_64/bitmaskcore_x86_64-sources.jar
 lib-bitmask-core-x86_64/bitmaskcore_x86_64.aar
 lib-bitmask-core/bitmaskcore-sources.jar
 lib-bitmask-core/bitmaskcore.aar
+
+
+fastlane/report.xml

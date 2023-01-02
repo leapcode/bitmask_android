@@ -276,12 +276,13 @@ android {
       applicationIdSuffix ".beta"
       appSuffix = " Beta"
       buildConfigField "Boolean", "DEBUG_MODE", "true"
+      testCoverageEnabled = false
 
       // tor-android doesn't know this build-type, fallback to release in that case
       matchingFallbacks = ['release']
     }
     debug {
-      testCoverageEnabled = true
+      testCoverageEnabled = false
       buildConfigField "Boolean", "DEBUG_MODE", "true"
     }
   }
@@ -410,13 +411,17 @@ dependencies {
   testImplementation 'org.powermock:powermock-module-junit4-rule:2.0.9'
   testImplementation group: 'com.tngtech.java', name: 'junit-dataprovider', version: '1.10.0'
 
-  androidTestImplementation 'org.mockito:mockito-core:3.6.0'
-  androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-  androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
-  androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
-  //TODO: remove that library
-  androidTestImplementation 'com.jayway.android.robotium:robotium-solo:5.6.3'
+  androidTestImplementation 'org.mockito:mockito-core:3.9.0'
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+  androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.0'
+  androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.0'
+
+  androidTestImplementation 'tools.fastlane:screengrab:2.1.1'
+  testImplementation 'tools.fastlane:screengrab:2.1.1'
+
+
   testImplementation 'org.json:json:20180813'
+  androidTestImplementation 'androidx.test.ext:junit:1.1.4'
   debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
   annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
   annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.2'
