@@ -67,6 +67,9 @@
   <string name="authentication_failed_message">认证失败</string>
   <string name="registration_failed_message">注册失败</string>
   <string name="eip_status_start_pending">正在初始化连接</string>
+  <string name="eip_status_connecting">正在连接 VPN</string>
+  <string name="eip_status_unsecured">不安全连接</string>
+  <string name="eip_status_secured">安全连接</string>
   <string name="eip_cancel_connect_title">取消连接？</string>
   <string name="eip_cancel_connect_text">尝试连接中。您希望取消吗？</string>
   <string name="eip.warning.browser_inconsistency">是否关闭 VPN 连接？关闭 VPN 可能会造成向您的互联网提供商或本地网络泄露个人信息的后果。</string>
@@ -200,4 +203,6 @@
   <string name="disabled_while_udp_on">UDP 开启时禁用。</string>
   <string name="advanced_settings">高级设置</string>
   <string name="cancel_connection">中断连接</string>
+  <string name="unknown_location">未知位置</string>
+  <string name="splash_footer">由 LEAP 开发</string>
 </resources>
