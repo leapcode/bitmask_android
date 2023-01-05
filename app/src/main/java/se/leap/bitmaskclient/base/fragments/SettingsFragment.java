@@ -228,14 +228,15 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     }
 
     private void initGatewayPinningEntry(View rootView) {
+        IconTextEntry gatewayPinning = rootView.findViewById(R.id.gateway_pinning);
         if (!BuildConfig.BUILD_TYPE.equals("debug")) {
+            gatewayPinning.setVisibility(GONE);
             return;
         }
         Context context = this.getContext();
         if (context == null) {
             return;
         }
-        IconTextEntry gatewayPinning = rootView.findViewById(R.id.gateway_pinning);
         String pinnedGateway = PreferenceHelper.getPinnedGateway(rootView.getContext());
         gatewayPinning.setSubtitle(pinnedGateway != null ? pinnedGateway : "Connect to a specific Gateway for debugging purposes");
 
@@ -264,30 +265,30 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     public void initObfuscationPinningEntry(View rootView) {
         IconSwitchEntry obfuscationPinning = rootView.findViewById(R.id.obfuscation_proxy_pinning);
-        if (useObfsVpn()) {
-            obfuscationPinning.setVisibility(VISIBLE);
-            boolean useBridges = getUseBridges(getContext());
-            obfuscationPinning.setEnabled(useBridges);
-            obfuscationPinning.setSubtitle(useBridges ? "Connect to a specific obfuscation proxy for debugging purposes" : "Enable Bridges to use this option");
-            obfuscationPinning.setChecked(useObfuscationPinning(getContext()));
-            obfuscationPinning.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (!buttonView.isPressed()) {
-                    return;
-                }
-                if (!isChecked) {
-                    setUseObfuscationPinning(getContext(), false);
-                } else {
-                    showObfuscationPinningDialog();
-                }
-            });
-            obfuscationPinning.setOnClickListener(v -> {
-                if (obfuscationPinning.isChecked()) {
-                    showObfuscationPinningDialog();
-                }
-            });
-        } else {
+        if (!BuildConfig.BUILD_TYPE.equals("debug") || !useObfsVpn()) {
             obfuscationPinning.setVisibility(GONE);
+            return;
         }
+        obfuscationPinning.setVisibility(VISIBLE);
+        boolean useBridges = getUseBridges(getContext());
+        obfuscationPinning.setEnabled(useBridges);
+        obfuscationPinning.setSubtitle(useBridges ? "Connect to a specific obfuscation proxy for debugging purposes" : "Enable Bridges to use this option");
+        obfuscationPinning.setChecked(useObfuscationPinning(getContext()));
+        obfuscationPinning.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!buttonView.isPressed()) {
+                return;
+            }
+            if (!isChecked) {
+                setUseObfuscationPinning(getContext(), false);
+            } else {
+                showObfuscationPinningDialog();
+            }
+        });
+        obfuscationPinning.setOnClickListener(v -> {
+            if (obfuscationPinning.isChecked()) {
+                showObfuscationPinningDialog();
+            }
+        });
     }
 
     public void showObfuscationPinningDialog() {
