@@ -1,10 +1,10 @@
 # remove the leading '#' to uncomment lines
 
 # app_package_name('your.app.package')
-# use_tests_in_packages(['your.screenshot.tests.package'])
+use_tests_in_packages(['se.leap.bitmaskclient.suite'])
 
-app_apk_path('app/build/outputs/apk/normalProductionFat/debug/Bitmask_debug.apk')
-# tests_apk_path('app/build/intermediates/apk/androidTest/normalProductionFat/debug/app-normal-production-fat-debug-androidTest.apk')
+app_apk_path('app/build/intermediates/apk/normalProductionFat/debug/Bitmask_debug.apk')
+tests_apk_path('app/build/intermediates/apk/androidTest/normalProductionFat/debug/app-normal-production-fat-debug-androidTest.apk')
 
 # all locales
 # locales(['ar', 'az', 'bg', 'bn', 'br', 'ca', 'cs', 'de', 'el', 'es', 'es-AR', 'et', 'eu', 'fa-IR', 'fi', 'fr', 'gl', 'he', 'hr', 'hu', 'id', 'it', 'ja', 'my', 'nl', 'no', 'pl', 'pt-BR', 'pt-PT', 'ro', 'ru', 'tr', 'ug', 'uk', 'vi', 'zh-CN', 'zh-TW'])

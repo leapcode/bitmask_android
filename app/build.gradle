@@ -307,11 +307,6 @@ android {
 
     test {
       resources.srcDirs += ['src/test/resources']
-      java.srcDirs += ['src/sharedTest/java']
-    }
-
-    androidTest {
-      java.srcDirs += ['src/sharedTest/java']
     }
 
     fatweb {

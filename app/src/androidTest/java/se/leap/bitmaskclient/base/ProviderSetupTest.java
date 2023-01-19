@@ -1,4 +1,4 @@
-package base;
+package se.leap.bitmaskclient.base;
 
 
 import static android.content.Context.MODE_PRIVATE;
@@ -7,10 +7,15 @@ import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.anything;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasToString;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import static utils.CustomInteractions.tryResolve;
 
 import android.content.SharedPreferences;
 
+import androidx.test.espresso.DataInteraction;
+import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -47,15 +52,17 @@ public class ProviderSetupTest {
 
     @Test
     public void testConfigureRiseupVPNScreenshot() {
-        Screengrab.screenshot("configureRiseupVPN_before_button_click");
-        onData(anything()).inAdapterView(withId(R.id.provider_list)).atPosition(2).perform(click());
-        Screengrab.screenshot("configureRiseupVPN_after_button_click");
+        DataInteraction linearLayout = tryResolve(onData(hasToString(containsString("riseup.net")))
+                            .inAdapterView(withId(R.id.provider_list)),
+                    2);
+        Screengrab.screenshot("ProviderListActivity");
+        linearLayout.perform(click());
+        Screengrab.screenshot("ProviderListActivity_configureRiseup");
     }
 
     @Test
     public void testaddManuallyNewProviderScreenshot() {
-        Screengrab.screenshot("addManuallyNewProvider_before_button_click");
         onData(anything()).inAdapterView(withId(R.id.provider_list)).atPosition(3).perform(click());
-        Screengrab.screenshot("addManuallyNewProvider_after_button_click");
+        Screengrab.screenshot("ProviderListActivity_addManuallyNewProvider");
     }
 }
