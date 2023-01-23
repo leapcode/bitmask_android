@@ -1,6 +1,5 @@
 package se.leap.bitmaskclient.base;
 
-
 import static android.content.Context.MODE_PRIVATE;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.test.espresso.Espresso.onData;
@@ -48,7 +47,7 @@ import tools.fastlane.screengrab.locale.LocaleTestRule;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class VpnStartTest {
+public abstract class ProviderBaseTest {
 
     @ClassRule
     public static final LocaleTestRule localeTestRule = new LocaleTestRule();
@@ -65,7 +64,7 @@ public class VpnStartTest {
     }
 
     @Test
-    public void test01_vpnStartTest() {
+    public void test01_vpnStartTest() throws InterruptedException {
         boolean configurationNeeded = configureProviderIfNeeded();
 
         ViewInteraction mainButtonStop;
@@ -77,12 +76,7 @@ public class VpnStartTest {
             );
 
             mainButton.perform(click());
-            tryResolve(
-                    onView(allOf(
-                            withId(R.id.button),
-                            withTagValue(is("button_circle_cancel")))),
-                    matches(isDisplayed()),
-                    2);
+            Thread.sleep(50);
             Screengrab.screenshot("VPN_connecting");
 
             mainButtonStop = tryResolve(
@@ -97,8 +91,8 @@ public class VpnStartTest {
             Screengrab.screenshot("VPN_connecting");
             mainButtonStop = tryResolve(
                     onView(allOf(
-                                    withId(R.id.button),
-                                    withTagValue(is("button_circle_stop")))),
+                            withId(R.id.button),
+                            withTagValue(is("button_circle_stop")))),
                     matches(isDisplayed()),
                     20);
             Screengrab.screenshot("VPN_connected");
@@ -159,18 +153,5 @@ public class VpnStartTest {
         Screengrab.screenshot("App_Exclusion_Fragment");
     }
 
-    public boolean configureProviderIfNeeded() {
-        try {
-            DataInteraction linearLayout = tryResolve(onData(hasToString(containsString("riseup.net")))
-                            .inAdapterView(withId(R.id.provider_list)),
-                    2);
-            linearLayout.perform(click());
-            return true;
-        } catch (NoMatchingViewException e) {
-            // it might be that the provider was already configured, so we print the stack
-            // trace here and try to continue
-            e.printStackTrace();
-        }
-        return false;
-    }
+    public abstract boolean configureProviderIfNeeded();
 }

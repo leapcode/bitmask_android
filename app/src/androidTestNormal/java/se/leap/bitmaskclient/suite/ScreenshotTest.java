@@ -7,13 +7,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import se.leap.bitmaskclient.base.ProviderSetupTest;
-import se.leap.bitmaskclient.base.VpnStartTest;
+import se.leap.bitmaskclient.base.BitmaskTest;
 
 @LargeTest
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         ProviderSetupTest.class,
-        VpnStartTest.class,
+        BitmaskTest.class,
 })
 public class ScreenshotTest {
 }

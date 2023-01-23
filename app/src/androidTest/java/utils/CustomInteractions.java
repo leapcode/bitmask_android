@@ -31,6 +31,7 @@ public class CustomInteractions {
                 hasFound = true;
             } catch (NoMatchingViewException exception) {
                 System.out.println("NoMatchingViewException attempt: " + attempt);
+                exception.printStackTrace();
                 attempt++;
                 if (attempt == maxTries) {
                     throw exception;

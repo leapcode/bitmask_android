@@ -21,11 +21,55 @@ platform :android do
     gradle(task: "test")
   end
 
-  lane :screenshots do
+   desc "Build debug and test APK for screenshots"
+   lane :build_bitmask_for_screengrab do
+      gradle(
+        task: 'clean'
+      )
+      gradle(
+        task: 'assemble',
+        build_type: 'Debug',
+        flavor: 'NormalProductionFat'
+      )
+      gradle(
+        task: 'assemble',
+        build_type: 'DebugAndroidTest',
+        flavor: 'NormalProductionFat'
+      )
+  end
+
+     desc "Build debug and test APK for screenshots"
+     lane :build_custom_for_screengrab do
+        gradle(
+          task: 'clean'
+        )
+        gradle(
+          task: 'assemble',
+          build_type: 'Debug',
+          flavor: 'CustomProductionFat'
+        )
+        gradle(
+          task: 'assemble',
+          build_type: 'DebugAndroidTest',
+          flavor: 'CustomProductionFat'
+        )
+    end
+
+  lane :bitmask_screenshots do
+    # Prepare builds for Automatic UI Tests
+    build_bitmask_for_screengrab
     capture_android_screenshots
     frameit(white: true)
     # deliver
   end
+
+   lane :custom_build_screenshots do
+     # Prepare builds for Automatic UI Tests
+     build_custom_for_screengrab
+     capture_android_screenshots
+     frameit(white: true)
+     # deliver
+   end
 
   desc "Submit a new Beta Build to Crashlytics Beta"
   lane :beta do

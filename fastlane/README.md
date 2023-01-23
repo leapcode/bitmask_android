@@ -23,10 +23,34 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Runs all the tests
 
-### android screenshots
+### android build_bitmask_for_screengrab
 
 ```sh
-[bundle exec] fastlane android screenshots
+[bundle exec] fastlane android build_bitmask_for_screengrab
+```
+
+Build debug and test APK for screenshots
+
+### android build_custom_for_screengrab
+
+```sh
+[bundle exec] fastlane android build_custom_for_screengrab
+```
+
+Build debug and test APK for screenshots
+
+### android bitmask_screenshots
+
+```sh
+[bundle exec] fastlane android bitmask_screenshots
+```
+
+
+
+### android custom_build_screenshots
+
+```sh
+[bundle exec] fastlane android custom_build_screenshots
 ```
 
 
