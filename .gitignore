@@ -2,6 +2,7 @@ obj
 bin
 gen
 libs
+vendor
 .settings
 openvpn/.git
 openvpn/autom4te.cache
