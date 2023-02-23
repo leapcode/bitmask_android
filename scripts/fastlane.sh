@@ -26,9 +26,8 @@ BASE_DIR="$SCRIPT_DIR/.."
 
 cd $BASE_DIR
 if [[ -z $BUILD_CUSTOM ]]; then
-  fastlane android bitmask_screenshots
+  fastlane --verbose  android bitmask_screenshots
 else
   fastlane android custom_build_screenshots --env custom
 fi;
 cd -
-
