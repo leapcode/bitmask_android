@@ -424,11 +424,11 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         Provider currentProvider = ProviderObservable.getInstance().getCurrentProvider();
         account.setText(currentProvider.getName());
         initManualGatewayEntry();
-    }
+    } 
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(PREFERRED_CITY)) {
+        if (key != null && key.equals(PREFERRED_CITY)) {
             initManualGatewayEntry();
         }
     }

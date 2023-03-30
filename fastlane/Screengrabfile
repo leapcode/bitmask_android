@@ -1,0 +1,17 @@
+# remove the leading '#' to uncomment lines
+
+use_tests_in_packages(['se.leap.bitmaskclient.suite'])
+use_timestamp_suffix(false)
+
+# all locales
+# locales(['ar', 'az', 'bg', 'bn', 'br', 'ca', 'cs', 'de', 'el', 'es', 'es-AR', 'et', 'eu', 'fa-IR', 'fi', 'fr', 'gl', 'he', 'hr', 'hu', 'id', 'it', 'ja', 'my', 'nl', 'no', 'pl', 'pt-BR', 'pt-PT', 'ro', 'ru', 'tr', 'ug', 'uk', 'vi', 'zh-CN', 'zh-TW'])
+# prioritized locales
+# locales(['ar', 'bn', 'de', 'es', 'fa-IR', 'fr', 'he', 'hu', 'id', 'it', 'ja', 'my', 'nl', 'pt-BR', 'pt-PT', 'ru', 'tr', 'ug', 'uk', 'zh-CN', 'zh-TW'])
+# development locales
+locales(['ar', 'de', 'ru'])
+
+# clear all previously generated screenshots in your local output directory before creating new ones
+clear_previous_screenshots(true)
+
+# For more information about all available options run
+#   fastlane screengrab --help
