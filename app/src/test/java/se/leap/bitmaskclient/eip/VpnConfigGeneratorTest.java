@@ -9,7 +9,6 @@ import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.base.models.Constants.OPENVPN_CONFIGURATION;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
@@ -34,6 +33,7 @@ import java.util.HashMap;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.connection.Connection;
+import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.testutils.MockHelper;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
@@ -1688,7 +1688,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfileExperimentalTransportsEnabled () throws Exception {
-        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_kcp_gateways.json"))).getJSONArray("gateways").getJSONObject(0);
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_kcp_gateways.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_kcp_gateways.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
@@ -1696,29 +1696,27 @@ public class VpnConfigGeneratorTest {
         configuration.preferUDP = true;
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
-        assertTrue(vpnProfiles.containsKey(OBFS4));
-        assertTrue(vpnProfiles.containsKey(OBFS4_KCP));
+        assertTrue(vpnProfiles.containsKey(OBFS4) && ((Obfs4Connection)vpnProfiles.get(OBFS4).mConnections[0]).getDispatcherOptions().udp);
         assertTrue(vpnProfiles.containsKey(OPENVPN));
 
     }
 
     @Test
     public void testGenerateVpnProfile_experimentalTransportsEnabled_KCPMisconfiguredWithUDP_SkippingObfsKCP () throws Exception {
-        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_kcp_gateways.json"))).getJSONArray("gateways").getJSONObject(0);
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_kcp_gateways.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_kcp_gateways.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.experimentalTransports = true;
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
-        assertTrue(vpnProfiles.containsKey(OBFS4));
-        assertFalse(vpnProfiles.containsKey(OBFS4_KCP));
+        assertFalse(vpnProfiles.containsKey(OBFS4));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
     }
 
     @Test
     public void testGenerateVpnProfile_ObfuscationPinningEnabled_obfs4AndOpenvpnProfile () throws Exception {
-        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_kcp_gateways.json"))).getJSONArray("gateways").getJSONObject(0);
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_kcp_gateways.json"))).getJSONArray("gateways").getJSONObject(1);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_kcp_gateways.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
@@ -1728,7 +1726,8 @@ public class VpnConfigGeneratorTest {
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         assertFalse("has no openvpn profile", vpnProfiles.containsKey(OPENVPN));
         assertTrue("has obfs4 profile", vpnProfiles.containsKey(OBFS4));
-        assertFalse("has no obfs4 kcp profile", vpnProfiles.containsKey(OBFS4_KCP));
+        assertTrue("bridge is running KCP", vpnProfiles.get(OBFS4).mGatewayIp.equals("1.2.3.4"));
+
     }
 
     @Test
@@ -1738,16 +1737,17 @@ public class VpnConfigGeneratorTest {
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.useObfuscationPinning = true;
-        configuration.obfuscationProxyKCP = true;
+        configuration.obfuscationProxyKCP = false;
         configuration.obfuscationProxyPort = "443";
         configuration.obfuscationProxyIP = "5.6.7.8";
         configuration.obfuscationProxyCert = "asdfasdf";
         configuration.remoteGatewayIP = "1.2.3.4";
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
-        assertTrue("has obfs4_kcp profile", vpnProfiles.containsKey(OBFS4_KCP));
         assertFalse("has openvpn profile", vpnProfiles.containsKey(OPENVPN));
-        assertFalse("has no obfs4 profile", vpnProfiles.containsKey(OBFS4));
+        assertTrue("has obfs4 profile", vpnProfiles.containsKey(OBFS4));
+        assertTrue("bridge is pinned one", vpnProfiles.get(OBFS4).getTransportType() == OBFS4 && !vpnProfiles.get(OBFS4).mConnections[0].isUseUdp() );
+        assertTrue("bridge is running KCP", ((Obfs4Connection) vpnProfiles.get(OBFS4).mConnections[0]).getDispatcherOptions().udp == false);
     }
 
     @Test
@@ -1765,9 +1765,10 @@ public class VpnConfigGeneratorTest {
 
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
-        assertTrue("has obfs4_kcp profile", vpnProfiles.containsKey(OBFS4_KCP));
         assertFalse("has openvpn profile", vpnProfiles.containsKey(OPENVPN));
-        assertFalse("has no obfs4 profile", vpnProfiles.containsKey(OBFS4));
+        assertTrue("has no obfs4 profile", vpnProfiles.containsKey(OBFS4));
+        assertTrue("bridge is pinned one", vpnProfiles.get(OBFS4).getTransportType() == OBFS4 && vpnProfiles.get(OBFS4).mGatewayIp.equals("1.2.3.4"));
+        assertTrue("bridge is running KCP", ((Obfs4Connection) vpnProfiles.get(OBFS4).mConnections[0]).getDispatcherOptions().udp == true);
     }
 
 }

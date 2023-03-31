@@ -17,7 +17,6 @@
 package se.leap.bitmaskclient.eip;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
 import static se.leap.bitmaskclient.base.models.Constants.CAPABILITIES;
@@ -63,7 +62,6 @@ public class VpnConfigGenerator {
     private final JSONObject gateway;
     private final JSONObject secrets;
     private JSONObject obfs4Transport;
-    private JSONObject obfs4TKcpTransport;
     private final int apiVersion;
     private final boolean preferUDP;
     private final boolean experimentalTransports;
@@ -122,11 +120,7 @@ public class VpnConfigGenerator {
                     JSONObject transport = supportedTransports.getJSONObject(i);
                     if (transport.getString(TYPE).equals(OBFS4.toString())) {
                         obfs4Transport = transport;
-                        if (!experimentalTransports && !obfuscationPinningKCP) {
-                            break;
-                        }
-                    } else if ((experimentalTransports || obfuscationPinningKCP) && transport.getString(TYPE).equals(OBFS4_KCP.toString())) {
-                        obfs4TKcpTransport = transport;
+                        break;
                     }
                 }
             }
@@ -154,13 +148,6 @@ public class VpnConfigGenerator {
                 e.printStackTrace();
             }
         }
-        if (supportsObfs4Kcp()) {
-            try {
-                profiles.put(OBFS4_KCP, createProfile(OBFS4_KCP));
-            } catch (ConfigParser.ConfigParseError | NumberFormatException | JSONException | IOException e) {
-                e.printStackTrace();
-            }
-        }
         if (profiles.isEmpty()) {
             throw new ConfigParser.ConfigParseError("No supported transports detected.");
         }
@@ -171,11 +158,7 @@ public class VpnConfigGenerator {
         return !useObfuscationPinning && !gatewayConfiguration(OPENVPN).isEmpty();
     }
     private boolean supportsObfs4(){
-        return obfs4Transport != null && !(useObfuscationPinning && obfuscationPinningKCP);
-    }
-
-    private boolean supportsObfs4Kcp() {
-        return obfs4TKcpTransport != null && !(useObfuscationPinning && !obfuscationPinningKCP);
+        return obfs4Transport != null || useObfuscationPinning;
     }
 
     private String getConfigurationString(TransportType transportType) {
@@ -194,9 +177,10 @@ public class VpnConfigGenerator {
         ConfigParser icsOpenvpnConfigParser = new ConfigParser();
         icsOpenvpnConfigParser.parseConfig(new StringReader(configuration));
         if (transportType == OBFS4) {
-            icsOpenvpnConfigParser.setObfs4Options(getObfs4Options(obfs4Transport, false));
-        } else if (transportType == OBFS4_KCP) {
-            icsOpenvpnConfigParser.setObfs4Options(getObfs4Options(obfs4TKcpTransport, true));
+            JSONArray protocols = obfs4Transport.getJSONArray(PROTOCOLS);
+            // FIXME: currently only one protocol per obfs4 bridge is supported in this client
+            String protocol = protocols.optString(0);
+            icsOpenvpnConfigParser.setObfs4Options(getObfs4Options(obfs4Transport, protocol.equalsIgnoreCase("kcp")));
         }
 
         VpnProfile profile = icsOpenvpnConfigParser.convertProfile(transportType);
@@ -208,7 +192,6 @@ public class VpnConfigGenerator {
         return profile;
     }
 
-    // TODO: whad does
     private Obfs4Options getObfs4Options(JSONObject transportJson, boolean useUdp) throws JSONException {
         JSONObject transportOptions = transportJson.getJSONObject(OPTIONS);
         String iatMode = transportOptions.getString("iatMode");
@@ -367,8 +350,7 @@ public class VpnConfigGenerator {
             case OPENVPN:
                 return "tcp".equals(protocol) || "udp".equals(protocol);
             case OBFS4:
-            case OBFS4_KCP:
-                return "tcp".equals(protocol);
+                return "tcp".equals(protocol) || "kcp".equals(protocol);
         }
         return false;
     }
@@ -446,10 +428,10 @@ public class VpnConfigGenerator {
         String remote;
         if (useObfsVpn()) {
             if (useObfuscationPinning) {
-                remote = REMOTE + " " + obfuscationPinningIP + " " + obfuscationPinningPort + newLine;
+                remote = REMOTE + " " + obfuscationPinningIP + " " + obfuscationPinningPort + " tcp" + newLine;
                 route = "route " + obfuscationPinningIP + " 255.255.255.255 net_gateway" + newLine;
             } else {
-                remote = REMOTE + " " + ipAddress + " " + ports.getString(0) + newLine;
+                remote = REMOTE + " " + ipAddress + " " + ports.getString(0) + " tcp" + newLine;
             }
         } else {
             remote = REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " tcp" + newLine;

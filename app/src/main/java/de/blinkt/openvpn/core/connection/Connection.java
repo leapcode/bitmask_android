@@ -37,10 +37,25 @@ public abstract class Connection implements Serializable, Cloneable {
         ORBOT
     }
 
+    public enum TransportProtocol {
+        UDP("udp"),
+        TCP("tcp"),
+        KCP("kcp");
+
+        String protocol;
+
+        TransportProtocol(String transportProtocol) {
+            this.protocol = transportProtocol;
+        }
+
+        @Override
+        public String toString() {
+            return protocol;
+        }
+    }
     public enum TransportType {
         OBFS4("obfs4"),
         OPENVPN("openvpn"),
-        OBFS4_KCP("obfs4-1"),
 
         PT("metaTransport");
 
@@ -56,11 +71,11 @@ public abstract class Connection implements Serializable, Cloneable {
         }
 
         public boolean isPluggableTransport() {
-            return this == OBFS4 || this == OBFS4_KCP || this == PT;
+            return this == OBFS4 || this == PT;
         }
 
         public TransportType getMetaType() {
-            if (this == OBFS4 || this == OBFS4_KCP || this == PT) {
+            if (this == OBFS4 || this == PT) {
                 return PT;
             }
             return OPENVPN;

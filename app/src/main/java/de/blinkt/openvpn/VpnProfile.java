@@ -5,6 +5,11 @@
 
 package de.blinkt.openvpn;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.stringEqual;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -34,8 +39,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -68,12 +71,6 @@ import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.ConnectionAdapter;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
-
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.stringEqual;
 
 public class VpnProfile implements Serializable, Cloneable {
     // Note that this class cannot be moved to core where it belongs since
@@ -184,6 +181,7 @@ public class VpnProfile implements Serializable, Cloneable {
     /* Options no longer used in new profiles */
     public String mServerName = "openvpn.example.com";
     public String mServerPort = "1194";
+    @Deprecated
     public boolean mUseUdp = true;
     public boolean mTemporaryProfile = false;
     private transient PrivateKey mPrivateKey;
@@ -193,8 +191,7 @@ public class VpnProfile implements Serializable, Cloneable {
     private int mProfileVersion;
     public boolean mBlockUnusedAddressFamilies = true;
     public String mGatewayIp;
-    private boolean mUseObfs4;
-    private boolean mUseObfs4Kcp;
+    private final boolean mUseObfs4;
 
     public VpnProfile(String name, Connection.TransportType transportType) {
         mUuid = UUID.randomUUID();
@@ -204,7 +201,6 @@ public class VpnProfile implements Serializable, Cloneable {
         mConnections = new Connection[1];
         mLastUsed = System.currentTimeMillis();
         mUseObfs4 = transportType == OBFS4;
-        mUseObfs4Kcp = transportType == OBFS4_KCP;
     }
 
     public static String openVpnEscape(String unescaped) {
@@ -270,8 +266,7 @@ public class VpnProfile implements Serializable, Cloneable {
         if (obj instanceof VpnProfile) {
             VpnProfile vp = (VpnProfile) obj;
             return stringEqual(vp.mGatewayIp, mGatewayIp) &&
-                    vp.mUseObfs4 == mUseObfs4 &&
-                    vp.mUseObfs4Kcp == mUseObfs4Kcp;
+                    vp.mUseObfs4 == mUseObfs4;
         }
         return false;
     }
@@ -302,14 +297,12 @@ public class VpnProfile implements Serializable, Cloneable {
     }
 
     public boolean usePluggableTransports() {
-        return mUseObfs4Kcp || mUseObfs4;
+        return mUseObfs4;
     }
 
     public Connection.TransportType getTransportType() {
         if (mUseObfs4) {
             return OBFS4;
-        } else if (mUseObfs4Kcp) {
-            return OBFS4_KCP;
         } else {
             return OPENVPN;
         }

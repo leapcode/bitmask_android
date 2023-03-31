@@ -20,7 +20,7 @@
             }
           },
           {
-            "type":"obfs4-1",
+            "type":"obfs4",
             "protocols":[
               "udp"
             ],
@@ -101,7 +101,7 @@
             ]
           },
           {
-            "type":"obfs4-1",
+            "type":"obfs4",
             "protocols":[
               "udp"
             ],

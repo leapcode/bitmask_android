@@ -91,6 +91,7 @@ import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.Pair;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.eip.GatewaysManager.GatewayOptions;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -255,8 +256,8 @@ public final class EIP extends JobIntentService implements Observer {
             return;
         }
 
-        Pair<Gateway, Connection.TransportType> gatewayTransportTypePair = gatewaysManager.select(nClosestGateway);
-        launchActiveGateway(gatewayTransportTypePair, nClosestGateway, result);
+        GatewayOptions gatewayOptions = gatewaysManager.select(nClosestGateway);
+        launchActiveGateway(gatewayOptions, nClosestGateway, result);
         if (result.containsKey(BROADCAST_RESULT_KEY) && !result.getBoolean(BROADCAST_RESULT_KEY)) {
             tellToReceiverOrBroadcast(this, EIP_ACTION_START, RESULT_CANCELED, result);
         } else {
@@ -270,7 +271,7 @@ public final class EIP extends JobIntentService implements Observer {
      */
     private void startEIPAlwaysOnVpn() {
         GatewaysManager gatewaysManager = new GatewaysManager(getApplicationContext());
-        Pair<Gateway, Connection.TransportType> gatewayTransportTypePair = gatewaysManager.select(0);
+        GatewayOptions gatewayOptions = gatewaysManager.select(0);
         Bundle result = new Bundle();
 
         if (shouldUpdateVPNCertificate()) {
@@ -279,7 +280,7 @@ public final class EIP extends JobIntentService implements Observer {
             ProviderObservable.getInstance().updateProvider(p);
         }
 
-        launchActiveGateway(gatewayTransportTypePair, 0, result);
+        launchActiveGateway(gatewayOptions, 0, result);
         if (result.containsKey(BROADCAST_RESULT_KEY) && !result.getBoolean(BROADCAST_RESULT_KEY)){
             VpnStatus.logWarning("ALWAYS-ON VPN: " + getString(R.string.no_vpn_profiles_defined));
         }
@@ -323,13 +324,13 @@ public final class EIP extends JobIntentService implements Observer {
     /**
      * starts the VPN and connects to the given gateway
      *
-     * @param gatewayTransportTypePair Pair of Gateway and associated transport used to connect
+     * @param gatewayOptions GatewayOptions model containing a Gateway and the associated transport used to connect
      */
-    private void launchActiveGateway(@Nullable Pair<Gateway, Connection.TransportType> gatewayTransportTypePair, int nClosestGateway, Bundle result) {
+    private void launchActiveGateway(@Nullable GatewayOptions gatewayOptions, int nClosestGateway, Bundle result) {
         VpnProfile profile;
 
-        if (gatewayTransportTypePair == null || gatewayTransportTypePair.first == null ||
-                (profile = gatewayTransportTypePair.first.getProfile(gatewayTransportTypePair.second)) == null) {
+        if (gatewayOptions == null || gatewayOptions.gateway == null ||
+                (profile = gatewayOptions.gateway.getProfile(gatewayOptions.transportType)) == null) {
             String preferredLocation = getPreferredCity(getApplicationContext());
             if (preferredLocation != null) {
                 setErrorResult(result, NO_MORE_GATEWAYS.toString(), getStringResourceForNoMoreGateways(), getString(R.string.app_name), preferredLocation);

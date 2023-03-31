@@ -16,11 +16,13 @@
  */
 package se.leap.bitmaskclient.base.models;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportProtocol.KCP;
+import static de.blinkt.openvpn.core.connection.Connection.TransportProtocol.TCP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
 import static se.leap.bitmaskclient.base.models.Constants.CAPABILITIES;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
 import static se.leap.bitmaskclient.base.models.Constants.LOCATIONS;
+import static se.leap.bitmaskclient.base.models.Constants.PROTOCOLS;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOWED_REGISTERED;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
@@ -46,6 +48,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import de.blinkt.openvpn.core.connection.Connection.TransportProtocol;
 import de.blinkt.openvpn.core.connection.Connection.TransportType;
 import motd.IStringCollection;
 import motd.Motd;
@@ -181,16 +184,16 @@ public final class Provider implements Parcelable {
 
     public boolean supportsPluggableTransports() {
         if (useObfsVpn()) {
-            return supportsTransports(new TransportType[]{OBFS4, OBFS4_KCP});
+            return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP), new Pair<>(OBFS4, KCP)});
         }
-        return supportsTransports(new TransportType[]{OBFS4});
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP)});
     }
 
     public boolean supportsExperimentalPluggableTransports() {
-        return supportsTransports(new TransportType[]{OBFS4_KCP});
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4, KCP)});
     }
 
-    private boolean supportsTransports(TransportType[] transportTypes) {
+    private boolean supportsTransports(Pair<TransportType, TransportProtocol>[] transportTypes) {
         try {
             JSONArray gatewayJsons = eipServiceJson.getJSONArray(GATEWAYS);
             for (int i = 0; i < gatewayJsons.length(); i++) {
@@ -199,9 +202,13 @@ public final class Provider implements Parcelable {
                         getJSONArray(TRANSPORT);
                 for (int j = 0; j < transports.length(); j++) {
                     String supportedTransportType = transports.getJSONObject(j).getString(TYPE);
-                    for (TransportType transportType : transportTypes) {
-                        if (transportType.toString().equals(supportedTransportType)) {
-                            return true;
+                    JSONArray transportProtocols = transports.getJSONObject(j).getJSONArray(PROTOCOLS);
+                    for (Pair<TransportType, TransportProtocol> transportPair : transportTypes) {
+                        for (int k = 0; k < transportProtocols.length(); k++) {
+                            if (transportPair.first.toString().equals(supportedTransportType) &&
+                                transportPair.second.toString().equals(transportProtocols.getString(k))) {
+                                return true;
+                            }
                         }
                     }
                 }
