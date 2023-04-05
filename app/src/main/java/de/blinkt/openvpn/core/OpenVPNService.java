@@ -12,7 +12,6 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
 
 import android.Manifest.permission;
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -41,7 +40,6 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Vector;
 
 import de.blinkt.openvpn.VpnProfile;
@@ -53,7 +51,8 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VpnNotificationManager;
 import se.leap.bitmaskclient.firewall.FirewallManager;
-import se.leap.bitmaskclient.pluggableTransports.ObfsVpnClient;
+import se.leap.bitmaskclient.pluggableTransports.PtClientBuilder;
+import se.leap.bitmaskclient.pluggableTransports.PtClientInterface;
 import se.leap.bitmaskclient.pluggableTransports.ShapeshifterClient;
 
 
@@ -91,7 +90,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Runnable mOpenVPNThread;
     private VpnNotificationManager notificationManager;
     private ShapeshifterClient shapeshifter;
-    private ObfsVpnClient obfsVpnClient;
+    private PtClientInterface obfsVpnClient;
     private FirewallManager firewallManager;
 
     private final IBinder mBinder = new IOpenVPNServiceInternal.Stub() {
@@ -415,18 +414,19 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         stopOldOpenVPNProcess();
         // An old running VPN should now be exited
         mStarting = false;
-
-        if (mProfile.usePluggableTransports() && connection instanceof Obfs4Connection) {
-            Obfs4Connection obfs4Connection = (Obfs4Connection) connection;
+        Connection.TransportType transportType = connection.getTransportType();
+        if (mProfile.usePluggableTransports() && transportType.isPluggableTransport()) {
             if (useObfsVpn()) {
                 if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
                     obfsVpnClient.stop();
                 }
-                obfsVpnClient = new ObfsVpnClient(obfs4Connection.getDispatcherOptions());
+                obfsVpnClient = PtClientBuilder.getPtClient(connection);
                 int runningSocksPort = obfsVpnClient.start();
-                connection.setProxyPort(String.valueOf(runningSocksPort));
+                if (connection.getTransportType() == Connection.TransportType.OBFS4) {
+                    connection.setProxyPort(String.valueOf(runningSocksPort));
+                }
             } else if (shapeshifter == null) {
-                shapeshifter = new ShapeshifterClient(obfs4Connection.getDispatcherOptions());
+                shapeshifter = new ShapeshifterClient(((Obfs4Connection) connection).getObfs4Options());
                 shapeshifter.start();
             }
         }

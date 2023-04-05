@@ -19,8 +19,8 @@ public class Obfs4Connection extends Connection {
 
     public Obfs4Connection(Obfs4Options options) {
         if (useObfsVpn()) {
-            setServerName(options.remoteIP);
-            setServerPort(options.remotePort);
+            setServerName(options.gatewayIP);
+            setServerPort(options.transport.getPorts()[0]);
             setProxyName(ObfsVpnClient.SOCKS_IP);
             setProxyPort(String.valueOf(ObfsVpnClient.SOCKS_PORT.get()));
             setProxyType(ProxyType.SOCKS5);
@@ -53,7 +53,7 @@ public class Obfs4Connection extends Connection {
     }
 
 
-    public Obfs4Options getDispatcherOptions() {
+    public Obfs4Options getObfs4Options() {
         return options;
     }
 

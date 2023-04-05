@@ -5,8 +5,6 @@
 
 package de.blinkt.openvpn;
 
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.stringEqual;
 
@@ -191,7 +189,7 @@ public class VpnProfile implements Serializable, Cloneable {
     private int mProfileVersion;
     public boolean mBlockUnusedAddressFamilies = true;
     public String mGatewayIp;
-    private final boolean mUseObfs4;
+    private final int mTransportType;
 
     public VpnProfile(String name, Connection.TransportType transportType) {
         mUuid = UUID.randomUUID();
@@ -200,7 +198,7 @@ public class VpnProfile implements Serializable, Cloneable {
 
         mConnections = new Connection[1];
         mLastUsed = System.currentTimeMillis();
-        mUseObfs4 = transportType == OBFS4;
+        mTransportType = transportType.toInt();
     }
 
     public static String openVpnEscape(String unescaped) {
@@ -266,7 +264,7 @@ public class VpnProfile implements Serializable, Cloneable {
         if (obj instanceof VpnProfile) {
             VpnProfile vp = (VpnProfile) obj;
             return stringEqual(vp.mGatewayIp, mGatewayIp) &&
-                    vp.mUseObfs4 == mUseObfs4;
+                    vp.mTransportType == mTransportType;
         }
         return false;
     }
@@ -297,15 +295,12 @@ public class VpnProfile implements Serializable, Cloneable {
     }
 
     public boolean usePluggableTransports() {
-        return mUseObfs4;
+        Connection.TransportType type = Connection.TransportType.fromInt(mTransportType);
+        return type != null && type.isPluggableTransport();
     }
 
     public Connection.TransportType getTransportType() {
-        if (mUseObfs4) {
-            return OBFS4;
-        } else {
-            return OPENVPN;
-        }
+        return Connection.TransportType.fromInt(mTransportType);
     }
 
     public String getName() {

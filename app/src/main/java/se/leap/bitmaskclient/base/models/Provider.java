@@ -19,6 +19,7 @@ package se.leap.bitmaskclient.base.models;
 import static de.blinkt.openvpn.core.connection.Connection.TransportProtocol.KCP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportProtocol.TCP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_HOP;
 import static se.leap.bitmaskclient.base.models.Constants.CAPABILITIES;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
 import static se.leap.bitmaskclient.base.models.Constants.LOCATIONS;
@@ -184,13 +185,13 @@ public final class Provider implements Parcelable {
 
     public boolean supportsPluggableTransports() {
         if (useObfsVpn()) {
-            return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP), new Pair<>(OBFS4, KCP)});
+            return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP), new Pair<>(OBFS4, KCP), new Pair<>(OBFS4_HOP, TCP), new Pair<>(OBFS4_HOP, KCP)});
         }
         return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP)});
     }
 
     public boolean supportsExperimentalPluggableTransports() {
-        return supportsTransports(new Pair[]{new Pair<>(OBFS4, KCP)});
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4, KCP),  new Pair<>(OBFS4_HOP, TCP), new Pair<>(OBFS4_HOP, KCP)});
     }
 
     private boolean supportsTransports(Pair<TransportType, TransportProtocol>[] transportTypes) {
