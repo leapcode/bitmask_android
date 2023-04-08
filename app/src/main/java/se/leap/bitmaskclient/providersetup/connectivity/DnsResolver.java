@@ -80,28 +80,28 @@ class DnsResolver implements Dns {
     }
 
     private List<InetAddress> tryLookupDoH(@NonNull String hostname) throws UnknownHostException {
-        DnsOverHttps ahablitzDoHClient = new DnsOverHttps.Builder().client(dohHttpClient)
-                .url(HttpUrl.get("https://blitz.ahadns.com"))
+        DnsOverHttps njallaDoH = new DnsOverHttps.Builder().client(dohHttpClient)
+                .url(HttpUrl.get("https://dns.njal.la/dns-query"))
+                .bootstrapDnsHosts(getByName("95.215.19.53"), getByName("2001:67c:2354:2::53"))
                 .build();
         try {
-            Log.d("DNS", "DoH via blitz.ahadns.com");
-            return ahablitzDoHClient.lookup(hostname);
+            Log.d("DNS", "DoH via dns.njal.la");
+            return njallaDoH.lookup(hostname);
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            Log.e("DNS", "DoH via blitz.ahadns.com failed");
+            Log.e("DNS", "DoH via dns.njal.la failed");
         }
 
-        DnsOverHttps googleDoHClient = new DnsOverHttps.Builder().client(dohHttpClient)
-                .url(HttpUrl.get("https://dns.google/dns-query"))
-                .bootstrapDnsHosts(getByName("8.8.4.4"), getByName("8.8.8.8"))
+        DnsOverHttps quad9 = new DnsOverHttps.Builder().client(dohHttpClient)
+                .url(HttpUrl.get("https://dns.quad9.net/dns-query"))
+                .bootstrapDnsHosts(getByName("9.9.9.9"), getByName("149.112.112.112"), getByName("2620:fe::fe"), getByName("2620:fe::9"))
                 .build();
         try {
-            Log.d("DNS", "DoH via dns.google");
-            return googleDoHClient.lookup(hostname);
+            Log.d("DNS", "DoH via dns.quad9.net");
+            return quad9.lookup(hostname);
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            Log.e("DNS", "DoH via dns.google failed");
-
+            Log.e("DNS", "DoH via dns.quad9.net failed");
         }
 
         DnsOverHttps cloudFlareDoHClient = new DnsOverHttps.Builder().client(dohHttpClient)
