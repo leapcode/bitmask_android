@@ -4,6 +4,13 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 
+function setHeadsupNotifications {
+    echo -e "${GREEN}---------------------------------------${NC}"
+    echo -e "${GREEN}-- Setting head-up notifications: $1 ---${NC}"
+    echo -e "${GREEN}---------------------------------------${NC}"
+    adb devices | grep -v -i "list" | sed 's/\t/ /' | cut -d ' ' -f 1 | xargs -I {} adb -s {} shell settings put global heads_up_notifications_enabled $1
+}
+
 # init parameters
 if [[ ${1} = "custom" ]]; then
   BUILD_CUSTOM=true
@@ -25,9 +32,13 @@ SCRIPT_DIR=$(dirname "$0")
 BASE_DIR="$SCRIPT_DIR/.."
 
 cd $BASE_DIR
+setHeadsupNotifications 0
 if [[ -z $BUILD_CUSTOM ]]; then
-  fastlane --verbose  android bitmask_screenshots
+   echo -e "${GREEN}--     Screenshotting Bitmask       ---${NC}"
+   fastlane --verbose  android bitmask_screenshots
 else
-  fastlane android custom_build_screenshots --env custom
+   echo -e "${GREEN}--    Screenshotting custom build   ---${NC}"
+   fastlane android custom_build_screenshots --env custom
 fi;
+setHeadsupNotifications 1
 cd -
