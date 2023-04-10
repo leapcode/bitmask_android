@@ -417,7 +417,7 @@ dependencies {
 
   testImplementation 'org.json:json:20180813'
   androidTestImplementation 'androidx.test.ext:junit:1.1.4'
-  debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
+  debugImplementation 'com.squareup.leakcanary:leakcanary-android-core:2.9.1'
   annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
   annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.2'
   implementation 'com.jakewharton:butterknife:10.2.1'
