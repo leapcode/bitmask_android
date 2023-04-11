@@ -14,22 +14,25 @@ import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anything;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasToString;
 import static org.hamcrest.Matchers.is;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static utils.CustomInteractions.tryResolve;
 
+import android.app.Instrumentation;
 import android.content.SharedPreferences;
+import android.net.VpnService;
 import android.view.Gravity;
 
-import androidx.test.espresso.DataInteraction;
-import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.DrawerActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -56,15 +59,18 @@ public abstract class ProviderBaseTest {
     public ActivityScenarioRule<StartActivity> mActivityScenarioRule =
             new ActivityScenarioRule<>(StartActivity.class);
 
+    UiDevice device;
     @Before
     public void setup() {
         Screengrab.setDefaultScreenshotStrategy(new UiAutomatorScreenshotStrategy());
         SharedPreferences preferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         preferences.edit().clear().commit();
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        device = UiDevice.getInstance(instrumentation);
     }
 
     @Test
-    public void test01_vpnStartTest() throws InterruptedException {
+    public void test01_vpnStartTest() throws InterruptedException, UiObjectNotFoundException {
         boolean configurationNeeded = configureProviderIfNeeded();
 
         ViewInteraction mainButtonStop;
@@ -87,6 +93,11 @@ public abstract class ProviderBaseTest {
                     20);
             Screengrab.screenshot("VPN_connected");
         } else {
+            // handle VPN permission dialog
+            if (VpnService.prepare(getApplicationContext()) != null) {
+                UiObject okButton = device.findObject(new UiSelector().packageName("com.android.vpndialogs").resourceId("android:id/button1"));
+                okButton.click();
+            }
             // on new configurations the VPN is automatically started
             Screengrab.screenshot("VPN_connecting");
             mainButtonStop = tryResolve(
