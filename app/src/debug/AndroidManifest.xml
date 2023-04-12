@@ -19,6 +19,23 @@
     package="se.leap.bitmaskclient"
     android:requestLegacyExternalStorage="true"
     >
+
+    <application
+        android:name=".base.BitmaskApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:extractNativeLibs="true"
+        android:appCategory="productivity"
+        android:logo="@mipmap/ic_launcher"
+        android:theme="@style/BitmaskTheme">
+        >
+        <provider
+            android:name=".LeakCanaryInstaller"
+            android:authorities="${applicationId}.leakcanary-installer"
+            android:exported="false" />
+    </application>
+
     <!-- package is overwritten in build.gradle -->
 
     <!-- The following permissions are required by fastlane / espresso -->
