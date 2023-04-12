@@ -93,14 +93,6 @@ public class GatewaysManagerTest {
     }
 
     @Test
-    public void testGatewayManagerFromCurrentProvider_misconfiguredProvider_noGateways() throws IOException, NullPointerException {
-        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_misconfigured_gateway.json", null);
-        MockHelper.mockProviderObservable(provider);
-        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
-        assertEquals(0, gatewaysManager.size());
-    }
-
-    @Test
     public void testGatewayManagerFromCurrentProvider_threeGateways() {
         Provider provider = getProvider(null, null, null, null,null, null, "ptdemo_three_mixed_gateways.json", null);
         MockHelper.mockProviderObservable(provider);
@@ -551,13 +543,19 @@ public class GatewaysManagerTest {
         assertEquals(0.3, gatewaysManager.getLocation("Amsterdam").getAverageLoad(OPENVPN));
     }
 
-
-
     @Test
     public void testGetLoadForLocation_() {
         MockHelper.mockProviderObservable(null);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(GatewaysManager.Load.UNKNOWN, gatewaysManager.getLoadForLocation("unknown city", OPENVPN));
+    }
+
+    @Test
+    public void testGatewayManagerFromCurrentProvider_decoupledBridges_twoGateways() throws IOException, NullPointerException {
+        Provider provider = getProvider(null, null, null, null, null, null, "decoupled_pt.eip-service.json", null);
+        MockHelper.mockProviderObservable(provider);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+        assertEquals(2, gatewaysManager.size());
     }
 
     private String getJsonStringFor(String filename) throws IOException {

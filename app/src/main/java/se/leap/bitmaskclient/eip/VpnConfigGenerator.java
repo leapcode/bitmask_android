@@ -418,7 +418,9 @@ public class VpnConfigGenerator {
         }
         Transport openvpnTransport = transports.get(OPENVPN);
         if (openvpnTransport == null) {
-            return false;
+            // the bridge seems to be to be decoupled from the gateway, we can't say if the openvpn gateway
+            // will support this PT and hope the admins configured the gateway correctly
+            return true;
         }
 
         String[] protocols = openvpnTransport.getProtocols();
