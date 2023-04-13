@@ -89,12 +89,18 @@ public class Transport implements Serializable {
         }
 
         public Options(String iatMode, Endpoint[] endpoints, int portSeed, int portCount, boolean experimental) {
+            this(iatMode, endpoints, null, portSeed, portCount, experimental);
+        }
+
+        public Options(String iatMode, Endpoint[] endpoints, String cert, int portSeed, int portCount, boolean experimental) {
             this.iatMode = iatMode;
             this.endpoints = endpoints;
             this.portSeed = portSeed;
             this.portCount = portCount;
             this.experimental = experimental;
+            this.cert = cert;
         }
+
 
         @Nullable
         public String getCert() {

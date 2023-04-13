@@ -555,7 +555,7 @@ public class GatewaysManagerTest {
         Provider provider = getProvider(null, null, null, null, null, null, "decoupled_pt.eip-service.json", null);
         MockHelper.mockProviderObservable(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
-        assertEquals(2, gatewaysManager.size());
+        assertEquals(3, gatewaysManager.size());
     }
 
     private String getJsonStringFor(String filename) throws IOException {

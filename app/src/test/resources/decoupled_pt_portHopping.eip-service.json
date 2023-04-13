@@ -32,7 +32,7 @@
         "transport":[
           {
             "options":{
-              "cert":"pIp+etK+ud3aKAa3Uujbc3q3kwQOBQgW1UUIXXkeQ+i24WFnSzTT1Q69F0x8EXpcq5jyGg",
+              "cert":"CERT",
               "iatMode":"0"
             },
             "ports":[
@@ -57,20 +57,7 @@
         "transport":[
           {
             "options":{
-              "endpoints": [
-                {
-                  "cert" : "CERT",
-                  "ip": "192.81.208.164"
-                },
-                {
-                  "cert" : "CERT2",
-                  "ip": "192.81.208.165"
-                },
-                {
-                  "cert" : "CERT3",
-                  "ip": "192.81.208.166"
-                }
-              ],
+              "cert":"CERT",
               "experimental":true,
               "iatMode":"0",
               "port_count":100,
