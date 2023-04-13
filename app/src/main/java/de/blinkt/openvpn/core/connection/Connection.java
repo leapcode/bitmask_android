@@ -55,8 +55,11 @@ public abstract class Connection implements Serializable, Cloneable {
             return protocol;
         }
     }
+
+    // !! Never use valueOf() to instantiate this enum, use fromString() !!
     public enum TransportType {
         OBFS4("obfs4"),
+        // dashes are not allowed in enums, so obfs4-hop becomes obfs4Hop -.-
         OBFS4_HOP("obfs4Hop"),
         OPENVPN("openvpn"),
 
@@ -70,6 +73,9 @@ public abstract class Connection implements Serializable, Cloneable {
 
         @Override
         public String toString() {
+            if (this == OBFS4_HOP) {
+                return "obfs4-hop";
+            }
             return transport;
         }
 
