@@ -366,7 +366,7 @@ public class VpnConfigGenerator {
         }
 
         TransportType transportType = transport.getTransportType();
-        if (transportType == OBFS4 && transport.getPorts() == null) {
+        if (transportType == OBFS4 && (transport.getPorts() == null || transport.getPorts().length == 0)) {
             VpnStatus.logError("Misconfigured provider: no ports defined in " + transport.getType() + " transport JSON for gateway " + ipAddress);
             return;
         }
