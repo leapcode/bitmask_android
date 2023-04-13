@@ -1,7 +1,5 @@
 package se.leap.bitmaskclient.pluggableTransports;
 
-import static de.blinkt.openvpn.core.connection.Connection.TransportProtocol.KCP;
-
 import client.Client;
 import client.HopClient;
 import de.blinkt.openvpn.core.VpnStatus;
@@ -21,11 +19,7 @@ public class HoppingObfsVpnClient implements PtClientInterface {
         //if so, we stick to it, otherwise we flip the flag
         boolean kcp = Constants.KCP.equals(options.transport.getProtocols()[0]);
 
-        if (options.transport.getOptions().getEndpoints() == null) {
-            throw new IllegalStateException("No Endpoints for hopping pt detected!");
-        }
-
-        HoppingConfig hoppingConfig = new HoppingConfig(kcp,IP+":"+PORT, options.transport, 10, 10);
+        HoppingConfig hoppingConfig = new HoppingConfig(kcp,IP+":"+PORT, options, 10, 10);
         try {
             client = Client.newFFIHopClient(hoppingConfig.toString());
         } catch (Exception e) {

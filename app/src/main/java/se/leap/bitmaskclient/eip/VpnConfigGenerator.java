@@ -228,7 +228,7 @@ public class VpnConfigGenerator {
     }
 
     private String gatewayConfiguration(TransportType transportType) {
-        String remotes = "";
+        String configs = "";
 
         StringBuilder stringBuilder = new StringBuilder();
         try {
@@ -257,12 +257,12 @@ public class VpnConfigGenerator {
             e.printStackTrace();
         }
 
-        remotes = stringBuilder.toString();
-        if (remotes.endsWith(newLine)) {
-            remotes = remotes.substring(0, remotes.lastIndexOf(newLine));
+        configs = stringBuilder.toString();
+        if (configs.endsWith(newLine)) {
+            configs = configs.substring(0, configs.lastIndexOf(newLine));
         }
 
-        return remotes;
+        return configs;
     }
 
     private void gatewayConfigMinApiv3(TransportType transportType, StringBuilder stringBuilder, String[] ipAddresses) throws JSONException {
@@ -372,7 +372,9 @@ public class VpnConfigGenerator {
         }
 
         if (transportType == OBFS4_HOP &&
-                (transport.getOptions() == null || transport.getOptions().getEndpoints() == null || transport.getOptions().getPortCount() == 0)) {
+                (transport.getOptions() == null ||
+                        (transport.getOptions().getEndpoints() == null && transport.getOptions().getCert() == null) ||
+                        transport.getOptions().getPortCount() == 0)) {
             VpnStatus.logError("Misconfigured provider: missing properties for transport " + transport.getType() + " on gateway " + ipAddress);
             return;
         }
@@ -403,10 +405,22 @@ public class VpnConfigGenerator {
         if (useObfuscationPinning) {
             return "route " + obfuscationPinningIP + " 255.255.255.255 net_gateway" + newLine;
         }
-        if (transport.getTransportType() == OBFS4) {
-            return "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
+        switch (transport.getTransportType()) {
+            case OBFS4:
+                return "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
+            case OBFS4_HOP:
+                if (transport.getOptions().getEndpoints() != null)  {
+                    StringBuilder routes = new StringBuilder();
+                    for (Transport.Endpoint endpoint : transport.getOptions().getEndpoints()) {
+                        routes.append("route " + endpoint.getIp() + " 255.255.255.255 net_gateway" + newLine);
+                    }
+                    return routes.toString();
+                } else {
+                    return "route " + ipAddress + " 255.255.255.255 net_gateway" + newLine;
+                }
         }
-        return newLine;
+
+        return "";
     }
 
     // While openvpn in TCP mode is required for obfs4, openvpn in UDP mode is required for obfs4-hop
