@@ -381,6 +381,7 @@ public class VpnConfigGenerator {
 
         stringBuilder.append(getRouteString(ipAddress, transport));
         stringBuilder.append(getRemoteString(ipAddress, transport));
+        stringBuilder.append(getExtraOptions(transport));
     }
 
     public String getRemoteString(String ipAddress, Transport transport) {
@@ -399,6 +400,15 @@ public class VpnConfigGenerator {
             }
         }
         return REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " tcp" + newLine;
+    }
+
+    public String getExtraOptions(Transport transport) {
+        if (transport.getTransportType() == OBFS4_HOP) {
+            return "replay-window 65535" + newLine +
+                    "ping-restart 300" + newLine +
+                    "tun-mtu 48000" + newLine;
+        }
+        return "";
     }
 
     public String getRouteString(String ipAddress, Transport transport) {
