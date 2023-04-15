@@ -55,6 +55,7 @@ public class GatewaySelector {
         return offsets.isEmpty() ? null : offsets.firstEntry().getValue().iterator().next();
     }
 
+    // calculateOffsets randomizes the order of Gateways with the same distance, e.g. from the same location
     private TreeMap<Integer, Set<Gateway>> calculateOffsets() {
         TreeMap<Integer, Set<Gateway>> offsets = new TreeMap<Integer, Set<Gateway>>();
         int localOffset = getCurrentTimezone();

@@ -16,6 +16,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import de.blinkt.openvpn.VpnProfile;
@@ -212,6 +213,88 @@ public class GatewaysManagerTest {
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         assertEquals("37.12.247.10", gatewaysManager.select(0).gateway.getRemoteIP());
+    }
+
+    @Test
+    public void TestSelectN_select_includeExperimentalTransport_DecoupledPortHoppingGW() {
+        Provider provider = getProvider(null, null, null, null, null, null, "decoupled_pt_portHopping.eip-service.json", null);
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
+        when(PreferenceHelper.allowExperimentalTransports(any(Context.class))).thenReturn(true);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+        ArrayList<String> hosts = new ArrayList<>();
+        hosts.add(gatewaysManager.select(0).gateway.getHost());
+        hosts.add(gatewaysManager.select(1).gateway.getHost());
+
+        assertTrue(hosts.contains("bridge-nyc1-02.bitmask-dev.leapvpn.net"));
+        assertTrue(hosts.contains("bridge-nyc1-01.bitmask-dev.leapvpn.net"));
+
+    }
+
+    @Test
+    public void TestSelectN_select_includeExperimentalTransport_DecoupledPortAndIPHoppingGW() {
+        Provider provider = getProvider(null, null, null, null, null, null, "decoupled_pt.eip-service.json", null);
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
+        when(PreferenceHelper.allowExperimentalTransports(any(Context.class))).thenReturn(true);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+
+        ArrayList<String> hosts = new ArrayList<>();
+        hosts.add(gatewaysManager.select(0).gateway.getHost());
+        hosts.add(gatewaysManager.select(1).gateway.getHost());
+        assertTrue(hosts.contains("bridge-nyc1-02.bitmask-dev.leapvpn.net"));
+        assertTrue(hosts.contains("bridge-nyc1-01.bitmask-dev.leapvpn.net"));
+    }
+
+    @Test
+    public void TestSelectN_select_excludeExperimentalTransport_DecoupledPortHoppingGW() {
+        Provider provider = getProvider(null, null, null, null, null, null, "decoupled_pt_portHopping.eip-service.json", null);
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
+        when(PreferenceHelper.allowExperimentalTransports(any(Context.class))).thenReturn(false);
+
+        for (int i = 0; i < 1000; i++) {
+            GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+            assertEquals("bridge-nyc1-01.bitmask-dev.leapvpn.net", gatewaysManager.select(0).gateway.getHost());
+        }
+    }
+
+    @Test
+    public void TestSelectN_select_excludeExperimentalTransport_DecoupledPortAndIPHoppingGW() {
+        Provider provider = getProvider(null, null, null, null, null, null, "decoupled_pt.eip-service.json", null);
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
+        when(PreferenceHelper.allowExperimentalTransports(any(Context.class))).thenReturn(false);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+
+        assertEquals("bridge-nyc1-01.bitmask-dev.leapvpn.net", gatewaysManager.select(0).gateway.getHost());
+        assertNull(gatewaysManager.select(1));
+    }
+
+    @Test
+    public void TestSelectN_select_excludeExperimentalTransport_InGatewayHoppingPTBridge() {
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_obfs4hop_tcp_gateways.json", null);
+
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getUseBridges(any(Context.class))).thenReturn(true);
+        when(PreferenceHelper.allowExperimentalTransports(any(Context.class))).thenReturn(false);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+
+        ArrayList<String> hosts = new ArrayList<>();
+        hosts.add(gatewaysManager.select(0).gateway.getHost());
+        hosts.add(gatewaysManager.select(1).gateway.getHost());
+
+        assertTrue(hosts.contains("pt.demo.bitmask.net"));
+        assertTrue(hosts.contains("manila.bitmask.net"));
     }
 
     @Test
@@ -554,6 +637,16 @@ public class GatewaysManagerTest {
     public void testGatewayManagerFromCurrentProvider_decoupledBridges_twoGateways() throws IOException, NullPointerException {
         Provider provider = getProvider(null, null, null, null, null, null, "decoupled_pt.eip-service.json", null);
         MockHelper.mockProviderObservable(provider);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+        assertEquals(2, gatewaysManager.size());
+    }
+
+    @Test
+    public void testGatewayManagerFromCurrentProvider_decoupledBridgesIncludingExperimental_threeGateways() throws IOException, NullPointerException {
+        Provider provider = getProvider(null, null, null, null, null, null, "decoupled_pt.eip-service.json", null);
+        MockHelper.mockProviderObservable(provider);
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.allowExperimentalTransports(any(Context.class))).thenReturn(true);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         assertEquals(3, gatewaysManager.size());
     }

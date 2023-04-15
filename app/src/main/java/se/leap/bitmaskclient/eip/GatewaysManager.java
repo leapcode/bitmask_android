@@ -17,6 +17,7 @@
 package se.leap.bitmaskclient.eip;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_HOP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
@@ -121,6 +122,8 @@ public class GatewaysManager {
     private ArrayList<Location> locations = new ArrayList<>();
     private TransportType selectedTransport;
 
+    GatewaySelector gatewaySelector;
+
     public GatewaysManager(Context context) {
         this.context = context;
         configureFromCurrentProvider();
@@ -147,7 +150,7 @@ public class GatewaysManager {
     }
 
     public GatewayOptions select(int nClosest, String city) {
-        TransportType[] transportTypes = getUseBridges(context) ? new TransportType[]{OBFS4} : new TransportType[]{OPENVPN};
+        TransportType[] transportTypes = getUseBridges(context) ? new TransportType[]{OBFS4, OBFS4_HOP} : new TransportType[]{OPENVPN};
         if (presortedList.size() > 0) {
             return getGatewayFromPresortedList(nClosest, transportTypes, city);
         }
@@ -276,7 +279,9 @@ public class GatewaysManager {
 
     private GatewayOptions getGatewayFromTimezoneCalculation(int nClosest, TransportType[] transportTypes, @Nullable String city) {
         List<Gateway> list = new ArrayList<>(gateways.values());
-        GatewaySelector gatewaySelector = new GatewaySelector(list);
+        if (gatewaySelector == null) {
+            gatewaySelector = new GatewaySelector(list);
+        }
         Gateway gateway;
         int found  = 0;
         int i = 0;
@@ -341,7 +346,9 @@ public class GatewaysManager {
 
     private int getPositionFromTimezoneCalculatedList(VpnProfile profile) {
         TransportType transportType = profile.getTransportType();
-        GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
+        if (gatewaySelector == null) {
+            gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
+        }
         Gateway gateway;
         int nClosest = 0;
         int i = 0;

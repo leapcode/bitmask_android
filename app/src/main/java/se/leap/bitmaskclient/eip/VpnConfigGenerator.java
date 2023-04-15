@@ -140,7 +140,12 @@ public class VpnConfigGenerator {
         }
         if (apiVersion >= 3) {
             for (TransportType transportType : transports.keySet()) {
+                Transport transport = transports.get(transportType);
                 if (transportType.isPluggableTransport()) {
+                    Transport.Options transportOptions = transport.getOptions();
+                    if (!experimentalTransports && transportOptions != null && transportOptions.isExperimental()) {
+                        continue;
+                    }
                     try {
                         profiles.put(transportType, createProfile(transportType));
                     } catch (ConfigParser.ConfigParseError | NumberFormatException | JSONException | IOException e) {
