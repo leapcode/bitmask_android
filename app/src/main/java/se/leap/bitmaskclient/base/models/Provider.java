@@ -126,8 +126,10 @@ public final class Provider implements Parcelable {
         setGeoipUrl(geoipUrl);
     }
 
-    public Provider(String mainUrl, String providerIp, String providerApiIp) {
-        this(mainUrl, null, null, providerIp, providerApiIp);
+    public static Provider createCustomProvider(String mainUrl, String domain) {
+        Provider p = new Provider(mainUrl);
+        p.domain = domain;
+        return p;
     }
 
     public Provider(String mainUrl, String geoipUrl, String motdUrl, String providerIp, String providerApiIp) {
@@ -520,6 +522,7 @@ public final class Provider implements Parcelable {
         JSONObject json = new JSONObject();
         try {
             json.put(Provider.MAIN_URL, mainUrl);
+            json.put(Provider.DOMAIN, domain);
         } catch (JSONException e) {
             e.printStackTrace();
         }
