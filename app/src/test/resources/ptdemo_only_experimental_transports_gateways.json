@@ -7,9 +7,9 @@
         "limited":false,
         "transport":[
           {
-            "type":"obfs4-1",
+            "type":"obfs4",
             "protocols":[
-              "tcp"
+              "kcp"
             ],
             "ports":[
               "23050"
@@ -75,9 +75,9 @@
             ]
           },
           {
-            "type":"obfs4-1",
+            "type":"obfs4",
             "protocols":[
-              "tcp"
+              "kcp"
             ],
             "ports":[
               "23050"

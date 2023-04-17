@@ -1,5 +1,7 @@
 package se.leap.bitmaskclient.pluggableTransports;
 
+import static se.leap.bitmaskclient.base.models.Constants.KCP;
+
 import android.util.Log;
 
 import java.util.Observable;
@@ -7,12 +9,12 @@ import java.util.Observer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import client.Client_;
+import client.Client;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipStatus;
 
-public class ObfsVpnClient implements Observer, client.EventLogger {
+public class ObfsVpnClient implements Observer, PtClientInterface {
 
     public static final AtomicInteger SOCKS_PORT = new AtomicInteger(4430);
     public static final String SOCKS_IP = "127.0.0.1";
@@ -27,9 +29,17 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
     private final client.Client_ obfsVpnClient;
     private final Object LOCK = new Object();
 
-    public ObfsVpnClient(Obfs4Options options) {
-        obfsVpnClient = new Client_(options.udp, SOCKS_IP+":"+SOCKS_PORT.get(), options.cert);
-        obfsVpnClient.setEventLogger(this);
+    public ObfsVpnClient(Obfs4Options options) throws IllegalStateException{
+        //FIXME: use a different strategy here
+        //Basically we would want to track if the more performant transport protocol (KCP?/TCP?) usage was successful
+        //if so, we stick to it, otherwise we flip the flag
+        boolean kcp = KCP.equals(options.transport.getProtocols()[0]);
+
+        if (options.transport.getOptions().getCert() == null) {
+            throw new IllegalStateException("No cert found to establish a obfs4 connection");
+        }
+
+        obfsVpnClient = Client.newClient(kcp, SOCKS_IP+":"+SOCKS_PORT.get(), options.transport.getOptions().getCert());
     }
 
     /**
@@ -38,6 +48,7 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
      */
     public int start() {
         synchronized (LOCK) {
+            obfsVpnClient.setEventLogger(this);
             Log.d(TAG, "aquired LOCK");
             new Thread(this::startSync).start();
             waitUntilStarted();
@@ -46,6 +57,7 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
         return SOCKS_PORT.get();
     }
 
+    // We're waiting here until the obfsvpn client has found a unbound port and started
     private void waitUntilStarted() {
         int count = -1;
         try {
@@ -88,6 +100,8 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
             } catch (Exception e) {
                 e.printStackTrace();
                 VpnStatus.logError("[obfsvpn] " + e.getLocalizedMessage());
+            } finally {
+                obfsVpnClient.setEventLogger(null);
             }
             pendingNetworkErrorHandling.set(false);
             Log.d(TAG, "stopping obfsVpnClient releasing LOCK ...");
@@ -98,6 +112,7 @@ public class ObfsVpnClient implements Observer, client.EventLogger {
         return obfsVpnClient.isStarted();
     }
 
+    // TODO: register observer!
     @Override
     public void update(Observable observable, Object arg) {
         if (observable instanceof EipStatus) {

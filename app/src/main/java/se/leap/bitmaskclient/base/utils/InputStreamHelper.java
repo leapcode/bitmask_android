@@ -23,22 +23,12 @@ public class InputStreamHelper {
         return s.hasNext() ? s.next() : "";
     }
 
-    public static String extractKeyFromInputStream(InputStream inputStream, String key) {
-        String value = "";
-
-        JSONObject fileContents = inputStreamToJson(inputStream);
-        if (fileContents != null)
-            value = fileContents.optString(key);
-        return value;
-    }
-
     public static JSONObject inputStreamToJson(InputStream inputStream) {
-        JSONObject json = null;
+        JSONObject json = new JSONObject();
         try {
             byte[] bytes = new byte[inputStream.available()];
             if (inputStream.read(bytes) > 0)
                 json = new JSONObject(new String(bytes));
-            inputStream.reset();
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }

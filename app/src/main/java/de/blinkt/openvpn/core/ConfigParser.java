@@ -27,6 +27,7 @@ import java.util.Vector;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
+import de.blinkt.openvpn.core.connection.Obfs4HopConnection;
 import de.blinkt.openvpn.core.connection.OpenvpnConnection;
 import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
 
@@ -807,8 +808,23 @@ public class ConfigParser {
                 e.printStackTrace();
                 return null;
             }
-        else
-            conn = transportType.getMetaType() == PT ? new Obfs4Connection(obfs4Options) : new OpenvpnConnection();
+        else {
+            switch (transportType) {
+                case OBFS4:
+                    conn = new Obfs4Connection(obfs4Options);
+                    break;
+                case OBFS4_HOP:
+                    conn = new Obfs4HopConnection(obfs4Options);
+                    break;
+                case OPENVPN:
+                    conn = new OpenvpnConnection();
+                    break;
+                default:
+                    throw new ConfigParseError("Unexpected transport type: " + transportType);
+
+            }
+
+        }
 
         Vector<String> port = getOption("port", 1, 1);
         if (port != null) {

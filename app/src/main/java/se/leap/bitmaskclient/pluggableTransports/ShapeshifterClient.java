@@ -42,6 +42,7 @@ public class ShapeshifterClient implements Observer {
     private int retry = 0;
     private final Handler reconnectHandler;
 
+    @Deprecated
     public class ShapeshifterLogger implements shapeshifter.Logger {
         @Override
         public void log(String s) {
@@ -71,8 +72,8 @@ public class ShapeshifterClient implements Observer {
 
     private void setup(Obfs4Options options) {
         shapeShifter.setSocksAddr(DISPATCHER_IP+":"+DISPATCHER_PORT);
-        shapeShifter.setTarget(options.remoteIP+":"+options.remotePort);
-        shapeShifter.setCert(options.cert);
+        shapeShifter.setTarget(options.gatewayIP +":"+options.transport.getPorts()[0]);
+        shapeShifter.setCert(options.transport.getOptions().getCert());
     }
 
     public void setOptions(Obfs4Options options) {

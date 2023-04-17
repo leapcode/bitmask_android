@@ -20,19 +20,6 @@
             }
           },
           {
-            "type":"obfs4",
-            "protocols":[
-              "udp"
-            ],
-            "ports":[
-              "23050"
-            ],
-            "options": {
-              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1",
-              "iatMode": "0"
-            }
-          },
-          {
             "type":"openvpn",
             "protocols":[
               "tcp"
@@ -55,16 +42,25 @@
         "limited":false,
         "transport":[
           {
-            "type":"obfs4",
+            "type":"obfs4-hop",
             "protocols":[
-              "tcp"
-            ],
-            "ports":[
-              "443"
+              "kcp"
             ],
             "options": {
-              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX2",
-              "iatMode": "0"
+              "iatMode": "0",
+              "endpoints": [
+                {
+                  "ip": "1.1.1.1",
+                  "cert": "/ntRNI6JYP7R6kGKldibKWj0aCsv96Hdu/jSGncPy+rcverCLI7Emod+vRkz61hM7F/udA"
+                },
+                {
+                  "ip": "2.2.2.2",
+                  "cert": "/ntRNI6JYP7R6kGKldibKWj0aCsv96Hdu/jSGncPy+rcverCLI7Emod+vRkz61hM7F/udA"
+                }
+              ],
+              "port_seed": 94,
+              "port_count": 100,
+              "experimental": true
             }
           },
           {
@@ -103,7 +99,7 @@
           {
             "type":"obfs4",
             "protocols":[
-              "udp"
+              "kcp"
             ],
             "ports":[
               "23050"
@@ -111,6 +107,28 @@
             "options": {
               "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1",
               "iatMode": "0"
+            }
+          },
+          {
+            "type":"obfs4-hop",
+            "protocols":[
+              "kcp"
+            ],
+            "options": {
+              "iatMode": "0",
+              "endpoints": [
+                {
+                  "ip": "1.1.1.1",
+                  "cert": "/ntRNI6JYP7R6kGKldibKWj0aCsv96Hdu/jSGncPy+rcverCLI7Emod+vRkz61hM7F/udA"
+                },
+                {
+                  "ip": "2.2.2.2",
+                  "cert": "/ntRNI6JYP7R6kGKldibKWj0aCsv96Hdu/jSGncPy+rcverCLI7Emod+vRkz61hM7F/udA"
+                }
+              ],
+              "port_seed": 94,
+              "port_count": 100,
+              "experimental": true
             }
           }
         ],

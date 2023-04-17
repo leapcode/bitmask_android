@@ -17,7 +17,7 @@
 package se.leap.bitmaskclient.eip;
 
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_KCP;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_HOP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
@@ -61,7 +61,6 @@ import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.GatewayJson;
 import se.leap.bitmaskclient.base.models.Location;
-import se.leap.bitmaskclient.base.models.Pair;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.models.Transport;
@@ -103,6 +102,16 @@ public class GatewaysManager {
         }
     }
 
+    public static class GatewayOptions {
+        public Gateway gateway;
+        public TransportType transportType;
+
+        public GatewayOptions(Gateway gateway, TransportType transportType) {
+            this.gateway = gateway;
+            this.transportType = transportType;
+        }
+    }
+
     private static final String TAG = GatewaysManager.class.getSimpleName();
     public static final String PINNED_OBFUSCATION_PROXY = "pinned.obfuscation.proxy";
 
@@ -113,6 +122,8 @@ public class GatewaysManager {
     private ArrayList<Location> locations = new ArrayList<>();
     private TransportType selectedTransport;
 
+    GatewaySelector gatewaySelector;
+
     public GatewaysManager(Context context) {
         this.context = context;
         configureFromCurrentProvider();
@@ -122,7 +133,7 @@ public class GatewaysManager {
      * select closest Gateway
       * @return the n closest Gateway
      */
-    public Pair<Gateway, TransportType> select(int nClosest) {
+    public GatewayOptions select(int nClosest) {
         if (PreferenceHelper.useObfuscationPinning(context)) {
             if (nClosest > 2) {
                 // no need to try again the pinned proxy, probably configuration error
@@ -132,14 +143,14 @@ public class GatewaysManager {
             if (gateway == null) {
                 return null;
             }
-            return new Pair<>(gateway, getObfuscationPinningKCP(context) ? OBFS4_KCP : OBFS4);
+            return new GatewayOptions(gateway, OBFS4);
         }
         String selectedCity = getPreferredCity(context);
         return select(nClosest, selectedCity);
     }
 
-    public Pair<Gateway, TransportType> select(int nClosest, String city) {
-        TransportType[] transportTypes = getUseBridges(context) ? new TransportType[]{OBFS4, OBFS4_KCP} : new TransportType[]{OPENVPN};
+    public GatewayOptions select(int nClosest, String city) {
+        TransportType[] transportTypes = getUseBridges(context) ? new TransportType[]{OBFS4, OBFS4_HOP} : new TransportType[]{OPENVPN};
         if (presortedList.size() > 0) {
             return getGatewayFromPresortedList(nClosest, transportTypes, city);
         }
@@ -266,9 +277,11 @@ public class GatewaysManager {
         return Load.getLoadByValue(location.getAverageLoad(transportType));
     }
 
-    private Pair<Gateway, TransportType> getGatewayFromTimezoneCalculation(int nClosest, TransportType[] transportTypes, @Nullable String city) {
+    private GatewayOptions getGatewayFromTimezoneCalculation(int nClosest, TransportType[] transportTypes, @Nullable String city) {
         List<Gateway> list = new ArrayList<>(gateways.values());
-        GatewaySelector gatewaySelector = new GatewaySelector(list);
+        if (gatewaySelector == null) {
+            gatewaySelector = new GatewaySelector(list);
+        }
         Gateway gateway;
         int found  = 0;
         int i = 0;
@@ -277,7 +290,7 @@ public class GatewaysManager {
                 if ((city == null && gateway.supportsTransport(transportType)) ||
                         (gateway.getName().equals(city) && gateway.supportsTransport(transportType))) {
                     if (found == nClosest) {
-                        return new Pair<>(gateway, transportType);
+                        return new GatewayOptions(gateway, transportType);
                     }
                     found++;
                 }
@@ -287,14 +300,14 @@ public class GatewaysManager {
         return null;
     }
 
-    private Pair<Gateway, TransportType> getGatewayFromPresortedList(int nClosest, TransportType[] transportTypes, @Nullable String city) {
+    private GatewayOptions getGatewayFromPresortedList(int nClosest, TransportType[] transportTypes, @Nullable String city) {
         int found = 0;
         for (Gateway gateway : presortedList) {
             for (TransportType transportType : transportTypes) {
                 if ((city == null && gateway.supportsTransport(transportType)) ||
                         (gateway.getName().equals(city) && gateway.supportsTransport(transportType))) {
                     if (found == nClosest) {
-                        return new Pair<>(gateway, transportType);
+                        return new GatewayOptions(gateway, transportType);
                     }
                     found++;
                 }
@@ -333,7 +346,9 @@ public class GatewaysManager {
 
     private int getPositionFromTimezoneCalculatedList(VpnProfile profile) {
         TransportType transportType = profile.getTransportType();
-        GatewaySelector gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
+        if (gatewaySelector == null) {
+            gatewaySelector = new GatewaySelector(new ArrayList<>(gateways.values()));
+        }
         Gateway gateway;
         int nClosest = 0;
         int i = 0;
@@ -387,10 +402,9 @@ public class GatewaysManager {
 
              if (PreferenceHelper.useObfuscationPinning(context)) {
                  try {
-                     TransportType transportType = getObfuscationPinningKCP(context) ? OBFS4_KCP : OBFS4;
                      Transport[] transports = new Transport[]{
-                             new Transport(transportType.toString(),
-                                     new String[]{"tcp"},
+                             new Transport(OBFS4.toString(),
+                                     new String[]{getObfuscationPinningKCP(context) ? "kcp" : "tcp"},
                                      new String[]{getObfuscationPinningPort(context)},
                                      getObfuscationPinningCert(context))};
                      GatewayJson.Capabilities capabilities = new GatewayJson.Capabilities(false, false, false, transports, false);

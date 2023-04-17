@@ -20,19 +20,6 @@
             }
           },
           {
-            "type":"obfs4-1",
-            "protocols":[
-              "tcp"
-            ],
-            "ports":[
-              "23050"
-            ],
-            "options": {
-              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1",
-              "iatMode": "0"
-            }
-          },
-          {
             "type":"openvpn",
             "protocols":[
               "tcp"
@@ -101,9 +88,9 @@
             ]
           },
           {
-            "type":"obfs4-1",
+            "type":"obfs4",
             "protocols":[
-              "tcp"
+              "kcp"
             ],
             "ports":[
               "23050"

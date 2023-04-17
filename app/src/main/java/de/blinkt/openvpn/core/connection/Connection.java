@@ -5,6 +5,8 @@
 
 package de.blinkt.openvpn.core.connection;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.*;
+
 import android.text.TextUtils;
 
 import com.google.gson.annotations.JsonAdapter;
@@ -37,14 +39,33 @@ public abstract class Connection implements Serializable, Cloneable {
         ORBOT
     }
 
+    public enum TransportProtocol {
+        UDP("udp"),
+        TCP("tcp"),
+        KCP("kcp");
+
+        final String protocol;
+
+        TransportProtocol(String transportProtocol) {
+            this.protocol = transportProtocol;
+        }
+
+        @Override
+        public String toString() {
+            return protocol;
+        }
+    }
+
+    // !! Never use valueOf() to instantiate this enum, use fromString() !!
     public enum TransportType {
         OBFS4("obfs4"),
+        // dashes are not allowed in enums, so obfs4-hop becomes obfs4Hop -.-
+        OBFS4_HOP("obfs4Hop"),
         OPENVPN("openvpn"),
-        OBFS4_KCP("obfs4-1"),
 
         PT("metaTransport");
 
-        String transport;
+        final String transport;
 
         TransportType(String transportType) {
             this.transport = transportType;
@@ -52,15 +73,63 @@ public abstract class Connection implements Serializable, Cloneable {
 
         @Override
         public String toString() {
+            if (this == OBFS4_HOP) {
+                return "obfs4-hop";
+            }
             return transport;
         }
 
+        public int toInt() {
+            switch (this) {
+                case PT:
+                    return 0;
+                case OPENVPN:
+                    return 1;
+                case OBFS4:
+                    return 2;
+                case OBFS4_HOP:
+                    return 3;
+                default:
+                    return -1;
+            }
+        }
+
+        public static TransportType fromString(String value) {
+            switch (value) {
+                case "obfs4":
+                    return OBFS4;
+                case "obfs4-hop":
+                    return OBFS4_HOP;
+                case "metaTransport":
+                    return PT;
+                case "openvpn":
+                    return OPENVPN;
+                default:
+                    throw new IllegalArgumentException(value + " is not a valid value for TransportType.");
+            }
+        }
+
+        public static TransportType fromInt(int value) {
+            switch (value) {
+                case 0:
+                    return PT;
+                case 1:
+                    return OPENVPN;
+                case 2:
+                    return OBFS4;
+                case 3:
+                    return OBFS4_HOP;
+                default:
+                    return null;
+            }
+        }
+
         public boolean isPluggableTransport() {
-            return this == OBFS4 || this == OBFS4_KCP || this == PT;
+            return this == OBFS4 || this == OBFS4_HOP || this == PT;
         }
 
         public TransportType getMetaType() {
-            if (this == OBFS4 || this == OBFS4_KCP || this == PT) {
+            if (this == OBFS4 || this == OBFS4_HOP || this == PT) {
                 return PT;
             }
             return OPENVPN;

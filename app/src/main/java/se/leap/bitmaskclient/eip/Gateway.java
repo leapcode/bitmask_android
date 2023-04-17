@@ -16,6 +16,7 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
 import static se.leap.bitmaskclient.base.models.Constants.FULLNESS;
 import static se.leap.bitmaskclient.base.models.Constants.HOST;
 import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
@@ -52,7 +53,6 @@ import java.util.HashSet;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
-import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 
 /**
@@ -77,6 +77,9 @@ public class Gateway {
     private String name;
     private int timezone;
     private int apiVersion;
+    /** FIXME: We expect here that not more than one obfs4 transport is offered by a gateway, however
+     * it's possible to setup gateways that have obfs4 over kcp and tcp which result in different VpnProfiles each
+     */
     private HashMap<Connection.TransportType, VpnProfile> vpnProfiles;
 
     /**
@@ -209,7 +212,7 @@ public class Gateway {
     }
 
     public boolean supportsTransport(Connection.TransportType transportType) {
-        if (transportType == Connection.TransportType.PT) {
+        if (transportType == PT) {
             return supportsPluggableTransports();
         }
         return vpnProfiles.get(transportType) != null;
