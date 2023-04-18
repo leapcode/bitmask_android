@@ -28,8 +28,7 @@ import se.leap.bitmaskclient.base.utils.ConfigHelper;
 
 /**
  * Created by cyberta on 24.10.17.
- * This class ensures that modern TLS algorithms will also be used on old devices (Android 4.1 - Android 4.4.4) in order to avoid
- * attacks like POODLE.
+ * This class ensures that modern TLS algorithms will also be used on old devices
  */
 
 public class TLSCompatSocketFactory extends SSLSocketFactory {
@@ -150,9 +149,8 @@ public class TLSCompatSocketFactory extends SSLSocketFactory {
     }
 
     private Socket enableTLSOnSocket(Socket socket) throws IllegalArgumentException {
-        if(socket != null && (socket instanceof SSLSocket)) {
-            ((SSLSocket)socket).setEnabledProtocols(new String[] {"TLSv1.2"});
-            //TODO: add a android version check as soon as a new Android API or bcjsse supports TLSv1.3
+        if((socket instanceof SSLSocket)) {
+            ((SSLSocket)socket).setEnabledProtocols(new String[] {"TLSv1.3", "TLSv1.2"});
         }
         return socket;
 

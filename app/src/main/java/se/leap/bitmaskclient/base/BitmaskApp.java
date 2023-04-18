@@ -34,6 +34,10 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.multidex.MultiDexApplication;
 
+import org.conscrypt.Conscrypt;
+
+import java.security.Security;
+
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.appUpdate.DownloadBroadcastReceiver;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
@@ -59,6 +63,7 @@ public class BitmaskApp extends MultiDexApplication {
         super.onCreate();
         // Normal app init code...*/
         PRNGFixes.apply();
+        Security.insertProviderAt(Conscrypt.newProvider(), 1);
         SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         providerObservable = ProviderObservable.getInstance();
         providerObservable.updateProvider(getSavedProviderFromSharedPreferences(preferences));

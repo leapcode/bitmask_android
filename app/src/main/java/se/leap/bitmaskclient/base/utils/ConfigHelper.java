@@ -277,7 +277,7 @@ public class ConfigHelper {
     }
 
     public static String getDomainFromMainURL(@NonNull String mainUrl) throws NullPointerException {
-        return PublicSuffixDatabase.get().getEffectiveTldPlusOne(mainUrl).replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
+        return PublicSuffixDatabase.Companion.get().getEffectiveTldPlusOne(mainUrl).replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
     }
     
     public static boolean isCalyxOSWithTetheringSupport(Context context) {

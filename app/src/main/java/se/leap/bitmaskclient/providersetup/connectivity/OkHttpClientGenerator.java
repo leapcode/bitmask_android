@@ -17,8 +17,16 @@
 
 package se.leap.bitmaskclient.providersetup.connectivity;
 
+import static android.text.TextUtils.isEmpty;
+import static se.leap.bitmaskclient.R.string.certificate_error;
+import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
+import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
+import static se.leap.bitmaskclient.R.string.keyChainAccessError;
+import static se.leap.bitmaskclient.R.string.server_unreachable_message;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
+
 import android.content.res.Resources;
-import android.net.LocalSocketAddress;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -29,7 +37,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -49,16 +56,6 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.TlsVersion;
 
-import static android.text.TextUtils.isEmpty;
-import static se.leap.bitmaskclient.R.string.certificate_error;
-import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
-import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
-import static se.leap.bitmaskclient.R.string.keyChainAccessError;
-import static se.leap.bitmaskclient.R.string.proxy;
-import static se.leap.bitmaskclient.R.string.server_unreachable_message;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
-
 /**
  * Created by cyberta on 08.01.18.
  */
@@ -68,7 +65,7 @@ public class OkHttpClientGenerator {
     Resources resources;
     private final static String PROXY_HOST = "127.0.0.1";
 
-    public OkHttpClientGenerator(/*SharedPreferences preferences,*/ Resources resources) {
+    public OkHttpClientGenerator(Resources resources) {
         this.resources = resources;
     }
 
@@ -133,13 +130,15 @@ public class OkHttpClientGenerator {
         } else {
             sslCompatFactory = new TLSCompatSocketFactory();
         }
-        sslCompatFactory.initSSLSocketFactory(clientBuilder);
         clientBuilder.cookieJar(getCookieJar())
                 .connectionSpecs(Collections.singletonList(spec));
-        clientBuilder.dns(new DnsResolver());
+
         if (proxyPort != -1) {
             clientBuilder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, proxyPort)));
         }
+
+        clientBuilder.dns(new DnsResolver(clientBuilder.build(), true));
+        sslCompatFactory.initSSLSocketFactory(clientBuilder);
         return clientBuilder.build();
     }
 

@@ -74,6 +74,7 @@ import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.FileHelper;
 import se.leap.bitmaskclient.base.utils.InputStreamHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.providersetup.connectivity.DnsResolver;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider;
 import se.leap.bitmaskclient.testutils.matchers.BundleMatcher;
@@ -577,13 +578,14 @@ public class MockHelper {
 
     public static OkHttpClientGenerator mockClientGenerator(boolean resolveDNS) throws UnknownHostException {
         OkHttpClientGenerator mockClientGenerator = mock(OkHttpClientGenerator.class);
-        OkHttpClient mockedOkHttpClient = mock(OkHttpClient.class, RETURNS_DEEP_STUBS);
+        OkHttpClient mockedOkHttpClient = mock(OkHttpClient.class);
+        DnsResolver mockedDnsResolver = mock(DnsResolver.class);
         when(mockClientGenerator.initCommercialCAHttpClient(any(JSONObject.class), anyInt())).thenReturn(mockedOkHttpClient);
         when(mockClientGenerator.initSelfSignedCAHttpClient(anyString(), anyInt(), any(JSONObject.class))).thenReturn(mockedOkHttpClient);
         if (resolveDNS) {
-            when(mockedOkHttpClient.dns().lookup(anyString())).thenReturn(new ArrayList<>());
+            when(mockedDnsResolver.lookup(anyString())).thenReturn(new ArrayList<>());
         } else {
-            when(mockedOkHttpClient.dns().lookup(anyString())).thenThrow(new UnknownHostException());
+            when(mockedDnsResolver.lookup(anyString())).thenThrow(new UnknownHostException());
         }
         return mockClientGenerator;
     }
