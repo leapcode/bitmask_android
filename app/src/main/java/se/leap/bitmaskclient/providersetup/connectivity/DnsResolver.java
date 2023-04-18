@@ -20,7 +20,7 @@ import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.IPAddress;
 
-class DnsResolver implements Dns {
+public class DnsResolver implements Dns {
     OkHttpClient dohHttpClient;
     boolean preferDoH;
 
