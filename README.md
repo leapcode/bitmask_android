@@ -146,7 +146,7 @@ git submodule update --init --recursive
 If you compile the project for the first time you'll have to compile the dependencies.
 In order to get a clean build and fetch all submodules run:
 ```
-./cleanProject.sh
+./scripts/cleanProject.sh
 ```
 
 The following command will create all libs we need for Bitmask.
