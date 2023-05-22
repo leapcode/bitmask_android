@@ -103,9 +103,26 @@ public class StartActivity extends Activity{
         // initialize app necessities
         VpnStatus.initLogCache(getApplicationContext().getCacheDir());
 
+        sanitizeStartIntent();
         prepareEIP();
 
     }
+
+    private void sanitizeStartIntent() {
+        Intent intent = new Intent();
+        try {
+            if (getIntent().hasExtra(EIP_RESTART_ON_BOOT)) {
+                intent.putExtra(EIP_RESTART_ON_BOOT, getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false));
+            }
+            if (getIntent().hasExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+                intent.putExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE, false);
+            }
+        } catch (RuntimeException e) {
+
+        }
+        this.setIntent(intent);
+    }
+
 
     /**
      *  check if normal start, first run, up or downgrade
