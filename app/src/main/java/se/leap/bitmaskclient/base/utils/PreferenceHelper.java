@@ -43,6 +43,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,13 +71,16 @@ public class PreferenceHelper {
 
     public static SharedPreferences getSharedPreferences(Context context) {
         try {
+            MasterKey masterKey = new MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build();
+
             return EncryptedSharedPreferences.create(
-                    SHARED_ENCRYPTED_PREFERENCES,
-                    "leap_secret_shared_prefs",
                     context,
+                    SHARED_ENCRYPTED_PREFERENCES,
+                    masterKey,
                     EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            );
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
         }
