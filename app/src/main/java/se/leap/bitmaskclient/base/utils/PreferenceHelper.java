@@ -27,6 +27,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_LAST_UPD
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.RESTART_ON_UPDATE;
+import static se.leap.bitmaskclient.base.models.Constants.SHARED_ENCRYPTED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
@@ -37,16 +38,21 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_SNOWFLAKE;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
+import androidx.security.crypto.EncryptedSharedPreferences;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import de.blinkt.openvpn.VpnProfile;
@@ -59,6 +65,23 @@ import se.leap.bitmaskclient.tor.TorStatusObservable;
  */
 
 public class PreferenceHelper {
+
+    private static final String TAG = PreferenceHelper.class.getSimpleName();
+
+    public static SharedPreferences getSharedPreferences(Context context) {
+        try {
+            return EncryptedSharedPreferences.create(
+                    SHARED_ENCRYPTED_PREFERENCES,
+                    "leap_secret_shared_prefs",
+                    context,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+        } catch (GeneralSecurityException | IOException e) {
+            e.printStackTrace();
+        }
+        return context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+    }
 
     public static Provider getSavedProviderFromSharedPreferences(@NonNull SharedPreferences preferences) {
         Provider provider = new Provider();
@@ -97,7 +120,7 @@ public class PreferenceHelper {
     }
 
     public static void persistProviderAsync(Context context, Provider provider) {
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         storeProviderInPreferences(preferences, provider, true);
     }
 
@@ -151,7 +174,7 @@ public class PreferenceHelper {
      * Sets the profile that is connected (to connect if the service restarts)
      */
     public static void setLastUsedVpnProfile(Context context, VpnProfile connectedProfile) {
-        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(context);
         SharedPreferences.Editor prefsedit = prefs.edit();
         prefsedit.putString(LAST_USED_PROFILE, connectedProfile.toJson());
         prefsedit.apply();
@@ -161,7 +184,7 @@ public class PreferenceHelper {
      * Returns the profile that was last connected (to connect if the service restarts)
      */
     public static VpnProfile getLastConnectedVpnProfile(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         String lastConnectedProfileJson = preferences.getString(LAST_USED_PROFILE, null);
         return VpnProfile.fromJson(lastConnectedProfileJson);
     }
@@ -204,6 +227,8 @@ public class PreferenceHelper {
                 apply();
     }
 
+    // used in fatweb flavor
+     @SuppressWarnings("unused")
     public static void setLastAppUpdateCheck(Context context) {
         putLong(context, LAST_UPDATE_CHECK, System.currentTimeMillis());
     }
@@ -419,7 +444,7 @@ public class PreferenceHelper {
         if (context == null) {
             return null;
         }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         return preferences.getStringSet(EXCLUDED_APPS, new HashSet<>());
     }
 
@@ -427,7 +452,7 @@ public class PreferenceHelper {
         if (context == null) {
             return defValue;
         }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         return preferences.getLong(key, defValue);
     }
 
@@ -435,7 +460,7 @@ public class PreferenceHelper {
         if (context == null) {
             return;
         }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         preferences.edit().putLong(key, value).apply();
     }
 
@@ -443,7 +468,7 @@ public class PreferenceHelper {
         if (context == null) {
             return defValue;
         }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         return preferences.getString(key, defValue);
     }
 
@@ -452,7 +477,7 @@ public class PreferenceHelper {
         if (context == null) {
             return;
         }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         preferences.edit().putString(key, value).commit();
     }
 
@@ -460,7 +485,7 @@ public class PreferenceHelper {
         if (context == null) {
             return;
         }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         preferences.edit().putString(key, value).apply();
     }
 
@@ -468,7 +493,7 @@ public class PreferenceHelper {
         if (context == null) {
             return;
         }
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         preferences.edit().putStringSet(key, value).apply();
     }
 
@@ -477,7 +502,7 @@ public class PreferenceHelper {
             return false;
         }
 
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         return preferences.getBoolean(key, defValue);
     }
 
@@ -486,7 +511,7 @@ public class PreferenceHelper {
             return;
         }
 
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         preferences.edit().putBoolean(key, value).apply();
     }
 
@@ -495,7 +520,41 @@ public class PreferenceHelper {
             return false;
         }
 
-        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(context);
         return preferences.contains(key);
+    }
+
+    public static void migrateToEncryptedPrefs(Context context) {
+        SharedPreferences encryptedPrefs = getSharedPreferences(context);
+        if (!(encryptedPrefs instanceof EncryptedSharedPreferences)) {
+            Log.e(TAG, "Failed to migrate shared preferences");
+            return;
+        }
+        SharedPreferences.Editor encryptedEditor = encryptedPrefs.edit();
+        SharedPreferences preferences = context.getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        Map<String,?> keys = preferences.getAll();
+
+        for(Map.Entry<String,?> entry : keys.entrySet()){
+            try {
+                Object value = entry.getValue();
+                if (value instanceof String) {
+                    encryptedEditor.putString(entry.getKey(), (String) value);
+                } else if (value instanceof Boolean) {
+                    encryptedEditor.putBoolean(entry.getKey(), (Boolean) value);
+                } else if (value instanceof Integer) {
+                    encryptedEditor.putInt(entry.getKey(), (Integer) value);
+                } else if (value instanceof Set<?>) {
+                    encryptedEditor.putStringSet(entry.getKey(), (Set<String>) value);
+                } else if (value instanceof Long) {
+                    encryptedEditor.putLong(entry.getKey(), (Long) value);
+                } else if (value instanceof Float) {
+                    encryptedEditor.putFloat(entry.getKey(), (Float) value);
+                }
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
+        }
+        encryptedEditor.commit();
+        preferences.edit().clear().apply();
     }
 }

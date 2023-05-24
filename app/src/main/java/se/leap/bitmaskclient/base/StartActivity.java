@@ -38,6 +38,7 @@ import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.security.crypto.EncryptedSharedPreferences;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -81,7 +82,7 @@ public class StartActivity extends Activity{
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = PreferenceHelper.getSharedPreferences(this);
 
         Log.d(TAG, "Started");
 
@@ -195,6 +196,11 @@ public class StartActivity extends Activity{
                 PreferenceHelper.deleteCurrentProviderDetailsFromPreferences(preferences);
                 ProviderObservable.getInstance().updateProvider(new Provider());
             }
+        }
+
+        if (hasNewFeature(FeatureVersionCode.ENCRYPTED_SHARED_PREFS)) {
+            PreferenceHelper.migrateToEncryptedPrefs(this);
+            preferences = PreferenceHelper.getSharedPreferences(this);
         }
 
         // always check if manual gateway selection feature switch has been disabled

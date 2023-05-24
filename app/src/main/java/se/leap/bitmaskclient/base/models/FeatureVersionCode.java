@@ -5,4 +5,6 @@ public interface FeatureVersionCode {
     int GEOIP_SERVICE = 148;
     int CALYX_PROVIDER_LILYPAD_UPDATE = 165000;
     int RISEUP_PROVIDER_LILYPAD_UPDATE = 165000;
+
+    int ENCRYPTED_SHARED_PREFS = 170000;
 }

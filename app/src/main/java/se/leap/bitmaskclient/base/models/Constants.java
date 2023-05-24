@@ -27,6 +27,7 @@ public interface Constants {
     /////////////////////////////////////////////
 
     String SHARED_PREFERENCES = "LEAPPreferences";
+    String SHARED_ENCRYPTED_PREFERENCES = "LEAPEncryptedPreferences";
     String PREFERENCES_APP_VERSION = "bitmask version";
     String ALWAYS_ON_SHOW_DIALOG = "DIALOG.ALWAYS_ON_SHOW_DIALOG";
     String CLEARLOG = "clearlogconnect";
