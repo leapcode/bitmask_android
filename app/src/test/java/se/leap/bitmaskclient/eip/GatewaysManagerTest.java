@@ -83,6 +83,8 @@ public class GatewaysManagerTest {
                 putString(CA_CERT, secrets.getString(CA_CERT)).
                 putString(PROVIDER_VPN_CERTIFICATE, secrets.getString(PROVIDER_VPN_CERTIFICATE))
                 .commit();
+        mockStatic(PreferenceHelper.class);
+        when(PreferenceHelper.getSharedPreferences(any())).thenReturn(sharedPreferences);
     }
 
 
