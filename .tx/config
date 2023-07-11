@@ -1,18 +1,19 @@
 [main]
-host = https://www.transifex.com
+host = https://rest.api.transifex.com
 
-lang_map = es_AR: es-rAR, fa_IR: fa-rIR, kn_IN: kn-rIN, pt_BR: pt-rBR, pt_PT: pt-rPT, zh: zh-rCN, zh_TW: zh-rTW, nb: no
+lang_map = zh: zh-rCN, zh_TW: zh-rTW, nb: no
 
-[bitmask.strings]
-file_filter = app/src/main/res/values-<lang>/strings.xml
-minimum_perc = 75
-source_file = app/src/main/res/values/strings.xml
-source_lang = en
-type = ANDROID
+[o:otf:p:bitmask:r:bitmask-playstore-listing]
+source_file = se.leap.bitmasakclient.json
+type = KEYVALUEJSON
+resource_name = Bitmask details in Appstore
+file_filter = bitmaskclient/google/<lang>-strings.json
+minimum_perc = 96
 
-[bitmask.riseupvpn]
-file_filter = app/src/custom/res/values-<lang>/strings.xml
-minimum_perc = 75
-source_file = app/src/custom/res/values/strings.xml
-source_lang = en
-type = ANDROID
+[o:otf:p:bitmask:r:riseupvpn-playstore-listing]
+source_file = se.leap.riseupvpn-desc.json
+type = KEYVALUEJSON
+resource_name = RiseupVPN details in Appstore
+file_filter = riseupvpn/google/<lang>-strings.json
+minimum_perc = 96
+
