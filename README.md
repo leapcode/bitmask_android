@@ -23,6 +23,7 @@ Please see the [issues](https://0xacab.org/leap/bitmask_android/issues) section 
   * [Debug APKs](#debug-apks)
   * [Release APKs](#release-apks)
   * [Signed Release APKs](#signed-release-apks)
+  * [Localization](#localize)
 * [Supported Versions](#supported-versions)
 * [Acknowledgments](#acknowledgments)
 * [Contributing](#contributing)
@@ -197,6 +198,10 @@ You can execute all unit tests from the command line with:
 ```bash
   ./gradlew testCustomProductionFatReleaseUnitTest testNormalProductionFatReleaseUnitTest
 ```
+
+## Localization and translate <a name="Localization"></a>
+
+All the localizations happen in Transifex. How to generate, push, pull the translations are detailed in src/README.md
 
 ## Supported Versions <a name="supported-versions"></a>
 

@@ -1,0 +1,7 @@
+RiseupVPN is an easy, fast, and secure VPN service from https://riseup.net. RiseupVPN does not require a user account, keep logs, or track you in any way. The service is paid for entirely by donations from users like you.
+
+https://riseup.net/vpn/donate
+
+It's developed by LEAP and the open source code can be explored here: https://0xacab.org/leap/bitmask_android
+
+Translations greatly appreciated at our Transifex project: Transifex project https://app.transifex.com/otf/bitmask/dashboard/

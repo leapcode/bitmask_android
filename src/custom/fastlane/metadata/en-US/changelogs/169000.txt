@@ -1,0 +1,9 @@
+Since the last releases were not fully rolled-out, a summary of version 1.1.6 - 1.1.8:
+* updated design
+* improved circumvention capabilities
+* updated dependencies (openvpn, tor, snowflake etc.)
+* updated translations
+* fixed crashes and other bugs
+* support for Message of the Day
+* 1.1.7 fix: hiding debugging entries in settings
+* 1.1.8 fix: uploaded correct google playstore version

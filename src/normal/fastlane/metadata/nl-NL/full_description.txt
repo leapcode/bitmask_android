@@ -1,0 +1,12 @@
+Bitmask is een VPN-client die OpenVPN gebruikt met automatische configuratie. Kies eenvoudig je compatibele provider.
+
+Door al je netwerkverkeer te versleutelen en veilig je uw Bitmask-compatibele provider te sturen, kan Bitmask veel vormen van censuur en surveillance voorkomen.
+
+Veelgestelde vragen: 
+* We vragen om toestemming voor het lezen/schrijven van de sd-kaart, omdat een speciaal gedeelte daarvan gebruikt wordt als je eigen providers instelt. Als je upgrade naar Android 5,  vragen we deze permissie niet meer. Vanaf die versie kan de apps die opslag gebruiken (omdat deze onafhankelijk is van de app).
+
+Bitmask is een open source VPN-client, verspreid onder de GPLv3-licentie. Zie https://0xacab.org/leap/bitmask_android
+
+Vertalingen worden zeer gewaardeerd in ons Transifex-project: https://www.transifex.com/projects/p/bitmask
+
+Als je problemen hebt of experimentele versies wilt uitproberen, neem dan deel aan onze chat: https://matrix.to/#/#grasshopper:libera.chat of een foutenrapport indienen: https://0xacab.org/leap/bitmask_android/

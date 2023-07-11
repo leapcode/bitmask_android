@@ -1,0 +1,8 @@
+Since the last release was not fully rolled-out, a summary of version 1.1.6 and 1.1.7:
+* updated design
+* improved circumvention capabilities
+* updated dependencies (openvpn, tor, snowflake etc.)
+* updated translations
+* fixed crashes and other bugs
+* support for Message of the Day
+* 1.1.7 fix: hiding debugging entries in settings
