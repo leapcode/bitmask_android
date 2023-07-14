@@ -1,7 +1,7 @@
 [main]
 host = https://rest.api.transifex.com
 
-lang_map = zh: zh-rCN, zh_TW: zh-rTW, nb: no
+lang_map = es_AR: es-rAR, fa_IR: fa-rIR, kn_IN: kn-rIN, pt_BR: pt-rBR, pt_PT: pt-rPT, zh: zh-rCN, zh_TW: zh-rTW, nb: no
 
 [o:otf:p:bitmask:r:bitmask-playstore-listing]
 source_file = se.leap.bitmasakclient.json

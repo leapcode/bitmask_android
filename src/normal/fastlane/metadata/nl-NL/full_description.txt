@@ -1,12 +1,11 @@
-Bitmask is een VPN-client die OpenVPN gebruikt met automatische configuratie. Kies eenvoudig je compatibele provider.
+Bitmask is een VPN-client met automatische configuratie. Het kan verschillende technieken gebruiken om censuur, netwerkblokkades of surveillance te omzeilen. Nadat je een compatibele serviceprovider hebt gekozen, zal al je netwerkverkeer versleutelen en veilig via de  serviceprovider van jou vertrouwen routeren.
 
-Door al je netwerkverkeer te versleutelen en veilig je uw Bitmask-compatibele provider te sturen, kan Bitmask veel vormen van censuur en surveillance voorkomen.
+En je kunt van start!
 
-Veelgestelde vragen: 
-* We vragen om toestemming voor het lezen/schrijven van de sd-kaart, omdat een speciaal gedeelte daarvan gebruikt wordt als je eigen providers instelt. Als je upgrade naar Android 5,  vragen we deze permissie niet meer. Vanaf die versie kan de apps die opslag gebruiken (omdat deze onafhankelijk is van de app).
+Bitmask is een open-source VPN-client, verspreid onder de GPLv3-licentie. Zie https://0xacab.org/leap/bitmask_android
 
-Bitmask is een open source VPN-client, verspreid onder de GPLv3-licentie. Zie https://0xacab.org/leap/bitmask_android
+FAQ:
 
-Vertalingen worden zeer gewaardeerd in ons Transifex-project: https://www.transifex.com/projects/p/bitmask
-
-Als je problemen hebt of experimentele versies wilt uitproberen, neem dan deel aan onze chat: https://matrix.to/#/#grasshopper:libera.chat of een foutenrapport indienen: https://0xacab.org/leap/bitmask_android/
+wie: leap.se, een collectief dat sinds 2011 aan de slag is, gemotiveerd door het recht om te fluisteren.
+Vertalingen worden zeer gewaardeerd in ons Transifex-project: https://app.transifex.com/otf/bitmask/dashboard/
+Als je problemen ervaart of de nieuwste versies wilt proberen, neem dan deel aan onze chat: https://matrix.to/#/#leap:libera.chat of stuur een bugrapport in: https://0xacab.org/leap/bitmask_android/

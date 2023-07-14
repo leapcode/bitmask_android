@@ -9,4 +9,4 @@ FAQ:
 * who: leap.se, a collective that loves the concept of the right to whisper, around since 2011.
 * Translations greatly appreciated at our Transifex project https://app.transifex.com/otf/bitmask/dashboard/
 
-If you experience problems or want to have bleeding edge versions, please join our chat https://matrix.to/#/#grasshopper:libera.chat or write a bug report: https://0xacab.org/leap/bitmask_android/
+If you experience problems or want to have bleeding edge versions, please join our chat https://matrix.to/#/#leap:libera.chat or write a bug report: https://0xacab.org/leap/bitmask_android/
