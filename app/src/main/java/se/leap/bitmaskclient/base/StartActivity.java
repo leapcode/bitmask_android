@@ -25,7 +25,6 @@ import static se.leap.bitmaskclient.base.models.Constants.PREFERENCES_APP_VERSIO
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInPreferences;
 
@@ -38,7 +37,6 @@ import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.security.crypto.EncryptedSharedPreferences;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

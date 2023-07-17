@@ -22,11 +22,9 @@ import static se.leap.bitmaskclient.appUpdate.DownloadBroadcastReceiver.ACTION_D
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.CHECK_VERSION_FILE;
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.DOWNLOAD_UPDATE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheringSupport;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 
-import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 
@@ -42,6 +40,7 @@ import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.appUpdate.DownloadBroadcastReceiver;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PRNGFixes;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EipSetupObserver;
 import se.leap.bitmaskclient.tethering.TetheringStateManager;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
@@ -64,7 +63,7 @@ public class BitmaskApp extends MultiDexApplication {
         // Normal app init code...*/
         PRNGFixes.apply();
         Security.insertProviderAt(Conscrypt.newProvider(), 1);
-        SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = PreferenceHelper.getSharedPreferences(this);
         providerObservable = ProviderObservable.getInstance();
         providerObservable.updateProvider(getSavedProviderFromSharedPreferences(preferences));
         torStatusObservable = TorStatusObservable.getInstance();
