@@ -7,13 +7,13 @@ lang_map = es_AR: es-rAR, fa_IR: fa-rIR, kn_IN: kn-rIN, pt_BR: pt-rBR, pt_PT: pt
 source_file = se.leap.bitmasakclient.json
 type = KEYVALUEJSON
 resource_name = Bitmask details in Appstore
-file_filter = bitmaskclient/google/<lang>-strings.json
+file_filter = src/normal/fastlane/metadata/<lang>/store-meta-<lang>.json
 minimum_perc = 96
 
 [o:otf:p:bitmask:r:riseupvpn-playstore-listing]
 source_file = se.leap.riseupvpn-desc.json
 type = KEYVALUEJSON
 resource_name = RiseupVPN details in Appstore
-file_filter = riseupvpn/google/<lang>-strings.json
+file_filter = src/custom/fastlane/metadata/<lang>/store-meta-<lang>.json
 minimum_perc = 96
 
