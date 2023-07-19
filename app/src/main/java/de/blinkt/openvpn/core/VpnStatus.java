@@ -5,6 +5,8 @@
 
 package de.blinkt.openvpn.core;
 
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
+
 import android.content.Context;
 import android.os.Build;
 import android.os.HandlerThread;
@@ -22,8 +24,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import de.blinkt.openvpn.VpnProfile;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
 
 public class VpnStatus {
 
@@ -484,10 +484,6 @@ public class VpnStatus {
             if (mLogFileHandler != null)
                 mLogFileHandler.sendMessage(mLogFileHandler.obtainMessage(LogFileHandler.TRIM_LOG_FILE));
         }
-
-        //if (BuildConfig.DEBUG && !cachedLine && !BuildConfig.FLAVOR.equals("test"))
-        //    Log.d("OpenVPN", logItem.getString(null));
-
 
         for (LogListener ll : logListener) {
             ll.newLog(logItem);
