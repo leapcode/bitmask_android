@@ -29,6 +29,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOW_ANONYMO
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.TYPE;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.RSAHelper.parseRsaKeyFromString;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 
 import android.os.Parcel;
@@ -44,6 +45,7 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
@@ -79,6 +81,8 @@ public final class Provider implements Parcelable {
     private String caCert = "";
     private String apiVersion = "";
     private String privateKey = "";
+
+    private transient RSAPrivateKey rsaPrivateKey = null;
     private String vpnCertificate = "";
     private long lastEipServiceUpdate = 0L;
     private long lastGeoIpUpdate = 0L;
@@ -699,6 +703,13 @@ public final class Provider implements Parcelable {
 
     public String getPrivateKey() {
         return privateKey;
+    }
+
+    public RSAPrivateKey getRSAPrivateKey() {
+        if (rsaPrivateKey == null) {
+            rsaPrivateKey = parseRsaKeyFromString(privateKey);
+        }
+        return rsaPrivateKey;
     }
 
     public void setPrivateKey(String privateKey) {

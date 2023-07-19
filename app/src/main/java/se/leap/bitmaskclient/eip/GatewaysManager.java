@@ -22,7 +22,6 @@ import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAYS;
 import static se.leap.bitmaskclient.base.models.Constants.HOST;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.SORTED_GATEWAYS;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningCert;
@@ -123,6 +122,7 @@ public class GatewaysManager {
     private TransportType selectedTransport;
 
     GatewaySelector gatewaySelector;
+
 
     public GatewaysManager(Context context) {
         this.context = context;
@@ -392,7 +392,6 @@ public class GatewaysManager {
          try {
              JSONObject eipDefinition = provider.getEipServiceJson();
              JSONObject secrets = secretsConfigurationFromCurrentProvider();
-
              JSONArray gatewaysDefined = new JSONArray();
              try {
                  gatewaysDefined = eipDefinition.getJSONArray(GATEWAYS);
@@ -488,10 +487,8 @@ public class GatewaysManager {
     private JSONObject secretsConfigurationFromCurrentProvider() {
         JSONObject result = new JSONObject();
         Provider provider = ProviderObservable.getInstance().getCurrentProvider();
-
         try {
             result.put(Provider.CA_CERT, provider.getCaCert());
-            result.put(PROVIDER_PRIVATE_KEY, provider.getPrivateKey());
             result.put(PROVIDER_VPN_CERTIFICATE, provider.getVpnCertificate());
         } catch (JSONException e) {
             e.printStackTrace();

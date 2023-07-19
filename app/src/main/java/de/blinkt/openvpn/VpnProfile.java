@@ -76,6 +76,7 @@ import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.ConnectionAdapter;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
 
 public class VpnProfile implements Serializable, Cloneable {
     // Note that this class cannot be moved to core where it belongs since
@@ -442,8 +443,9 @@ public class VpnProfile implements Serializable, Cloneable {
                 cfg.append(insertFileData("ca", mCaFilename));
 
                 // Client Cert + Key
-                cfg.append(insertFileData("key", mClientKeyFilename));
                 cfg.append(insertFileData("cert", mClientCertFilename));
+                mPrivateKey = ProviderObservable.getInstance().getCurrentProvider().getRSAPrivateKey();
+                cfg.append("management-external-key nopadding pkcs1 pss digest\n");
 
                 break;
             case VpnProfile.TYPE_USERPASS_PKCS12:
@@ -761,7 +763,7 @@ public class VpnProfile implements Serializable, Cloneable {
     public Intent prepareStartService(Context context) {
         Intent intent = getStartServiceIntent(context);
 
-        // TODO: Handle this?!
+        // This can remain outcommented for now, Bitmask uses VpnProfile.TYPE_CERTIFICATE
 //        if (mAuthenticationType == VpnProfile.TYPE_KEYSTORE || mAuthenticationType == VpnProfile.TYPE_USERPASS_KEYSTORE) {
 //            if (getKeyStoreCertificates(context) == null)
 //                return null;
@@ -843,6 +845,14 @@ public class VpnProfile implements Serializable, Cloneable {
         return ExtAuthHelper.getCertificateChain(context, mExternalAuthenticator, mAlias);
     }
 
+    /**
+     * returns an array certificates, depending on the profile type either from the keychain or an external cert provider
+     * @param context
+     * @return pem encoded certificates, where:
+     *  [0] is the ca cert
+     *  [1] is an optional extra cert
+     *  [2] is the vpn certificate
+     */
     public String[] getExternalCertificates(Context context) {
         return getExternalCertificates(context, 5);
     }
@@ -977,8 +987,9 @@ public class VpnProfile implements Serializable, Cloneable {
         if (mUseTLSAuth && TextUtils.isEmpty(mTLSAuthFilename))
             return R.string.missing_tlsauth;
 
-        if ((mAuthenticationType == TYPE_USERPASS_CERTIFICATES || mAuthenticationType == TYPE_CERTIFICATES)
-                && (TextUtils.isEmpty(mClientCertFilename) || TextUtils.isEmpty(mClientKeyFilename)))
+        if ((mAuthenticationType == TYPE_USERPASS_CERTIFICATES &&
+                (TextUtils.isEmpty(mClientCertFilename) || (TextUtils.isEmpty(mClientKeyFilename)))) ||
+                mAuthenticationType == TYPE_CERTIFICATES && TextUtils.isEmpty(mClientCertFilename))
             return R.string.missing_certificates;
 
         if ((mAuthenticationType == TYPE_CERTIFICATES || mAuthenticationType == TYPE_USERPASS_CERTIFICATES)
