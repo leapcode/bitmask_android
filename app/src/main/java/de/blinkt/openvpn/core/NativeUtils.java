@@ -29,6 +29,21 @@ public class NativeUtils {
     private static native String getJNIAPI();
 
 
+    static boolean rsspssloaded = false;
+
+    public static byte[] addRssPssPadding(int hashtype, int MSBits, int rsa_size, byte[] from)
+    {
+        if (!rsspssloaded) {
+            rsspssloaded = true;
+            System.loadLibrary("rsapss");
+        }
+
+        return rsapss(hashtype, MSBits, rsa_size, from);
+    }
+
+    private static native byte[] rsapss(int hashtype, int MSBits, int rsa_size, byte[] from);
+
+
     public final static int[] openSSLlengths = {
         16, 64, 256, 1024, 8 * 1024, 16 * 1024
     };
