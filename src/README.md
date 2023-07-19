@@ -30,7 +30,7 @@ You need the tx cli client from transifex, pyton3, ptyhon3-babel
 ## How to update FROM the google play store:
 
 Install fastlane:
-https://docs.fastlane.tools/getting-started/ios/setup/
+https://docs.fastlane.tools/getting-started/android/setup/
 update bundle
 
 This will fetch the existing metadata. If you updated something through your browser, you can fetch that. There's no 'merge' functionality!
