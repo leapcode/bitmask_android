@@ -26,4 +26,6 @@
     <color name="color_font_btn_secondary">@color/black800</color>
     <!-- button text colors in Alerts -->
     <color name="color_font_btn">@color/black800</color>
+    <!-- background color of the splash screen -->
+    <color name="windowSplashScreenBackgroundColor">@color/colorPrimary</color>
 </resources>
