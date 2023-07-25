@@ -80,4 +80,7 @@
     <!-- default action bar colors used in other fragments than EipFragment -->
     <color name="colorActionBarTitleFont">@color/white</color>
     <color name="colorActionBarSubtitleFont">@color/black800</color>
+
+    <!-- background color of the splash screen -->
+    <color name="windowSplashScreenBackgroundColor">@color/white</color>
 </resources>
