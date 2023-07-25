@@ -87,6 +87,7 @@ import static se.leap.bitmaskclient.testutils.MockHelper.mockConfigHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockIntent;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockPreferenceHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnector;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockRSAHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResources;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResultReceiver;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
@@ -102,7 +103,7 @@ import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
  */
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ProviderApiManager.class, TextUtils.class, ConfigHelper.class, ProviderApiConnector.class, PreferenceHelper.class, TorStatusObservable.class, android.util.Base64.class})
+@PrepareForTest({ProviderApiManager.class, TextUtils.class, ConfigHelper.RSAHelper.class, ConfigHelper.class, ProviderApiConnector.class, PreferenceHelper.class, TorStatusObservable.class, android.util.Base64.class})
 public class ProviderApiManagerTest {
 
     private SharedPreferences mockPreferences;
@@ -805,6 +806,7 @@ public class ProviderApiManagerTest {
         Provider provider = getConfiguredProviderAPIv4();
 
         mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
+        mockRSAHelper();
         mockBase64();
         mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
 
@@ -849,6 +851,7 @@ public class ProviderApiManagerTest {
 
         mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockBase64();
+        mockRSAHelper();
         mockProviderApiConnector(NO_ERROR_API_V4);
         mockPreferences.edit().putBoolean(USE_BRIDGES, true).putBoolean(USE_SNOWFLAKE, true).commit();
 

@@ -16,8 +16,18 @@
  */
 package se.leap.bitmaskclient.tethering;
 
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,19 +47,12 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import se.leap.bitmaskclient.base.utils.Cmd;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({WifiManagerWrapper.class, TetheringStateManager.class, Cmd.class, NetworkInterface.class})
+@PrepareForTest({WifiManagerWrapper.class, TetheringStateManager.class, Cmd.class, NetworkInterface.class, PreferenceHelper.class})
 public class TetheringStateManagerTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -64,6 +67,10 @@ public class TetheringStateManagerTest {
     public void setup() throws Exception {
         PowerMockito.whenNew(IntentFilter.class).withArguments(anyString()).thenReturn(intentFilter);
         PowerMockito.whenNew(IntentFilter.class).withNoArguments().thenReturn(intentFilter);
+        mockStatic(PreferenceHelper.class);
+        SharedPreferences sharedPreferences = new MockSharedPreferences();
+        when(PreferenceHelper.getSharedPreferences(any())).thenReturn(sharedPreferences);
+
         observable = TetheringObservable.getInstance();
 
     }

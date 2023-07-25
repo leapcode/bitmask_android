@@ -25,7 +25,6 @@ import static se.leap.bitmaskclient.base.models.Constants.PREFERENCES_APP_VERSIO
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInPreferences;
 
@@ -81,7 +80,7 @@ public class StartActivity extends Activity{
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = PreferenceHelper.getSharedPreferences(this);
 
         Log.d(TAG, "Started");
 
@@ -103,9 +102,26 @@ public class StartActivity extends Activity{
         // initialize app necessities
         VpnStatus.initLogCache(getApplicationContext().getCacheDir());
 
+        sanitizeStartIntent();
         prepareEIP();
 
     }
+
+    private void sanitizeStartIntent() {
+        Intent intent = new Intent();
+        try {
+            if (getIntent().hasExtra(EIP_RESTART_ON_BOOT)) {
+                intent.putExtra(EIP_RESTART_ON_BOOT, getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false));
+            }
+            if (getIntent().hasExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
+                intent.putExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE, false);
+            }
+        } catch (RuntimeException e) {
+
+        }
+        this.setIntent(intent);
+    }
+
 
     /**
      *  check if normal start, first run, up or downgrade
@@ -178,6 +194,11 @@ public class StartActivity extends Activity{
                 PreferenceHelper.deleteCurrentProviderDetailsFromPreferences(preferences);
                 ProviderObservable.getInstance().updateProvider(new Provider());
             }
+        }
+
+        if (hasNewFeature(FeatureVersionCode.ENCRYPTED_SHARED_PREFS)) {
+            PreferenceHelper.migrateToEncryptedPrefs(this);
+            preferences = PreferenceHelper.getSharedPreferences(this);
         }
 
         // always check if manual gateway selection feature switch has been disabled

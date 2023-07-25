@@ -1,5 +1,10 @@
 package se.leap.bitmaskclient.base;
 
+import static android.content.Intent.ACTION_BOOT_COMPLETED;
+import static se.leap.bitmaskclient.base.models.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
+import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,12 +13,7 @@ import android.os.Build;
 import android.util.Log;
 
 import de.blinkt.openvpn.core.VpnStatus;
-
-import static android.content.Intent.ACTION_BOOT_COMPLETED;
-import static se.leap.bitmaskclient.base.models.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 public class OnBootReceiver extends BroadcastReceiver {
 
@@ -26,7 +26,7 @@ public class OnBootReceiver extends BroadcastReceiver {
         if (intent == null || !ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             return;
         }
-        preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        preferences = PreferenceHelper.getSharedPreferences(context);
         boolean providerConfigured = !preferences.getString(PROVIDER_VPN_CERTIFICATE, "").isEmpty();
         boolean startOnBoot = preferences.getBoolean(EIP_RESTART_ON_BOOT, false) && Build.VERSION.SDK_INT < Build.VERSION_CODES.O;
         boolean isAlwaysOnConfigured = VpnStatus.isAlwaysOn();

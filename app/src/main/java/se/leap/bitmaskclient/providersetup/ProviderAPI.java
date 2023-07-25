@@ -19,7 +19,6 @@ package se.leap.bitmaskclient.providersetup;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
@@ -31,11 +30,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.concurrent.TimeoutException;
 
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.tor.TorServiceCommand;
-import se.leap.bitmaskclient.tor.TorServiceConnection;
-
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 
 /**
  * Implements HTTP api methods (encapsulated in {{@link ProviderApiManager}})
@@ -180,9 +177,8 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
 
 
     private ProviderApiManager initApiManager() {
-        SharedPreferences preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
         OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(getResources());
-        return new ProviderApiManager(preferences, getResources(), clientGenerator, this);
+        return new ProviderApiManager(PreferenceHelper.getSharedPreferences(this), getResources(), clientGenerator, this);
     }
 
 }

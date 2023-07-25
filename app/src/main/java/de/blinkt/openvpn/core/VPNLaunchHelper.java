@@ -5,7 +5,6 @@
 
 package de.blinkt.openvpn.core;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 

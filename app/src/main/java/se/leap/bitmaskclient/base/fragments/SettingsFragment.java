@@ -1,12 +1,10 @@
 package se.leap.bitmaskclient.base.fragments;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.R.string.advanced_settings;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAY_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_OBFUSCATION_PINNING;
@@ -71,7 +69,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = PreferenceHelper.getSharedPreferences(getContext());
         preferences.registerOnSharedPreferenceChangeListener(this);
         firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
     }

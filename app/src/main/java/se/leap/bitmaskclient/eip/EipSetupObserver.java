@@ -73,6 +73,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.VpnStatus;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.appUpdate.DownloadServiceCommand;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
@@ -433,6 +434,9 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
     @Override
     public void newLog(LogItem logItem) {
         if (logItem.getLogLevel() == VpnStatus.LogLevel.ERROR) {
+            if (BuildConfig.DEBUG) {
+                Log.e("ERROR", logItem.getString(appContext));
+            }
             switch (logItem.getErrorType()) {
                 case SHAPESHIFTER:
                     VpnProfile profile = VpnStatus.getLastConnectedVpnProfile();

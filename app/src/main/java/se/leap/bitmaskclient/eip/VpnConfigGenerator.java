@@ -490,13 +490,6 @@ public class VpnConfigGenerator {
                             + newLine
                             + "</ca>";
 
-            String key =
-                    "<key>"
-                            + newLine
-                            + secrets.getString(PROVIDER_PRIVATE_KEY)
-                            + newLine
-                            + "</key>";
-
             String openvpnCert =
                     "<cert>"
                             + newLine
@@ -504,7 +497,7 @@ public class VpnConfigGenerator {
                             + newLine
                             + "</cert>";
 
-            return ca + newLine + key + newLine + openvpnCert;
+            return ca + newLine + openvpnCert;
         } catch (JSONException e) {
             e.printStackTrace();
             return "";

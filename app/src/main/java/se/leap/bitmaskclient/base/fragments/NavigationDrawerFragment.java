@@ -25,7 +25,6 @@ import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSaveBattery;
@@ -63,6 +62,7 @@ import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.IconSwitchEntry;
 import se.leap.bitmaskclient.base.views.IconTextEntry;
 import se.leap.bitmaskclient.eip.EipStatus;
@@ -110,7 +110,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         super.onCreate(savedInstanceState);
         // Reads in the flag indicating whether or not the user has demonstrated awareness of the
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
-        preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = PreferenceHelper.getSharedPreferences(getContext());
         preferences.registerOnSharedPreferenceChangeListener(this);
     }
 

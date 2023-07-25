@@ -4,9 +4,9 @@ import java.util.regex.Pattern
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 31
+  compileSdkVersion 33
   ndkVersion "21.4.7075529"
-  buildToolsVersion '31.0.0'
+  buildToolsVersion '33.0.2'
 
   compileOptions {
     targetCompatibility 1.8
@@ -25,7 +25,7 @@ android {
     versionCode 169000
     versionName "1.1.8"
     minSdkVersion 21
-    targetSdkVersion 31
+    targetSdkVersion 33
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
 
@@ -429,6 +429,7 @@ dependencies {
   implementation 'com.squareup.okhttp3:okhttp:4.10.0'
   implementation 'com.squareup.okhttp3:okhttp-dnsoverhttps:4.10.0'
   implementation 'org.conscrypt:conscrypt-android:2.5.2'
+  implementation 'androidx.security:security-crypto:1.1.0-alpha06'
   implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
   implementation 'androidx.annotation:annotation:1.4.0'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'

@@ -16,6 +16,16 @@
  */
 package se.leap.bitmaskclient.base.fragments;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
+import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
+import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
+import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -49,18 +59,6 @@ import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.GatewaysManager;
 
-import static android.content.Context.MODE_PRIVATE;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
-import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
-import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
-
 interface LocationListSelectionListener {
     void onLocationManuallySelected(Location location);
 }
@@ -89,7 +87,7 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         super.onCreate(savedInstanceState);
         gatewaysManager = new GatewaysManager(getContext());
         eipStatus = EipStatus.getInstance();
-        preferences = getContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = PreferenceHelper.getSharedPreferences(getContext());
     }
 
     @Override

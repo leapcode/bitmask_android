@@ -1,7 +1,17 @@
 package se.leap.bitmaskclient.providersetup.activities;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getBootstrapProgress;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastLogs;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastSnowflakeLog;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastTorLog;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.getStringForCurrentStatus;
+
 import android.content.SharedPreferences;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,7 +30,6 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,20 +40,9 @@ import java.util.Observer;
 import butterknife.BindView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.ProviderHeaderView;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
-
-import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
-import static se.leap.bitmaskclient.base.models.Constants.SHARED_PREFERENCES;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.getBootstrapProgress;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastLogs;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastSnowflakeLog;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastTorLog;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.getStringForCurrentStatus;
 
 /**
  * Base Activity for configuration wizard activities
@@ -135,7 +133,7 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        preferences = PreferenceHelper.getSharedPreferences(this);
         provider = getIntent().getParcelableExtra(PROVIDER_KEY);
     }
 

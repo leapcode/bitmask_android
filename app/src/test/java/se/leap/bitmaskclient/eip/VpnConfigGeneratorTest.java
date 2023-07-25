@@ -13,6 +13,7 @@ import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_HOP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.base.models.Constants.OPENVPN_CONFIGURATION;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockRSAHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
 
 import android.content.Context;
@@ -38,6 +39,7 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import de.blinkt.openvpn.core.connection.Obfs4HopConnection;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.testutils.MockHelper;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
@@ -46,7 +48,7 @@ import se.leap.bitmaskclient.testutils.TestSetupHelper;
  * Created by cyberta on 03.10.17.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Log.class, TextUtils.class, PreferenceManager.class, ConfigHelper.ObfsVpnHelper.class})
+@PrepareForTest({Log.class, TextUtils.class, PreferenceManager.class, ProviderObservable.class, ConfigHelper.RSAHelper.class, ConfigHelper.ObfsVpnHelper.class})
 public class VpnConfigGeneratorTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -111,32 +113,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -162,6 +138,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
@@ -232,32 +209,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -283,6 +234,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
@@ -352,32 +304,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -403,6 +329,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "route 37.218.247.60  255.255.255.255 net_gateway\n"+
             "remote-cert-tls server\n" +
@@ -473,32 +400,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -524,6 +425,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "route 37.218.247.60  255.255.255.255 net_gateway\n"+
             "remote-cert-tls server\n" +
@@ -595,32 +497,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -646,6 +522,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
@@ -716,32 +593,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -767,6 +618,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
@@ -837,32 +689,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -888,6 +714,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-256-GCM:AES-128-GCM:AES-128-CBC\n" +
@@ -960,32 +787,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -1011,6 +812,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "comp-lzo\n" +
             "nobind\n"+
@@ -1087,32 +889,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -1138,6 +914,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "comp-lzo\n" +
             "nobind\n"+
@@ -1222,32 +999,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -1273,6 +1024,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "comp-lzo\n" +
             "nobind\n"+
@@ -1350,32 +1102,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -1401,6 +1127,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "nobind\n"+
             "remote-cert-tls server\n" +
@@ -1475,32 +1202,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -1526,6 +1227,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "route 192.81.208.164  255.255.255.255 net_gateway\n"+
             "tun-mtu 48000\n"+
@@ -1604,32 +1306,6 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "\n" +
             "</ca>\n" +
-            "<key>\n" +
-            "-----BEGIN RSA PRIVATE KEY-----\n" +
-            "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDUTYWeGgsHS+fjijmziniNqw6h\n" +
-            "MBpyK4S/cM6PxV28C33VuOWPTMcIYesctjZANWFCggfFTQSjV5Qaxq9UK4i27tayLbCdlVS6hpbl\n" +
-            "Vf4DuI3Gj1Pv1rtITBShtvCf3T7yBnjW4wVpOpsUAAOViKUSvUU3kPPMFWhiGQw8yHYr82ts6XMo\n" +
-            "jwMoonW5Ml4e7C7Cr22QesC63q7emNcpUd0pZGT9C33RgDAHZDMrlyjo4HEp1JbUfB0gbmXElJbE\n" +
-            "1TNdZ62HhgmMjzTUN1GGrQ1t91AEoEQwaK65o4YSj+yFv6KXZZz5OWaz94tKiN9v26EXtBFmRlyb\n" +
-            "6+D9ynSd9LghAgMBAAECggEBANPHLRXkhsHVj1EkzqBx7gXr8CEMmiTvknFh9zvltrZhhDoRQjWr\n" +
-            "chPDkcRHY2Cznvy4N0YyqQDD2ULIlZdSAgPxxothFoBruWSD47yMBmLx08ORsDpcqt/YvPAATJI8\n" +
-            "IpFNsXcyaXBp/M57oRemgnxp/8UJPJmFdWX99H4hvffh/jdj7POgYiWUaAl37XTYZKZ4nzKU2wpL\n" +
-            "EDLj9RKPz9gG7CYp2zrLC9LaAsrXVrKwPBw6g+XwbClaqFj97db3mrY4lr6mTo89qmus1AU+fBDH\n" +
-            "3Xlpmc8JwB+30TvhRNKrpLx9cEjuEj7K1gm8Y4dWCjPi+lNbtAyUBcgPJFa/81ECgYEA7pLoBU/Y\n" +
-            "ZYjyHFca8FvDBcBh6haHfqJr9doXWtgjDrbi3o2n5wHqfKhFWOH6vPEQozkOVeX1ze6HOiRmGBpW\n" +
-            "r+r7x8TD25L7I6HJw3M351RWOAfkF0w/RTVdetcTgduQtfN1u6BDhYSVceXMjyQYx7MhfETWI8Gh\n" +
-            "KSYm8OEDYiUCgYEA489fmbrCcUnXzpTsbswJ5NmSoEXbcX8cLxnQuzE0z9GHhQdrMjOpXR76reTW\n" +
-            "6jcuudarNcwRUYSWWhjCDKHhpx4HhasWPaHgr7jIzcRw8yZSJRSxKr8sl1qh6g7s47JcmfXOMWLt\n" +
-            "yuyE933XrT19Th4ODZHY40Uv35mPjMi9d00CgYEAyRNAQtndBRa7GG/B4Ls2T+6pl+aNJIo4e+no\n" +
-            "rURlp800wWabEPRocdBRQmyULBLxduBr2LIMzhgwGSz8b2wji/l9ZA3PFY135bxClVzSzUIjuO3N\n" +
-            "rGUzHl2wAAyuAFDSUshzfkPBJRNt8aVBF5PQ3t93ZYmPAmv8LPZe875yX5ECgYEAsUEcwK/ZNW7g\n" +
-            "dQPZR4iJNkC4Xu6cBZ6Cnn92swBheEYvLSoNlX0vDZ7aLE3/jzQqrjzC8NP8sbH5jtbuvgeDXZX3\n" +
-            "AmGRp5j6C6A61ihAPmEVz3ZfN8SSfJ3vl//PAIg6lyz0J+cy4Q7RkwSeuVQ72Hl4M8TEvmmKC3Af\n" +
-            "ispy6Y0CgYEAgl1o2lo+ACyk+oVQPaaPqK3d7WOBFp4eR2nXFor/vsx9igQOlZUgzRDQsR8jo1o9\n" +
-            "efOSBf87igrZGgssys89pWa2dnXnz5PMmzkKr6bw4D9Ez6u6Puc9UZhGw/8wDYg6fSosdB9utspm\n" +
-            "M698ycef7jBNMDgmhpSvfw5GctoNQ4s=\n" +
-            "-----END RSA PRIVATE KEY-----\n" +
-            "</key>\n" +
             "<cert>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIEjDCCAnSgAwIBAgIQG6MBp/cd9DlY+7cdvp3R3jANBgkqhkiG9w0BAQsFADBmMRAwDgYDVQQK\n" +
@@ -1655,6 +1331,7 @@ public class VpnConfigGeneratorTest {
             "K2ZoknT+Nno5jgjFuUR3fZseNizEfx7BteooKQ==\n" +
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
+            "management-external-key nopadding pkcs1 pss digest\n" +
             "# crl-verify file missing in config profile\n" +
             "route 192.81.208.164  255.255.255.255 net_gateway\n"+
             "route 192.81.208.165  255.255.255.255 net_gateway\n"+
@@ -1691,6 +1368,8 @@ public class VpnConfigGeneratorTest {
         context = MockHelper.mockContext();
         mockTextUtils();
         mockStatic(PreferenceManager.class);
+        MockHelper.mockProviderObservable(TestSetupHelper.getConfiguredProvider());
+        MockHelper.mockRSAHelper();
         SharedPreferences preferences = mock(SharedPreferences.class, RETURNS_DEEP_STUBS);
         when(PreferenceManager.getDefaultSharedPreferences(any(Context.class))).thenReturn(preferences);
         when(preferences.getBoolean("usesystemproxy", true)).thenReturn(true);

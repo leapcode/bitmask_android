@@ -422,17 +422,11 @@ public class MockHelper {
         mockStatic(android.util.Base64.class);
         when(android.util.Base64.encodeToString(any(), anyInt())).thenAnswer(invocation -> Arrays.toString(Base64.getEncoder().encode((byte[]) invocation.getArguments()[0])));
     }
-    public static void mockConfigHelper(String mockedFingerprint) throws CertificateEncodingException, NoSuchAlgorithmException {
-        mockStatic(ConfigHelper.class);
-        when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
-        when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
-        when(ConfigHelper.parseX509CertificatesFromString(anyString())).thenCallRealMethod();
-        when(ConfigHelper.getProviderFormattedString(any(Resources.class), anyInt())).thenCallRealMethod();
-        when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
-        when(ConfigHelper.isIPv4(anyString())).thenCallRealMethod();
-        when(ConfigHelper.isDefaultBitmask()).thenReturn(true);
-        when(ConfigHelper.getDomainFromMainURL(anyString())).thenCallRealMethod();
-        when(ConfigHelper.parseRsaKeyFromString(anyString())).thenReturn(new RSAPrivateKey() {
+
+    public static void mockRSAHelper() {
+        mockStatic(ConfigHelper.RSAHelper.class);
+
+        when(ConfigHelper.RSAHelper.parseRsaKeyFromString(anyString())).thenReturn(new RSAPrivateKey() {
             @Override
             public BigInteger getPrivateExponent() {
                 return BigInteger.TEN;
@@ -458,6 +452,18 @@ public class MockHelper {
                 return BigInteger.ONE;
             }
         });
+    }
+
+    public static void mockConfigHelper(String mockedFingerprint) throws CertificateEncodingException, NoSuchAlgorithmException {
+        mockStatic(ConfigHelper.class);
+        when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
+        when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
+        when(ConfigHelper.parseX509CertificatesFromString(anyString())).thenCallRealMethod();
+        when(ConfigHelper.getProviderFormattedString(any(Resources.class), anyInt())).thenCallRealMethod();
+        when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
+        when(ConfigHelper.isIPv4(anyString())).thenCallRealMethod();
+        when(ConfigHelper.isDefaultBitmask()).thenReturn(true);
+        when(ConfigHelper.getDomainFromMainURL(anyString())).thenCallRealMethod();
     }
 
     public static void mockPreferenceHelper(final Provider providerFromPrefs) {
