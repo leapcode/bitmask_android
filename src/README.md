@@ -22,7 +22,7 @@ Keep an eye on this [issue](https://gitlab.com/fdroid/fdroidserver/-/issues/829)
 
 ## Notes:
 
-Translations that aren't completed (enough), won't be downloaded.
+Translations that aren't completed (enough), won't be downloaded. Configure in .tx/config
 The scripts create empty json files, because transifex needs them to even check.
 Keep your API tokens at hand.
 You need the tx cli client from transifex, pyton3, ptyhon3-babel
@@ -36,7 +36,15 @@ update bundle
 This will fetch the existing metadata. If you updated something through your browser, you can fetch that. There's no 'merge' functionality!
 You can also use this when adding a new provider.
 
+You need an API token from the Google Play store. If you don't have one yet, we have some links below that should help you get started.
 fastlane supply init -j <YOUR-API-DETAILS.json> -p se.leap.<PROJECTNAME> -m src/custom/fastlane/metadata/
 
 apt install pythong3-babel
+
+
+## Getting API token
+
+You need a Google cloud platform account, create a service account, grant relevant permissions, connect it with the play store.
+https://medium.com/@Codeible/generating-the-json-web-token-for-the-google-play-developer-api-f6be6439b1af
+https://developers.google.com/android-publisher/authorization
 

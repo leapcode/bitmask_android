@@ -3,6 +3,22 @@ host = https://rest.api.transifex.com
 
 lang_map = es_AR: es-rAR, fa_IR: fa-rIR, kn_IN: kn-rIN, pt_BR: pt-rBR, pt_PT: pt-rPT, zh: zh-rCN, zh_TW: zh-rTW, nb: no
 
+[o:otf:p:bitmask:r:bitmask]
+file_filter = app/src/main/res/values-<lang>/strings.xml
+minimum_perc = 75
+source_file = app/src/main/res/values/strings.xml
+source_lang = en
+type = ANDROID
+resource_name = Bitmask Android
+
+[o:otf:p:bitmask:r:riseupvpn]
+file_filter = app/src/custom/res/values-<lang>/strings.xml
+minimum_perc = 75
+source_file = app/src/custom/res/values/strings.xml
+source_lang = en
+type = ANDROID
+resource_name = RiseupVPN Android
+
 [o:otf:p:bitmask:r:bitmask-playstore-listing]
 source_file = se.leap.bitmasakclient.json
 type = KEYVALUEJSON
@@ -16,4 +32,3 @@ type = KEYVALUEJSON
 resource_name = RiseupVPN details in Appstore
 file_filter = src/custom/fastlane/metadata/<lang>/store-meta-<lang>.json
 minimum_perc = 96
-
