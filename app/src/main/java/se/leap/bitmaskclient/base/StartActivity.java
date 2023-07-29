@@ -56,6 +56,7 @@ import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.providersetup.ProviderListActivity;
 import se.leap.bitmaskclient.providersetup.activities.CustomProviderSetupActivity;
+import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 
 /**
  * Activity shown at startup. Evaluates if App is started for the first time or has been upgraded
@@ -249,7 +250,7 @@ public class StartActivity extends Activity{
             getIntent().removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
         }
         if (isDefaultBitmask()) {
-            startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
+            startActivityForResult(new Intent(this, SetupActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
         } else { // custom branded app
             startActivityForResult(new Intent(this, CustomProviderSetupActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
         }

@@ -41,7 +41,7 @@ import se.leap.bitmaskclient.base.models.Provider;
  */
 public class ProviderManager implements AdapteeCollection<Provider> {
 
-    private AssetManager assetsManager;
+    private final AssetManager assetsManager;
     private File externalFilesDir;
     private Set<Provider> defaultProviders;
     private Set<Provider> customProviders;
@@ -49,6 +49,7 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     private Set<String> customProviderURLs;
 
     private static ProviderManager instance;
+    private boolean addDummyEntry = false;
 
     public static ProviderManager getInstance(AssetManager assetsManager, File externalFilesDir) {
         if (instance == null)
@@ -60,6 +61,10 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     @VisibleForTesting
     static void reset() {
         instance = null;
+    }
+
+    public void setAddDummyEntry(boolean addDummyEntry) {
+        this.addDummyEntry = addDummyEntry;
     }
 
     private ProviderManager(AssetManager assetManager, File externalFilesDir) {
@@ -145,13 +150,18 @@ public class ProviderManager implements AdapteeCollection<Provider> {
     }
 
     public List<Provider> providers() {
+       return providers(addDummyEntry);
+    }
+
+    private List<Provider> providers(boolean addEmptyProvider) {
         List<Provider> allProviders = new ArrayList<>();
         allProviders.addAll(defaultProviders);
         if(customProviders != null)
             allProviders.addAll(customProviders);
-        //add an option to add a custom provider
-        //TODO: refactor me?
-        allProviders.add(new Provider());
+        if (addEmptyProvider) {
+            //add an option to add a custom provider
+            allProviders.add(new Provider());
+        }
         return allProviders;
     }
 

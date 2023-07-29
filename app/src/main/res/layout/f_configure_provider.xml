@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/stdpadding"
+    android:layout_margin="@dimen/activity_margin"
+    tools:context=".providersetup.fragments.ProviderSelectionFragment">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="@dimen/activity_margin"
+        >
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:text="@string/configuring_provider"
+            android:paddingBottom="@dimen/stdpadding"
+            />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_circumvention_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:text="@string/description_configure_provider"/>
+
+        <se.leap.bitmaskclient.base.views.ProgressSpinner
+            android:id="@+id/progress_spinner"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/detail_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="1dp"
+            >
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/colorPrimary_transparent"
+                >
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/detail_header_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/stdpadding"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/iv_expand"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_arrow_forward"/>
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/details"
+                        android:textStyle="bold"
+                        android:paddingHorizontal="@dimen/stdpadding"/>
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                        android:id="@+id/expandable_detail_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible"
+                        >
+                    <RelativeLayout
+                        android:id="@+id/connection_detail_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="visible"
+                        >
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tv_tor_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/tor_status"
+                            android:textStyle="bold"
+                            android:paddingHorizontal="@dimen/stdpadding"/>
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/tor_icon"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:layout_below="@id/tv_tor_status"
+                            android:layout_alignParentStart="true"
+                            android:padding="4dp"
+                            android:src="@drawable/ic_tor" />
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tor_state"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fadingEdge="horizontal"
+                            android:maxLines="2"
+                            android:text="@string/configuring_provider"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                            android:layout_alignBottom="@id/tor_icon"
+                            android:layout_toEndOf="@id/tor_icon"
+                            android:layout_alignParentEnd="true"
+                            android:gravity="bottom"
+                            tools:text="test 12321 123 \n sdf,sdf,m\nn 123 "
+                            android:ellipsize="end"
+
+                            tools:visibility="visible"
+                            />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tv_snowflake_status"
+                            android:layout_below="@id/tor_state"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/snowflake_status"
+                            android:textStyle="bold"
+                            android:paddingTop="@dimen/stdpadding"
+                            android:paddingHorizontal="@dimen/stdpadding"/>
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/snowflake_icon"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:src="@drawable/ic_snowflake"
+                            android:layout_below="@id/tv_snowflake_status"
+                            android:layout_alignParentStart="true"
+                            android:layout_marginBottom="@dimen/stdpadding"
+                            android:padding="4dp"
+                            />
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/snowflake_state"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/tor_state"
+                            android:fadingEdge="horizontal"
+                            android:maxLines="2"
+                            android:text="@string/configuring_provider"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                            android:layout_alignTop="@id/snowflake_icon"
+                            android:layout_alignBottom="@+id/snowflake_icon"
+                            android:layout_toEndOf="@+id/snowflake_icon"
+                            android:layout_alignParentEnd="true"
+                            android:paddingBottom="1dp"
+                            android:gravity="bottom"
+                            tools:text="test \n another \n and a third \n blkud"
+                            android:ellipsize="end"
+                            tools:visibility="visible"
+                            />
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tv_logs"
+                            android:layout_below="@id/snowflake_state"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/log_fragment_title"
+                            android:textStyle="bold"
+                            android:paddingTop="@dimen/stdpadding"
+                            android:paddingHorizontal="@dimen/stdpadding"/>
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/connection_detail_logs"
+                            android:layout_below="@+id/tv_logs"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            tools:listitem="@layout/v_log_item"
+                            android:isScrollContainer="false"
+                            />
+
+                    </RelativeLayout>
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </androidx.cardview.widget.CardView>
+
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.core.widget.NestedScrollView>
