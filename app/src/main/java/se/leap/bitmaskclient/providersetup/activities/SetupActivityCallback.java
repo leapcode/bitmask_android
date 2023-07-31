@@ -4,15 +4,24 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import se.leap.bitmaskclient.base.models.Provider;
 
-public interface SetupInterface {
+public interface SetupActivityCallback {
 
     void onSetupStepValidationChanged(boolean isValid);
      void registerOnPageChangeCallback(ViewPager2.OnPageChangeCallback callback);
      void removeOnPageChangeCallback(ViewPager2.OnPageChangeCallback callback);
+
+     void registerCancelCallback(CancelCallback cancelCallback);
+
+     void removeCancelCallback(CancelCallback cancelCallback);
+
+
      void setNavigationButtonHidden(boolean isHidden);
-     void onCanceled();
+
+     void setCancelButtonHidden(boolean isHidden);
 
      void onProviderSelected(Provider provider);
+
+     void onConfigurationSuccess();
 
      Provider getSelectedProvider();
 

@@ -48,6 +48,16 @@ public class ProgressSpinner extends RelativeLayout {
     }
 
     public void update(int progress) {
-        textView.setText(textView.getContext().getString(R.string.percentage, progress));
+        String text = "";
+        if (progress > 0) {
+            if ((progress / 10) == 0) {
+                text = text + " ";
+            }
+            if ((progress / 100) == 0) {
+                text = text + " ";
+            }
+            text = text + progress + "%";
+        }
+        textView.setText(text);
     }
 }

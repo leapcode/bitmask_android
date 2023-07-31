@@ -4,6 +4,8 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM;
 
+import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
+
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,10 +15,13 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
+
+import java.util.HashSet;
+import java.util.Iterator;
 
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
@@ -24,11 +29,15 @@ import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.views.ActionBarTitle;
 import se.leap.bitmaskclient.databinding.ActivitySetupBinding;
 import se.leap.bitmaskclient.providersetup.SetupViewPagerAdapter;
+import se.leap.bitmaskclient.tor.TorServiceCommand;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
-public class SetupActivity extends AppCompatActivity implements SetupInterface {
+public class SetupActivity extends AppCompatActivity implements SetupActivityCallback {
 
+    private static final String TAG = SetupActivity.class.getSimpleName();
     ActivitySetupBinding binding;
     Provider provider;
+    private final HashSet<CancelCallback> cancelCallbacks = new HashSet<>();
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -65,6 +74,17 @@ public class SetupActivity extends AppCompatActivity implements SetupInterface {
                 return;
             }
             binding.viewPager.setCurrentItem(newPos);
+        });
+        binding.setupCancelButton.setOnClickListener(v -> {
+            binding.viewPager.setCurrentItem(0, false);
+            if (TorStatusObservable.getStatus() != OFF) {
+                Log.d(TAG, "SHUTDOWN - cancelSettingUpProvider");
+                TorServiceCommand.stopTorServiceAsync(this);
+            }
+            provider = null;
+            for (CancelCallback cancelCallback : cancelCallbacks) {
+                cancelCallback.onCanceled();
+            }
         });
         setupActionBar();
     }
@@ -116,18 +136,33 @@ public class SetupActivity extends AppCompatActivity implements SetupInterface {
     }
 
     @Override
+    public void registerCancelCallback(CancelCallback cancelCallback) {
+        cancelCallbacks.add(cancelCallback);
+    }
+
+    @Override
+    public void removeCancelCallback(CancelCallback cancelCallback) {
+        cancelCallbacks.remove(cancelCallback);
+    }
+
+    @Override
     public void setNavigationButtonHidden(boolean isHidden) {
         binding.setupNextButton.setVisibility(isHidden ? GONE : VISIBLE);
     }
 
     @Override
-    public void onCanceled() {
-        binding.viewPager.setCurrentItem(0);
+    public void setCancelButtonHidden(boolean isHidden) {
+        binding.setupCancelButton.setVisibility(isHidden ? GONE : VISIBLE);
     }
 
     @Override
     public void onProviderSelected(Provider provider) {
         this.provider = provider;
+    }
+
+    @Override
+    public void onConfigurationSuccess() {
+        binding.viewPager.setCurrentItem(binding.viewPager.getCurrentItem() + 1);
     }
 
     @Override

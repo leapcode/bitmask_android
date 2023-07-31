@@ -54,7 +54,6 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.DateHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EipCommand;
-import se.leap.bitmaskclient.providersetup.ProviderListActivity;
 import se.leap.bitmaskclient.providersetup.activities.CustomProviderSetupActivity;
 import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 

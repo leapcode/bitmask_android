@@ -16,21 +16,39 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.databinding.FProviderSelectionBinding;
-import se.leap.bitmaskclient.providersetup.activities.SetupInterface;
+import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
+import se.leap.bitmaskclient.providersetup.activities.SetupActivityCallback;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModelFactory;
 
-public class ProviderSelectionFragment extends Fragment {
+public class ProviderSelectionFragment extends Fragment implements CancelCallback {
 
     private ProviderSelectionViewModel viewModel;
     private ArrayList<RadioButton> radioButtons;
-    private SetupInterface setupCallback;
+    private SetupActivityCallback setupCallback;
+
+    private FProviderSelectionBinding binding;
+
+    private final ViewPager2.OnPageChangeCallback onPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
+        @Override
+        public void onPageSelected(int position) {
+            super.onPageSelected(position);
+            if (position == 0) {
+                if (setupCallback != null) {
+                    setupCallback.setCancelButtonHidden(!ProviderObservable.getInstance().getCurrentProvider().isConfigured());
+                    setupCallback.setNavigationButtonHidden(false);
+                }
+            }
+        }
+    };
 
     public static ProviderSelectionFragment newInstance() {
         return new ProviderSelectionFragment();
@@ -49,7 +67,7 @@ public class ProviderSelectionFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        FProviderSelectionBinding binding = FProviderSelectionBinding.inflate(inflater, container, false);
+        binding = FProviderSelectionBinding.inflate(inflater, container, false);
 
         radioButtons = new ArrayList<>();
         for (int i = 0; i < viewModel.size(); i++) {
@@ -108,20 +126,27 @@ public class ProviderSelectionFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (getActivity() instanceof SetupInterface) {
-            setupCallback = (SetupInterface) getActivity();
+        if (getActivity() instanceof SetupActivityCallback) {
+            setupCallback = (SetupActivityCallback) getActivity();
+            setupCallback.registerOnPageChangeCallback(onPageChangeCallback);
+            setupCallback.registerCancelCallback(this);
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        if (setupCallback != null) {
+            setupCallback.removeOnPageChangeCallback(onPageChangeCallback);
+            setupCallback.removeCancelCallback(this);
+        }
         setupCallback = null;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        binding = null;
         radioButtons = null;
     }
 
@@ -134,5 +159,10 @@ public class ProviderSelectionFragment extends Fragment {
     public void onResume() {
         super.onResume();
         setupCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
+    }
+
+    @Override
+    public void onCanceled() {
+        binding.providerRadioGroup.check(0);
     }
 }

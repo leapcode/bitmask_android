@@ -7,14 +7,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/stdpadding"
-    android:layout_margin="@dimen/activity_margin"
+    android:layout_marginTop="@dimen/activity_margin"
+    android:layout_marginStart="@dimen/activity_margin"
+    android:layout_marginEnd="@dimen/activity_margin"
     tools:context=".providersetup.fragments.ProviderSelectionFragment">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_margin="@dimen/activity_margin"
+        android:layout_marginTop="@dimen/activity_margin"
+        android:layout_marginStart="@dimen/activity_margin"
+        android:layout_marginEnd="@dimen/activity_margin"
         >
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_title"
@@ -23,18 +27,42 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:text="@string/configuring_provider"
             android:paddingBottom="@dimen/stdpadding"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             />
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_circumvention_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:text="@string/description_configure_provider"/>
+            android:text="@string/description_configure_provider"
+            app:layout_constraintTop_toBottomOf="@id/tv_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
 
         <se.leap.bitmaskclient.base.views.ProgressSpinner
             android:id="@+id/progress_spinner"
             android:layout_width="100dp"
-            android:layout_height="100dp" />
+            android:layout_height="100dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_circumvention_description"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_progress_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintBottom_toBottomOf="@id/progress_spinner"
+            app:layout_constraintTop_toTopOf="@id/progress_spinner"
+            app:layout_constraintStart_toEndOf="@id/progress_spinner"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            tools:text="Starting bridges this is a very long text 123"
+            />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/detail_container"
@@ -42,6 +70,11 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
             app:cardElevation="1dp"
+            app:layout_constraintTop_toBottomOf="@id/progress_spinner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0"
             >
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
@@ -80,7 +113,7 @@
                         android:visibility="gone"
                         tools:visibility="visible"
                         >
-                    <RelativeLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/connection_detail_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -91,6 +124,7 @@
                             android:id="@+id/tv_tor_status"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            app:layout_constraintTop_toTopOf="parent"
                             android:text="@string/tor_status"
                             android:textStyle="bold"
                             android:paddingHorizontal="@dimen/stdpadding"/>
@@ -99,21 +133,24 @@
                             android:id="@+id/tor_icon"
                             android:layout_width="35dp"
                             android:layout_height="35dp"
-                            android:layout_below="@id/tv_tor_status"
-                            android:layout_alignParentStart="true"
+                            app:layout_constraintTop_toBottomOf="@id/tv_tor_status"
+                            app:layout_constraintStart_toStartOf="parent"
                             android:padding="4dp"
                             android:src="@drawable/ic_tor" />
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/tor_state"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
                             android:fadingEdge="horizontal"
                             android:maxLines="2"
                             android:text="@string/configuring_provider"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                            android:layout_alignBottom="@id/tor_icon"
-                            android:layout_toEndOf="@id/tor_icon"
-                            android:layout_alignParentEnd="true"
+                            app:layout_constraintTop_toTopOf="@id/tor_icon"
+                            app:layout_constraintBottom_toBottomOf="@id/tor_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/tor_icon"
+                            app:layout_constraintHorizontal_bias="0"
+                            android:paddingHorizontal="@dimen/stdpadding"
                             android:gravity="bottom"
                             tools:text="test 12321 123 \n sdf,sdf,m\nn 123 "
                             android:ellipsize="end"
@@ -123,8 +160,10 @@
 
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/tv_snowflake_status"
-                            android:layout_below="@id/tor_state"
-                            android:layout_width="match_parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/tor_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:text="@string/snowflake_status"
                             android:textStyle="bold"
@@ -136,25 +175,28 @@
                             android:layout_width="35dp"
                             android:layout_height="35dp"
                             android:src="@drawable/ic_snowflake"
-                            android:layout_below="@id/tv_snowflake_status"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/tv_snowflake_status"
                             android:layout_alignParentStart="true"
                             android:layout_marginBottom="@dimen/stdpadding"
                             android:padding="4dp"
                             />
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/snowflake_state"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/tor_state"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintStart_toEndOf="@id/snowflake_icon"
+                            app:layout_constraintTop_toTopOf="@id/snowflake_icon"
+                            app:layout_constraintBottom_toBottomOf="@id/snowflake_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0"
+                            android:paddingBottom="1dp"
+                            android:paddingHorizontal="@dimen/stdpadding"
                             android:fadingEdge="horizontal"
                             android:maxLines="2"
                             android:text="@string/configuring_provider"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                            android:layout_alignTop="@id/snowflake_icon"
-                            android:layout_alignBottom="@+id/snowflake_icon"
-                            android:layout_toEndOf="@+id/snowflake_icon"
-                            android:layout_alignParentEnd="true"
-                            android:paddingBottom="1dp"
+
                             android:gravity="bottom"
                             tools:text="test \n another \n and a third \n blkud"
                             android:ellipsize="end"
@@ -162,7 +204,9 @@
                             />
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/tv_logs"
-                            android:layout_below="@id/snowflake_state"
+                            app:layout_constraintTop_toBottomOf="@id/snowflake_state"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/log_fragment_title"
@@ -171,18 +215,21 @@
                             android:paddingHorizontal="@dimen/stdpadding"/>
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/connection_detail_logs"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/tv_logs"
+                            app:layout_constraintHeight_max="180dp"
                             android:layout_below="@+id/tv_logs"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
                             tools:listitem="@layout/v_log_item"
                             android:isScrollContainer="false"
                             />
-
-                    </RelativeLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.appcompat.widget.LinearLayoutCompat>
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.cardview.widget.CardView>
 
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
