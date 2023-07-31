@@ -224,5 +224,11 @@
     <string name="details">Details</string>
     <string name="tor_status">Tor Status</string>
     <string name="snowflake_status">Snowflake Status</string>
+    <string name="snowflake_started">Snowflake client started</string>
+    <string name="snowflake_negotiating_rendezvous_http">Negotiating Snowflake proxy rendezvous (http)</string>
+    <string name="snowflake_negotiating_rendezvous_amp_cache">Negotiating Snowflake proxy rendezvous (amp cache)</string>
+    <string name="snowflake_socks_error">Snowflake SOCKS error</string>
+    <string name="snowflake_broker_success">Snowflake proxy rendezvous successful</string>
+    <string name="snowflake_sending_data">Sending data via Snowflake</string>
 
 </resources>
