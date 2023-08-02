@@ -19,6 +19,7 @@ import okhttp3.dnsoverhttps.DnsOverHttps;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.IPAddress;
+import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 public class DnsResolver implements Dns {
     OkHttpClient dohHttpClient;
@@ -34,7 +35,7 @@ public class DnsResolver implements Dns {
     public List<InetAddress> lookup(@NonNull String hostname) throws UnknownHostException {
         Log.d("DNS", "trying to resolve DNS for " + hostname);
         List<InetAddress> list = null;
-        if (preferDoH) {
+        if (preferDoH && !"127.0.0.1".equals(hostname)) {
             if ((list = tryLookupDoH(hostname)) == null) {
                 list  = tryLookupSystemDNS(hostname);
             }
@@ -71,7 +72,7 @@ public class DnsResolver implements Dns {
 
     private List<InetAddress> tryLookupSystemDNS(@NonNull String hostname) throws RuntimeException, UnknownHostException {
         try {
-            Log.d("DNS", "trying to resolve " + hostname + "with system DNS");
+            Log.d("DNS", "trying to resolve " + hostname + " with system DNS");
             return Dns.SYSTEM.lookup(hostname);
         } catch (UnknownHostException e) {
             e.printStackTrace();
