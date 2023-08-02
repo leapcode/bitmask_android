@@ -47,7 +47,6 @@
                 android:layout_margin="4dp"
                 >
                 <View
-                    android:id="@+id/indicator1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/colorPrimary"/>
@@ -60,7 +59,6 @@
                 android:layout_margin="4dp"
                 >
                 <View
-                    android:id="@+id/indicator2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/colorPrimary"/>
@@ -73,7 +71,6 @@
                 android:layout_margin="4dp"
                 >
                 <View
-                    android:id="@+id/indicator3"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/colorPrimary"/>
@@ -84,9 +81,9 @@
                 app:cardCornerRadius="6dp"
                 app:cardElevation="0dp"
                 android:layout_margin="4dp"
+                android:visibility="gone"
                 >
                 <View
-                    android:id="@+id/indicator4"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/colorPrimary"/>
@@ -97,9 +94,35 @@
                 app:cardCornerRadius="6dp"
                 app:cardElevation="0dp"
                 android:layout_margin="4dp"
+                android:visibility="gone"
                 >
                 <View
-                    android:id="@+id/indicator5"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorPrimary"/>
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                app:cardCornerRadius="6dp"
+                app:cardElevation="0dp"
+                android:layout_margin="4dp"
+                android:visibility="gone"
+                >
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorPrimary"/>
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                app:cardCornerRadius="6dp"
+                app:cardElevation="0dp"
+                android:layout_margin="4dp"
+                android:visibility="gone"
+                >
+                <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/colorPrimary"/>

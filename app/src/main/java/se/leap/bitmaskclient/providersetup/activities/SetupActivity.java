@@ -4,6 +4,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM;
 
+import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
 import androidx.annotation.ColorInt;
@@ -12,16 +13,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.VpnService;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
@@ -45,22 +52,39 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         super.onCreate(savedInstanceState);
         binding = ActivitySetupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        SetupViewPagerAdapter adapter = new SetupViewPagerAdapter(getSupportFragmentManager(), getLifecycle());
-        View[] indicatorViews = {
-                binding.indicator1,
-                binding.indicator2,
-                binding.indicator3,
-                binding.indicator4,
-                binding.indicator5
-        };
+        ArrayList<View> indicatorViews = new ArrayList<>();
+
+        for (int i = 0; i < 4; i++) {
+            addIndicatorView(indicatorViews);
+        }
+
+        Intent requestVpnPermission = VpnService.prepare(this);
+        if (requestVpnPermission != null) {
+            addIndicatorView(indicatorViews);
+            addIndicatorView(indicatorViews);
+        }
+
+        boolean showNotificationPermissionFragments = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                showNotificationPermissionFragments = shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
+                if (showNotificationPermissionFragments) {
+                    addIndicatorView(indicatorViews);
+                    addIndicatorView(indicatorViews);
+                }
+            }
+        }
+
+        SetupViewPagerAdapter adapter = new SetupViewPagerAdapter(getSupportFragmentManager(), getLifecycle(), requestVpnPermission, showNotificationPermissionFragments);
+
         binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                for (int i = 0; i < indicatorViews.length; i++) {
-                    indicatorViews[i].setBackgroundColor(ContextCompat.getColor(
-                            SetupActivity.this,
-                            i == position ? R.color.colorPrimaryDark : R.color.colorDisabled));
+                for (int i = 0; i < indicatorViews.size(); i++) {
+                    ((ViewGroup) indicatorViews.get(i)).
+                            getChildAt(0).
+                            setBackgroundColor(ContextCompat.getColor(SetupActivity.this, (i == position) ? R.color.colorPrimaryDark : R.color.colorDisabled));
                 }
             }
         });
@@ -87,6 +111,20 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
             }
         });
         setupActionBar();
+
+    }
+
+    private void addIndicatorView(ArrayList<View> indicatorViews) {
+        // FIXME: we have to work around a bug in our usage of CardView, that
+        //  doesn't let us programmatically add new indicator views as needed.
+        //  for some reason the cardBackgroundColor property is ignored if we add
+        //  the card view dynamically
+        View v = binding.indicatorContainer.getChildAt(indicatorViews.size());
+        if (v == null) {
+            throw new IllegalStateException("Too few indicator views in layout hard-coded");
+        }
+        v.setVisibility(VISIBLE);
+        indicatorViews.add(v);
     }
 
     private void setupActionBar() {
@@ -114,11 +152,6 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
             actionBar.setCustomView(actionBarTitle);
         }
     }
-
-    public int getCurrentFragmentPosition() {
-        return binding.viewPager.getCurrentItem();
-    }
-
 
     @Override
     public void onSetupStepValidationChanged(boolean isValid) {
@@ -168,6 +201,19 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
     @Override
     public Provider getSelectedProvider() {
         return provider;
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        return binding.viewPager.getCurrentItem();
+    }
+
+    @Override
+    public void onSetupFinished() {
+        Intent intent = getIntent();
+        intent.putExtra(Provider.KEY, provider);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
 }

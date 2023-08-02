@@ -8,15 +8,18 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.databinding.FCircumventionSetupBinding;
 
-public class CircumventionSetupFragment extends Fragment {
+public class CircumventionSetupFragment extends BaseSetupFragment {
 
-    public static CircumventionSetupFragment newInstance() {
-        return new CircumventionSetupFragment();
+    private CircumventionSetupFragment(int position) {
+        super(position);
+    }
+
+    public static CircumventionSetupFragment newInstance(int position) {
+        return new CircumventionSetupFragment(position);
     }
 
     @Override
@@ -42,5 +45,12 @@ public class CircumventionSetupFragment extends Fragment {
         });
         binding.circumventionRadioGroup.check(binding.rbPlainVpn.getId());
         return binding.getRoot();
+    }
+
+    @Override
+    public void onFragmentSelected() {
+        super.onFragmentSelected();
+        setupActivityCallback.setCancelButtonHidden(false);
+        setupActivityCallback.setNavigationButtonHidden(false);
     }
 }

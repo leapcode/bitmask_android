@@ -14,9 +14,7 @@ import android.widget.RadioButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
 
@@ -25,33 +23,22 @@ import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.databinding.FProviderSelectionBinding;
 import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
-import se.leap.bitmaskclient.providersetup.activities.SetupActivityCallback;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModelFactory;
 
-public class ProviderSelectionFragment extends Fragment implements CancelCallback {
+public class ProviderSelectionFragment extends BaseSetupFragment implements CancelCallback {
 
     private ProviderSelectionViewModel viewModel;
     private ArrayList<RadioButton> radioButtons;
-    private SetupActivityCallback setupCallback;
 
     private FProviderSelectionBinding binding;
 
-    private final ViewPager2.OnPageChangeCallback onPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
-        @Override
-        public void onPageSelected(int position) {
-            super.onPageSelected(position);
-            if (position == 0) {
-                if (setupCallback != null) {
-                    setupCallback.setCancelButtonHidden(!ProviderObservable.getInstance().getCurrentProvider().isConfigured());
-                    setupCallback.setNavigationButtonHidden(false);
-                }
-            }
-        }
-    };
+    private ProviderSelectionFragment(int position) {
+        super(position);
+    }
 
-    public static ProviderSelectionFragment newInstance() {
-        return new ProviderSelectionFragment();
+    public static ProviderSelectionFragment newInstance(int position) {
+        return new ProviderSelectionFragment(position);
     }
 
     @Override
@@ -92,13 +79,11 @@ public class ProviderSelectionFragment extends Fragment implements CancelCallbac
             }
             binding.providerDescription.setText(viewModel.getProviderDescription(getContext()));
             binding.editCustomProvider.setVisibility(viewModel.getEditProviderVisibility());
-            if (setupCallback != null) {
-                setupCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
-                if (checkedId != ADD_PROVIDER) {
-                    setupCallback.onProviderSelected(viewModel.getProvider(checkedId));
-                } else if (viewModel.isValidConfig()) {
-                    setupCallback.onProviderSelected(new Provider(binding.editCustomProvider.getText().toString()));
-                }
+            setupActivityCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
+            if (checkedId != ADD_PROVIDER) {
+                setupActivityCallback.onProviderSelected(viewModel.getProvider(checkedId));
+            } else if (viewModel.isValidConfig()) {
+                setupActivityCallback.onProviderSelected(new Provider(binding.editCustomProvider.getText().toString()));
             }
         });
         binding.providerRadioGroup.check(viewModel.getSelected());
@@ -110,10 +95,9 @@ public class ProviderSelectionFragment extends Fragment implements CancelCallbac
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 viewModel.setCustomUrl(s.toString());
-                if (setupCallback == null) return;
-                setupCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
+                setupActivityCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
                 if (viewModel.isValidConfig()) {
-                    setupCallback.onProviderSelected(new Provider(s.toString()));
+                    setupActivityCallback.onProviderSelected(new Provider(s.toString()));
                 }
             }
 
@@ -124,23 +108,22 @@ public class ProviderSelectionFragment extends Fragment implements CancelCallbac
     }
 
     @Override
+    public void onFragmentSelected() {
+        super.onFragmentSelected();
+        setupActivityCallback.setCancelButtonHidden(!ProviderObservable.getInstance().getCurrentProvider().isConfigured());
+        setupActivityCallback.setNavigationButtonHidden(false);
+    }
+
+    @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (getActivity() instanceof SetupActivityCallback) {
-            setupCallback = (SetupActivityCallback) getActivity();
-            setupCallback.registerOnPageChangeCallback(onPageChangeCallback);
-            setupCallback.registerCancelCallback(this);
-        }
+        setupActivityCallback.registerCancelCallback(this);
     }
 
     @Override
     public void onDetach() {
+        setupActivityCallback.removeCancelCallback(this);
         super.onDetach();
-        if (setupCallback != null) {
-            setupCallback.removeOnPageChangeCallback(onPageChangeCallback);
-            setupCallback.removeCancelCallback(this);
-        }
-        setupCallback = null;
     }
 
     @Override
@@ -158,7 +141,7 @@ public class ProviderSelectionFragment extends Fragment implements CancelCallbac
     @Override
     public void onResume() {
         super.onResume();
-        setupCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
+        setupActivityCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
     }
 
     @Override

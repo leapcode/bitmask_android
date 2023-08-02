@@ -230,5 +230,11 @@
     <string name="snowflake_socks_error">Snowflake SOCKS error</string>
     <string name="snowflake_broker_success">Snowflake proxy rendezvous successful</string>
     <string name="snowflake_sending_data">Sending data via Snowflake</string>
+    <string name="title_upcoming_connection_request">Upcoming Connection Request</string>
+    <string name="upcoming_connection_request_description">In the next panel Android will remind you that it’s essential to trust your VPN provider. Bitmask only partners with providers that adhere to strict privacy best practices for VPNs and have a verifiable history of protecting user’s data and identities.</string>
+    <string name="title_upcoming_notifications_request">Upcoming Notifications Request</string>
+    <string name="upcoming_notifications_request_description">In the next panel Android will ask if you want to allow notifications. This will ensure a stable background connection and enable you to see your data usage from within Android’s notification center.</string>
+    <string name="title_setup_success">You\'re all set!</string>
+    <string name="setup_success_description">Click the button below to connect</string>
 
 </resources>

@@ -14,7 +14,6 @@ public interface SetupActivityCallback {
 
      void removeCancelCallback(CancelCallback cancelCallback);
 
-
      void setNavigationButtonHidden(boolean isHidden);
 
      void setCancelButtonHidden(boolean isHidden);
@@ -25,5 +24,8 @@ public interface SetupActivityCallback {
 
      Provider getSelectedProvider();
 
+     int getCurrentPosition();
+
+     void onSetupFinished();
 }
 

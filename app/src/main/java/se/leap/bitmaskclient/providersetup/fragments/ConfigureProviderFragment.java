@@ -8,6 +8,8 @@ import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.animateContainerVisibility;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getBootstrapProgress;
@@ -25,10 +27,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.List;
 import java.util.Observable;
@@ -42,10 +42,9 @@ import se.leap.bitmaskclient.eip.EipSetupObserver;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
 import se.leap.bitmaskclient.providersetup.TorLogAdapter;
 import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
-import se.leap.bitmaskclient.providersetup.activities.SetupActivityCallback;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
-public class ConfigureProviderFragment extends Fragment implements Observer, CancelCallback, EipSetupListener {
+public class ConfigureProviderFragment extends BaseSetupFragment implements Observer, CancelCallback, EipSetupListener {
 
     private static final String TAG = ConfigureProviderFragment.class.getSimpleName();
 
@@ -54,15 +53,13 @@ public class ConfigureProviderFragment extends Fragment implements Observer, Can
     }
 
     FConfigureProviderBinding binding;
-    private SetupActivityCallback setupActivityCallback;
     private boolean isExpanded = false;
-    private final int position;
-    private ViewPager2.OnPageChangeCallback viewPagerCallback;
+    private boolean ignoreProviderAPIUpdates = false;
     private TorLogAdapter torLogAdapter;
 
 
-    public ConfigureProviderFragment(int position) {
-        this.position = position;
+    private ConfigureProviderFragment(int position) {
+        super(position);
     }
 
     @Override
@@ -99,39 +96,29 @@ public class ConfigureProviderFragment extends Fragment implements Observer, Can
     }
 
     @Override
+    public void onFragmentSelected() {
+        super.onFragmentSelected();
+        ignoreProviderAPIUpdates = false;
+        binding.detailContainer.setVisibility(PreferenceHelper.getUseSnowflake(getContext()) ? VISIBLE : GONE);
+        setupActivityCallback.setNavigationButtonHidden(true);
+        setupActivityCallback.setCancelButtonHidden(false);
+        ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, setupActivityCallback.getSelectedProvider());
+    }
+
+    @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (getActivity() instanceof SetupActivityCallback) {
-            setupActivityCallback = (SetupActivityCallback) getActivity();
-            viewPagerCallback = new ViewPager2.OnPageChangeCallback() {
-                @Override
-                public void onPageSelected(int position) {
-                    super.onPageSelected(position);
-                    if (position == ConfigureProviderFragment.this.position) {
-                        binding.detailContainer.setVisibility(PreferenceHelper.getUseSnowflake(getContext()) ? VISIBLE : GONE);
-                        setupActivityCallback.setNavigationButtonHidden(true);
-                        setupActivityCallback.setCancelButtonHidden(false);
-                        ProviderAPICommand.execute(context, SET_UP_PROVIDER, setupActivityCallback.getSelectedProvider());
-                    }
-                }
-            };
-            setupActivityCallback.registerOnPageChangeCallback(viewPagerCallback);
-            setupActivityCallback.registerCancelCallback(this);
-        }
+        setupActivityCallback.registerCancelCallback(this);
         TorStatusObservable.getInstance().addObserver(this);
         EipSetupObserver.addListener(this);
     }
 
     @Override
     public void onDetach() {
-        super.onDetach();
+        setupActivityCallback.removeCancelCallback(this);
         TorStatusObservable.getInstance().deleteObserver(this);
-        if (setupActivityCallback != null) {
-            setupActivityCallback.removeOnPageChangeCallback(viewPagerCallback);
-            setupActivityCallback.removeCancelCallback(this);
-            setupActivityCallback = null;
-        }
         EipSetupObserver.removeListener(this);
+        super.onDetach();
     }
 
     protected void showConnectionDetails() {
@@ -185,7 +172,7 @@ public class ConfigureProviderFragment extends Fragment implements Observer, Can
 
     @Override
     public void onCanceled() {
-
+        ignoreProviderAPIUpdates = true;
     }
 
     @Override
@@ -198,10 +185,23 @@ public class ConfigureProviderFragment extends Fragment implements Observer, Can
         if (resultData == null) {
             resultData = Bundle.EMPTY;
         }
+        Provider provider = resultData.getParcelable(PROVIDER_KEY);
+        if (ignoreProviderAPIUpdates ||
+                provider == null ||
+                !setupActivityCallback.getSelectedProvider().getDomain().equals(provider.getDomain())) {
+            return;
+        }
         if (resultCode == PROVIDER_OK) {
-            Provider provider = resultData.getParcelable(PROVIDER_KEY);
+            setupActivityCallback.onProviderSelected(provider);
+            if (provider.allowsAnonymous()) {
+                ProviderAPICommand.execute(this.getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
+            } else {
+                // TODO: implement error message that this client only supports anonymous usage
+            }
+        } else if (resultCode == CORRECTLY_DOWNLOADED_VPN_CERTIFICATE) {
             setupActivityCallback.onProviderSelected(provider);
             setupActivityCallback.onConfigurationSuccess();
         }
     }
+
 }
