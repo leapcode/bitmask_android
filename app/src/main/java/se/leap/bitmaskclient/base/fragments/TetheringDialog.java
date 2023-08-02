@@ -155,9 +155,9 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
 
         builder.setView(view)
                 .setPositiveButton(android.R.string.ok, (dialog, id) -> {
-                    PreferenceHelper.allowWifiTethering(getContext(), dataset[0].checked);
-                    PreferenceHelper.allowUsbTethering(getContext(), dataset[1].checked);
-                    PreferenceHelper.allowBluetoothTethering(getContext(), dataset[2].checked);
+                    PreferenceHelper.allowWifiTethering(dataset[0].checked);
+                    PreferenceHelper.allowUsbTethering(dataset[1].checked);
+                    PreferenceHelper.allowBluetoothTethering(dataset[2].checked);
                     TetheringObservable.allowVpnWifiTethering(dataset[0].checked);
                     TetheringObservable.allowVpnUsbTethering(dataset[1].checked);
                     TetheringObservable.allowVpnBluetoothTethering(dataset[2].checked);
@@ -247,15 +247,15 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
         dataset = new DialogListAdapter.ViewModel[] {
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_wifi),
                         getContext().getString(R.string.tethering_wifi),
-                        PreferenceHelper.isWifiTetheringAllowed(getContext()),
+                        PreferenceHelper.isWifiTetheringAllowed(),
                         TetheringObservable.getInstance().isWifiTetheringEnabled()),
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_usb),
                         getContext().getString(R.string.tethering_usb),
-                        PreferenceHelper.isUsbTetheringAllowed(getContext()),
+                        PreferenceHelper.isUsbTetheringAllowed(),
                         TetheringObservable.getInstance().isUsbTetheringEnabled()),
                 new DialogListAdapter.ViewModel(getContext().getResources().getDrawable(R.drawable.ic_bluetooth),
                         getContext().getString(R.string.tethering_bluetooth),
-                        PreferenceHelper.isBluetoothTetheringAllowed(getContext()),
+                        PreferenceHelper.isBluetoothTetheringAllowed(),
                         TetheringObservable.getInstance().isUsbTetheringEnabled())
         };
     }

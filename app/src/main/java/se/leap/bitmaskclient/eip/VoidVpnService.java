@@ -19,12 +19,10 @@ package se.leap.bitmaskclient.eip;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_BLOCKING_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_IS_ALWAYS_ON;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
 
 import android.app.Notification;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.VpnService;
 import android.os.Binder;
 import android.os.Build;
@@ -84,8 +82,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
             thread = new Thread(new Runnable() {
                 public void run() {
                     establishBlockingVpn();
-                    SharedPreferences preferences = PreferenceHelper.getSharedPreferences(VoidVpnService.this.getApplicationContext());
-                    preferences.edit().putBoolean(EIP_IS_ALWAYS_ON, false).commit();
+                    PreferenceHelper.isAlwaysOnSync(false);
                     Log.d(TAG, "start blocking vpn profile - always on = false");
                 }
             });
@@ -96,8 +93,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
             thread = new Thread(new Runnable() {
                 public void run() {
                     establishBlockingVpn();
-                    SharedPreferences preferences = PreferenceHelper.getSharedPreferences(VoidVpnService.this.getApplicationContext());
-                    preferences.edit().putBoolean(EIP_IS_ALWAYS_ON, true).commit();
+                    PreferenceHelper.isAlwaysOnSync(true);
                     requestVpnWithLastSelectedProfile();
                     Log.d(TAG, "start blocking vpn profile - always on = true");
                 }

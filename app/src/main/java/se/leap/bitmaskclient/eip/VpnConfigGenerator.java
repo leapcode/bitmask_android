@@ -25,7 +25,6 @@ import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS6;
 import static se.leap.bitmaskclient.base.models.Constants.KCP;
 import static se.leap.bitmaskclient.base.models.Constants.PORTS;
 import static se.leap.bitmaskclient.base.models.Constants.PROTOCOLS;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.REMOTE;
 import static se.leap.bitmaskclient.base.models.Constants.TCP;

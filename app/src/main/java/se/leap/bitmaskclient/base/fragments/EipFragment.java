@@ -20,7 +20,6 @@ import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_LOG_IN;
@@ -36,7 +35,6 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -93,8 +91,6 @@ public class EipFragment extends Fragment implements Observer {
 
     public final static String TAG = EipFragment.class.getSimpleName();
 
-
-    private SharedPreferences preferences;
     private Provider provider;
 
     AppCompatImageView background;
@@ -156,12 +152,6 @@ public class EipFragment extends Fragment implements Observer {
         eipStatus = EipStatus.getInstance();
         providerObservable = ProviderObservable.getInstance();
         torStatusObservable = TorStatusObservable.getInstance();
-        Activity activity = getActivity();
-        if (activity != null) {
-            preferences = PreferenceHelper.getSharedPreferences(activity);
-        } else {
-            Log.e(TAG, "activity is null in onCreate - no preferences set!");
-        }
 
         gatewaysManager = new GatewaysManager(getContext());
     }
@@ -274,7 +264,7 @@ public class EipFragment extends Fragment implements Observer {
     }
 
     private void saveStatus(boolean restartOnBoot) {
-        preferences.edit().putBoolean(EIP_RESTART_ON_BOOT, restartOnBoot).apply();
+        PreferenceHelper.restartOnBoot(restartOnBoot);
     }
 
     void handleIcon() {
@@ -438,7 +428,7 @@ public class EipFragment extends Fragment implements Observer {
         Log.d(TAG, "eip fragment eipStatus state: " + eipStatus.getState() + " - level: " + eipStatus.getLevel() + " - is reconnecting: " + eipStatus.isReconnecting());
         if (eipStatus.isUpdatingVpnCert()) {
             setMainButtonEnabled(true);
-            String city = getPreferredCity(getContext());
+            String city = getPreferredCity();
             String locationName = VpnStatus.getCurrentlyConnectingVpnName() != null ?
                     VpnStatus.getCurrentlyConnectingVpnName() :
                     city == null ? getString(R.string.gateway_selection_recommended_location) : city;
@@ -461,7 +451,7 @@ public class EipFragment extends Fragment implements Observer {
             setActivityBarColor(R.color.bg_connecting_top, R.color.bg_connecting_top_light_transparent);
         } else if (eipStatus.isConnecting()) {
             setMainButtonEnabled(true);
-            String city = getPreferredCity(getContext());
+            String city = getPreferredCity();
             String locationName = VpnStatus.getCurrentlyConnectingVpnName() != null ?
                     VpnStatus.getCurrentlyConnectingVpnName() :
                     city == null ? getString(R.string.gateway_selection_recommended_location) : city;
@@ -478,11 +468,11 @@ public class EipFragment extends Fragment implements Observer {
         } else if (eipStatus.isConnected()) {
             setMainButtonEnabled(true);
             mainButton.updateState(true, false);
-            Connection.TransportType transportType = PreferenceHelper.getUseBridges(getContext()) ? Connection.TransportType.OBFS4 : Connection.TransportType.OPENVPN;
-            locationButton.setLocationLoad(PreferenceHelper.useObfuscationPinning(getContext()) ? GatewaysManager.Load.UNKNOWN : gatewaysManager.getLoadForLocation(VpnStatus.getLastConnectedVpnName(), transportType));
+            Connection.TransportType transportType = PreferenceHelper.getUseBridges() ? Connection.TransportType.OBFS4 : Connection.TransportType.OPENVPN;
+            locationButton.setLocationLoad(PreferenceHelper.useObfuscationPinning() ? GatewaysManager.Load.UNKNOWN : gatewaysManager.getLoadForLocation(VpnStatus.getLastConnectedVpnName(), transportType));
             locationButton.setText(VpnStatus.getLastConnectedVpnName());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
-            locationButton.showRecommendedIndicator(getPreferredCity(getContext()) == null);
+            locationButton.showRecommendedIndicator(getPreferredCity() == null);
             mainDescription.setText(R.string.eip_status_secured);
             subDescription.setText(null);
             background.setImageResource(R.drawable.bg_connected);
@@ -495,7 +485,7 @@ public class EipFragment extends Fragment implements Observer {
             locationButton.setText(VpnStatus.getCurrentlyConnectingVpnName());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
             locationButton.showBridgeIndicator(VpnStatus.isUsingBridges());
-            locationButton.showRecommendedIndicator(getPreferredCity(getContext())== null);
+            locationButton.showRecommendedIndicator(getPreferredCity()== null);
             mainDescription.setText(R.string.eip_state_connected);
             subDescription.setText(R.string.eip_state_no_network);
             background.setImageResource(R.drawable.bg_connecting);
@@ -542,7 +532,7 @@ public class EipFragment extends Fragment implements Observer {
             mainButton.updateState(false, false);
             locationButton.setLocationLoad(UNKNOWN);
             locationButton.showBridgeIndicator(false);
-            String city = getPreferredCity(getContext());
+            String city = getPreferredCity();
             locationButton.setText(city == null ? getString(R.string.gateway_selection_recommended_location) : city);
             locationButton.showRecommendedIndicator(false);
             mainDescription.setText(R.string.eip_status_unsecured);

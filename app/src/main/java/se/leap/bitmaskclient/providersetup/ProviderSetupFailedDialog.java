@@ -143,7 +143,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                     handleTorTimeoutError();
                 });
                 builder.setNeutralButton(R.string.retry_unobfuscated, ((dialog, id) -> {
-                    PreferenceHelper.useSnowflake(getContext(), false);
+                    PreferenceHelper.useSnowflake(false);
                     handleTorTimeoutError();
                 }));
             default:
@@ -189,7 +189,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
             interfaceWithConfigurationWizard = (DownloadFailedDialogInterface) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
-                    + " must implement NoticeDialogListener");
+                    + " must implement DownloadFailedDialogInterface");
         }
     }
 

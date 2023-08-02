@@ -101,7 +101,6 @@ import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.ON;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.ResultReceiver;
@@ -172,12 +171,10 @@ public abstract class ProviderApiManagerBase {
 
     private final ProviderApiServiceCallback serviceCallback;
 
-    protected SharedPreferences preferences;
     protected Resources resources;
     OkHttpClientGenerator clientGenerator;
 
-    ProviderApiManagerBase(SharedPreferences preferences, Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
-        this.preferences = preferences;
+    ProviderApiManagerBase(Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
         this.resources = resources;
         this.serviceCallback = callback;
         this.clientGenerator = clientGenerator;
@@ -221,7 +218,7 @@ public abstract class ProviderApiManagerBase {
         }
 
          try {
-             if (PreferenceHelper.hasSnowflakePrefs(preferences) && !VpnStatus.isVPNActive()) {
+             if (PreferenceHelper.hasSnowflakePrefs() && !VpnStatus.isVPNActive()) {
                  startTorProxy();
              }
         } catch (InterruptedException | IllegalStateException e) {
@@ -303,7 +300,7 @@ public abstract class ProviderApiManagerBase {
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     Log.d(TAG, "successfully downloaded VPN certificate");
                     provider.setShouldUpdateVpnCertificate(false);
-                    PreferenceHelper.storeProviderInPreferences(preferences, provider);
+                    PreferenceHelper.storeProviderInPreferences(provider);
                     ProviderObservable.getInstance().updateProvider(provider);
                 }
                 ProviderObservable.getInstance().setProviderForDns(null);
@@ -315,7 +312,7 @@ public abstract class ProviderApiManagerBase {
                     provider.setMotdJson(motd);
                     provider.setLastMotdUpdate(System.currentTimeMillis());
                 }
-                PreferenceHelper.storeProviderInPreferences(preferences, provider);
+                PreferenceHelper.storeProviderInPreferences(provider);
                 ProviderObservable.getInstance().updateProvider(provider);
                 break;
 
@@ -359,7 +356,7 @@ public abstract class ProviderApiManagerBase {
 
     protected boolean startTorProxy() throws InterruptedException, IllegalStateException, TimeoutException {
         if (EipStatus.getInstance().isDisconnected() &&
-                PreferenceHelper.getUseSnowflake(preferences) &&
+                PreferenceHelper.getUseSnowflake() &&
             serviceCallback.startTorService()) {
             waitForTorCircuits();
             if (TorStatusObservable.isCancelled()) {
@@ -385,7 +382,7 @@ public abstract class ProviderApiManagerBase {
 
     void resetProviderDetails(Provider provider) {
         provider.reset();
-        deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
+        deleteProviderDetailsFromPreferences(provider.getDomain());
     }
 
     String formatErrorMessage(final int errorStringId) {
@@ -1037,16 +1034,16 @@ public abstract class ProviderApiManagerBase {
     }
 
     protected String getPersistedPrivateKey(String providerDomain) {
-        return getFromPersistedProvider(PROVIDER_PRIVATE_KEY, providerDomain, preferences);
+        return getFromPersistedProvider(PROVIDER_PRIVATE_KEY, providerDomain);
     }
 
     protected String getPersistedVPNCertificate(String providerDomain) {
-        return getFromPersistedProvider(PROVIDER_VPN_CERTIFICATE, providerDomain, preferences);
+        return getFromPersistedProvider(PROVIDER_VPN_CERTIFICATE, providerDomain);
     }
 
     protected JSONObject getPersistedProviderDefinition(String providerDomain) {
         try {
-            return new JSONObject(getFromPersistedProvider(Provider.KEY, providerDomain, preferences));
+            return new JSONObject(getFromPersistedProvider(Provider.KEY, providerDomain));
         } catch (JSONException e) {
             e.printStackTrace();
             return new JSONObject();
@@ -1054,44 +1051,44 @@ public abstract class ProviderApiManagerBase {
     }
 
     protected String getPersistedProviderCA(String providerDomain) {
-        return getFromPersistedProvider(CA_CERT, providerDomain, preferences);
+        return getFromPersistedProvider(CA_CERT, providerDomain);
     }
 
     protected String getPersistedProviderApiIp(String providerDomain) {
-        return getFromPersistedProvider(PROVIDER_API_IP, providerDomain, preferences);
+        return getFromPersistedProvider(PROVIDER_API_IP, providerDomain);
     }
 
     protected String getPersistedProviderIp(String providerDomain) {
-        return getFromPersistedProvider(PROVIDER_IP, providerDomain, preferences);
+        return getFromPersistedProvider(PROVIDER_IP, providerDomain);
     }
 
     protected String getPersistedGeoIp(String providerDomain) {
-        return getFromPersistedProvider(GEOIP_URL, providerDomain, preferences);
+        return getFromPersistedProvider(GEOIP_URL, providerDomain);
     }
 
     protected JSONObject getPersistedMotd(String providerDomain) {
         try {
-            return new JSONObject(getFromPersistedProvider(PROVIDER_MOTD, providerDomain, preferences));
+            return new JSONObject(getFromPersistedProvider(PROVIDER_MOTD, providerDomain));
         } catch (JSONException e) {
             return new JSONObject();
         }
     }
 
     protected long getPersistedMotdLastSeen(String providerDomain) {
-        return getLongFromPersistedProvider(PROVIDER_MOTD_LAST_SEEN, providerDomain, preferences);
+        return getLongFromPersistedProvider(PROVIDER_MOTD_LAST_SEEN, providerDomain);
     }
 
     protected long getPersistedMotdLastUpdate(String providerDomain) {
-        return getLongFromPersistedProvider(PROVIDER_MOTD_LAST_UPDATED, providerDomain, preferences);
+        return getLongFromPersistedProvider(PROVIDER_MOTD_LAST_UPDATED, providerDomain);
     }
 
     protected Set<String> getPersistedMotdHashes(String providerDomain) {
-        return getStringSetFromPersistedProvider(PROVIDER_MOTD_HASHES, providerDomain, preferences);
+        return getStringSetFromPersistedProvider(PROVIDER_MOTD_HASHES, providerDomain);
     }
 
 
     protected boolean hasUpdatedProviderDetails(String domain) {
-        return preferences.contains(Provider.KEY + "." + domain) && preferences.contains(CA_CERT + "." + domain);
+        return PreferenceHelper.hasKey(Provider.KEY + "." + domain) && PreferenceHelper.hasKey(CA_CERT + "." + domain);
     }
 
     /**

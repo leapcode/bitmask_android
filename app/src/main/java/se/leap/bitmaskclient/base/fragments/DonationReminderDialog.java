@@ -67,13 +67,11 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
             } catch (ActivityNotFoundException e) {
                 e.printStackTrace();
             }
-            PreferenceHelper.putString(getContext(), LAST_DONATION_REMINDER_DATE,
-                    DateHelper.getCurrentDateString());
+            PreferenceHelper.lastDonationReminderDate(DateHelper.getCurrentDateString());
             dismiss();
         });
         btnLater.setOnClickListener(v -> {
-            PreferenceHelper.putString(getContext(), LAST_DONATION_REMINDER_DATE,
-                    DateHelper.getCurrentDateString());
+            PreferenceHelper.lastDonationReminderDate(DateHelper.getCurrentDateString());
             dismiss();
         });
 
@@ -100,9 +98,9 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
             return false;
         }
         
-        String firstTimeUserDate = PreferenceHelper.getString(context, FIRST_TIME_USER_DATE, null);
+        String firstTimeUserDate = PreferenceHelper.getFirstTimeUserDate();
         if (firstTimeUserDate == null) {
-            PreferenceHelper.putString(context, FIRST_TIME_USER_DATE, DateHelper.getCurrentDateString());
+            PreferenceHelper.firstTimeUserDate(DateHelper.getCurrentDateString());
             return false;
         }
 
@@ -114,7 +112,7 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
                 return false;
             }
 
-            String lastDonationReminderDate = PreferenceHelper.getString(context, LAST_DONATION_REMINDER_DATE, null);
+            String lastDonationReminderDate = PreferenceHelper.getLastDonationReminderDate();
             if (lastDonationReminderDate == null) {
                 return true;
             }

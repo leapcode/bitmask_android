@@ -33,7 +33,6 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_LOG_IN;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInPreferences;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_VPN_PREPARE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORID;
@@ -47,7 +46,6 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -92,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     public final static String TAG = MainActivity.class.getSimpleName();
 
     private Provider provider;
-    private SharedPreferences preferences;
     private NavigationDrawerFragment navigationDrawerFragment;
 
     public final static String ACTION_SHOW_VPN_FRAGMENT = "action_show_vpn_fragment";
@@ -112,7 +109,6 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         navigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 
-        preferences = PreferenceHelper.getSharedPreferences(this);
         provider = ProviderObservable.getInstance().getCurrentProvider();
 
         EipSetupObserver.addListener(this);
@@ -253,10 +249,10 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 return;
             }
 
-            storeProviderInPreferences(preferences, provider);
+            PreferenceHelper.storeProviderInPreferences(provider);
             ProviderObservable.getInstance().updateProvider(provider);
             if (!provider.supportsPluggableTransports()) {
-                PreferenceHelper.useBridges(this, false);
+                PreferenceHelper.useBridges(false);
             }
             navigationDrawerFragment.refresh();
 

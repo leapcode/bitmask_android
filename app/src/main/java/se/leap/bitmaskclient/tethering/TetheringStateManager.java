@@ -62,9 +62,9 @@ public class TetheringStateManager {
         intentFilter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
         context.getApplicationContext().registerReceiver(broadcastReceiver, intentFilter);
         instance.wifiManager = new WifiManagerWrapper(context);
-        TetheringObservable.allowVpnWifiTethering(isWifiTetheringAllowed(context));
-        TetheringObservable.allowVpnUsbTethering(isUsbTetheringAllowed(context));
-        TetheringObservable.allowVpnBluetoothTethering(isBluetoothTetheringAllowed(context));
+        TetheringObservable.allowVpnWifiTethering(isWifiTetheringAllowed());
+        TetheringObservable.allowVpnUsbTethering(isUsbTetheringAllowed());
+        TetheringObservable.allowVpnBluetoothTethering(isBluetoothTetheringAllowed());
         updateWifiTetheringState();
         updateUsbTetheringState();
         updateBluetoothTetheringState();

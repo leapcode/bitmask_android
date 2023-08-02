@@ -17,7 +17,6 @@
 package se.leap.bitmaskclient.base.fragments;
 
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.base.models.Constants.DONATION_URL;
@@ -31,6 +30,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSaveBattery;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.saveBattery;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -38,8 +38,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,8 +97,6 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private volatile boolean wasPaused;
     private volatile boolean shouldCloseOnResume;
 
-    private SharedPreferences preferences;
-
     private final static String KEY_SHOW_SAVE_BATTERY_ALERT = "KEY_SHOW_SAVE_BATTERY_ALERT";
     private volatile boolean showSaveBattery = false;
     AlertDialog alertDialog;
@@ -108,10 +104,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Reads in the flag indicating whether or not the user has demonstrated awareness of the
-        // drawer. See PREF_USER_LEARNED_DRAWER for details.
-        preferences = PreferenceHelper.getSharedPreferences(getContext());
-        preferences.registerOnSharedPreferenceChangeListener(this);
+        PreferenceHelper.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -260,7 +253,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     private void initSaveBatteryEntry() {
         saveBattery = drawerView.findViewById(R.id.battery_switch);
         saveBattery.showSubtitle(false);
-        saveBattery.setChecked(getSaveBattery(getContext()));
+        saveBattery.setChecked(getSaveBattery());
         saveBattery.setOnCheckedChangeListener(((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
@@ -268,7 +261,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
             if (isChecked) {
                 showSaveBatteryAlert();
             } else {
-                saveBattery(getContext(), false);
+                saveBattery(false);
             }
         }));
         boolean enableEntry = !TetheringObservable.getInstance().getTetheringState().isVpnTetheringRunning();
@@ -288,7 +281,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
             return;
         }
         manualGatewaySelection = drawerView.findViewById(R.id.manualGatewaySelection);
-        String preferredGateway = getPreferredCity(getContext());
+        String preferredGateway = getPreferredCity();
         String subtitle = preferredGateway != null ? preferredGateway : getString(R.string.gateway_selection_recommended_location);
         manualGatewaySelection.setSubtitle(subtitle);
         boolean show =  ProviderObservable.getInstance().getCurrentProvider().hasGatewaysInDifferentLocations();
@@ -388,7 +381,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                     .setTitle(activity.getString(R.string.save_battery))
                     .setMessage(activity.getString(R.string.save_battery_message))
                     .setPositiveButton((android.R.string.yes), (dialog, which) -> {
-                        saveBattery(getContext(), true);
+                        saveBattery(true);
                     })
                     .setNegativeButton(activity.getString(android.R.string.no), (dialog, which) -> saveBattery.setCheckedQuietly(false))
                     .setOnDismissListener(dialog -> showSaveBattery = false)
@@ -417,7 +410,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     @Override
     public void onDestroy() {
         super.onDestroy();
-        preferences.unregisterOnSharedPreferenceChangeListener(this);
+        PreferenceHelper.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     public void refresh() {

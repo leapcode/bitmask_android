@@ -56,6 +56,8 @@ public class BitmaskApp extends MultiDexApplication {
     private DownloadBroadcastReceiver downloadBroadcastReceiver;
     private TorStatusObservable torStatusObservable;
 
+    private PreferenceHelper preferenceHelper;
+
 
     @Override
     public void onCreate() {
@@ -63,11 +65,11 @@ public class BitmaskApp extends MultiDexApplication {
         // Normal app init code...*/
         PRNGFixes.apply();
         Security.insertProviderAt(Conscrypt.newProvider(), 1);
-        SharedPreferences preferences = PreferenceHelper.getSharedPreferences(this);
+        preferenceHelper = new PreferenceHelper(this);
         providerObservable = ProviderObservable.getInstance();
-        providerObservable.updateProvider(getSavedProviderFromSharedPreferences(preferences));
+        providerObservable.updateProvider(getSavedProviderFromSharedPreferences());
         torStatusObservable = TorStatusObservable.getInstance();
-        EipSetupObserver.init(this, preferences);
+        EipSetupObserver.init(this);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         if (!isCalyxOSWithTetheringSupport(this)) {
             TetheringStateManager.getInstance().init(this);

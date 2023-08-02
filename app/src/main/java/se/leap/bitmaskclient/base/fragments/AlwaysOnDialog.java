@@ -68,7 +68,7 @@ public class AlwaysOnDialog extends AppCompatDialogFragment {
         builder.setView(view)
                 .setPositiveButton(android.R.string.ok, (dialog, id) -> {
                     if (doNotShowAgainCheckBox.isChecked()) {
-                        saveShowAlwaysOnDialog(getContext(), false);
+                        saveShowAlwaysOnDialog(false);
                     }
                     Intent intent = new Intent("android.net.vpn.SETTINGS");
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

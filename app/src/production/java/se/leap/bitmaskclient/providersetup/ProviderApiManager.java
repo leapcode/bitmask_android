@@ -37,7 +37,6 @@ import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWN
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Pair;
@@ -54,6 +53,7 @@ import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EIP;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
@@ -68,8 +68,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
     private static final String TAG = ProviderApiManager.class.getSimpleName();
 
-    public ProviderApiManager(SharedPreferences preferences, Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
-        super(preferences, resources, clientGenerator, callback);
+    public ProviderApiManager(Resources resources, OkHttpClientGenerator clientGenerator, ProviderApiServiceCallback callback) {
+        super(resources, clientGenerator, callback);
     }
 
     /**
@@ -271,7 +271,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
                 if (DEBUG_MODE) {
                     VpnStatus.logDebug("[API] CA CERT: " + certString);
                 }
-                preferences.edit().putString(Provider.CA_CERT + "." + providerDomain, certString).apply();
+                PreferenceHelper.putProviderString(providerDomain, Provider.CA_CERT, certString);
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             } else {
                 setErrorResult(result, warning_corrupted_provider_cert, ERROR_CERTIFICATE_PINNING.toString());

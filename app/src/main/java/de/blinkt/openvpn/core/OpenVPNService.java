@@ -335,7 +335,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             Log.d(TAG, "Starting VPN due to isAlwaysOn system settings or app crash.");
             startWithForegroundNotification();
 
-            mProfile = VpnStatus.getLastConnectedVpnProfile(this);
+            mProfile = VpnStatus.getLastConnectedVpnProfile();
             VpnStatus.logInfo(R.string.service_restarted);
 
             if (mProfile != null) {
@@ -357,7 +357,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         /* start the OpenVPN process itself in a background thread */
         new Thread(this::startOpenVPN).start();
 
-        VpnStatus.setLastConnectedVpnProfile(getApplicationContext(), mProfile);
+        VpnStatus.setLastConnectedVpnProfile(mProfile);
 
         return START_STICKY;
     }

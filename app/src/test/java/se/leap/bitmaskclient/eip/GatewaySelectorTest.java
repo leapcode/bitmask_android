@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import de.blinkt.openvpn.core.ConfigParser;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -69,6 +71,7 @@ public class GatewaySelectorTest {
      */
 
 
+    PreferenceHelper preferenceHelper;
     GatewaySelector gatewaySelector;
     JSONObject eipDefinition;
     ArrayList<Gateway> gatewayList = new ArrayList<>();
@@ -78,6 +81,7 @@ public class GatewaySelectorTest {
         mockStatic(ConfigHelper.class);
         when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
         mockTextUtils();
+        preferenceHelper = new PreferenceHelper(new MockSharedPreferences());
         eipDefinition = new JSONObject(getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-four-gateways.json")));
         JSONArray gateways = eipDefinition.getJSONArray("gateways");
         for (int i = 0; i < gateways.length(); i++) {

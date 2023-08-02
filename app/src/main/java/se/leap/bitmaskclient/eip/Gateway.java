@@ -37,8 +37,6 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPi
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
@@ -86,12 +84,12 @@ public class Gateway {
      * Build a gateway object from a JSON OpenVPN gateway definition in eip-service.json
      * and create a VpnProfile belonging to it.
      */
-    public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway, Context context)
+    public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway)
             throws ConfigParser.ConfigParseError, JSONException, IOException {
-        this(eipDefinition, secrets, gateway, null, context);
+        this(eipDefinition, secrets, gateway, null);
     }
 
-    public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway, JSONObject load, Context context)
+    public Gateway(JSONObject eipDefinition, JSONObject secrets, JSONObject gateway, JSONObject load)
             throws ConfigParser.ConfigParseError, JSONException, IOException {
 
         this.gateway = gateway;
@@ -99,28 +97,28 @@ public class Gateway {
         this.load = load;
 
         apiVersion = getApiVersion(eipDefinition);
-        VpnConfigGenerator.Configuration configuration = getProfileConfig(context, eipDefinition, apiVersion);
+        VpnConfigGenerator.Configuration configuration = getProfileConfig(eipDefinition, apiVersion);
         generalConfiguration = getGeneralConfiguration(eipDefinition);
         timezone = getTimezone(eipDefinition);
         name = configuration.profileName;
         vpnProfiles = createVPNProfiles(configuration);
     }
 
-    private VpnConfigGenerator.Configuration getProfileConfig(Context context, JSONObject eipDefinition, int apiVersion) {
+    private VpnConfigGenerator.Configuration getProfileConfig(JSONObject eipDefinition, int apiVersion) {
         VpnConfigGenerator.Configuration config = new VpnConfigGenerator.Configuration();
         config.apiVersion = apiVersion;
-        config.preferUDP = getPreferUDP(context);
-        config.experimentalTransports = allowExperimentalTransports(context);
-        config.excludedApps = getExcludedApps(context);
+        config.preferUDP = getPreferUDP();
+        config.experimentalTransports = allowExperimentalTransports();
+        config.excludedApps = getExcludedApps();
 
-        config.remoteGatewayIP = config.useObfuscationPinning ? getObfuscationPinningIP(context) : gateway.optString(IP_ADDRESS);
-        config.useObfuscationPinning = useObfuscationPinning(context);
-        config.profileName = config.useObfuscationPinning ? getObfuscationPinningGatewayLocation(context) : locationAsName(eipDefinition);
+        config.remoteGatewayIP = config.useObfuscationPinning ? getObfuscationPinningIP() : gateway.optString(IP_ADDRESS);
+        config.useObfuscationPinning = useObfuscationPinning();
+        config.profileName = config.useObfuscationPinning ? getObfuscationPinningGatewayLocation() : locationAsName(eipDefinition);
         if (config.useObfuscationPinning) {
-            config.obfuscationProxyIP = getObfuscationPinningIP(context);
-            config.obfuscationProxyPort = getObfuscationPinningPort(context);
-            config.obfuscationProxyCert = getObfuscationPinningCert(context);
-            config.obfuscationProxyKCP = getObfuscationPinningKCP(context);
+            config.obfuscationProxyIP = getObfuscationPinningIP();
+            config.obfuscationProxyPort = getObfuscationPinningPort();
+            config.obfuscationProxyCert = getObfuscationPinningCert();
+            config.obfuscationProxyKCP = getObfuscationPinningKCP();
         }
         return config;
     }

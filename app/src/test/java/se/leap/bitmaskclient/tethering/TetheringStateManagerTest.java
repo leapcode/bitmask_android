@@ -68,8 +68,6 @@ public class TetheringStateManagerTest {
         PowerMockito.whenNew(IntentFilter.class).withArguments(anyString()).thenReturn(intentFilter);
         PowerMockito.whenNew(IntentFilter.class).withNoArguments().thenReturn(intentFilter);
         mockStatic(PreferenceHelper.class);
-        SharedPreferences sharedPreferences = new MockSharedPreferences();
-        when(PreferenceHelper.getSharedPreferences(any())).thenReturn(sharedPreferences);
 
         observable = TetheringObservable.getInstance();
 

@@ -11,7 +11,6 @@ import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastSnowflakeLog;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastTorLog;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getStringForCurrentStatus;
 
-import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,7 +38,6 @@ import java.util.Observer;
 import butterknife.BindView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.ProviderHeaderView;
 import se.leap.bitmaskclient.providersetup.TorLogAdapter;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
@@ -54,7 +52,6 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
 
     private static final String TAG = ConfigWizardBaseActivity.class.getName();
     public static final float GUIDE_LINE_COMPACT_DELTA = 0.1f;
-    protected SharedPreferences preferences;
 
     @BindView(R.id.header)
     ProviderHeaderView providerHeaderView;
@@ -133,7 +130,6 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = PreferenceHelper.getSharedPreferences(this);
         provider = getIntent().getParcelableExtra(PROVIDER_KEY);
     }
 

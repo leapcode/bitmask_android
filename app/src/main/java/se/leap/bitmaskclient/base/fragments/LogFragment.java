@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.text.SpannableString;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -56,12 +55,11 @@ import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
 import de.blinkt.openvpn.core.OpenVPNManagement;
 import de.blinkt.openvpn.core.OpenVPNService;
-import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.VpnStatus.LogListener;
 import de.blinkt.openvpn.core.VpnStatus.StateListener;
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.base.models.Constants;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 public class LogFragment extends ListFragment implements StateListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, VpnStatus.ByteCountListener {
     public static final String TAG = LogFragment.class.getSimpleName();
@@ -511,9 +509,9 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
         }
 
         mClearLogCheckBox = v.findViewById(R.id.clearlogconnect);
-        mClearLogCheckBox.setChecked(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(Constants.CLEARLOG, true));
+        mClearLogCheckBox.setChecked(PreferenceHelper.getClearLog());
         mClearLogCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Preferences.getDefaultSharedPreferences(getActivity()).edit().putBoolean(Constants.CLEARLOG, isChecked).apply());
+                PreferenceHelper.setClearLog(isChecked));
 
         mSpeedView = v.findViewById(R.id.speed);
 

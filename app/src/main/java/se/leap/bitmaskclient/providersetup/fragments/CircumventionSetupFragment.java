@@ -29,16 +29,16 @@ public class CircumventionSetupFragment extends BaseSetupFragment {
 
         binding.circumventionRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (binding.rbCircumvention.getId() == checkedId) {
-                PreferenceHelper.useBridges(getContext(), true);
-                PreferenceHelper.useSnowflake(getContext(), true);
+                PreferenceHelper.useBridges(true);
+                PreferenceHelper.useSnowflake(true);
                 binding.tvCircumventionDetailDescription.setVisibility(View.VISIBLE);
                 binding.rbCircumvention.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
                 binding.rbPlainVpn.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
                 return;
             }
 
-            PreferenceHelper.useBridges(getContext(), false);
-            PreferenceHelper.useSnowflake(getContext(), false);
+            PreferenceHelper.useBridges(false);
+            PreferenceHelper.useSnowflake(false);
             binding.tvCircumventionDetailDescription.setVisibility(View.GONE);
             binding.rbPlainVpn.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
             binding.rbCircumvention.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);

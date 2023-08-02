@@ -72,7 +72,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FConfigureProviderBinding.inflate(inflater, container, false);
-        binding.detailContainer.setVisibility(PreferenceHelper.getUseSnowflake(getContext()) ? VISIBLE : GONE);
+        binding.detailContainer.setVisibility(PreferenceHelper.getUseSnowflake() ? VISIBLE : GONE);
         binding.detailHeaderContainer.setOnClickListener(v -> {
             binding.ivExpand.animate().setDuration(250).rotation(isExpanded ? -90 : 0);
             showConnectionDetails();
@@ -99,7 +99,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
     public void onFragmentSelected() {
         super.onFragmentSelected();
         ignoreProviderAPIUpdates = false;
-        binding.detailContainer.setVisibility(PreferenceHelper.getUseSnowflake(getContext()) ? VISIBLE : GONE);
+        binding.detailContainer.setVisibility(PreferenceHelper.getUseSnowflake() ? VISIBLE : GONE);
         setupActivityCallback.setNavigationButtonHidden(true);
         setupActivityCallback.setCancelButtonHidden(false);
         ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, setupActivityCallback.getSelectedProvider());

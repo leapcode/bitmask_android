@@ -15,6 +15,10 @@ package se.leap.bitmaskclient.tor;
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+import static se.leap.bitmaskclient.tor.TorNotificationManager.TOR_SERVICE_NOTIFICATION_ID;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.waitUntil;
+
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
@@ -28,9 +32,6 @@ import org.torproject.jni.TorService;
 import java.util.concurrent.TimeoutException;
 
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-
-import static se.leap.bitmaskclient.tor.TorNotificationManager.TOR_SERVICE_NOTIFICATION_ID;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.waitUntil;
 
 public class TorServiceCommand {
 
@@ -132,7 +133,7 @@ public class TorServiceCommand {
 
     private static TorServiceConnection initTorServiceConnection(Context context) throws InterruptedException, IllegalStateException {
         Log.d(TAG, "initTorServiceConnection");
-        if (PreferenceHelper.getUseSnowflake(context)) {
+        if (PreferenceHelper.getUseSnowflake()) {
             Log.d(TAG, "serviceConnection is still null");
             if (!TorService.hasClientTransportPlugin()) {
                 TorService.setClientTransportPlugin(new ClientTransportPlugin(context.getApplicationContext()));
