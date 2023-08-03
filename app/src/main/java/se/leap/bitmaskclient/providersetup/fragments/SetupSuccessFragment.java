@@ -26,7 +26,12 @@ public class SetupSuccessFragment extends BaseSetupFragment {
                              @Nullable Bundle savedInstanceState) {
         FSetupSuccessBinding binding = FSetupSuccessBinding.inflate(inflater, container, false);
 
-        binding.mainButton.setOnClickListener(v -> setupActivityCallback.onSetupFinished());
+        binding.mainButton.setOnClickListener(v -> {
+            setupActivityCallback.onSetupFinished();
+            binding.mainButton.updateState(false, true);
+            binding.mainButton.setEnabled(false);
+        });
+
         return binding.getRoot();
     }
 
