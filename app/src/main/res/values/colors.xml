@@ -7,8 +7,6 @@
     <color name="colorError">#ef9a9a</color>
     <color name="colorSuccess">#a5d6a7</color>
     <color name="colorDisabled">#AAAAAA</color>
-    <color name="colorMainBtnHighlight">#03DAC6</color>
-    <color name="colorMainBtnError">#eF2222</color>
 
     <color name="black">#000000</color>
     <color name="black800_dark">#1b1b1b</color>
