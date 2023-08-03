@@ -43,7 +43,11 @@ public class CircumventionSetupFragment extends BaseSetupFragment {
             binding.rbPlainVpn.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
             binding.rbCircumvention.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
         });
-        binding.circumventionRadioGroup.check(binding.rbPlainVpn.getId());
+
+        int id = (PreferenceHelper.hasSnowflakePrefs() && PreferenceHelper.getUseSnowflake()) ?
+                binding.rbCircumvention.getId() :
+                binding.rbPlainVpn.getId();
+        binding.circumventionRadioGroup.check(id);
         return binding.getRoot();
     }
 
