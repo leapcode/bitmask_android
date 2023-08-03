@@ -78,4 +78,16 @@ public class ProviderSelectionViewModel extends ViewModel {
     public void setCustomUrl(String url) {
         customUrl = url;
     }
+
+
+    public String getProviderName(int pos) {
+        String domain = getProvider(pos).getDomain();
+        if ("riseup.net".equals(domain)) {
+            return "Riseup";
+        }
+        if ("calyx.net".equals(domain)) {
+            return "The Calyx Institute";
+        }
+        return domain;
+    }
 }

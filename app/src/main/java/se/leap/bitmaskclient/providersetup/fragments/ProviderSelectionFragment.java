@@ -58,9 +58,8 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
 
         radioButtons = new ArrayList<>();
         for (int i = 0; i < viewModel.size(); i++) {
-            Provider provider = viewModel.getProvider(i);
             RadioButton radioButton = new RadioButton(binding.getRoot().getContext());
-            radioButton.setText(provider.getDomain());
+            radioButton.setText(viewModel.getProviderName(i));
             radioButton.setId(i);
             binding.providerRadioGroup.addView(radioButton);
             radioButtons.add(radioButton);
