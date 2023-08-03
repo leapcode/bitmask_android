@@ -250,6 +250,7 @@ public abstract class ProviderApiManagerBase {
                 }
                 ProviderObservable.getInstance().setProviderForDns(null);
                 break;
+
             case SET_UP_PROVIDER:
                 ProviderObservable.getInstance().setProviderForDns(provider);
                 result = setUpProvider(provider, parameters);
@@ -949,7 +950,7 @@ public abstract class ProviderApiManagerBase {
 
         result = validateCertificateForProvider(result, provider);
 
-        //invalid certificate or no certificate
+        //invalid certificate or no certificate or unable to connect due other connectivity issues
         if (result.containsKey(ERRORS) || (result.containsKey(BROADCAST_RESULT_KEY) && !result.getBoolean(BROADCAST_RESULT_KEY)) ) {
             return result;
         }
