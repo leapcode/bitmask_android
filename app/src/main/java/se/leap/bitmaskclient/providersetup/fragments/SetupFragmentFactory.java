@@ -58,4 +58,8 @@ public class SetupFragmentFactory {
     public int getItemCount() {
         return fragmentTypes.size();
     }
+
+    public int getPos(int fragmentType) {
+        return fragmentTypes.indexOf(fragmentType);
+    }
 }

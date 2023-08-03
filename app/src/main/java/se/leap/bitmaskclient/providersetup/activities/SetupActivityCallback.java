@@ -27,5 +27,7 @@ public interface SetupActivityCallback {
      int getCurrentPosition();
 
      void onSetupFinished();
+
+     void onError(String reasonToFail);
 }
 

@@ -54,5 +54,9 @@ public class SetupViewPagerAdapter extends FragmentStateAdapter {
         return setupFragmentFactory.getItemCount();
     }
 
+    public int getFragmentPostion(int fragmentType) {
+        return setupFragmentFactory.getPos(fragmentType);
+    }
+
 
 }

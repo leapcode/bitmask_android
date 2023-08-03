@@ -10,8 +10,14 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.animateContainerVisibility;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.MISSING_NETWORK_CONNECTION;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_EXCEPTION;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getBootstrapProgress;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastLogs;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastSnowflakeLog;
@@ -191,16 +197,28 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
                 !setupActivityCallback.getSelectedProvider().getDomain().equals(provider.getDomain())) {
             return;
         }
-        if (resultCode == PROVIDER_OK) {
-            setupActivityCallback.onProviderSelected(provider);
-            if (provider.allowsAnonymous()) {
-                ProviderAPICommand.execute(this.getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
-            } else {
-                // TODO: implement error message that this client only supports anonymous usage
-            }
-        } else if (resultCode == CORRECTLY_DOWNLOADED_VPN_CERTIFICATE) {
-            setupActivityCallback.onProviderSelected(provider);
-            setupActivityCallback.onConfigurationSuccess();
+
+        switch (resultCode) {
+            case PROVIDER_OK:
+                if (provider.allowsAnonymous()) {
+                    ProviderAPICommand.execute(this.getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
+                } else {
+                    // TODO: implement error message that this client only supports anonymous usage
+                }
+                break;
+            case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
+                setupActivityCallback.onProviderSelected(provider);
+                setupActivityCallback.onConfigurationSuccess();
+                break;
+            case PROVIDER_NOK:
+            case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
+            case MISSING_NETWORK_CONNECTION:
+            case TOR_EXCEPTION:
+            case TOR_TIMEOUT:
+                String reasonToFail = resultData.getString(ERRORS);
+                setupActivityCallback.onError(reasonToFail);
+                break;
+
         }
     }
 
