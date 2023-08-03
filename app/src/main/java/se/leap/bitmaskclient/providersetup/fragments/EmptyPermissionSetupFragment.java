@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import se.leap.bitmaskclient.databinding.FEmptyPermissionSetupBinding;
 import se.leap.bitmaskclient.databinding.FVpnPermissionSetupBinding;
 
 public class EmptyPermissionSetupFragment extends BaseSetupFragment {
@@ -71,7 +72,7 @@ public class EmptyPermissionSetupFragment extends BaseSetupFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        FVpnPermissionSetupBinding binding = FVpnPermissionSetupBinding.inflate(inflater, container, false);
+        FEmptyPermissionSetupBinding binding = FEmptyPermissionSetupBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
