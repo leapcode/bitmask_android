@@ -65,6 +65,7 @@ import se.leap.bitmaskclient.base.views.IconSwitchEntry;
 import se.leap.bitmaskclient.base.views.IconTextEntry;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.providersetup.ProviderListActivity;
+import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 
 /**
@@ -235,7 +236,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
             switchProvider.setVisibility(VISIBLE);
             switchProvider.setOnClickListener(v -> {
                 closeDrawer();
-                getActivity().startActivityForResult(new Intent(getActivity(), ProviderListActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
+                getActivity().startActivityForResult(new Intent(getActivity(), SetupActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
             });
         }
     }
