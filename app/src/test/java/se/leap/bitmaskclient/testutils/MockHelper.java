@@ -26,7 +26,6 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getStringSetFrom
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -523,7 +522,7 @@ public class MockHelper {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 String key = (String) invocation.getArguments()[0];
-                if (key!= null && key.contains(providerFromPrefs.getDomain())) {
+                if (key!= null && key.contains(providerFromPrefs.getDomain()) && !providerFromPrefs.getDomain().isEmpty()) {
                     key = key.substring(0, key.indexOf(providerFromPrefs.getDomain()) - 1 /* -1 -> "." at the end */);
                 }
                 switch (key) {

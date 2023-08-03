@@ -99,9 +99,26 @@ public class ProviderManagerTest {
     }
 
     @Test
-    public void testSize_has5ProvidersWithCurrentTestSetup() {
+    public void testSize_dummyEntry_has5ProvidersWithCurrentTestSetup() {
         providerManager = ProviderManager.getInstance(assetManager, file);
+        providerManager.setAddDummyEntry(true);
         assertEquals("3 preconfigured, 1 custom provider, 1 dummy provider", 5, providerManager.size());
+    }
+
+    @Test
+    public void testSize_has4ProvidersWithCurrentTestSetup() {
+        providerManager = ProviderManager.getInstance(assetManager, file);
+        assertEquals("3 preconfigured, 1 custom provider", 4, providerManager.size());
+    }
+
+
+    @Test
+    public void testAdd_dummyEntry_newCustomProviderThatIsNotPartOfDefaultNorCustomList_returnTrue() throws Exception {
+        providerManager = ProviderManager.getInstance(assetManager, file);
+        providerManager.setAddDummyEntry(true);
+        Provider customProvider = new Provider("https://anewprovider.org");
+        assertTrue("custom provider added: ", providerManager.add(customProvider));
+        assertEquals("3 preconfigured, 2 custom providers, 1 dummy provider", 6, providerManager.providers().size());
     }
 
     @Test
@@ -109,7 +126,16 @@ public class ProviderManagerTest {
         providerManager = ProviderManager.getInstance(assetManager, file);
         Provider customProvider = new Provider("https://anewprovider.org");
         assertTrue("custom provider added: ", providerManager.add(customProvider));
-        assertEquals("3 preconfigured, 2 custom providers, 1 dummy provider", 6, providerManager.providers().size());
+        assertEquals("3 preconfigured, 2 custom providers", 5, providerManager.providers().size());
+    }
+
+    @Test
+    public void testAdd_dummyEntry_newCustomProviderThatIsNotPartOfDefaultButOfCustomList_returnFalse() throws Exception {
+        providerManager = ProviderManager.getInstance(assetManager, file);
+        providerManager.setAddDummyEntry(true);
+        Provider customProvider = new Provider("https://leapcolombia.org");
+        assertFalse("custom provider added: ", providerManager.add(customProvider));
+        assertEquals("3 preconfigured, 1 custom provider, 1 dummy provider", 5, providerManager.providers().size());
     }
 
     @Test
@@ -117,7 +143,7 @@ public class ProviderManagerTest {
         providerManager = ProviderManager.getInstance(assetManager, file);
         Provider customProvider = new Provider("https://leapcolombia.org");
         assertFalse("custom provider added: ", providerManager.add(customProvider));
-        assertEquals("3 preconfigured, 1 custom provider, 1 dummy provider", 5, providerManager.providers().size());
+        assertEquals("3 preconfigured, 1 custom provider", 4, providerManager.providers().size());
     }
 
     @Test
@@ -125,7 +151,7 @@ public class ProviderManagerTest {
         providerManager = ProviderManager.getInstance(assetManager, file);
         Provider customProvider = new Provider("https://demo.bitmask.net");
         assertFalse("custom provider added: ", providerManager.add(customProvider));
-        assertEquals("3 preconfigured, 1 custom provider, 1 dummy provider", 5, providerManager.providers().size());
+        assertEquals("3 preconfigured, 1 custom provider", 4, providerManager.providers().size());
     }
 
     @Test
@@ -133,7 +159,7 @@ public class ProviderManagerTest {
         providerManager = ProviderManager.getInstance(assetManager, file);
         Provider customProvider = new Provider("https://demo.bitmask.net");
         assertFalse("custom provider not removed: ", providerManager.remove(customProvider));
-        assertEquals("3 preconfigured, 1 custom provider, 1 dummy provider", 5, providerManager.providers().size());
+        assertEquals("3 preconfigured, 1 custom provider", 4, providerManager.providers().size());
     }
 
     @Test
@@ -141,7 +167,7 @@ public class ProviderManagerTest {
         providerManager = ProviderManager.getInstance(assetManager, file);
         Provider customProvider = new Provider("https://leapcolombia.org");
         assertTrue("custom provider not removed: ", providerManager.remove(customProvider));
-        assertEquals("3 preconfigured, 0 custom providers, 1 dummy provider", 4, providerManager.providers().size());
+        assertEquals("3 preconfigured, 0 custom providers", 3, providerManager.providers().size());
     }
 
     @Test
@@ -149,15 +175,23 @@ public class ProviderManagerTest {
         providerManager = ProviderManager.getInstance(assetManager, file);
         Provider customProvider = new Provider("https://anotherprovider.org");
         assertFalse("custom provider not removed: ", providerManager.remove(customProvider));
-        assertEquals("3 preconfigured, 1 custom providers, 1 dummy provider", 5, providerManager.providers().size());
+        assertEquals("3 preconfigured, 1 custom providers", 4, providerManager.providers().size());
     }
 
     @Test
-    public void testClear_ProvidersListHasOnlyDummyProvider() throws Exception {
+    public void testClear_dummyEntry_ProvidersListHasOnlyDummyProvider() throws Exception {
         providerManager = ProviderManager.getInstance(assetManager, file);
+        providerManager.setAddDummyEntry(true);
         providerManager.clear();
         assertEquals("1 providers", 1, providerManager.providers().size());
         assertEquals("provider is dummy element", "https://example.net", providerManager.get(0).getMainUrlString());
+    }
+
+    @Test
+    public void testClear_noEntries() throws Exception {
+        providerManager = ProviderManager.getInstance(assetManager, file);
+        providerManager.clear();
+        assertEquals("no providers", 0, providerManager.providers().size());
     }
 
     @Test

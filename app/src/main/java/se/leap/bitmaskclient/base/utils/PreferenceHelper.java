@@ -404,6 +404,12 @@ public class PreferenceHelper {
         }
     }
 
+    /**
+     * hasSnowflakePrefs should return always true with the new provider setup flow. We keep this preference
+     * only as long as we haven't ported the provider setup flow to the custom branded version
+     * @return
+     */
+    @Deprecated
     public static boolean hasSnowflakePrefs() {
         return hasKey(USE_SNOWFLAKE);
     }
