@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="retry">Ξαναδοκίμασε</string>
+  <string name="retry">Επανάληψη</string>
   <string name="repository_url_text">Ο πηγαίος κώδικας είναι διαθέσιμος στο https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">Ο ιχνηλάτης τεχνικών θεμάτων είναι διαθέσιμος στο https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="translation_project_text">Οι μεταφράσεις είναι ευπρόσδεκτες. Δείτε τη σελίδα μας στο  Transifex στο https://www.transifex.com/projects/p/bitmask/</string>

@@ -15,6 +15,7 @@ main_res_dir = "../app/src/main/res"
 custom_res_dir = "../app/src/custom/res"
 
 # List all valid locale folders in the res directory
+# We don't want to create a translated store listing without localized app
 def list_locales(app_type):
     locales = []
     if app_type == "main":

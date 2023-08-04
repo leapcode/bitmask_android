@@ -39,7 +39,7 @@
   <string name="error_not_valid_password_user_message">8文字以上入力してください。</string>
   <string name="error_client_http_user_message">再度実行してください: クライアントHTTPエラー</string>
   <string name="error_io_exception_user_message">再度実行してください: I/Oエラー</string>
-  <string name="error_json_exception_user_message">再度実行してください: サーバーからのレスポンスが正しくありません</string>
+  <string name="error_json_exception_user_message">再度実行してください: サーバーからの応答が正しくありません</string>
   <string name="error_no_such_algorithm_exception_user_message">暗号化アルゴリズムが見つかりません。Androidをアップデートしてください!</string>
   <string name="signup_or_login_button">サインアップ/ログイン</string>
   <string name="login_button">ログイン</string>
@@ -67,6 +67,9 @@
   <string name="authentication_failed_message">認証に失敗しました</string>
   <string name="registration_failed_message">登録に失敗しました。</string>
   <string name="eip_status_start_pending">接続を初期化中</string>
+  <string name="eip_status_connecting">VPNに接続中</string>
+  <string name="eip_status_unsecured">保護されてない接続</string>
+  <string name="eip_status_secured">保護された接続</string>
   <string name="eip_cancel_connect_title">接続をキャンセルしますか?</string>
   <string name="eip_cancel_connect_text">試行中の接続があります。それをキャンセルしますか?</string>
   <string name="eip.warning.browser_inconsistency">VPN接続をオフにしますか? VPNをオフにすると、お使いのインターネットプロバイダーやローカルネットワークに個人情報を漏洩することがあります。</string>
@@ -193,4 +196,6 @@
   <string name="disabled_while_udp_on">UDPがオンの間は無効化されます。</string>
   <string name="advanced_settings">詳細な設定</string>
   <string name="cancel_connection">切断</string>
+  <string name="unknown_location">未知の場所</string>
+  <string name="splash_footer">LEAPによって開発されました</string>
 </resources>
