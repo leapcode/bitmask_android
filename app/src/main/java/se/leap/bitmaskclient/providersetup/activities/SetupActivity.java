@@ -161,16 +161,17 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         ActionBarTitle actionBarTitle = new ActionBarTitle(context);
         actionBarTitle.setTitleCaps(BuildConfig.actionbar_capitalize_title);
         actionBarTitle.setTitle(getString(R.string.app_name));
-        actionBarTitle.showSubtitle(false);
 
         final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_back, getTheme());
         actionBar.setHomeAsUpIndicator(upArrow);
 
         actionBar.setDisplayHomeAsUpEnabled(ProviderObservable.getInstance().getCurrentProvider().isConfigured());
+        ViewHelper.setActivityBarColor(this, R.color.bg_setup_status_bar, R.color.bg_setup_action_bar, R.color.colorActionBarTitleFont);
         @ColorInt int titleColor = ContextCompat.getColor(context, R.color.colorActionBarTitleFont);
         actionBarTitle.setTitleTextColor(titleColor);
 
         actionBarTitle.setCentered(BuildConfig.actionbar_center_title);
+        actionBarTitle.setSingleBoldTitle();
         if (BuildConfig.actionbar_center_title) {
             ActionBar.LayoutParams params = new ActionBar.LayoutParams(
                     ActionBar.LayoutParams.WRAP_CONTENT,

@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Colors-->
-    <!--Color of the action bar-->
     <color name="colorPrimary">#1565C0</color>
-    <!--Color of the status bar-->
     <color name="colorPrimaryDark">#104E95</color>
+    <color name="colorPrimaryLight">@color/colorPrimary</color>
+
+    <!--Color of the action bar-->
+    <color name="bg_setup_action_bar">@color/colorPrimary</color>
+    <!--Color of the status bar-->
+    <color name="bg_setup_status_bar">@color/colorPrimaryDark</color>
     <!--Font color of the action bar title-->
     <color name="colorActionBarTitleFont">#ffffff</color>
     <!--Font color of the action bar subtitle-->
