@@ -130,6 +130,7 @@
 
         </LinearLayout>
         <Button
+            style="@style/BitmaskSetupButton"
             android:id="@+id/setup_next_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -139,6 +140,7 @@
             />
 
         <Button
+            style="@style/BitmaskSetupButton"
             android:id="@+id/setup_cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
