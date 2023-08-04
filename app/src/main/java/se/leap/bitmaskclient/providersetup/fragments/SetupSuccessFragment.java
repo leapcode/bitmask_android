@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.databinding.FSetupSuccessBinding;
 
 public class SetupSuccessFragment extends BaseSetupFragment {
@@ -28,9 +29,10 @@ public class SetupSuccessFragment extends BaseSetupFragment {
 
         binding.mainButton.setOnClickListener(v -> {
             setupActivityCallback.onSetupFinished();
-            binding.mainButton.updateState(false, true);
             binding.mainButton.setEnabled(false);
+            binding.mainButton.setCustomDrawable(R.drawable.button_setup_circle_progress);
         });
+        binding.mainButton.setCustomDrawable(R.drawable.button_setup_circle_start);
 
         return binding.getRoot();
     }
