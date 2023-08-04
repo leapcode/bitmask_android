@@ -12,11 +12,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -26,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
@@ -40,6 +43,8 @@ import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.FragmentManagerEnhanced;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.ActionBarTitle;
 import se.leap.bitmaskclient.databinding.ActivitySetupBinding;
 import se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog;
@@ -97,6 +102,11 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
                             getChildAt(0).
                             setBackgroundColor(ContextCompat.getColor(SetupActivity.this, (i == position) ? R.color.colorPrimaryDark : R.color.colorDisabled));
                 }
+                ActionBar actionBar = getSupportActionBar();
+                if (actionBar != null) {
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(position == 0 && ProviderObservable.getInstance().getCurrentProvider().isConfigured());
+                }
+
             }
         });
         binding.viewPager.setAdapter(adapter);
@@ -153,6 +163,10 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         actionBarTitle.setTitle(getString(R.string.app_name));
         actionBarTitle.showSubtitle(false);
 
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_back, getTheme());
+        actionBar.setHomeAsUpIndicator(upArrow);
+
+        actionBar.setDisplayHomeAsUpEnabled(ProviderObservable.getInstance().getCurrentProvider().isConfigured());
         @ColorInt int titleColor = ContextCompat.getColor(context, R.color.colorActionBarTitleFont);
         actionBarTitle.setTitleTextColor(titleColor);
 
@@ -166,6 +180,16 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         } else {
             actionBar.setCustomView(actionBarTitle);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
