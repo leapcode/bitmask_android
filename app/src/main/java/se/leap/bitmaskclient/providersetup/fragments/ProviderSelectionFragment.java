@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.databinding.FProviderSelectionBinding;
 import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel;
@@ -102,6 +103,12 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
 
             @Override
             public void afterTextChanged(Editable s) {}
+        });
+
+        binding.editCustomProvider.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                ViewHelper.hideKeyboardFrom(getContext(), v);
+            }
         });
         return binding.getRoot();
     }
