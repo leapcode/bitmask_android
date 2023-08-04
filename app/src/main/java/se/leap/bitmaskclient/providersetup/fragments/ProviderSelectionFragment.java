@@ -116,7 +116,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
     @Override
     public void onFragmentSelected() {
         super.onFragmentSelected();
-        setupActivityCallback.setCancelButtonHidden(!ProviderObservable.getInstance().getCurrentProvider().isConfigured());
+        setupActivityCallback.setCancelButtonHidden(true);
         setupActivityCallback.setNavigationButtonHidden(false);
     }
 

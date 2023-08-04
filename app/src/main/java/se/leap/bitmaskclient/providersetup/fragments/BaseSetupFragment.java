@@ -55,6 +55,7 @@ public class BaseSetupFragment extends Fragment {
         super.onDetach();
         setupActivityCallback.removeOnPageChangeCallback(viewPagerCallback);
         setupActivityCallback = null;
+        callFragmentSelected = false;
     }
 
     public void onFragmentSelected() {
