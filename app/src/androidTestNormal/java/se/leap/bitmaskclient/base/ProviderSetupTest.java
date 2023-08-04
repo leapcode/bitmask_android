@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.ProviderListActivity;
 import tools.fastlane.screengrab.Screengrab;
 import tools.fastlane.screengrab.UiAutomatorScreenshotStrategy;
@@ -46,7 +47,7 @@ public class ProviderSetupTest {
     @Before
     public void setup() {
         Screengrab.setDefaultScreenshotStrategy(new UiAutomatorScreenshotStrategy());
-        SharedPreferences preferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = PreferenceHelper.getSharedPreferences(getApplicationContext());
         preferences.edit().clear().commit();
     }
 
