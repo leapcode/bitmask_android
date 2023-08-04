@@ -106,7 +106,6 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
                 if (actionBar != null) {
                     getSupportActionBar().setDisplayHomeAsUpEnabled(position == 0 && ProviderObservable.getInstance().getCurrentProvider().isConfigured());
                 }
-
             }
         });
         binding.viewPager.setAdapter(adapter);

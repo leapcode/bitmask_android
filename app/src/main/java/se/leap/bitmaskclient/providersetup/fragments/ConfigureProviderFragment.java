@@ -93,8 +93,6 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
         return binding.getRoot();
     }
 
-
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
