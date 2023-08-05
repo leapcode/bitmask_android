@@ -35,9 +35,10 @@
             android:id="@+id/cv_provider_selection_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:cardElevation="2dp"
+            app:cardUseCompatPadding="true"
             app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
-            android:layout_margin="40dp"
+            android:layout_marginTop="40dp"
             >
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
