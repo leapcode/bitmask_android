@@ -4,9 +4,12 @@ import static android.app.Activity.RESULT_CANCELED;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static se.leap.bitmaskclient.R.string.description_configure_provider;
+import static se.leap.bitmaskclient.R.string.description_configure_provider_circumvention;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.animateContainerVisibility;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_VPN_CERTIFICATE;
@@ -40,6 +43,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.databinding.FConfigureProviderBinding;
@@ -78,7 +82,8 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FConfigureProviderBinding.inflate(inflater, container, false);
-        binding.detailContainer.setVisibility(PreferenceHelper.getUseSnowflake() ? VISIBLE : GONE);
+        binding.detailContainer.setVisibility(getUseSnowflake() ? VISIBLE : GONE);
+        binding.tvCircumventionDescription.setText(getUseSnowflake() ? description_configure_provider_circumvention : description_configure_provider);
         binding.detailHeaderContainer.setOnClickListener(v -> {
             binding.ivExpand.animate().setDuration(250).rotation(isExpanded ? -90 : 0);
             showConnectionDetails();
@@ -103,7 +108,8 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
     public void onFragmentSelected() {
         super.onFragmentSelected();
         ignoreProviderAPIUpdates = false;
-        binding.detailContainer.setVisibility(PreferenceHelper.getUseSnowflake() ? VISIBLE : GONE);
+        binding.detailContainer.setVisibility(getUseSnowflake() ? VISIBLE : GONE);
+        binding.tvCircumventionDescription.setText(getUseSnowflake() ? description_configure_provider_circumvention : description_configure_provider);
         setupActivityCallback.setNavigationButtonHidden(true);
         setupActivityCallback.setCancelButtonHidden(false);
         ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, setupActivityCallback.getSelectedProvider());
