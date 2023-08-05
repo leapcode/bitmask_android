@@ -26,7 +26,7 @@
         android:bottom="12dp"
         >
         <shape android:shape="oval">
-            <solid android:color="@color/black"/>
+            <solid android:color="@color/colorPrimary"/>
             <size android:width="250dp" android:height="250dp" />
         </shape>
     </item>
@@ -51,7 +51,6 @@
         </shape>
     </item>
     <item
-        android:id="@+id/tintDrawable"
         android:top="78dp"
         android:bottom="72dp"
         android:left="60dp"

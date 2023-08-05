@@ -61,13 +61,11 @@ public class MainButton extends RelativeLayout {
     }
 
     public void setCustomDrawable(@DrawableRes int drawableResource) {
-       // Drawable drawable = ContextCompat.getDrawable(getContext(), drawableResource);
-        Drawable drawable = getContext().getDrawable(drawableResource);
+        Drawable drawable = ContextCompat.getDrawable(getContext(), drawableResource);
         if (drawable == null) {
             return;
         }
 
-        drawable.setColorFilter(ContextCompat.getColor(getContext(), R.color.colorPrimaryLight), PorterDuff.Mode.MULTIPLY);
         button.setImageDrawable(drawable);
         button.setTag("button_setup_circle_custom");
     }
