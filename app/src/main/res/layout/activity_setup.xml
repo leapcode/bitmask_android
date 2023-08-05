@@ -2,6 +2,7 @@
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:weightSum="1"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -129,7 +130,7 @@
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             style="@style/BitmaskSetupButton"
             android:id="@+id/setup_next_button"
             android:layout_width="wrap_content"
@@ -137,9 +138,11 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:text="@string/next"
+            tools:visibility="visible"
+
             />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             style="@style/BitmaskSetupButton"
             android:id="@+id/setup_cancel_button"
             android:layout_width="wrap_content"
@@ -148,6 +151,7 @@
             android:layout_alignParentBottom="true"
             android:text="@string/cancel"
             android:visibility="gone"
+            tools:visibility="visible"
             />
     </RelativeLayout>
 </androidx.appcompat.widget.LinearLayoutCompat>
