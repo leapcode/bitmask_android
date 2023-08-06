@@ -15,4 +15,5 @@
     <dimen name="mainbutton_padding">32dp</dimen>
     <dimen name="donation_reminder_padding">24dp</dimen>
 
+    <dimen name="setup_bottom_bar">75dp</dimen>
 </resources>
