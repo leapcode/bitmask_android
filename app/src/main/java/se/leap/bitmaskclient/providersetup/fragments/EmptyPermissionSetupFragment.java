@@ -15,9 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import se.leap.bitmaskclient.databinding.FEmptyPermissionSetupBinding;
-import se.leap.bitmaskclient.databinding.FVpnPermissionSetupBinding;
 
 public class EmptyPermissionSetupFragment extends BaseSetupFragment {
+
+    public static String EXTRA_VPN_INTENT = "EXTRA_VPN_INTENT";
+    public static String EXTRA_NOTIFICATION_PERMISSON_ACTION = "EXTRA_NOTIFICATION_PERMISSON_ACTION";
 
     private String notificationPermissionAction = null;
     private Intent vpnPermissionIntent = null;
@@ -51,22 +53,28 @@ public class EmptyPermissionSetupFragment extends BaseSetupFragment {
                     }
             );
 
-    private EmptyPermissionSetupFragment(int position, String permissionAction) {
-        super(position);
-        this.notificationPermissionAction = permissionAction;
-    }
-
-    private EmptyPermissionSetupFragment(int position, Intent vpnPermissionIntent) {
-        super(position);
-        this.vpnPermissionIntent = vpnPermissionIntent;
-    }
 
     public static EmptyPermissionSetupFragment newInstance(int position, Intent vpnPermissionIntent) {
-        return new EmptyPermissionSetupFragment(position, vpnPermissionIntent);
+        Bundle bundle = initBundle(position);
+        bundle.putParcelable(EXTRA_VPN_INTENT, vpnPermissionIntent);
+        EmptyPermissionSetupFragment fragment = new EmptyPermissionSetupFragment();
+        fragment.setArguments(bundle);
+        return fragment;
     }
 
     public static EmptyPermissionSetupFragment newInstance(int position, String notificationPermissionAction) {
-        return new EmptyPermissionSetupFragment(position, notificationPermissionAction);
+        Bundle bundle = initBundle(position);
+        bundle.putString(EXTRA_NOTIFICATION_PERMISSON_ACTION, notificationPermissionAction);
+        EmptyPermissionSetupFragment fragment = new EmptyPermissionSetupFragment();
+        fragment.setArguments(bundle);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.vpnPermissionIntent = getArguments().getParcelable(EXTRA_VPN_INTENT);
+        this.notificationPermissionAction = getArguments().getString(EXTRA_NOTIFICATION_PERMISSON_ACTION);
     }
 
     @Override
@@ -74,6 +82,22 @@ public class EmptyPermissionSetupFragment extends BaseSetupFragment {
                              @Nullable Bundle savedInstanceState) {
         FEmptyPermissionSetupBinding binding = FEmptyPermissionSetupBinding.inflate(inflater, container, false);
         return binding.getRoot();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        if (vpnPermissionIntent != null) {
+            outState.putParcelable(EXTRA_VPN_INTENT, vpnPermissionIntent);
+        }
+        if (notificationPermissionAction != null) {
+            outState.putString(EXTRA_NOTIFICATION_PERMISSON_ACTION, notificationPermissionAction);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
     }
 
     @Override

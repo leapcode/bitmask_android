@@ -54,6 +54,10 @@ public class ProviderSelectionViewModel extends ViewModel {
         return true;
     }
 
+    public boolean isCustomProviderSelected() {
+        return selected == ADD_PROVIDER;
+    }
+
     public CharSequence getProviderDescription(Context context) {
         if (selected == ADD_PROVIDER) {
             return context.getText(R.string.add_provider_description);

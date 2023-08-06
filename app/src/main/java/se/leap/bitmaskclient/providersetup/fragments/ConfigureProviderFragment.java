@@ -27,7 +27,6 @@ import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastSnowflakeLog;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastTorLog;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -43,9 +42,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.databinding.FConfigureProviderBinding;
 import se.leap.bitmaskclient.eip.EipSetupListener;
 import se.leap.bitmaskclient.eip.EipSetupObserver;
@@ -58,18 +55,16 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
 
     private static final String TAG = ConfigureProviderFragment.class.getSimpleName();
 
-    public static ConfigureProviderFragment newInstance(int position) {
-        return new ConfigureProviderFragment(position);
-    }
-
     FConfigureProviderBinding binding;
     private boolean isExpanded = false;
     private boolean ignoreProviderAPIUpdates = false;
     private TorLogAdapter torLogAdapter;
 
 
-    private ConfigureProviderFragment(int position) {
-        super(position);
+    public static ConfigureProviderFragment newInstance(int position) {
+        ConfigureProviderFragment fragment = new ConfigureProviderFragment();
+        fragment.setArguments(initBundle(position));
+        return fragment;
     }
 
     @Override
@@ -99,9 +94,20 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupActivityCallback.registerCancelCallback(this);
+        TorStatusObservable.getInstance().addObserver(this);
+        EipSetupObserver.addListener(this);
+    }
+
+    @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        setupActivityCallback.removeCancelCallback(this);
+        TorStatusObservable.getInstance().deleteObserver(this);
+        EipSetupObserver.removeListener(this);
         binding = null;
+        super.onDestroyView();
     }
 
     @Override
@@ -113,22 +119,6 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
         setupActivityCallback.setNavigationButtonHidden(true);
         setupActivityCallback.setCancelButtonHidden(false);
         ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, setupActivityCallback.getSelectedProvider());
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        setupActivityCallback.registerCancelCallback(this);
-        TorStatusObservable.getInstance().addObserver(this);
-        EipSetupObserver.addListener(this);
-    }
-
-    @Override
-    public void onDetach() {
-        setupActivityCallback.removeCancelCallback(this);
-        TorStatusObservable.getInstance().deleteObserver(this);
-        EipSetupObserver.removeListener(this);
-        super.onDetach();
     }
 
     protected void showConnectionDetails() {

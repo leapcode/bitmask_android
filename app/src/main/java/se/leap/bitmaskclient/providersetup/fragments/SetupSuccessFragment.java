@@ -13,13 +13,10 @@ import se.leap.bitmaskclient.databinding.FSetupSuccessBinding;
 
 public class SetupSuccessFragment extends BaseSetupFragment {
 
-
-    private SetupSuccessFragment(int position) {
-        super(position);
-    }
-
     public static SetupSuccessFragment newInstance(int position) {
-        return new SetupSuccessFragment(position);
+        SetupSuccessFragment fragment = new SetupSuccessFragment();
+        fragment.setArguments(initBundle(position));
+        return fragment;
     }
 
     @Override

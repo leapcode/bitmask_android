@@ -34,13 +34,12 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
 
     private FProviderSelectionBinding binding;
 
-    private ProviderSelectionFragment(int position) {
-        super(position);
+    public static ProviderSelectionFragment newInstance(int position) {
+        ProviderSelectionFragment fragment = new ProviderSelectionFragment();
+        fragment.setArguments(initBundle(position));
+        return fragment;
     }
 
-    public static ProviderSelectionFragment newInstance(int position) {
-        return new ProviderSelectionFragment(position);
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,6 +71,20 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
         radioButtons.add(radioButton);
 
         binding.editCustomProvider.setVisibility(viewModel.getEditProviderVisibility());
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupActivityCallback.registerCancelCallback(this);
+    }
+
+    @Override
+    public void onFragmentSelected() {
+        super.onFragmentSelected();
+        setupActivityCallback.setCancelButtonHidden(true);
+        setupActivityCallback.setNavigationButtonHidden(false);
         binding.providerRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             viewModel.setSelected(checkedId);
             for (RadioButton rb : radioButtons) {
@@ -86,7 +99,6 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                 setupActivityCallback.onProviderSelected(new Provider(binding.editCustomProvider.getText().toString()));
             }
         });
-        binding.providerRadioGroup.check(viewModel.getSelected());
 
         binding.editCustomProvider.addTextChangedListener(new TextWatcher() {
             @Override
@@ -95,9 +107,11 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 viewModel.setCustomUrl(s.toString());
-                setupActivityCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
-                if (viewModel.isValidConfig()) {
-                    setupActivityCallback.onProviderSelected(new Provider(s.toString()));
+                if (viewModel.isCustomProviderSelected()) {
+                    setupActivityCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
+                    if (viewModel.isValidConfig()) {
+                        setupActivityCallback.onProviderSelected(new Provider(s.toString()));
+                    }
                 }
             }
 
@@ -110,33 +124,15 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                 ViewHelper.hideKeyboardFrom(getContext(), v);
             }
         });
-        return binding.getRoot();
-    }
-
-    @Override
-    public void onFragmentSelected() {
-        super.onFragmentSelected();
-        setupActivityCallback.setCancelButtonHidden(true);
-        setupActivityCallback.setNavigationButtonHidden(false);
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        setupActivityCallback.registerCancelCallback(this);
-    }
-
-    @Override
-    public void onDetach() {
-        setupActivityCallback.removeCancelCallback(this);
-        super.onDetach();
+        binding.providerRadioGroup.check(viewModel.getSelected());
     }
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        setupActivityCallback.removeCancelCallback(this);
         binding = null;
         radioButtons = null;
+        super.onDestroyView();
     }
 
     @Override

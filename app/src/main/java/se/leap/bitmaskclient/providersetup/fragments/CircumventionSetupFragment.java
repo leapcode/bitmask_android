@@ -14,12 +14,10 @@ import se.leap.bitmaskclient.databinding.FCircumventionSetupBinding;
 
 public class CircumventionSetupFragment extends BaseSetupFragment {
 
-    private CircumventionSetupFragment(int position) {
-        super(position);
-    }
-
     public static CircumventionSetupFragment newInstance(int position) {
-        return new CircumventionSetupFragment(position);
+        CircumventionSetupFragment fragment = new CircumventionSetupFragment();
+        fragment.setArguments(initBundle(position));
+        return fragment;
     }
 
     @Override

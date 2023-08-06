@@ -54,9 +54,13 @@ import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 public class SetupActivity extends AppCompatActivity implements SetupActivityCallback, ProviderSetupFailedDialog.DownloadFailedDialogInterface {
 
+    public static final String EXTRA_PROVIDER = "EXTRA_PROVIDER";
+    public static final String EXTRA_CURRENT_POSITION = "EXTRA_CURRENT_POSITION";
     private static final String TAG = SetupActivity.class.getSimpleName();
     ActivitySetupBinding binding;
     Provider provider;
+    private int currentPosition = 0;
+
     private final HashSet<CancelCallback> cancelCallbacks = new HashSet<>();
     private FragmentManagerEnhanced fragmentManager;
     SetupViewPagerAdapter adapter;
@@ -65,6 +69,11 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            provider = savedInstanceState.getParcelable(EXTRA_PROVIDER);
+            currentPosition = savedInstanceState.getInt(EXTRA_CURRENT_POSITION);
+        }
+
         binding = ActivitySetupBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
@@ -97,6 +106,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                currentPosition = position;
                 for (int i = 0; i < indicatorViews.size(); i++) {
                     ((ViewGroup) indicatorViews.get(i)).
                             getChildAt(0).
@@ -110,6 +120,8 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         });
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setUserInputEnabled(false);
+        binding.viewPager.setCurrentItem(currentPosition, false);
+
         binding.setupNextButton.setOnClickListener(v -> {
             int currentPos = binding.viewPager.getCurrentItem();
             int newPos = currentPos + 1;
@@ -123,7 +135,15 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
             cancel();
         });
         setupActionBar();
+    }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (provider != null) {
+            outState.putParcelable(EXTRA_PROVIDER, provider);
+            outState.putInt(EXTRA_CURRENT_POSITION, currentPosition);
+        }
     }
 
     private void cancel() {
@@ -164,7 +184,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_back, getTheme());
         actionBar.setHomeAsUpIndicator(upArrow);
 
-        actionBar.setDisplayHomeAsUpEnabled(ProviderObservable.getInstance().getCurrentProvider().isConfigured());
+        actionBar.setDisplayHomeAsUpEnabled(currentPosition == 0 && ProviderObservable.getInstance().getCurrentProvider().isConfigured());
         ViewHelper.setActivityBarColor(this, R.color.bg_setup_status_bar, R.color.bg_setup_action_bar, R.color.colorActionBarTitleFont);
         @ColorInt int titleColor = ContextCompat.getColor(context, R.color.colorActionBarTitleFont);
         actionBarTitle.setTitleTextColor(titleColor);
@@ -244,7 +264,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
     @Override
     public int getCurrentPosition() {
-        return binding.viewPager.getCurrentItem();
+        return currentPosition;
     }
 
     @Override

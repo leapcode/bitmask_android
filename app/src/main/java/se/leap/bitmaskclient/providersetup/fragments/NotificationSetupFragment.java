@@ -12,12 +12,10 @@ import se.leap.bitmaskclient.databinding.FNotificationSetupBinding;
 
 public class NotificationSetupFragment extends BaseSetupFragment {
 
-    private NotificationSetupFragment(int position) {
-        super(position);
-    }
-
     public static NotificationSetupFragment newInstance(int position) {
-        return new NotificationSetupFragment(position);
+        NotificationSetupFragment fragment = new NotificationSetupFragment();
+        fragment.setArguments(initBundle(position));
+        return fragment;
     }
 
     @Override

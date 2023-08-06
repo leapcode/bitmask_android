@@ -13,13 +13,10 @@ import se.leap.bitmaskclient.databinding.FVpnPermissionSetupBinding;
 
 public class VpnPermissionSetupFragment extends BaseSetupFragment {
 
-
-    private VpnPermissionSetupFragment(int position) {
-        super(position);
-    }
-
     public static VpnPermissionSetupFragment newInstance(int position) {
-        return new VpnPermissionSetupFragment(position);
+        VpnPermissionSetupFragment fragment = new VpnPermissionSetupFragment();
+        fragment.setArguments(initBundle(position));
+        return fragment;
     }
 
     @Override
@@ -27,11 +24,6 @@ public class VpnPermissionSetupFragment extends BaseSetupFragment {
                              @Nullable Bundle savedInstanceState) {
         FVpnPermissionSetupBinding binding = FVpnPermissionSetupBinding.inflate(inflater, container, false);
         return binding.getRoot();
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
     }
 
     @Override
