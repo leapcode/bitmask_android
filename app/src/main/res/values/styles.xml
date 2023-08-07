@@ -4,7 +4,7 @@
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="blinkt.baseTheme" parent="android:Theme.DeviceDefault.Light" />
     <style name="blinkt" parent="blinkt.baseTheme" />
 
@@ -66,6 +66,16 @@
         <item name="android:height">36dp</item>
         <item name="android:minWidth">75dp</item>
         <item name="android:textColor">@color/color_font_btn</item>
+    </style>
+
+    <style name="BitmaskSetupButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/cust_setup_button_primary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:height">36dp</item>
+        <item name="android:minWidth">75dp</item>
+        <item name="android:textColor">@color/colorActionBarTitleFont</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.05</item>
     </style>
 
     <style name="BitmaskActivity">

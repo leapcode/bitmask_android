@@ -1,10 +1,11 @@
 package se.leap.bitmaskclient.base.views;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -90,7 +91,16 @@ public class ActionBarTitle extends LinearLayoutCompat {
         actionBarTitle.setLayoutParams(titleLayoutParams);
         actionBarSubtitle.setLayoutParams(subtitleLayoutParams);
         container.setLayoutParams(containerLayoutParams);
+    }
 
-
+    public void setSingleBoldTitle() {
+        showSubtitle(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            actionBarTitle.setTypeface(Typeface.create(null,900,false));
+        } else {
+            actionBarTitle.setTypeface(actionBarTitle.getTypeface(), Typeface.BOLD);
+        }
+        actionBarTitle.setLetterSpacing(0.05f);
+        actionBarTitle.setTextSize(24f);
     }
 }

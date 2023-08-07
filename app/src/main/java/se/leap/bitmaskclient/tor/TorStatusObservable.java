@@ -20,6 +20,7 @@ import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.NEGO
 import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.NEGOTIATING_RENDEZVOUS_VIA_HTTP;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.RETRY_AMP_CACHE_RENDEZVOUS;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.RETRY_HTTP_RENDEZVOUS;
+import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.SENDING_DATA;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.STARTED;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.SnowflakeStatus.STOPPED;
 
@@ -60,6 +61,7 @@ public class TorStatusObservable extends Observable {
         RETRY_HTTP_RENDEZVOUS,
         RETRY_AMP_CACHE_RENDEZVOUS,
         BROKER_REPLIED_SUCCESS,
+        SENDING_DATA,
         STOPPED
     }
 
@@ -78,6 +80,9 @@ public class TorStatusObservable extends Observable {
     public static final String SNOWFLAKE_CONNECTION_CLOSING = "WebRTC: Closing";
     public static final String SNOWFLAKE_HTTP_RESPONSE_200 = "HTTP rendezvous response: 200";
     public static final String SNOWFLAKE_AMP_CACHE_RESPONSE_200 = "AMP cache rendezvous response: 200";
+
+    public static final String SNOWFLAKE_SENDING_DATA = "Traffic Bytes (in|out):";
+
 
     private static TorStatusObservable instance;
     private TorStatus status = TorStatus.OFF;
@@ -142,7 +147,6 @@ public class TorStatusObservable extends Observable {
 
     public static void logSnowflakeMessage(Context context, String message) {
         addLog(message);
-        getInstance().lastSnowflakeLog = message;
         if (getInstance().status != TorStatus.OFF) {
             getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getBootstrapProgress());
         }
@@ -150,14 +154,18 @@ public class TorStatusObservable extends Observable {
         message = message.trim();
         if (SNOWFLAKE_STARTED.equals(message)) {
             getInstance().snowflakeStatus = STARTED;
+            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_started);
         } else if (SNOWFLAKE_NEGOTIATING_HTTP.equals(message)) {
             getInstance().snowflakeStatus = NEGOTIATING_RENDEZVOUS_VIA_HTTP;
+            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_negotiating_rendezvous_http);
         } else if (SNOWFLAKE_NEGOTIATING_AMP_CACHE.equals(message)) {
             getInstance().snowflakeStatus = NEGOTIATING_RENDEZVOUS_VIA_AMP_CACHE;
+            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_negotiating_rendezvous_amp_cache);
         } else if (SNOWFLAKE_STOPPED_COLLECTING.equals(message) ||
                 SNOWFLAKE_COPY_LOOP_STOPPED.equals(message) ||
                 message.contains(SNOWFLAKE_SOCKS_ERROR)) {
             getInstance().snowflakeStatus = STOPPED;
+            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_socks_error);
         } else if (SNOWFLAKE_CONNECTION_CLOSING.equals(message)) {
             if (getInstance().snowflakeStatus == NEGOTIATING_RENDEZVOUS_VIA_HTTP) {
                 if (getInstance().retrySnowflakeRendezVous < 3) {
@@ -177,6 +185,10 @@ public class TorStatusObservable extends Observable {
         } else if (SNOWFLAKE_AMP_CACHE_RESPONSE_200.equals(message) || SNOWFLAKE_HTTP_RESPONSE_200.equals(message)) {
             getInstance().snowflakeStatus = BROKER_REPLIED_SUCCESS;
             getInstance().retrySnowflakeRendezVous = 0;
+            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_broker_success);
+        } else if (message.contains(SNOWFLAKE_SENDING_DATA)) {
+            getInstance().snowflakeStatus = SENDING_DATA;
+            getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_sending_data);
         }
         Log.d(TAG, "snowflake status " + getInstance().snowflakeStatus);
         instance.setChanged();
@@ -195,7 +207,14 @@ public class TorStatusObservable extends Observable {
     }
 
     public static int getBootstrapProgress() {
-        return getInstance().status == TorStatus.STARTING ? getInstance().bootstrapPercent : -1;
+        switch (getInstance().status) {
+            case STARTING:
+                return getInstance().bootstrapPercent;
+            case ON:
+                return 100;
+            default:
+                return -1;
+        }
     }
 
     private static void addLog(String message) {

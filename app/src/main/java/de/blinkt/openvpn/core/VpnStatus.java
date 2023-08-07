@@ -153,19 +153,14 @@ public class VpnStatus {
     }
 
     public static VpnProfile getLastConnectedVpnProfile() {
-        return lastConnectedProfile;
+        return lastConnectedProfile != null ? lastConnectedProfile : PreferenceHelper.getLastConnectedVpnProfile();
     }
-
-    public static VpnProfile getLastConnectedVpnProfile(Context context) {
-        return PreferenceHelper.getLastConnectedVpnProfile(context);
-    }
-
 
     /**
      * Sets the profile that is connected (to connect if the service restarts)
      */
-    public static void setLastConnectedVpnProfile(Context context, VpnProfile connectedProfile) {
-        PreferenceHelper.setLastUsedVpnProfile(context, connectedProfile);
+    public static void setLastConnectedVpnProfile(VpnProfile connectedProfile) {
+        PreferenceHelper.setLastUsedVpnProfile(connectedProfile);
         lastConnectedProfile = connectedProfile;
         setConnectedVPNProfile(lastConnectedProfile.getUUIDString());
     }

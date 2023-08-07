@@ -61,7 +61,7 @@ public class EipStatusTest {
         VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OPENVPN);
         mockVpnProfile.mPersistTun = true;
         doNothing().when(PreferenceHelper.class);
-        VpnStatus.setLastConnectedVpnProfile(null, mockVpnProfile);
+        VpnStatus.setLastConnectedVpnProfile(mockVpnProfile);
         VpnStatus.updateStateString("SCREENOFF", "", R.string.state_screenoff, LEVEL_VPNPAUSED);
         assertTrue("LEVEL_VPN_PAUSED eipLevel", eipStatus.getEipLevel() == CONNECTING);
         assertTrue("LEVEL_VPN_PAUSED level", eipStatus.getLevel() == LEVEL_VPNPAUSED);
@@ -74,7 +74,7 @@ public class EipStatusTest {
         VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OPENVPN);
         mockVpnProfile.mPersistTun = false;
         doNothing().when(PreferenceHelper.class);
-        VpnStatus.setLastConnectedVpnProfile(null, mockVpnProfile);
+        VpnStatus.setLastConnectedVpnProfile(mockVpnProfile);
         VpnStatus.updateStateString("SCREENOFF", "", R.string.state_screenoff, LEVEL_VPNPAUSED);
         assertTrue("LEVEL_VPN_PAUSED eipLevel", eipStatus.getEipLevel() == DISCONNECTED);
         assertTrue("LEVEL_VPN_PAUSED level", eipStatus.getLevel() == LEVEL_VPNPAUSED);

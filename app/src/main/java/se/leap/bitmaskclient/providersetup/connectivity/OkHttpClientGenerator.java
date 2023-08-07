@@ -43,10 +43,12 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.CipherSuite;
 import okhttp3.ConnectionSpec;
@@ -139,6 +141,8 @@ public class OkHttpClientGenerator {
 
         clientBuilder.dns(new DnsResolver(clientBuilder.build(), true));
         sslCompatFactory.initSSLSocketFactory(clientBuilder);
+        clientBuilder.connectTimeout(45L, TimeUnit.SECONDS);
+        clientBuilder.readTimeout(45L, TimeUnit.SECONDS);
         return clientBuilder.build();
     }
 

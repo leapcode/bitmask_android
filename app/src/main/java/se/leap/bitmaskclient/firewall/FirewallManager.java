@@ -92,10 +92,10 @@ public class FirewallManager implements FirewallCallback, Observer {
             TetheringObservable.allowVpnWifiTethering(false);
             TetheringObservable.allowVpnUsbTethering(false);
             TetheringObservable.allowVpnBluetoothTethering(false);
-            PreferenceHelper.allowWifiTethering(context, false);
-            PreferenceHelper.allowUsbTethering(context, false);
-            PreferenceHelper.allowBluetoothTethering(context, false);
-            PreferenceHelper.setUseIPv6Firewall(context, false);
+            PreferenceHelper.allowWifiTethering(false);
+            PreferenceHelper.allowUsbTethering(false);
+            PreferenceHelper.allowBluetoothTethering(false);
+            PreferenceHelper.setUseIPv6Firewall(false);
         }
     }
 
@@ -107,7 +107,7 @@ public class FirewallManager implements FirewallCallback, Observer {
     public void start() {
         if (!isRunning) {
             isRunning = true;
-            if (PreferenceHelper.useIpv6Firewall(context)) {
+            if (PreferenceHelper.useIpv6Firewall()) {
                 startIPv6Firewall();
             }
             TetheringState tetheringState = TetheringObservable.getInstance().getTetheringState();
@@ -120,7 +120,7 @@ public class FirewallManager implements FirewallCallback, Observer {
 
     public void stop() {
         isRunning = false;
-        if (PreferenceHelper.useIpv6Firewall(context)) {
+        if (PreferenceHelper.useIpv6Firewall()) {
             stopIPv6Firewall();
         }
         TetheringState tetheringState = TetheringObservable.getInstance().getTetheringState();

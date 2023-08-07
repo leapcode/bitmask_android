@@ -255,7 +255,7 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onDestroy() {
-        PreferenceHelper.setExcludedApps(this.getActivity().getApplicationContext(), apps);
+        PreferenceHelper.setExcludedApps(apps);
         super.onDestroy();
     }
 
@@ -263,7 +263,7 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        apps = PreferenceHelper.getExcludedApps(this.getContext());
+        apps = PreferenceHelper.getExcludedApps();
 
         setHasOptionsMenu(true);
     }

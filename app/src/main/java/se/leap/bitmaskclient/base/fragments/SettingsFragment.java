@@ -11,6 +11,7 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_OBFUSCATION_PINNIN
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheringSupport;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
@@ -60,8 +61,6 @@ import se.leap.bitmaskclient.firewall.FirewallManager;
 public class SettingsFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private FirewallManager firewallManager;
-    private SharedPreferences preferences;
-
     private IconTextEntry tethering;
     private IconSwitchEntry firewall;
     IconSwitchEntry useUdpEntry;
@@ -69,8 +68,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = PreferenceHelper.getSharedPreferences(getContext());
-        preferences.registerOnSharedPreferenceChangeListener(this);
+        PreferenceHelper.registerOnSharedPreferenceChangeListener(this);
         firewallManager = new FirewallManager(getContext().getApplicationContext(), false);
     }
 
@@ -94,20 +92,20 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     @Override
     public void onDestroy() {
+        PreferenceHelper.unregisterOnSharedPreferenceChangeListener(this);
         super.onDestroy();
-        preferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     private void initUseBridgesEntry(View rootView) {
         IconSwitchEntry useBridges = rootView.findViewById(R.id.bridges_switch);
         if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
             useBridges.setVisibility(VISIBLE);
-            useBridges.setChecked(getUseBridges(getContext()));
+            useBridges.setChecked(getUseBridges());
             useBridges.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (!buttonView.isPressed()) {
                     return;
                 }
-                useBridges(getContext(), isChecked);
+                useBridges(isChecked);
                 if (VpnStatus.isVPNActive()) {
                     EipCommand.startVPN(getContext(), false);
                     Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
@@ -116,7 +114,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             //We check the UI state of the useUdpEntry here as well, in order to avoid a situation
             //where both entries are disabled, because both preferences are enabled.
             //bridges can be enabled not only from here but also from error handling
-            boolean useUDP = getPreferUDP(getContext()) && useUdpEntry.isEnabled();
+            boolean useUDP = getPreferUDP() && useUdpEntry.isEnabled();
             useBridges.setEnabled(!useUDP);
             useBridges.setSubtitle(getString(useUDP ? R.string.disabled_while_udp_on : R.string.nav_drawer_subtitle_obfuscated_connection));
         } else {
@@ -127,12 +125,12 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     private void initUseSnowflakeEntry(View rootView) {
         IconSwitchEntry useSnowflake = rootView.findViewById(R.id.snowflake_switch);
         useSnowflake.setVisibility(VISIBLE);
-        useSnowflake.setChecked(hasSnowflakePrefs(getContext()) && getUseSnowflake(getContext()));
+        useSnowflake.setChecked(hasSnowflakePrefs() && getUseSnowflake());
         useSnowflake.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
-            useSnowflake(getContext(), isChecked);
+            useSnowflake(isChecked);
         });
     }
 
@@ -141,7 +139,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             IconTextEntry alwaysOnVpn = rootView.findViewById(R.id.always_on_vpn);
             alwaysOnVpn.setVisibility(VISIBLE);
             alwaysOnVpn.setOnClickListener((buttonView) -> {
-                if (getShowAlwaysOnDialog(getContext())) {
+                if (getShowAlwaysOnDialog()) {
                     showAlwaysOnDialog();
                 } else {
                     Intent intent = new Intent("android.net.vpn.SETTINGS");
@@ -155,18 +153,18 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     private void initPreferUDPEntry(View rootView) {
         useUdpEntry = rootView.findViewById(R.id.prefer_udp);
         useUdpEntry.setVisibility(VISIBLE);
-        useUdpEntry.setChecked(getPreferUDP(getContext()));
+        useUdpEntry.setChecked(getPreferUDP());
         useUdpEntry.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
-            preferUDP(getContext(), isChecked);
+            preferUDP(isChecked);
             if (VpnStatus.isVPNActive()) {
                 EipCommand.startVPN(getContext(), false);
                 Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
             }
         });
-        boolean bridgesEnabled = getUseBridges(getContext());
+        boolean bridgesEnabled = getUseBridges();
         useUdpEntry.setEnabled(!bridgesEnabled);
         useUdpEntry.setSubtitle(getString(bridgesEnabled ? R.string.disabled_while_bridges_on : R.string.prefer_udp_subtitle));
     }
@@ -174,7 +172,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     private void initExcludeAppsEntry(View rootView) {
         IconTextEntry excludeApps = rootView.findViewById(R.id.exclude_apps);
         excludeApps.setVisibility(VISIBLE);
-        Set<String> apps = PreferenceHelper.getExcludedApps(this.getContext());
+        Set<String> apps = getExcludedApps();
         if (apps != null) {
             updateExcludeAppsSubtitle(excludeApps, apps.size());
         }
@@ -196,12 +194,12 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void initFirewallEntry(View rootView) {
         firewall = rootView.findViewById(R.id.enableIPv6Firewall);
-        firewall.setChecked(PreferenceHelper.useIpv6Firewall(getContext()));
+        firewall.setChecked(PreferenceHelper.useIpv6Firewall());
         firewall.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
-            PreferenceHelper.setUseIPv6Firewall(getContext(), isChecked);
+            PreferenceHelper.setUseIPv6Firewall(isChecked);
             if (VpnStatus.isVPNActive()) {
                 if (isChecked) {
                     firewallManager.startIPv6Firewall();
@@ -235,7 +233,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         if (context == null) {
             return;
         }
-        String pinnedGateway = PreferenceHelper.getPinnedGateway(rootView.getContext());
+        String pinnedGateway = PreferenceHelper.getPinnedGateway();
         gatewayPinning.setSubtitle(pinnedGateway != null ? pinnedGateway : "Connect to a specific Gateway for debugging purposes");
 
         gatewayPinning.setOnClickListener(v -> {
@@ -249,10 +247,10 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
                         if (gatewayPinningEditText.getText() != null) {
                             String editTextInput = gatewayPinningEditText.getText().toString();
                             if (!TextUtils.isEmpty(editTextInput)) {
-                                PreferenceHelper.setPreferredCity(context, null);
-                                PreferenceHelper.pinGateway(context, editTextInput);
+                                PreferenceHelper.setPreferredCity(null);
+                                PreferenceHelper.pinGateway(editTextInput);
                             } else {
-                                PreferenceHelper.pinGateway(context, null);
+                                PreferenceHelper.pinGateway(null);
                             }
                         }
                     })
@@ -268,16 +266,16 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             return;
         }
         obfuscationPinning.setVisibility(VISIBLE);
-        boolean useBridges = getUseBridges(getContext());
+        boolean useBridges = getUseBridges();
         obfuscationPinning.setEnabled(useBridges);
         obfuscationPinning.setSubtitle(useBridges ? "Connect to a specific obfuscation proxy for debugging purposes" : "Enable Bridges to use this option");
-        obfuscationPinning.setChecked(useObfuscationPinning(getContext()));
+        obfuscationPinning.setChecked(useObfuscationPinning());
         obfuscationPinning.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
             if (!isChecked) {
-                setUseObfuscationPinning(getContext(), false);
+                setUseObfuscationPinning(false);
             } else {
                 showObfuscationPinningDialog();
             }
@@ -306,12 +304,12 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         IconSwitchEntry experimentalTransports = rootView.findViewById(R.id.experimental_transports);
         if (useObfsVpn() && ProviderObservable.getInstance().getCurrentProvider().supportsExperimentalPluggableTransports()) {
             experimentalTransports.setVisibility(VISIBLE);
-            experimentalTransports.setChecked(allowExperimentalTransports(this.getContext()));
+            experimentalTransports.setChecked(allowExperimentalTransports());
             experimentalTransports.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (!buttonView.isPressed()) {
                     return;
                 }
-                setAllowExperimentalTransports(getContext(), isChecked);
+                setAllowExperimentalTransports(isChecked);
             });
         } else {
             experimentalTransports.setVisibility(GONE);

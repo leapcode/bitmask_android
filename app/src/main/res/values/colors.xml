@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#b39ddb</color>
-    <color name="colorPrimaryDark">#ac97d2</color>
-    <color name="colorPrimary_transparent">#20000000</color>
+    <color name="colorPrimary">#ff1b8b</color>
+    <color name="colorPrimaryLight">#FF69B4</color>
+    <color name="colorPrimaryDark">#ef0072</color>
+    <color name="colorPrimary_transparent">#0B000000</color>
     <color name="colorBackground">#fffafafa</color>
     <color name="colorError">#ef9a9a</color>
     <color name="colorSuccess">#a5d6a7</color>
     <color name="colorDisabled">#AAAAAA</color>
-    <color name="colorMainBtnHighlight">#03DAC6</color>
-    <color name="colorMainBtnError">#eF2222</color>
 
     <color name="black">#000000</color>
     <color name="black800_dark">#1b1b1b</color>
@@ -43,8 +42,8 @@
     <!-- button text colors in Alerts etc. -->
     <color name="color_font_btn">@color/black800</color>
     <!-- pill style button text colors -->
-    <color name="color_font_btn_primary">@color/black800</color>
-    <color name="color_font_btn_secondary">@color/black800</color>
+    <color name="color_font_btn_primary">@color/white</color>
+    <color name="color_font_btn_secondary">@color/white</color>
     <color name="colorLocationButtonTint">@color/black</color>
     <color name="colorLocationButtonTintTransparent">@color/black800_high_transparent</color>
     <color name="colorWarning">#B33A3A</color>
@@ -67,6 +66,8 @@
     <color name="bg_running">#CCDCB8</color>
 
     <!-- actionbar and status bar colors for different connection states -->
+    <color name="bg_setup_action_bar">@color/colorPrimary</color>
+    <color name="bg_setup_status_bar">@color/colorPrimaryDark</color>
     <color name="bg_disconnected_top">#EC6767</color>
     <color name="bg_disconnected_top_light_transparent">#CCff9895</color>
     <color name="bg_connecting_top">#FADD85</color>

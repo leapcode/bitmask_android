@@ -30,7 +30,6 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInP
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -54,8 +53,8 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.DateHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EipCommand;
-import se.leap.bitmaskclient.providersetup.ProviderListActivity;
 import se.leap.bitmaskclient.providersetup.activities.CustomProviderSetupActivity;
+import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 
 /**
  * Activity shown at startup. Evaluates if App is started for the first time or has been upgraded
@@ -75,12 +74,10 @@ public class StartActivity extends Activity{
     private int versionCode;
     private int previousVersionCode;
 
-    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = PreferenceHelper.getSharedPreferences(this);
 
         Log.d(TAG, "Started");
 
@@ -131,7 +128,7 @@ public class StartActivity extends Activity{
     private int checkAppStart() {
         try {
             versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-            previousVersionCode = preferences.getInt(PREFERENCES_APP_VERSION, -1);
+            previousVersionCode = PreferenceHelper.getAppVersion();
 
             // versions do match -> normal start
             if (versionCode == previousVersionCode) {
@@ -163,10 +160,9 @@ public class StartActivity extends Activity{
      */
     private void executeUpgrade() {
         if (hasNewFeature(FeatureVersionCode.RENAMED_EIP_IN_PREFERENCES)) {
-            String eipJson = preferences.getString(PROVIDER_KEY, null);
+            String eipJson = PreferenceHelper.getString(PROVIDER_KEY, null);
             if (eipJson != null) {
-                preferences.edit().putString(PROVIDER_EIP_DEFINITION, eipJson).
-                        remove(PROVIDER_KEY).apply();
+                PreferenceHelper.putString(PROVIDER_EIP_DEFINITION, eipJson);
             }
         }
 
@@ -176,7 +172,7 @@ public class StartActivity extends Activity{
             // next setup
             Provider provider = ProviderObservable.getInstance().getCurrentProvider();
             if (provider != null && !provider.isDefault()) {
-                PreferenceHelper.deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
+                PreferenceHelper.deleteProviderDetailsFromPreferences(provider.getDomain());
                 ProviderObservable.getInstance().updateProvider(new Provider());
             }
         }
@@ -190,20 +186,19 @@ public class StartActivity extends Activity{
             // deletion of current configured provider so that a new provider setup is triggered
             Provider provider = ProviderObservable.getInstance().getCurrentProvider();
             if (provider != null && !provider.isDefault()) {
-                PreferenceHelper.deleteProviderDetailsFromPreferences(preferences, provider.getDomain());
-                PreferenceHelper.deleteCurrentProviderDetailsFromPreferences(preferences);
+                PreferenceHelper.deleteProviderDetailsFromPreferences(provider.getDomain());
+                PreferenceHelper.deleteCurrentProviderDetailsFromPreferences();
                 ProviderObservable.getInstance().updateProvider(new Provider());
             }
         }
 
         if (hasNewFeature(FeatureVersionCode.ENCRYPTED_SHARED_PREFS)) {
             PreferenceHelper.migrateToEncryptedPrefs(this);
-            preferences = PreferenceHelper.getSharedPreferences(this);
         }
 
         // always check if manual gateway selection feature switch has been disabled
-        if (!BuildConfig.allow_manual_gateway_selection && PreferenceHelper.getPreferredCity(this) != null) {
-            PreferenceHelper.setPreferredCity(this, null);
+        if (!BuildConfig.allow_manual_gateway_selection && PreferenceHelper.getPreferredCity() != null) {
+            PreferenceHelper.setPreferredCity(null);
         }
 
         // ensure all upgrades have passed before storing new information
@@ -220,7 +215,7 @@ public class StartActivity extends Activity{
     }
 
     private void storeAppVersion() {
-        preferences.edit().putInt(PREFERENCES_APP_VERSION, versionCode).apply();
+        PreferenceHelper.setAppVersion(versionCode);
     }
 
     private void prepareEIP() {
@@ -230,9 +225,9 @@ public class StartActivity extends Activity{
             if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
                 EipCommand.startVPN(this, true);
                 finish();
-            } else if (PreferenceHelper.getRestartOnUpdate(this.getApplicationContext())) {
+            } else if (PreferenceHelper.getRestartOnUpdate()) {
                 // This is relevant for web build flavor apks
-                PreferenceHelper.restartOnUpdate(this.getApplicationContext(), false);
+                PreferenceHelper.restartOnUpdate(false);
                 EipCommand.startVPN(this, false);
                 showNextActivity(provider);
                 finish();
@@ -249,7 +244,7 @@ public class StartActivity extends Activity{
             getIntent().removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
         }
         if (isDefaultBitmask()) {
-            startActivityForResult(new Intent(this, ProviderListActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
+            startActivityForResult(new Intent(this, SetupActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
         } else { // custom branded app
             startActivityForResult(new Intent(this, CustomProviderSetupActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
         }
@@ -261,7 +256,7 @@ public class StartActivity extends Activity{
         if (requestCode == REQUEST_CODE_CONFIGURE_LEAP) {
             if (resultCode == RESULT_OK && data != null && data.hasExtra(Provider.KEY)) {
                 Provider provider = data.getParcelableExtra(Provider.KEY);
-                storeProviderInPreferences(preferences, provider);
+                storeProviderInPreferences( provider);
                 ProviderObservable.getInstance().updateProvider(provider);
                 EipCommand.startVPN(this, false);
                 showNextActivity(provider);
@@ -298,7 +293,7 @@ public class StartActivity extends Activity{
             lastSeenHashes.add(hash);
             p.setMotdLastSeenHashes(lastSeenHashes);
             p.setLastMotdSeen(System.currentTimeMillis());
-            PreferenceHelper.persistProviderAsync(this, p);
+            PreferenceHelper.persistProviderAsync(p);
             ProviderObservable.getInstance().updateProvider(p);
         }
         showMotdFragment(message);

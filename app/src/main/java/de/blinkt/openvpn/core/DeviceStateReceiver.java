@@ -5,6 +5,8 @@
 
 package de.blinkt.openvpn.core;
 
+import static de.blinkt.openvpn.core.OpenVPNManagement.pauseReason;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,18 +16,13 @@ import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
-
-import se.leap.bitmaskclient.R;
-import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.tethering.TetheringObservable;
 
 import java.util.LinkedList;
-import java.util.Objects;
-import java.util.StringTokenizer;
 
-import static de.blinkt.openvpn.core.OpenVPNManagement.pauseReason;
+import de.blinkt.openvpn.core.VpnStatus.ByteCountListener;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.tethering.TetheringObservable;
 
 public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountListener, OpenVPNManagement.PausedStateCallback {
     private final Handler mDisconnectHandler;
@@ -143,7 +140,7 @@ public class DeviceStateReceiver extends BroadcastReceiver implements ByteCountL
         if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
             networkStateChange(context);
         } else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
-            boolean screenOffPause = PreferenceHelper.getSaveBattery(context);
+            boolean screenOffPause = PreferenceHelper.getSaveBattery();
             boolean isTethering = TetheringObservable.getInstance().getTetheringState().isVpnTetheringRunning();
             if (screenOffPause && !isTethering) {
                 if (VpnStatus.getLastConnectedVpnProfile() != null && !VpnStatus.getLastConnectedVpnProfile().mPersistTun)

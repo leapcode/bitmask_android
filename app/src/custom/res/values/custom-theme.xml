@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Colors-->
-    <!--Color of the action bar-->
     <color name="colorPrimary">#1565C0</color>
-    <!--Color of the status bar-->
     <color name="colorPrimaryDark">#104E95</color>
+    <color name="colorPrimaryLight">@color/colorPrimary</color>
+
+    <!--Color of the action bar-->
+    <color name="bg_setup_action_bar">@color/colorPrimary</color>
+    <!--Color of the status bar-->
+    <color name="bg_setup_status_bar">@color/colorPrimaryDark</color>
     <!--Font color of the action bar title-->
     <color name="colorActionBarTitleFont">#ffffff</color>
     <!--Font color of the action bar subtitle-->
@@ -14,10 +18,6 @@
     <color name="actionbar_connectivity_state_text_color_light">@color/white</color>
     <!-- Font color of labels in EipFragment (main screen)-->
     <color name="colorEipFragmentFont">@color/black800_dark</color>
-    <!-- glow effect color of the on / off button -->
-    <color name="colorMainBtnHighlight">#58FFA9</color>
-    <!-- glow effect color of the on / off button if no network / traffic blocked -->
-    <color name="colorMainBtnError">#eF2222</color>
     <!-- location button icon tint color -->
     <color name="colorLocationButtonTint">@color/black</color>
     <color name="colorLocationButtonTintTransparent">@color/black800_transparent</color>

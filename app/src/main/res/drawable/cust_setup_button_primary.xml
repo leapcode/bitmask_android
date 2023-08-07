@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:state_enabled="false" android:drawable="@drawable/cust_setup_button_primary_disabled"/>
+    <item android:state_pressed="true" android:drawable="@drawable/cust_setup_button_primary_pressed"/>
+    <item android:state_focused="true" android:drawable="@drawable/cust_setup_button_primary_pressed"/>
+    <item android:drawable="@drawable/cust_setup_button_primary_released"/>
+</selector>

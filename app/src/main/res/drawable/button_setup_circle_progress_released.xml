@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- <item>
+         <shape android:shape="rectangle">
+             <solid android:color="@color/white"/>
+             <size android:width="250dp" android:height="250dp"/>
+         </shape>
+     </item>-->
+
+    <item
+        android:left="-25dp"
+        android:right="-25dp"
+        android:top="-10dp"
+        android:bottom="-10dp"
+        >
+        <animated-rotate
+            android:drawable="@drawable/rotate_progress_image"
+            android:pivotX="50.0%"
+            android:pivotY="50.0%"
+            android:fromDegrees="0.0"
+            android:toDegrees="360.0"
+            >
+        </animated-rotate>
+    </item>
+    <item
+        android:bottom="15dp"
+        android:top="15dp"
+        >
+        <shape android:shape="oval">
+            <solid android:color="@color/colorPrimaryLight"/>
+            <size android:width="250dp" android:height="250dp" />
+        </shape>
+    </item>
+    <item
+        android:bottom="15dp"
+        android:top="15dp"
+        >
+        <shape
+            android:shape="ring"
+            android:innerRadius="123dp"
+            android:useLevel="false"
+            android:thickness="15dp">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="125dp"
+                android:centerX="0.51"
+                android:centerY="0.55"
+                android:startColor="#000000"
+                android:centerColor="#000000"
+                android:endColor="@color/transparent" />
+
+        </shape>
+    </item>
+    <item
+        android:top="75dp"
+        android:bottom="75dp"
+        android:left="60dp"
+        android:right="60dp"
+        android:drawable="@drawable/ic_btn_on"
+        />
+</layer-list>

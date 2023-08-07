@@ -11,11 +11,9 @@ import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastSnowflakeLog;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastTorLog;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getStringForCurrentStatus;
 
-import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -40,8 +38,8 @@ import java.util.Observer;
 import butterknife.BindView;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.ProviderHeaderView;
+import se.leap.bitmaskclient.providersetup.TorLogAdapter;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 /**
@@ -54,7 +52,6 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
 
     private static final String TAG = ConfigWizardBaseActivity.class.getName();
     public static final float GUIDE_LINE_COMPACT_DELTA = 0.1f;
-    protected SharedPreferences preferences;
 
     @BindView(R.id.header)
     ProviderHeaderView providerHeaderView;
@@ -133,7 +130,6 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = PreferenceHelper.getSharedPreferences(this);
         provider = getIntent().getParcelableExtra(PROVIDER_KEY);
     }
 
@@ -431,50 +427,4 @@ public abstract class ConfigWizardBaseActivity extends ButterKnifeActivity imple
         snowflakeState.setText(snowflakeLog);
     }
 
-    static class TorLogAdapter extends RecyclerView.Adapter<TorLogAdapter.ViewHolder> {
-        private List<String> values;
-        private boolean postponeUpdate;
-
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            public AppCompatTextView logTextLabel;
-            public View layout;
-
-            public ViewHolder(View v) {
-                super(v);
-                layout = v;
-                logTextLabel = v.findViewById(android.R.id.text1);
-            }
-        }
-
-        public void updateData(List<String> data) {
-            values = data;
-            if (!postponeUpdate) {
-                notifyDataSetChanged();
-            }
-        }
-
-        public TorLogAdapter(List<String> data) {
-            values = data;
-        }
-
-        @NonNull
-        @Override
-        public TorLogAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(
-                    parent.getContext());
-            View v = inflater.inflate(R.layout.v_log_item, parent, false);
-            return new TorLogAdapter.ViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(TorLogAdapter.ViewHolder holder, final int position) {
-            final String log = values.get(position);
-            holder.logTextLabel.setText(log);
-        }
-
-        @Override
-        public int getItemCount() {
-            return values.size();
-        }
-    }
 }

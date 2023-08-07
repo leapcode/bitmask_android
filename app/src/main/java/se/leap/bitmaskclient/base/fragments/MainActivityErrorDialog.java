@@ -134,22 +134,22 @@ public class MainActivityErrorDialog extends DialogFragment {
                     stopVoidVpnIntent.setAction(EIP_ACTION_STOP_BLOCKING_VPN);
                     getContext().startService(stopVoidVpnIntent);
                 });
-                if (getPreferredCity(applicationContext) != null) {
+                if (getPreferredCity() != null) {
                     builder.setPositiveButton(R.string.warning_option_try_best, (dialog, which) -> {
                         new Thread(() -> {
-                            setPreferredCity(applicationContext, null);
+                            setPreferredCity(null);
                             EipCommand.startVPN(applicationContext, false);
                         }).start();
                     });
                 } else if (provider.supportsPluggableTransports()) {
-                    if (getUseBridges(applicationContext)) {
+                    if (getUseBridges()) {
                         builder.setPositiveButton(warning_option_try_ovpn, ((dialog, which) -> {
-                            useBridges(applicationContext, false);
+                            useBridges(false);
                             EipCommand.startVPN(applicationContext, false);
                         }));
                     } else {
                         builder.setPositiveButton(warning_option_try_pt, ((dialog, which) -> {
-                            useBridges(applicationContext, true);
+                            useBridges(true);
                             EipCommand.startVPN(applicationContext, false);
                         }));
                     }

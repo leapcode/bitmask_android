@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item>
+        <shape android:shape="rectangle"  >
+            <corners android:radius="8dp" />
+            <solid android:color="@color/colorPrimary_transparent"/>
+        </shape>
+    </item>
+    <item
+        android:bottom="@dimen/button_bevel"
+        >
+        <shape android:shape="rectangle">
+            <corners android:radius="8dp" />
+            <padding android:right="2dp"/>
+            <padding android:left="8dp" android:right="8dp"/>
+            <solid android:color="@color/colorDisabled"/>
+        </shape>
+    </item>
+</layer-list>

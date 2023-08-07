@@ -2,10 +2,13 @@ package se.leap.bitmaskclient.base.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.DrawableRes;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.content.ContextCompat;
 
@@ -55,5 +58,15 @@ public class MainButton extends RelativeLayout {
                     isOn ? R.drawable.button_circle_stop : R.drawable.button_circle_start));
             button.setTag(isOn ? "button_circle_stop" : "button_circle_start");
         }
+    }
+
+    public void setCustomDrawable(@DrawableRes int drawableResource) {
+        Drawable drawable = ContextCompat.getDrawable(getContext(), drawableResource);
+        if (drawable == null) {
+            return;
+        }
+
+        button.setImageDrawable(drawable);
+        button.setTag("button_setup_circle_custom");
     }
 }

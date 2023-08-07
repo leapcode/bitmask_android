@@ -1,34 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-     Copyright (C) 2011 The Android Open Source Project
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-
-          http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
--->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="se.leap.bitmaskclient">
     <!-- package is overwritten in build.gradle -->
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
-    <!-- Used to show all apps in the allowed Apps selection -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" /> <!-- Used to show all apps in the allowed Apps selection -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
     <application
@@ -42,6 +27,11 @@
         android:appCategory="productivity"
         android:logo="@mipmap/ic_launcher"
         android:theme="@style/BitmaskTheme">
+        <activity
+            android:name=".providersetup.activities.SetupActivity"
+            android:launchMode="singleInstance"
+            android:exported="false" />
+
         <service
             android:name="de.blinkt.openvpn.core.OpenVPNService"
             android:exported="false"
@@ -67,11 +57,11 @@
         <receiver
             android:name=".base.OnBootReceiver"
             android:enabled="true"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
-            android:exported="true">
-          <intent-filter android:priority="999">
-            <action android:name="android.intent.action.BOOT_COMPLETED" />
-          </intent-filter>
+            android:exported="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter android:priority="999">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
 
         <activity
@@ -82,11 +72,11 @@
             android:theme="@style/invisibleTheme" />
         <activity
             android:name=".base.StartActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:taskAffinity=""
             android:theme="@style/SplashTheme"
-            android:exported="true"
             >
 
             <intent-filter android:label="@string/app_name">
@@ -97,29 +87,23 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".base.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop" />
-
         <activity
             android:name=".providersetup.ProviderListActivity"
             android:label="@string/configuration_wizard_title" />
-
         <activity
             android:name=".providersetup.activities.CustomProviderSetupActivity"
             android:label="@string/setup_provider" />
-
         <activity
             android:name=".providersetup.AddProviderActivity"
             android:label="@string/add_provider" />
-
         <activity
             android:name=".providersetup.ProviderDetailActivity"
             android:label="@string/provider_details_title"
             android:launchMode="singleTop" />
-
         <activity android:name=".providersetup.activities.LoginActivity" />
         <activity android:name=".providersetup.activities.SignupActivity" />
 
@@ -144,7 +128,6 @@
                 android:name="android.service.quicksettings.ACTIVE_TILE"
                 android:value="false" />
         </service>
-
     </application>
 
 </manifest>

@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 
@@ -22,16 +23,18 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProvider
 public class PreferenceHelperTest {
 
     private SharedPreferences mockPreferences;
+    PreferenceHelper preferenceHelper;
 
 
     @Before
     public void setup() {
         mockPreferences = new MockSharedPreferences();
+        preferenceHelper = new PreferenceHelper(mockPreferences);
     }
 
     @Test
     public void getSavedProviderFromSharedPreferences_notInPreferences_returnsDefaultProvider() throws Exception {
-        Provider provider = getSavedProviderFromSharedPreferences(mockPreferences);
+        Provider provider = getSavedProviderFromSharedPreferences();
         assertFalse(provider.isConfigured());
     }
 
@@ -45,7 +48,7 @@ public class PreferenceHelperTest {
                 .putString(PROVIDER_VPN_CERTIFICATE, getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.vpn_cert.pem")))
                 .putString(PROVIDER_PRIVATE_KEY, getInputAsString(getClass().getClassLoader().getResourceAsStream("private_rsa_key.pem")))
                 .apply();
-        Provider provider = getSavedProviderFromSharedPreferences(mockPreferences);
+        Provider provider = getSavedProviderFromSharedPreferences();
         assertTrue(provider.isConfigured());
     }
 

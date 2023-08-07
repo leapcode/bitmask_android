@@ -9,8 +9,6 @@
     <dimen name="stdpadding">16dp</dimen>
     <dimen name="button_radius">20dp</dimen>
     <!-- landscape dimens -->
-    <dimen name="footer_text_padding">12dp</dimen>
-    <dimen name="splash_text_top_padding">90dp</dimen>
     <dimen name="mainbutton_padding">32dp</dimen>
     <dimen name="donation_reminder_padding">24dp</dimen>
 
