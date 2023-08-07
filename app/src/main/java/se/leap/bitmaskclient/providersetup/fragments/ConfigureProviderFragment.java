@@ -147,10 +147,13 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
     public void update(Observable o, Object arg) {
         if (o instanceof TorStatusObservable) {
             Activity activity = getActivity();
-            if (activity == null) {
+            if (activity == null || binding == null) {
                 return;
             }
             activity.runOnUiThread(() -> {
+                if (binding == null) {
+                    return;
+                }
                 if (TorStatusObservable.getStatus() != TorStatusObservable.TorStatus.OFF) {
                     if (binding.connectionDetailContainer.getVisibility() == GONE) {
                         showConnectionDetails();
