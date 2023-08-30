@@ -21,7 +21,6 @@ import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
 import static se.leap.bitmaskclient.base.models.Constants.APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.base.models.Constants.EXTRA_MOTD_MSG;
-import static se.leap.bitmaskclient.base.models.Constants.PREFERENCES_APP_VERSION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
@@ -74,6 +73,9 @@ public class StartActivity extends Activity{
     private int versionCode;
     private int previousVersionCode;
 
+    // flag indicating that the provider configuration UI should show up,
+    // to configure the lacking permissions
+    private boolean configurePermissions = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,8 +89,6 @@ public class StartActivity extends Activity{
 
             case FIRST:
                 storeAppVersion();
-                // TODO start ProfileCreation & replace below code
-                // (new Intent(getActivity(), ProviderListActivity.class), Constants.REQUEST_CODE_SWITCH_PROVIDER);
                 break;
 
             case UPGRADE:
@@ -195,6 +195,10 @@ public class StartActivity extends Activity{
         if (hasNewFeature(FeatureVersionCode.ENCRYPTED_SHARED_PREFS)) {
             PreferenceHelper.migrateToEncryptedPrefs(this);
         }
+        if (hasNewFeature(FeatureVersionCode.NOTIFICATION_PREMISSION_API_UPDATE)) {
+            // if the provider is not configured, permissions will be configured automatically during the provider setup
+            configurePermissions = ProviderObservable.getInstance().getCurrentProvider().isConfigured();
+        }
 
         // always check if manual gateway selection feature switch has been disabled
         if (!BuildConfig.allow_manual_gateway_selection && PreferenceHelper.getPreferredCity() != null) {
@@ -220,7 +224,7 @@ public class StartActivity extends Activity{
 
     private void prepareEIP() {
         Provider provider =  ProviderObservable.getInstance().getCurrentProvider();
-        if (provider.isConfigured()) {
+        if (provider.isConfigured() && !configurePermissions) {
             Log.d(TAG, "vpn provider is configured");
             if (getIntent() != null && getIntent().getBooleanExtra(EIP_RESTART_ON_BOOT, false)) {
                 EipCommand.startVPN(this, true);
@@ -244,7 +248,9 @@ public class StartActivity extends Activity{
             getIntent().removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
         }
         if (isDefaultBitmask()) {
-            startActivityForResult(new Intent(this, SetupActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
+            Intent intent = new Intent(this, SetupActivity.class);
+            intent.putExtra(SetupActivity.EXTRA_SWITCH_PROVIDER, false);
+            startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
         } else { // custom branded app
             startActivityForResult(new Intent(this, CustomProviderSetupActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
         }
