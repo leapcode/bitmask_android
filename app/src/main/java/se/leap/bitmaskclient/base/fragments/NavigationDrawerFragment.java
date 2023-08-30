@@ -236,7 +236,9 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
             switchProvider.setVisibility(VISIBLE);
             switchProvider.setOnClickListener(v -> {
                 closeDrawer();
-                getActivity().startActivityForResult(new Intent(getActivity(), SetupActivity.class), REQUEST_CODE_SWITCH_PROVIDER);
+                Intent intent = new Intent(getActivity(), SetupActivity.class);
+                intent.putExtra(SetupActivity.EXTRA_SWITCH_PROVIDER, true);
+                getActivity().startActivityForResult(intent, REQUEST_CODE_SWITCH_PROVIDER);
             });
         }
     }

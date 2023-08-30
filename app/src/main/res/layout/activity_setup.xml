@@ -46,6 +46,7 @@
                 app:cardCornerRadius="6dp"
                 app:cardElevation="0dp"
                 android:layout_margin="4dp"
+                android:visibility="gone"
                 >
                 <View
                     android:layout_width="match_parent"
@@ -58,6 +59,7 @@
                 app:cardCornerRadius="6dp"
                 app:cardElevation="0dp"
                 android:layout_margin="4dp"
+                android:visibility="gone"
                 >
                 <View
                     android:layout_width="match_parent"
@@ -70,6 +72,33 @@
                 app:cardCornerRadius="6dp"
                 app:cardElevation="0dp"
                 android:layout_margin="4dp"
+                android:visibility="gone"
+                >
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorPrimary"/>
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                app:cardCornerRadius="6dp"
+                app:cardElevation="0dp"
+                android:layout_margin="4dp"
+                android:visibility="gone"
+                >
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorPrimary"/>
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                app:cardCornerRadius="6dp"
+                app:cardElevation="0dp"
+                android:layout_margin="4dp"
+                android:visibility="gone"
                 >
                 <View
                     android:layout_width="match_parent"

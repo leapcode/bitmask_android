@@ -1,9 +1,13 @@
 package se.leap.bitmaskclient.providersetup;
 
-import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.*;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CIRCUMVENTION_SETUP_FRAGMENT;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CONFIGURE_PROVIDER_FRAGMENT;
+import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.NOTIFICATION_PERMISSON_EDUCATIONAL_FRAGMENT;
+import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.NOTIFICATION_PERMISSON_FRAGMENT;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.PROVIDER_SELECTION_FRAGMENT;
+import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.SUCCESS_FRAGMENT;
+import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.VPN_PERMISSON_EDUCATIONAL_FRAGMENT;
+import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.VPN_PERMISSON_FRAGMENT;
 
 import android.content.Intent;
 
@@ -25,12 +29,15 @@ public class SetupViewPagerAdapter extends FragmentStateAdapter {
         super(fragmentManager, lifecycle);
     }
 
-    public SetupViewPagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, Intent vpnPermissionRequest, Boolean showNotificationPermission) {
+    public SetupViewPagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, boolean providerSetup, Intent vpnPermissionRequest, Boolean showNotificationPermission) {
         this(fragmentManager, lifecycle);
         ArrayList<Integer> fragments = new ArrayList<>();
-        fragments.add(PROVIDER_SELECTION_FRAGMENT);
-        fragments.add(CIRCUMVENTION_SETUP_FRAGMENT);
-        fragments.add(CONFIGURE_PROVIDER_FRAGMENT);
+        if (providerSetup) {
+            fragments.add(PROVIDER_SELECTION_FRAGMENT);
+            fragments.add(CIRCUMVENTION_SETUP_FRAGMENT);
+            fragments.add(CONFIGURE_PROVIDER_FRAGMENT);
+        }
+
         if (vpnPermissionRequest != null) {
             fragments.add(VPN_PERMISSON_EDUCATIONAL_FRAGMENT);
             fragments.add(VPN_PERMISSON_FRAGMENT);

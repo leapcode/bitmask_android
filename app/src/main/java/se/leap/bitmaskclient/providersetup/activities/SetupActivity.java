@@ -21,7 +21,6 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -56,10 +55,12 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
     public static final String EXTRA_PROVIDER = "EXTRA_PROVIDER";
     public static final String EXTRA_CURRENT_POSITION = "EXTRA_CURRENT_POSITION";
+    public static final String EXTRA_SWITCH_PROVIDER = "EXTRA_SWITCH_PROVIDER";
     private static final String TAG = SetupActivity.class.getSimpleName();
     ActivitySetupBinding binding;
     Provider provider;
     private int currentPosition = 0;
+    private boolean switchProvider = false;
 
     private final HashSet<CancelCallback> cancelCallbacks = new HashSet<>();
     private FragmentManagerEnhanced fragmentManager;
@@ -72,6 +73,10 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         if (savedInstanceState != null) {
             provider = savedInstanceState.getParcelable(EXTRA_PROVIDER);
             currentPosition = savedInstanceState.getInt(EXTRA_CURRENT_POSITION);
+            switchProvider = savedInstanceState.getBoolean(EXTRA_SWITCH_PROVIDER);
+        }
+        if (getIntent() != null && getIntent().hasExtra(EXTRA_SWITCH_PROVIDER)) {
+            switchProvider = getIntent().getBooleanExtra(EXTRA_SWITCH_PROVIDER, false);
         }
 
         binding = ActivitySetupBinding.inflate(getLayoutInflater());
@@ -79,28 +84,35 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
         ArrayList<View> indicatorViews = new ArrayList<>();
 
-        for (int i = 0; i < 4; i++) {
-            addIndicatorView(indicatorViews);
+        // indicator views for provider selection and config setup
+        boolean basicProviderSetup = !ProviderObservable.getInstance().getCurrentProvider().isConfigured() || switchProvider;
+        if (basicProviderSetup) {
+            for (int i = 0; i < 3; i++) {
+                addIndicatorView(indicatorViews);
+            }
         }
 
+        // indicator views for VPN permission
         Intent requestVpnPermission = VpnService.prepare(this);
         if (requestVpnPermission != null) {
             addIndicatorView(indicatorViews);
             addIndicatorView(indicatorViews);
         }
 
-        boolean showNotificationPermissionFragments = false;
+        // indicator views for notification permission
+        boolean requestNotificationPermission = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                showNotificationPermissionFragments = shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
-                if (showNotificationPermissionFragments) {
-                    addIndicatorView(indicatorViews);
-                    addIndicatorView(indicatorViews);
-                }
+                requestNotificationPermission = true;
+                addIndicatorView(indicatorViews);
+                addIndicatorView(indicatorViews);
             }
         }
 
-        adapter = new SetupViewPagerAdapter(getSupportFragmentManager(), getLifecycle(), requestVpnPermission, showNotificationPermissionFragments);
+        // indicator views for "all set" Fragment
+        addIndicatorView(indicatorViews);
+
+        adapter = new SetupViewPagerAdapter(getSupportFragmentManager(), getLifecycle(), basicProviderSetup, requestVpnPermission, requestNotificationPermission);
 
         binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -114,7 +126,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
                 }
                 ActionBar actionBar = getSupportActionBar();
                 if (actionBar != null) {
-                    getSupportActionBar().setDisplayHomeAsUpEnabled(position == 0 && ProviderObservable.getInstance().getCurrentProvider().isConfigured());
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(position == 0 && switchProvider);
                 }
             }
         });
@@ -126,7 +138,6 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
             int currentPos = binding.viewPager.getCurrentItem();
             int newPos = currentPos + 1;
             if (newPos >= binding.viewPager.getAdapter().getItemCount()) {
-                Toast.makeText(SetupActivity.this, "SetupFinished \\o/", Toast.LENGTH_LONG).show();
                 return;
             }
             binding.viewPager.setCurrentItem(newPos);
@@ -143,6 +154,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         if (provider != null) {
             outState.putParcelable(EXTRA_PROVIDER, provider);
             outState.putInt(EXTRA_CURRENT_POSITION, currentPosition);
+            outState.putBoolean(EXTRA_SWITCH_PROVIDER, switchProvider);
         }
     }
 
@@ -184,7 +196,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_back, getTheme());
         actionBar.setHomeAsUpIndicator(upArrow);
 
-        actionBar.setDisplayHomeAsUpEnabled(currentPosition == 0 && ProviderObservable.getInstance().getCurrentProvider().isConfigured());
+        actionBar.setDisplayHomeAsUpEnabled(currentPosition == 0 && switchProvider);
         ViewHelper.setActivityBarColor(this, R.color.bg_setup_status_bar, R.color.bg_setup_action_bar, R.color.colorActionBarTitleFont);
         @ColorInt int titleColor = ContextCompat.getColor(context, R.color.colorActionBarTitleFont);
         actionBarTitle.setTitleTextColor(titleColor);
@@ -270,6 +282,10 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
     @Override
     public void onSetupFinished() {
         Intent intent = getIntent();
+        if (provider == null && ProviderObservable.getInstance().getCurrentProvider().isConfigured()) {
+            // only permissions were requested, no new provider configured, so reuse previously configured one
+            provider = ProviderObservable.getInstance().getCurrentProvider();
+        }
         intent.putExtra(Provider.KEY, provider);
         setResult(RESULT_OK, intent);
         finish();
