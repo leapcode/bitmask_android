@@ -46,6 +46,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -93,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     private NavigationDrawerFragment navigationDrawerFragment;
 
     public final static String ACTION_SHOW_VPN_FRAGMENT = "action_show_vpn_fragment";
-    public final static String ACTION_SHOW_LOG_FRAGMENT = "action_show_log_fragment";
     public final static String ACTION_SHOW_DIALOG_FRAGMENT = "action_show_dialog_fragment";
     public final static String ACTION_SHOW_MOTD_FRAGMENT = "action_show_motd_fragment";
 
@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
             return;
         }
 
+        @ColorInt int tintColor;
         Fragment fragment = null;
         switch (intent.getAction()) {
             case ACTION_SHOW_VPN_FRAGMENT:
@@ -161,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 bundle.putParcelable(PROVIDER_KEY, provider);
                 fragment.setArguments(bundle);
                 showActionBar();
+                int color = ((ActionBarTitle) getSupportActionBar().getCustomView()).getTitleTextColor();
+                setActionBarToggleColor(color);
                 break;
             case ACTION_SHOW_MOTD_FRAGMENT:
                 fragment = new MotdFragment();
@@ -170,10 +173,6 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 }
                 fragment.setArguments(motdBundle);
                 hideActionBar();
-                break;
-            case ACTION_SHOW_LOG_FRAGMENT:
-                fragment = new LogFragment();
-                showActionBar();
                 break;
             case ACTION_SHOW_DIALOG_FRAGMENT:
                 if (intent.hasExtra(EIP.ERRORID)) {
@@ -207,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
 
         @ColorInt int titleColor = ContextCompat.getColor(context, R.color.colorActionBarTitleFont);
         actionBarTitle.setTitleTextColor(titleColor);
+        actionBarTitle.setSubtitleTextColor(titleColor);
 
         actionBarTitle.setCentered(BuildConfig.actionbar_center_title);
         if (BuildConfig.actionbar_center_title) {
@@ -218,6 +218,10 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         } else {
             actionBar.setCustomView(actionBarTitle);
         }
+    }
+
+    public void setActionBarToggleColor(int color) {
+        navigationDrawerFragment.setDrawerToggleColor(this, color);
     }
 
     private void hideActionBar() {

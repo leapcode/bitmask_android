@@ -67,6 +67,10 @@ public class ActionBarTitle extends LinearLayoutCompat {
         actionBarTitle.setTextColor(color);
     }
 
+    public @ColorInt int getTitleTextColor() {
+        return actionBarTitle.getCurrentTextColor();
+    }
+
     public void setSubtitleTextColor(@ColorInt int color) {
         actionBarSubtitle.setTextColor(color);
     }

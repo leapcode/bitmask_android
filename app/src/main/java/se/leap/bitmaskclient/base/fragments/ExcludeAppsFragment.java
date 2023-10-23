@@ -5,6 +5,8 @@
 
 package se.leap.bitmaskclient.base.fragments;
 
+import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -40,8 +42,6 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.SimpleCheckBox;
-
-import static se.leap.bitmaskclient.R.string.exclude_apps_fragment_title;
 
 /**
  * Created by arne on 16.11.14.
@@ -271,7 +271,6 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.allowed_apps, menu);
-
         SearchView searchView = (SearchView) menu.findItem( R.id.app_search_widget ).getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -298,7 +297,21 @@ public class ExcludeAppsFragment extends Fragment implements AdapterView.OnItemC
             return false;
         });
 
+        tintSearchViewChild(searchView);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void tintSearchViewChild(ViewGroup view) {
+        for (int i = 0; i < view.getChildCount(); i++) {
+            View v = view.getChildAt(i);
+            if (v instanceof ViewGroup) {
+                tintSearchViewChild((ViewGroup) v);
+            }
+            if (v instanceof ImageView) {
+                ((ImageView) v).setColorFilter(getResources().getColor(R.color.colorActionBarTitleFont),
+                        android.graphics.PorterDuff.Mode.SRC_IN);
+            }
+        }
     }
 
     @Override

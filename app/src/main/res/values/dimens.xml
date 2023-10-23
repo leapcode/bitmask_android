@@ -8,7 +8,7 @@
     <dimen name="stdpadding">8dp</dimen>
     <dimen name="compact_padding">3dp</dimen>
     <dimen name="standard_margin">8dp</dimen>
-    <bool name="logSildersAlwaysVisible">false</bool>
+    <bool name="logSlidersAlwaysVisible">false</bool>
 
 
     <dimen name="diameter">48dp</dimen>

@@ -46,7 +46,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.graphics.drawable.DrawerArrowDrawable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -64,7 +66,6 @@ import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.IconSwitchEntry;
 import se.leap.bitmaskclient.base.views.IconTextEntry;
 import se.leap.bitmaskclient.eip.EipStatus;
-import se.leap.bitmaskclient.providersetup.ProviderListActivity;
 import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 
@@ -202,6 +203,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 activity.invalidateOptionsMenu();
             }
         };
+        setDrawerToggleColor(activity, ContextCompat.getColor(activity, R.color.amber200));
     }
 
     private void setupEntries() {
@@ -222,12 +224,20 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         account.setText(currentProvider.getName());
         account.setOnClickListener((buttonView) -> {
             Fragment fragment = new EipFragment();
+            setDrawerToggleColor(drawerView.getContext(), ContextCompat.getColor(drawerView.getContext(), R.color.actionbar_connectivity_state_text_color_dark));
             Bundle arguments = new Bundle();
             arguments.putParcelable(PROVIDER_KEY, currentProvider);
             fragment.setArguments(arguments);
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
             closeDrawer();
         });
+    }
+
+    public void setDrawerToggleColor(Context context, int color) {
+        DrawerArrowDrawable drawable = new DrawerArrowDrawable(context);
+        drawable.setTint(color);
+        drawable.setColor(color);
+        drawerToggle.setDrawerArrowDrawable(drawable);
     }
 
     private void initSwitchProviderEntry() {
@@ -249,6 +259,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         advancedSettings.setOnClickListener(v -> {
             closeDrawer();
             Fragment fragment = new SettingsFragment();
+            setDrawerToggleColor(drawerView.getContext(), ContextCompat.getColor(drawerView.getContext(), R.color.colorActionBarTitleFont));
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
     }
@@ -298,6 +309,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 return;
             }
             Fragment fragment = new GatewaySelectionFragment();
+            setDrawerToggleColor(drawerView.getContext(), ContextCompat.getColor(drawerView.getContext(), R.color.colorActionBarTitleFont));
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
     }
@@ -321,6 +333,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         log.setOnClickListener((buttonView) -> {
             closeDrawer();
             Fragment fragment = new LogFragment();
+            setDrawerToggleColor(drawerView.getContext(), ContextCompat.getColor(drawerView.getContext(), R.color.colorActionBarTitleFont));
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
     }
@@ -331,6 +344,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         about.setOnClickListener((buttonView) -> {
             closeDrawer();
             Fragment fragment = new AboutFragment();
+            setDrawerToggleColor(drawerView.getContext(), ContextCompat.getColor(drawerView.getContext(), R.color.colorActionBarTitleFont));
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
     }
