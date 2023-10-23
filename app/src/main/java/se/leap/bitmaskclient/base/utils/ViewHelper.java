@@ -9,10 +9,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -24,7 +27,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 
 import se.leap.bitmaskclient.R;
@@ -116,6 +121,12 @@ public class ViewHelper {
         if (customView instanceof ActionBarTitle) {
             ActionBarTitle actionBarTitle = (ActionBarTitle) customView;
             actionBarTitle.setTitleTextColor(ContextCompat.getColor(bar.getThemedContext(), actionBarTextColor));
+            actionBarTitle.setSubtitleTextColor(ContextCompat.getColor(bar.getThemedContext(), actionBarTextColor));
+        }
+
+        Toolbar tb = activity.findViewById(R.id.toolbar);
+        if (tb != null && tb.getOverflowIcon() != null) {
+            tb.getOverflowIcon().setTint(ContextCompat.getColor(bar.getThemedContext(), actionBarTextColor));
         }
     }
 
@@ -137,6 +148,17 @@ public class ViewHelper {
         }
 
         return rtnValue;
+    }
+
+    public static void tintMenuIcons(Context context, Menu menu, @ColorRes int color) {
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            Drawable normalDrawable = item.getIcon();
+            Drawable wrapDrawable = DrawableCompat.wrap(normalDrawable);
+            DrawableCompat.setTint(wrapDrawable, context.getResources().getColor(color));
+
+            item.setIcon(wrapDrawable);
+        }
     }
 
     public static void setActionBarTextColor(ActionBar bar, @ColorRes int titleColor) {

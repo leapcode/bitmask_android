@@ -416,6 +416,7 @@ public class EipFragment extends Fragment implements Observer {
 
     private void setActivityBarColor(@ColorRes int primaryColor, @ColorRes int secondaryColor) {
         ViewHelper.setActivityBarColor(getActivity(), primaryColor, secondaryColor, R.color.actionbar_connectivity_state_text_color_dark);
+        ((MainActivity) getActivity()).setActionBarToggleColor(R.color.actionbar_connectivity_state_text_color_dark);
     }
 
     private void handleNewState() {
