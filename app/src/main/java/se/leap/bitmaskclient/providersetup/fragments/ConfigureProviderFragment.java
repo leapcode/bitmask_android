@@ -9,6 +9,7 @@ import static se.leap.bitmaskclient.R.string.description_configure_provider_circ
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.animateContainerVisibility;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
@@ -28,6 +29,7 @@ import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastTorLog;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +37,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +45,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.databinding.FConfigureProviderBinding;
 import se.leap.bitmaskclient.eip.EipSetupListener;
@@ -116,6 +120,10 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
         ignoreProviderAPIUpdates = false;
         binding.detailContainer.setVisibility(getUseSnowflake() ? VISIBLE : GONE);
         binding.tvCircumventionDescription.setText(getUseSnowflake() ? description_configure_provider_circumvention : description_configure_provider);
+        if (!isDefaultBitmask()) {
+            Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.setup_progress_spinner, null);
+            binding.progressSpinner.setAnimatedSpinnerDrawable(drawable);
+        }
         setupActivityCallback.setNavigationButtonHidden(true);
         setupActivityCallback.setCancelButtonHidden(false);
         ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, setupActivityCallback.getSelectedProvider());

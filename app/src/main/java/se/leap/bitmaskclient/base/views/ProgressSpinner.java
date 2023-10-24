@@ -2,6 +2,7 @@ package se.leap.bitmaskclient.base.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.RelativeLayout;
@@ -59,5 +60,9 @@ public class ProgressSpinner extends RelativeLayout {
             text = text + progress + "%";
         }
         textView.setText(text);
+    }
+
+    public void setAnimatedSpinnerDrawable(Drawable drawable) {
+        spinnerView.setImageDrawable(drawable);
     }
 }
