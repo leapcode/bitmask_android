@@ -73,9 +73,9 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         addCustomProviders(externalFilesDir);
     }
 
-    private void addDefaultProviders(AssetManager assets_manager) {
+    private void addDefaultProviders(AssetManager assetManager) {
         try {
-            defaultProviders = providersFromAssets(URLS, assets_manager.list(URLS));
+            defaultProviders = providersFromAssets(URLS, assetManager.list(URLS));
             defaultProviderURLs = getProviderUrlSetFromProviderSet(defaultProviders);
         } catch (IOException e) {
             e.printStackTrace();
