@@ -3,6 +3,7 @@ package se.leap.bitmaskclient.providersetup.activities;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CONFIGURE_PROVIDER_FRAGMENT;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
@@ -84,13 +85,18 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
         ArrayList<View> indicatorViews = new ArrayList<>();
 
-        // indicator views for provider selection and config setup
+        if (isDefaultBitmask()) {
+            // indicator view for provider selection
+            addIndicatorView(indicatorViews);
+        }
+
+        // indicator views for config setup
         boolean basicProviderSetup = !ProviderObservable.getInstance().getCurrentProvider().isConfigured() || switchProvider;
         if (basicProviderSetup) {
-            for (int i = 0; i < 3; i++) {
-                addIndicatorView(indicatorViews);
-            }
+            addIndicatorView(indicatorViews);
+            addIndicatorView(indicatorViews);
         }
+
 
         // indicator views for VPN permission
         Intent requestVpnPermission = VpnService.prepare(this);

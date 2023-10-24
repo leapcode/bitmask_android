@@ -215,8 +215,8 @@
     <string name="provider_description_calyx">Calyx is a non-profit education and research organization devoted to studying, testing, developing and implementing privacy technology and tools to promote free speech, free expression, civic engagement and privacy rights on the internet and in the mobile communications industry.</string>
     <string name="title_circumvention_setup">Do You Require Censorship Circumvention?</string>
     <string name="circumvention_setup_description">If you live where the internet is censored you can use our censorship circumvention options to access all internet services. These options will slow down your connection!</string>
-    <string name="circumvention_setup_hint">Bitmask will automatically try to connect you to the internet using a variety of circumvention technologies. You can fine tune this in the advanced settings.</string>
-    <string name="use_standard_vpn">Use standard Bitmask VPN</string>
+    <string name="circumvention_setup_hint">%s will automatically try to connect you to the internet using a variety of circumvention technologies. You can fine tune this in the advanced settings.</string>
+    <string name="use_standard_vpn">Use standard %s</string>
     <string name="use_circumvention_tech">Use circumvention tech (slower)</string>
     <string name="description_configure_provider">To connect to your provider Bitmask is fetching all the required configuration information. This only happens during first setup.</string>
     <string name="description_configure_provider_circumvention">Bitmask is attempting to collect all required configuration data from the provider. This only happens during first setup. You selected to use circumvention technology, so this might take some time.</string>

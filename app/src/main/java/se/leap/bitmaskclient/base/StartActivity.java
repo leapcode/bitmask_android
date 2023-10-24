@@ -247,13 +247,9 @@ public class StartActivity extends Activity{
         if (getIntent().hasExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE)) {
             getIntent().removeExtra(APP_ACTION_CONFIGURE_ALWAYS_ON_PROFILE);
         }
-        if (isDefaultBitmask()) {
-            Intent intent = new Intent(this, SetupActivity.class);
-            intent.putExtra(SetupActivity.EXTRA_SWITCH_PROVIDER, false);
-            startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
-        } else { // custom branded app
-            startActivityForResult(new Intent(this, CustomProviderSetupActivity.class), REQUEST_CODE_CONFIGURE_LEAP);
-        }
+        Intent intent = new Intent(this, SetupActivity.class);
+        intent.putExtra(SetupActivity.EXTRA_SWITCH_PROVIDER, false);
+        startActivityForResult(intent, REQUEST_CODE_CONFIGURE_LEAP);
     }
 
     @Override
