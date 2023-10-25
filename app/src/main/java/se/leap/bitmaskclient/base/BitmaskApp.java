@@ -26,7 +26,6 @@ import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheri
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -42,6 +41,7 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PRNGFixes;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EipSetupObserver;
+import se.leap.bitmaskclient.providersetup.ProviderSetupObservable;
 import se.leap.bitmaskclient.tethering.TetheringStateManager;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
@@ -56,6 +56,8 @@ public class BitmaskApp extends MultiDexApplication {
     private DownloadBroadcastReceiver downloadBroadcastReceiver;
     private TorStatusObservable torStatusObservable;
 
+    private ProviderSetupObservable providerSetupObservable;
+
     private PreferenceHelper preferenceHelper;
 
 
@@ -69,6 +71,7 @@ public class BitmaskApp extends MultiDexApplication {
         providerObservable = ProviderObservable.getInstance();
         providerObservable.updateProvider(getSavedProviderFromSharedPreferences());
         torStatusObservable = TorStatusObservable.getInstance();
+        providerSetupObservable = ProviderSetupObservable.getInstance();
         EipSetupObserver.init(this);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         if (!isCalyxOSWithTetheringSupport(this)) {

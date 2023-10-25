@@ -22,7 +22,6 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_OK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.SET_UP_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_EXCEPTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.getBootstrapProgress;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastLogs;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastSnowflakeLog;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getLastTorLog;
@@ -31,6 +30,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ import se.leap.bitmaskclient.databinding.FConfigureProviderBinding;
 import se.leap.bitmaskclient.eip.EipSetupListener;
 import se.leap.bitmaskclient.eip.EipSetupObserver;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
+import se.leap.bitmaskclient.providersetup.ProviderSetupObservable;
 import se.leap.bitmaskclient.providersetup.TorLogAdapter;
 import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
@@ -63,6 +65,8 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
     private boolean isExpanded = false;
     private boolean ignoreProviderAPIUpdates = false;
     private TorLogAdapter torLogAdapter;
+
+    private Handler handler = new Handler(Looper.getMainLooper());
 
 
     public static ConfigureProviderFragment newInstance(int position) {
@@ -101,14 +105,14 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupActivityCallback.registerCancelCallback(this);
-        TorStatusObservable.getInstance().addObserver(this);
+        ProviderSetupObservable.getInstance().addObserver(this);
         EipSetupObserver.addListener(this);
     }
 
     @Override
     public void onDestroyView() {
         setupActivityCallback.removeCancelCallback(this);
-        TorStatusObservable.getInstance().deleteObserver(this);
+        ProviderSetupObservable.getInstance().deleteObserver(this);
         EipSetupObserver.removeListener(this);
         binding = null;
         super.onDestroyView();
@@ -124,8 +128,10 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
             Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.setup_progress_spinner, null);
             binding.progressSpinner.setAnimatedSpinnerDrawable(drawable);
         }
+        binding.progressSpinner.update(ProviderSetupObservable.getProgress());
         setupActivityCallback.setNavigationButtonHidden(true);
         setupActivityCallback.setCancelButtonHidden(false);
+        ProviderSetupObservable.startSetup();
         ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, setupActivityCallback.getSelectedProvider());
     }
 
@@ -153,7 +159,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
 
     @Override
     public void update(Observable o, Object arg) {
-        if (o instanceof TorStatusObservable) {
+        if (o instanceof ProviderSetupObservable) {
             Activity activity = getActivity();
             if (activity == null || binding == null) {
                 return;
@@ -170,7 +176,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
                     }
                 }
                 binding.tvProgressStatus.setText(TorStatusObservable.getStringForCurrentStatus(activity));
-                binding.progressSpinner.update(getBootstrapProgress());
+                binding.progressSpinner.update(ProviderSetupObservable.getProgress());
             });
         }
     }
@@ -199,7 +205,8 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
         Provider provider = resultData.getParcelable(PROVIDER_KEY);
         if (ignoreProviderAPIUpdates ||
                 provider == null ||
-                !setupActivityCallback.getSelectedProvider().getDomain().equals(provider.getDomain())) {
+                (setupActivityCallback.getSelectedProvider() != null &&
+                !setupActivityCallback.getSelectedProvider().getDomain().equals(provider.getDomain()))) {
             return;
         }
 
@@ -213,7 +220,11 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
                 break;
             case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 setupActivityCallback.onProviderSelected(provider);
-                setupActivityCallback.onConfigurationSuccess();
+                handler.postDelayed(() -> {
+                    if (!ProviderSetupObservable.isCanceled()) {
+                        setupActivityCallback.onConfigurationSuccess();
+                    }
+                }, 750);
                 break;
             case PROVIDER_NOK:
             case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:

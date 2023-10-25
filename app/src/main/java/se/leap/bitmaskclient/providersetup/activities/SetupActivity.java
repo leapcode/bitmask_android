@@ -48,6 +48,7 @@ import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.ActionBarTitle;
 import se.leap.bitmaskclient.databinding.ActivitySetupBinding;
 import se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog;
+import se.leap.bitmaskclient.providersetup.ProviderSetupObservable;
 import se.leap.bitmaskclient.providersetup.SetupViewPagerAdapter;
 import se.leap.bitmaskclient.tor.TorServiceCommand;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
@@ -166,6 +167,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
     private void cancel() {
         binding.viewPager.setCurrentItem(0, false);
+        ProviderSetupObservable.cancel();
         if (TorStatusObservable.getStatus() != OFF) {
             Log.d(TAG, "SHUTDOWN - cancelSettingUpProvider");
             TorServiceCommand.stopTorServiceAsync(this);
@@ -287,6 +289,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
     @Override
     public void onSetupFinished() {
+        ProviderSetupObservable.reset();
         Intent intent = getIntent();
         if (provider == null && ProviderObservable.getInstance().getCurrentProvider().isConfigured()) {
             // only permissions were requested, no new provider configured, so reuse previously configured one
