@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.databinding.FEmptyPermissionSetupBinding;
 
 public class EmptyPermissionSetupFragment extends BaseSetupFragment {
@@ -31,9 +32,10 @@ public class EmptyPermissionSetupFragment extends BaseSetupFragment {
                         setupActivityCallback.onConfigurationSuccess();
                     }
                 } else {
-                    Toast.makeText(getContext(), "Permission request failed :(", Toast.LENGTH_LONG).show();
-                    setupActivityCallback.setNavigationButtonHidden(false);
-                    // TODO: implement sth. useful
+                    Toast.makeText(getContext(), getText(R.string.permission_rejected), Toast.LENGTH_LONG).show();
+                    if (setupActivityCallback != null) {
+                        setupActivityCallback.onConfigurationSuccess();
+                    }
                 }
             });
 
@@ -46,9 +48,10 @@ public class EmptyPermissionSetupFragment extends BaseSetupFragment {
                                 setupActivityCallback.onConfigurationSuccess();
                             }
                         } else {
-                            Toast.makeText(getContext(), "Permission request failed :(", Toast.LENGTH_LONG).show();
-                            setupActivityCallback.setNavigationButtonHidden(false);
-                            // TODO: implement sth. useful
+                            Toast.makeText(getContext(), getText(R.string.permission_rejected), Toast.LENGTH_LONG).show();
+                            if (setupActivityCallback != null) {
+                                setupActivityCallback.onConfigurationSuccess();
+                            }
                         }
                     }
             );

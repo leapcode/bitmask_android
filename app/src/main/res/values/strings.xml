@@ -236,5 +236,5 @@
     <string name="upcoming_notifications_request_description">In the next panel Android will ask if you want to allow notifications. This will ensure a stable background connection and enable you to see your data usage from within Android’s notification center.</string>
     <string name="title_setup_success">You\'re all set!</string>
     <string name="setup_success_description">Click the button below to connect</string>
-
+    <string name="permission_rejected">Permission request rejected.</string>
 </resources>
