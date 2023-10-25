@@ -1,0 +1,5 @@
+{
+	"main_url" : "https://black.riseup.net",
+	"geoip_url" : "https://menshen.riseup.net/json",
+	"motd_url": "https://static.riseup.net/vpn/motd.json"
+}
