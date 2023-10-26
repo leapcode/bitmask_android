@@ -47,7 +47,7 @@ public class ProviderSetupObservable extends Observable {
     }
 
     public static void updateProgress(int progress) {
-        if (instance.canceled) {
+        if (getInstance().canceled) {
             return;
         }
         long now = System.currentTimeMillis();
