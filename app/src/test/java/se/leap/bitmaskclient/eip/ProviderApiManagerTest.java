@@ -19,7 +19,9 @@ package se.leap.bitmaskclient.eip;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
@@ -90,6 +92,7 @@ import se.leap.bitmaskclient.providersetup.ProviderAPI;
 import se.leap.bitmaskclient.providersetup.ProviderApiConnector;
 import se.leap.bitmaskclient.providersetup.ProviderApiManager;
 import se.leap.bitmaskclient.providersetup.ProviderApiManagerBase;
+import se.leap.bitmaskclient.providersetup.ProviderSetupObservable;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 
@@ -98,7 +101,7 @@ import se.leap.bitmaskclient.tor.TorStatusObservable;
  */
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ProviderApiManager.class, TextUtils.class, ConfigHelper.RSAHelper.class, ConfigHelper.class, ProviderApiConnector.class, PreferenceHelper.class, TorStatusObservable.class, android.util.Base64.class})
+@PrepareForTest({ProviderApiManager.class, TextUtils.class, ConfigHelper.RSAHelper.class, ConfigHelper.class, ProviderApiConnector.class, PreferenceHelper.class, TorStatusObservable.class, android.util.Base64.class, ProviderSetupObservable.class})
 public class ProviderApiManagerTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -189,6 +192,8 @@ public class ProviderApiManagerTest {
         mockPreferenceHelper(provider);
         mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
+        mockStatic(ProviderSetupObservable.class);
+
         providerApiManager = new ProviderApiManager(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
 
@@ -211,6 +216,8 @@ public class ProviderApiManagerTest {
         mockPreferenceHelper(provider);
         mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
+        mockStatic(ProviderSetupObservable.class);
+
         providerApiManager = new ProviderApiManager(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
 
@@ -233,6 +240,8 @@ public class ProviderApiManagerTest {
         mockPreferenceHelper(getConfiguredProvider());
         mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
+        mockStatic(ProviderSetupObservable.class);
+
         providerApiManager = new ProviderApiManager(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Bundle expectedResult = mockBundle();
@@ -278,6 +287,8 @@ public class ProviderApiManagerTest {
         mockPreferenceHelper(provider);
         mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29495");
         mockProviderApiConnector(NO_ERROR);
+        mockStatic(ProviderSetupObservable.class);
+
         providerApiManager = new ProviderApiManager(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Bundle expectedResult = mockBundle();
@@ -424,6 +435,8 @@ public class ProviderApiManagerTest {
 
         mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_CASE_MICONFIGURED_PROVIDER);
+        mockStatic(ProviderSetupObservable.class);
+
         providerApiManager = new ProviderApiManager(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Bundle expectedResult = mockBundle();
@@ -452,6 +465,7 @@ public class ProviderApiManagerTest {
         mockProviderApiConnector(ERROR_CASE_MICONFIGURED_PROVIDER);
         mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         when(ConfigHelper.isDefaultBitmask()).thenReturn(false);
+        mockStatic(ProviderSetupObservable.class);
 
         providerApiManager = new ProviderApiManager(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -477,6 +491,8 @@ public class ProviderApiManagerTest {
         mockPreferenceHelper(provider);
         mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR);
+        mockStatic(ProviderSetupObservable.class);
+
         providerApiManager = new ProviderApiManager(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Bundle expectedResult = mockBundle();
@@ -504,6 +520,8 @@ public class ProviderApiManagerTest {
 
         mockConfigHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID);
+        mockStatic(ProviderSetupObservable.class);
+
         providerApiManager = new ProviderApiManager(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Bundle expectedResult = mockBundle();
@@ -688,6 +706,8 @@ public class ProviderApiManagerTest {
         mockPreferenceHelper(provider);
         mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR_API_V4);
+        mockStatic(ProviderSetupObservable.class);
+
         providerApiManager = new ProviderApiManager(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = mockBundle();
 
@@ -710,6 +730,7 @@ public class ProviderApiManagerTest {
         mockPreferenceHelper(provider);
         when(PreferenceHelper.hasSnowflakePrefs()).thenReturn(false);
         when(PreferenceHelper.getUseSnowflake()).thenReturn(true); // getUseSnowflake() defaults to true if not set
+        mockStatic(ProviderSetupObservable.class);
 
         mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
@@ -772,6 +793,7 @@ public class ProviderApiManagerTest {
         mockPreferenceHelper(provider);
         mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR_API_V4);
+        mockStatic(ProviderSetupObservable.class);
 
         when(PreferenceHelper.getUseBridges()).thenReturn(true);
         when(PreferenceHelper.getUseSnowflake()).thenReturn(true);
@@ -798,6 +820,7 @@ public class ProviderApiManagerTest {
         mockConfigHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         mockProviderApiConnector(NO_ERROR_API_V4);
 
+        mockStatic(ProviderSetupObservable.class);
         when(PreferenceHelper.getUseBridges()).thenReturn(false);
         when(PreferenceHelper.getUseSnowflake()).thenReturn(false);
         when(PreferenceHelper.hasSnowflakePrefs()).thenReturn(true);

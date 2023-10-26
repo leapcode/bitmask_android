@@ -96,6 +96,8 @@ import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWN
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_INVALID_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_TOR_TIMEOUT;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_GEOIP_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.ON;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
@@ -256,6 +258,9 @@ public abstract class ProviderApiManagerBase {
                 result = setUpProvider(provider, parameters);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     getGeoIPJson(provider);
+                    if (provider.hasGeoIpJson()) {
+                        ProviderSetupObservable.updateProgress(DOWNLOADED_GEOIP_JSON);
+                    }
                     sendToReceiverOrBroadcast(receiver, PROVIDER_OK, result, provider);
                 } else {
                     sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
@@ -289,6 +294,7 @@ public abstract class ProviderApiManagerBase {
                 ProviderObservable.getInstance().setProviderForDns(provider);
                 result = updateVpnCertificate(provider);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    ProviderSetupObservable.updateProgress(DOWNLOADED_VPN_CERTIFICATE);
                     sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);
                 } else {
                     sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);

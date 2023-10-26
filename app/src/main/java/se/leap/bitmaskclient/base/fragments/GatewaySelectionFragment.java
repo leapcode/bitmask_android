@@ -39,6 +39,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -105,6 +106,10 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
         initRecommendedLocationEntry();
         initBridgesHint(view);
         setActionBarSubtitle(this, R.string.gateway_selection_title);
+        Activity activity = getActivity();
+        if (activity != null) {
+            ((MainActivity) activity).setActionBarToggleColor(ContextCompat.getColor(activity, R.color.colorActionBarTitleFont));
+        }
     }
 
     @Override

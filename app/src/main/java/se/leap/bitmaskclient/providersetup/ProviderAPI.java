@@ -52,15 +52,18 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
      */
     static final int JOB_ID = 161375;
 
+    @Deprecated
+    final public static String
+            UPDATE_PROVIDER_DETAILS = "updateProviderDetails",
+            SIGN_UP = "srpRegister",
+            LOG_IN = "srpAuth",
+            LOG_OUT = "logOut";
+
     final public static String
             TAG = ProviderAPI.class.getSimpleName(),
             SET_UP_PROVIDER = "setUpProvider",
-            UPDATE_PROVIDER_DETAILS = "updateProviderDetails",
             DOWNLOAD_GEOIP_JSON = "downloadGeoIpJson",
             DOWNLOAD_MOTD = "downloadMotd",
-            SIGN_UP = "srpRegister",
-            LOG_IN = "srpAuth",
-            LOG_OUT = "logOut",
             // all vpn certificate download commands are used in different scenarios with different error handling
             // command key used for the initial vpn certificate download during the provider setup
             DOWNLOAD_VPN_CERTIFICATE = "downloadUserAuthedVPNCertificate",

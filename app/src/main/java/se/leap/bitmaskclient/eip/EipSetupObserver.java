@@ -79,6 +79,7 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.ProviderAPI;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
+import se.leap.bitmaskclient.providersetup.ProviderSetupObservable;
 import se.leap.bitmaskclient.tor.TorServiceCommand;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
@@ -177,6 +178,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         Integer bootstrap = intent.getIntExtra(TorService.EXTRA_STATUS_DETAIL_BOOTSTRAP, -1);
         String logKey = intent.getStringExtra(TorService.EXTRA_STATUS_DETAIL_LOGKEY);
         TorStatusObservable.updateState(appContext, status, bootstrap, logKey);
+        ProviderSetupObservable.updateTorSetupProgress();
     }
 
 

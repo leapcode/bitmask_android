@@ -1,5 +1,6 @@
 package se.leap.bitmaskclient.providersetup;
 
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CIRCUMVENTION_SETUP_FRAGMENT;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CONFIGURE_PROVIDER_FRAGMENT;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.NOTIFICATION_PERMISSON_EDUCATIONAL_FRAGMENT;
@@ -33,7 +34,9 @@ public class SetupViewPagerAdapter extends FragmentStateAdapter {
         this(fragmentManager, lifecycle);
         ArrayList<Integer> fragments = new ArrayList<>();
         if (providerSetup) {
-            fragments.add(PROVIDER_SELECTION_FRAGMENT);
+            if (isDefaultBitmask()) {
+                fragments.add(PROVIDER_SELECTION_FRAGMENT);
+            }
             fragments.add(CIRCUMVENTION_SETUP_FRAGMENT);
             fragments.add(CONFIGURE_PROVIDER_FRAGMENT);
         }

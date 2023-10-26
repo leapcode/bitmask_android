@@ -3,6 +3,7 @@ package se.leap.bitmaskclient.providersetup.activities;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CONFIGURE_PROVIDER_FRAGMENT;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
@@ -47,6 +48,7 @@ import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.base.views.ActionBarTitle;
 import se.leap.bitmaskclient.databinding.ActivitySetupBinding;
 import se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog;
+import se.leap.bitmaskclient.providersetup.ProviderSetupObservable;
 import se.leap.bitmaskclient.providersetup.SetupViewPagerAdapter;
 import se.leap.bitmaskclient.tor.TorServiceCommand;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
@@ -84,13 +86,18 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         fragmentManager = new FragmentManagerEnhanced(getSupportFragmentManager());
         ArrayList<View> indicatorViews = new ArrayList<>();
 
-        // indicator views for provider selection and config setup
+        if (isDefaultBitmask()) {
+            // indicator view for provider selection
+            addIndicatorView(indicatorViews);
+        }
+
+        // indicator views for config setup
         boolean basicProviderSetup = !ProviderObservable.getInstance().getCurrentProvider().isConfigured() || switchProvider;
         if (basicProviderSetup) {
-            for (int i = 0; i < 3; i++) {
-                addIndicatorView(indicatorViews);
-            }
+            addIndicatorView(indicatorViews);
+            addIndicatorView(indicatorViews);
         }
+
 
         // indicator views for VPN permission
         Intent requestVpnPermission = VpnService.prepare(this);
@@ -160,6 +167,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
     private void cancel() {
         binding.viewPager.setCurrentItem(0, false);
+        ProviderSetupObservable.cancel();
         if (TorStatusObservable.getStatus() != OFF) {
             Log.d(TAG, "SHUTDOWN - cancelSettingUpProvider");
             TorServiceCommand.stopTorServiceAsync(this);
@@ -281,6 +289,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
     @Override
     public void onSetupFinished() {
+        ProviderSetupObservable.reset();
         Intent intent = getIntent();
         if (provider == null && ProviderObservable.getInstance().getCurrentProvider().isConfigured()) {
             // only permissions were requested, no new provider configured, so reuse previously configured one

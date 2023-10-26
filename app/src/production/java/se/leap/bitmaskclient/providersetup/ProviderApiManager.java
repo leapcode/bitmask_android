@@ -34,6 +34,9 @@ import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CERTIFICATE_PINNING;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_CA_CERT;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_EIP_SERVICE_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
@@ -112,15 +115,19 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
         currentDownload = getAndSetProviderJson(provider);
         if (provider.hasDefinition() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
+            ProviderSetupObservable.updateProgress(DOWNLOADED_PROVIDER_JSON);
             if (!provider.hasCaCert()) {
                 currentDownload = downloadCACert(provider);
             }
             if (provider.hasCaCert() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
+                ProviderSetupObservable.updateProgress(DOWNLOADED_CA_CERT);
                 currentDownload = getAndSetEipServiceJson(provider);
             }
 
             if (provider.hasEIP() && !provider.allowsRegistered() && !provider.allowsAnonymous()) {
                 setErrorResult(currentDownload, isDefaultBitmask() ? setup_error_text : setup_error_text_custom, null);
+            } else if (provider.hasEIP()) {
+                ProviderSetupObservable.updateProgress(DOWNLOADED_EIP_SERVICE_JSON);
             }
         }
 
