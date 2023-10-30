@@ -8,8 +8,8 @@ android {
   namespace = "se.leap.bitmaskclient"
 
   compileOptions {
-    targetCompatibility 1.8
-    sourceCompatibility 1.8
+    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_17
   }
 
   viewBinding {
