@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/aboutLayout"
@@ -8,8 +10,7 @@
     android:layout_marginStart="@dimen/stdpadding"
     android:layout_marginRight="@dimen/stdpadding"
     android:layout_marginEnd="@dimen/stdpadding"
-    tools:context=".base.MainActivity"
-    tools:viewBindingIgnore="true">
+    tools:context=".base.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -415,16 +415,10 @@ dependencies {
   androidTestImplementation 'tools.fastlane:screengrab:2.1.1'
   testImplementation 'tools.fastlane:screengrab:2.1.1'
 
-
   testImplementation 'org.json:json:20180813'
   androidTestImplementation 'androidx.test.ext:junit:1.1.4'
   debugImplementation 'com.squareup.leakcanary:leakcanary-android-core:2.9.1'
-  annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
-  annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.2'
-  implementation 'com.jakewharton:butterknife:10.2.1'
-  //TODO: replace that library
-  compileOnly 'com.squareup.dagger:dagger-compiler:1.2.2'
-  implementation 'com.github.pedrovgs:renderers:1.5'
+
   implementation 'com.google.code.gson:gson:2.8.6'
   implementation 'com.squareup.okhttp3:okhttp:4.10.0'
   implementation 'com.squareup.okhttp3:okhttp-dnsoverhttps:4.10.0'

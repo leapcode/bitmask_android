@@ -1,5 +1,10 @@
 package se.leap.bitmaskclient.base.fragments;
 
+import static se.leap.bitmaskclient.base.models.Constants.DONATION_REMINDER_DURATION;
+import static se.leap.bitmaskclient.base.models.Constants.DONATION_URL;
+import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION;
+import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION_REMINDER;
+
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -8,59 +13,32 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
 import java.text.ParseException;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
-import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.DateHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-
-import static se.leap.bitmaskclient.base.models.Constants.DONATION_REMINDER_DURATION;
-import static se.leap.bitmaskclient.base.models.Constants.DONATION_URL;
-import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION;
-import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION_REMINDER;
-import static se.leap.bitmaskclient.base.models.Constants.FIRST_TIME_USER_DATE;
-import static se.leap.bitmaskclient.base.models.Constants.LAST_DONATION_REMINDER_DATE;
+import se.leap.bitmaskclient.databinding.DonationReminderDialogBinding;
 
 public class DonationReminderDialog extends AppCompatDialogFragment {
 
     public final static String TAG = DonationReminderDialog.class.getName();
     private static boolean isShown = false;
 
-    @BindView(R.id.btnDonate)
-    Button btnDonate;
-
-    @BindView(R.id.btnLater)
-    Button btnLater;
-
-    private Unbinder unbinder;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.donation_reminder_dialog, null);
-        unbinder = ButterKnife.bind(this, view);
+        DonationReminderDialogBinding binding = DonationReminderDialogBinding.inflate(inflater);
         isShown = true;
 
-        builder.setView(view);
-        btnDonate.setOnClickListener(v -> {
+        builder.setView(binding.getRoot());
+        binding.btnDonate.setOnClickListener(v -> {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATION_URL));
             try {
                 startActivity(browserIntent);
@@ -70,18 +48,12 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
             PreferenceHelper.lastDonationReminderDate(DateHelper.getCurrentDateString());
             dismiss();
         });
-        btnLater.setOnClickListener(v -> {
+        binding.btnLater.setOnClickListener(v -> {
             PreferenceHelper.lastDonationReminderDate(DateHelper.getCurrentDateString());
             dismiss();
         });
 
         return builder.create();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
     }
 
     public static boolean isCallable(Context context) {
@@ -97,7 +69,6 @@ public class DonationReminderDialog extends AppCompatDialogFragment {
             Log.e(TAG, "context is null!");
             return false;
         }
-        
         String firstTimeUserDate = PreferenceHelper.getFirstTimeUserDate();
         if (firstTimeUserDate == null) {
             PreferenceHelper.firstTimeUserDate(DateHelper.getCurrentDateString());

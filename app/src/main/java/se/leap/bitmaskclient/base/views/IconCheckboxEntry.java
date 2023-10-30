@@ -5,31 +5,20 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.fragments.TetheringDialog;
+import se.leap.bitmaskclient.databinding.VIconSelectTextListItemBinding;
 
 
 public class IconCheckboxEntry extends LinearLayout {
 
-    @BindView(android.R.id.text1)
-    AppCompatTextView textView;
-
-    @BindView(R.id.material_icon)
-    AppCompatImageView iconView;
-
-    @BindView(R.id.checked_icon)
-    AppCompatImageView checkedIcon;
+    VIconSelectTextListItemBinding binding;
 
     public IconCheckboxEntry(Context context) {
         super(context);
@@ -55,14 +44,13 @@ public class IconCheckboxEntry extends LinearLayout {
     void initLayout(Context context, AttributeSet attrs) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rootview = inflater.inflate(R.layout.v_icon_select_text_list_item, this, true);
-        ButterKnife.bind(this, rootview);
+        binding = VIconSelectTextListItemBinding.inflate(inflater, this, true);
     }
 
     public void bind(TetheringDialog.DialogListAdapter.ViewModel model) {
         this.setEnabled(model.enabled);
-        textView.setText(model.text);
-        textView.setEnabled(model.enabled);
+        binding.text1.setText(model.text);
+        binding.text1.setEnabled(model.enabled);
 
         Drawable checkIcon = DrawableCompat.wrap(getResources().getDrawable(R.drawable.ic_check_bold)).mutate();
         if (model.enabled) {
@@ -71,14 +59,14 @@ public class IconCheckboxEntry extends LinearLayout {
             DrawableCompat.setTint(checkIcon, ContextCompat.getColor(getContext(), R.color.colorDisabled));
         }
 
-        iconView.setImageDrawable(model.image);
-        checkedIcon.setImageDrawable(checkIcon);
+        binding.materialIcon.setImageDrawable(model.image);
+        binding.checkedIcon.setImageDrawable(checkIcon);
         setChecked(model.checked);
     }
 
     public void setChecked(boolean checked) {
-        checkedIcon.setVisibility(checked ? VISIBLE : GONE);
-        checkedIcon.setContentDescription(checked ? "selected" : "unselected");
+        binding.checkedIcon.setVisibility(checked ? VISIBLE : GONE);
+        binding.checkedIcon.setContentDescription(checked ? "selected" : "unselected");
     }
 
 }
