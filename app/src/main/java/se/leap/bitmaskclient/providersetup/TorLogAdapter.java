@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.providersetup.activities.ConfigWizardBaseActivity;
 
 public class TorLogAdapter extends RecyclerView.Adapter<TorLogAdapter.ViewHolder> {
     private List<String> values;

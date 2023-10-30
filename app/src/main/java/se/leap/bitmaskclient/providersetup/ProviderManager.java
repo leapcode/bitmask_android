@@ -19,8 +19,6 @@ import android.content.res.AssetManager;
 
 import androidx.annotation.VisibleForTesting;
 
-import com.pedrogomez.renderers.AdapteeCollection;
-
 import org.json.JSONObject;
 
 import java.io.File;
@@ -39,7 +37,7 @@ import se.leap.bitmaskclient.base.models.Provider;
 /**
  * Created by parmegv on 4/12/14.
  */
-public class ProviderManager implements AdapteeCollection<Provider> {
+public class ProviderManager {
 
     private final AssetManager assetsManager;
     private File externalFilesDir;
@@ -165,12 +163,10 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         return allProviders;
     }
 
-    @Override
     public int size() {
         return providers().size();
     }
 
-    @Override
     public Provider get(int index) {
         Iterator<Provider> iterator = providers().iterator();
         while (iterator.hasNext() && index > 0) {
@@ -180,7 +176,6 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         return iterator.next();
     }
 
-    @Override
     public boolean add(Provider element) {
         return element != null &&
                 !defaultProviderURLs.contains(element.getMainUrl().toString()) &&
@@ -188,14 +183,12 @@ public class ProviderManager implements AdapteeCollection<Provider> {
                 customProviderURLs.add(element.getMainUrl().toString());
     }
 
-    @Override
     public boolean remove(Object element) {
         return element instanceof Provider &&
                 customProviders.remove(element) &&
                 customProviderURLs.remove(((Provider) element).getMainUrl().toString());
     }
 
-    @Override
     public boolean addAll(Collection<? extends Provider> elements) {
         Iterator iterator = elements.iterator();
         boolean addedAll = true;
@@ -208,7 +201,6 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         return addedAll;
     }
 
-    @Override
     public boolean removeAll(Collection<?> elements) {
         Iterator iterator = elements.iterator();
         boolean removedAll = true;
@@ -226,7 +218,6 @@ public class ProviderManager implements AdapteeCollection<Provider> {
         return removedAll;
     }
 
-    @Override
     public void clear() {
         defaultProviders.clear();
         customProviders.clear();

@@ -16,6 +16,8 @@
  */
 package se.leap.bitmaskclient.providersetup;
 
+import static android.app.Activity.RESULT_CANCELED;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +29,6 @@ import java.lang.ref.WeakReference;
 import se.leap.bitmaskclient.base.models.Constants;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.providersetup.ProviderSetupInterface.ProviderConfigState;
-import se.leap.bitmaskclient.providersetup.activities.ProviderListBaseActivity;
 
 /**
  * Broadcast receiver that handles callback intents of ProviderApi during provider setup.
@@ -38,6 +39,7 @@ import se.leap.bitmaskclient.providersetup.activities.ProviderListBaseActivity;
  */
 
 public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
+    private static final String TAG = ProviderApiSetupBroadcastReceiver.class.getSimpleName();
     private final WeakReference<ProviderSetupInterface> setupInterfaceRef;
 
     public ProviderApiSetupBroadcastReceiver(ProviderSetupInterface setupInterface) {
@@ -46,7 +48,7 @@ public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(ProviderListBaseActivity.TAG, "received Broadcast");
+        Log.d(TAG, "received Broadcast");
         ProviderSetupInterface setupInterface = setupInterfaceRef.get();
         String action = intent.getAction();
         if (action == null || !action.equalsIgnoreCase(Constants.BROADCAST_PROVIDER_API_EVENT) || setupInterface == null) {
@@ -55,8 +57,8 @@ public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
 
         if (setupInterface.getConfigState() != null &&
                 setupInterface.getConfigState() == ProviderConfigState.SETTING_UP_PROVIDER) {
-            int resultCode = intent.getIntExtra(Constants.BROADCAST_RESULT_CODE, ProviderListBaseActivity.RESULT_CANCELED);
-            Log.d(ProviderListBaseActivity.TAG, "Broadcast resultCode: " + resultCode);
+            int resultCode = intent.getIntExtra(Constants.BROADCAST_RESULT_CODE, RESULT_CANCELED);
+            Log.d(TAG, "Broadcast resultCode: " + resultCode);
 
             Bundle resultData = intent.getParcelableExtra(Constants.BROADCAST_RESULT_KEY);
             Provider handledProvider = resultData.getParcelable(Constants.PROVIDER_KEY);

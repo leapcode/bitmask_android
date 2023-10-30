@@ -24,7 +24,6 @@ import static se.leap.bitmaskclient.base.models.Constants.EXTRA_MOTD_MSG;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_CONFIGURE_LEAP;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.storeProviderInPreferences;
 
 import android.app.Activity;
@@ -52,7 +51,6 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.DateHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EipCommand;
-import se.leap.bitmaskclient.providersetup.activities.CustomProviderSetupActivity;
 import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 
 /**

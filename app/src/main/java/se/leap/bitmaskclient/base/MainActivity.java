@@ -19,7 +19,6 @@ package se.leap.bitmaskclient.base;
 
 import static androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM;
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
-import static se.leap.bitmaskclient.R.string.vpn_certificate_user_message;
 import static se.leap.bitmaskclient.base.models.Constants.ASK_TO_CANCEL_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
@@ -42,11 +41,9 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.INCORRECTLY_UPDATE
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_EXCEPTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.UPDATE_INVALID_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.providersetup.ProviderAPI.USER_MESSAGE;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -69,7 +66,6 @@ import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.fragments.EipFragment;
 import se.leap.bitmaskclient.base.fragments.ExcludeAppsFragment;
-import se.leap.bitmaskclient.base.fragments.LogFragment;
 import se.leap.bitmaskclient.base.fragments.MainActivityErrorDialog;
 import se.leap.bitmaskclient.base.fragments.MotdFragment;
 import se.leap.bitmaskclient.base.fragments.NavigationDrawerFragment;
@@ -83,8 +79,6 @@ import se.leap.bitmaskclient.eip.EipCommand;
 import se.leap.bitmaskclient.eip.EipSetupListener;
 import se.leap.bitmaskclient.eip.EipSetupObserver;
 import se.leap.bitmaskclient.providersetup.ProviderAPI;
-import se.leap.bitmaskclient.providersetup.activities.LoginActivity;
-import se.leap.bitmaskclient.providersetup.models.LeapSRPSession;
 
 public class MainActivity extends AppCompatActivity implements EipSetupListener, Observer {
 
@@ -310,10 +304,10 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                         return;
                     }
 
-                    if (LeapSRPSession.loggedIn() || provider.allowsAnonymous()) {
+                    if (provider.allowsAnonymous()) {
                         showMainActivityErrorDialog(error);
                     } else if (isInvalidCertificateForLoginOnlyProvider(error)) {
-                        askUserToLogIn(getString(vpn_certificate_user_message));
+                        showMainActivityErrorDialog(getString(R.string.login_not_supported));
                     }
                 }
                 break;
@@ -341,11 +335,7 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
                 // TODO CATCH ME IF YOU CAN - WHAT DO WE WANT TO DO?
                 break;
             case INCORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
-                if (LeapSRPSession.loggedIn() || provider.allowsAnonymous()) {
                     showMainActivityErrorDialog(getString(downloading_vpn_certificate_failed));
-                } else {
-                    askUserToLogIn(getString(vpn_certificate_user_message));
-                }
                 break;
             case TOR_TIMEOUT:
             case TOR_EXCEPTION:
@@ -429,20 +419,11 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
         try {
             JSONObject errorJson = new JSONObject(errorJsonString);
             return  ERROR_INVALID_VPN_CERTIFICATE.toString().equals(errorJson.getString(ERRORID)) &&
-                    !LeapSRPSession.loggedIn() &&
+                    provider.allowsRegistered() &&
                     !provider.allowsAnonymous();
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return false;
-    }
-
-    private void askUserToLogIn(String userMessage) {
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.putExtra(PROVIDER_KEY, provider);
-        if (userMessage != null) {
-            intent.putExtra(USER_MESSAGE, userMessage);
-        }
-        startActivityForResult(intent, REQUEST_CODE_LOG_IN);
     }
 }

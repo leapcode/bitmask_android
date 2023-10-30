@@ -237,4 +237,5 @@
     <string name="title_setup_success">You\'re all set!</string>
     <string name="setup_success_description">Click the button below to connect</string>
     <string name="permission_rejected">Permission request rejected.</string>
+    <string name="login_not_supported">The current app version doesn\'t support logins, which you need to update your VPN certificate for this provider.</string>
 </resources>
