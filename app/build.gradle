@@ -308,7 +308,7 @@ android {
                         'ovpnlibs/assets',
                         '../ics-openvpn/main/build/ovpnassets',
                         ]
-      jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/skeletonRelease/obj/']
+      jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/skeletonOvpn2Release/obj/']
       jni.srcDirs = [] //disable automatic ndk-build
 
     }
