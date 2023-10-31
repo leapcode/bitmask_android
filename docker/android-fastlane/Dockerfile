@@ -1,7 +1,7 @@
 FROM registry.0xacab.org/leap/bitmask_android/android-sdk:latest
 
 MAINTAINER LEAP Encryption Access Project <info@leap.se>
-LABEL Description="Android emulator image based on android-sdk" Vendor="LEAP" Version="2"
+LABEL Description="Android emulator image based on android-sdk" Vendor="LEAP" Version="3"
 
 # Make sure debconf doesn't complain about lack of interactivity
 ENV DEBIAN_FRONTEND noninteractive
@@ -30,7 +30,7 @@ RUN apt-get update -qq && \
 RUN apt-get update -qq && \
     apt-get install -y docker-ce docker-ce-cli make gcc swig file lib32stdc++6 lib32z1 \
     autoconf autogen automake autopoint autotools-dev gettext-base libtool patch pkg-config po4a \
-    curl git openjdk-11-jdk openjdk-11-jre-headless imagemagick libpulse0 po4a \
+    curl git openjdk-17-jdk openjdk-17-jre-headless imagemagick libpulse0 po4a \
     make build-essential ruby-dev imagemagick docker-ce-cli mesa-utils xvfb \
     libstdc++6 libncurses5 libsdl1.2debian imagemagick libpulse-java libpulse0 libxkbcommon-x11-0 && \
     apt-get clean && \
@@ -50,13 +50,13 @@ RUN echo y | sdkmanager "emulator"
 
 # Install System Images for emulators
 # seems like every version has its own quirks
-RUN echo y | sdkmanager "system-images;android-31;google_apis;x86_64"
+RUN echo y | sdkmanager "system-images;android-33;google_apis;x86_64"
 #RUN echo y | sdkmanager "system-images;android-27;google_apis;x86"
 #RUN echo y | sdkmanager "system-images;android-25;google_apis;x86_64"
 #RUN echo y | sdkmanager "system-images;android-23;google_apis;x86_64"
 
 # fastlane wants 2 emulators. Starting happens in the scripts
-RUN echo no | avdmanager create avd --force --name testApi31 --abi google_apis/x86_64 --package 'system-images;android-31;google_apis;x86_64'
+RUN echo no | avdmanager create avd --force --name testApi33 --abi google_apis/x86_64 --package 'system-images;android-33;google_apis;x86_64'
 # TODO: fastlane has been troublesome for newer versions, need to dive deep to update
 #RUN echo no | avdmanager create avd --force --name testApi27 --abi google_apis/x86_64 --package 'system-images;android-27;google_apis;x86_64'
 #RUN echo no | avdmanager create avd --force --name testApi27-duet --abi google_apis/x86_64 --package 'system-images;android-27;google_apis;x86_64'
