@@ -169,7 +169,8 @@
             android:layout_centerVertical="true"
             android:text="@string/next"
             tools:visibility="visible"
-
+            android:gravity="top|center_horizontal"
+            android:paddingTop="5dp"
             />
 
         <androidx.appcompat.widget.AppCompatButton
@@ -179,6 +180,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
+            android:gravity="top|center_horizontal"
+            android:paddingTop="5dp"
             android:text="@string/cancel"
             android:visibility="gone"
             tools:visibility="visible"

@@ -42,6 +42,7 @@
 
     <dimen name="toast_bottom_padding">20dp</dimen>
     <dimen name="button_bevel">3dp</dimen>
+    <dimen name="button_bevel_pressed">1dp</dimen>
     <dimen name="button_radius">16dp</dimen>
     <dimen name="mainbutton_padding">8dp</dimen>
     <dimen name="donation_reminder_padding">8dp</dimen>
