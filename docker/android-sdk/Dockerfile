@@ -1,7 +1,7 @@
 FROM 0xacab.org:4567/leap/docker/debian:bullseye_amd64
 
 MAINTAINER LEAP Encryption Access Project <info@leap.se>
-LABEL Description="Android SDK baseimage based on debian:bullseye" Vendor="LEAP" Version="31.0.0"
+LABEL Description="Android SDK baseimage based on debian:bullseye" Vendor="LEAP" Version="33.0.0"
 
 # ------------------------------------------------------
 # --- Install System Dependencies
@@ -23,8 +23,8 @@ RUN apt-get update -qq && \
     apt-get install -y docker-ce docker-ce-cli mesa-utils \
     # the basics
     curl unzip git locales \
-    # java stuff
-    openjdk-11-jdk maven && \
+    # java stuff \
+    openjdk-17-jdk maven && \
     apt-get clean && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -45,6 +45,10 @@ ENV LANG en_US.UTF-8
 ENV ANDROID_HOME /opt/android-sdk-linux
 ENV ANDROID_SDK_URL https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
 ENV ANDROID_SDK_ROOT ${ANDROID_HOME}
+ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64
+
+RUN echo $JAVA_HOME
+RUN java --version
 
 # Install SDK Tools
 RUN curl -L $ANDROID_SDK_URL -o sdk-tools.zip  \
@@ -77,10 +81,10 @@ RUN echo y | sdkmanager "platform-tools" # echo y to accept google licenses
 RUN sdkmanager "extras;android;m2repository"
 
 # Install Build Tools (Please keep in descending order)
-RUN sdkmanager "build-tools;31.0.0"
+RUN sdkmanager "build-tools;33.0.2"
 
 # Install Target SDK Packages (Please keep in descending order)
-RUN sdkmanager "platforms;android-31"
+RUN sdkmanager "platforms;android-33"
 
 RUN echo "accept all licenses"
 # Accept all licenses
