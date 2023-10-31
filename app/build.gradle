@@ -117,9 +117,6 @@ android {
     production {
       dimension "implementation"
     }
-    insecure {
-      dimension "implementation"
-    }
 
     normal {
       dimension "branding"
@@ -355,7 +352,6 @@ android {
    * normalProductionFatDebug -> Bitmask development build, includes all ABIS
    * customProductionFatwebDebug -> branded development build, includes all ABIs, for distribution through a download page
    * normalProductionFatWebDebug ->  Bitmask development build, includes all ABIS, for distribution through a download page
-   * normalInsecureFatDebug -> Bitmask development build, doesn't checks certificates (for test server setup w/o valid certificates), includes all ABIs
    *
    * Branded Releases:
    * -----------------
@@ -389,11 +385,7 @@ android {
     def supportsSplitApk = variant.flavors[0].splitApk
     def branding = variant.flavors[0].name
     // To check for a certain build type, use variant.buildType.name == "<buildType>"
-    if (((names.contains("insecure") && !names.contains("fat")) ||
-            (names.contains("insecure") && buildTypeName.contains("beta")) ||
-            (names.contains("insecure") && buildTypeName.contains("release")) ||
-            (names.contains("insecure") && branding.contains("custom")) ||
-            (buildTypeName.contains("debug") && !(names.contains("fatweb") || names.contains("fat"))) ||
+    if (((buildTypeName.contains("debug") && !(names.contains("fatweb") || names.contains("fat"))) ||
             (names.contains("fatweb") && buildTypeName.contains("beta")) ||
             (!supportsSplitApk && !names.contains("fat")))
     ) {
