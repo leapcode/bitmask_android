@@ -37,6 +37,9 @@ ENV ANDROID_NDK_HOME ${ANDROID_HOME}/android-ndk-${ANDROID_NDK_VERSION}
 ENV ANDROID_NDK_URL http://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip
 ENV ANDROID_SDK_ROOT ${ANDROID_HOME}/latest/cmdline-tools
 
+RUN echo $JAVA_HOME
+RUN java --version
+
 RUN curl -L $ANDROID_NDK_URL -o ndk.zip  \
     && unzip ndk.zip -d $ANDROID_HOME/ndk  \
     && rm -rf ndk.zip
