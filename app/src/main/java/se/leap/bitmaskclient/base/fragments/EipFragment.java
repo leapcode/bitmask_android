@@ -171,11 +171,16 @@ public class EipFragment extends Fragment implements Observer {
         }
 
         restoreFromSavedInstance(savedInstanceState);
-        locationButton.setOnClickListener(v -> {
+        if (provider != null && provider.hasGatewaysInDifferentLocations()) {
+            locationButton.setOnClickListener(v -> {
                 FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
                 Fragment fragment = new GatewaySelectionFragment();
                 fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
-        });
+            });
+            locationButton.setEnabled(true);
+        } else {
+            locationButton.setEnabled(false);
+        }
 
         mainButton.setOnClickListener(v -> {
             handleIcon();
