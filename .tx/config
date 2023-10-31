@@ -31,4 +31,4 @@ source_file = se.leap.riseupvpn-desc.json
 type = KEYVALUEJSON
 resource_name = RiseupVPN details in Appstore
 file_filter = src/custom/fastlane/metadata/<lang>/store-meta-<lang>.json
-minimum_perc = 96
+minimum_perc = 98
