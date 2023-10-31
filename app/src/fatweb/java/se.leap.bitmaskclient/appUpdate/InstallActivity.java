@@ -55,7 +55,7 @@ public class InstallActivity extends Activity {
     }
 
     protected void installUpdate() {
-        PreferenceHelper.restartOnUpdate(this.getApplicationContext(), true);
+        PreferenceHelper.restartOnUpdate(true);
 
         Intent installIntent = new Intent(Intent.ACTION_VIEW);
         File update = UpdateDownloadManager.getUpdateFile(this.getApplicationContext());

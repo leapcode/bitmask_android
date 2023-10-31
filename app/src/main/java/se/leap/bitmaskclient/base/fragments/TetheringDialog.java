@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,13 +27,11 @@ import java.util.Observer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.IconCheckboxEntry;
+import se.leap.bitmaskclient.databinding.DListSelectionBinding;
 import se.leap.bitmaskclient.firewall.FirewallManager;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 
@@ -59,17 +56,8 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
 
     public final static String TAG = TetheringDialog.class.getName();
 
-    @BindView(R.id.tvTitle)
-    AppCompatTextView title;
-
-    @BindView(R.id.user_message)
-    AppCompatTextView userMessage;
-
-    @BindView(R.id.selection_list_view)
-    RecyclerView selectionListView;
     DialogListAdapter adapter;
     private DialogListAdapter.ViewModel[] dataset;
-    private Unbinder unbinder;
 
     public static class DialogListAdapter extends RecyclerView.Adapter<DialogListAdapter.ViewHolder> {
 
@@ -139,21 +127,19 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.d_list_selection, null);
-        unbinder = ButterKnife.bind(this, view);
+        DListSelectionBinding binding = DListSelectionBinding.inflate(inflater);
 
-        title.setText(R.string.tethering);
-        userMessage.setMovementMethod(LinkMovementMethod.getInstance());
-        userMessage.setLinkTextColor(getContext().getResources().getColor(R.color.colorPrimary));
-        userMessage.setText(createUserMessage());
+        binding.tvTitle.setText(R.string.tethering);
+        binding.userMessage.setMovementMethod(LinkMovementMethod.getInstance());
+        binding.userMessage.setLinkTextColor(getContext().getResources().getColor(R.color.colorPrimary));
+        binding.userMessage.setText(createUserMessage());
 
         initDataset();
         adapter = new DialogListAdapter(dataset, this::onItemClick);
-        selectionListView.setAdapter(adapter);
-        selectionListView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        binding.selectionListView.setAdapter(adapter);
+        binding.selectionListView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-
-        builder.setView(view)
+        builder.setView(binding.getRoot())
                 .setPositiveButton(android.R.string.ok, (dialog, id) -> {
                     PreferenceHelper.allowWifiTethering(dataset[0].checked);
                     PreferenceHelper.allowUsbTethering(dataset[1].checked);
@@ -188,12 +174,6 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
     public void onPause() {
         super.onPause();
         TetheringObservable.getInstance().deleteObserver(this);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
     }
 
     public void onItemClick(DialogListAdapter.ViewModel item) {

@@ -4,17 +4,27 @@ import java.util.regex.Pattern
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 33
   ndkVersion "21.4.7075529"
-  buildToolsVersion '33.0.2'
+  namespace = "se.leap.bitmaskclient"
 
   compileOptions {
-    targetCompatibility 1.8
-    sourceCompatibility 1.8
+    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_17
   }
 
   viewBinding {
     enabled = true
+  }
+
+  packaging {
+    jniLibs {
+      useLegacyPackaging = true
+    }
+  }
+
+  buildFeatures {
+    buildConfig true
+    aidl true
   }
 
   defaultConfig {
@@ -24,6 +34,7 @@ android {
     // however we don't calculate the versionCode here, because F-Droid doesn't like that
     versionCode 169000
     versionName "1.1.8"
+    compileSdk 33
     minSdkVersion 21
     targetSdkVersion 33
     vectorDrawables.useSupportLibrary = true
@@ -104,9 +115,6 @@ android {
       ext.splitApk = false
     }
     production {
-      dimension "implementation"
-    }
-    insecure {
       dimension "implementation"
     }
 
@@ -297,7 +305,7 @@ android {
                         'ovpnlibs/assets',
                         '../ics-openvpn/main/build/ovpnassets',
                         ]
-      jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/skeletonRelease/obj/']
+      jniLibs.srcDirs = ['../ics-openvpn/main/build/intermediates/cmake/skeletonOvpn2Release/obj/']
       jni.srcDirs = [] //disable automatic ndk-build
 
     }
@@ -344,7 +352,6 @@ android {
    * normalProductionFatDebug -> Bitmask development build, includes all ABIS
    * customProductionFatwebDebug -> branded development build, includes all ABIs, for distribution through a download page
    * normalProductionFatWebDebug ->  Bitmask development build, includes all ABIS, for distribution through a download page
-   * normalInsecureFatDebug -> Bitmask development build, doesn't checks certificates (for test server setup w/o valid certificates), includes all ABIs
    *
    * Branded Releases:
    * -----------------
@@ -378,11 +385,7 @@ android {
     def supportsSplitApk = variant.flavors[0].splitApk
     def branding = variant.flavors[0].name
     // To check for a certain build type, use variant.buildType.name == "<buildType>"
-    if (((names.contains("insecure") && !names.contains("fat")) ||
-            (names.contains("insecure") && buildTypeName.contains("beta")) ||
-            (names.contains("insecure") && buildTypeName.contains("release")) ||
-            (names.contains("insecure") && branding.contains("custom")) ||
-            (buildTypeName.contains("debug") && !(names.contains("fatweb") || names.contains("fat"))) ||
+    if (((buildTypeName.contains("debug") && !(names.contains("fatweb") || names.contains("fat"))) ||
             (names.contains("fatweb") && buildTypeName.contains("beta")) ||
             (!supportsSplitApk && !names.contains("fat")))
     ) {
@@ -415,16 +418,10 @@ dependencies {
   androidTestImplementation 'tools.fastlane:screengrab:2.1.1'
   testImplementation 'tools.fastlane:screengrab:2.1.1'
 
-
   testImplementation 'org.json:json:20180813'
   androidTestImplementation 'androidx.test.ext:junit:1.1.4'
   debugImplementation 'com.squareup.leakcanary:leakcanary-android-core:2.9.1'
-  annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
-  annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.2'
-  implementation 'com.jakewharton:butterknife:10.2.1'
-  //TODO: replace that library
-  compileOnly 'com.squareup.dagger:dagger-compiler:1.2.2'
-  implementation 'com.github.pedrovgs:renderers:1.5'
+
   implementation 'com.google.code.gson:gson:2.8.6'
   implementation 'com.squareup.okhttp3:okhttp:4.10.0'
   implementation 'com.squareup.okhttp3:okhttp-dnsoverhttps:4.10.0'
@@ -504,7 +501,7 @@ subprojects {
   afterEvaluate {project ->
     if (project.hasProperty("android")) {
       android {
-        compileSdkVersion 31
+        compileSdkVersion 33
       }
     }
   }

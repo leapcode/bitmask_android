@@ -16,16 +16,6 @@
  */
 package se.leap.bitmaskclient.appUpdate;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.widget.Toast;
-
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.base.models.Constants;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-
 import static android.app.Activity.RESULT_CANCELED;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.DOWNLOAD_PROGRESS;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.NO_NEW_VERISON;
@@ -38,6 +28,16 @@ import static se.leap.bitmaskclient.appUpdate.DownloadService.VERIFICATION_ERROR
 import static se.leap.bitmaskclient.appUpdate.DownloadServiceCommand.DOWNLOAD_UPDATE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_DOWNLOAD_SERVICE_EVENT;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
+
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.Constants;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 public class DownloadBroadcastReceiver extends BroadcastReceiver {
 
@@ -69,7 +69,7 @@ public class DownloadBroadcastReceiver extends BroadcastReceiver {
                         break;
                     case UPDATE_NOT_FOUND:
                         if (resultData.getBoolean(NO_NEW_VERISON, false)) {
-                            PreferenceHelper.setLastAppUpdateCheck(context.getApplicationContext());
+                            PreferenceHelper.setLastAppUpdateCheck();
                         }
                         break;
                     case UPDATE_DOWNLOADED:

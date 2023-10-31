@@ -71,7 +71,7 @@ elif [[ $(ls -A ${DIR_OVPNASSETS}) && $(ls -A ${DIR_OVPNLIBS}) ]]; then
 else
     echo "Clean build: starting externalNativeBuild"
     cd ./ics-openvpn || quit "Directory ics-opevpn not found"
-    ./gradlew clean main:externalNativeBuildCleanSkeletonRelease main:externalNativeBuildSkeletonRelease --debug --stacktrace || quit "Build ics-openvpn native libraries failed"
+    ./gradlew clean main:externalNativeBuildCleanSkeletonOvpn2Release main:externalNativeBuildSkeletonOvpn2Release --debug --stacktrace || quit "Build ics-openvpn native libraries failed"
     ./gradlew --stop
     cd ..
 fi

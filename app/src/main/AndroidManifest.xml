@@ -92,21 +92,6 @@
             android:name=".base.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop" />
-        <activity
-            android:name=".providersetup.ProviderListActivity"
-            android:label="@string/configuration_wizard_title" />
-        <activity
-            android:name=".providersetup.activities.CustomProviderSetupActivity"
-            android:label="@string/setup_provider" />
-        <activity
-            android:name=".providersetup.AddProviderActivity"
-            android:label="@string/add_provider" />
-        <activity
-            android:name=".providersetup.ProviderDetailActivity"
-            android:label="@string/provider_details_title"
-            android:launchMode="singleTop" />
-        <activity android:name=".providersetup.activities.LoginActivity" />
-        <activity android:name=".providersetup.activities.SignupActivity" />
 
         <service
             android:name=".eip.EIP"
