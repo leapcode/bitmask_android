@@ -48,4 +48,5 @@
     <dimen name="donation_reminder_padding">8dp</dimen>
 
     <dimen name="setup_bottom_bar">50dp</dimen>
+    <dimen name="setup_button_top_padding">5dp</dimen>
 </resources>
