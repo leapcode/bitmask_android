@@ -26,6 +26,8 @@ import android.content.Intent;
 import android.net.VpnService;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.system.OsConstants;
@@ -44,15 +46,17 @@ import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 public class VoidVpnService extends VpnService implements Observer, VpnNotificationManager.VpnServiceCallback {
 
     static final String TAG = VoidVpnService.class.getSimpleName();
-    static ParcelFileDescriptor fd;
-    static Thread thread;
+    private ParcelFileDescriptor fd;
     private final int ALWAYS_ON_MIN_API_LEVEL = Build.VERSION_CODES.N;
     private static final String STATE_ESTABLISH = "ESTABLISHVOIDVPN";
     public static final String NOTIFICATION_CHANNEL_NEWSTATUS_ID = "bitmask_void_vpn_news";
     private EipStatus eipStatus;
     private VpnNotificationManager notificationManager;
+    private HandlerThread handlerThread;
+    private Handler handler;
 
     private final IBinder binder = new VoidVpnServiceBinder();
+
     public class VoidVpnServiceBinder extends Binder {
         VoidVpnService getService() {
             // Return this instance of LocalService so clients can call public methods
@@ -73,33 +77,31 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
         eipStatus = EipStatus.getInstance();
         eipStatus.addObserver(this);
         notificationManager = new VpnNotificationManager(this);
+        handlerThread = new HandlerThread("VoidVpnServiceHandlerThread", Thread.NORM_PRIORITY);
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent != null ? intent.getAction() : "";
-        if (action.equals(EIP_ACTION_START_BLOCKING_VPN)) {
-            thread = new Thread(new Runnable() {
-                public void run() {
-                    establishBlockingVpn();
-                    PreferenceHelper.isAlwaysOnSync(false);
-                    Log.d(TAG, "start blocking vpn profile - always on = false");
-                }
+        handler.removeCallbacksAndMessages(null);
+        if (EIP_ACTION_START_BLOCKING_VPN.equals(action)) {
+            handler.post(() -> {
+                establishBlockingVpn();
+                PreferenceHelper.isAlwaysOnSync(false);
+                Log.d(TAG, "start blocking vpn profile - always on = false");
             });
-            thread.run();
-        } else if (intent == null || action.equals("android.net.VpnService") && Build.VERSION.SDK_INT >= ALWAYS_ON_MIN_API_LEVEL) {
+        } else if (intent == null || "android.net.VpnService".equals(action) && Build.VERSION.SDK_INT >= ALWAYS_ON_MIN_API_LEVEL) {
             //only always-on feature triggers this
             startWithForegroundNotification();
-            thread = new Thread(new Runnable() {
-                public void run() {
-                    establishBlockingVpn();
-                    PreferenceHelper.isAlwaysOnSync(true);
-                    requestVpnWithLastSelectedProfile();
-                    Log.d(TAG, "start blocking vpn profile - always on = true");
-                }
+            handler.post(() -> {
+                establishBlockingVpn();
+                PreferenceHelper.isAlwaysOnSync(true);
+                requestVpnWithLastSelectedProfile();
+                Log.d(TAG, "start blocking vpn profile - always on = true");
             });
-            thread.run();
-        } else if (action.equals(EIP_ACTION_STOP_BLOCKING_VPN)) {
+        } else if (EIP_ACTION_STOP_BLOCKING_VPN.equals(action)) {
             stop();
         }
         return START_STICKY;
@@ -108,32 +110,31 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
     @Override
     public void onRevoke() {
         super.onRevoke();
-        closeFd();
+        stop();
     }
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
         super.onDestroy();
         notificationManager.cancelAll();
+        eipStatus.deleteObserver(this);
     }
 
     private void stop() {
-        if (thread != null) {
-            thread.interrupt();
-        }
+        handlerThread.interrupt();
         closeFd();
         VpnStatus.updateStateString("NOPROCESS", "BLOCKING VPN STOPPED", R.string.state_noprocess, ConnectionStatus.LEVEL_NOTCONNECTED);
         stopForeground(true);
+        stopSelf();
     }
 
-    public static boolean isRunning() throws NullPointerException {
-        return thread.isAlive() && fd != null;
-    }
-
-    private static void closeFd() {
+    private void closeFd() {
         try {
-            if (fd != null)
+            if (fd != null) {
                 fd.close();
+                fd = null;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -187,8 +188,7 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
         if (observable instanceof EipStatus) {
             eipStatus = (EipStatus) observable;
         }
-
-        if (thread == null) {
+        if (handlerThread.isInterrupted() || !handlerThread.isAlive()) {
             return;
         }
 
