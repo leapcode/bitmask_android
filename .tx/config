@@ -24,7 +24,7 @@ source_file = se.leap.bitmasakclient.json
 type = KEYVALUEJSON
 resource_name = Bitmask details in Appstore
 file_filter = src/normal/fastlane/metadata/<lang>/store-meta-<lang>.json
-minimum_perc = 96
+minimum_perc = 98
 
 [o:otf:p:bitmask:r:riseupvpn-playstore-listing]
 source_file = se.leap.riseupvpn-desc.json
