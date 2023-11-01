@@ -277,6 +277,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         // Always show notification here to avoid problem with startForeground timeout
         notificationManager.createOpenVpnNotificationChannel();
         notificationManager.buildForegroundServiceNotification(EipStatus.getInstance().getLevel(), this::onNotificationBuild);
+        notificationManager.cancelVoidVpnServiceNotifications();
     }
 
     @Override
@@ -329,7 +330,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 updateShortCutUsage(mProfile);
             }
             VpnStatus.setAlwaysOn(false);
-
+            notificationManager.cancelVoidVpnServiceNotifications();
         } else {
             /* The intent is null when we are set as always-on or the service has been restarted. */
             Log.d(TAG, "Starting VPN due to isAlwaysOn system settings or app crash.");

@@ -16,4 +16,8 @@
     <dimen name="donation_reminder_padding">24dp</dimen>
 
     <dimen name="setup_bottom_bar">75dp</dimen>
+    <dimen name="setup_button_top_padding">10dp</dimen>
+    <dimen name="tor_icon_margin_start">8dp</dimen>
+    <dimen name="snowflake_icon_margin_start">8dp</dimen>
+
 </resources>

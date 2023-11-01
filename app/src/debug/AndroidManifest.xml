@@ -28,7 +28,6 @@
         android:appCategory="productivity"
         android:logo="@mipmap/ic_launcher"
         android:theme="@style/BitmaskTheme">
-        >
         <provider
             android:name=".LeakCanaryInstaller"
             android:authorities="${applicationId}.leakcanary-installer"

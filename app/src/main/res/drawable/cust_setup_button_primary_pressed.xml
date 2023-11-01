@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item>
+    <item
+        android:bottom="@dimen/button_bevel_pressed"
+        >
+        <shape android:shape="rectangle"  >
+            <corners android:radius="8dp" />
+            <solid android:color="@color/colorPrimary_transparent_dark"/>
+        </shape>
+    </item>
+    <item
+        android:bottom="@dimen/button_bevel"
+        >
         <shape android:shape="rectangle"  >
             <corners android:radius="8dp" />
             <padding android:left="8dp" android:right="8dp"/>

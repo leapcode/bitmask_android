@@ -6,16 +6,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_marginLeft="@dimen/stdpadding"
-    android:layout_marginStart="@dimen/stdpadding"
-    android:layout_marginEnd="@dimen/stdpadding"
-    android:layout_marginRight="@dimen/stdpadding"
     tools:context=".base.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/activity_horizontal_margin"
+        android:paddingVertical="@dimen/activity_vertical_margin"
+        >
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/version"

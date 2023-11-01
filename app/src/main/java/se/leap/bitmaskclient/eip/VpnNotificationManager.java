@@ -200,6 +200,10 @@ public class VpnNotificationManager {
         compatNotificationManager.cancel(VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID.hashCode());
     }
 
+    public void cancelVoidVpnServiceNotifications() {
+        compatNotificationManager.cancel(VoidVpnService.NOTIFICATION_CHANNEL_NEWSTATUS_ID.hashCode());
+    }
+
 
     @TargetApi(O)
     public void createVoidVpnNotificationChannel() {

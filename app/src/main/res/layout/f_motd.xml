@@ -104,7 +104,7 @@
         android:layout_alignParentBottom="true"
         android:src="@drawable/ic_arrow_right"
         android:background="?attr/selectableItemBackground"
-        android:text="next"
+        android:text="@string/next"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

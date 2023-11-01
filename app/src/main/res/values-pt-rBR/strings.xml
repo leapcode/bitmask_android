@@ -67,6 +67,9 @@
   <string name="authentication_failed_message">Falha na Autenticação</string>
   <string name="registration_failed_message">Falha no cadastro</string>
   <string name="eip_status_start_pending">Inicializando conexão</string>
+  <string name="eip_status_connecting">Conectando VPN</string>
+  <string name="eip_status_unsecured">Conexão insegura</string>
+  <string name="eip_status_secured">Conexão segura</string>
   <string name="eip_cancel_connect_title">Cancelar conexão?</string>
   <string name="eip_cancel_connect_text">Há uma tentativa de conexão em andamento. Você deseja cancelar?</string>
   <string name="eip.warning.browser_inconsistency">Desligar conexão VPN? Quando a VPN está desligada, você pode vazar informações pessoais para o seu provedor de internet ou na rede local.</string>
@@ -202,4 +205,6 @@
   <string name="disabled_while_udp_on">Desabilitado enquanto UDP estiver ligado.</string>
   <string name="advanced_settings">Configurações avançadas</string>
   <string name="cancel_connection">Desconectar</string>
+  <string name="unknown_location">Local desconhecido</string>
+  <string name="splash_footer">Desenvolvido pela LEAP</string>
 </resources>
