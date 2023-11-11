@@ -222,7 +222,9 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
                 setupActivityCallback.onProviderSelected(provider);
                 handler.postDelayed(() -> {
                     if (!ProviderSetupObservable.isCanceled()) {
-                        setupActivityCallback.onConfigurationSuccess();
+                        if (setupActivityCallback != null) {
+                            setupActivityCallback.onConfigurationSuccess();
+                        }
                     }
                 }, 750);
                 break;
