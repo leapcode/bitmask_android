@@ -100,7 +100,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
 
 
         // indicator views for VPN permission
-        Intent requestVpnPermission = VpnService.prepare(this);
+        Intent requestVpnPermission = VpnService.prepare(this.getApplicationContext());
         if (requestVpnPermission != null) {
             addIndicatorView(indicatorViews);
             addIndicatorView(indicatorViews);
