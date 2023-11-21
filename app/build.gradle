@@ -34,9 +34,9 @@ android {
     // however we don't calculate the versionCode here, because F-Droid doesn't like that
     versionCode 170000
     versionName "1.2.0"
-    compileSdk 33
+    compileSdk 34
     minSdkVersion 21
-    targetSdkVersion 33
+    targetSdkVersion 34
     vectorDrawables.useSupportLibrary = true
     buildConfigField 'boolean', 'openvpn3', 'false'
 
@@ -399,7 +399,7 @@ android {
 
 
 dependencies {
-  testImplementation 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.13.2'
   //outdated mockito-core version due to powermock dependency
   testImplementation 'org.mockito:mockito-core:3.6.0'
   testImplementation('org.powermock:powermock-api-mockito2:2.0.9')
@@ -421,18 +421,20 @@ dependencies {
   testImplementation 'org.json:json:20180813'
   androidTestImplementation 'androidx.test.ext:junit:1.1.4'
   debugImplementation 'com.squareup.leakcanary:leakcanary-android-core:2.9.1'
+  debugImplementation 'androidx.fragment:fragment-testing:1.6.2'
+  debugImplementation 'androidx.test:core:1.5.0'
 
-  implementation 'com.google.code.gson:gson:2.8.6'
+  implementation 'com.google.code.gson:gson:2.10.1'
   implementation 'com.squareup.okhttp3:okhttp:4.10.0'
   implementation 'com.squareup.okhttp3:okhttp-dnsoverhttps:4.10.0'
   implementation 'org.conscrypt:conscrypt-android:2.5.2'
   implementation 'androidx.security:security-crypto:1.1.0-alpha06'
   implementation 'androidx.legacy:legacy-support-core-utils:1.0.0'
-  implementation 'androidx.annotation:annotation:1.4.0'
+  implementation 'androidx.annotation:annotation:1.7.0'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
   implementation 'androidx.appcompat:appcompat:1.6.1'
-  implementation 'com.google.android.material:material:1.6.1'
-  implementation 'androidx.fragment:fragment:1.5.1'
+  implementation 'com.google.android.material:material:1.10.0'
+  implementation 'androidx.fragment:fragment:1.6.2'
   implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
   implementation 'androidx.multidex:multidex:2.0.1'
   implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
