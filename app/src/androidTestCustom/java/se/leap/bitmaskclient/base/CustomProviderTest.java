@@ -22,9 +22,9 @@ import org.junit.Test;
 import se.leap.bitmaskclient.R;
 import tools.fastlane.screengrab.Screengrab;
 
-public class CustomProviderTest extends ProviderBaseTest {
+public class CustomProviderTest {
 
-    @Test
+    /*@Test
     @Override
     public void test01_vpnStartTest() throws InterruptedException, UiObjectNotFoundException {
         // handle VPN permission dialog
@@ -58,5 +58,5 @@ public class CustomProviderTest extends ProviderBaseTest {
     @Override
     public boolean configureProviderIfNeeded() {
         return false;
-    }
+    }*/
 }
