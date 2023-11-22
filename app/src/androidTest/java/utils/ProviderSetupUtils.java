@@ -70,6 +70,7 @@ public class ProviderSetupUtils {
                 showPermissionDialog = true;
                 tryResolve(onView(withText(R.string.upcoming_connection_request_description)), matches(isDisplayed()), useCircumvention ? 180 : 20);
                 System.out.println("next: next permission request");
+                if (takeConfigurationScreenshots) Screengrab.screenshot("vpn_permission_rationale");
                 onView(withText(R.string.next)).perform(click());
                 UiObject okButton = device.findObject(new UiSelector().packageName("com.android.vpndialogs").resourceId("android:id/button1"));
                 okButton.waitForExists(30000);
@@ -80,8 +81,12 @@ public class ProviderSetupUtils {
             // ------- START VPN --------------
             System.out.println("next: perform click on VPN button");
             ViewInteraction interaction = tryResolve(onView(withTagValue(Matchers.is("button_setup_circle_custom"))), matches(isDisplayed()), useCircumvention && !showPermissionDialog ? 180 : 20);
-            Screengrab.screenshot("all_set_start_vpn");
-            interaction.perform(click());
+            if (takeConfigurationScreenshots) {
+                Screengrab.screenshot("all_set_start_vpn");
+            } else {
+                // we only want to start the VPN in case we're not running the ProviderSetupTest
+                interaction.perform(click());
+            }
         } catch (NoMatchingViewException e) {
             // it might be that the provider was already configured, so we print the stack
             // trace here and try to continue
