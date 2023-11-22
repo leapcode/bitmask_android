@@ -1,24 +1,16 @@
-package se.leap.bitmaskclient.base;
+package se.leap.bitmaskclient;
 
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.junit.Assert.assertNotNull;
-import static se.leap.bitmaskclient.base.MainActivity.ACTION_SHOW_VPN_FRAGMENT;
-import static utils.ProviderSetupUtils.runProviderSetup;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.view.Gravity;
 
 import androidx.test.espresso.Espresso;
-import androidx.test.espresso.PerformException;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.assertion.ViewAssertions;
@@ -42,12 +34,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.MainActivity;
+import se.leap.bitmaskclient.base.StartActivity;
+import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 import tools.fastlane.screengrab.Screengrab;
 import tools.fastlane.screengrab.UiAutomatorScreenshotStrategy;
 import tools.fastlane.screengrab.locale.LocaleTestRule;
 import utils.CustomInteractions;
+import utils.ProviderSetupUtils;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -69,7 +63,7 @@ public class BitmaskTest {
     }
 
     @Test
-    public void test03_vpnStartTest() throws InterruptedException, UiObjectNotFoundException {
+    public void test01_vpnStartTest() throws InterruptedException, UiObjectNotFoundException {
         startMainActivity();
 
         Screengrab.screenshot("VPN_connecting");
@@ -92,7 +86,7 @@ public class BitmaskTest {
     }
 
     @Test
-    public void test04_SettingsFragmentScreenshots() {
+    public void test02_SettingsFragmentScreenshots() {
         startMainActivity();
         Espresso.onView(ViewMatchers.withId(R.id.drawer_layout))
                 .check(ViewAssertions.matches(DrawerMatchers.isClosed(Gravity.LEFT))) // Left Drawer should be closed.
@@ -108,7 +102,7 @@ public class BitmaskTest {
     }
 
     @Test
-    public void test05_LocationSelectionFragmentScreenshots() {
+    public void test03_LocationSelectionFragmentScreenshots() {
         startMainActivity();
         Espresso.onView(ViewMatchers.withId(R.id.drawer_layout))
                 .check(ViewAssertions.matches(DrawerMatchers.isClosed(Gravity.LEFT))) // Left Drawer should be closed.
@@ -121,7 +115,7 @@ public class BitmaskTest {
     }
 
     @Test
-    public void test06_AppExclusionFragmentScreenshots() {
+    public void test04_AppExclusionFragmentScreenshots() {
         startMainActivity();
         Espresso.onView(ViewMatchers.withId(R.id.drawer_layout))
                 .check(ViewAssertions.matches(DrawerMatchers.isClosed(Gravity.LEFT))) // Left Drawer should be closed.
@@ -141,30 +135,18 @@ public class BitmaskTest {
 
     private void startMainActivity() {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        Instrumentation.ActivityMonitor monitor = new Instrumentation.ActivityMonitor(MainActivity.class.getName(), null, false);
-        instrumentation.addMonitor(monitor);
-        Intent intent = new Intent(instrumentation.getTargetContext(), MainActivity.class);
+        Instrumentation.ActivityMonitor setupActivityMonitor = new Instrumentation.ActivityMonitor(SetupActivity.class.getName(), null, false);
+        Instrumentation.ActivityMonitor mainActivityMonitor = new Instrumentation.ActivityMonitor(MainActivity.class.getName(), null, false);
+        instrumentation.addMonitor(setupActivityMonitor);
+        instrumentation.addMonitor(mainActivityMonitor);
+        Intent intent = new Intent(instrumentation.getTargetContext(), StartActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setAction(ACTION_SHOW_VPN_FRAGMENT);
         instrumentation.startActivitySync(intent);
-        Activity activity = instrumentation.waitForMonitor(monitor);
-        assertNotNull(activity);
-        configureIfNeeded();
-    }
-
-    private void configureIfNeeded() {
-        if (ProviderObservable.getInstance().getCurrentProvider().isConfigured()) {
-            return;
+        Activity setupActivity = instrumentation.waitForMonitorWithTimeout(setupActivityMonitor, 1000L);
+        if (setupActivity != null) {
+            ProviderSetupUtils.runProviderSetup(device, false, false, InstrumentationRegistry.getInstrumentation().getTargetContext());
         }
-        final Context targetContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        try {
-            onView(withId(R.id.drawer_layout)).perform(DrawerActions.open());
-        } catch (PerformException performException) {
-            System.out.println("navigation drawer already opened");
-        }
-        onView(withText(R.string.switch_provider_menu_option)).perform(click());
-        System.out.println("configure Provider... starting SetupActivity");
-
-        runProviderSetup(device, false, false, targetContext);
+        Activity mainActivity = instrumentation.waitForMonitorWithTimeout(mainActivityMonitor, 1000);
+        assertNotNull(mainActivity);
     }
 }

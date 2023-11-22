@@ -7,7 +7,6 @@ import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static utils.CustomInteractions.tryResolve;
 
@@ -20,18 +19,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
-import androidx.test.uiautomator.UiObjectNotFoundException;
 
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runner.manipulation.Ordering;
+import org.junit.runners.MethodSorters;
 
-import se.leap.bitmaskclient.base.fragments.MainActivityErrorDialog;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 import tools.fastlane.screengrab.Screengrab;
 import tools.fastlane.screengrab.UiAutomatorScreenshotStrategy;
@@ -40,6 +36,7 @@ import utils.ProviderSetupUtils;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ProviderSetupTest {
 
     @ClassRule
@@ -65,24 +62,27 @@ public class ProviderSetupTest {
     }
 
     @Test
-    public void test01_setupProviderCircumvention() {
+    public void test02_setupProviderCircumvention() {
         ProviderSetupUtils.runProviderSetup(device, true, true, InstrumentationRegistry.getInstrumentation().getTargetContext());
     }
 
     @Test
-    public void testaddManuallyNewProviderScreenshot() {
+    public void test03_addManuallyNewProviderScreenshot() {
         if (!"normal".equals(BuildConfig.FLAVOR_branding)) {
             System.out.println("skipping custom provider url test");
             return;
         }
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+
         ViewInteraction radioButtonSelection = tryResolve(onView(withText(R.string.add_provider)), matches(isDisplayed()));
         radioButtonSelection.perform(click());
-
         onView(withId(R.id.edit_customProvider)).perform(replaceText("https://leapvpn.myserver.org"));
         Screengrab.screenshot("setup_custom_provider");
         onView(withId(R.id.setup_next_button)).perform(click());
+
+        onView(withText(context.getString(R.string.use_standard_vpn, context.getString(R.string.app_name)))).perform(click());
         onView(withId(R.id.setup_next_button)).perform(click());
-        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+
         tryResolve(
                 onView(withText(context.getString(R.string.malformed_url, context.getString(R.string.app_name)))),
                 matches(isDisplayed()),
