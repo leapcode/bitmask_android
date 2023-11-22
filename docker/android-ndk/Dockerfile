@@ -40,6 +40,7 @@ ENV ANDROID_SDK_ROOT ${ANDROID_HOME}/latest/cmdline-tools
 RUN echo $JAVA_HOME
 RUN java --version
 
+
 RUN curl -L $ANDROID_NDK_URL -o ndk.zip  \
     && unzip ndk.zip -d $ANDROID_HOME/ndk  \
     && rm -rf ndk.zip

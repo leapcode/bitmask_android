@@ -81,10 +81,10 @@ RUN echo y | sdkmanager "platform-tools" # echo y to accept google licenses
 RUN sdkmanager "extras;android;m2repository"
 
 # Install Build Tools (Please keep in descending order)
-RUN sdkmanager "build-tools;33.0.2"
+RUN sdkmanager "build-tools;34.0.0"
 
 # Install Target SDK Packages (Please keep in descending order)
-RUN sdkmanager "platforms;android-33"
+RUN sdkmanager "platforms;android-34"
 
 RUN echo "accept all licenses"
 # Accept all licenses

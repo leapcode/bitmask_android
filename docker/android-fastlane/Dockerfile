@@ -1,7 +1,7 @@
 FROM registry.0xacab.org/leap/bitmask_android/android-sdk:latest
 
 MAINTAINER LEAP Encryption Access Project <info@leap.se>
-LABEL Description="Android emulator image based on android-sdk" Vendor="LEAP" Version="3"
+LABEL Description="Android emulator image based on android-sdk" Vendor="LEAP" Version="4"
 
 # Make sure debconf doesn't complain about lack of interactivity
 ENV DEBIAN_FRONTEND noninteractive
@@ -37,6 +37,10 @@ RUN apt-get update -qq && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+RUN echo $JAVA_HOME
+RUN java --version
+
+
 # ------------------------------------------------------
 # --- Install Android Emulator
 
@@ -50,16 +54,11 @@ RUN echo y | sdkmanager "emulator"
 
 # Install System Images for emulators
 # seems like every version has its own quirks
-RUN echo y | sdkmanager "system-images;android-33;google_apis;x86_64"
-#RUN echo y | sdkmanager "system-images;android-27;google_apis;x86"
-#RUN echo y | sdkmanager "system-images;android-25;google_apis;x86_64"
-#RUN echo y | sdkmanager "system-images;android-23;google_apis;x86_64"
+RUN echo y | sdkmanager "system-images;android-34;google_apis;x86_64"
 
 # fastlane wants 2 emulators. Starting happens in the scripts
-RUN echo no | avdmanager create avd --force --name testApi33 --abi google_apis/x86_64 --package 'system-images;android-33;google_apis;x86_64'
+RUN echo no | avdmanager create avd --force --name testApi34 --abi google_apis/x86_64 --package 'system-images;android-34;google_apis;x86_64'
 # TODO: fastlane has been troublesome for newer versions, need to dive deep to update
-#RUN echo no | avdmanager create avd --force --name testApi27 --abi google_apis/x86_64 --package 'system-images;android-27;google_apis;x86_64'
-#RUN echo no | avdmanager create avd --force --name testApi27-duet --abi google_apis/x86_64 --package 'system-images;android-27;google_apis;x86_64'
 
 # Install Android cmake
 RUN sdkmanager "cmake;3.10.2.4988404"

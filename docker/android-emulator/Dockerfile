@@ -29,10 +29,9 @@ RUN apt-get update -qq && \
 # Install Android SDK emulator package
 RUN echo y | sdkmanager "emulator"
 
-# Install System Images for emulators
-RUN echo y | sdkmanager "system-images;android-33;google_apis;x86_64"
+# Install System Images for emulators4;google_apis;x86_64"
 # RUN echo y | sdkmanager "system-images;android-27;google_apis;x86"
 # RUN echo y | sdkmanager "system-images;android-25;google_apis;x86_64"
 # RUN echo y | sdkmanager "system-images;android-23;google_apis;x86_64"
 
-RUN echo no | avdmanager create avd --force --name testApi33 --abi google_apis/x86_64 --package 'system-images;android-33;google_apis;x86_64'
+RUN echo no | avdmanager create avd --force --name testApi34 --abi google_apis/x86_64 --package 'system-images;android-34;google_apis;x86_64'
