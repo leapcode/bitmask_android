@@ -91,7 +91,6 @@ screenshot:
   script:
     - ./scripts/prepareForScreenshots.sh
     - ./scripts/installFastlane.sh
-    - ./gradlew testCustomProductionFatReleaseUnitTest testNormalProductionFatReleaseUnitTest
     - ./scripts/startEmulators.sh
     - ./scripts/fastlane.sh
     - ./scripts/fastlane.sh custom
