@@ -1,12 +1,13 @@
 #!/bin/bash
 
 PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/Sdk/tools:$ANDROID_HOME/emulator
+SCRIPT_DIR=$(dirname "$0")
+
 apt-get update
 apt-get install -y libpulse-java libpulse0 imagemagick libxkbcommon-x11-0 xvfb vulkan-tools
 # there's a QT thing missing
 emulator -accel-check
 docker info
-export DISPLAY=:99.0
 
 # init parameters
 for ((i=1;i<=$#;i++)); 
@@ -41,7 +42,6 @@ timeout=30
 echo y | sdkmanager "emulator"
 avdmanager list avd
 emulator -version
-find /opt -iname emulator -type f
 
 waitForAdbDevices() {
 	while true; do
@@ -62,14 +62,10 @@ waitForAdbDevices() {
 }
 
 #start first N avd images
-Xvfb :0 -screen 0 800x600x16 &
-#avdmanager list avd | grep 'Name:' | cut -d ':' -f2 | head -n $N |  xargs -I{} -P$N -n1 emulator -no-snapshot -avd {} &
-avdmanager list avd | grep 'Name:' | cut -d ':' -f2 | head -n $N |  xargs -I{} -P$N -n1 emulator -no-window -no-audio -no-snapshot -avd {} &
-#avdmanager list avd | grep 'Name:' | cut -d ':' -f2 | head -n $N |  xargs -I{} -P$N -n1 emulator -no-snapshot -no-window -avd {} &
-# avdmanager list avd | grep 'Name:' | cut -d ':' -f2 | head -n $N |  xargs -I{} -P$N -n1 emulator -no-snapshot -no-window -no-boot-anim -accel on  -avd {} &
+#Xvfb :0 -screen 0 800x600x16 &
+avdmanager list avd | grep 'Name:' | cut -d ':' -f2 | head -n $N |  xargs -I {} emulator -no-window -no-audio -avd {} &
 waitForAdbDevices
 echo "adb found all emulators..."
 
-#wait for each emulator that booting completed
-adb devices | grep -v List | awk '$2{print $1}' | xargs -I{} .gitlab/wait-for-emulator.sh -s {}
+adb devices | grep -v List | awk '$2{print $1}' | xargs -I{} $SCRIPT_DIR/wait-for-emulator.sh -s {}
 echo "all emulators successfully booted"
