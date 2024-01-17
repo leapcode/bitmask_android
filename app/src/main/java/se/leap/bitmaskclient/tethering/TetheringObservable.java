@@ -18,15 +18,19 @@ package se.leap.bitmaskclient.tethering;
 
 import androidx.annotation.NonNull;
 
-import java.util.Observable;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
-public class TetheringObservable extends Observable {
+public class TetheringObservable {
     private static TetheringObservable instance;
 
     private TetheringState tetheringState;
+    private final PropertyChangeSupport changeSupport;
+    public static final String PROPERTY_CHANGE = "TetheringObservable";
 
     private TetheringObservable() {
         tetheringState = new TetheringState();
+        changeSupport = new PropertyChangeSupport(this);
     }
 
     public static TetheringObservable getInstance() {
@@ -36,10 +40,17 @@ public class TetheringObservable extends Observable {
         return instance;
     }
 
+    public void addObserver(PropertyChangeListener propertyChangeListener) {
+        changeSupport.addPropertyChangeListener(propertyChangeListener);
+    }
+
+    public void deleteObserver(PropertyChangeListener propertyChangeListener) {
+        changeSupport.removePropertyChangeListener(propertyChangeListener);
+    }
+
     public static void allowVpnWifiTethering(boolean enabled) {
         if (getInstance().tetheringState.isVpnWifiTetheringAllowed != enabled) {
             getInstance().tetheringState.isVpnWifiTetheringAllowed = enabled;
-            getInstance().setChanged();
             getInstance().notifyObservers();
         }
     }
@@ -47,7 +58,6 @@ public class TetheringObservable extends Observable {
     public static void allowVpnUsbTethering(boolean enabled) {
         if (getInstance().tetheringState.isVpnUsbTetheringAllowed != enabled) {
             getInstance().tetheringState.isVpnUsbTetheringAllowed = enabled;
-            getInstance().setChanged();
             getInstance().notifyObservers();
         }
     }
@@ -55,7 +65,6 @@ public class TetheringObservable extends Observable {
     public static void allowVpnBluetoothTethering(boolean enabled) {
         if (getInstance().tetheringState.isVpnBluetoothTetheringAllowed != enabled) {
             getInstance().tetheringState.isVpnBluetoothTetheringAllowed = enabled;
-            getInstance().setChanged();
             getInstance().notifyObservers();
         }
     }
@@ -70,7 +79,6 @@ public class TetheringObservable extends Observable {
             state.wifiAddress = address;
             state.lastSeenWifiAddress = address.isEmpty() ? state.lastSeenWifiAddress : address;
             state.lastSeenWifiInterface = interfaceName.isEmpty() ? state.lastSeenWifiInterface : interfaceName;
-            getInstance().setChanged();
             getInstance().notifyObservers();
         }
 
@@ -86,7 +94,6 @@ public class TetheringObservable extends Observable {
             state.usbInterface = interfaceName;
             state.lastSeenUsbAddress = address.isEmpty() ? state.lastSeenUsbAddress : address;
             state.lastSeenUsbInterface = interfaceName.isEmpty() ? state.lastSeenUsbInterface : interfaceName;
-            getInstance().setChanged();
             getInstance().notifyObservers();
         }
     }
@@ -101,7 +108,6 @@ public class TetheringObservable extends Observable {
             state.bluetoothInterface = interfaceName;
             state.lastSeenBluetoothAddress = address.isEmpty() ? state.lastSeenBluetoothAddress : address;
             state.lastSeenBluetoothInterface = interfaceName.isEmpty() ? state.lastSeenBluetoothInterface : interfaceName;
-            getInstance().setChanged();
             getInstance().notifyObservers();
         }
     }
@@ -120,5 +126,9 @@ public class TetheringObservable extends Observable {
 
     public TetheringState getTetheringState() {
         return tetheringState;
+    }
+
+    private void notifyObservers() {
+        changeSupport.firePropertyChange(PROPERTY_CHANGE, null, getInstance());
     }
 }

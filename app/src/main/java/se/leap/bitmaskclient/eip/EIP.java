@@ -67,6 +67,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.lang.ref.WeakReference;
 import java.util.Observable;
@@ -97,7 +99,7 @@ import se.leap.bitmaskclient.eip.GatewaysManager.GatewayOptions;
  * @author Sean Leonard <meanderingcode@aetherislands.net>
  * @author Parménides GV <parmegv@sdf.org>
  */
-public final class EIP extends JobIntentService implements Observer {
+public final class EIP extends JobIntentService implements PropertyChangeListener {
 
 
     public final static String TAG = EIP.class.getSimpleName(),
@@ -160,9 +162,9 @@ public final class EIP extends JobIntentService implements Observer {
      * update eipStatus whenever it changes
      */
     @Override
-    public void update(Observable observable, Object data) {
-        if (observable instanceof EipStatus) {
-            eipStatus = (EipStatus) observable;
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (EipStatus.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
+            eipStatus = (EipStatus) evt.getNewValue();
         }
     }
 

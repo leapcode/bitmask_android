@@ -33,6 +33,8 @@ import android.os.ParcelFileDescriptor;
 import android.system.OsConstants;
 import android.util.Log;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
@@ -43,7 +45,7 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 
-public class VoidVpnService extends VpnService implements Observer, VpnNotificationManager.VpnServiceCallback {
+public class VoidVpnService extends VpnService implements PropertyChangeListener, VpnNotificationManager.VpnServiceCallback {
 
     static final String TAG = VoidVpnService.class.getSimpleName();
     private ParcelFileDescriptor fd;
@@ -183,10 +185,11 @@ public class VoidVpnService extends VpnService implements Observer, VpnNotificat
         getApplicationContext().startService(startEIP);
     }
 
+
     @Override
-    public void update(Observable observable, Object arg) {
-        if (observable instanceof EipStatus) {
-            eipStatus = (EipStatus) observable;
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (EipStatus.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
+            eipStatus = (EipStatus) evt.getNewValue();
         }
         if (handlerThread.isInterrupted() || !handlerThread.isAlive()) {
             return;

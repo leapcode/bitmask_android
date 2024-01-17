@@ -20,10 +20,10 @@ import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 
-import java.util.Observable;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
@@ -34,7 +34,7 @@ import de.blinkt.openvpn.core.VpnStatus;
  * EipStatus changes it's state (EipLevel) when ConnectionStatus gets updated by OpenVpnService or
  * by VoidVpnService.
  */
-public class EipStatus extends Observable implements VpnStatus.StateListener {
+public class EipStatus implements VpnStatus.StateListener {
     public static String TAG = EipStatus.class.getSimpleName();
     private static EipStatus currentStatus;
 
@@ -60,6 +60,9 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     private int localizedResId;
     private boolean isUpdatingVPNCertificate;
 
+    private final PropertyChangeSupport propertyChange;
+    public static final String PROPERTY_CHANGE = "EipStatus";
+
     public static EipStatus getInstance() {
         if (currentStatus == null) {
             currentStatus = new EipStatus();
@@ -69,6 +72,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     private EipStatus() {
+        propertyChange = new PropertyChangeSupport(this);
     }
 
     @Override
@@ -300,8 +304,14 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public static void refresh() {
-        getInstance().setChanged();
-        getInstance().notifyObservers();
+        currentStatus.propertyChange.firePropertyChange(PROPERTY_CHANGE, null, currentStatus);
     }
 
+    public void addObserver(PropertyChangeListener propertyChangeListener) {
+        propertyChange.addPropertyChangeListener(propertyChangeListener);
+    }
+
+    public void deleteObserver(PropertyChangeListener propertyChangeListener) {
+        propertyChange.removePropertyChangeListener(propertyChangeListener);
+    }
 }

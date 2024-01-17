@@ -30,6 +30,8 @@ import androidx.annotation.Nullable;
 
 import org.torproject.jni.ClientTransportPluginInterface;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,8 +40,6 @@ import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Vector;
@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
 
 import IPtProxy.IPtProxy;
 
-public class ClientTransportPlugin implements ClientTransportPluginInterface, Observer {
+public class ClientTransportPlugin implements ClientTransportPluginInterface, PropertyChangeListener {
     public static String TAG = ClientTransportPlugin.class.getSimpleName();
 
     private HashMap<String, String> mFronts;
@@ -221,8 +221,8 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface, Ob
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        if (o instanceof TorStatusObservable) {
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(TorStatusObservable.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
             TorStatusObservable.SnowflakeStatus snowflakeStatus = TorStatusObservable.getSnowflakeStatus();
             if (snowflakeStatus == this.snowflakeStatus) {
                 return;

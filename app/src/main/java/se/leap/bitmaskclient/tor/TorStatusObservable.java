@@ -29,8 +29,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -39,9 +39,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import se.leap.bitmaskclient.R;
 
-public class TorStatusObservable extends Observable {
+public class TorStatusObservable {
 
     private static final String TAG = TorStatusObservable.class.getSimpleName();
+
+    private final PropertyChangeSupport propertyChange;
+    public static final String PROPERTY_CHANGE = "TorStatusObservable";
 
     public interface StatusCondition {
         boolean met();
@@ -98,6 +101,7 @@ public class TorStatusObservable extends Observable {
 
     private TorStatusObservable() {
         torNotificationManager = new TorNotificationManager();
+        propertyChange = new PropertyChangeSupport(this);
     }
 
     public static TorStatusObservable getInstance() {
@@ -126,11 +130,11 @@ public class TorStatusObservable extends Observable {
     public static boolean waitUntil(StatusCondition condition, int timeout) throws InterruptedException, TimeoutException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         final AtomicBoolean conditionMet = new AtomicBoolean(false);
-        Observer observer = (o, arg) -> {
-              if (condition.met()) {
-                  countDownLatch.countDown();
-                  conditionMet.set(true);
-              }
+        PropertyChangeListener observer = evt -> {
+            if (condition.met()) {
+                countDownLatch.countDown();
+                conditionMet.set(true);
+            }
         };
         if (condition.met()) {
             // no need to wait
@@ -143,6 +147,14 @@ public class TorStatusObservable extends Observable {
             throw new TimeoutException("Status condition not met within " + timeout + "s.");
         }
         return true;
+    }
+
+    public void addObserver(PropertyChangeListener propertyChangeListener) {
+        propertyChange.addPropertyChangeListener(propertyChangeListener);
+    }
+
+    public void deleteObserver(PropertyChangeListener propertyChangeListener) {
+        propertyChange.removePropertyChangeListener(propertyChangeListener);
     }
 
     public static void logSnowflakeMessage(Context context, String message) {
@@ -191,7 +203,6 @@ public class TorStatusObservable extends Observable {
             getInstance().lastSnowflakeLog = context.getString(R.string.snowflake_sending_data);
         }
         Log.d(TAG, "snowflake status " + getInstance().snowflakeStatus);
-        instance.setChanged();
         instance.notifyObservers();
     }
 
@@ -230,7 +241,7 @@ public class TorStatusObservable extends Observable {
 
     public static void updateState(Context context, String status, int bootstrapPercent, @Nullable String logKey) {
         try {
-            Log.d(TAG, "update tor state: " + status + " " + bootstrapPercent + " "+ logKey);
+           // Log.d(TAG, "update tor state: " + status + " " + bootstrapPercent + " "+ logKey);
             getInstance().status = TorStatus.valueOf(status);
             if (bootstrapPercent != -1) {
                 getInstance().bootstrapPercent = bootstrapPercent;
@@ -247,12 +258,16 @@ public class TorStatusObservable extends Observable {
                 getInstance().torNotificationManager.buildTorNotification(context, getStringForCurrentStatus(context), getNotificationLog(), getBootstrapProgress());
             }
 
-            instance.setChanged();
+
             instance.notifyObservers();
 
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
+    }
+
+    private void notifyObservers() {
+        instance.propertyChange.firePropertyChange(PROPERTY_CHANGE, null, instance);
     }
 
     private static String getStringFor(Context context, String key) {
@@ -294,13 +309,11 @@ public class TorStatusObservable extends Observable {
 
     public static void setLastError(String error) {
         getInstance().lastError = error;
-        instance.setChanged();
         instance.notifyObservers();
     }
 
     public static void setProxyPort(int port) {
         getInstance().port = port;
-        instance.setChanged();
         instance.notifyObservers();
     }
 
@@ -345,7 +358,6 @@ public class TorStatusObservable extends Observable {
         if (!getInstance().cancelled) {
             getInstance().cancelled = true;
             getInstance().port = -1;
-            getInstance().setChanged();
             getInstance().notifyObservers();
         }
     }

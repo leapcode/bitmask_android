@@ -22,8 +22,8 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +52,7 @@ import se.leap.bitmaskclient.tethering.TetheringObservable;
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class TetheringDialog extends AppCompatDialogFragment implements Observer {
+public class TetheringDialog extends AppCompatDialogFragment implements PropertyChangeListener {
 
     public final static String TAG = TetheringDialog.class.getName();
 
@@ -241,9 +241,9 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        if (o instanceof TetheringObservable) {
-            TetheringObservable observable = (TetheringObservable) o;
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (TetheringObservable.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
+            TetheringObservable observable = (TetheringObservable) evt.getNewValue();
             Log.d(TAG, "TetheringObservable is updated");
             dataset[0].enabled = observable.isWifiTetheringEnabled();
             dataset[1].enabled = observable.isUsbTetheringEnabled();
@@ -251,5 +251,4 @@ public class TetheringDialog extends AppCompatDialogFragment implements Observer
             adapter.notifyDataSetChanged();
         }
     }
-
 }
