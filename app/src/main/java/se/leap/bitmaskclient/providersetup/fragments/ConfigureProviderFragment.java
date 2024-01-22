@@ -206,7 +206,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
         if (ignoreProviderAPIUpdates ||
                 provider == null ||
                 (setupActivityCallback.getSelectedProvider() != null &&
-                !setupActivityCallback.getSelectedProvider().getDomain().equals(provider.getDomain()))) {
+                !setupActivityCallback.getSelectedProvider().getMainUrlString().equals(provider.getMainUrlString()))) {
             return;
         }
 
