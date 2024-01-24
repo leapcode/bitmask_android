@@ -2,6 +2,7 @@ package de.blinkt.openvpn;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -18,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
@@ -85,7 +85,6 @@ public class VpnProfileTest {
         mockVpnProfile.mConnections[0] = new Obfs4Connection(new Obfs4Options("192.168.0.1", transport));
         mockVpnProfile.mLastUsed = 0;
         String s = mockVpnProfile.toJson();
-        System.out.println(s);
 
         //ignore UUID in comparison -> set it to fixed value
         JSONObject actual = new JSONObject(s);
@@ -104,7 +103,6 @@ public class VpnProfileTest {
         mockVpnProfile.mConnections[0] = new Obfs4Connection(new Obfs4Options("192.168.0.1", transport));
         mockVpnProfile.mLastUsed = 0;
         String s = mockVpnProfile.toJson();
-        System.out.println(s);
 
         //ignore UUID in comparison -> set it to fixed value
         JSONObject actual = new JSONObject(s);
@@ -124,7 +122,6 @@ public class VpnProfileTest {
         mockVpnProfile.mConnections[0] = new Obfs4Connection(new Obfs4Options("192.168.0.1", transport));
         mockVpnProfile.mLastUsed = 0;
         String s = mockVpnProfile.toJson();
-        System.out.println(s);
 
         //ignore UUID in comparison -> set it to fixed value
         JSONObject actual = new JSONObject(s);
@@ -146,7 +143,6 @@ public class VpnProfileTest {
 
         mockVpnProfile.mLastUsed = 0;
         String s = mockVpnProfile.toJson();
-        System.out.println(s);
 
         //ignore UUID in comparison -> set it to fixed value
         JSONObject actual = new JSONObject(s);
@@ -168,7 +164,6 @@ public class VpnProfileTest {
 
         mockVpnProfile.mLastUsed = 0;
         String s = mockVpnProfile.toJson();
-        System.out.println(s);
 
         //ignore UUID in comparison -> set it to fixed value
         JSONObject actual = new JSONObject(s);
@@ -189,7 +184,6 @@ public class VpnProfileTest {
 
         mockVpnProfile.mLastUsed = 0;
         String s = mockVpnProfile.toJson();
-        System.out.println(s);
 
         //ignore UUID in comparison -> set it to fixed value
         JSONObject actual = new JSONObject(s);
@@ -210,7 +204,10 @@ public class VpnProfileTest {
         assertFalse(mockVpnProfile.mConnections[0].isUseUdp());
         Obfs4Connection obfs4Connection = (Obfs4Connection) mockVpnProfile.mConnections[0];
         assertEquals(OBFS4, obfs4Connection.getTransportType());
-        assertFalse(Arrays.asList(obfs4Connection.getObfs4Options().transport.getProtocols()).contains(UDP));
+        String[] protocols = obfs4Connection.getObfs4Options().transport.getProtocols();
+        for (String protocol : protocols) {
+            assertNotEquals(UDP, protocol);
+        }
         assertEquals("CERT", obfs4Connection.getObfs4Options().transport.getOptions().getCert());
         assertEquals("0", obfs4Connection.getObfs4Options().transport.getOptions().getIatMode());
         assertEquals("192.168.0.1", obfs4Connection.getObfs4Options().gatewayIP);
@@ -224,7 +221,7 @@ public class VpnProfileTest {
 
         VpnProfile mockVpnProfile = VpnProfile.fromJson(OBFS4CONNECTION_PROFILE_OBFSVPN);
         assertNotNull(mockVpnProfile);
-        assertNotNull(mockVpnProfile.mConnections);
+        assertNotEquals(null, mockVpnProfile.mConnections);
         assertNotNull(mockVpnProfile.mConnections[0]);
         assertFalse(mockVpnProfile.mConnections[0].isUseUdp());
         Obfs4Connection obfs4Connection = (Obfs4Connection) mockVpnProfile.mConnections[0];
