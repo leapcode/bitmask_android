@@ -1,6 +1,8 @@
 package se.leap.bitmaskclient.base.models;
 
 import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -10,9 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
@@ -61,14 +60,12 @@ public class ProviderTest {
         Provider p2 = TestSetupHelper.getConfiguredProvider();
         p2.setMainUrl("http://somethingsdiffer.org");
         Provider p3 = new Provider("https://anotherprovider.net");
+        Provider p4 = TestSetupHelper.getConfiguredProvider();
 
-        Set<Provider> defaultProviders = new HashSet<>();
-        defaultProviders.add(p1);
-        defaultProviders.add(p2);
+        assertEquals(p1, p4);
+        assertNotEquals(p1, p2);
+        assertNotEquals(p1, p3);
 
-        assertTrue(defaultProviders.contains(p1));
-        assertTrue(defaultProviders.contains(p2));
-        assertFalse(defaultProviders.contains(p3));
     }
 
     @Test
