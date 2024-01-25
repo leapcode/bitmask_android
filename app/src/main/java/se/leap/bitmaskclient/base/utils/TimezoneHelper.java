@@ -4,6 +4,8 @@ import androidx.annotation.VisibleForTesting;
 
 import java.util.Calendar;
 
+import de.blinkt.openvpn.core.NativeUtils;
+
 public class TimezoneHelper {
 
     public interface TimezoneInterface {
@@ -14,6 +16,9 @@ public class TimezoneHelper {
 
     @VisibleForTesting
     public TimezoneHelper(TimezoneInterface timezoneInterface) {
+        if (!NativeUtils.isUnitTest()) {
+            throw new IllegalStateException("TimezoneHelper injected with timezoneInterface outside of an unit test");
+        }
         instance = timezoneInterface;
     }
 
@@ -33,7 +38,7 @@ public class TimezoneHelper {
         return get().getCurrentTimezone();
     }
 
-    public static class DefaultTimezoneHelper implements TimezoneInterface {
+    private static class DefaultTimezoneHelper implements TimezoneInterface {
         @Override
         public int getCurrentTimezone() {
             return Calendar.getInstance().get(Calendar.ZONE_OFFSET) / 3600000;
