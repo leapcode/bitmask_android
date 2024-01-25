@@ -50,7 +50,6 @@ import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +68,7 @@ import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.CertificateHelper;
 import se.leap.bitmaskclient.base.utils.FileHelper;
 import se.leap.bitmaskclient.base.utils.InputStreamHelper;
 import se.leap.bitmaskclient.base.utils.ObfsVpnHelper;
@@ -473,15 +472,8 @@ public class MockHelper {
         });
     }
 
-    public static void mockConfigHelper(String mockedFingerprint) throws CertificateEncodingException, NoSuchAlgorithmException {
-        mockStatic(ConfigHelper.class);
-        when(ConfigHelper.getFingerprintFromCertificate(any(X509Certificate.class), anyString())).thenReturn(mockedFingerprint);
-        when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
-        when(ConfigHelper.parseX509CertificatesFromString(anyString())).thenCallRealMethod();
-        when(ConfigHelper.getProviderFormattedString(any(Resources.class), anyInt())).thenCallRealMethod();
-        when(ConfigHelper.isIPv4(anyString())).thenCallRealMethod();
-        when(ConfigHelper.isDefaultBitmask()).thenReturn(true);
-        when(ConfigHelper.getDomainFromMainURL(anyString())).thenCallRealMethod();
+    public static CertificateHelper mockCertificateHelper(String mockedFingerprint) {
+        return new CertificateHelper((certificate, encoding) -> mockedFingerprint);
     }
 
     public static void mockPreferenceHelper(final Provider providerFromPrefs) {

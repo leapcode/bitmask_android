@@ -47,7 +47,7 @@ import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_API_IP;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_IP;
 import static se.leap.bitmaskclient.base.utils.RSAHelper.parseRsaKeyFromString;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getDomainFromMainURL;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.getFingerprintFromCertificate;
+import static se.leap.bitmaskclient.base.utils.CertificateHelper.getFingerprintFromCertificate;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getFromPersistedProvider;
