@@ -45,6 +45,7 @@ import static se.leap.bitmaskclient.base.models.Provider.CA_CERT;
 import static se.leap.bitmaskclient.base.models.Provider.GEOIP_URL;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_API_IP;
 import static se.leap.bitmaskclient.base.models.Provider.PROVIDER_IP;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.getTorTimeout;
 import static se.leap.bitmaskclient.base.utils.RSAHelper.parseRsaKeyFromString;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getDomainFromMainURL;
 import static se.leap.bitmaskclient.base.utils.CertificateHelper.getFingerprintFromCertificate;
@@ -380,7 +381,7 @@ public abstract class ProviderApiManagerBase {
         if (TorStatusObservable.getStatus() == ON) {
             return;
         }
-        TorStatusObservable.waitUntil(this::isTorOnOrCancelled, 180);
+        TorStatusObservable.waitUntil(this::isTorOnOrCancelled, getTorTimeout());
     }
 
     private boolean isTorOnOrCancelled() {
@@ -1138,9 +1139,13 @@ public abstract class ProviderApiManagerBase {
 
         String deleteUrl = provider.getApiUrlWithVersion() + "/logout";
 
-        if (ProviderApiConnector.delete(okHttpClient, deleteUrl)) {
-            LeapSRPSession.setToken("");
-            return true;
+        try {
+            if (ProviderApiConnector.delete(okHttpClient, deleteUrl)) {
+                LeapSRPSession.setToken("");
+                return true;
+            }
+        } catch (IOException e) {
+            // eat me
         }
         return false;
     }
