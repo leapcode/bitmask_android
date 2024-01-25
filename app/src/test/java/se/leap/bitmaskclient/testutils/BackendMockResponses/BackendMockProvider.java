@@ -18,6 +18,8 @@ package se.leap.bitmaskclient.testutils.BackendMockResponses;
 
 import java.io.IOException;
 
+import se.leap.bitmaskclient.providersetup.ProviderApiConnector;
+
 /**
  * Created by cyberta on 10.01.18.
  */
@@ -43,67 +45,43 @@ public class BackendMockProvider {
         ERROR_PAYLOAD_MISSING,          // => IllegalArgumentException
         ERROR_TLS_1_2_NOT_SUPPORTED,    // => UnknownServiceException
         ERROR_UNKNOWN_IO_EXCEPTION,     // => IOException
-        ERROR_NO_ACCESS,
         ERROR_INVALID_SESSION_TOKEN,
         ERROR_NO_CONNECTION,
-        ERROR_WRONG_SRP_CREDENTIALS,
         NO_ERROR_API_V4,
         ERROR_DNS_RESUOLUTION_TOR_FALLBACK
     }
 
 
-    public static void provideBackendResponsesFor(TestBackendErrorCase errorCase) throws IOException {
+    public static ProviderApiConnector.ProviderApiConnectorInterface provideBackendResponsesFor(TestBackendErrorCase errorCase) throws IOException {
         switch (errorCase) {
+            case NO_ERROR -> {
+                return new NoErrorBackendResponse();
+            }
+            case NO_ERROR_API_V4 -> {
+                return new NoErrorBackendResponseAPIv4();
+            }
+            case ERROR_CASE_UPDATED_CERTIFICATE -> {
+                return new UpdatedCertificateBackendResponse();
+            }
+            case ERROR_CASE_MICONFIGURED_PROVIDER -> {
+                return new MisconfiguredProviderBackendResponse();
+            }
+            case ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID -> {
+                return new EipServiceJsonInvalidCertificateBackendResponse();
+            }
+            case ERROR_GEOIP_SERVICE_IS_DOWN -> {
+                return new GeoIpServiceIsDownBackendResponse();
+            }
+            case ERROR_GEOIP_SERVICE_IS_DOWN_TOR_FALLBACK -> {
+                return new GeoIpServiceNotReachableTorFallbackBackendResponse();
+            }
+            case ERROR_DNS_RESUOLUTION_TOR_FALLBACK -> {
+                return new TorFallbackBackendResponse();
+            }
 
-            case NO_ERROR:
-                new NoErrorBackendResponse();
-                break;
-            case NO_ERROR_API_V4:
-                new NoErrorBackendResponseAPIv4();
-                break;
-            case ERROR_CASE_UPDATED_CERTIFICATE:
-                new UpdatedCertificateBackendResponse();
-                break;
-            case ERROR_CASE_MICONFIGURED_PROVIDER:
-                new MisconfiguredProviderBackendResponse();
-                break;
-            case ERROR_CASE_FETCH_EIP_SERVICE_CERTIFICATE_INVALID:
-                new EipSerivceJsonInvalidCertificateBackendResponse();
-                break;
-            case ERROR_GEOIP_SERVICE_IS_DOWN:
-                new GeoIpServiceIsDownBackendResponse();
-                break;
-            case ERROR_GEOIP_SERVICE_IS_DOWN_TOR_FALLBACK:
-                new GeoIpServiceNotReachableTorFallbackBackendResponse();
-            case ERROR_DNS_RESUOLUTION_TOR_FALLBACK:
-                new TorFallbackBackendResponse();
-                break;
-            case ERROR_NO_RESPONSE_BODY:
-                break;
-            case ERROR_DNS_RESOLUTION_ERROR:
-                break;
-            case ERROR_SOCKET_TIMEOUT:
-                break;
-            case ERROR_WRONG_PROTOCOL:
-                break;
-            case ERROR_CERTIFICATE_INVALID:
-                break;
-            case ERROR_WRONG_PORT:
-                break;
-            case ERROR_PAYLOAD_MISSING:
-                break;
-            case ERROR_TLS_1_2_NOT_SUPPORTED:
-                break;
-            case ERROR_UNKNOWN_IO_EXCEPTION:
-                break;
-            case ERROR_NO_ACCESS:
-                break;
-            case ERROR_INVALID_SESSION_TOKEN:
-                break;
-            case ERROR_NO_CONNECTION:
-                break;
-            case ERROR_WRONG_SRP_CREDENTIALS:
-                break;
+            default -> {
+                return new NoErrorBackendResponse();
+            }
         }
     }
 }

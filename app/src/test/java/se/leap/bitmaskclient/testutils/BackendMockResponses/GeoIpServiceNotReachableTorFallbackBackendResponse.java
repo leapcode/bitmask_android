@@ -16,74 +16,61 @@
  */
 package se.leap.bitmaskclient.testutils.BackendMockResponses;
 
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
+
+import android.util.Pair;
+
+import androidx.annotation.NonNull;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.List;
 
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
+import okhttp3.OkHttpClient;
+import se.leap.bitmaskclient.providersetup.ProviderApiConnector;
 
 /**
  * Created by cyberta on 10.01.18.
  */
 
-public class GeoIpServiceNotReachableTorFallbackBackendResponse extends BaseBackendResponse {
+public class GeoIpServiceNotReachableTorFallbackBackendResponse implements ProviderApiConnector.ProviderApiConnectorInterface {
     public GeoIpServiceNotReachableTorFallbackBackendResponse() throws IOException {
         super();
     }
     int requestAttempt = 0;
 
     @Override
-    public Answer<String> getAnswerForRequestStringFromServer() {
-        return new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                String url = (String) invocation.getArguments()[0];
-
-                if (url.contains("/provider.json")) {
-                    //download provider json
-                    return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"));
-                } else if (url.contains("/ca.crt")) {
-                    //download provider ca cert
-                    return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"));
-                } else if (url.contains("config/eip-service.json")) {
-                    // download provider service json containing gateways, locations and openvpn settings
-                    return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.service.json"));
-                } else if (url.contains(":9001/json")) {
-                    if (requestAttempt == 0) {
-                        // download geoip json, containing a sorted list of gateways
-                        requestAttempt++;
-                        throw new ConnectException("Failed to connect to api.black.riseup.net/198.252.153.107:9001");
-                    } else {
-                        // assumtion: 2. connection attempt has been made with proxy on, which is not allowed
-                        // this branch should never be called otherwise you have found a bug
-                        return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.geoip.json"));
-                    }
-                }
-                return null;
-            }
-        };
+    public boolean delete(OkHttpClient okHttpClient, String deleteUrl) throws RuntimeException, IOException {
+        return true;
     }
 
     @Override
-    public Answer<Boolean> getAnswerForCanConnect() {
-        return new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                return true;
-            }
-        };
+    public boolean canConnect(@NonNull OkHttpClient okHttpClient, String url) throws RuntimeException, IOException {
+        return true;
     }
 
     @Override
-    public Answer<Boolean> getAnswerForDelete() {
-        return new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                return true;
+    public String requestStringFromServer(@NonNull String url, @NonNull String requestMethod, String jsonString, @NonNull List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient) throws RuntimeException, IOException {
+        if (url.contains("/provider.json")) {
+            //download provider json
+            return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"));
+        } else if (url.contains("/ca.crt")) {
+            //download provider ca cert
+            return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"));
+        } else if (url.contains("config/eip-service.json")) {
+            // download provider service json containing gateways, locations and openvpn settings
+            return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.service.json"));
+        } else if (url.contains(":9001/json")) {
+            if (requestAttempt == 0) {
+                // download geoip json, containing a sorted list of gateways
+                requestAttempt++;
+                throw new ConnectException("Failed to connect to api.black.riseup.net/198.252.153.107:9001");
+            } else {
+                // assumtion: 2. connection attempt has been made with proxy on, which is not allowed
+                // this branch should never be called otherwise you have found a bug
+                return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.geoip.json"));
             }
-        };
+        }
+        return null;
     }
-
 }

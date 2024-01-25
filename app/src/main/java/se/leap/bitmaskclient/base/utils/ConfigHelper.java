@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.blinkt.openvpn.core.NativeUtils;
 import okhttp3.internal.publicsuffix.PublicSuffixDatabase;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
@@ -206,5 +207,12 @@ public class ConfigHelper {
             flags |= PendingIntent.FLAG_IMMUTABLE;
         }
         return flags;
+    }
+
+    public static int getTorTimeout() {
+        if (NativeUtils.isUnitTest()) {
+            return 1;
+        }
+        return 180;
     }
 }

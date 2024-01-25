@@ -3,42 +3,39 @@ package se.leap.bitmaskclient.testutils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_CONFIGURED;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_HASHES;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_LAST_SEEN;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_LAST_UPDATED;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.base.utils.FileHelper.createFile;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getEipDefinitionFromPreferences;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getFromPersistedProvider;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getLongFromPersistedProvider;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getStringSetFromPersistedProvider;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
-import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -48,8 +45,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +69,7 @@ import se.leap.bitmaskclient.base.utils.InputStreamHelper;
 import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.utils.RSAHelper;
+import se.leap.bitmaskclient.providersetup.ProviderApiConnector;
 import se.leap.bitmaskclient.providersetup.connectivity.DnsResolver;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider;
@@ -85,235 +81,6 @@ import se.leap.bitmaskclient.tor.TorStatusObservable;
  */
 
 public class MockHelper {
-    @NonNull
-    public static Bundle mockBundle() {
-        final Map<String, Boolean> fakeBooleanBundle = new HashMap<>();
-        final Map<String, String> fakeStringBundle = new HashMap<>();
-        final Map<String, Integer> fakeIntBundle = new HashMap<>();
-        final Map<String, Parcelable> fakeParcelableBundle = new HashMap<>();
-
-        Bundle bundle = mock(Bundle.class);
-
-        //mock String values in Bundle
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                String value = ((String) arguments[1]);
-                fakeStringBundle.put(key, value);
-                return null;
-            }
-        }).when(bundle).putString(anyString(), anyString());
-        when(bundle.getString(anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                return fakeStringBundle.get(key);
-            }
-        });
-
-        //mock Boolean values in Bundle
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                Boolean value = ((boolean) arguments[1]);
-                fakeBooleanBundle.put(key, value);
-                return null;
-            }
-        }).when(bundle).putBoolean(anyString(), anyBoolean());
-        when(bundle.getBoolean(anyString())).thenAnswer(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                return fakeBooleanBundle.get(key);
-            }
-        });
-
-        //mock Integer values in Bundle
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                Integer value = ((int) arguments[1]);
-                fakeIntBundle.put(key, value);
-                return null;
-            }
-        }).when(bundle).putInt(anyString(), anyInt());
-        when(bundle.getInt(anyString())).thenAnswer(new Answer<Integer>() {
-            @Override
-            public Integer answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                return fakeIntBundle.get(key);
-            }
-        });
-
-        //mock Parcelable values in Bundle
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                Parcelable value = ((Parcelable) arguments[1]);
-                fakeParcelableBundle.put(key, value);
-                return null;
-            }
-        }).when(bundle).putParcelable(anyString(), any(Parcelable.class));
-        when(bundle.getParcelable(anyString())).thenAnswer(new Answer<Parcelable>() {
-            @Override
-            public Parcelable answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                return fakeParcelableBundle.get(key);
-            }
-        });
-
-        //mock get
-        when(bundle.get(anyString())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                if (fakeBooleanBundle.containsKey(key)) {
-                    return fakeBooleanBundle.get(key);
-                } else if (fakeIntBundle.containsKey(key)) {
-                    return fakeIntBundle.get(key);
-                } else if (fakeStringBundle.containsKey(key)) {
-                    return fakeStringBundle.get(key);
-                } else {
-                    return fakeParcelableBundle.get(key);
-                }
-            }
-        });
-
-        //mock getKeySet
-       when(bundle.keySet()).thenAnswer(new Answer<Set<String>>() {
-           @Override
-           public Set<String> answer(InvocationOnMock invocation) throws Throwable {
-               //this whole approach as a drawback:
-               //you should not add the same keys for values of different types
-               HashSet<String> keys = new HashSet<String>();
-               keys.addAll(fakeBooleanBundle.keySet());
-               keys.addAll(fakeIntBundle.keySet());
-               keys.addAll(fakeStringBundle.keySet());
-               keys.addAll(fakeParcelableBundle.keySet());
-               return keys;
-           }
-        });
-
-        //mock containsKey
-        when(bundle.containsKey(anyString())).thenAnswer(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                String key = (String) invocation.getArguments()[0];
-                return fakeBooleanBundle.containsKey(key) ||
-                        fakeStringBundle.containsKey(key) ||
-                        fakeIntBundle.containsKey(key) ||
-                        fakeParcelableBundle.containsKey(key);
-            }
-        });
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                String key = (String) invocation.getArguments()[0];
-                fakeBooleanBundle.remove(key);
-                fakeIntBundle.remove(key);
-                fakeParcelableBundle.remove(key);
-                fakeStringBundle.remove(key);
-                return null;
-            }
-        }).when(bundle).remove(anyString());
-
-        return bundle;
-    }
-
-    public static Intent mockIntent() {
-        Intent intent = mock(Intent.class);
-        final String[] action = new String[1];
-        final Map<String, Object> fakeExtras = new HashMap<>();
-        final List<String> categories = new ArrayList<>();
-
-
-        //mock Action in intent
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                action[0] = ((String) arguments[0]);
-                return null;
-            }
-        }).when(intent).setAction(anyString());
-        when(intent.getAction()).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return action[0];
-            }
-        });
-
-        //mock Bundle in intent extras
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                Bundle value = ((Bundle) arguments[1]);
-                fakeExtras.put(key, value);
-                return null;
-            }
-        }).when(intent).putExtra(anyString(), any(Bundle.class));
-        when(intent.getBundleExtra(anyString())).thenAnswer(new Answer<Bundle>() {
-            @Override
-            public Bundle answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                return (Bundle) fakeExtras.get(key);
-            }
-        });
-
-        //mock Parcelable in intent extras
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                Parcelable value = ((Parcelable) arguments[1]);
-                fakeExtras.put(key, value);
-                return null;
-            }
-        }).when(intent).putExtra(anyString(), any(Parcelable.class));
-        when(intent.getParcelableExtra(anyString())).thenAnswer(new Answer<Parcelable>() {
-            @Override
-            public Parcelable answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                String key = ((String) arguments[0]);
-                return (Parcelable) fakeExtras.get(key);
-            }
-        });
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                categories.add(((String) arguments[0]));
-                return null;
-            }
-        }).when(intent).addCategory(anyString());
-
-        when(intent.getCategories()).thenAnswer(new Answer<Set<String>>() {
-            @Override
-            public Set<String> answer(InvocationOnMock invocation) throws Throwable {
-                return new HashSet<>(categories);
-            }
-        });
-
-        return intent;
-    }
 
     public static ResultReceiver mockResultReceiver(final int expectedResultCode) {
         ResultReceiver resultReceiver = mock(ResultReceiver.class);
@@ -403,43 +170,42 @@ public class MockHelper {
         return new FileHelper(new MockFileHelper(mockedFile));
     }
 
-    public static void mockBase64() {
-        mockStatic(android.util.Base64.class);
-        when(android.util.Base64.encodeToString(any(), anyInt())).thenAnswer(invocation -> Arrays.toString(Base64.getEncoder().encode((byte[]) invocation.getArguments()[0])));
-    }
-
     public static RSAHelper mockRSAHelper() {
         return new RSAHelper(rsaKeyString -> new RSAPrivateKey() {
-             @Override
-             public BigInteger getPrivateExponent() {
-                 return BigInteger.TEN;
-             }
+            @Override
+            public BigInteger getPrivateExponent() {
+                return BigInteger.TEN;
+            }
 
-             @Override
-             public String getAlgorithm() {
-                 return "RSA";
-             }
+            @Override
+            public String getAlgorithm() {
+                return "RSA";
+            }
 
-             @Override
-             public String getFormat() {
-                 return null;
-             }
+            @Override
+            public String getFormat() {
+                return null;
+            }
 
-             @Override
-             public byte[] getEncoded() {
-                 return new byte[0];
-             }
+            @Override
+            public byte[] getEncoded() {
+                return new byte[0];
+            }
 
-             @Override
-             public BigInteger getModulus() {
-                 return BigInteger.ONE;
-             }
-         });
+            @Override
+            public BigInteger getModulus() {
+                return BigInteger.ONE;
+            }
+        });
 
     }
 
-    public static ObfsVpnHelper mockObfsVpnHelper(boolean useObfsvpn) {
-        return new ObfsVpnHelper(new ObfsVpnHelper.ObfsVpnHelperInterface() {
+    public static BuildConfigHelper mockBuildConfigHelper(boolean useObfsvpn) {
+        return mockBuildConfigHelper(useObfsvpn, true);
+    }
+
+    public static BuildConfigHelper mockBuildConfigHelper(boolean useObfsvpn, boolean isDefaultBitmask) {
+        return new BuildConfigHelper(new BuildConfigHelper.BuildConfigHelperInterface() {
             @Override
             public boolean useObfsVpn() {
                 return useObfsvpn;
@@ -469,6 +235,11 @@ public class MockHelper {
             public boolean useKcp() {
                 return false;
             }
+
+            @Override
+            public boolean isDefaultBitmask() {
+                return isDefaultBitmask;
+            }
         });
     }
 
@@ -476,87 +247,61 @@ public class MockHelper {
         return new CertificateHelper((certificate, encoding) -> mockedFingerprint);
     }
 
-    public static void mockPreferenceHelper(final Provider providerFromPrefs) {
-        // FIXME use MockSharedPreferences instead of provider
-        mockStatic(PreferenceHelper.class);
-        when(getFromPersistedProvider(anyString(), anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                String key = (String) invocation.getArguments()[0];
-                switch (key) {
-                    case PROVIDER_PRIVATE_KEY:
-                        return providerFromPrefs.getPrivateKey();
-                    case PROVIDER_VPN_CERTIFICATE:
-                        return providerFromPrefs.getVpnCertificate();
-                    case Provider.KEY:
-                        return providerFromPrefs.getDefinition().toString();
-                    case Provider.CA_CERT_FINGERPRINT:
-                        return providerFromPrefs.getCaCertFingerprint();
-                    case Provider.CA_CERT:
-                        return providerFromPrefs.getCaCert();
-                    case Provider.GEOIP_URL:
-                        return providerFromPrefs.getGeoipUrl().toString();
-                    case Provider.MOTD_URL:
-                        return providerFromPrefs.getMotdUrl().toString();
-                    case PROVIDER_MOTD:
-                        return providerFromPrefs.getMotdJsonString();
+    public static PreferenceHelper mockPreferenceHelper(final Provider providerFromPrefs, SharedPreferences sharedPreferences) {
+        PreferenceHelper preferenceHelper = new PreferenceHelper(sharedPreferences);
 
-                }
-                return null;
-            }
-        });
-        when(getLongFromPersistedProvider(anyString(), anyString())).thenAnswer(new Answer<Long>() {
-            @Override
-            public Long answer(InvocationOnMock invocation) throws Throwable {
-                String key = (String) invocation.getArguments()[0];
-                switch (key) {
-                    case PROVIDER_MOTD_LAST_SEEN:
-                        return providerFromPrefs.getLastMotdSeen();
-                    case PROVIDER_MOTD_LAST_UPDATED:
-                        return providerFromPrefs.getLastMotdUpdate();
-                }
-                return 0L;
-            }
-        });
-        when(getStringSetFromPersistedProvider(anyString(), anyString())).thenAnswer(new Answer<Set<String>>() {
-            @Override
-            public Set<String> answer(InvocationOnMock invocation) throws Throwable {
-                String key = (String) invocation.getArguments()[0];
-                switch (key) {
-                    case PROVIDER_MOTD_HASHES:
-                        return providerFromPrefs.getMotdLastSeenHashes();
-                }
-                return null;
-            }
-        });
-        when(PreferenceHelper.hasKey(anyString())).then(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                String key = (String) invocation.getArguments()[0];
-                if (key!= null && key.contains(providerFromPrefs.getDomain()) && !providerFromPrefs.getDomain().isEmpty()) {
-                    key = key.substring(0, key.indexOf(providerFromPrefs.getDomain()) - 1 /* -1 -> "." at the end */);
-                }
-                switch (key) {
-                    case PROVIDER_PRIVATE_KEY:
-                        return providerFromPrefs.getPrivateKey() != null;
-                    case PROVIDER_VPN_CERTIFICATE:
-                        return providerFromPrefs.getVpnCertificate() != null;
-                    case Provider.KEY:
-                        return providerFromPrefs.getDefinition().keys().hasNext();
-                    case Provider.CA_CERT_FINGERPRINT:
-                        return providerFromPrefs.getCaCertFingerprint().length() > 1;
-                    case Provider.CA_CERT:
-                        return providerFromPrefs.getCaCert() != null;
-                    case Provider.GEOIP_URL:
-                        return !providerFromPrefs.getGeoipUrl().isDefault();
-                    case Provider.MOTD_URL:
-                        return !providerFromPrefs.getMotdUrl().isDefault();
-                    case PROVIDER_MOTD:
-                        return providerFromPrefs.getMotdJson().keys().hasNext();
-                }
-                return false;
-            }
-        });
+        sharedPreferences.edit().
+                putString(PROVIDER_PRIVATE_KEY, providerFromPrefs.getPrivateKey()).
+                putString(PROVIDER_VPN_CERTIFICATE, providerFromPrefs.getVpnCertificate()).
+                putString(Provider.KEY, providerFromPrefs.getDefinitionString()).
+                putString(Provider.CA_CERT_FINGERPRINT, providerFromPrefs.getCaCertFingerprint()).
+                putString(Provider.GEOIP_URL, providerFromPrefs.getGeoipUrl().toString()).
+                putString(Provider.MOTD_URL, providerFromPrefs.getMotdUrl().toString()).
+                putString(PROVIDER_MOTD, providerFromPrefs.getMotdJsonString()).
+                putLong(PROVIDER_MOTD_LAST_SEEN, providerFromPrefs.getLastMotdSeen()).
+                putLong(PROVIDER_MOTD_LAST_UPDATED, providerFromPrefs.getLastMotdUpdate()).
+                putStringSet(PROVIDER_MOTD_HASHES, providerFromPrefs.getMotdLastSeenHashes()).
+                commit();
+
+        return preferenceHelper;
+    }
+
+    public static PreferenceHelper mockPreferenceHelper(final Provider provider) {
+        SharedPreferences sharedPreferences = new MockSharedPreferences();
+        PreferenceHelper preferenceHelper = new PreferenceHelper(sharedPreferences);
+
+        sharedPreferences.edit().
+                putString(PROVIDER_PRIVATE_KEY, provider.getPrivateKey()).
+                putString(PROVIDER_VPN_CERTIFICATE, provider.getVpnCertificate()).
+                putString(Provider.KEY, provider.getDefinitionString()).
+                putString(Provider.CA_CERT_FINGERPRINT, provider.getCaCertFingerprint()).
+                putString(Provider.GEOIP_URL, provider.getGeoipUrl().toString()).
+                putString(Provider.MOTD_URL, provider.getMotdUrl().toString()).
+                putString(PROVIDER_MOTD, provider.getMotdJsonString()).
+                putLong(PROVIDER_MOTD_LAST_SEEN, provider.getLastMotdSeen()).
+                putLong(PROVIDER_MOTD_LAST_UPDATED, provider.getLastMotdUpdate()).
+                putStringSet(PROVIDER_MOTD_HASHES, provider.getMotdLastSeenHashes()).
+                commit();
+
+        if (!provider.getDomain().isBlank()) {
+            String providerDomain = provider.getDomain();
+            sharedPreferences.edit().
+                    putString(Provider.PROVIDER_IP + "." + providerDomain, provider.getProviderIp()).
+                    putString(Provider.PROVIDER_API_IP + "." + providerDomain, provider.getProviderApiIp()).
+                    putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString()).
+                    putString(Provider.GEOIP_URL + "." + providerDomain, provider.getGeoipUrl().toString()).
+                    putString(Provider.MOTD_URL + "." + providerDomain, provider.getMotdUrl().toString()).
+                    putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
+                    putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
+                    putString(PROVIDER_EIP_DEFINITION + "." + providerDomain, provider.getEipServiceJsonString()).
+                    putString(PROVIDER_MOTD + "." + providerDomain, provider.getMotdJsonString()).
+                    putStringSet(PROVIDER_MOTD_HASHES + "." + providerDomain, provider.getMotdLastSeenHashes()).
+                    putLong(PROVIDER_MOTD_LAST_SEEN + "." + providerDomain, provider.getLastMotdSeen()).
+                    putLong(PROVIDER_MOTD_LAST_UPDATED + "." + providerDomain, provider.getLastMotdUpdate()).
+                    commit();
+        }
+
+        return preferenceHelper;
     }
 
     public static void mockPreferenceHelper(MockSharedPreferences preferences) {
@@ -571,53 +316,14 @@ public class MockHelper {
         });
     }
 
-    public static void mockTorStatusObservable(@Nullable Throwable exception) throws TimeoutException, InterruptedException {
-        TorStatusObservable observable = TorStatusObservable.getInstance();
-        mockStatic(TorStatusObservable.class);
-        when(TorStatusObservable.getInstance()).thenAnswer((Answer<TorStatusObservable>) invocation -> observable);
-
-        when(TorStatusObservable.getBootstrapProgress()).thenReturn(0);
-        when(TorStatusObservable.getLastLogs()).thenReturn(new Vector<>());
-        when(TorStatusObservable.getLastTorLog()).thenReturn("");
-        when(TorStatusObservable.getLastSnowflakeLog()).thenReturn("");
-        AtomicBoolean waitUntilSuccess = new AtomicBoolean(false);
-        when(TorStatusObservable.getProxyPort()).thenAnswer((Answer<Integer>) invocation -> {
-            if (waitUntilSuccess.get()) {
-                return 8118;
-            }
-            return -1;
-        });
-        when(TorStatusObservable.getStatus()).thenAnswer((Answer<TorStatusObservable.TorStatus>) invocation -> {
-            if (waitUntilSuccess.get()) {
-                return TorStatusObservable.TorStatus.ON;
-            }
-            return TorStatusObservable.TorStatus.OFF;
-        });
-        when(TorStatusObservable.getSnowflakeStatus()).thenAnswer((Answer<TorStatusObservable.SnowflakeStatus>) invocation -> {
-            if (waitUntilSuccess.get()) {
-                return TorStatusObservable.SnowflakeStatus.STARTED;
-            }
-            return TorStatusObservable.SnowflakeStatus.STOPPED;
-        });
-
-        if (exception != null) {
-            when(TorStatusObservable.waitUntil(any(TorStatusObservable.StatusCondition.class), anyInt())).thenThrow(exception);
-        } else {
-            when(TorStatusObservable.waitUntil(any(TorStatusObservable.StatusCondition.class), anyInt())).thenAnswer((Answer<Boolean>) invocation -> {
-                waitUntilSuccess.set(true);
-                return true;
-            });
-        }
-    }
-
     public static ProviderObservable mockProviderObservable(Provider provider) {
         ProviderObservable observable = ProviderObservable.getInstance();
         observable.updateProvider(provider);
         return observable;
     }
 
-    public static void mockProviderApiConnector(final BackendMockProvider.TestBackendErrorCase errorCase) throws IOException {
-        BackendMockProvider.provideBackendResponsesFor(errorCase);
+    public static ProviderApiConnector mockProviderApiConnector(final BackendMockProvider.TestBackendErrorCase errorCase) throws IOException {
+        return new ProviderApiConnector(BackendMockProvider.provideBackendResponsesFor(errorCase));
     }
 
     public static OkHttpClientGenerator mockClientGenerator(boolean resolveDNS) throws UnknownHostException {
@@ -643,15 +349,15 @@ public class MockHelper {
         JSONObject errorMessages = new JSONObject(TestSetupHelper.getInputAsString(inputStream));
 
 
-        when(mockedResources.getString(eq(R.string.warning_corrupted_provider_details), anyString())).
+        when(mockedResources.getString(Mockito.eq(R.string.warning_corrupted_provider_details), anyString())).
                 thenReturn(String.format(errorMessages.getString("warning_corrupted_provider_details"), "Bitmask"));
         when(mockedResources.getString(R.string.server_unreachable_message)).
                 thenReturn(errorMessages.getString("server_unreachable_message"));
         when(mockedResources.getString(R.string.error_security_pinnedcertificate)).
                 thenReturn(errorMessages.getString("error.security.pinnedcertificate"));
-        when(mockedResources.getString(eq(R.string.malformed_url), anyString())).
+        when(mockedResources.getString(Mockito.eq(R.string.malformed_url), anyString())).
                 thenReturn(String.format(errorMessages.getString("malformed_url"), "Bitmask"));
-        when(mockedResources.getString(eq(R.string.certificate_error), anyString())).
+        when(mockedResources.getString(Mockito.eq(R.string.certificate_error), anyString())).
                 thenReturn(String.format(errorMessages.getString("certificate_error"), "Bitmask"));
         when(mockedResources.getString(R.string.error_srp_math_error_user_message)).
                 thenReturn(errorMessages.getString("error_srp_math_error_user_message"));
@@ -667,21 +373,21 @@ public class MockHelper {
                 thenReturn(errorMessages.getString("error_json_exception_user_message"));
         when(mockedResources.getString(R.string.error_no_such_algorithm_exception_user_message)).
                 thenReturn(errorMessages.getString("error_no_such_algorithm_exception_user_message"));
-        when(mockedResources.getString(eq(R.string.warning_corrupted_provider_details), anyString())).
+        when(mockedResources.getString(Mockito.eq(R.string.warning_corrupted_provider_details), anyString())).
                 thenReturn(String.format(errorMessages.getString("warning_corrupted_provider_details"), "Bitmask"));
-        when(mockedResources.getString(eq(R.string.warning_corrupted_provider_cert), anyString())).
+        when(mockedResources.getString(Mockito.eq(R.string.warning_corrupted_provider_cert), anyString())).
                 thenReturn(String.format(errorMessages.getString("warning_corrupted_provider_cert"), "Bitmask"));
-        when(mockedResources.getString(eq(R.string.warning_expired_provider_cert), anyString())).
+        when(mockedResources.getString(Mockito.eq(R.string.warning_expired_provider_cert), anyString())).
                 thenReturn(String.format(errorMessages.getString("warning_expired_provider_cert"), "Bitmask"));
-        when(mockedResources.getString(eq(R.string.setup_error_text), anyString())).
+        when(mockedResources.getString(Mockito.eq(R.string.setup_error_text), anyString())).
                 thenReturn(String.format(errorMessages.getString("setup_error_text"), "Bitmask"));
-        when(mockedResources.getString(eq(R.string.setup_error_text_custom), anyString())).
+        when(mockedResources.getString(Mockito.eq(R.string.setup_error_text_custom), anyString())).
                 thenReturn(String.format(errorMessages.getString("setup_error_text_custom"), "RiseupVPN"));
         when(mockedResources.getString(R.string.app_name)).
                 thenReturn("Bitmask");
-        when(mockedResources.getString(eq(R.string.error_tor_timeout), anyString())).
+        when(mockedResources.getString(Mockito.eq(R.string.error_tor_timeout), anyString())).
                 thenReturn(String.format(errorMessages.getString("error_tor_timeout"), "Bitmask"));
-        when(mockedResources.getString(eq(R.string.error_network_connection), anyString())).
+        when(mockedResources.getString(Mockito.eq(R.string.error_network_connection), anyString())).
                 thenReturn(String.format(errorMessages.getString("error_network_connection"), "Bitmask"));
         return mockedResources;
     }

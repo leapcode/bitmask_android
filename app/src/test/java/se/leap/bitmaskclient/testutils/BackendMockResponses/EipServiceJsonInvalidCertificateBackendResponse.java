@@ -16,16 +16,16 @@
  */
 package se.leap.bitmaskclient.testutils.BackendMockResponses;
 
+import java.io.IOException;
+import java.util.List;
+
+import javax.net.ssl.SSLHandshakeException;
+
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
 
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
-
-import java.io.IOException;
-import java.util.List;
-
-import javax.net.ssl.SSLHandshakeException;
 
 import okhttp3.OkHttpClient;
 import se.leap.bitmaskclient.providersetup.ProviderApiConnector;
@@ -34,45 +34,33 @@ import se.leap.bitmaskclient.providersetup.ProviderApiConnector;
  * Created by cyberta on 10.01.18.
  */
 
-public class UpdatedCertificateBackendResponse implements ProviderApiConnector.ProviderApiConnectorInterface {
-    static volatile boolean wasCACertCalled = false;
+public class EipServiceJsonInvalidCertificateBackendResponse implements ProviderApiConnector.ProviderApiConnectorInterface {
 
     @Override
-    public boolean delete(OkHttpClient okHttpClient, String deleteUrl) throws RuntimeException, IOException {
-        if (!wasCACertCalled) {
-            throw new SSLHandshakeException("Updated certificate on server side");
-        }
+    public boolean delete(OkHttpClient okHttpClient, String deleteUrl) {
         return true;
     }
 
     @Override
     public boolean canConnect(@NonNull OkHttpClient okHttpClient, String url) throws RuntimeException, IOException {
-        if (!wasCACertCalled) {
-            throw new SSLHandshakeException("Updated certificate on server side");
-        }
         return true;
     }
 
     @Override
     public String requestStringFromServer(@NonNull String url, @NonNull String requestMethod, String jsonString, @NonNull List<Pair<String, String>> headerArgs, @NonNull OkHttpClient okHttpClient) throws RuntimeException, IOException {
         if (url.contains("/provider.json")) {
-            if (!wasCACertCalled) {
-                throw new SSLHandshakeException("Updated certificate on server side");
-            }
             //download provider json
             return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.json"));
         } else if (url.contains("/ca.crt")) {
             //download provider ca cert
-            wasCACertCalled = true;
-            return getInputAsString(getClass().getClassLoader().getResourceAsStream("updated_cert.pem"));
+            return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"));
         } else if (url.contains("config/eip-service.json")) {
             // download provider service json containing gateways, locations and openvpn settings
-            if (!wasCACertCalled) {
-                throw new SSLHandshakeException("Updated certificate on server side");
-            }
-            return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.service.json"));
+            throw new SSLHandshakeException("Invalid provider CA certificate");
+        } else if (url.contains(":9001/json")) {
+            // download geoip json, containing a sorted list of gateways
+            return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.geoip.json"));
         }
-
         return null;
     }
 }
