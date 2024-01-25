@@ -9,7 +9,7 @@ import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
+import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.useObfsVpn;
 
 import android.Manifest.permission;
 import android.app.Notification;

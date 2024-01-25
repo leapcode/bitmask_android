@@ -1,6 +1,6 @@
 package de.blinkt.openvpn.core.connection;
 
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
+import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.useObfsVpn;
 import static se.leap.bitmaskclient.pluggableTransports.ShapeshifterClient.DISPATCHER_IP;
 import static se.leap.bitmaskclient.pluggableTransports.ShapeshifterClient.DISPATCHER_PORT;
 

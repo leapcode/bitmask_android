@@ -44,6 +44,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Observable;
@@ -64,7 +66,7 @@ interface LocationListSelectionListener {
     void onLocationManuallySelected(Location location);
 }
 
-public class GatewaySelectionFragment extends Fragment implements Observer, LocationListSelectionListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class GatewaySelectionFragment extends Fragment implements PropertyChangeListener, LocationListSelectionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = GatewaySelectionFragment.class.getSimpleName();
 
@@ -197,9 +199,9 @@ public class GatewaySelectionFragment extends Fragment implements Observer, Loca
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        if (o instanceof EipStatus) {
-            eipStatus = (EipStatus) o;
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (EipStatus.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
+            eipStatus = (EipStatus) evt.getNewValue();
             Activity activity = getActivity();
             if (activity != null) {
                 activity.runOnUiThread(this::updateRecommendedLocation);

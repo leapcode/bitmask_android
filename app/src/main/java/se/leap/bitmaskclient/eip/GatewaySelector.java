@@ -1,5 +1,8 @@
 package se.leap.bitmaskclient.eip;
 
+import static se.leap.bitmaskclient.base.utils.TimezoneHelper.timezoneDistance;
+import static se.leap.bitmaskclient.base.utils.TimezoneHelper.getCurrentTimezone;
+
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -9,9 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.getCurrentTimezone;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.timezoneDistance;
 
 public class GatewaySelector {
     private final static String TAG = GatewaySelector.class.getSimpleName();

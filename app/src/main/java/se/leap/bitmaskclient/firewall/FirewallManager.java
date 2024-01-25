@@ -21,16 +21,16 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.tethering.TetheringObservable;
 import se.leap.bitmaskclient.tethering.TetheringState;
-import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
-public class FirewallManager implements FirewallCallback, Observer {
+public class FirewallManager implements FirewallCallback, PropertyChangeListener {
     public static String BITMASK_CHAIN = "bitmask_fw";
     public static String BITMASK_FORWARD = "bitmask_forward";
     public static String BITMASK_POSTROUTING = "bitmask_postrouting";
@@ -150,9 +150,9 @@ public class FirewallManager implements FirewallCallback, Observer {
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        if (o instanceof TetheringObservable) {
-            TetheringObservable observable = (TetheringObservable) o;
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (TetheringObservable.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
+            TetheringObservable observable = (TetheringObservable) evt.getNewValue();
             TetheringState state = observable.getTetheringState();
             if (state.hasAnyVpnTetheringAllowed() && state.hasAnyDeviceTetheringEnabled()) {
                 startTethering();

@@ -1,4 +1,4 @@
-FROM registry.0xacab.org/leap/bitmask_android/android-sdk:latest
+FROM registry.0xacab.org/leap/bitmask_android/android-ndk:latest
 
 MAINTAINER LEAP Encryption Access Project <info@leap.se>
 LABEL Description="Android emulator image based on android-sdk" Vendor="LEAP" Version="4"

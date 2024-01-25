@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 
-import se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper;
+import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.IconSwitchEntry;
 import se.leap.bitmaskclient.databinding.DObfuscationProxyBinding;
@@ -68,12 +68,12 @@ public class ObfuscationProxyDialog extends AppCompatDialogFragment {
             dismiss();
         });
 
-        useDefaultsButton.setVisibility(ObfsVpnHelper.hasObfuscationPinningDefaults() ? VISIBLE : GONE);
+        useDefaultsButton.setVisibility(BuildConfigHelper.hasObfuscationPinningDefaults() ? VISIBLE : GONE);
         useDefaultsButton.setOnClickListener(v -> {
-           ipField.setText(ObfsVpnHelper.obfsvpnIP());
-           portField.setText(ObfsVpnHelper.obfsvpnPort());
-           certificateField.setText(ObfsVpnHelper.obfsvpnCert());
-           kcpSwitch.setChecked(ObfsVpnHelper.useKcp());
+           ipField.setText(BuildConfigHelper.obfsvpnIP());
+           portField.setText(BuildConfigHelper.obfsvpnPort());
+           certificateField.setText(BuildConfigHelper.obfsvpnCert());
+           kcpSwitch.setChecked(BuildConfigHelper.useKcp());
         });
 
         cancelButton.setOnClickListener(v -> {

@@ -1,0 +1,15 @@
+1.2.0
+features:
+* updated openvpn, openssl, tor, snowflake
+* encrypted storage
+* new provider setup UI
+* Support for Android 13
+* enforce TLS 1.3 on all Android versions
+* Dns over Https (DoH) during provider setup
+
+bugfixes:
+* fixed possible on-device DoS vulnerability, leading to app crashes
+* fixed task hijacking vulnerability (aka. strandhogg)
+* fixed memory leaks
+* fixed blocking vpn service stopping and notifications disappearing correctly
+* disable location selection button if provider only supports 1 location

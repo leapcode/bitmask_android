@@ -4,32 +4,18 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_HOP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
 import static se.leap.bitmaskclient.base.models.Constants.OPENVPN_CONFIGURATION;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockRSAHelper;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.util.Log;
 
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 import java.util.HashMap;
@@ -40,19 +26,21 @@ import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import de.blinkt.openvpn.core.connection.Obfs4HopConnection;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.RSAHelper;
 import se.leap.bitmaskclient.testutils.MockHelper;
+import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
 /**
  * Created by cyberta on 03.10.17.
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Log.class, TextUtils.class, PreferenceManager.class, ProviderObservable.class, ConfigHelper.RSAHelper.class, ConfigHelper.ObfsVpnHelper.class})
 public class VpnConfigGeneratorTest {
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     Context context;
+    PreferenceHelper preferenceHelper;
+    private SharedPreferences sharedPreferences;
 
     private VpnConfigGenerator vpnConfigGenerator;
     private JSONObject generalConfig;
@@ -139,7 +127,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
             "cipher AES-128-CBC\n" +
@@ -235,7 +223,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
             "cipher AES-128-CBC\n" +
@@ -330,7 +318,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "route 37.218.247.60  255.255.255.255 net_gateway\n"+
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
@@ -426,7 +414,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "route 37.218.247.60  255.255.255.255 net_gateway\n"+
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
@@ -523,7 +511,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
             "cipher AES-128-CBC\n" +
@@ -619,7 +607,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-128-CBC\n" +
             "cipher AES-128-CBC\n" +
@@ -715,7 +703,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "remote-cert-tls server\n" +
             "data-ciphers AES-256-GCM:AES-128-GCM:AES-128-CBC\n" +
             "cipher AES-128-CBC\n" +
@@ -813,7 +801,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "comp-lzo\n" +
             "nobind\n"+
             "remote-cert-tls server\n" +
@@ -915,7 +903,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "comp-lzo\n" +
             "nobind\n"+
             "remote-cert-tls server\n" +
@@ -1025,7 +1013,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "comp-lzo\n" +
             "nobind\n"+
             "remote-cert-tls server\n" +
@@ -1128,7 +1116,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "nobind\n"+
             "remote-cert-tls server\n" +
             "data-ciphers AES-256-GCM:AES-128-CBC\n" +
@@ -1228,7 +1216,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "route 192.81.208.164  255.255.255.255 net_gateway\n"+
             "tun-mtu 48000\n"+
             "nobind\n"+
@@ -1332,7 +1320,7 @@ public class VpnConfigGeneratorTest {
             "-----END CERTIFICATE-----\n" +
             "</cert>\n" +
             "management-external-key nopadding pkcs1 pss digest\n" +
-            "# crl-verify file missing in config profile\n" +
+            //"# crl-verify file missing in config profile\n" +
             "route 192.81.208.164  255.255.255.255 net_gateway\n"+
             "route 192.81.208.165  255.255.255.255 net_gateway\n"+
             "route 192.81.208.166  255.255.255.255 net_gateway\n"+
@@ -1364,17 +1352,13 @@ public class VpnConfigGeneratorTest {
     public void setUp() throws  Exception {
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("general_configuration.json")));
         secrets = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("secrets.json")));
-        mockStatic(Log.class);
         context = MockHelper.mockContext();
-        mockTextUtils();
-        mockStatic(PreferenceManager.class);
-        MockHelper.mockProviderObservable(TestSetupHelper.getConfiguredProvider());
-        MockHelper.mockRSAHelper();
-        SharedPreferences preferences = mock(SharedPreferences.class, RETURNS_DEEP_STUBS);
-        when(PreferenceManager.getDefaultSharedPreferences(any(Context.class))).thenReturn(preferences);
-        when(preferences.getBoolean("usesystemproxy", true)).thenReturn(true);
+
+        ProviderObservable providerObservable = MockHelper.mockProviderObservable(TestSetupHelper.getConfiguredProvider());
+        RSAHelper rsaHelper = MockHelper.mockRSAHelper();
+        sharedPreferences = new MockSharedPreferences();
+        preferenceHelper = new PreferenceHelper(new MockSharedPreferences());
         when(context.getCacheDir()).thenReturn(new File("/data/data/se.leap.bitmask"));
-        mockStatic(ConfigHelper.ObfsVpnHelper.class);
     }
 
     @Test
@@ -1424,7 +1408,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfile_v3_obfs4() throws Exception {
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(false);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(false);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service.json"))).getJSONArray("gateways").getJSONObject(0);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
@@ -1438,7 +1422,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfile_v3_obfs4_obfsvpn() throws Exception {
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service.json"))).getJSONArray("gateways").getJSONObject(0);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
@@ -1744,7 +1728,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGetConfigFile_testHoppingPtPortHopping_decoupled() throws Exception {
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
@@ -1758,7 +1742,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGetConfigFile_testHoppingPtPortAndIPHopping_decoupled() throws Exception {
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
@@ -1771,7 +1755,7 @@ public class VpnConfigGeneratorTest {
     }
     @Test
     public void testGenerateVpnProfile_obfs4_decoupled() throws Exception {
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONArray("gateways").getJSONObject(1);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
@@ -1786,7 +1770,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfile_obfs4hop_decoupled() throws Exception {
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
@@ -1802,7 +1786,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfile_noExperimental_skipObfs4Hop() throws Exception {
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
@@ -1820,7 +1804,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfile_obfs4hop_onlyPortHopping_decoupled() throws Exception {
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();

@@ -59,8 +59,8 @@ import androidx.fragment.app.FragmentTransaction;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
@@ -80,7 +80,7 @@ import se.leap.bitmaskclient.eip.EipSetupListener;
 import se.leap.bitmaskclient.eip.EipSetupObserver;
 import se.leap.bitmaskclient.providersetup.ProviderAPI;
 
-public class MainActivity extends AppCompatActivity implements EipSetupListener, Observer {
+public class MainActivity extends AppCompatActivity implements EipSetupListener, PropertyChangeListener {
 
     public final static String TAG = MainActivity.class.getSimpleName();
 
@@ -354,9 +354,9 @@ public class MainActivity extends AppCompatActivity implements EipSetupListener,
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        if (o instanceof ProviderObservable) {
-            this.provider = ((ProviderObservable) o).getCurrentProvider();
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (ProviderObservable.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
+            this.provider = (Provider) evt.getNewValue();
         }
     }
 

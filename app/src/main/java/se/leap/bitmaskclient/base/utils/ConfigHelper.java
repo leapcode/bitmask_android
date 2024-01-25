@@ -16,8 +16,6 @@
  */
 package se.leap.bitmaskclient.base.utils;
 
-import static se.leap.bitmaskclient.base.models.Constants.DEFAULT_BITMASK;
-
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
@@ -36,22 +34,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.blinkt.openvpn.core.NativeUtils;
 import okhttp3.internal.publicsuffix.PublicSuffixDatabase;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
@@ -69,8 +59,6 @@ public class ConfigHelper {
     final public static String NG_1024 =
             "eeaf0ab9adb38dd69c33f80afa8fc5e86072618775ff3c0b9ea2314c9c256576d674df7496ea81d3383b4813d692c6e0e0d5d8e250b98be48e495c1d6089dad15dc7d7b46154d6b6ce8ef4ad69b15d4982559b297bcf1885c529f566660e57ec68edbc3c05726cc02fd4cbf4976eaa9afd5138fe8376435b9fc61d2fc0eb06e3";
     final public static BigInteger G = new BigInteger("2");
-    final public static Pattern IPv4_PATTERN = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$");
-    final public static Pattern PEM_CERTIFICATE_PATTERN = Pattern.compile("((-----BEGIN CERTIFICATE-----)([A-Za-z0-9+/=\\n]+)(-----END CERTIFICATE-----)+)");
 
     public static boolean checkErroneousDownload(String downloadedString) {
         try {
@@ -109,8 +97,8 @@ public class ConfigHelper {
         CertificateFactory cf;
         try {
             cf = CertificateFactory.getInstance("X.509");
-
-            Matcher matcher = PEM_CERTIFICATE_PATTERN.matcher(certificateString);
+            Pattern pattern = Pattern.compile("((-----BEGIN CERTIFICATE-----)([A-Za-z0-9+/=\\n]+)(-----END CERTIFICATE-----)+)");
+            Matcher matcher = pattern.matcher(certificateString);
             while (matcher.find()) {
                 String certificate = matcher.group(3);
                 if (certificate == null) continue;
@@ -131,65 +119,6 @@ public class ConfigHelper {
         return null;
     }
 
-    public static class RSAHelper {
-        public static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {
-            RSAPrivateKey key;
-            try {
-                KeyFactory kf;
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                    kf = KeyFactory.getInstance("RSA", "BC");
-                } else {
-                    kf = KeyFactory.getInstance("RSA");
-                }
-                rsaKeyString = rsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
-                PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(rsaKeyString));
-                key = (RSAPrivateKey) kf.generatePrivate(keySpec);
-            } catch (InvalidKeySpecException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return null;
-            } catch (NoSuchAlgorithmException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return null;
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-                return null;
-            } catch (NoSuchProviderException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-            return key;
-        }
-    }
-
-    private static String byteArrayToHex(byte[] input) {
-        int readBytes = input.length;
-        StringBuffer hexData = new StringBuffer();
-        int onebyte;
-        for (int i = 0; i < readBytes; i++) {
-            onebyte = ((0x000000ff & input[i]) | 0xffffff00);
-            hexData.append(Integer.toHexString(onebyte).substring(6));
-        }
-        return hexData.toString();
-    }
-
-    /**
-     * Calculates the hexadecimal representation of a sha256/sha1 fingerprint of a certificate
-     *
-     * @param certificate
-     * @param encoding
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws CertificateEncodingException
-     */
-    @NonNull
-    public static String getFingerprintFromCertificate(X509Certificate certificate, String encoding) throws NoSuchAlgorithmException, CertificateEncodingException /*, UnsupportedEncodingException*/ {
-        byte[] byteArray = MessageDigest.getInstance(encoding).digest(certificate.getEncoded());
-        return byteArrayToHex(byteArray);
-    }
-
     public static void ensureNotOnMainThread(@NonNull Context context) throws IllegalStateException{
         Looper looper = Looper.myLooper();
         if (looper != null && looper == context.getMainLooper()) {
@@ -198,25 +127,8 @@ public class ConfigHelper {
         }
     }
 
-    public static boolean isDefaultBitmask() {
-        return BuildConfig.FLAVOR_branding.equals(DEFAULT_BITMASK);
-    }
-
     public static boolean preferAnonymousUsage() {
         return BuildConfig.priotize_anonymous_usage;
-    }
-
-    public static int getCurrentTimezone() {
-        return Calendar.getInstance().get(Calendar.ZONE_OFFSET) / 3600000;
-    }
-
-    public static int timezoneDistance(int local_timezone, int remoteTimezone) {
-        // Distance along the numberline of Prime Meridian centric, assumes UTC-11 through UTC+12
-        int dist = Math.abs(local_timezone - remoteTimezone);
-        // Farther than 12 timezones and it's shorter around the "back"
-        if (dist > 12)
-            dist = 12 - (dist - 12); // Well i'll be. Absolute values make equations do funny things.
-        return dist;
     }
 
     /**
@@ -225,8 +137,8 @@ public class ConfigHelper {
      * @return a value between 0.1 and 1.0
      */
     public static double getConnectionQualityFromTimezoneDistance(int remoteTimezone) {
-        int localTimeZone = ConfigHelper.getCurrentTimezone();
-        int distance = ConfigHelper.timezoneDistance(localTimeZone, remoteTimezone);
+        int localTimeZone = TimezoneHelper.getCurrentTimezone();
+        int distance = TimezoneHelper.timezoneDistance(localTimeZone, remoteTimezone);
         return Math.max(distance / 12.0, 0.1);
     }
 
@@ -274,7 +186,7 @@ public class ConfigHelper {
         if (ipv4 == null) {
             return false;
         }
-        Matcher matcher = IPv4_PATTERN.matcher(ipv4);
+        Matcher matcher = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$").matcher(ipv4);
         return matcher.matches();
     }
 
@@ -287,40 +199,18 @@ public class ConfigHelper {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
     }
 
-    // ObfsVpnHelper class allows us to mock BuildConfig.use_obfsvpn while
-    // not mocking the whole ConfigHelper class
-    public static class ObfsVpnHelper {
-        public static boolean useObfsVpn() {
-            return BuildConfig.use_obfsvpn;
-        }
-
-        public static boolean hasObfuscationPinningDefaults() {
-            return BuildConfig.obfsvpn_ip != null &&
-                    BuildConfig.obfsvpn_port != null &&
-                    BuildConfig.obfsvpn_cert != null &&
-                    !BuildConfig.obfsvpn_ip.isEmpty() &&
-                    !BuildConfig.obfsvpn_port.isEmpty() &&
-                    !BuildConfig.obfsvpn_cert.isEmpty();
-        }
-        public static String obfsvpnIP() {
-            return BuildConfig.obfsvpn_ip;
-        }
-        public static String obfsvpnPort() {
-            return BuildConfig.obfsvpn_port;
-        }
-        public static String obfsvpnCert() {
-            return BuildConfig.obfsvpn_cert;
-        }
-        public static boolean useKcp() {
-            return BuildConfig.obfsvpn_use_kcp;
-        }
-    }
-
     public static int getPendingIntentFlags() {
         int flags = PendingIntent.FLAG_CANCEL_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             flags |= PendingIntent.FLAG_IMMUTABLE;
         }
         return flags;
+    }
+
+    public static int getTorTimeout() {
+        if (NativeUtils.isUnitTest()) {
+            return 1;
+        }
+        return 180;
     }
 }

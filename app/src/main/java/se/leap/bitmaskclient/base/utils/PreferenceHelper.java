@@ -40,6 +40,7 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_OBFUSCATION_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SNOWFLAKE;
+import static se.leap.bitmaskclient.base.models.Constants.USE_SYSTEM_PROXY;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -460,12 +461,16 @@ public class PreferenceHelper {
         return getBoolean(ALLOW_EXPERIMENTAL_TRANSPORTS, false);
     }
 
+    public static boolean useSystemProxy() {
+        return getBoolean(USE_SYSTEM_PROXY, true);
+    }
+
     public static void setUseObfuscationPinning(Boolean pinning) {
         putBoolean(USE_OBFUSCATION_PINNING, pinning);
     }
 
     public static boolean useObfuscationPinning() {
-        return ConfigHelper.ObfsVpnHelper.useObfsVpn() &&
+        return BuildConfigHelper.useObfsVpn() &&
                 getUseBridges() &&
                 getBoolean(USE_OBFUSCATION_PINNING, false) &&
                 !TextUtils.isEmpty(getObfuscationPinningIP()) &&

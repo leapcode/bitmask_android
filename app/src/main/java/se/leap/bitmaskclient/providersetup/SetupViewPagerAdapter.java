@@ -1,6 +1,6 @@
 package se.leap.bitmaskclient.providersetup;
 
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
+import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CIRCUMVENTION_SETUP_FRAGMENT;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CONFIGURE_PROVIDER_FRAGMENT;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.NOTIFICATION_PERMISSON_EDUCATIONAL_FRAGMENT;

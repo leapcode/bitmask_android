@@ -6,8 +6,8 @@ import androidx.test.filters.LargeTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import se.leap.bitmaskclient.base.ProviderSetupTest;
-import se.leap.bitmaskclient.base.BitmaskTest;
+import se.leap.bitmaskclient.BitmaskTest;
+import se.leap.bitmaskclient.ProviderSetupTest;
 
 @LargeTest
 @RunWith(Suite.class)

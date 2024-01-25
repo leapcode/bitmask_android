@@ -77,7 +77,6 @@ screenshot:
   image: "0xacab.org:4567/leap/bitmask_android/android-fastlane:latest"
   stage: test
   when: always
-#  needs: ["docker_image:fastlane"]
   tags:
     - birch
   variables:
@@ -86,20 +85,16 @@ screenshot:
     ANDROID_EMULATOR_USE_SYSTEM_LIBS: 1
     DEBIAN_FRONTEN: "noninteractive"
 # try to re-use the build artifcats from before, lib building is slow
-#  dependencies:
-#    - build
+  dependencies:
+    - build
   script:
-    - ./scripts/prepareForScreenshots.sh
     - ./scripts/installFastlane.sh
-    - ./gradlew testCustomProductionFatReleaseUnitTest testNormalProductionFatReleaseUnitTest
     - ./scripts/startEmulators.sh
     - ./scripts/fastlane.sh
+    - ./scripts/fastlane.sh custom
   artifacts:
     paths:
-      - app
-      - app/build/screenshots
-      - ./source/custom/fastlane/metadata/
-      - build/
+      - src/custom/
       - src/normal/
     when: always
     expire_in: 3 days
@@ -150,6 +145,7 @@ build:
     - ./scripts/build_deps.sh >> build_deps.log 2>&1
     - ./gradlew clean assembleNormalProductionFatDebug -debug >> build.log 2>&1
   artifacts:
+    untracked: true
     paths:
     - app/build/outputs/
     - build_deps.log

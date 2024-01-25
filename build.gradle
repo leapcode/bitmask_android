@@ -25,3 +25,9 @@ allprojects {
     mavenCentral()
   }
 }
+
+subprojects{
+  tasks.withType(Test).configureEach{
+    jvmArgs = jvmArgs + ['--add-opens=java.base/java.lang=ALL-UNNAMED', '--add-exports=java.base/java.lang=ALL-UNNAMED', '--add-reads=java.base/java.lang=ALL-UNNAMED']
+  }
+}

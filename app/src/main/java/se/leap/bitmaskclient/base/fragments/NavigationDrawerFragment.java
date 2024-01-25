@@ -24,7 +24,7 @@ import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
+import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSaveBattery;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.saveBattery;
@@ -53,8 +53,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
@@ -74,7 +74,7 @@ import se.leap.bitmaskclient.tethering.TetheringObservable;
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, Observer {
+public class NavigationDrawerFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, PropertyChangeListener {
 
     /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
@@ -444,8 +444,8 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        if (o instanceof TetheringObservable || o instanceof EipStatus) {
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (EipStatus.PROPERTY_CHANGE.equals(evt.getPropertyName()) || TetheringObservable.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
             try {
                 getActivity().runOnUiThread(() ->
                         enableSaveBatteryEntry(!TetheringObservable.getInstance().getTetheringState().isVpnTetheringRunning()));

@@ -56,8 +56,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
@@ -80,7 +80,7 @@ import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 import se.leap.bitmaskclient.tor.TorServiceCommand;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
-public class EipFragment extends Fragment implements Observer {
+public class EipFragment extends Fragment implements PropertyChangeListener {
 
     public final static String TAG = EipFragment.class.getSimpleName();
 
@@ -375,17 +375,27 @@ public class EipFragment extends Fragment implements Observer {
 
     }
 
-    @Override
-    public void update(Observable observable, Object data) {
-        if (observable instanceof EipStatus) {
-            previousEipLevel = eipStatus.getEipLevel();
-            eipStatus = (EipStatus) observable;
-            handleNewStateOnMain();
 
-        } else if (observable instanceof ProviderObservable) {
-            provider = ((ProviderObservable) observable).getCurrentProvider();
-        } else if (observable instanceof TorStatusObservable && EipStatus.getInstance().isUpdatingVpnCert()) {
-            handleNewStateOnMain();
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        switch (evt.getPropertyName()) {
+            case ProviderObservable.PROPERTY_CHANGE: {
+                provider = ((Provider) evt.getNewValue());
+                break;
+            }
+            case TorStatusObservable.PROPERTY_CHANGE: {
+                if (EipStatus.getInstance().isUpdatingVpnCert()) {
+                    handleNewStateOnMain();
+                }
+                break;
+            }
+            case EipStatus.PROPERTY_CHANGE: {
+                previousEipLevel = eipStatus.getEipLevel();
+                eipStatus = (EipStatus) evt.getNewValue();
+                handleNewStateOnMain();
+                break;
+            }
+            default: {}
         }
     }
 

@@ -1,8 +1,10 @@
 package se.leap.bitmaskclient.eip;
 
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.util.Log;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -14,35 +16,22 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 import de.blinkt.openvpn.core.ConfigParser;
 import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.TimezoneHelper;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockTextUtils;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
 
 /**
  * Created by cyberta on 18.12.18.
  */
-@RunWith(PowerMockRunner.class)
-@PowerMockRunnerDelegate(DataProviderRunner.class)
-@PrepareForTest({ConfigHelper.class, TextUtils.class})
+@RunWith(DataProviderRunner.class)
 public class GatewaySelectorTest {
     public static final String TAG = GatewaySelectorTest.class.getSimpleName();
 
@@ -72,23 +61,26 @@ public class GatewaySelectorTest {
 
 
     PreferenceHelper preferenceHelper;
-    GatewaySelector gatewaySelector;
     JSONObject eipDefinition;
-    ArrayList<Gateway> gatewayList = new ArrayList<>();
-
     @Before
-    public void setup() throws IOException, JSONException, ConfigParser.ConfigParseError {
-        mockStatic(ConfigHelper.class);
-        when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
-        mockTextUtils();
+    public void setup() throws IOException, JSONException {
         preferenceHelper = new PreferenceHelper(new MockSharedPreferences());
         eipDefinition = new JSONObject(getInputAsString(getClass().getClassLoader().getResourceAsStream("eip-service-four-gateways.json")));
-        JSONArray gateways = eipDefinition.getJSONArray("gateways");
-        for (int i = 0; i < gateways.length(); i++) {
-            JSONObject gw = gateways.getJSONObject(i);
-            JSONObject secrets = secretsConfiguration();
-            Gateway aux = new Gateway(eipDefinition, secrets, gw, null);
-            gatewayList.add(aux);
+    }
+
+    private List<Gateway> getGateways() {
+        try {
+            Vector<Gateway> gatewayList = new Vector<>();
+            JSONArray gateways = eipDefinition.getJSONArray("gateways");
+            for (int i = 0; i < gateways.length(); i++) {
+                JSONObject gw = gateways.getJSONObject(i);
+                JSONObject secrets = secretsConfiguration();
+                Gateway aux = new Gateway(eipDefinition, secrets, gw, null);
+                gatewayList.add(aux);
+            }
+            return gatewayList;
+        } catch (JSONException | IOException | ConfigParser.ConfigParseError e) {
+           return new ArrayList<>();
         }
 
     }
@@ -149,24 +141,24 @@ public class GatewaySelectorTest {
     @Test
     @UseDataProvider("dataProviderTimezones")
     public void testSelect(int timezone, String expected) {
-        when(ConfigHelper.getCurrentTimezone()).thenReturn(timezone);
-        gatewaySelector = new GatewaySelector(gatewayList);
+        TimezoneHelper timezoneHelper = new TimezoneHelper(() -> timezone);
+        GatewaySelector gatewaySelector = new GatewaySelector(getGateways());
         assertEquals(expected, gatewaySelector.select().getName());
     }
 
     @Test
     @UseDataProvider("dataProviderSameDistanceTimezones")
     public void testSelectSameTimezoneDistance(int timezone, String expected1, String expected2) {
-        when(ConfigHelper.getCurrentTimezone()).thenReturn(timezone);
-        gatewaySelector = new GatewaySelector(gatewayList);
+        TimezoneHelper timezoneHelper = new TimezoneHelper(() -> timezone);
+        GatewaySelector gatewaySelector = new GatewaySelector(getGateways());
         assertTrue(gatewaySelector.select().getName().equals(expected1) || gatewaySelector.select().getName().equals(expected2));
     }
 
     @Test
     @UseDataProvider("dataProviderSameDistanceTimezones")
     public void testNClostest_SameTimezoneDistance_chooseGatewayWithSameDistance(int timezone, String expected1, String expected2) {
-        when(ConfigHelper.getCurrentTimezone()).thenReturn(timezone);
-        gatewaySelector = new GatewaySelector(gatewayList);
+        TimezoneHelper timezoneHelper = new TimezoneHelper(() -> timezone);
+        GatewaySelector gatewaySelector = new GatewaySelector(getGateways());
         ArrayList<String> gateways = new ArrayList<>();
         gateways.add(gatewaySelector.select(0).getName());
         gateways.add(gatewaySelector.select(1).getName());
@@ -177,8 +169,8 @@ public class GatewaySelectorTest {
 
     @Test
     public void testNClostest_OneTimezonePerSet_choseSecondClosestTimezone() {
-        when(ConfigHelper.getCurrentTimezone()).thenReturn(-4);
-        gatewaySelector = new GatewaySelector(gatewayList);
+        TimezoneHelper timezoneHelper = new TimezoneHelper(() -> -4);
+        GatewaySelector gatewaySelector = new GatewaySelector(getGateways());
 
         assertTrue("Frankfurt".equals(gatewaySelector.select(1).getName()));
     }

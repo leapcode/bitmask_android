@@ -1,56 +1,49 @@
 package se.leap.bitmaskclient.providersetup;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockInputStreamHelper;
+
 import android.content.res.AssetManager;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 
 import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.FileHelper;
 import se.leap.bitmaskclient.base.utils.InputStreamHelper;
-import se.leap.bitmaskclient.providersetup.ProviderManager;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockFileHelper;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockInputStreamHelper;
+import se.leap.bitmaskclient.testutils.MockHelper;
 
 /**
  * Created by cyberta on 20.02.18.
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ConfigHelper.class, FileHelper.class, InputStreamHelper.class})
 public class ProviderManagerTest {
 
-    @Mock
     private AssetManager assetManager;
-    @Mock
     private File file;
     private ProviderManager providerManager;
+    InputStreamHelper inputStreamHelper;
+    FileHelper fileHelper;
+    MockHelper.MockFileHelper mockedFileHelperInterface;
 
     @Before
     public void setup() throws Exception {
-        //mock assetManager methods
-        //--------------------------
+        assetManager = mock(AssetManager.class);
+        file = mock(File.class);
+
         when(assetManager.open(anyString())).thenAnswer(new Answer<InputStream>() {
             @Override
             public InputStream answer(InvocationOnMock invocation) throws Throwable {
@@ -85,11 +78,9 @@ public class ProviderManagerTest {
 
         when(file.getAbsolutePath()).thenReturn("externalDir");
         when(file.getPath()).thenReturn("externalDir");
-        mockFileHelper(file);
-
-        // mock inputStream
-        //-----------------------------------
-        mockInputStreamHelper();
+        mockedFileHelperInterface = new MockHelper.MockFileHelper(file);
+        fileHelper = new FileHelper(mockedFileHelperInterface);
+        inputStreamHelper = mockInputStreamHelper();
 
     }
 
@@ -217,8 +208,7 @@ public class ProviderManagerTest {
         providerManager.add(secondCustomProvider);
         providerManager.saveCustomProvidersToFile();
 
-        verifyStatic(FileHelper.class, times(2));
-        FileHelper.persistFile(any(File.class), anyString());
+        assertEquals("persist was called twice", 2, mockedFileHelperInterface.getPersistFileCounter());
     }
 
 

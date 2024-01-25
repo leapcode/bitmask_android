@@ -30,7 +30,7 @@ import static se.leap.bitmaskclient.base.models.Constants.REMOTE;
 import static se.leap.bitmaskclient.base.models.Constants.TCP;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.UDP;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper.useObfsVpn;
+import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.useObfsVpn;
 import static se.leap.bitmaskclient.pluggableTransports.ShapeshifterClient.DISPATCHER_IP;
 import static se.leap.bitmaskclient.pluggableTransports.ShapeshifterClient.DISPATCHER_PORT;
 

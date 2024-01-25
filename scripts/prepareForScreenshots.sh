@@ -26,4 +26,4 @@ git submodule foreach --recursive git reset --hard HEAD
 git submodule sync --recursive
 git submodule update --init --recursive
 
-BUILD_TOR=false BUILD_OPENVPN_LIBS=false ./scripts/build_deps.sh
+./scripts/build_deps.sh

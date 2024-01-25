@@ -33,6 +33,8 @@ public class MockSharedPreferences implements SharedPreferences {
     HashMap<String, String> mockedStringPrefs = new HashMap<>();
     HashMap<String, Integer> mockedIntPrefs = new HashMap<>();
     HashMap<String, Boolean> mockedBooleanPrefs = new HashMap<>();
+    HashMap<String, Long> mockedLongPrefs = new HashMap<>();
+    HashMap<String, Set<String>> mockedStringSetPrefs = new HashMap<>();
 
     @Override
     public Map<String, ?> getAll() {
@@ -49,7 +51,7 @@ public class MockSharedPreferences implements SharedPreferences {
     @Nullable
     @Override
     public Set<String> getStringSet(String key, @Nullable Set<String> defValues) {
-        return new HashSet<>();
+        return mockedStringSetPrefs.getOrDefault(key, new HashSet<>());
     }
 
     @Override
@@ -60,7 +62,7 @@ public class MockSharedPreferences implements SharedPreferences {
 
     @Override
     public long getLong(String key, long defValue) {
-        return 0;
+        return mockedLongPrefs.getOrDefault(key, defValue);
     }
 
     @Override
@@ -78,7 +80,9 @@ public class MockSharedPreferences implements SharedPreferences {
     public boolean contains(String key) {
         return mockedStringPrefs.containsKey(key) ||
                 mockedBooleanPrefs.containsKey(key) ||
-                mockedIntPrefs.containsKey(key);
+                mockedIntPrefs.containsKey(key) ||
+                mockedStringSetPrefs.containsKey(key) ||
+                mockedLongPrefs.containsKey(key);
     }
 
     @Override
@@ -87,6 +91,8 @@ public class MockSharedPreferences implements SharedPreferences {
             private HashMap<String, String> tempStrings = new HashMap<>(mockedStringPrefs);
             private HashMap<String, Integer> tempIntegers = new HashMap<>(mockedIntPrefs);
             private HashMap<String, Boolean> tempBoolean = new HashMap<>(mockedBooleanPrefs);
+            private HashMap<String, Long> tempLongs = new HashMap<>(mockedLongPrefs);
+            private HashMap<String, Set<String>> tempStringSets = new HashMap<>(mockedStringSetPrefs);
 
             @Override
             public Editor putString(String key, @Nullable String value) {
@@ -96,7 +102,8 @@ public class MockSharedPreferences implements SharedPreferences {
 
             @Override
             public Editor putStringSet(String key, @Nullable Set<String> values) {
-                return null;
+                tempStringSets.put(key, values);
+                return this;
             }
 
             @Override
@@ -107,7 +114,8 @@ public class MockSharedPreferences implements SharedPreferences {
 
             @Override
             public Editor putLong(String key, long value) {
-                return null;
+                tempLongs.put(key, value);
+                return this;
             }
 
             @Override

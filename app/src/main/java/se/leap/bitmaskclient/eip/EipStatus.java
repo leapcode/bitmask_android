@@ -20,10 +20,10 @@ import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_NONETWORK;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 
-import java.util.Observable;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.LogItem;
@@ -34,7 +34,7 @@ import de.blinkt.openvpn.core.VpnStatus;
  * EipStatus changes it's state (EipLevel) when ConnectionStatus gets updated by OpenVpnService or
  * by VoidVpnService.
  */
-public class EipStatus extends Observable implements VpnStatus.StateListener {
+public class EipStatus implements VpnStatus.StateListener {
     public static String TAG = EipStatus.class.getSimpleName();
     private static EipStatus currentStatus;
 
@@ -60,6 +60,9 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     private int localizedResId;
     private boolean isUpdatingVPNCertificate;
 
+    private final PropertyChangeSupport propertyChange;
+    public static final String PROPERTY_CHANGE = "EipStatus";
+
     public static EipStatus getInstance() {
         if (currentStatus == null) {
             currentStatus = new EipStatus();
@@ -69,18 +72,18 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     private EipStatus() {
+        propertyChange = new PropertyChangeSupport(this);
     }
 
     @Override
     public void updateState(final String state, final String logmessage, final int localizedResId, final ConnectionStatus level) {
-        ConnectionStatus tmp = currentStatus.getLevel();
-        currentStatus = getInstance();
-        currentStatus.setState(state);
-        currentStatus.setLogMessage(logmessage);
-        currentStatus.setLocalizedResId(localizedResId);
-        currentStatus.setLevel(level);
-        currentStatus.setEipLevel(level);
-        if (tmp != currentStatus.getLevel() || "RECONNECTING".equals(state) || "UI_CONNECTING".equals(state)) {
+        ConnectionStatus tmp = getInstance().getLevel();
+        getInstance().setState(state);
+        getInstance().setLogMessage(logmessage);
+        getInstance().setLocalizedResId(localizedResId);
+        getInstance().setLevel(level);
+        getInstance().setEipLevel(level);
+        if (tmp != getInstance().getLevel() || "RECONNECTING".equals(state) || "UI_CONNECTING".equals(state)) {
             refresh();
         }
     }
@@ -90,13 +93,13 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public boolean isReconnecting() {
-        Log.d(TAG, "eip currentVPNStatus : " + currentStatus.getState() );
-        return "RECONNECTING".equals(currentStatus.getState());
+        Log.d(TAG, "eip currentVPNStatus : " + getInstance().getState() );
+        return "RECONNECTING".equals(getInstance().getState());
     }
 
     public boolean isVPNRunningWithoutNetwork() {
-        return currentStatus.getLevel() == LEVEL_NONETWORK &&
-                !"NO_PROCESS".equals(currentStatus.getState());
+        return getInstance().getLevel() == LEVEL_NONETWORK &&
+                !"NO_PROCESS".equals(getInstance().getState());
     }
 
     private void setEipLevel(ConnectionStatus level) {
@@ -147,7 +150,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
      * @param futureLevel
      */
     private void setEipLevelWithDelay(ConnectionStatus futureLevel) {
-        new DelayTask(currentStatus.getLevel(), futureLevel).execute();
+        new DelayTask(getInstance().getLevel(), futureLevel).execute();
     }
 
     private static class DelayTask extends AsyncTask<Void, Void, Void> {
@@ -169,7 +172,7 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
         }
 
         protected void onPostExecute(Void result) {
-            if (currentLevel == currentStatus.getLevel()) {
+            if (currentLevel == getInstance().getLevel()) {
                 switch (futureLevel) {
                     case LEVEL_NONETWORK:
                         currentEipLevel = EipLevel.DISCONNECTED;
@@ -301,8 +304,14 @@ public class EipStatus extends Observable implements VpnStatus.StateListener {
     }
 
     public static void refresh() {
-        currentStatus.setChanged();
-        currentStatus.notifyObservers();
+        currentStatus.propertyChange.firePropertyChange(PROPERTY_CHANGE, null, currentStatus);
     }
 
+    public void addObserver(PropertyChangeListener propertyChangeListener) {
+        propertyChange.addPropertyChangeListener(propertyChangeListener);
+    }
+
+    public void deleteObserver(PropertyChangeListener propertyChangeListener) {
+        propertyChange.removePropertyChangeListener(propertyChangeListener);
+    }
 }

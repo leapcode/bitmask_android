@@ -8,6 +8,8 @@ import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -19,7 +21,7 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 
 
 @TargetApi(Build.VERSION_CODES.N)
-public class BitmaskTileService extends TileService implements Observer {
+public class BitmaskTileService extends TileService implements PropertyChangeListener {
     
     @SuppressLint("Override")
     @TargetApi(Build.VERSION_CODES.N)
@@ -59,7 +61,7 @@ public class BitmaskTileService extends TileService implements Observer {
     public void onStartListening() {
         super.onStartListening();
         EipStatus.getInstance().addObserver(this);
-        update(EipStatus.getInstance(), null);
+        propertyChange(new PropertyChangeEvent(EipStatus.getInstance(), EipStatus.PROPERTY_CHANGE, null, EipStatus.getInstance()));
     }
 
     @Override
@@ -69,16 +71,15 @@ public class BitmaskTileService extends TileService implements Observer {
     }
 
     @Override
-    public void update(Observable o, Object arg) {
+    public void propertyChange(PropertyChangeEvent evt) {
         Tile t = getQsTile();
         // Tile t should never be null according to https://developer.android.com/reference/kotlin/android/service/quicksettings/TileService.
         // Hovever we've got crash reports.
         if (t == null) {
             return;
         }
-
-        if (o instanceof EipStatus) {
-            EipStatus status = (EipStatus) o;
+        if (EipStatus.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
+            EipStatus status = (EipStatus) evt.getNewValue();
             Icon icon;
             String title;
             if (status.isConnecting() || status.isReconnecting()) {

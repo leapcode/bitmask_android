@@ -21,14 +21,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.eip.EipStatus;
 
-public class ShapeshifterClient implements Observer {
+public class ShapeshifterClient implements PropertyChangeListener {
 
     public static final String DISPATCHER_PORT = "4430";
     public static final String DISPATCHER_IP = "127.0.0.1";
@@ -123,10 +123,11 @@ public class ShapeshifterClient implements Observer {
         return false;
     }
 
+
     @Override
-    public void update(Observable observable, Object arg) {
-        if (observable instanceof EipStatus) {
-            EipStatus status = (EipStatus) observable;
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (EipStatus.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
+            EipStatus status = (EipStatus) evt.getNewValue();
             if (status.getLevel() == ConnectionStatus.LEVEL_NONETWORK) {
                 noNetwork = true;
             } else {
