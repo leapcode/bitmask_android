@@ -42,9 +42,9 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
@@ -57,7 +57,7 @@ import se.leap.bitmaskclient.providersetup.TorLogAdapter;
 import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
-public class ConfigureProviderFragment extends BaseSetupFragment implements Observer, CancelCallback, EipSetupListener {
+public class ConfigureProviderFragment extends BaseSetupFragment implements PropertyChangeListener, CancelCallback, EipSetupListener {
 
     private static final String TAG = ConfigureProviderFragment.class.getSimpleName();
 
@@ -158,8 +158,8 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Obse
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        if (o instanceof ProviderSetupObservable) {
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (ProviderSetupObservable.PROPERTY_CHANGE.equals(evt.getPropertyName())) {
             Activity activity = getActivity();
             if (activity == null || binding == null) {
                 return;

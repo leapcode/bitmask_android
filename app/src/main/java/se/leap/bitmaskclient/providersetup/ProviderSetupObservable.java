@@ -16,14 +16,19 @@ package se.leap.bitmaskclient.providersetup;
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.os.Handler;
-import android.os.Looper;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
-import java.util.Observable;
-
+import se.leap.bitmaskclient.base.utils.HandlerProvider;
+import se.leap.bitmaskclient.base.utils.HandlerProvider.HandlerInterface;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
-public class ProviderSetupObservable extends Observable {
+/**
+ * This Observable tracks the progress of a started provider bootstrapping attempt.
+ * Each required API call us taken into account as well as the state of tor's bootstrapping in case
+ * it is used for censorship circumvention.
+ */
+public class ProviderSetupObservable {
 
     private static final String TAG = ProviderSetupObservable.class.getSimpleName();
 
@@ -36,8 +41,27 @@ public class ProviderSetupObservable extends Observable {
     public static final int DOWNLOADED_VPN_CERTIFICATE = 100;
 
     private static ProviderSetupObservable instance;
-    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final PropertyChangeSupport changeSupport;
+    public static final String PROPERTY_CHANGE = "ProviderSetupObservable";
+    private final HandlerInterface handler;
     private long lastUpdate = 0;
+
+
+
+    private ProviderSetupObservable() {
+        handler = HandlerProvider.get();
+        changeSupport = new PropertyChangeSupport(this);
+
+    }
+
+    public void addObserver(PropertyChangeListener propertyChangeListener) {
+        changeSupport.addPropertyChangeListener(propertyChangeListener);
+    }
+
+    public void deleteObserver(PropertyChangeListener propertyChangeListener) {
+        changeSupport.removePropertyChangeListener(propertyChangeListener);
+    }
+
 
     public static ProviderSetupObservable getInstance() {
         if (instance == null) {
@@ -58,8 +82,8 @@ public class ProviderSetupObservable extends Observable {
                 getInstance().progress = progress;
             }
 
-            getInstance().setChanged();
-            getInstance().notifyObservers();
+            getInstance().changeSupport.firePropertyChange(PROPERTY_CHANGE, null, getInstance());
+
         }, now - getInstance().lastUpdate < 500L ? 500L : 0L);
         getInstance().lastUpdate = System.currentTimeMillis() + 500;
     }
@@ -72,8 +96,7 @@ public class ProviderSetupObservable extends Observable {
         getInstance().handler.postDelayed(() -> {
             getInstance().progress = (TorStatusObservable.getBootstrapProgress()) / 2;
 
-            getInstance().setChanged();
-            getInstance().notifyObservers();
+            getInstance().changeSupport.firePropertyChange(PROPERTY_CHANGE, null, getInstance());
         }, now - getInstance().lastUpdate < 500L ? 500L : 0);
         getInstance().lastUpdate = System.currentTimeMillis() + 500;
     }
@@ -84,8 +107,7 @@ public class ProviderSetupObservable extends Observable {
 
     public static void reset() {
         getInstance().progress = 0;
-        getInstance().setChanged();
-        getInstance().notifyObservers();
+        getInstance().changeSupport.firePropertyChange(PROPERTY_CHANGE, null, getInstance());
     }
 
     public static void cancel() {
