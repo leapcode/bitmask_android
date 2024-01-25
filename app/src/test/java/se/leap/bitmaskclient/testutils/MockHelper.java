@@ -314,39 +314,6 @@ public class MockHelper {
         return intent;
     }
 
-    public static void mockTextUtils() {
-        mockStatic(TextUtils.class);
-
-        when(TextUtils.equals(any(CharSequence.class), any(CharSequence.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                CharSequence a = (CharSequence) invocation.getArguments()[0];
-                CharSequence b = (CharSequence) invocation.getArguments()[1];
-                if (a == b) return true;
-                int length;
-                if (a != null && b != null && (length = a.length()) == b.length()) {
-                    if (a instanceof String && b instanceof String) {
-                        return a.equals(b);
-                    } else {
-                        for (int i = 0; i < length; i++) {
-                            if (a.charAt(i) != b.charAt(i)) return false;
-                        }
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-
-        when(TextUtils.isEmpty(any(CharSequence.class))).thenAnswer(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                CharSequence param = (CharSequence) invocation.getArguments()[0];
-                return param == null || param.length() == 0;
-            }
-        });
-    }
-
     public static ResultReceiver mockResultReceiver(final int expectedResultCode) {
         ResultReceiver resultReceiver = mock(ResultReceiver.class);
         doAnswer(new Answer() {
@@ -398,23 +365,41 @@ public class MockHelper {
         return resultReceiver;
     }
 
-    public static void mockInputStreamHelper() throws FileNotFoundException {
-        mockStatic(InputStreamHelper.class);
-        when(InputStreamHelper.loadInputStreamAsString(any(InputStream.class))).thenCallRealMethod();
-        when(InputStreamHelper.getInputStreamFrom(anyString())).thenAnswer(new Answer<InputStream>() {
+
+    public static InputStreamHelper mockInputStreamHelper() {
+        return new InputStreamHelper(new InputStreamHelper.InputStreamHelperInterface() {
             @Override
-            public InputStream answer(InvocationOnMock invocation) throws Throwable {
-                String filename = (String) invocation.getArguments()[0];
-                return getClass().getClassLoader().getResourceAsStream(filename);
+            public InputStream getInputStreamFrom(String filePath) {
+                return  getClass().getClassLoader().getResourceAsStream(filePath);
             }
         });
-        when(InputStreamHelper.inputStreamToJson(any(InputStream.class))).thenCallRealMethod();
-
     }
 
-    public static void mockFileHelper(final File mockedFile) throws FileNotFoundException {
-        mockStatic(FileHelper.class);
-        when(createFile(any(File.class), anyString())).thenReturn(mockedFile);
+    public static class MockFileHelper implements FileHelper.FileHelperInterface {
+        private final File file;
+        private int persistFileCounter = 0;
+        public MockFileHelper(File file) {
+            this.file = file;
+        }
+
+
+        @Override
+        public File createFile(File dir, String fileName) {
+            return file;
+        }
+
+        @Override
+        public void persistFile(File file, String content) throws IOException {
+            persistFileCounter++;
+        }
+
+        public int getPersistFileCounter() {
+            return persistFileCounter;
+        }
+    }
+
+    public static FileHelper mockFileHelper(final File mockedFile) throws FileNotFoundException {
+        return new FileHelper(new MockFileHelper(mockedFile));
     }
 
     public static void mockBase64() {
@@ -459,7 +444,6 @@ public class MockHelper {
         when(ConfigHelper.checkErroneousDownload(anyString())).thenCallRealMethod();
         when(ConfigHelper.parseX509CertificatesFromString(anyString())).thenCallRealMethod();
         when(ConfigHelper.getProviderFormattedString(any(Resources.class), anyInt())).thenCallRealMethod();
-        when(ConfigHelper.timezoneDistance(anyInt(), anyInt())).thenCallRealMethod();
         when(ConfigHelper.isIPv4(anyString())).thenCallRealMethod();
         when(ConfigHelper.isDefaultBitmask()).thenReturn(true);
         when(ConfigHelper.getDomainFromMainURL(anyString())).thenCallRealMethod();
