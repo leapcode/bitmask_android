@@ -4,30 +4,23 @@ import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.ObfsVpnHelper;
+import se.leap.bitmaskclient.testutils.MockHelper;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
 /**
  * Created by cyberta on 12.02.18.
  */
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ConfigHelper.ObfsVpnHelper.class})
 public class ProviderTest {
 
     @Before
     public void setup() {
-        mockStatic(ConfigHelper.ObfsVpnHelper.class);
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(false);
+        ObfsVpnHelper obfsVpnHelper = MockHelper.mockObfsVpnHelper(false);
     }
 
     @Test
@@ -126,8 +119,6 @@ public class ProviderTest {
 
     @Test
     public void testSupportsPluggableTransports_Obfs4Kcp_noObsvpn_returnsFalse() throws Exception {
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(false);
-
         Provider p1 = TestSetupHelper.getProvider(
                 "https://pt.demo.bitmask.net",
                 null,
@@ -142,7 +133,7 @@ public class ProviderTest {
 
     @Test
     public void testSupportsPluggableTransports_Obfs4Kcp_obsvpn_returnsTrue() throws Exception {
-        when(ConfigHelper.ObfsVpnHelper.useObfsVpn()).thenReturn(true);
+        ObfsVpnHelper helper = MockHelper.mockObfsVpnHelper(true);
 
         Provider p1 = TestSetupHelper.getProvider(
                 "https://pt.demo.bitmask.net",

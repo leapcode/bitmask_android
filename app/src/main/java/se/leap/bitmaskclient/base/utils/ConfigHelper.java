@@ -36,17 +36,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -128,39 +123,6 @@ public class ConfigHelper {
         }
 
         return null;
-    }
-
-    public static class RSAHelper {
-        public static RSAPrivateKey parseRsaKeyFromString(String rsaKeyString) {
-            RSAPrivateKey key;
-            try {
-                KeyFactory kf;
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                    kf = KeyFactory.getInstance("RSA", "BC");
-                } else {
-                    kf = KeyFactory.getInstance("RSA");
-                }
-                rsaKeyString = rsaKeyString.replaceFirst("-----BEGIN RSA PRIVATE KEY-----", "").replaceFirst("-----END RSA PRIVATE KEY-----", "");
-                PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decode(rsaKeyString));
-                key = (RSAPrivateKey) kf.generatePrivate(keySpec);
-            } catch (InvalidKeySpecException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return null;
-            } catch (NoSuchAlgorithmException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return null;
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-                return null;
-            } catch (NoSuchProviderException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-            return key;
-        }
     }
 
     private static String byteArrayToHex(byte[] input) {
@@ -271,35 +233,6 @@ public class ConfigHelper {
     public static boolean isCalyxOSWithTetheringSupport(Context context) {
         return SystemPropertiesHelper.contains("ro.calyxos.version", context) &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
-    }
-
-    // ObfsVpnHelper class allows us to mock BuildConfig.use_obfsvpn while
-    // not mocking the whole ConfigHelper class
-    public static class ObfsVpnHelper {
-        public static boolean useObfsVpn() {
-            return BuildConfig.use_obfsvpn;
-        }
-
-        public static boolean hasObfuscationPinningDefaults() {
-            return BuildConfig.obfsvpn_ip != null &&
-                    BuildConfig.obfsvpn_port != null &&
-                    BuildConfig.obfsvpn_cert != null &&
-                    !BuildConfig.obfsvpn_ip.isEmpty() &&
-                    !BuildConfig.obfsvpn_port.isEmpty() &&
-                    !BuildConfig.obfsvpn_cert.isEmpty();
-        }
-        public static String obfsvpnIP() {
-            return BuildConfig.obfsvpn_ip;
-        }
-        public static String obfsvpnPort() {
-            return BuildConfig.obfsvpn_port;
-        }
-        public static String obfsvpnCert() {
-            return BuildConfig.obfsvpn_cert;
-        }
-        public static boolean useKcp() {
-            return BuildConfig.obfsvpn_use_kcp;
-        }
     }
 
     public static int getPendingIntentFlags() {

@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatEditText;
 
-import se.leap.bitmaskclient.base.utils.ConfigHelper.ObfsVpnHelper;
+import se.leap.bitmaskclient.base.utils.ObfsVpnHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.views.IconSwitchEntry;
 import se.leap.bitmaskclient.databinding.DObfuscationProxyBinding;

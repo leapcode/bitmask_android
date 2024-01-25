@@ -72,7 +72,9 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.FileHelper;
 import se.leap.bitmaskclient.base.utils.InputStreamHelper;
+import se.leap.bitmaskclient.base.utils.ObfsVpnHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.RSAHelper;
 import se.leap.bitmaskclient.providersetup.connectivity.DnsResolver;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.testutils.BackendMockResponses.BackendMockProvider;
@@ -407,33 +409,66 @@ public class MockHelper {
         when(android.util.Base64.encodeToString(any(), anyInt())).thenAnswer(invocation -> Arrays.toString(Base64.getEncoder().encode((byte[]) invocation.getArguments()[0])));
     }
 
-    public static void mockRSAHelper() {
-        mockStatic(ConfigHelper.RSAHelper.class);
+    public static RSAHelper mockRSAHelper() {
+        return new RSAHelper(rsaKeyString -> new RSAPrivateKey() {
+             @Override
+             public BigInteger getPrivateExponent() {
+                 return BigInteger.TEN;
+             }
 
-        when(ConfigHelper.RSAHelper.parseRsaKeyFromString(anyString())).thenReturn(new RSAPrivateKey() {
+             @Override
+             public String getAlgorithm() {
+                 return "RSA";
+             }
+
+             @Override
+             public String getFormat() {
+                 return null;
+             }
+
+             @Override
+             public byte[] getEncoded() {
+                 return new byte[0];
+             }
+
+             @Override
+             public BigInteger getModulus() {
+                 return BigInteger.ONE;
+             }
+         });
+
+    }
+
+    public static ObfsVpnHelper mockObfsVpnHelper(boolean useObfsvpn) {
+        return new ObfsVpnHelper(new ObfsVpnHelper.ObfsVpnHelperInterface() {
             @Override
-            public BigInteger getPrivateExponent() {
-                return BigInteger.TEN;
+            public boolean useObfsVpn() {
+                return useObfsvpn;
             }
 
             @Override
-            public String getAlgorithm() {
-                return "RSA";
+            public boolean hasObfuscationPinningDefaults() {
+                return false;
             }
 
             @Override
-            public String getFormat() {
+            public String obfsvpnIP() {
                 return null;
             }
 
             @Override
-            public byte[] getEncoded() {
-                return new byte[0];
+            public String obfsvpnPort() {
+                return null;
             }
 
             @Override
-            public BigInteger getModulus() {
-                return BigInteger.ONE;
+            public String obfsvpnCert() {
+                return null;
+            }
+
+            @Override
+            public boolean useKcp() {
+                return false;
             }
         });
     }
@@ -583,11 +618,10 @@ public class MockHelper {
         }
     }
 
-    public static void mockProviderObservable(Provider provider) {
+    public static ProviderObservable mockProviderObservable(Provider provider) {
         ProviderObservable observable = ProviderObservable.getInstance();
         observable.updateProvider(provider);
-        mockStatic(ProviderObservable.class);
-        when(ProviderObservable.getInstance()).thenAnswer((Answer<ProviderObservable>) invocation -> observable);
+        return observable;
     }
 
     public static void mockProviderApiConnector(final BackendMockProvider.TestBackendErrorCase errorCase) throws IOException {

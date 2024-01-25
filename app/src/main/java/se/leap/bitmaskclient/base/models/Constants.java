@@ -52,6 +52,7 @@ public interface Constants {
     String OBFUSCATION_PINNING_CERT = "obfuscation_pinning_cert";
     String OBFUSCATION_PINNING_KCP = "obfuscation_pinning_udp";
     String OBFUSCATION_PINNING_LOCATION = "obfuscation_pinning_location";
+    String USE_SYSTEM_PROXY = "usesystemproxy";
 
 
     //////////////////////////////////////////////

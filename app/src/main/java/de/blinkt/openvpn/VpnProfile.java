@@ -16,7 +16,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.security.KeyChain;
 import android.security.KeyChainException;
 import android.text.TextUtils;
@@ -77,6 +76,7 @@ import de.blinkt.openvpn.core.connection.ConnectionAdapter;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
 public class VpnProfile implements Serializable, Cloneable {
     // Note that this class cannot be moved to core where it belongs since
@@ -651,8 +651,7 @@ public class VpnProfile implements Serializable, Cloneable {
         if (mPushPeerInfo)
             cfg.append("push-peer-info\n");
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean usesystemproxy = prefs.getBoolean("usesystemproxy", true);
+        boolean usesystemproxy = PreferenceHelper.useSystemProxy();
         if (usesystemproxy && !mIsOpenVPN22 && !configForOvpn3 && !usesExtraProxyOptions()) {
             cfg.append("# Use system proxy setting\n");
             cfg.append("management-query-proxy\n");
