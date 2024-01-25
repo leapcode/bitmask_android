@@ -26,7 +26,7 @@ import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import de.blinkt.openvpn.core.connection.Obfs4HopConnection;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
-import se.leap.bitmaskclient.base.utils.ObfsVpnHelper;
+import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.utils.RSAHelper;
 import se.leap.bitmaskclient.testutils.MockHelper;
@@ -1408,7 +1408,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfile_v3_obfs4() throws Exception {
-        ObfsVpnHelper obfsVpnHelper = MockHelper.mockObfsVpnHelper(false);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(false);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service.json"))).getJSONArray("gateways").getJSONObject(0);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
@@ -1422,7 +1422,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfile_v3_obfs4_obfsvpn() throws Exception {
-        ObfsVpnHelper obfsVpnHelper = MockHelper.mockObfsVpnHelper(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service.json"))).getJSONArray("gateways").getJSONObject(0);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
@@ -1728,7 +1728,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGetConfigFile_testHoppingPtPortHopping_decoupled() throws Exception {
-        ObfsVpnHelper obfsVpnHelper = MockHelper.mockObfsVpnHelper(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
@@ -1742,7 +1742,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGetConfigFile_testHoppingPtPortAndIPHopping_decoupled() throws Exception {
-        ObfsVpnHelper obfsVpnHelper = MockHelper.mockObfsVpnHelper(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
@@ -1755,7 +1755,7 @@ public class VpnConfigGeneratorTest {
     }
     @Test
     public void testGenerateVpnProfile_obfs4_decoupled() throws Exception {
-        ObfsVpnHelper obfsVpnHelper = MockHelper.mockObfsVpnHelper(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONArray("gateways").getJSONObject(1);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
@@ -1770,7 +1770,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfile_obfs4hop_decoupled() throws Exception {
-        ObfsVpnHelper obfsVpnHelper = MockHelper.mockObfsVpnHelper(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
@@ -1786,7 +1786,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfile_noExperimental_skipObfs4Hop() throws Exception {
-        ObfsVpnHelper obfsVpnHelper = MockHelper.mockObfsVpnHelper(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
@@ -1804,7 +1804,7 @@ public class VpnConfigGeneratorTest {
 
     @Test
     public void testGenerateVpnProfile_obfs4hop_onlyPortHopping_decoupled() throws Exception {
-        ObfsVpnHelper obfsVpnHelper = MockHelper.mockObfsVpnHelper(true);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
         gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONArray("gateways").getJSONObject(2);
         generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("decoupled_pt_portHopping.eip-service.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();

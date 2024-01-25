@@ -3,7 +3,7 @@ package se.leap.bitmaskclient.providersetup.activities;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
+import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CONFIGURE_PROVIDER_FRAGMENT;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;

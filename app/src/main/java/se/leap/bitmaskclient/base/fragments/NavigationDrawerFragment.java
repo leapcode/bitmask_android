@@ -24,7 +24,7 @@ import static se.leap.bitmaskclient.base.models.Constants.ENABLE_DONATION;
 import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.REQUEST_CODE_SWITCH_PROVIDER;
-import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDefaultBitmask;
+import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSaveBattery;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.saveBattery;

@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import se.leap.bitmaskclient.base.utils.ObfsVpnHelper;
+import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
 import se.leap.bitmaskclient.testutils.MockHelper;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
@@ -20,7 +20,7 @@ public class ProviderTest {
 
     @Before
     public void setup() {
-        ObfsVpnHelper obfsVpnHelper = MockHelper.mockObfsVpnHelper(false);
+        BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(false);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class ProviderTest {
 
     @Test
     public void testSupportsPluggableTransports_Obfs4Kcp_obsvpn_returnsTrue() throws Exception {
-        ObfsVpnHelper helper = MockHelper.mockObfsVpnHelper(true);
+        BuildConfigHelper helper = MockHelper.mockBuildConfigHelper(true);
 
         Provider p1 = TestSetupHelper.getProvider(
                 "https://pt.demo.bitmask.net",

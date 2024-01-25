@@ -71,7 +71,7 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.CertificateHelper;
 import se.leap.bitmaskclient.base.utils.FileHelper;
 import se.leap.bitmaskclient.base.utils.InputStreamHelper;
-import se.leap.bitmaskclient.base.utils.ObfsVpnHelper;
+import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.utils.RSAHelper;
 import se.leap.bitmaskclient.providersetup.connectivity.DnsResolver;

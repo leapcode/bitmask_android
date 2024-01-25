@@ -470,7 +470,7 @@ public class PreferenceHelper {
     }
 
     public static boolean useObfuscationPinning() {
-        return ObfsVpnHelper.useObfsVpn() &&
+        return BuildConfigHelper.useObfsVpn() &&
                 getUseBridges() &&
                 getBoolean(USE_OBFUSCATION_PINNING, false) &&
                 !TextUtils.isEmpty(getObfuscationPinningIP()) &&

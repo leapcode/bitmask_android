@@ -16,8 +16,6 @@
  */
 package se.leap.bitmaskclient.base.utils;
 
-import static se.leap.bitmaskclient.base.models.Constants.DEFAULT_BITMASK;
-
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
@@ -157,10 +155,6 @@ public class ConfigHelper {
             throw new IllegalStateException(
                     "calling this from your main thread can lead to deadlock");
         }
-    }
-
-    public static boolean isDefaultBitmask() {
-        return BuildConfig.FLAVOR_branding.equals(DEFAULT_BITMASK);
     }
 
     public static boolean preferAnonymousUsage() {

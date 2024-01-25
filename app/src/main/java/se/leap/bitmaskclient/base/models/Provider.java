@@ -28,7 +28,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOWED_REGIS
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.TYPE;
-import static se.leap.bitmaskclient.base.utils.ObfsVpnHelper.useObfsVpn;
+import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.useObfsVpn;
 import static se.leap.bitmaskclient.base.utils.RSAHelper.parseRsaKeyFromString;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 
