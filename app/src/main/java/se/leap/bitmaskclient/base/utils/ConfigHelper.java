@@ -59,8 +59,6 @@ public class ConfigHelper {
     final public static String NG_1024 =
             "eeaf0ab9adb38dd69c33f80afa8fc5e86072618775ff3c0b9ea2314c9c256576d674df7496ea81d3383b4813d692c6e0e0d5d8e250b98be48e495c1d6089dad15dc7d7b46154d6b6ce8ef4ad69b15d4982559b297bcf1885c529f566660e57ec68edbc3c05726cc02fd4cbf4976eaa9afd5138fe8376435b9fc61d2fc0eb06e3";
     final public static BigInteger G = new BigInteger("2");
-    final public static Pattern IPv4_PATTERN = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$");
-    final public static Pattern PEM_CERTIFICATE_PATTERN = Pattern.compile("((-----BEGIN CERTIFICATE-----)([A-Za-z0-9+/=\\n]+)(-----END CERTIFICATE-----)+)");
 
     public static boolean checkErroneousDownload(String downloadedString) {
         try {
@@ -99,8 +97,8 @@ public class ConfigHelper {
         CertificateFactory cf;
         try {
             cf = CertificateFactory.getInstance("X.509");
-
-            Matcher matcher = PEM_CERTIFICATE_PATTERN.matcher(certificateString);
+            Pattern pattern = Pattern.compile("((-----BEGIN CERTIFICATE-----)([A-Za-z0-9+/=\\n]+)(-----END CERTIFICATE-----)+)");
+            Matcher matcher = pattern.matcher(certificateString);
             while (matcher.find()) {
                 String certificate = matcher.group(3);
                 if (certificate == null) continue;
@@ -188,7 +186,7 @@ public class ConfigHelper {
         if (ipv4 == null) {
             return false;
         }
-        Matcher matcher = IPv4_PATTERN.matcher(ipv4);
+        Matcher matcher = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$").matcher(ipv4);
         return matcher.matches();
     }
 
