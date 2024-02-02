@@ -5,6 +5,7 @@
 
 package de.blinkt.openvpn.core;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
@@ -33,6 +34,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ServiceCompat;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -1098,7 +1100,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @Override
     public void onNotificationBuild(int notificationId, Notification notification) {
-        startForeground(notificationId, notification);
+        ServiceCompat.startForeground(this, notificationId, notification, FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED);
     }
 
     public void trigger_url_open(String info) {
