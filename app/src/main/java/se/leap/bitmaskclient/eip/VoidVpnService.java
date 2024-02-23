@@ -16,6 +16,7 @@
  */
 package se.leap.bitmaskclient.eip;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_ALWAYS_ON_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START_BLOCKING_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP_BLOCKING_VPN;
@@ -33,11 +34,11 @@ import android.os.ParcelFileDescriptor;
 import android.system.OsConstants;
 import android.util.Log;
 
+import androidx.core.app.ServiceCompat;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.Observable;
-import java.util.Observer;
 
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.VpnStatus;
@@ -210,7 +211,7 @@ public class VoidVpnService extends VpnService implements PropertyChangeListener
 
     @Override
     public void onNotificationBuild(int notificationId, Notification notification) {
-        startForeground(notificationId, notification);
+        ServiceCompat.startForeground(this, notificationId, notification, FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED);
     }
 
     public void startWithForegroundNotification() {
