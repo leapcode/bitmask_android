@@ -46,6 +46,8 @@ android {
     //This is the default donation URL and should be set to the donation page of LEAP
     // and this should not be set/altered anywhere else.
     buildConfigField 'String', 'default_donation_url', '"https://riseuplabs.org/leap"'
+    // custom donation url, only used in Custom flavor
+    buildConfigField 'String', 'donation_url', 'null'
     //The field to enable donations in the app.
     buildConfigField 'boolean', 'enable_donation', 'false'
     //The field to enable donation reminder popup in the app if enable_donation is set to 'false' this will be disabled.
