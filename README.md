@@ -161,17 +161,14 @@ In order to temporarily disable building tor you can run:
 ```
 BUILD_TOR=false ./scripts/build_deps.sh
 ```
+### Custom Builds
+Please refer to to the customization [README](/app/src/custom/README.md).
 
 ### Debug APKs <a name="debug-apks"></a>
 
 After having run `./build_deps.sh`, you can assemble debug packages for running locally or testing in CI:
 ```bash
 ./gradlew assembleNormalProductionFatDebug
-```
-
-In order to build a custom branded version of Bitmask you can run:
-```bash
-./gradlew assembleCustomProductionFatDebug
 ```
 
 If everything went fine, you will find the debug apks in `/bitmask_android/app/build/outputs/apk/`.

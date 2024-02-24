@@ -122,8 +122,9 @@ android {
       //**************************************************************************
       //**************************************************************************
       //Configurations for custom branded app.
+      //
       //In order to configure the URLs for your custom provider (required!), please
-      //check out the README
+      //check out app/src/custom/README.md
       //
       //Change the package name as needed, e.g. "org.example.myapp"
       applicationId "se.leap.riseupvpn"
