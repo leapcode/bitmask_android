@@ -77,14 +77,6 @@ android {
     buildConfigField 'boolean', 'actionbar_center_title', 'true'
     buildConfigField 'boolean', 'actionbar_capitalize_title', 'true'
 
-    //ignore the following configs, only used in custom flavor
-    buildConfigField 'String', 'donation_url', 'null'
-    buildConfigField "String", "customProviderUrl", '""'
-    buildConfigField "String", "customProviderIp", '""'
-    buildConfigField "String", "customProviderApiIp", '""'
-    buildConfigField "String", "geoipUrl", '""'
-    buildConfigField "String", "customProviderMotdUrl", '""'
-
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     dexOptions {
       jumboMode true
@@ -130,25 +122,13 @@ android {
       //**************************************************************************
       //**************************************************************************
       //Configurations for custom branded app.
-
+      //In order to configure the URLs for your custom provider (required!), please
+      //check out the README
+      //
       //Change the package name as needed, e.g. "org.example.myapp"
       applicationId "se.leap.riseupvpn"
       //Set app name here
       appName = "Riseup VPN"
-      //Provider base url, e.g. '"https://example.com"'
-      def customProviderUrl = '"https://black.riseup.net"'
-      buildConfigField "String", "customProviderUrl", customProviderUrl
-      //static ip address of provider, using a commercially validated CA certificate to serve the provider.json
-      def customProviderIp = '""'
-      buildConfigField "String", "customProviderIp", customProviderIp
-      //static ip address of the provider api, using a self signed certificate to serve provider.json, eip-service.json etc.
-      def customProviderApiIp = '""'
-      buildConfigField "String", "customProviderApiIp", customProviderApiIp
-      def geoipUrl = '"https://menshen.riseup.net/json"'
-      buildConfigField "String", "geoipUrl", geoipUrl
-      //URL for the message of the day, see https://0xacab.org/leap/motd#motd-message-of-the-day
-      def customProviderMotdUrl = '"https://static.riseup.net/vpn/motd.json"'
-      buildConfigField "String", "customProviderMotdUrl", customProviderMotdUrl
       //Change the versionCode as needed
       //versionCode 1
       //Change the versionName as needed
