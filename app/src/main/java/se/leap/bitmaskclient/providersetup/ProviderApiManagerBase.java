@@ -170,6 +170,7 @@ public abstract class ProviderApiManagerBase {
         void stopTorService();
         int getTorHttpTunnelPort();
         boolean hasNetworkConnection();
+        void saveProvider(Provider p);
     }
 
     private final ProviderApiServiceCallback serviceCallback;
@@ -295,6 +296,7 @@ public abstract class ProviderApiManagerBase {
                 ProviderObservable.getInstance().setProviderForDns(provider);
                 result = updateVpnCertificate(provider);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    serviceCallback.saveProvider(provider);
                     ProviderSetupObservable.updateProgress(DOWNLOADED_VPN_CERTIFICATE);
                     sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_VPN_CERTIFICATE, result, provider);
                 } else {
@@ -360,6 +362,10 @@ public abstract class ProviderApiManagerBase {
                 }
                 break;
         }
+    }
+
+    private void saveCustomProvider() {
+
     }
 
     protected boolean startTorProxy() throws InterruptedException, IllegalStateException, TimeoutException {

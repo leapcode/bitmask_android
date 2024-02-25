@@ -225,7 +225,7 @@ public class ProviderManager {
         defaultProviderURLs.clear();
     }
 
-    void saveCustomProvidersToFile() {
+    public void saveCustomProvidersToFile() {
         try {
             deleteLegacyCustomProviders();
 

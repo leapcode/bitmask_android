@@ -30,6 +30,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.concurrent.TimeoutException;
 
+import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.tor.TorServiceCommand;
@@ -177,6 +178,12 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
         }
     }
 
+    @Override
+    public void saveProvider(Provider p) {
+        ProviderManager pm = ProviderManager.getInstance(this.getAssets(), this.getExternalFilesDir(null));
+        pm.add(p);
+        pm.saveCustomProvidersToFile();
+    }
 
 
     private ProviderApiManager initApiManager() {
