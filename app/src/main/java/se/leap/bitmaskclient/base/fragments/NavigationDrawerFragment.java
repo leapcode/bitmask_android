@@ -439,7 +439,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key != null && key.equals(PREFERRED_CITY)) {
-            initManualGatewayEntry();
+            getActivity().runOnUiThread(this::initManualGatewayEntry);
         }
     }
 
