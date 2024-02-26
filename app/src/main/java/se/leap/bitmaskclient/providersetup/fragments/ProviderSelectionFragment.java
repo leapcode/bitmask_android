@@ -121,6 +121,12 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                 ViewHelper.hideKeyboardFrom(getContext(), v);
             }
         });
+
+        binding.getRoot().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            if(ViewHelper.isKeyboardShown(getContext())) {
+                binding.getRoot().smoothScrollTo(binding.editCustomProvider.getLeft(), binding.getRoot().getBottom());
+            }
+        });
         binding.providerRadioGroup.check(viewModel.getSelected());
     }
 
