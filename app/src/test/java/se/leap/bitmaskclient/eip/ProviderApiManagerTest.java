@@ -160,6 +160,11 @@ public class ProviderApiManagerTest {
             return hasNetworkConnection;
         }
 
+        @Override
+        public void saveProvider(Provider p) {
+
+        }
+
     }
 
     @Before

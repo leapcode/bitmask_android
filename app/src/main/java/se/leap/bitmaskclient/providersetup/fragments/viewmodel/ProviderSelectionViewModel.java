@@ -8,7 +8,6 @@ import android.webkit.URLUtil;
 
 import androidx.lifecycle.ViewModel;
 
-import java.io.File;
 import java.util.List;
 
 import se.leap.bitmaskclient.R;
@@ -22,8 +21,8 @@ public class ProviderSelectionViewModel extends ViewModel {
     private int selected = 0;
     private String customUrl;
 
-    public ProviderSelectionViewModel(AssetManager assetManager, File externalFilesDir) {
-        providerManager = ProviderManager.getInstance(assetManager, externalFilesDir);
+    public ProviderSelectionViewModel(AssetManager assetManager) {
+        providerManager = ProviderManager.getInstance(assetManager);
         providerManager.setAddDummyEntry(false);
     }
 
