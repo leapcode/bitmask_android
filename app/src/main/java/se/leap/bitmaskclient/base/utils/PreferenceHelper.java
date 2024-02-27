@@ -7,6 +7,7 @@ import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_USB;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_WIFI;
 import static se.leap.bitmaskclient.base.models.Constants.ALWAYS_ON_SHOW_DIALOG;
 import static se.leap.bitmaskclient.base.models.Constants.CLEARLOG;
+import static se.leap.bitmaskclient.base.models.Constants.CUSTOM_PROVIDER_DOMAINS;
 import static se.leap.bitmaskclient.base.models.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_IS_ALWAYS_ON;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
@@ -59,6 +60,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -185,8 +187,49 @@ public class PreferenceHelper {
         }
     }
 
+    /**
+     *
+     * @return HashMap with main URL string as key and Provider as value
+     */
+    public static HashMap<String, Provider> getCustomProviders() {
+        Set<String> providerDomains = getCustomProviderDomains();
+        HashMap<String, Provider> customProviders = new HashMap<>();
+        for (String domain : providerDomains) {
+            String mainURL = preferences.getString(Provider.MAIN_URL + "." + domain, null);
+            if (mainURL != null) {
+                customProviders.put(mainURL, Provider.createCustomProvider(mainURL, domain));
+            }
+        }
+        return customProviders;
+    }
+
+    public static void setCustomProviders(Set<Provider> providers) {
+        Set<String> newProviderDomains = new HashSet<>();
+
+        // add
+        SharedPreferences.Editor editor = preferences.edit();
+        for (Provider provider : providers) {
+            String providerDomain = provider.getDomain();
+                    editor.putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString());
+            newProviderDomains.add(providerDomain);
+        }
+
+        // remove
+        Set<String> removedProviderDomains = getCustomProviderDomains();
+        removedProviderDomains.removeAll(newProviderDomains);
+        for (String providerDomain : removedProviderDomains) {
+            editor.remove(Provider.MAIN_URL + "." + providerDomain);
+        }
+
+        editor.putStringSet(CUSTOM_PROVIDER_DOMAINS, newProviderDomains);
+        editor.apply();
+    }
+
+    static Set<String> getCustomProviderDomains() {
+        return preferences.getStringSet(CUSTOM_PROVIDER_DOMAINS, new HashSet<>());
+    }
+
     // TODO: replace commit with apply after refactoring EIP
-    //FIXME: don't save private keys in shared preferences! use the keystore
     public static void storeProviderInPreferences(Provider provider, boolean async) {
         synchronized (LOCK) {
             SharedPreferences.Editor editor = preferences.edit();

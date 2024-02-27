@@ -133,16 +133,6 @@ public class MockHelper {
         return resultReceiver;
     }
 
-
-    public static InputStreamHelper mockInputStreamHelper() {
-        return new InputStreamHelper(new InputStreamHelper.InputStreamHelperInterface() {
-            @Override
-            public InputStream getInputStreamFrom(String filePath) {
-                return  getClass().getClassLoader().getResourceAsStream(filePath);
-            }
-        });
-    }
-
     public static class MockFileHelper implements FileHelper.FileHelperInterface {
         private final File file;
         private int persistFileCounter = 0;

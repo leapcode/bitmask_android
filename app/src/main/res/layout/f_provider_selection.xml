@@ -81,6 +81,9 @@
                         android:layout_height="wrap_content"
                         android:background="@color/white"
                         android:hint="https://example.org"
+                        android:inputType="textWebEditText"
+                        android:imeOptions="actionDone"
+                        android:maxLines="1"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         android:textColorHint="@color/black800_transparent"
                         />

@@ -229,8 +229,19 @@ public class ViewHelper {
     }
 
     public static void hideKeyboardFrom(Context context, View view) {
+        if (context == null) {
+            return;
+        }
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    public static boolean isKeyboardShown(Context context) {
+        if (context == null) {
+            return false;
+        }
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        return imm.isActive();
     }
 
 }

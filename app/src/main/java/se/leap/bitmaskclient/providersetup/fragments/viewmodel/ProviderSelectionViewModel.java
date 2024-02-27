@@ -8,7 +8,6 @@ import android.webkit.URLUtil;
 
 import androidx.lifecycle.ViewModel;
 
-import java.io.File;
 import java.util.List;
 
 import se.leap.bitmaskclient.R;
@@ -22,8 +21,8 @@ public class ProviderSelectionViewModel extends ViewModel {
     private int selected = 0;
     private String customUrl;
 
-    public ProviderSelectionViewModel(AssetManager assetManager, File externalFilesDir) {
-        providerManager = ProviderManager.getInstance(assetManager, externalFilesDir);
+    public ProviderSelectionViewModel(AssetManager assetManager) {
+        providerManager = ProviderManager.getInstance(assetManager);
         providerManager.setAddDummyEntry(false);
     }
 
@@ -49,7 +48,7 @@ public class ProviderSelectionViewModel extends ViewModel {
 
     public boolean isValidConfig() {
         if (selected == ADD_PROVIDER) {
-            return URLUtil.isValidUrl(customUrl) && Patterns.WEB_URL.matcher(customUrl).matches();
+            return customUrl != null && (Patterns.DOMAIN_NAME.matcher(customUrl).matches() || (URLUtil.isNetworkUrl(customUrl) && Patterns.WEB_URL.matcher(customUrl).matches()));
         }
         return true;
     }
@@ -81,6 +80,13 @@ public class ProviderSelectionViewModel extends ViewModel {
 
     public void setCustomUrl(String url) {
         customUrl = url;
+    }
+
+    public String getCustomUrl() {
+        if (customUrl != null && Patterns.DOMAIN_NAME.matcher(customUrl).matches()) {
+            return "https://" + customUrl;
+        }
+        return customUrl;
     }
 
 

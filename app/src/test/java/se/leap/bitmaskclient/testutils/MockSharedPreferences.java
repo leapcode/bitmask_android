@@ -158,6 +158,7 @@ public class MockSharedPreferences implements SharedPreferences {
                 mockedStringPrefs = new HashMap<>(tempStrings);
                 mockedBooleanPrefs = new HashMap<>(tempBoolean);
                 mockedIntPrefs = new HashMap<>(tempIntegers);
+                mockedStringSetPrefs = new HashMap<>(tempStringSets);
             }
         };
     }

@@ -2,7 +2,6 @@ package se.leap.bitmaskclient.providersetup.fragments;
 
 import static se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel.ADD_PROVIDER;
 
-import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.ViewHelper;
 import se.leap.bitmaskclient.databinding.FProviderSelectionBinding;
 import se.leap.bitmaskclient.providersetup.activities.CancelCallback;
@@ -46,8 +44,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(this,
                 new ProviderSelectionViewModelFactory(
-                        getContext().getApplicationContext().getAssets(),
-                        getContext().getExternalFilesDir(null))).
+                        getContext().getApplicationContext().getAssets())).
                 get(ProviderSelectionViewModel.class);
     }
 
@@ -110,7 +107,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                 if (viewModel.isCustomProviderSelected()) {
                     setupActivityCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
                     if (viewModel.isValidConfig()) {
-                        setupActivityCallback.onProviderSelected(new Provider(s.toString()));
+                        setupActivityCallback.onProviderSelected(new Provider(viewModel.getCustomUrl()));
                     }
                 }
             }
@@ -122,6 +119,12 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
         binding.editCustomProvider.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 ViewHelper.hideKeyboardFrom(getContext(), v);
+            }
+        });
+
+        binding.getRoot().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            if(ViewHelper.isKeyboardShown(getContext())) {
+                binding.getRoot().smoothScrollTo(binding.editCustomProvider.getLeft(), binding.getRoot().getBottom());
             }
         });
         binding.providerRadioGroup.check(viewModel.getSelected());

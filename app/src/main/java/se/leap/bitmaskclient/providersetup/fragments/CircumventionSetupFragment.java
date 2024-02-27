@@ -78,8 +78,7 @@ public class CircumventionSetupFragment extends BaseSetupFragment implements Can
     }
 
     private void loadProviderFromAssets() {
-        ProviderManager providerManager = ProviderManager.getInstance(getContext().getApplicationContext().getAssets(),
-                getContext().getExternalFilesDir(null));
+        ProviderManager providerManager = ProviderManager.getInstance(getContext().getApplicationContext().getAssets());
         providerManager.setAddDummyEntry(false);
         setupActivityCallback.onProviderSelected(providerManager.providers().get(0));
     }
