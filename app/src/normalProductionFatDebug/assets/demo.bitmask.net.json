@@ -1,19 +1,19 @@
 {
-  "api_uri":"https://api.float.hexacab.org:4430",
+  "api_uri":"https://api.demo.bitmask.net:4430",
   "api_version":"3",
-  "ca_cert_fingerprint":"SHA256: dd919b7513b4a1368faa20e38cd3314156805677f48b787cdd9b4a92dec64eb0",
-  "ca_cert_uri":"https://api.float.hexacab.org/ca.crt",
+  "ca_cert_fingerprint":"SHA256: 40ed9d9c13872c1fcba25abdcf26a7b1bdeded433d74fbe1ccb58fbaaab58e23",
+  "ca_cert_uri":"https://api.demo.bitmask.net/ca.crt",
   "default_language":"en",
   "description":{
-    "en":"Riseup Networks"
+    "en":"This is a demo provider"
   },
-  "domain":"float.hexacab.org",
+  "domain":"demo.bitmask.net",
   "enrollment_policy":"open",
   "languages":[
     "en"
   ],
   "name":{
-    "en":"0XACAB Networks"
+    "en":"Demo provider"
   },
   "service":{
     "allow_anonymous":true,
