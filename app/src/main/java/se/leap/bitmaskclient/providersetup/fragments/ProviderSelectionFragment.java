@@ -107,7 +107,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                 if (viewModel.isCustomProviderSelected()) {
                     setupActivityCallback.onSetupStepValidationChanged(viewModel.isValidConfig());
                     if (viewModel.isValidConfig()) {
-                        setupActivityCallback.onProviderSelected(new Provider(s.toString()));
+                        setupActivityCallback.onProviderSelected(new Provider(viewModel.getCustomUrl()));
                     }
                 }
             }
