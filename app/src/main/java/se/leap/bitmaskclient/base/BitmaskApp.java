@@ -27,7 +27,11 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProvider
 
 import android.content.IntentFilter;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.multidex.MultiDexApplication;
 
@@ -49,7 +53,7 @@ import se.leap.bitmaskclient.tor.TorStatusObservable;
  * Created by cyberta on 24.10.17.
  */
 
-public class BitmaskApp extends MultiDexApplication {
+public class BitmaskApp extends MultiDexApplication implements DefaultLifecycleObserver {
 
     private final static String TAG = BitmaskApp.class.getSimpleName();
     private ProviderObservable providerObservable;
@@ -74,6 +78,7 @@ public class BitmaskApp extends MultiDexApplication {
         providerSetupObservable = ProviderSetupObservable.getInstance();
         EipSetupObserver.init(this);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
         if (!isCalyxOSWithTetheringSupport(this)) {
             TetheringStateManager.getInstance().init(this);
         }
@@ -86,5 +91,17 @@ public class BitmaskApp extends MultiDexApplication {
             intentFilter.addCategory(CATEGORY_DEFAULT);
             LocalBroadcastManager.getInstance(this.getApplicationContext()).registerReceiver(downloadBroadcastReceiver, intentFilter);
         }
+    }
+
+    @Override
+    public void onStart(@NonNull LifecycleOwner owner) {
+        DefaultLifecycleObserver.super.onPause(owner);
+        EipSetupObserver.setActivityForeground(true);
+    }
+
+    @Override
+    public void onStop(@NonNull LifecycleOwner owner) {
+        DefaultLifecycleObserver.super.onResume(owner);
+        EipSetupObserver.setActivityForeground(false);
     }
 }

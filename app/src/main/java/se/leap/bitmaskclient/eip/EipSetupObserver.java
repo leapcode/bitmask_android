@@ -38,6 +38,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DELAY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DOWNLOAD_MOTD;
@@ -80,6 +81,7 @@ import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.ProviderAPI;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
 import se.leap.bitmaskclient.providersetup.ProviderSetupObservable;
+import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 import se.leap.bitmaskclient.tor.TorServiceCommand;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
@@ -96,6 +98,8 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
     private String observedProfileFromVpnStatus;
     AtomicInteger reconnectTry = new AtomicInteger();
     AtomicBoolean changingGateway = new AtomicBoolean(false);
+
+    AtomicBoolean activityForeground = new AtomicBoolean(false);
     AtomicInteger setupNClosestGateway = new AtomicInteger();
     private Vector<EipSetupListener> listeners = new Vector<>();
     private static EipSetupObserver instance;
@@ -125,6 +129,10 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
 
     public static int gatewayOrder() {
         return instance.setupNClosestGateway.get();
+    }
+
+    public static void setActivityForeground(boolean isForeground) {
+        instance.activityForeground.set(isForeground);
     }
 
     public static synchronized void addListener(EipSetupListener listener) {
@@ -235,6 +243,13 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 break;
             case PROVIDER_OK:
                 Log.d(TAG, "PROVIDER OK - FETCH SUCCESSFUL");
+                //no break, continue with next case
+            case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
+                if (ProviderSetupObservable.getProgress() > 0 && !activityForeground.get()) {
+                    Intent activityIntent = new Intent(appContext, SetupActivity.class);
+                    activityIntent.setAction(Intent.ACTION_MAIN);
+                    appContext.startActivity(activityIntent);
+                }
                 break;
             case TOR_TIMEOUT:
             case TOR_EXCEPTION:
