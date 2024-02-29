@@ -39,11 +39,11 @@ We will assume for convenience that you are installing on a Debian- or Ubuntu-ba
 
 The Bitmask Android Client has the following system-level dependencies:
 
-* JDK 11
-* Android SDK Tools, v. 30.0.3, with these packages:
-  * Platform-Tools, v. 30.0.3
-  * Build-Tools, API v. 30
-  * Platforms 30
+* JDK 17
+* Android SDK Tools, v. 34.0.3, with these packages:
+  * Platform-Tools, v. 34.0.5
+  * Build-Tools, API v. 34
+  * Platforms 34
   * Android Support Repository
   * Google Support Repository
   * NDK v. r21e (enables C code in Android)
@@ -62,7 +62,7 @@ Install with:
 
 ```bash
 sudo apt-get update -qq && \
-    apt-get install -y openjdk-11-jdk
+    apt-get install -y openjdk-17-jdk
 ```
 
 ### C Libraries <a name="c-libraries"></a>
@@ -202,7 +202,7 @@ All the localizations happen in Transifex. How to generate, push, pull the trans
 
 ## Supported Versions <a name="supported-versions"></a>
 
-Currently API 16 (Android 4.1) - API 30 (Android 11) are officially supported. Keep backwards compatibility in mind if you plan to contribute new features.
+Currently API 21 (Android 5.0) - API 34 (Android 14) are officially supported. Keep backwards compatibility in mind if you plan to contribute new features.
 
 ## Acknowledgments <a name="acknowledgments"></a>
 
