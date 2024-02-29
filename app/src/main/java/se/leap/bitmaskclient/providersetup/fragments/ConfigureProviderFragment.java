@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_CANCELED;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static se.leap.bitmaskclient.R.string.app_name;
 import static se.leap.bitmaskclient.R.string.description_configure_provider;
 import static se.leap.bitmaskclient.R.string.description_configure_provider_circumvention;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
@@ -86,7 +87,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
                              @Nullable Bundle savedInstanceState) {
         binding = FConfigureProviderBinding.inflate(inflater, container, false);
         binding.detailContainer.setVisibility(getUseSnowflake() ? VISIBLE : GONE);
-        binding.tvCircumventionDescription.setText(getUseSnowflake() ? description_configure_provider_circumvention : description_configure_provider);
+        binding.tvCircumventionDescription.setText(getUseSnowflake() ? getString(description_configure_provider_circumvention, getString(app_name)) : getString(description_configure_provider, getString(app_name)));
         binding.detailHeaderContainer.setOnClickListener(v -> {
             binding.ivExpand.animate().setDuration(250).rotation(isExpanded ? -90 : 0);
             showConnectionDetails();
@@ -123,7 +124,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         super.onFragmentSelected();
         ignoreProviderAPIUpdates = false;
         binding.detailContainer.setVisibility(getUseSnowflake() ? VISIBLE : GONE);
-        binding.tvCircumventionDescription.setText(getUseSnowflake() ? description_configure_provider_circumvention : description_configure_provider);
+        binding.tvCircumventionDescription.setText(getUseSnowflake() ? getString(description_configure_provider_circumvention, getString(app_name)) : getString(description_configure_provider, getString(app_name)));
         if (!isDefaultBitmask()) {
             Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.setup_progress_spinner, null);
             binding.progressSpinner.setAnimatedSpinnerDrawable(drawable);

@@ -218,8 +218,8 @@
     <string name="circumvention_setup_hint">%s will automatically try to connect you to the internet using a variety of circumvention technologies. You can fine tune this in the advanced settings.</string>
     <string name="use_standard_vpn">Use standard %s</string>
     <string name="use_circumvention_tech">Use circumvention tech (slower)</string>
-    <string name="description_configure_provider">To connect to your provider Bitmask is fetching all the required configuration information. This only happens during first setup.</string>
-    <string name="description_configure_provider_circumvention">Bitmask is attempting to collect all required configuration data from the provider. This only happens during first setup. You selected to use circumvention technology, so this might take some time.</string>
+    <string name="description_configure_provider">To connect to your provider %1$s is fetching all the required configuration information. This only happens during first setup.</string>
+    <string name="description_configure_provider_circumvention">%1$s is attempting to collect all required configuration data from the provider. This only happens during first setup. You selected to use circumvention technology, so this might take some time.</string>
     <string name="percentage" translatable="false">%d%</string>
     <string name="details">Details</string>
     <string name="tor_status">Tor Status</string>
