@@ -51,7 +51,7 @@
   <string name="setup_error_title">配置错误</string>
   <string name="setup_error_configure_button">配置</string>
   <string name="setup_error_close_button">退出</string>
-  <string name="setup_error_text">您所选择的提供商 %s 配置错误。\n\n您可选择重新配置，或退出并在下次启动时配置提供商。</string>
+  <string name="setup_error_text">选择的提供商 %s 配置错误。\n\n您可选择重新配置，或退出并在下次启动时配置提供商。</string>
   <string name="setup_error_text_custom">错误配置 %s 。\n\n您可选择重新配置或退出。</string>
   <string name="server_unreachable_message">无法访问服务器，请重试。</string>
   <string name="error.security.pinnedcertificate">安全错误，升级应用或选择其他提供商。</string>
@@ -205,4 +205,24 @@
   <string name="cancel_connection">中断连接</string>
   <string name="unknown_location">未知位置</string>
   <string name="splash_footer">由 LEAP 开发</string>
+  <string name="welcome">欢迎！</string>
+  <string name="select_provider">选择提供商</string>
+  <string name="next">下一步</string>
+  <string name="title_circumvention_setup">需要进行审查规避？</string>
+  <string name="use_standard_vpn">使用标准 %s</string>
+  <string name="use_circumvention_tech">使用审查规避技术（慢速）</string>
+  <string name="details">详情</string>
+  <string name="tor_status">Tor 状态</string>
+  <string name="snowflake_status">Snowflake 状态</string>
+  <string name="snowflake_started">Snowflake 客户端已启动</string>
+  <string name="snowflake_negotiating_rendezvous_http">正在与 Snowflake 代理协商握手（HTTP）</string>
+  <string name="snowflake_negotiating_rendezvous_amp_cache">正在与 Snowflake 代理协商握手（AMP 缓存）</string>
+  <string name="snowflake_socks_error">Snowflake SOCKS 错误</string>
+  <string name="snowflake_broker_success">Snowflake 代理握手成功</string>
+  <string name="snowflake_sending_data">通过 Snowflake 发送数据</string>
+  <string name="title_upcoming_connection_request">即将到来的连接请求</string>
+  <string name="title_upcoming_notifications_request">即将到来的通知请求</string>
+  <string name="title_setup_success">一切就绪！</string>
+  <string name="setup_success_description">点按下方按钮进行连接</string>
+  <string name="permission_rejected">权限请求被拒绝。</string>
 </resources>

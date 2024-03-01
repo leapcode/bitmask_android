@@ -202,4 +202,7 @@
   <string name="disabled_while_udp_on">Deshabilitado mientras está activo UDP.</string>
   <string name="advanced_settings">Configuraciones avanzadas</string>
   <string name="cancel_connection">Desconectar</string>
+  <string name="next">Siguiente</string>
+  <string name="details">Detalles</string>
+  <string name="tor_status">Estado de Tor</string>
 </resources>

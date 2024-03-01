@@ -136,7 +136,6 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <plurals name="subtitle_exclude_apps">
     <item quantity="one">יישום בלתי מוגן %d</item>
     <item quantity="two">%d יישומים בלתי מוגנים</item>
-    <item quantity="many">%d יישומים בלתי מוגנים</item>
     <item quantity="other">%d יישומים בלתי מוגנים</item>
   </plurals>
   <string name="warning_no_more_gateways_use_pt">%s לא היה יכול להתחבר. ייתכן שחיבורי VPN נחסמו. האם אתה רוצה לנסות להתחבר ע״י שימוש בחיבורים מאופלים?</string>
@@ -204,4 +203,8 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="disabled_while_udp_on">מושבת כאשר UDP פועל.</string>
   <string name="advanced_settings">הגדרות מתקדמות</string>
   <string name="cancel_connection">התנתק</string>
+  <string name="welcome">ברוך הבא!</string>
+  <string name="next">הבא</string>
+  <string name="details">פרטים</string>
+  <string name="tor_status">מעמד Tor</string>
 </resources>

@@ -200,4 +200,8 @@
   <string name="disabled_while_udp_on">Bị tắt khi UDP đang bật.</string>
   <string name="advanced_settings">Thiết đặt nâng cao</string>
   <string name="cancel_connection">Ngắt kết nối</string>
+  <string name="welcome">Chào mừng bạn!</string>
+  <string name="next">Tiếp</string>
+  <string name="details">Chi Tiết</string>
+  <string name="tor_status">Trạng thái Tor</string>
 </resources>

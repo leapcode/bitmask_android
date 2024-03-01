@@ -188,4 +188,8 @@
   <string name="eip_state_blocking">%1$s blokkolja az internet forgalmat.</string>
   <string name="disabled_while_udp_on">Letiltás, ha az UDP bekapcsolt.</string>
   <string name="cancel_connection">Kapcsolat bontása</string>
+  <string name="welcome">Köszöntjük!</string>
+  <string name="next">Következő</string>
+  <string name="details">Részletek</string>
+  <string name="tor_status">Tor állapot</string>
 </resources>

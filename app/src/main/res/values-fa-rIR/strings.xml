@@ -202,4 +202,5 @@ https://www.transifex.com/projects/p/bitmask/</string>
   <string name="disabled_while_udp_on">غیرفعال در صورت روشن بودن UDP</string>
   <string name="advanced_settings">تنظیمات پیشرفته</string>
   <string name="cancel_connection">قطع اتصال</string>
+  <string name="next">بعدی</string>
 </resources>

@@ -205,4 +205,8 @@
   <string name="cancel_connection">中斷連缐</string>
   <string name="unknown_location">未知的地理位置</string>
   <string name="splash_footer">由 LEAP 開發</string>
+  <string name="welcome">歡迎！</string>
+  <string name="next">下一個</string>
+  <string name="details">詳情</string>
+  <string name="tor_status">洋蔥路由狀態</string>
 </resources>

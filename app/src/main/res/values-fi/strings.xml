@@ -201,4 +201,8 @@
   <string name="disabled_while_udp_on">Ei käytössä, kun UDP on päällä.</string>
   <string name="advanced_settings">Lisäasetukset</string>
   <string name="cancel_connection">Katkaise yhteys</string>
+  <string name="welcome">Tervetuloa!</string>
+  <string name="next">Seuraava</string>
+  <string name="details">Lisätiedot</string>
+  <string name="tor_status">Tor-tila</string>
 </resources>

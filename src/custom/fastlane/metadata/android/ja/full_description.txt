@@ -1,0 +1,3 @@
+RiseupVPNは https://riseup.net による簡単、高速、そして安全なVPNサービスです。RiseupVPNは利用者のアカウント、ログの保持、または何らかの方法であなたを追跡することを必要としません。サービスはあなたを好きな利用者からの寄付によって、全て賄われています。
+
+https://riseup.net/vpn/donate

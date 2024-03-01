@@ -207,4 +207,9 @@
   <string name="cancel_connection">Se déconnecter</string>
   <string name="unknown_location">Site inconnu</string>
   <string name="splash_footer">Développé par LEAP</string>
+  <string name="welcome">Bienvenue.</string>
+  <string name="next">Suivant</string>
+  <string name="details">Détails</string>
+  <string name="tor_status">État de Tor</string>
+  <string name="title_setup_success">Tout est prêt !</string>
 </resources>
