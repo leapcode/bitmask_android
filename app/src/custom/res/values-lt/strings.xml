@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="donate_message">RiseupVPN yra lengvai naudojama, greita ir saugi VPN paslauga iš riseup.net. RiseupVPN nereikalauja naudotojo paskyros, nesaugo žurnalų ir jokiu kitu būdu jūsų neseka. Ši paslauga yra pilnai apmokama iš tokių naudotojų, kaip jūs, paaukojimų. Paaukokite, prašome, adresu https://riseup.net/vpn/donate</string>
+  <string name="terms_of_service">Naudodamiesi šia programėle, sutinkate su Naudojimo sąlygomis, kurios prieinamos, adresu https://riseup.net/tos. Ši paslauga yra teikiama tokia, kokia yra, be jokių garantijų ir yra numatyta žmonėms, kurie dirba, kad padarytų šį pasaulį geresniu.</string>
+</resources>

@@ -1,4 +1,4 @@
-Bitmask otomatik yapılandırma kullanan bir VPN istemcisidir. Sansür ve ağ engellemesini aşmak veya izlenmekten kaçınmak için birçok yöntem kullanır. Uyumlu bir hizmet sağlayıcı seçtikten sonra tüm ağ trafiğinizi şifreler ve güvendiğiniz hizmet sağlayıcınız üzerinden güvenli bir şekilde yöneltir.
+Bitmask otomatik yapılandırma kullanan bir VPN istemcisidir. Kısıtlama ve ağ engellemesini aşmak veya izlenmekten kaçınmak için birçok yöntem kullanır. Uyumlu bir hizmet sağlayıcı seçtikten sonra tüm ağ trafiğinizi şifreler ve güvendiğiniz hizmet sağlayıcınız üzerinden güvenli bir şekilde yöneltir.
 
 Böylece kullanmaya başlayabilirsiniz!
 

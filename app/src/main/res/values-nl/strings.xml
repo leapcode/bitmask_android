@@ -208,4 +208,24 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="cancel_connection">Verbreek</string>
   <string name="unknown_location">Onbekende locatie</string>
   <string name="splash_footer">Ontwikkeld door LEAP</string>
+  <string name="welcome">Welkom</string>
+  <string name="select_provider">Selecteer je provider</string>
+  <string name="select_provider_description">Als je een VPN gebruikt, verplaats je het vertrouwen van je lokale internet provider naar de VPN provider. Bitmask maakt alleen verbinding met providers met een bewezen staat van dienst voor het beschermen van privacy en het promoten van privacy rechten. </string>
+  <string name="provider_description_riseup">Riseup biedt online communicatiemiddelen voor mensen en groepen die werken aan sociale verandering. Wij zijn een project dat democratische alternatieven creëert en zelfbeschikking in de praktijk brengt door onze eigen veilige communicatiemiddelen te beheren.</string>
+  <string name="next">Volgende</string>
+  <string name="add_provider_description">Bitmask maakt verbinding met betrouwbare aanbieders die niet openbaar vermeld zijn. Vul hieronder de URL van jouw aanbieder in.</string>
+  <string name="title_circumvention_setup">Moet je censuur omzeilen?</string>
+  <string name="circumvention_setup_description">Als je in ergens woont waar het internet gecensureerd is, kun je onze opties om censuur te ontwijken gebruiken en zo toegang te krijgen tot alle internetdiensten. Deze opties zullen je verbinding vertragen!</string>
+  <string name="circumvention_setup_hint">%s zal automatisch proberen te verbinden met het internet met verschillende censuur omzeilende technologieën. Dit kun je verfijnen in de geavanceerde instellingen.</string>
+  <string name="use_standard_vpn">Gebruik standaard %s</string>
+  <string name="use_circumvention_tech">Gebruik censuur omzeilende technologie (trager)</string>
+  <string name="details">Details</string>
+  <string name="tor_status">Tor-status</string>
+  <string name="snowflake_status">Snowflake status</string>
+  <string name="snowflake_started">Snowflake client status</string>
+  <string name="snowflake_socks_error">Snowflake SOCKS fout</string>
+  <string name="snowflake_sending_data">Data versturen via Snowflake</string>
+  <string name="title_setup_success">Je bent klaar! </string>
+  <string name="setup_success_description">Tik hieronder om een verbinding te maken</string>
+  <string name="permission_rejected">Toestemmingsverzoek afgewezen.</string>
 </resources>

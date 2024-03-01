@@ -1,0 +1,5 @@
+{
+    "title": "Bitmask",
+    "full_description": "Bitmask yra VPN kliento programėlė su automatine konfigūracija. Programėlėje yra kelios technikos, skirtos apeiti cenzūrą, tinklo blokavimą ir sekimą. Pasirinkus suderinamą paslaugų teikėją, Bitmask šifruos ir per patikimą paslaugų teikėją saugiai peradresuos visą jūsų interneto duomenų srautą.\n\nŠtai ir viskas paruošta!\n\nBitmask yra atvirojo kodo VPN kliento programėlė, platinama pagal GPLv3 licenciją. Žiūrėkite https://0xacab.org/leap/bitmask_android\n\nDUK:\n\n* Kas: leap.se – kolektyvas, kuriam nuo 2011-ųjų metų patinka teisės laisvai šnabždėtis koncepcija.\n* Vertimai mūsų „Transifex“ projekte yra labai vertinami https://app.transifex.com/otf/bitmask/dashboard/\n\nJei susiduriate su problemomis ar norite turėti pačias naujausias versijas, prisijunkite prie mūsų pokalbio https://matrix.to/#/#leap:libera.chat arba pateikite pranešimą apie klaidą: https://0xacab.org/leap/bitmask_android/",
+    "short_description": "Šifruota komunikacija paprastiems mirtingiesiems\n(prieinama ir superherojams)"
+}
