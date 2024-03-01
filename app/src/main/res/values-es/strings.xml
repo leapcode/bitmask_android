@@ -218,7 +218,7 @@
   <string name="circumvention_setup_description">Si vive en un lugar donde Internet está censurado, puede utilizar nuestras opciones de elusión de la censura para acceder a todos los servicios de Internet. ¡Estas opciones ralentizarán tu conexión!</string>
   <string name="use_standard_vpn">Usar estándar %s</string>
   <string name="use_circumvention_tech">Utilice tecnología de elusión (más lento)</string>
-  <string name="description_configure_provider">Para conectarse a su proveedor, Bitmask está obteniendo toda la información de configuración requerida. Esto sólo sucede durante la primera configuración.</string>
+  <string name="description_configure_provider">Para conectarse a su proveedor, %1$s está obteniendo toda la información de configuración requerida. Esto sólo sucede durante la primera configuración.</string>
   <string name="details">Detalles</string>
   <string name="tor_status">Estado de Tor</string>
   <string name="snowflake_status">Estado Snowflake</string>
