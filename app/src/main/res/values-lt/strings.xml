@@ -220,8 +220,8 @@
   <string name="circumvention_setup_hint">%s automatiškai bandys prijungti jus prie interneto, naudojant įvairias apėjimo technologijas. Jūs galite derinti šias parinktis išplėstiniuose nustatymuose.</string>
   <string name="use_standard_vpn">Naudoti standartinį %s</string>
   <string name="use_circumvention_tech">Naudoti apėjimo technologijas (lėčiau)</string>
-  <string name="description_configure_provider">Tam, kad prisijungtų prie jūsų teikėjo, Bitmask gauna visą reikiamą konfigūracijos informaciją. Tai vyksta tik pirmosios sąrankos metu.</string>
-  <string name="description_configure_provider_circumvention">Bitmask bando iš teikėjo surinkti visus reikiamus konfigūracijos duomenis. Tai vyksta tik pirmosios sąrankos metu. Jūs pasirinkote naudoti apėjimo technologiją, todėl tai gali šiek tiek užtrukti.</string>
+  <string name="description_configure_provider">Tam, kad prisijungtų prie jūsų teikėjo, %1$s gauna visą reikiamą konfigūracijos informaciją. Tai vyksta tik pirmosios sąrankos metu.</string>
+  <string name="description_configure_provider_circumvention">%1$s bando iš teikėjo surinkti visus reikiamus konfigūracijos duomenis. Tai vyksta tik pirmosios sąrankos metu. Jūs pasirinkote naudoti apėjimo technologiją, todėl tai gali šiek tiek užtrukti.</string>
   <string name="details">Išsamiau</string>
   <string name="tor_status">Tor būsena</string>
   <string name="snowflake_status">„Snowflake“ būsena</string>
