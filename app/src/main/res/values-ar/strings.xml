@@ -224,8 +224,8 @@ https://www.transifex.com/projects/p/bitmask/</string>
   <string name="circumvention_setup_hint">%s سيحاول تلقائيًا توصيلك بالإنترنت باستخدام مجموعة متنوعة من تقنيات التجاوز. يمكنك ضبط هذا في الإعدادات المتقدمة.</string>
   <string name="use_standard_vpn">استخدم معيار %s</string>
   <string name="use_circumvention_tech">استخدام تقنية التحايل (أبطأ)</string>
-  <string name="description_configure_provider">للاتصال بمزود الخدمة الخاص بك، يقوم Bitmask بجلب جميع معلومات التهيئة المطلوبة. يحدث هذا فقط أثناء الإعداد الأول.</string>
-  <string name="description_configure_provider_circumvention"> Bitmask يحاول جمع كافة بيانات التهيئة المطلوبة من المُزوِّد. يحدث هذا فقط أثناء الإعداد الأول. لقد اخترت استخدام تقنية التجاوز، لذا قد يستغرق ذلك بعض الوقت.</string>
+  <string name="description_configure_provider">للاتصال بمزود الخدمة الخاص بك، يقوم %1$s بجلب جميع معلومات التهيئة المطلوبة. يحدث هذا فقط أثناء الإعداد الأول.</string>
+  <string name="description_configure_provider_circumvention"> %1$s يحاول جمع كافة بيانات التهيئة المطلوبة من المُزوِّد. يحدث هذا فقط أثناء الإعداد الأول. لقد اخترت استخدام تقنية التجاوز، لذا قد يستغرق ذلك بعض الوقت.</string>
   <string name="details">التفاصيل</string>
   <string name="tor_status">حالة تور</string>
   <string name="snowflake_status">حالة Snowflake</string>
