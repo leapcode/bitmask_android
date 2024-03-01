@@ -3,7 +3,7 @@ host = https://rest.api.transifex.com
 
 
 [o:otf:p:bitmask:r:strings]
-lang_map = es_AR: es-rAR, es_CU: es-rCU, fa_IR: fa-rIR, kn_IN: kn-rIN, pt_BR: pt-rBR, pt_PT: pt-rPT, zh: zh-rCN, zh_TW: zh-rTW, nb: no
+lang_map = es_AR: es-rAR, es_CU: es-rCU, fa_IR: fa-rIR, kn_IN: kn-rIN, pt_BR: pt-rBR, pt_PT: pt-rPT, zh_TW: zh-rTW, nb: no
 file_filter = app/src/main/res/values-<lang>/strings.xml
 minimum_perc = 75
 source_file = app/src/main/res/values/strings.xml
@@ -12,7 +12,7 @@ type = ANDROID
 resource_name = Bitmask Android
 
 [o:otf:p:bitmask:r:riseupvpn]
-lang_map = es_AR: es-rAR, es_CU: es-rCU, fa_IR: fa-rIR, kn_IN: kn-rIN, pt_BR: pt-rBR, pt_PT: pt-rPT, zh: zh-rCN, zh_TW: zh-rTW, nb: no
+lang_map = es_AR: es-rAR, es_CU: es-rCU, fa_IR: fa-rIR, kn_IN: kn-rIN, pt_BR: pt-rBR, pt_PT: pt-rPT, zh_TW: zh-rTW, nb: no
 file_filter = app/src/custom/res/values-<lang>/strings.xml
 minimum_perc = 75
 source_file = app/src/custom/res/values/strings.xml
@@ -21,7 +21,7 @@ type = ANDROID
 resource_name = RiseupVPN Android
 
 [o:otf:p:bitmask:r:bitmask-playstore-listing]
-lang_map = en: en-US, es_AR: es-AR, es_CU: es-CU, fa_IR: fa-IR, kn_IN: kn-IN, pt_BR: pt-BR, pt_PT: pt-PT, zh: zh-CN, zh_TW: zh-TW, nb: no
+lang_map = en: en-US, es_AR: es-AR, es_CU: es-CU, fa_IR: fa-IR, kn_IN: kn-IN, pt_BR: pt-BR, pt_PT: pt-PT, zh_TW: zh-TW, nb: no
 source_file = src/normal/fastlane/metadata/android/en-US/store-meta-en-US.json
 type = KEYVALUEJSON
 resource_name = Bitmask details in Appstore
@@ -29,7 +29,7 @@ file_filter = src/normal/fastlane/metadata/android/<lang>/store-meta-<lang>.json
 minimum_perc = 98
 
 [o:otf:p:bitmask:r:riseupvpn-playstore-listing]
-lang_map = en: en-US, es_AR: es-AR, es_CU: es-CU, fa_IR: fa-IR, kn_IN: kn-IN, pt_BR: pt-BR, pt_PT: pt-PT, zh: zh-CN, zh_TW: zh-TW, nb: no
+lang_map = en: en-US, es_AR: es-AR, es_CU: es-CU, fa_IR: fa-IR, kn_IN: kn-IN, pt_BR: pt-BR, pt_PT: pt-PT, zh_TW: zh-TW, nb: no
 source_file = src/custom/fastlane/metadata/android/en-US/store-meta-en-US.json
 type = KEYVALUEJSON
 resource_name = RiseupVPN details in Appstore

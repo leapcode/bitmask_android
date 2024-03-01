@@ -219,8 +219,8 @@
   <string name="circumvention_setup_hint">%s tentará conectá-lo automaticamente à Internet usando uma variedade de tecnologias de evasão. Você pode ajustar isso nas configurações avançadas.</string>
   <string name="use_standard_vpn">Usar padrão %s</string>
   <string name="use_circumvention_tech">Use tecnologia de evasão (mais lenta)</string>
-  <string name="description_configure_provider">Para se conectar ao seu provedor, o Bitmask está buscando todas as informações de configuração necessárias. Isso só acontece durante a primeira configuração.</string>
-  <string name="description_configure_provider_circumvention">Bitmask está tentando coletar todos os dados de configuração necessários do provedor. Isso só acontece durante a primeira configuração. Você optou por usar tecnologia de evasão, então isso pode levar algum tempo.</string>
+  <string name="description_configure_provider">Para se conectar ao seu provedor, o %1$s está buscando todas as informações de configuração necessárias. Isso só acontece durante a primeira configuração.</string>
+  <string name="description_configure_provider_circumvention">%1$s está tentando coletar todos os dados de configuração necessários do provedor. Isso só acontece durante a primeira configuração. Você optou por usar tecnologia de evasão, então isso pode levar algum tempo.</string>
   <string name="details">Detalhes</string>
   <string name="tor_status">Estado do Tor</string>
   <string name="snowflake_status">Status do floco de neve</string>

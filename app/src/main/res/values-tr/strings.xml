@@ -218,8 +218,8 @@
   <string name="circumvention_setup_hint">%s otomatik olarak çeşitli engellemeyi aşma teknolojileri kullanarak sizi İnternet\'e ulaştırmaya çalışır. Gelişmiş ayarlar bölümünden ince ayarları yapabilirsiniz.</string>
   <string name="use_standard_vpn">Standart %s kullanılsın</string>
   <string name="use_circumvention_tech">Engellemeyi aşma teknolojisi kullanılsın (daha yavaş)</string>
-  <string name="description_configure_provider">Bitmask, hizmet sağlayıcınızla bağlantı kurmak için gerekli yapılandırma bilgilerini alıyor. Bu işlem yalnızca ilk kurulum sırasında yapılır.</string>
-  <string name="description_configure_provider_circumvention">Bitmask, hizmet sağlayıcıdan gerekli yapılandırma verilerini almaya çalışıyor. Bu işlem yalnızca ilk kurulum sırasında yapılır. Engellemeyi aşma teknolojisini kullanmayı seçtiniz, bu yüzden işlemin yapılması biraz zaman alabilir.</string>
+  <string name="description_configure_provider">%1$s, hizmet sağlayıcınızla bağlantı kurmak için gerekli yapılandırma bilgilerini alıyor. Bu işlem yalnızca ilk kurulum sırasında yapılır.</string>
+  <string name="description_configure_provider_circumvention">%1$s, hizmet sağlayıcıdan gerekli yapılandırma verilerini almaya çalışıyor. Bu işlem yalnızca ilk kurulum sırasında yapılır. Engellemeyi aşma teknolojisini kullanmayı seçtiniz, bu yüzden işlemin yapılması biraz zaman alabilir.</string>
   <string name="details">Ayrıntılar</string>
   <string name="tor_status">Tor durumu</string>
   <string name="snowflake_status">Snowflake durumu</string>

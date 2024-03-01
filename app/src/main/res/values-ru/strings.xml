@@ -221,8 +221,8 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="circumvention_setup_hint">%s автоматически попытается подключить вас к интернету, используя различные технологии обхода. Параметры можно изменить в настройках.</string>
   <string name="use_standard_vpn">Использовать стандарт %s</string>
   <string name="use_circumvention_tech">Использовать технологию обхода (медленнее)</string>
-  <string name="description_configure_provider">Для подключения к вашему провайдеру Bitmask получает всю необходимую информацию о конфигурации. Это происходит только при первичной настройке.</string>
-  <string name="description_configure_provider_circumvention">Bitmask получает все необходимые конфигурационные данные от провайдера. Это происходит только при первичной настройке. Вы выбрали использование технологии обхода, поэтому процесс может занять некоторое время.</string>
+  <string name="description_configure_provider">Для подключения к вашему провайдеру %1$s получает всю необходимую информацию о конфигурации. Это происходит только при первичной настройке.</string>
+  <string name="description_configure_provider_circumvention">%1$s получает все необходимые конфигурационные данные от провайдера. Это происходит только при первичной настройке. Вы выбрали использование технологии обхода, поэтому процесс может занять некоторое время.</string>
   <string name="details">Подробности</string>
   <string name="tor_status">Статус Tor</string>
   <string name="snowflake_status">Статус Snowflake</string>

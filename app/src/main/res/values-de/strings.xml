@@ -218,8 +218,8 @@
   <string name="circumvention_setup_hint">%s versucht automatisch, dich mithilfe einer Reihe von Umgehungstechnologien mit dem Internet zu verbinden. Du kannst dies in den erweiterten Einstellungen genau anpassen.</string>
   <string name="use_standard_vpn">Benutze die Standardverbindung von %s</string>
   <string name="use_circumvention_tech">Benutze Umgehungstechnologie (langsamer)</string>
-  <string name="description_configure_provider">Um eine Verbindung zu Ihrem Provider herzustellen, holt Bitmask alle erforderlichen Konfigurationsinformationen ein. Dies geschieht nur während der Ersteinrichtung.</string>
-  <string name="description_configure_provider_circumvention">Bitmask versucht, alle erforderlichen Konfigurationsdaten vom Anbieter zu empfangen. Dies geschieht nur bei der Ersteinrichtung. Sie haben sich für die Umgehungstechnologie entschieden, daher kann dies einige Zeit dauern.</string>
+  <string name="description_configure_provider">Um eine Verbindung zu Ihrem Provider herzustellen, holt %1$s alle erforderlichen Konfigurationsinformationen ein. Dies geschieht nur während der Ersteinrichtung.</string>
+  <string name="description_configure_provider_circumvention">%1$s versucht, alle erforderlichen Konfigurationsdaten vom Anbieter zu empfangen. Dies geschieht nur bei der Ersteinrichtung. Sie haben sich für die Umgehungstechnologie entschieden, daher kann dies einige Zeit dauern.</string>
   <string name="details">Details</string>
   <string name="tor_status">Tor-Status</string>
   <string name="snowflake_status">Snowflake-Status</string>
