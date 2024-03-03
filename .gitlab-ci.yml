@@ -166,6 +166,23 @@ build_double_release:
     expire_in: 1 week
   when: manual
 
+build_double_beta_releases:
+  image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
+  stage: build
+  script:
+    - ./scripts/prepareForDistribution.sh build -allflavors -apk fat -no-tag -beta >> webBetaRelease.log 2>&1
+    - ./scripts/prepareForDistribution.sh build -allflavors -aab -no-tag >> gplayBetaRelease.log 2>&1
+  artifacts:
+    paths:
+      - app/build/outputs/
+      - currentReleases/
+      - webBetaRelease.log
+      - gplayBetaRelease.log
+    when: always
+    expire_in: 1 week
+  when: manual
+
+
 build_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build

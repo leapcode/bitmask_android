@@ -334,7 +334,7 @@ if [[ ${DO_BUILD} == true ]]; then
     if [[ ! -d $RELEASES_FILE_DIR ]]; then
         mkdir $RELEASES_FILE_DIR
     fi
-    rm -rf $RELEASES_FILE_DIR/*
+    # rm -rf $RELEASES_FILE_DIR/*
 
     if [[ ${BETA} == true ]]; then
         if [[ -n ${BUILD_APK} ]]; then
