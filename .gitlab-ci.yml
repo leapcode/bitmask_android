@@ -147,6 +147,8 @@ build:
     untracked: true
     paths:
     - app/build/outputs/
+    # it's required to pass tor builds to screenshot step
+    - tor-android/tor-android-binary/build/
     - build_deps.log
     - build.log
     when: always
