@@ -247,8 +247,8 @@ do
         -c / -custom ------------------------ build custom Bitmask client instead of main Bitmask client 
                                               (optional)
         -b / -beta -------------------------- build beta version with .beta appended to applicationId (optional)
-        -apk [all, split, fat, web] --------- build only apk(s)
-        -aab -------------------------------- build only android app bundle
+        -apk [all, split, fat, web] --------- build apk(s)
+        -aab -------------------------------- build android app bundle
         -no-tag ----------------------------- force to build current checked out git commit instead of an
                                               official release version
         -s / -stacktrace -------------------- show verbose debug output
@@ -299,15 +299,7 @@ if [[ ${DO_BUILD} == true ]]; then
         echo -e "${RED}ERROR: You didn't enter the version (git tag) to be built. If you really want to force building the current checked out commit, use -no-tag.${NC}"
         quit
     fi
-    if [[ ${BUILD_APK} == true && ${BUILD_AAB} == true ]]; then
-        echo -e "${RED}ERROR: the flags -apk and -aab are mutually exclusive. To build apks and aab, please remove both flags.${NC}"
-        quit
-    fi
-    if [[ ${DO_SIGN} == true && -z ${BUILD_APK} && -z ${BUILD_AAB} && -z ${KEYSTORE_ALIAS} ]]; then
-        echo -e "${RED}ERROR: keystore alias is missing. Please add flag -ka <yourkeystorealias>. Exiting.${NC}"
-        quit
-    fi
-    if [[ ${DO_SIGN} == true && ${BUILD_AAB} && -z ${KEYSTORE_ALIAS} ]]; then
+    if [[ ${DO_SIGN} == true && -n ${BUILD_BUNDLE} && -z ${KEYSTORE_ALIAS} ]]; then
         echo -e "${RED}ERROR: keystore alias is missing. Please add flag -ka <yourkeystorealias>. Exiting.${NC}"
         quit
     fi
@@ -323,6 +315,14 @@ if [[ ${DO_BUILD} == true ]]; then
         fi
     fi
 
+    if [[ -z ${BUILD_APK} && -z ${BUILD_BUNDLE} ]]; then
+        echo -e "${GREEN} -> set defaults to build APKs (web, split apks and fat apk)"
+        BUILD_APK=true;
+        BUILD_SPLIT=true;
+        BUILD_FAT=true;
+        BUILD_WEB=true;
+    fi;
+
     $(script_dir)/cleanProject.sh || quit
     $(script_dir)/build_deps.sh || quit
     $(script_dir)/fix_gradle_lock.sh || quit
@@ -337,7 +337,7 @@ if [[ ${DO_BUILD} == true ]]; then
     rm -rf $RELEASES_FILE_DIR/*
 
     if [[ ${BETA} == true ]]; then
-        if [[ -z ${BUILD_BUNDLE} ]]; then
+        if [[ -n ${BUILD_APK} ]]; then
           if [[ -z ${FLAVOR2} ]]; then
             echo "${GREEN} -> build beta releases (.apk) for flavor ${FLAVOR}${NC}"
           else
@@ -394,7 +394,7 @@ if [[ ${DO_BUILD} == true ]]; then
             fi
           fi
         fi
-        if [[ -z ${BUILD_APK} ]]; then
+        if [[ -n ${BUILD_BUNDLE} ]]; then
           if [[ -z ${FLAVOR2} ]]; then
             echo "${GREEN} -> build beta release (.aab) for flavor ${FLAVOR}${NC}"
           else
@@ -409,7 +409,7 @@ if [[ ${DO_BUILD} == true ]]; then
         fi
     else
         # default: neither -aab nor -apk is passed: build apks
-        if ([[ -z ${BUILD_BUNDLE} ]] && [[ -z ${BUILD_APK} ]]) || ([[ -n ${BUILD_APK} ]]); then
+        if [[ -n ${BUILD_APK} ]]; then
           if [[ -z ${FLAVOR2} ]]; then
             echo -e "${GREEN} -> build stable releases (.apk) for flavor ${FLAVOR}${NC}"
           else
