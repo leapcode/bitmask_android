@@ -223,8 +223,10 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
                 setupActivityCallback.onProviderSelected(provider);
                 handler.postDelayed(() -> {
                     if (!ProviderSetupObservable.isCanceled()) {
-                        if (setupActivityCallback != null) {
+                        try {
                             setupActivityCallback.onConfigurationSuccess();
+                        } catch (NullPointerException npe) {
+                            // callback disappeared in the meanwhile
                         }
                     }
                 }, 750);
