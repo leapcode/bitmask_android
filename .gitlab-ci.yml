@@ -14,7 +14,6 @@ variables:
   image: 0xacab.org:4567/leap/docker/debian:bullseye_amd64
   tags:
     - docker-in-docker
-    - runner02-sea
   services:
     - docker:dind
 
