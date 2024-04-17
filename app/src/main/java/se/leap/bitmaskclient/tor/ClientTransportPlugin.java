@@ -1,6 +1,6 @@
 package se.leap.bitmaskclient.tor;
 /**
- * Copyright (c) 2021 LEAP Encryption Access Project and contributors
+ * Copyright (c) 2024 LEAP Encryption Access Project and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +66,7 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface, Pr
         this.contextRef = new WeakReference<>(context);
         handlerThread = new HandlerThread("clientTransportPlugin", Thread.MIN_PRIORITY);
         loadCdnFronts(context);
+        IPtProxy.setStateLocation(context.getApplicationContext().getCacheDir() + "/pt_state");
     }
 
     @Override
@@ -96,16 +97,37 @@ public class ClientTransportPlugin implements ClientTransportPluginInterface, Pr
     private void startConnectionAttempt(boolean useAmpCache, @NonNull String logfilePath) {
         //this is using the current, default Tor snowflake infrastructure
         String target = getCdnFront("snowflake-target");
-        String front = getCdnFront("snowflake-front");
+        String fronts = getCdnFront("snowflake-fronts");
         String stunServer = getCdnFront("snowflake-stun");
         String ampCache = null;
         if (useAmpCache) {
             target = "https://snowflake-broker.torproject.net/";
             ampCache = "https://cdn.ampproject.org/";
-            front = "www.google.com";
+            fronts = "www.google.com";
         }
-        snowflakePort = IPtProxy.startSnowflake(stunServer, target, front, ampCache, logfilePath, false, false, true, 5);
+
+        snowflakePort = startSnowflake(stunServer, target, fronts, ampCache, null, null, logfilePath, false, false, false, 5);
         Log.d(TAG, "startSnowflake running on port: " + snowflakePort);
+    }
+
+/**
+     StartSnowflake - Start IPtProxy's Snowflake client.
+     @param ice Comma-separated list of ICE servers.
+     @param url URL of signaling broker.
+     @param fronts Comma-separated list of front domains.
+     @param ampCache OPTIONAL. URL of AMP cache to use as a proxy for signaling.
+        Only needed when you want to do the rendezvous over AMP instead of a domain fronted server.
+     @param sqsQueueURL OPTIONAL. URL of SQS Queue to use as a proxy for signaling.
+     @param sqsCredsStr OPTIONAL. Credentials to access SQS Queue
+     @param logFile Name of log file. OPTIONAL. Defaults to no log.
+     @param logToStateDir Resolve the log file relative to Tor's PT state dir.
+     @param keepLocalAddresses Keep local LAN address ICE candidates.
+     @param unsafeLogging Prevent logs from being scrubbed.
+     @param maxPeers Capacity for number of multiplexed WebRTC peers. DEFAULTs to 1 if less than that.
+     @return Port number where Snowflake will listen on, if no error happens during start up.
+ */
+    private long startSnowflake(String ice, String url, String fronts, String ampCache, String sqsQueueURL, String sqsCredsStr, String logFile, boolean logToStateDir, boolean keepLocalAddresses, boolean unsafeLogging, long maxPeers) {
+        return IPtProxy.startSnowflake(ice, url, fronts, ampCache, sqsQueueURL, sqsCredsStr, logFile, logToStateDir, keepLocalAddresses, unsafeLogging, maxPeers);
     }
 
     private void retryConnectionAttempt(boolean useAmpCache) {
