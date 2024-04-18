@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="notifcation_title_bitmask" translatable="false">%s - %s</string>
-    <string name="copyright_leapgui" translatable="false">Copyright (c) 2012-2022\nLEAP Encryption Access Project &lt;info@leap.se></string>
-    <string name="opevpn_copyright" translatable="false">Copyright (c) 2002-2019 OpenVPN Technologies, Inc. &lt;sales@openvpn.net>\n
-	  "OpenVPN" is a trademark of OpenVPN Technologies, Inc.</string>
-    <string name="lzo_copyright" translatable="false">Copyright (c) 1996 - 2011 Markus Franz Xaver Johannes Oberhumer</string>
-    <string name="copyright_openssl" translatable="false"> Copyright 1995-2018 The OpenSSL Project Authors. All Rights Reserved.\n\n
+    <string name="copyright_leapgui" translatable="false">Copyright (c) 2012-2024\nLEAP Encryption Access Project &lt;info@leap.se></string>
+    <string name="opevpn_copyright" translatable="false">Copyright (C) 2002-2024 OpenVPN Inc &lt;sales@openvpn.net></string>
+    <string name="lzo_copyright" translatable="false">Copyright (c) 1996 - 2011 Markus Franz Xaver Johannes Oberhumer.\nCopyright (C) 2002-2024 OpenVPN Inc &lt;sales@openvpn.net></string>
+    <string name="copyright_openssl" translatable="false"> Copyright 1995-2024 The OpenSSL Project Authors. All Rights Reserved.\n\n
         This product includes cryptographic software written by Eric Young (eay@cryptsoft.com)\n
         Copyright 1995-1998 Eric Young (eay@cryptsoft.com) All rights reserved.</string>
-    <string name="copyright_okhttp" translatable="false">Copyright (c) 2022 Square, Inc.</string>
+    <string name="copyright_okhttp" translatable="false">Copyright (c) 2024 Square, Inc.</string>
     <string name="okhttp" translatable="false">OkHttp</string>
     <string name="openvpn" translatable="false">OpenVPN</string>
     <string name="lzo" translatable="false">LZO</string>
@@ -18,12 +17,11 @@
         https://github.com/schwabe/polarssl/blob/icsopenvpn_270/apache-2.0.txt
     </string>
     <string name="asio" translatable="false">Asio</string>
-    <string name="copyright_asio" translatable="false">Copyright (c) 2003-2018 Christopher M. Kohlhoff (chris at kohlhoff dot com).\n\nDistributed under the Boost Software License, Version 1.0.</string>
+    <string name="copyright_asio" translatable="false">Copyright (c) 2003-2024 Christopher M. Kohlhoff (chris at kohlhoff dot com).\n\nDistributed under the Boost Software License, Version 1.0.</string>
     <string name="openvpn3" translatable="false">OpenVPN 3</string>
-    <string name="copyright_openvpn3" translatable="false">GNU AFFERO GENERAL PUBLIC LICENSE\n
-        Version 3, 19 November 2007</string>
+    <string name="copyright_openvpn3" translatable="false">Copyright (C) 2012-2024 OpenVPN Inc.</string>
     <string name="unknown_state" translatable="false">Unknown state</string>
-    <string name="copyright_blinktgui" translatable="false">Copyright (c) 2012-2022 Arne Schwabe &lt;arne@rfc2549.org></string>
+    <string name="copyright_blinktgui" translatable="false">Copyright (c) 2012-2024 Arne Schwabe &lt;arne@rfc2549.org></string>
     <string name="defaultserver" translatable="false">openvpn.uni-paderborn.de</string>
     <string name="defaultport" translatable="false">1194</string>
     <string name="copyright_file_dialog" translatable="false">File Dialog based on work by Alexander Ponomarev</string>
@@ -36,21 +34,21 @@
     <string name="state_user_vpn_password_cancelled" translatable="false">VPN password input dialog cancelled</string>
     <string name="state_user_vpn_permission_cancelled" translatable="false">VPN API permission dialog cancelled</string>
     <string name="shapeshifter_library" translatable="false">Shapeshifter Library</string>
-    <string name="copyright_shapeshifter_library" translatable="false">Copyright (c) 2022, LEAP Encryption Access Project (info@leap.se)</string>
+    <string name="copyright_shapeshifter_library" translatable="false">Copyright (c) 2024, LEAP Encryption Access Project (info@leap.se)</string>
     <string name="shapeshifter_transports" translatable="false">Shapeshifter Transports</string>
-    <string name="copyright_shapeshifter_transports" translatable="false">Copyright (c) 2020 Operator Foundation. Distributed under MIT license.</string>
+    <string name="copyright_shapeshifter_transports" translatable="false">Copyright (c) 2024 Operator Foundation. Distributed under MIT license.</string>
     <string name="obfs4" translatable="false">obfs4 - The obfourscator</string>
     <string name="copyright_obfs4" translatable="false">Copyright (c) 2014, Yawning Angel \n yawning at schwanenlied dot me \n All rights reserved.</string>
     <string name="snowflake" translatable="false">Snowflake</string>
-    <string name="copyright_snowflake" translatable="false">Copyright (c) 2016, Serene Han, Arlo Breault \n Copyright (c) 2019-2020, The Tor Project, Inc.\nDistributed under 3-clause BSD license.</string>
+    <string name="copyright_snowflake" translatable="false">Copyright (c) 2016, Serene Han, Arlo Breault \n Copyright (c) 2019-2024, The Tor Project, Inc.\nDistributed under 3-clause BSD license.</string>
     <string name="iptproxy" translatable="false">IPtProxy</string>
-    <string name="copyright_iptproxy" translatable="false">Copyright (c) 2020 - 2021 Benjamin Erhart (berhart@netzarchitekten.com). Distributed under the MIT License</string>
+    <string name="copyright_iptproxy" translatable="false">Copyright (c) 2020 - 2024 Benjamin Erhart (berhart@netzarchitekten.com). Distributed under the MIT License</string>
     <string name="tor" translatable="false">Tor</string>
-    <string name="copyright_tor" translatable="false">Copyright (c) 2001-2004, Roger Dingledine \n Copyright (c) 2004-2006, Roger Dingledine, Nick Mathewson \n Copyright (c) 2007-2019, The Tor Project, Inc. \n Distributed under the 3-clause BSD license</string>
+    <string name="copyright_tor" translatable="false">Copyright (c) 2001-2004, Roger Dingledine \n Copyright (c) 2004-2006, Roger Dingledine, Nick Mathewson \n Copyright (c) 2007-2024, The Tor Project, Inc. \n Distributed under the 3-clause BSD license</string>
     <string name="tor_android" translatable="false">Tor Android</string>
     <string name="copyright_tor_android" translatable="false">Copyright (c) 2009-2010, Nathan Freitas, The Guardian Project. Distributed under the 3-clause BSD license.</string>
     <string name="circleImageView" translatable="false">CircleImageView</string>
-    <string name="copyright_circleImageView" translatable="false">Copyright 2014 - 2022 Henning Dodenhof. Licensed under the Apache License, Version 2.0 </string>
+    <string name="copyright_circleImageView" translatable="false">Copyright 2014 - 2024 Henning Dodenhof. Licensed under the Apache License, Version 2.0 </string>
 
    <!-- gateway selector, move to strings.xml, once the wording is clear -->
     <string name="no_location" translatable="false">---</string>
