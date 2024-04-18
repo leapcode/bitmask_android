@@ -1,3 +1,13 @@
+1.3.0
+features:
+* update golang to v. 1.22.2
+* update snowflake
+* update about screen
+
+bugfixes:
+* fix crash during provider setup
+* fix possible race condition which results in wrong connectivity state
+
 1.3.0RC1 maintenance Release
 features:
 * Support for Android 14
