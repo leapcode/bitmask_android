@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.junit.Assume;
 
 import se.leap.bitmaskclient.base.MainActivity;
 import se.leap.bitmaskclient.base.StartActivity;
@@ -69,6 +70,8 @@ public class ProviderSetupTest {
 
     @Test
     public void test01_setupProviderDefault() {
+        // Assume the branding is not "custom" to skip this test when it is.
+        Assume.assumeFalse("custom".equals(BuildConfig.FLAVOR_branding));
         startSetupActivity();
         ProviderSetupUtils.runProviderSetup(device, true, false, InstrumentationRegistry.getInstrumentation().getTargetContext());
     }
