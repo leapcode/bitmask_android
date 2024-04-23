@@ -8,7 +8,12 @@ use_timestamp_suffix(false)
 # prioritized locales
 # locales(['ar', 'bn', 'de', 'es', 'fa-IR', 'fr', 'he', 'hu', 'id', 'it', 'ja', 'my', 'nl', 'pt-BR', 'pt-PT', 'ru', 'tr', 'ug', 'uk', 'zh-CN', 'zh-TW'])
 # development locales
-locales(['ar', 'de', 'ru'])
+
+# check how much is translated. When 'connect' isn't translated, don't bother!
+
+#locales(['ar', 'az', 'bg', 'bn', 'br', 'ca', 'cs', 'de', 'el', 'es', 'es-AR', 'et', 'eu', 'fa-IR', 'fi', 'fr', 'gl', 'he', 'hr', 'hu', 'id', 'it', 'ja', 'my', 'nl', 'no', 'pl', 'pt-BR', 'pt-PT', 'ro', 'ru', 'tr', 'ug', 'uk', 'vi', 'zh-CN', 'zh-TW'])
+
+locales(['ar', 'de', 'el', 'es_AR', 'es-CU', 'fa-IR', 'fi', 'fr', 'he', 'hu', 'ja', 'lt', 'nl', 'pt-BR', 'ru', 'tr', 'uk', 'zh-CN', 'zh-TW'])
 
 # clear all previously generated screenshots in your local output directory before creating new ones
 clear_previous_screenshots(true)
