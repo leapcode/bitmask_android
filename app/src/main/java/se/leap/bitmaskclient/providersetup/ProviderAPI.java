@@ -16,7 +16,6 @@
  */
 package se.leap.bitmaskclient.providersetup;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -31,11 +30,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.util.concurrent.TimeoutException;
 
 import se.leap.bitmaskclient.base.models.Provider;
-import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.tor.TorServiceCommand;
 
 /**
- * Implements HTTP api methods (encapsulated in {{@link ProviderApiManager}})
+ * Implements HTTP api methods (encapsulated in {{@link ProviderApiManagerV3}})
  * used to manage communications with the provider server.
  * <p/>
  * It's an JobIntentService because it downloads data from the Internet, so it operates in the background.
@@ -83,12 +81,6 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
             DOWNLOAD_SERVICE_JSON = "ProviderAPI.DOWNLOAD_SERVICE_JSON";
 
     final public static int
-            SUCCESSFUL_LOGIN = 3,
-            FAILED_LOGIN = 4,
-            SUCCESSFUL_SIGNUP = 5,
-            FAILED_SIGNUP = 6,
-            SUCCESSFUL_LOGOUT = 7,
-            LOGOUT_FAILED = 8,
             CORRECTLY_DOWNLOADED_VPN_CERTIFICATE = 9,
             INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE = 10,
             PROVIDER_OK = 11,
@@ -105,17 +97,10 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
 
     ProviderApiManager providerApiManager;
 
-    //TODO: refactor me, please!
-    //used in insecure flavor only
-    @SuppressLint("unused")
-    public static boolean lastDangerOn() {
-        return ProviderApiManager.lastDangerOn();
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
-        providerApiManager = initApiManager();
+        providerApiManager = new ProviderApiManager(getResources(), this);
     }
 
     /**
@@ -182,12 +167,6 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
         ProviderManager pm = ProviderManager.getInstance(this.getAssets());
         pm.add(p);
         pm.saveCustomProviders();
-    }
-
-
-    private ProviderApiManager initApiManager() {
-        OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(getResources());
-        return new ProviderApiManager(getResources(), clientGenerator, this);
     }
 
 }
