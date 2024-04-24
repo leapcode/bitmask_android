@@ -81,7 +81,6 @@ import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.providersetup.ProviderAPI;
 import se.leap.bitmaskclient.providersetup.ProviderAPICommand;
 import se.leap.bitmaskclient.providersetup.ProviderSetupObservable;
-import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 import se.leap.bitmaskclient.tor.TorServiceCommand;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
@@ -246,9 +245,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 //no break, continue with next case
             case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 if (ProviderSetupObservable.getProgress() > 0 && !activityForeground.get()) {
-                    Intent activityIntent = new Intent(appContext, SetupActivity.class);
-                    activityIntent.setAction(Intent.ACTION_MAIN);
-                    appContext.startActivity(activityIntent);
+                    ProviderSetupObservable.storeLastResult(resultCode, resultData);
                 }
                 break;
             case TOR_TIMEOUT:
@@ -270,6 +267,8 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         for (EipSetupListener listener : listeners) {
             listener.handleProviderApiEvent(intent);
         }
+
+
     }
 
     private void maybeStartEipService(Bundle resultData) {

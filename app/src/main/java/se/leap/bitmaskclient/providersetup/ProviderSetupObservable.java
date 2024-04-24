@@ -16,6 +16,8 @@ package se.leap.bitmaskclient.providersetup;
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import android.os.Bundle;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
@@ -45,13 +47,15 @@ public class ProviderSetupObservable {
     public static final String PROPERTY_CHANGE = "ProviderSetupObservable";
     private final HandlerInterface handler;
     private long lastUpdate = 0;
+    private int resultCode = 0;
+    private Bundle resultData;
 
 
 
     private ProviderSetupObservable() {
         handler = HandlerProvider.get();
         changeSupport = new PropertyChangeSupport(this);
-
+        resultData = new Bundle();
     }
 
     public void addObserver(PropertyChangeListener propertyChangeListener) {
@@ -68,6 +72,14 @@ public class ProviderSetupObservable {
             instance = new ProviderSetupObservable();
         }
         return instance;
+    }
+
+    public static void storeLastResult(int resultCode, Bundle resultData) {
+        if (getInstance().canceled) {
+            return;
+        }
+        getInstance().resultCode = resultCode;
+        getInstance().resultData = resultData;
     }
 
     public static void updateProgress(int progress) {
@@ -107,6 +119,8 @@ public class ProviderSetupObservable {
 
     public static void reset() {
         getInstance().progress = 0;
+        getInstance().resultCode = 0;
+        getInstance().resultData = new Bundle();
         getInstance().changeSupport.firePropertyChange(PROPERTY_CHANGE, null, getInstance());
     }
 
@@ -121,5 +135,15 @@ public class ProviderSetupObservable {
 
     public static void startSetup() {
         getInstance().canceled = false;
+        getInstance().resultCode = 0;
+        getInstance().resultData = new Bundle();
+    }
+
+    public static int getResultCode() {
+        return getInstance().resultCode;
+    }
+
+    public static Bundle getResultData() {
+        return getInstance().resultData;
     }
 }

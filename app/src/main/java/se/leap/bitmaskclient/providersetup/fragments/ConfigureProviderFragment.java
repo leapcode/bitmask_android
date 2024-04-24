@@ -111,6 +111,14 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (ProviderSetupObservable.getProgress() > 0) {
+            handleResult(ProviderSetupObservable.getResultCode(), ProviderSetupObservable.getResultData());
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         setupActivityCallback.removeCancelCallback(this);
         ProviderSetupObservable.getInstance().deleteObserver(this);
@@ -203,11 +211,15 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         if (resultData == null) {
             resultData = Bundle.EMPTY;
         }
+       handleResult(resultCode, resultData);
+    }
+
+    private void handleResult(int resultCode, Bundle resultData) {
         Provider provider = resultData.getParcelable(PROVIDER_KEY);
         if (ignoreProviderAPIUpdates ||
                 provider == null ||
                 (setupActivityCallback.getSelectedProvider() != null &&
-                !setupActivityCallback.getSelectedProvider().getMainUrlString().equals(provider.getMainUrlString()))) {
+                        !setupActivityCallback.getSelectedProvider().getMainUrlString().equals(provider.getMainUrlString()))) {
             return;
         }
 
