@@ -1,3 +1,7 @@
+1.3.1 hotfix
+bugfix:
+* fix app crash during provider setup in case the app is moved to background
+
 1.3.0
 features:
 * update golang to v. 1.22.2
