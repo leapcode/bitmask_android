@@ -117,6 +117,10 @@ public class ProviderSetupObservable {
         return getInstance().progress;
     }
 
+    public static boolean isSetupRunning() {
+        return getInstance().progress > 0;
+    }
+
     public static void reset() {
         getInstance().progress = 0;
         getInstance().resultCode = 0;
@@ -136,6 +140,7 @@ public class ProviderSetupObservable {
     public static void startSetup() {
         getInstance().canceled = false;
         getInstance().resultCode = 0;
+        getInstance().progress = 1;
         getInstance().resultData = new Bundle();
     }
 

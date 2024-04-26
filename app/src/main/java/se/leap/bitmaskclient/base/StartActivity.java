@@ -51,6 +51,7 @@ import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.DateHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EipCommand;
+import se.leap.bitmaskclient.providersetup.ProviderSetupObservable;
 import se.leap.bitmaskclient.providersetup.activities.SetupActivity;
 
 /**
@@ -268,6 +269,7 @@ public class StartActivity extends Activity{
     }
 
     private void showNextActivity(Provider provider) {
+        ProviderSetupObservable.cancel();
         if (provider.shouldShowMotdSeen()) {
             try {
                 IMessages messages = Motd.newMessages(provider.getMotdJsonString());

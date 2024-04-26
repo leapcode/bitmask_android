@@ -3,6 +3,7 @@ package se.leap.bitmaskclient.providersetup.activities;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CONFIGURE_PROVIDER_FRAGMENT;
@@ -139,7 +140,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         });
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setUserInputEnabled(false);
-        binding.viewPager.setCurrentItem(currentPosition, false);
+
 
         binding.setupNextButton.setOnClickListener(v -> {
             int currentPos = binding.viewPager.getCurrentItem();
@@ -153,6 +154,14 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
             cancel();
         });
         setupActionBar();
+
+        if (ProviderSetupObservable.isSetupRunning()) {
+            provider = ProviderSetupObservable.getResultData().getParcelable(PROVIDER_KEY);
+            if (provider != null) {
+                currentPosition = adapter.getFragmentPostion(CONFIGURE_PROVIDER_FRAGMENT);
+            }
+        }
+        binding.viewPager.setCurrentItem(currentPosition, false);
     }
 
     @Override

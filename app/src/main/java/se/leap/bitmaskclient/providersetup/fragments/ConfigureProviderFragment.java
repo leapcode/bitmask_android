@@ -111,14 +111,6 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (ProviderSetupObservable.getProgress() > 0) {
-            handleResult(ProviderSetupObservable.getResultCode(), ProviderSetupObservable.getResultData());
-        }
-    }
-
-    @Override
     public void onDestroyView() {
         setupActivityCallback.removeCancelCallback(this);
         ProviderSetupObservable.getInstance().deleteObserver(this);
@@ -140,8 +132,12 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         binding.progressSpinner.update(ProviderSetupObservable.getProgress());
         setupActivityCallback.setNavigationButtonHidden(true);
         setupActivityCallback.setCancelButtonHidden(false);
-        ProviderSetupObservable.startSetup();
-        ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, setupActivityCallback.getSelectedProvider());
+        if (ProviderSetupObservable.isSetupRunning()) {
+            handleResult(ProviderSetupObservable.getResultCode(), ProviderSetupObservable.getResultData(), true);
+        } else {
+            ProviderSetupObservable.startSetup();
+            ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, setupActivityCallback.getSelectedProvider());
+        }
     }
 
     protected void showConnectionDetails() {
@@ -211,10 +207,10 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         if (resultData == null) {
             resultData = Bundle.EMPTY;
         }
-       handleResult(resultCode, resultData);
+       handleResult(resultCode, resultData, false);
     }
 
-    private void handleResult(int resultCode, Bundle resultData) {
+    private void handleResult(int resultCode, Bundle resultData, boolean resumeSetup) {
         Provider provider = resultData.getParcelable(PROVIDER_KEY);
         if (ignoreProviderAPIUpdates ||
                 provider == null ||
@@ -225,6 +221,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
 
         switch (resultCode) {
             case PROVIDER_OK:
+                setupActivityCallback.onProviderSelected(provider);
                 if (provider.allowsAnonymous()) {
                     ProviderAPICommand.execute(this.getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
                 } else {
@@ -241,7 +238,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
                             // callback disappeared in the meanwhile
                         }
                     }
-                }, 750);
+                }, resumeSetup ? 0 : 750);
                 break;
             case PROVIDER_NOK:
             case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:

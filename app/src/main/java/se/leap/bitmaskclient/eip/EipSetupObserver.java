@@ -244,7 +244,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 Log.d(TAG, "PROVIDER OK - FETCH SUCCESSFUL");
                 //no break, continue with next case
             case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
-                if (ProviderSetupObservable.getProgress() > 0 && !activityForeground.get()) {
+                if (ProviderSetupObservable.isSetupRunning() && !activityForeground.get()) {
                     ProviderSetupObservable.storeLastResult(resultCode, resultData);
                 }
                 break;
