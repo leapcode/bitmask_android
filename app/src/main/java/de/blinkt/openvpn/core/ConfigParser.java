@@ -5,8 +5,6 @@
 
 package de.blinkt.openvpn.core;
 
-import static de.blinkt.openvpn.core.connection.Connection.TransportType.PT;
-
 import android.os.Build;
 import android.text.TextUtils;
 
@@ -27,9 +25,8 @@ import java.util.Vector;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
-import de.blinkt.openvpn.core.connection.Obfs4HopConnection;
 import de.blinkt.openvpn.core.connection.OpenvpnConnection;
-import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
+import se.leap.bitmaskclient.pluggableTransports.models.Obfs4Options;
 
 //! Openvpn Config FIle Parser, probably not 100% accurate but close enough
 
@@ -808,11 +805,9 @@ public class ConfigParser {
             }
         else {
             switch (transportType) {
+                case OBFS4_HOP:
                 case OBFS4:
                     conn = new Obfs4Connection(obfs4Options);
-                    break;
-                case OBFS4_HOP:
-                    conn = new Obfs4HopConnection(obfs4Options);
                     break;
                 case OPENVPN:
                     conn = new OpenvpnConnection();

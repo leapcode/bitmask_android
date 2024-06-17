@@ -223,7 +223,7 @@ public class VpnStatus {
 
     public enum ErrorType {
         UNKNOWN,
-        SHAPESHIFTER
+        OBFSVPN
     }
 
     // keytool -printcert -jarfile de.blinkt.openvpn_85.apk

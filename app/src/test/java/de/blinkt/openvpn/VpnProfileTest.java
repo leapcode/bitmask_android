@@ -25,7 +25,7 @@ import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import de.blinkt.openvpn.core.connection.OpenvpnConnection;
 import se.leap.bitmaskclient.base.models.Transport;
 import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
-import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
+import se.leap.bitmaskclient.pluggableTransports.models.Obfs4Options;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({UUID.class, BuildConfigHelper.class})
@@ -77,8 +77,6 @@ public class VpnProfileTest {
 
     @Test
     public void toJson_obfs4() throws JSONException {
-        when(BuildConfigHelper.useObfsVpn()).thenReturn(false);
-
         VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OBFS4);
 
         Transport transport = new Transport(OBFS4.toString(), new String[]{"tcp"}, new String[]{"1234"}, "CERT");
@@ -96,7 +94,6 @@ public class VpnProfileTest {
 
     @Test
     public void toJson_obfs4_obfsvpn() throws JSONException {
-        when(BuildConfigHelper.useObfsVpn()).thenReturn(true);
         VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OBFS4);
         Transport.Options options = new Transport.Options("CERT", "1");
         Transport transport = new Transport(OBFS4.toString(), new String[]{"tcp"}, new String[]{"1234"}, options);
@@ -114,7 +111,6 @@ public class VpnProfileTest {
 
     @Test
     public void toJson_obfs4_obfsvpn_kcp() throws JSONException {
-        when(BuildConfigHelper.useObfsVpn()).thenReturn(true);
 
         VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OBFS4);
         Transport.Options options = new Transport.Options("CERT", "1");
@@ -133,7 +129,6 @@ public class VpnProfileTest {
 
     @Test
     public void toJson_obfs4hop_kcp() throws JSONException {
-        when(BuildConfigHelper.useObfsVpn()).thenReturn(true);
 
         VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OBFS4_HOP);
 
@@ -154,7 +149,6 @@ public class VpnProfileTest {
 
     @Test
     public void toJson_obfs4hop_portHopping() throws JSONException {
-        when(BuildConfigHelper.useObfsVpn()).thenReturn(true);
 
         VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OBFS4_HOP);
 
@@ -175,7 +169,6 @@ public class VpnProfileTest {
 
     @Test
     public void toJson_obfs4hop() throws JSONException {
-        when(BuildConfigHelper.useObfsVpn()).thenReturn(true);
 
         VpnProfile mockVpnProfile = new VpnProfile("mockProfile", OBFS4_HOP);
         Transport.Options options = new Transport.Options("1", new Transport.Endpoint[]{new Transport.Endpoint("1.1.1.1", "CERT1"), new Transport.Endpoint("2.2.2.2", "CERT2")}, 200, 100, true);
@@ -195,7 +188,6 @@ public class VpnProfileTest {
 
     @Test
     public void fromJson_obfs4() {
-        when(BuildConfigHelper.useObfsVpn()).thenReturn(false);
 
         VpnProfile mockVpnProfile = VpnProfile.fromJson(OBFS4CONNECTION_PROFILE);
         assertNotNull(mockVpnProfile);
@@ -210,14 +202,13 @@ public class VpnProfileTest {
         }
         assertEquals("CERT", obfs4Connection.getObfs4Options().transport.getOptions().getCert());
         assertEquals("0", obfs4Connection.getObfs4Options().transport.getOptions().getIatMode());
-        assertEquals("192.168.0.1", obfs4Connection.getObfs4Options().gatewayIP);
+        assertEquals("192.168.0.1", obfs4Connection.getObfs4Options().bridgeIP);
         assertEquals("1234", obfs4Connection.getObfs4Options().transport.getPorts()[0]);
         assertEquals(1, obfs4Connection.getObfs4Options().transport.getPorts().length);
     }
 
     @Test
     public void fromJson_obfs4_obfsvpn() {
-        when(BuildConfigHelper.useObfsVpn()).thenReturn(true);
 
         VpnProfile mockVpnProfile = VpnProfile.fromJson(OBFS4CONNECTION_PROFILE_OBFSVPN);
         assertNotNull(mockVpnProfile);
@@ -229,14 +220,13 @@ public class VpnProfileTest {
         assertEquals("tcp", obfs4Connection.getObfs4Options().transport.getProtocols()[0]);
         assertEquals("CERT", obfs4Connection.getObfs4Options().transport.getOptions().getCert());
         assertEquals("1", obfs4Connection.getObfs4Options().transport.getOptions().getIatMode());
-        assertEquals("192.168.0.1", obfs4Connection.getObfs4Options().gatewayIP);
+        assertEquals("192.168.0.1", obfs4Connection.getObfs4Options().bridgeIP);
         assertEquals("1234", obfs4Connection.getObfs4Options().transport.getPorts()[0]);
         assertEquals(1, obfs4Connection.getObfs4Options().transport.getPorts().length);
     }
 
     @Test
     public void fromJson_obfs4_obfsvpn_kcp() {
-        when(BuildConfigHelper.useObfsVpn()).thenReturn(true);
 
         VpnProfile mockVpnProfile = VpnProfile.fromJson(OBFS4CONNECTION_PROFILE_OBFSVPN_KCP);
         assertNotNull(mockVpnProfile);
@@ -248,7 +238,7 @@ public class VpnProfileTest {
         assertEquals("kcp", obfs4Connection.getObfs4Options().transport.getProtocols()[0]);
         assertEquals("CERT", obfs4Connection.getObfs4Options().transport.getOptions().getCert());
         assertEquals("1", obfs4Connection.getObfs4Options().transport.getOptions().getIatMode());
-        assertEquals("192.168.0.1", obfs4Connection.getObfs4Options().gatewayIP);
+        assertEquals("192.168.0.1", obfs4Connection.getObfs4Options().bridgeIP);
         assertEquals("1234", obfs4Connection.getObfs4Options().transport.getPorts()[0]);
     }
 }

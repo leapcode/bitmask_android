@@ -24,7 +24,6 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Obfs4Connection;
-import de.blinkt.openvpn.core.connection.Obfs4HopConnection;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
@@ -1709,7 +1708,7 @@ public class VpnConfigGeneratorTest {
         configuration.experimentalTransports = true;
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
-        assertTrue(vpnProfiles.containsKey(OBFS4_HOP) && ((Obfs4HopConnection)vpnProfiles.get(OBFS4_HOP).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("tcp"));
+        assertTrue(vpnProfiles.containsKey(OBFS4_HOP) && ((Obfs4Connection)vpnProfiles.get(OBFS4_HOP).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("tcp"));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
     }
 
@@ -1722,7 +1721,7 @@ public class VpnConfigGeneratorTest {
         configuration.experimentalTransports = true;
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
-        assertTrue(vpnProfiles.containsKey(OBFS4_HOP) && ((Obfs4HopConnection)vpnProfiles.get(OBFS4_HOP).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("kcp"));
+        assertTrue(vpnProfiles.containsKey(OBFS4_HOP) && ((Obfs4Connection)vpnProfiles.get(OBFS4_HOP).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("kcp"));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
     }
 
@@ -1779,7 +1778,7 @@ public class VpnConfigGeneratorTest {
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         assertTrue(vpnProfiles.containsKey(OBFS4_HOP));
-        assertTrue(((Obfs4HopConnection)vpnProfiles.get(OBFS4_HOP).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("tcp"));
+        assertTrue(((Obfs4Connection)vpnProfiles.get(OBFS4_HOP).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("tcp"));
         assertFalse(vpnProfiles.containsKey(OPENVPN));
         assertFalse(vpnProfiles.containsKey(OBFS4));
     }
@@ -1813,7 +1812,7 @@ public class VpnConfigGeneratorTest {
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         assertTrue(vpnProfiles.containsKey(OBFS4_HOP));
-        assertTrue(((Obfs4HopConnection)vpnProfiles.get(OBFS4_HOP).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("tcp"));
+        assertTrue(((Obfs4Connection)vpnProfiles.get(OBFS4_HOP).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("tcp"));
         assertFalse(vpnProfiles.containsKey(OPENVPN));
         assertFalse(vpnProfiles.containsKey(OBFS4));
     }

@@ -190,16 +190,12 @@ public class MockHelper {
 
     }
 
-    public static BuildConfigHelper mockBuildConfigHelper(boolean useObfsvpn) {
-        return mockBuildConfigHelper(useObfsvpn, true);
+    public static BuildConfigHelper mockBuildConfigHelper() {
+        return mockBuildConfigHelper(true);
     }
 
-    public static BuildConfigHelper mockBuildConfigHelper(boolean useObfsvpn, boolean isDefaultBitmask) {
+    public static BuildConfigHelper mockBuildConfigHelper(boolean isDefaultBitmask) {
         return new BuildConfigHelper(new BuildConfigHelper.BuildConfigHelperInterface() {
-            @Override
-            public boolean useObfsVpn() {
-                return useObfsvpn;
-            }
 
             @Override
             public boolean hasObfuscationPinningDefaults() {

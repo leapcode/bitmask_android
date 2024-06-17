@@ -30,9 +30,6 @@ import static se.leap.bitmaskclient.base.models.Constants.REMOTE;
 import static se.leap.bitmaskclient.base.models.Constants.TCP;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.UDP;
-import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.useObfsVpn;
-import static se.leap.bitmaskclient.pluggableTransports.ShapeshifterClient.DISPATCHER_IP;
-import static se.leap.bitmaskclient.pluggableTransports.ShapeshifterClient.DISPATCHER_PORT;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -52,11 +49,12 @@ import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.Connection.TransportType;
+import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.Transport;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
-import se.leap.bitmaskclient.pluggableTransports.HoppingObfsVpnClient;
-import se.leap.bitmaskclient.pluggableTransports.Obfs4Options;
+import se.leap.bitmaskclient.pluggableTransports.ObfsvpnClient;
+import se.leap.bitmaskclient.pluggableTransports.models.Obfs4Options;
 
 public class VpnConfigGenerator {
     private final JSONObject generalConfiguration;
@@ -384,28 +382,12 @@ public class VpnConfigGenerator {
         }
 
         stringBuilder.append(getRouteString(ipAddress, transport));
-        stringBuilder.append(getRemoteString(ipAddress, transport));
-        stringBuilder.append(getExtraOptions(transport));
+        String transparentProxyRemote = REMOTE + " " + ObfsvpnClient.IP + " " + ObfsvpnClient.PORT + " udp" + newLine;
+        stringBuilder.append(transparentProxyRemote);
     }
 
-    public String getRemoteString(String ipAddress, Transport transport) {
-        if (useObfsVpn()) {
-            if (useObfuscationPinning) {
-                return REMOTE + " " + obfuscationPinningIP + " " + obfuscationPinningPort + " tcp" + newLine;
-            }
-            switch (transport.getTransportType()) {
-                case OBFS4:
-                    return REMOTE + " " + ipAddress + " " + transport.getPorts()[0] + " tcp" + newLine;
-                case OBFS4_HOP:
-                    return REMOTE + " " + HoppingObfsVpnClient.IP + " " + HoppingObfsVpnClient.PORT + " udp" + newLine;
-                default:
-                    VpnStatus.logError("Unexpected pluggable transport type " + transport.getType() + " for gateway " + ipAddress);
-                    return "";
-            }
-        }
-        return REMOTE + " " + DISPATCHER_IP + " " + DISPATCHER_PORT + " tcp" + newLine;
-    }
-
+    // TODO: figure out if any of these configs still make sense (
+    @Deprecated
     public String getExtraOptions(Transport transport) {
         if (transport.getTransportType() == OBFS4_HOP) {
             return "replay-window 65535" + newLine +
@@ -437,7 +419,7 @@ public class VpnConfigGenerator {
         return "";
     }
 
-    // While openvpn in TCP mode is required for obfs4, openvpn in UDP mode is required for obfs4-hop
+    // With obfsvpn 1.0.0 openvpn is always required to run in UDP to work with any obfs4 based pluggable transport.
     private boolean openvpnModeSupportsPt(Transport transport, String ipAddress) {
         if (useObfuscationPinning) {
             // we don't know if the manually pinned bridge points to a openvpn gateway with the right
@@ -457,7 +439,7 @@ public class VpnConfigGenerator {
             return false;
         }
 
-        String requiredProtocol = transport.getTransportType() == OBFS4_HOP ? UDP : TCP;
+        String requiredProtocol = UDP;
         for (String protocol : protocols) {
             if (protocol.equals(requiredProtocol)) {
                 return true;

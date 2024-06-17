@@ -450,22 +450,6 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
             if (BuildConfig.DEBUG) {
                 Log.e("ERROR", logItem.getString(appContext));
             }
-            switch (logItem.getErrorType()) {
-                case SHAPESHIFTER:
-                    VpnProfile profile = VpnStatus.getLastConnectedVpnProfile();
-                    if (profile == null) {
-                        EipCommand.startVPN(appContext, false, 0);
-                    } else {
-                        GatewaysManager gatewaysManager = new GatewaysManager(appContext);
-                        int position = gatewaysManager.getPosition(profile);
-                        setupNClosestGateway.set(position >= 0 ? position : 0);
-                        selectNextGateway();
-                    }
-                    break;
-                default:
-                    break;
-
-            }
         }
     }
 }

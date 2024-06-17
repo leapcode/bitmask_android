@@ -28,7 +28,6 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOWED_REGIS
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.TYPE;
-import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.useObfsVpn;
 import static se.leap.bitmaskclient.base.utils.RSAHelper.parseRsaKeyFromString;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 
@@ -190,10 +189,7 @@ public final class Provider implements Parcelable {
     }
 
     public boolean supportsPluggableTransports() {
-        if (useObfsVpn()) {
-            return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP), new Pair<>(OBFS4, KCP), new Pair<>(OBFS4_HOP, TCP), new Pair<>(OBFS4_HOP, KCP)});
-        }
-        return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP)});
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP), new Pair<>(OBFS4, KCP), new Pair<>(OBFS4_HOP, TCP), new Pair<>(OBFS4_HOP, KCP)});
     }
 
     public boolean supportsExperimentalPluggableTransports() {

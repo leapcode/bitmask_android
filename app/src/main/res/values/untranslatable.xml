@@ -33,10 +33,6 @@
     <string name="state_user_vpn_password" translatable="false">Waiting for user VPN password</string>
     <string name="state_user_vpn_password_cancelled" translatable="false">VPN password input dialog cancelled</string>
     <string name="state_user_vpn_permission_cancelled" translatable="false">VPN API permission dialog cancelled</string>
-    <string name="shapeshifter_library" translatable="false">Shapeshifter Library</string>
-    <string name="copyright_shapeshifter_library" translatable="false">Copyright (c) 2024, LEAP Encryption Access Project (info@leap.se)</string>
-    <string name="shapeshifter_transports" translatable="false">Shapeshifter Transports</string>
-    <string name="copyright_shapeshifter_transports" translatable="false">Copyright (c) 2024 Operator Foundation. Distributed under MIT license.</string>
     <string name="obfs4" translatable="false">obfs4 - The obfourscator</string>
     <string name="copyright_obfs4" translatable="false">Copyright (c) 2014, Yawning Angel \n yawning at schwanenlied dot me \n All rights reserved.</string>
     <string name="snowflake" translatable="false">Snowflake</string>

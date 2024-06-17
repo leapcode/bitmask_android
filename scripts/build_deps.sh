@@ -76,7 +76,7 @@ else
     cd ..
 fi
 
-# build bitmask core (shapeshifter, snowflake, pgpverify)
+# build bitmask core (snowflake, pgpverify)
 if [[ $(ls -A ${DIR_GOLIBS}) ]]
 then
     echo "Dirty build: Reusing go libraries"

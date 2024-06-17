@@ -11,7 +11,6 @@ import se.leap.bitmaskclient.BuildConfig;
 public class BuildConfigHelper {
 
     public interface BuildConfigHelperInterface {
-        boolean useObfsVpn();
         boolean hasObfuscationPinningDefaults();
         String obfsvpnIP();
         String obfsvpnPort();
@@ -21,10 +20,6 @@ public class BuildConfigHelper {
     }
 
     public static class DefaultBuildConfigHelper implements BuildConfigHelperInterface {
-        @Override
-        public boolean useObfsVpn() {
-            return BuildConfig.use_obfsvpn;
-        }
 
         @Override
         public boolean hasObfuscationPinningDefaults() {
@@ -70,10 +65,6 @@ public class BuildConfigHelper {
             throw new IllegalStateException("ObfsVpnHelper injected with ObfsVpnHelperInterface outside of an unit test");
         }
         instance = helperInterface;
-    }
-
-    public static boolean useObfsVpn() {
-        return instance.useObfsVpn();
     }
 
     public static boolean hasObfuscationPinningDefaults() {

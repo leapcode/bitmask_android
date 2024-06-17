@@ -58,8 +58,6 @@ android {
     buildConfigField 'boolean', 'priotize_anonymous_usage', 'false'
     //allow manual gateway selection
     buildConfigField 'boolean', 'allow_manual_gateway_selection', 'true'
-    // decide if we use obfsvpn or shapeshifter as obfs4 lib
-    buildConfigField 'boolean', 'use_obfsvpn', 'true'
     // obfsvpn Debugging config fields to pin and configure a particular proxy
     buildConfigField "String", "obfsvpn_port", '""'
     buildConfigField "String", "obfsvpn_ip", '""'
@@ -141,8 +139,6 @@ android {
       buildConfigField 'boolean', 'priotize_anonymous_usage', 'true'
       //allow manual gateway selection
       buildConfigField 'boolean', 'allow_manual_gateway_selection', 'true'
-      // decide if we use obfsvpn or shapeshifter as obfs4 lib
-      buildConfigField 'boolean', 'use_obfsvpn', 'true'
       // obfsvpn Debugging config fields to pin and configure a particular proxy
       buildConfigField "String", "obfsvpn_port", '"443"'
       buildConfigField "String", "obfsvpn_ip", '"159.223.173.205"'

@@ -8,7 +8,6 @@ import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_OBFUSCATION_PINNING;
-import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.useObfsVpn;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheringSupport;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
@@ -261,7 +260,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     public void initObfuscationPinningEntry(View rootView) {
         IconSwitchEntry obfuscationPinning = rootView.findViewById(R.id.obfuscation_proxy_pinning);
-        if (!BuildConfig.BUILD_TYPE.equals("debug") || !useObfsVpn()) {
+        if (!BuildConfig.BUILD_TYPE.equals("debug")) {
             obfuscationPinning.setVisibility(GONE);
             return;
         }
@@ -302,7 +301,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     public void initExperimentalTransportsEntry(View rootView) {
         IconSwitchEntry experimentalTransports = rootView.findViewById(R.id.experimental_transports);
-        if (useObfsVpn() && ProviderObservable.getInstance().getCurrentProvider().supportsExperimentalPluggableTransports()) {
+        if (ProviderObservable.getInstance().getCurrentProvider().supportsExperimentalPluggableTransports()) {
             experimentalTransports.setVisibility(VISIBLE);
             experimentalTransports.setChecked(allowExperimentalTransports());
             experimentalTransports.setOnCheckedChangeListener((buttonView, isChecked) -> {

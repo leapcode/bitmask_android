@@ -10,7 +10,6 @@ import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_CONNECTED;
 import static de.blinkt.openvpn.core.ConnectionStatus.LEVEL_WAITING_FOR_USER_INPUT;
 import static de.blinkt.openvpn.core.NetworkSpace.IpAddress;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
-import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.useObfsVpn;
 
 import android.Manifest.permission;
 import android.app.Notification;
@@ -53,9 +52,7 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.eip.VpnNotificationManager;
 import se.leap.bitmaskclient.firewall.FirewallManager;
-import se.leap.bitmaskclient.pluggableTransports.PtClientBuilder;
-import se.leap.bitmaskclient.pluggableTransports.PtClientInterface;
-import se.leap.bitmaskclient.pluggableTransports.ShapeshifterClient;
+import se.leap.bitmaskclient.pluggableTransports.ObfsvpnClient;
 
 
 public class OpenVPNService extends VpnService implements StateListener, Callback, ByteCountListener, IOpenVPNServiceInternal, VpnNotificationManager.VpnServiceCallback {
@@ -91,8 +88,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private Toast mlastToast;
     private Runnable mOpenVPNThread;
     private VpnNotificationManager notificationManager;
-    private ShapeshifterClient shapeshifter;
-    private PtClientInterface obfsVpnClient;
+    private ObfsvpnClient obfsVpnClient;
     private FirewallManager firewallManager;
 
     private final IBinder mBinder = new IOpenVPNServiceInternal.Stub() {
@@ -239,10 +235,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         if(isVpnRunning()) {
             if (getManagement() != null && getManagement().stopVPN(replaceConnection)) {
                 if (!replaceConnection) {
-                    if (shapeshifter != null) {
-                        shapeshifter.stop();
-                        shapeshifter = null;
-                    } else if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
+                    if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
                         obfsVpnClient.stop();
                         obfsVpnClient = null;
                     }
@@ -416,20 +409,14 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         mStarting = false;
         Connection.TransportType transportType = connection.getTransportType();
         if (mProfile.usePluggableTransports() && transportType.isPluggableTransport()) {
-            if (useObfsVpn()) {
-                if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
-                    obfsVpnClient.stop();
-                }
-                obfsVpnClient = PtClientBuilder.getPtClient(connection);
-                int runningSocksPort = obfsVpnClient.start();
-                if (connection.getTransportType() == Connection.TransportType.OBFS4) {
-                    connection.setProxyPort(String.valueOf(runningSocksPort));
-                }
-            } else if (shapeshifter == null) {
-                shapeshifter = new ShapeshifterClient(((Obfs4Connection) connection).getObfs4Options());
-                shapeshifter.start();
+            if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
+                obfsVpnClient.stop();
             }
+            obfsVpnClient = new ObfsvpnClient(((Obfs4Connection) connection).getObfs4Options());
+            obfsVpnClient.start();
+            Log.d(TAG, "obfsvpn client started");
         }
+
 
         // Start a new session by creating a new thread.
         boolean useOpenVPN3 = VpnProfile.doUseOpenVPN3(this);
@@ -484,12 +471,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             if (mOpenVPNThread != null)
                 ((OpenVPNThread) mOpenVPNThread).setReplaceConnection();
             if (mManagement.stopVPN(true)) {
-                // an old was asked to exit, wait 1s
-                if (shapeshifter != null) {
-                    Log.d(TAG, "-> stop shapeshifter");
-                    shapeshifter.stop();
-                    shapeshifter = null;
-                } else if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
+                if (obfsVpnClient != null && obfsVpnClient.isStarted()) {
                     Log.d(TAG, "-> stop obfsvpnClient");
                     obfsVpnClient.stop();
                     obfsVpnClient = null;
