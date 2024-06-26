@@ -14,18 +14,18 @@ import java.io.Serializable;
 import de.blinkt.openvpn.core.connection.Connection;
 
 public class Transport implements Serializable {
-    private String type;
-    private String[] protocols;
+    private final String type;
+    private final String[] protocols;
     @Nullable
-    private String[] ports;
+    private final String[] ports;
     @Nullable
-    private Options options;
+    private final Options options;
 
     public Transport(String type, String[] protocols, String[] ports, String cert) {
         this(type, protocols, ports, new Options(cert, "0"));
     }
 
-    public Transport(String type, String[] protocols, String[] ports, Options options) {
+    public Transport(String type, String[] protocols, @Nullable String[] ports, @Nullable Options options) {
         this.type = type;
         this.protocols = protocols;
         this.ports = ports;
@@ -69,9 +69,9 @@ public class Transport implements Serializable {
 
     public static class Options implements Serializable {
         @Nullable
-        private String cert;
+        private final String cert;
         @SerializedName("iatMode")
-        private String iatMode;
+        private final String iatMode;
 
         @Nullable
         private Endpoint[] endpoints;
@@ -136,8 +136,8 @@ public class Transport implements Serializable {
 
 
     public static class Endpoint implements Serializable {
-        private String ip;
-        private String cert;
+        private final String ip;
+        private final String cert;
 
         public Endpoint(String ip, String cert) {
             this.ip = ip;
