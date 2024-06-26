@@ -59,10 +59,10 @@ android {
     //allow manual gateway selection
     buildConfigField 'boolean', 'allow_manual_gateway_selection', 'true'
     // obfsvpn Debugging config fields to pin and configure a particular proxy
-    buildConfigField "String", "obfsvpn_port", '""'
-    buildConfigField "String", "obfsvpn_ip", '""'
-    buildConfigField "String", "obfsvpn_cert", '""'
-    buildConfigField 'boolean', 'obfsvpn_use_kcp', 'false'
+    buildConfigField "String", "obfsvpn_port", '"4431"'
+    buildConfigField "String", "obfsvpn_ip", '"135.181.37.103"'
+    buildConfigField "String", "obfsvpn_cert", '"yHHrr2JHssNIF2o7fbmcDmmGfGq6uJIUBnUK6jWm6/5s30VBjwBSgIXDV/+sDxUMc0kCSw"'
+    buildConfigField 'boolean', 'obfsvpn_use_kcp', 'true'
     // default to UDP usage
     buildConfigField 'boolean', 'prefer_udp', 'false'
 
