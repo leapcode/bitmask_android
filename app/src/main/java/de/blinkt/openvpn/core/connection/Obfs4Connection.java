@@ -16,8 +16,10 @@ public class Obfs4Connection extends Connection {
     public Obfs4Connection(Obfs4Options options) {
         setServerName(ObfsvpnClient.IP);
         setServerPort(String.valueOf(ObfsvpnClient.PORT));
-        setProxyType(ProxyType.NONE);
         setUseUdp(true);
+        setProxyType(ProxyType.NONE);
+        setProxyName("");
+        setProxyPort("");
         setProxyAuthUser(null);
         setProxyAuthPassword(null);
         setUseProxyAuth(false);
