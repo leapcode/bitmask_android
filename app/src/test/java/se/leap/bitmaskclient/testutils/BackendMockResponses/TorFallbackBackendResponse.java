@@ -73,7 +73,7 @@ public class TorFallbackBackendResponse implements ProviderApiConnector.Provider
                 throw new UnknownHostException("DNS blocked by censor ;)");
             }
             // download vpn certificate for authentication
-            return getInputAsString(getClass().getClassLoader().getResourceAsStream("v4/riseup.net.cert"));
+            return getInputAsString(getClass().getClassLoader().getResourceAsStream("v4/generictest.cert"));
 
         }
         return null;

@@ -9,7 +9,8 @@
           {
             "type":"openvpn",
             "protocols":[
-              "tcp"
+              "tcp",
+              "udp"
             ],
             "ports":[
               "443"
@@ -44,7 +45,8 @@
           {
             "type":"openvpn",
             "protocols":[
-              "tcp"
+              "tcp",
+              "udp"
             ],
             "ports":[
               "443"
@@ -66,7 +68,8 @@
           {
             "type":"openvpn",
             "protocols":[
-              "tcp"
+              "tcp",
+              "udp"
             ],
             "ports":[
               "443"
@@ -88,7 +91,8 @@
           {
             "type":"openvpn",
             "protocols":[
-              "tcp"
+              "tcp",
+              "udp"
             ],
             "ports":[
               "443"
@@ -123,7 +127,8 @@
           {
             "type":"openvpn",
             "protocols":[
-              "tcp"
+              "tcp",
+              "udp"
             ],
             "ports":[
               "443"

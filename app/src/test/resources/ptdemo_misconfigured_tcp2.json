@@ -9,7 +9,6 @@
           {
             "type":"obfs4",
             "protocols":[
-              "udp",
               "tcp"
             ],
             "ports":[
@@ -23,8 +22,7 @@
           {
             "type":"openvpn",
             "protocols":[
-              "tcp",
-              "udp"
+              "tcp"
             ],
             "ports":[
               "1195"

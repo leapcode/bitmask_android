@@ -172,7 +172,7 @@ public class ProviderApiManagerTest {
         mockContext = mockContext();
         mockResources = mockResources(getClass().getClassLoader().getResourceAsStream("error_messages.json"));
         HandlerProvider handlerProvider = new HandlerProvider((r, delay) -> new Thread(r).start());
-        BuildConfigHelper buildConfigHelper = mockBuildConfigHelper(true, true);
+        BuildConfigHelper buildConfigHelper = mockBuildConfigHelper(true);
         TorStatusObservable torStatusObservable = TorStatusObservable.getInstance();
         TorStatusObservable.setProxyPort(-1);
         TorStatusObservable.setLastError(null);
@@ -461,7 +461,7 @@ public class ProviderApiManagerTest {
 
         ProviderApiConnector mockedApiConnector = mockProviderApiConnector(ERROR_CASE_MICONFIGURED_PROVIDER);
         CertificateHelper certHelper = mockCertificateHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
-        BuildConfigHelper buildConfigHelper = mockBuildConfigHelper(true, false);
+        BuildConfigHelper buildConfigHelper = mockBuildConfigHelper(false);
 
         providerApiManager = new ProviderApiManager(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 

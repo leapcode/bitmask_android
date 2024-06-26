@@ -3,6 +3,7 @@ package se.leap.bitmaskclient.eip;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
@@ -23,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 import org.mockito.Answers;
 import org.mockito.Mock;
 
@@ -117,6 +119,21 @@ public class GatewaysManagerTest {
         VpnProfile profile = configGenerator.createProfile(OPENVPN);
 
         assertEquals(0, gatewaysManager.getPosition(profile));
+    }
+
+    @Test
+    public void TestGetPosition_IncompatibleProviderBridges_returnParseError() throws JSONException, ConfigParser.ConfigParseError, IOException {
+        Provider provider = getProvider(null, null, null, null, null, null, "ptdemo.bitmask.eip-service.json", null);
+        JSONObject eipServiceJson = provider.getEipServiceJson();
+        JSONObject gateway1 = eipServiceJson.getJSONArray(GATEWAYS).getJSONObject(0);
+        providerObservable.updateProvider(provider);
+        GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
+
+        VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
+        configuration.apiVersion = 3;
+        configuration.remoteGatewayIP = "37.218.247.60";
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
+        assertThrows(ConfigParser.ConfigParseError.class, () -> configGenerator.createProfile(OBFS4));
     }
 
     @Test

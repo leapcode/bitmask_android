@@ -15,7 +15,7 @@
               "23049"
             ],
             "options": {
-              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+              "cert": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1",
               "iatMode": "0"
             }
           },
@@ -32,7 +32,6 @@
         "user_ips":false
       },
       "host":"pt.demo.bitmask.net",
-      "ip_address6":"2001:db8:123::1058",
       "ip_address":"37.218.247.60",
       "location":"Amsterdam"
     }

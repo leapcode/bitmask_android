@@ -22,7 +22,8 @@
           {
             "type":"openvpn",
             "protocols":[
-              "tcp"
+              "tcp",
+              "udp"
             ],
             "ports":[
               "1195"

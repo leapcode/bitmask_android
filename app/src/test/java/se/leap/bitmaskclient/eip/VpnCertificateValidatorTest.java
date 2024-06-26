@@ -25,7 +25,7 @@ public class VpnCertificateValidatorTest {
     @Test
     public void test_isValid() throws NoSuchAlgorithmException, CertificateEncodingException, IOException {
         String cert = getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"));
-        Calendar c = new Calendar.Builder().setDate(2018, 1, 1).setCalendarType("gregorian").build();
+        Calendar c = new Calendar.Builder().setDate(2024, 11, 2).setCalendarType("gregorian").build();
         CertificateHelper helper = mockCertificateHelper("falseFingerPrint");
         VpnCertificateValidator validator = new VpnCertificateValidator(cert);
         validator.setCalendarProvider(new TestCalendarProvider(c.getTimeInMillis()));
@@ -35,7 +35,7 @@ public class VpnCertificateValidatorTest {
     @Test
     public void test_isValid_lessThan1day_returnFalse() throws NoSuchAlgorithmException, CertificateEncodingException, IOException {
         String cert = getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.net.pem"));
-        Calendar c = new Calendar.Builder().setDate(2024, 3, 28).setCalendarType("gregorian").build();
+        Calendar c = new Calendar.Builder().setDate(2026, 11, 2).setCalendarType("gregorian").build();
         CertificateHelper helper = mockCertificateHelper("falseFingerPrint");
         VpnCertificateValidator validator = new VpnCertificateValidator(cert);
         validator.setCalendarProvider(new TestCalendarProvider(c.getTimeInMillis()));

@@ -255,7 +255,7 @@ public class VpnConfigGeneratorTest {
             "connect-retry 2 300\n" +
             "resolv-retry 60\n" +
             "dev tun\n" +
-            "remote 127.0.0.1 4430 tcp-client\n" +
+            "remote 127.0.0.1 8080 udp\n" +
             "<ca>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIFbzCCA1egAwIBAgIBATANBgkqhkiG9w0BAQ0FADBKMRgwFgYDVQQDDA9CaXRt\n" +
@@ -351,7 +351,7 @@ public class VpnConfigGeneratorTest {
             "connect-retry 2 300\n" +
             "resolv-retry 60\n" +
             "dev tun\n" +
-            "remote 37.218.247.60 23049 tcp-client\n" +
+            "remote 127.0.0.1 8080 udp\n" +
             "<ca>\n" +
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIFbzCCA1egAwIBAgIBATANBgkqhkiG9w0BAQ0FADBKMRgwFgYDVQQDDA9CaXRt\n" +
@@ -1217,7 +1217,6 @@ public class VpnConfigGeneratorTest {
             "management-external-key nopadding pkcs1 pss digest\n" +
             //"# crl-verify file missing in config profile\n" +
             "route 192.81.208.164  255.255.255.255 net_gateway\n"+
-            "tun-mtu 48000\n"+
             "nobind\n"+
             "remote-cert-tls server\n" +
             "data-ciphers AES-256-GCM\n" +
@@ -1233,12 +1232,10 @@ public class VpnConfigGeneratorTest {
             "# You are on your on own here :)\n" +
             "# These options found in the config file do not map to config settings:\n" +
             "keepalive 10 30 \n" +
-            "replay-window 65535 \n" +
+            "tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384 \n" +
             "sndbuf 0 \n" +
             "rcvbuf 0 \n" +
-            "tls-version-min 1.2 \n" +
-            "ping-restart 300 \n" +
-            "tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384 \n";
+            "tls-version-min 1.2 \n";
 
     String expectedVPNConfig_hopping_pt_portAndIpHopping = "# Config for OpenVPN 2.x\n" +
             "# Enables connection to GUI\n" +
@@ -1323,7 +1320,6 @@ public class VpnConfigGeneratorTest {
             "route 192.81.208.164  255.255.255.255 net_gateway\n"+
             "route 192.81.208.165  255.255.255.255 net_gateway\n"+
             "route 192.81.208.166  255.255.255.255 net_gateway\n"+
-            "tun-mtu 48000\n"+
             "nobind\n"+
             "remote-cert-tls server\n" +
             "data-ciphers AES-256-GCM\n" +
@@ -1339,9 +1335,6 @@ public class VpnConfigGeneratorTest {
             "# You are on your on own here :)\n" +
             "# These options found in the config file do not map to config settings:\n" +
             "keepalive 10 30 \n" +
-            "replay-window 65535 \n" +
-            "sndbuf 0 \n" +
-            "rcvbuf 0 \n" +
             "tls-version-min 1.2 \n" +
             "ping-restart 300 \n" +
             "tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384 \n";
@@ -1408,7 +1401,7 @@ public class VpnConfigGeneratorTest {
     @Test
     public void testGenerateVpnProfile_v3_obfs4() throws Exception {
         BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(false);
-        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service.json"))).getJSONArray("gateways").getJSONObject(0);
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service-obfsvpn1.0.0.json"))).getJSONArray("gateways").getJSONObject(0);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
@@ -1422,7 +1415,7 @@ public class VpnConfigGeneratorTest {
     @Test
     public void testGenerateVpnProfile_v3_obfs4_obfsvpn() throws Exception {
         BuildConfigHelper buildConfigHelper = MockHelper.mockBuildConfigHelper(true);
-        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service.json"))).getJSONArray("gateways").getJSONObject(0);
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo.bitmask.eip-service-obfsvpn1.0.0.json"))).getJSONArray("gateways").getJSONObject(0);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
@@ -1557,12 +1550,12 @@ public class VpnConfigGeneratorTest {
     }
 
     /**
-     * obfs4 cannot be used with UDP, openvpn needs to support TCP
+     * obfs4 cannot be used with UDP (only TCP or KCP), openvpn needs to support UDP
      */
     @Test
-    public void testGenerateVpnProfile_v3_obfs4TCP_openvpnUDP_skip() throws Exception {
-        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_udp2.json"))).getJSONArray("gateways").getJSONObject(0);
-        generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_udp2.json"))).getJSONObject(OPENVPN_CONFIGURATION);
+    public void testGenerateVpnProfile_v3_obfs4TCP_openvpnTCP_skip() throws Exception {
+        gateway = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_tcp2.json"))).getJSONArray("gateways").getJSONObject(0);
+        generalConfig = new JSONObject(TestSetupHelper.getInputAsString(getClass().getClassLoader().getResourceAsStream("ptdemo_misconfigured_tcp2.json"))).getJSONObject(OPENVPN_CONFIGURATION);
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         vpnConfigGenerator = new VpnConfigGenerator(generalConfig, secrets, gateway, configuration);
@@ -1582,7 +1575,6 @@ public class VpnConfigGeneratorTest {
         assertTrue(vpnProfiles.containsKey(OBFS4));
         assertTrue(vpnProfiles.containsKey(OPENVPN));
         assertEquals(1, vpnProfiles.get(OBFS4).mConnections.length);
-        assertFalse(vpnProfiles.get(OBFS4).mConnections[0].isUseUdp());
     }
 
     @Test
@@ -1675,7 +1667,7 @@ public class VpnConfigGeneratorTest {
         HashMap<Connection.TransportType, VpnProfile> vpnProfiles = vpnConfigGenerator.generateVpnProfiles();
         assertFalse("has openvpn profile", vpnProfiles.containsKey(OPENVPN));
         assertTrue("has obfs4 profile", vpnProfiles.containsKey(OBFS4));
-        assertTrue("bridge is pinned one", vpnProfiles.get(OBFS4).getTransportType() == OBFS4 && !vpnProfiles.get(OBFS4).mConnections[0].isUseUdp() );
+        assertTrue("bridge is pinned one", vpnProfiles.get(OBFS4).getTransportType() == OBFS4 && vpnProfiles.get(OBFS4).mConnections[0].isUseUdp());
         assertTrue("bridge is running TCP", ((Obfs4Connection) vpnProfiles.get(OBFS4).mConnections[0]).getObfs4Options().transport.getProtocols()[0].equals("tcp"));
     }
 

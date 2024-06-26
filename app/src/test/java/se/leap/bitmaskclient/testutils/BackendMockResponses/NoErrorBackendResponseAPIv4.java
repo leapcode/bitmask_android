@@ -59,7 +59,7 @@ public class NoErrorBackendResponseAPIv4 implements ProviderApiConnector.Provide
             return getInputAsString(getClass().getClassLoader().getResourceAsStream("riseup.geoip.json"));
         } else if (url.contains("/cert")) {
             // download vpn key and cert
-            return getInputAsString(getClass().getClassLoader().getResourceAsStream("v4/riseup.net.cert"));
+            return getInputAsString(getClass().getClassLoader().getResourceAsStream("v4/generictest.cert"));
         }
 
         return null;
