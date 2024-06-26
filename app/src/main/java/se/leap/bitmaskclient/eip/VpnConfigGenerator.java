@@ -446,7 +446,7 @@ public class VpnConfigGenerator {
             }
         }
 
-        VpnStatus.logError("Misconfigured provider: " + transport.getTransportType().toString() + " currently only allows openvpn in " + requiredProtocol + " mode! Skipping config for ip " + ipAddress);
+        VpnStatus.logError("Provider - client incompatibility: obfuscation protocol " + transport.getTransportType().toString() + " currently only allows OpenVPN in " + requiredProtocol + " mode! Skipping config for ip " + ipAddress);
         return false;
     }
 
