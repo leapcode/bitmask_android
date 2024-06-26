@@ -13,7 +13,7 @@ import se.leap.bitmaskclient.pluggableTransports.models.KcpConfig;
 import se.leap.bitmaskclient.pluggableTransports.models.Obfs4Options;
 import se.leap.bitmaskclient.pluggableTransports.models.ObfsvpnConfig;
 
-public class ObfsvpnClient {
+public class ObfsvpnClient implements EventLogger {
 
     public static final int PORT = 8080;
     public static final String IP = "127.0.0.1";
@@ -40,31 +40,22 @@ public class ObfsvpnClient {
         try {
             Log.d(TAG, obfsvpnConfig.toString());
             client = Client.newFFIClient(obfsvpnConfig.toString());
+            client.setEventLogger(this);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
     public int start() {
+
         synchronized (LOCK) {
             new Thread(() -> {
                 try {
-                    client.setEventLogger(new EventLogger() {
-                        @Override
-                        public void error(String s) {
-                            VpnStatus.logError("[obfs4-client] " + s);
-                        }
-
-                        @Override
-                        public void log(String state, String message) {
-                            VpnStatus.logDebug("[obfs4-client] " + state + ": " + message);
-                        }
-                    });
                     client.start();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            });
+            }).start();
             return PORT;
         }
     }
@@ -83,5 +74,16 @@ public class ObfsvpnClient {
 
     public boolean isStarted() {
         return client.isStarted();
+    }
+
+    @Override
+    public void error(String s) {
+        VpnStatus.logError("[obfs4-client] " + s);
+
+    }
+
+    @Override
+    public void log(String state, String message) {
+        VpnStatus.logDebug("[obfs4-client] " + state + ": " + message);
     }
 }
