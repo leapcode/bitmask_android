@@ -1,3 +1,11 @@
+1.4.0RC1 obfuscation update
+features:
+* update obfuscation library obfsvpn to version 1.0.0, with improved KCP support
+
+bugfixes:
+* fix text color of button in obfuscation proxy pinning dialog
+* fix auto-update mechanism for clients fetched from the download page
+
 1.3.1 hotfix
 bugfix:
 * fix app crash during provider setup in case the app is moved to background
