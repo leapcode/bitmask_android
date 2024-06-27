@@ -81,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:text="Use defaults"
                 android:background="@drawable/cust_button_secondary"
-                android:textColor="@color/color_font_btn_secondary"
+                android:textColor="@color/color_font_btn"
                 android:layout_marginHorizontal="@dimen/stdpadding"
                 />
             <androidx.appcompat.widget.LinearLayoutCompat
