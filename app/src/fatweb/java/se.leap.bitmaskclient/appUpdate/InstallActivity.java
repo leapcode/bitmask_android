@@ -75,8 +75,16 @@ public class InstallActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 installUpdate();
             } else {
-                Toast.makeText(this, getString(R.string.version_update_error_permissions), Toast.LENGTH_LONG).show();
-                finish();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (this.getPackageManager().canRequestPackageInstalls()) {
+                        installUpdate();
+                    } else {
+                        Toast.makeText(this, getString(R.string.version_update_error_permissions), Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                } else {
+                    finish();
+                }
             }
         }
     }
