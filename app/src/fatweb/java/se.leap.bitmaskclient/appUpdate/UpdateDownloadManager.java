@@ -114,23 +114,26 @@ public class UpdateDownloadManager implements Logger, DownloadConnector.Download
         }
 
         Bundle result = new Bundle();
+        if (action == null) {
+            return;
+        }
         switch (action) {
-            case CHECK_VERSION_FILE:
+            case CHECK_VERSION_FILE -> {
                 result = checkVersionFile(result);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     sendToReceiverOrBroadcast(receiver, UPDATE_FOUND, result);
                 } else {
                     sendToReceiverOrBroadcast(receiver, UPDATE_NOT_FOUND, result);
                 }
-                break;
-            case DOWNLOAD_UPDATE:
+            }
+            case DOWNLOAD_UPDATE -> {
                 result = downloadUpdate(result);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
                     sendToReceiverOrBroadcast(receiver, UPDATE_DOWNLOADED, result);
                 } else {
                     sendToReceiverOrBroadcast(receiver, UPDATE_DOWNLOAD_FAILED, result);
                 }
-                break;
+            }
         }
     }
 
