@@ -16,21 +16,6 @@
  */
 package se.leap.bitmaskclient.appUpdate;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.ResultReceiver;
-import android.util.Log;
-
-import java.io.File;
-
-import okhttp3.OkHttpClient;
-import pgpverify.Logger;
-import pgpverify.PgpVerifier;
-import se.leap.bitmaskclient.BuildConfig;
-import se.leap.bitmaskclient.R;
-import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
-
 import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.DOWNLOAD_FAILED;
 import static se.leap.bitmaskclient.appUpdate.DownloadService.DOWNLOAD_PROGRESS;
@@ -52,6 +37,22 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.DELAY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PARAMETERS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.RECEIVER_KEY;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.util.Log;
+
+import java.io.File;
+
+import de.blinkt.openvpn.core.VpnStatus;
+import okhttp3.OkHttpClient;
+import pgpverify.Logger;
+import pgpverify.PgpVerifier;
+import se.leap.bitmaskclient.BuildConfig;
+import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
+
 public class UpdateDownloadManager implements Logger, DownloadConnector.DownloadProgress {
 
 
@@ -63,7 +64,7 @@ public class UpdateDownloadManager implements Logger, DownloadConnector.Download
 
     private Context context;
 
-    private PgpVerifier pgpVerifier;
+    private final PgpVerifier pgpVerifier;
     private DownloadServiceCallback serviceCallback;
     OkHttpClientGenerator clientGenerator;
 
@@ -74,6 +75,11 @@ public class UpdateDownloadManager implements Logger, DownloadConnector.Download
         pgpVerifier = new PgpVerifier();
         pgpVerifier.setLogger(this);
         serviceCallback = callback;
+    }
+
+    public void onDestroy() {
+        serviceCallback = null;
+        context = null;
     }
 
     //pgpverify Logger interface

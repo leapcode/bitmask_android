@@ -70,7 +70,7 @@ public class FileHelper {
                 }
                 reader.close();
                 return sb.toString();
-            } catch (IOException errabi) {
+            } catch (NullPointerException | IOException errabi) {
                 return null;
             }
         }

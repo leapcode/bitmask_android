@@ -60,6 +60,12 @@ public class DownloadService extends JobIntentService implements UpdateDownloadM
         updateDownloadManager.handleIntent(intent);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        updateDownloadManager.onDestroy();
+    }
+
     /**
      * Convenience method for enqueuing work in to this service.
      */
