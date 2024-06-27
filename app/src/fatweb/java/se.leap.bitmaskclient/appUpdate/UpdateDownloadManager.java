@@ -85,7 +85,9 @@ public class UpdateDownloadManager implements Logger, DownloadConnector.Download
     //pgpverify Logger interface
     @Override
     public void log(String s) {
-
+        if (BuildConfig.DEBUG_MODE) {
+            VpnStatus.logInfo("[PGP VERIFY] " + s);
+        }
     }
 
     @Override
