@@ -203,7 +203,7 @@ build_fdroid_beta_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./scripts/prepareForDistribution.sh build -no-tag -beta >> normalBeta.log 2>&1
+    - ./scripts/prepareForDistribution.sh build -apk fat -no-tag -beta >> normalBeta.log 2>&1
   artifacts:
     paths:
       - app/build/outputs/
@@ -231,7 +231,7 @@ build_fdroid_custom_beta_release:
   image: "0xacab.org:4567/leap/bitmask_android/android-ndk:latest"
   stage: build
   script:
-    - ./scripts/prepareForDistribution.sh build -no-tag -beta -custom >> customBeta.log 2>&1
+    - ./scripts/prepareForDistribution.sh build -apk fat -no-tag -beta -custom >> customBeta.log 2>&1
   artifacts:
     paths:
       - app/build/outputs/
