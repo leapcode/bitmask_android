@@ -224,7 +224,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void initGatewayPinningEntry(View rootView) {
         IconTextEntry gatewayPinning = rootView.findViewById(R.id.gateway_pinning);
-        if (!BuildConfig.BUILD_TYPE.equals("debug")) {
+        if (!BuildConfig.DEBUG_MODE) {
             gatewayPinning.setVisibility(GONE);
             return;
         }
@@ -260,7 +260,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     public void initObfuscationPinningEntry(View rootView) {
         IconSwitchEntry obfuscationPinning = rootView.findViewById(R.id.obfuscation_proxy_pinning);
-        if (!BuildConfig.BUILD_TYPE.equals("debug")) {
+        if (!BuildConfig.DEBUG_MODE) {
             obfuscationPinning.setVisibility(GONE);
             return;
         }
