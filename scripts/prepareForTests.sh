@@ -20,7 +20,7 @@ BASE_DIR="$SCRIPT_DIR/.."
 
 git checkout -- \*
 git checkout -- \.\*
-rm -r $BASE_DIR/bitmaskcore/lib/*
+rm -r $BASE_DIR/bitmask-core-android/lib/*
 git submodule foreach --recursive git reset --hard HEAD
 git submodule sync --recursive
 git submodule update --init --recursive

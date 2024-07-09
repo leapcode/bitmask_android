@@ -2,9 +2,9 @@
 	path = ics-openvpn
 	branch = new_master
 	url =  https://leap.se/git/ics_openvpn.git
-[submodule "bitmaskcore"]
-	path = bitmaskcore
-	url = https://0xacab.org/leap/android_libs/bitmaskcore.git
 [submodule "tor-android"]
 	path = tor-android
 	url = https://0xacab.org/leap/android_libs/tor-android.git
+[submodule "bitmask-core-android"]
+	path = bitmask-core-android
+	url = https://0xacab.org/leap/android_libs/bitmask-core-android.git

@@ -18,7 +18,7 @@
 SCRIPT_DIR=$(dirname "$0")
 BASE_DIR="$SCRIPT_DIR/.."
 
-rm -r $BASE_DIR/bitmaskcore/lib/*
+rm -r $BASE_DIR/bitmask-core-android/lib/*
 
 git checkout -- \*
 git checkout -- \.\*

@@ -9,7 +9,7 @@ SCRIPT_DIR=$(dirname "$0")
 BASE_DIR="$SCRIPT_DIR/.."
 DIR_OVPNASSETS=./ics-openvpn/main/build/ovpnassets
 DIR_OVPNLIBS=./ics-openvpn/main/build/intermediates/cmake/skeletonRelease/obj
-DIR_GOLIBS=./bitmaskcore/lib/
+DIR_GOLIBS=./bitmask-core-android/lib/
 #FILE_X86=./go/out/x86/piedispatcherlib
 #FILE_ARM=./go/out/armeabi-v7a/piedispatcherlib
 DIR_TORLIBS=./tor-android/external/lib
@@ -82,12 +82,12 @@ then
     echo "Dirty build: Reusing go libraries"
 else
     echo "Clean build: compiling Go libraries"
-    cd ./bitmaskcore || quit "Directory go not found"
+    cd ./bitmask-core-android || quit "Directory go not found"
     if [[ ! -d lib ]]
     then
         mkdir lib
     fi
-    ./build_core.sh || quit "failed to build bitmaskcore"
+    ./build_core.sh || quit "Failed to build Bitmask Core Android"
     cp lib/bitmaskcore.aar ../lib-bitmask-core/.
     cp lib/bitmaskcore-sources.jar ../lib-bitmask-core/.
     cp lib/bitmaskcore_web.aar ../lib-bitmask-core-web/.
