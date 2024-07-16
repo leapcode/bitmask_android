@@ -1,15 +1,14 @@
 #!/bin/bash
+set -x
 #
 # Build script for the gitlab ci.
 #
 # usage: build.sh DIR [TAG]
 #
-# Will run docker build in DIR with DIR/Dockerfile or
-# DIR/TAG.dockerfile if TAG is given.
+# Will run docker build in DIR with DIR/Dockerfile
 #
 # Assumes CI specific environment variables to be set:
 # CI_REGISTRY_IMAGE
-# LAST_COMMIT (fetched from the gitlab api in before_script hook)
 #
 
 DIR=$1
@@ -22,7 +21,7 @@ function quit {
     exit 1
 }
 
-if git diff "$LAST_COMMIT" HEAD --name-only | egrep "($DOCKERFILE|^.gitlab)"; then
+if git show HEAD~1 --name-only | grep "$DOCKERFILE"; then
   docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY" || quit
   docker build -t "$TARGET" -f "$DOCKERFILE" docker/ || quit
   docker push "$TARGET" || quit
