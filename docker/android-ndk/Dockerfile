@@ -56,3 +56,15 @@ RUN sdkmanager --list
 
 # Install Android cmake
 RUN sdkmanager "cmake;3.10.2.4988404"
+
+# Install Go environment
+ENV GO_VERSION=go1.22.2.linux-amd64
+ENV EXPECTED_FP=5901c52b7a78002aeff14a21f93e0f064f74ce1360fce51c6ee68cd471216a17
+ENV GO_DOWNLOAD_URL=https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz
+ENV GOROOT=/usr/local/go
+ENV PATH=$GOROOT/bin:$PATH
+
+RUN curl -L -o "go.tar.gz" "https://golang.org/dl/${GO_VERSION}.tar.gz"; \
+    echo "${EXPECTED_FP} go.tar.gz" | sha256sum -c - && \
+    tar -C /usr/local -xzf go.tar.gz && \
+    rm go.tar.gz \
