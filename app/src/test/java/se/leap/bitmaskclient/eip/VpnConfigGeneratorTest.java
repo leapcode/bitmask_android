@@ -27,7 +27,7 @@ import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.base.utils.RSAHelper;
+import se.leap.bitmaskclient.base.utils.PrivateKeyHelper;
 import se.leap.bitmaskclient.testutils.MockHelper;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
@@ -1347,7 +1347,7 @@ public class VpnConfigGeneratorTest {
         context = MockHelper.mockContext();
 
         ProviderObservable providerObservable = MockHelper.mockProviderObservable(TestSetupHelper.getConfiguredProvider());
-        RSAHelper rsaHelper = MockHelper.mockRSAHelper();
+        PrivateKeyHelper privateKeyHelper = MockHelper.mockPrivateKeyHelper();
         sharedPreferences = new MockSharedPreferences();
         preferenceHelper = new PreferenceHelper(new MockSharedPreferences());
         when(context.getCacheDir()).thenReturn(new File("/data/data/se.leap.bitmask"));

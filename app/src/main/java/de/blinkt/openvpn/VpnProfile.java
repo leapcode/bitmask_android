@@ -444,7 +444,7 @@ public class VpnProfile implements Serializable, Cloneable {
 
                 // Client Cert + Key
                 cfg.append(insertFileData("cert", mClientCertFilename));
-                mPrivateKey = ProviderObservable.getInstance().getCurrentProvider().getRSAPrivateKey();
+                mPrivateKey = ProviderObservable.getInstance().getCurrentProvider().getPrivateKey();
                 cfg.append("management-external-key nopadding pkcs1 pss digest\n");
 
                 break;

@@ -143,7 +143,7 @@ public class PreferenceHelper {
                 provider.define(new JSONObject(preferences.getString(Provider.KEY, "")));
                 provider.setCaCert(preferences.getString(Provider.CA_CERT, ""));
                 provider.setVpnCertificate(preferences.getString(PROVIDER_VPN_CERTIFICATE, ""));
-                provider.setPrivateKey(preferences.getString(PROVIDER_PRIVATE_KEY, ""));
+                provider.setPrivateKeyString(preferences.getString(PROVIDER_PRIVATE_KEY, ""));
                 provider.setEipServiceJson(new JSONObject(preferences.getString(PROVIDER_EIP_DEFINITION, "")));
                 provider.setMotdJson(new JSONObject(preferences.getString(PROVIDER_MOTD, "")));
                 provider.setLastMotdSeen(preferences.getLong(PROVIDER_MOTD_LAST_SEEN, 0L));
@@ -242,7 +242,7 @@ public class PreferenceHelper {
                     putString(Provider.KEY, provider.getDefinitionString()).
                     putString(Provider.CA_CERT, provider.getCaCert()).
                     putString(PROVIDER_EIP_DEFINITION, provider.getEipServiceJsonString()).
-                    putString(PROVIDER_PRIVATE_KEY, provider.getPrivateKey()).
+                    putString(PROVIDER_PRIVATE_KEY, provider.getPrivateKeyString()).
                     putString(PROVIDER_VPN_CERTIFICATE, provider.getVpnCertificate()).
                     putString(PROVIDER_MOTD, provider.getMotdJsonString()).
                     putStringSet(PROVIDER_MOTD_HASHES, provider.getMotdLastSeenHashes()).

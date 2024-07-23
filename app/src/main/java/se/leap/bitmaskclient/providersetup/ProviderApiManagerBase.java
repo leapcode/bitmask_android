@@ -35,7 +35,11 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.deleteProviderDe
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getFromPersistedProvider;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getLongFromPersistedProvider;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getStringSetFromPersistedProvider;
-import static se.leap.bitmaskclient.base.utils.RSAHelper.parseRsaKeyFromString;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.ED_25519_KEY_BEGIN;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.ED_25519_KEY_END;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.RSA_KEY_BEGIN;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.RSA_KEY_END;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.parsePrivateKeyFromString;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -46,6 +50,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -57,6 +62,7 @@ import java.util.concurrent.TimeoutException;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.base.utils.PrivateKeyHelper;
 
 /**
  * Implements the logic of the http api calls. The methods of this class needs to be called from
@@ -141,7 +147,7 @@ public abstract class ProviderApiManagerBase {
         if (hasUpdatedProviderDetails(providerDomain)) {
             provider.setCaCert(getPersistedProviderCA(providerDomain));
             provider.define(getPersistedProviderDefinition(providerDomain));
-            provider.setPrivateKey(getPersistedPrivateKey(providerDomain));
+            provider.setPrivateKeyString(getPersistedPrivateKey(providerDomain));
             provider.setVpnCertificate(getPersistedVPNCertificate(providerDomain));
             provider.setProviderApiIp(getPersistedProviderApiIp(providerDomain));
             provider.setProviderIp(getPersistedProviderIp(providerDomain));
@@ -232,9 +238,14 @@ public abstract class ProviderApiManagerBase {
                 }
             }
 
-            RSAPrivateKey key = parseRsaKeyFromString(keyString);
+            PrivateKey key = parsePrivateKeyFromString(keyString);
             keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
-            provider.setPrivateKey( "-----BEGIN RSA PRIVATE KEY-----\n" + keyString + "-----END RSA PRIVATE KEY-----");
+
+            if (key instanceof RSAPrivateKey) {
+                provider.setPrivateKeyString(RSA_KEY_BEGIN + keyString + RSA_KEY_END);
+            } else {
+                provider.setPrivateKeyString(ED_25519_KEY_BEGIN + keyString + ED_25519_KEY_END);
+            }
 
             ArrayList<X509Certificate> certificates = ConfigHelper.parseX509CertificatesFromString(certificateString);
             certificates.get(0).checkValidity();

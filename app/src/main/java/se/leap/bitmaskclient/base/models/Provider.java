@@ -28,7 +28,7 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOWED_REGIS
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.TYPE;
-import static se.leap.bitmaskclient.base.utils.RSAHelper.parseRsaKeyFromString;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.parsePrivateKeyFromString;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 
 import android.os.Parcel;
@@ -44,7 +44,7 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.interfaces.RSAPrivateKey;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
@@ -79,9 +79,8 @@ public final class Provider implements Parcelable {
     private String certificatePinEncoding = "";
     private String caCert = "";
     private String apiVersion = "";
-    private String privateKey = "";
-
-    private transient RSAPrivateKey rsaPrivateKey = null;
+    private String privateKeyString = "";
+    private transient PrivateKey privateKey = null;
     private String vpnCertificate = "";
     private long lastEipServiceUpdate = 0L;
     private long lastGeoIpUpdate = 0L;
@@ -416,7 +415,7 @@ public final class Provider implements Parcelable {
         parcel.writeString(getEipServiceJsonString());
         parcel.writeString(getGeoIpJsonString());
         parcel.writeString(getMotdJsonString());
-        parcel.writeString(getPrivateKey());
+        parcel.writeString(getPrivateKeyString());
         parcel.writeString(getVpnCertificate());
         parcel.writeLong(lastEipServiceUpdate);
         parcel.writeLong(lastGeoIpUpdate);
@@ -471,7 +470,7 @@ public final class Provider implements Parcelable {
             }
             tmpString = in.readString();
             if (!tmpString.isEmpty()) {
-                this.setPrivateKey(tmpString);
+                this.setPrivateKeyString(tmpString);
             }
             tmpString = in.readString();
             if (!tmpString.isEmpty()) {
@@ -510,7 +509,7 @@ public final class Provider implements Parcelable {
             certificatePinEncoding.equals(p.getCertificatePinEncoding()) &&
             caCert.equals(p.getCaCert()) &&
             apiVersion.equals(p.getApiVersion()) &&
-            privateKey.equals(p.getPrivateKey()) &&
+            privateKeyString.equals(p.getPrivateKeyString()) &&
             vpnCertificate.equals(p.getVpnCertificate()) &&
             allowAnonymous == p.allowsAnonymous() &&
             allowRegistered == p.allowsRegistered();
@@ -697,23 +696,23 @@ public final class Provider implements Parcelable {
                 caCert.isEmpty();
     }
 
-    public String getPrivateKey() {
+    public String getPrivateKeyString() {
+        return privateKeyString;
+    }
+
+    public PrivateKey getPrivateKey() {
+        if (privateKey == null) {
+            privateKey = parsePrivateKeyFromString(privateKeyString);
+        }
         return privateKey;
     }
 
-    public RSAPrivateKey getRSAPrivateKey() {
-        if (rsaPrivateKey == null) {
-            rsaPrivateKey = parseRsaKeyFromString(privateKey);
-        }
-        return rsaPrivateKey;
-    }
-
-    public void setPrivateKey(String privateKey) {
-        this.privateKey = privateKey;
+    public void setPrivateKeyString(String privateKeyString) {
+        this.privateKeyString = privateKeyString;
     }
 
     public boolean hasPrivateKey() {
-        return privateKey != null && privateKey.length() > 0;
+        return privateKeyString != null && privateKeyString.length() > 0;
     }
 
     public String getVpnCertificate() {
@@ -754,7 +753,7 @@ public final class Provider implements Parcelable {
         certificatePinEncoding = "";
         caCert = "";
         apiVersion = "";
-        privateKey = "";
+        privateKeyString = "";
         vpnCertificate = "";
         allowRegistered = false;
         allowAnonymous = false;

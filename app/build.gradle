@@ -374,15 +374,16 @@ android {
   }
 }
 
-
-
-
 dependencies {
   testImplementation 'junit:junit:4.13.2'
   //outdated mockito-core version due to powermock dependency
   testImplementation 'org.mockito:mockito-core:3.6.0'
   testImplementation('org.powermock:powermock-api-mockito2:2.0.9')
        //   { exclude group: 'junit' exclude group: 'org.mockito' }
+
+  testImplementation 'org.robolectric:robolectric:4.13'
+  testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
+
   testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
   testImplementation 'org.powermock:powermock-core:2.0.9'
   testImplementation 'org.powermock:powermock-module-junit4-rule:2.0.9'

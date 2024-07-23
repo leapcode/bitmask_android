@@ -22,7 +22,7 @@ import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockContext;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockPreferenceHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnector;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockRSAHelper;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockPrivateKeyHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResources;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResultReceiver;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getConfiguredProvider;
@@ -51,7 +51,7 @@ import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
 import se.leap.bitmaskclient.base.utils.CertificateHelper;
 import se.leap.bitmaskclient.base.utils.HandlerProvider;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.base.utils.RSAHelper;
+import se.leap.bitmaskclient.base.utils.PrivateKeyHelper;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
@@ -221,7 +221,7 @@ public class ProviderApiManagerTest {
         sharedPreferences.edit().putBoolean(USE_BRIDGES, true).putBoolean(USE_SNOWFLAKE, true).commit();
         PreferenceHelper preferenceHelper = mockPreferenceHelper(provider, sharedPreferences);
         CertificateHelper certHelper = mockCertificateHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
-        RSAHelper rsaHelper = mockRSAHelper();
+        PrivateKeyHelper privateKeyHelper = mockPrivateKeyHelper();
         ProviderApiConnector mockedApiConnector = mockProviderApiConnector(NO_ERROR_API_V4);
 
         providerApiManager = new ProviderApiManager(mockResources, new ProviderApiManagerTest.TestProviderApiServiceCallback());
