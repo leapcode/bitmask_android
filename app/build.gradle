@@ -59,9 +59,10 @@ android {
     //allow manual gateway selection
     buildConfigField 'boolean', 'allow_manual_gateway_selection', 'true'
     // obfsvpn Debugging config fields to pin and configure a particular proxy
+    // demo.bitmask.net provider
     buildConfigField "String", "obfsvpn_port", '"4431"'
-    buildConfigField "String", "obfsvpn_ip", '"135.181.37.103"'
-    buildConfigField "String", "obfsvpn_cert", '"yHHrr2JHssNIF2o7fbmcDmmGfGq6uJIUBnUK6jWm6/5s30VBjwBSgIXDV/+sDxUMc0kCSw"'
+    buildConfigField "String", "obfsvpn_ip", '"37.218.241.208"'
+    buildConfigField "String", "obfsvpn_cert", '"k0L4LFg0Wk98v7P66xvgAx2ud+kggvjZX/qul3iFTJGH5X7xSHT+vVL4UZR0WI3SkmDzUg"'
     buildConfigField 'boolean', 'obfsvpn_use_kcp', 'true'
     // default to UDP usage
     buildConfigField 'boolean', 'prefer_udp', 'false'
