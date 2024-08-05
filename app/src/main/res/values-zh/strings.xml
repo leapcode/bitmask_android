@@ -207,10 +207,18 @@
   <string name="splash_footer">由 LEAP 开发</string>
   <string name="welcome">欢迎！</string>
   <string name="select_provider">选择提供商</string>
+  <string name="select_provider_description">使用 VPN 是将信任从网路服务供应商转移到 VPN 提供者。 Bitmask 只和有良好记录保护和倡导隐私的提供者建立连线。</string>
+  <string name="provider_description_riseup">Riseup 为解放社会变革的人民和团体提供线上交流工具，透过控制自己的安全通讯方式来创造民主替代方案并实践自决方案。</string>
   <string name="next">下一步</string>
+  <string name="add_provider_description">Bitmask 连接未公开的可信任提供者。 在下面输入提供者的网址。</string>
+  <string name="provider_description_calyx">Calyx 为非营利教育研究组织，致力研究、测试、开发和实施隐私技术和工具，促进网路和行动通讯产业的言论自由、表达自由、公民参与和隐私权。</string>
   <string name="title_circumvention_setup">需要进行审查规避？</string>
+  <string name="circumvention_setup_description">如果居住在网路审查的地区，可以使用我们的审查规避工具来存取所有网路服务。 但这些选项会减慢连线速度！</string>
+  <string name="circumvention_setup_hint">%s会自动尝试使用各种规避技术来连接互联网，高级设定下可对此作微调。</string>
   <string name="use_standard_vpn">使用标准 %s</string>
   <string name="use_circumvention_tech">使用审查规避技术（慢速）</string>
+  <string name="description_configure_provider">连接到供应商%1$s取得必要的设定资讯。 这仅发生在首次设定。</string>
+  <string name="description_configure_provider_circumvention">%1$s 试图向供应商收集所需的配置数据。 这只发生在初次设定。 因选用规避技术，可能要多花点时间。</string>
   <string name="details">详情</string>
   <string name="tor_status">Tor 状态</string>
   <string name="snowflake_status">Snowflake 状态</string>
@@ -221,8 +229,11 @@
   <string name="snowflake_broker_success">Snowflake 代理握手成功</string>
   <string name="snowflake_sending_data">通过 Snowflake 发送数据</string>
   <string name="title_upcoming_connection_request">即将到来的连接请求</string>
+  <string name="upcoming_connection_request_description">在下一个设置面板 Android 会提醒信任 VPN 提供者非常重要。 Bitmask 只和遵守严格的VPN 隐私最佳实践、良好保护用户资料和身分验证记录的提供者合作。</string>
   <string name="title_upcoming_notifications_request">即将到来的通知请求</string>
+  <string name="upcoming_notifications_request_description">下一个面板 Android 将询问是否允许通知。 这可确保稳定的后台连接，从 Android 的通知中心查看数据使用情况。</string>
   <string name="title_setup_success">一切就绪！</string>
   <string name="setup_success_description">点按下方按钮进行连接</string>
   <string name="permission_rejected">权限请求被拒绝。</string>
+  <string name="login_not_supported">应用程序当前的版本不支援登入，须为此供应商更新 VPN 凭证。</string>
 </resources>

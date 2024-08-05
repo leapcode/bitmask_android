@@ -219,8 +219,8 @@
   <string name="circumvention_setup_hint">%s tratará de conectarte a Internet usando varias tecnologías de evasión. Puedes modificar algunas opciones en la configuración avanzada.</string>
   <string name="use_standard_vpn">Utiliza el estándar %s</string>
   <string name="use_circumvention_tech">Usa  tecnología de evasión (más lento)</string>
-  <string name="description_configure_provider">Para conectarte a tu proveedor, %1$s está obteniendo toda la información de configuración requerida. Esto solo sucede durante la primera configuración. </string>
-  <string name="description_configure_provider_circumvention">%1$s está intentando recopilar toda la información de tu proveedor. Esto solo sucede durante la primera configuración y podría demorar algún tiempo.</string>
+  <string name="description_configure_provider">Para conectarte a tu proveedor, %1$s está obteniendo toda la información de configuración requerida. Esto solo ocurrirá durante la primera configuración. </string>
+  <string name="description_configure_provider_circumvention">%1$s está intentando obtener toda la información de tu proveedor. Esto solo ocurrirá durante la primera configuración y podría demorar algún tiempo.</string>
   <string name="details">Detalles</string>
   <string name="tor_status">Estado de Tor</string>
   <string name="snowflake_status">Estado Snowflake</string>

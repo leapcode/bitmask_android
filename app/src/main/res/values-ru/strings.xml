@@ -12,7 +12,7 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="routes_info">Маршруты: %s</string>
   <string name="routes_info6">Маршруты IPv6: %s</string>
   <string name="error_empty_username">Имя пользователя не должно быть пустым</string>
-  <string name="cert_from_keystore">Получен сертификат \"%s\" из хранилища ключей</string>
+  <string name="cert_from_keystore">Получен сертификат \'%s\' из хранилища ключей</string>
   <string name="provider_label">Провайдер:</string>
   <string name="provider_label_none">Провайдер не настроен</string>
   <string name="status_unknown">Статус неизвестен.</string>
@@ -34,7 +34,7 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="password_mismatch">Пароли не совпадают</string>
   <string name="user_message">Сообщение пользователя</string>
   <string name="about_fragment_title">О нас</string>
-  <string name="exclude_apps_fragment_title">Исключение приложений</string>
+  <string name="exclude_apps_fragment_title">Исключение приложений из VPN</string>
   <string name="error_srp_math_error_user_message">Повторите попытку: ошибка сервера</string>
   <string name="error_bad_user_password_user_message">Неправильное имя пользователя или пароль</string>
   <string name="error_not_valid_password_user_message">Длина должна быть не менее 8 символов</string>
@@ -85,7 +85,7 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="vpn.button.turn.off">ВЫКЛ</string>
   <string name="vpn_button_turn_off_blocking">Остановить блокирование</string>
   <string name="vpn_securely_routed">Ваш трафик безопасно маршрутизируется через:</string>
-  <string name="vpn_securely_routed_no_internet">Подключение к интернету отсутствует. Когда оно восстановится, мы безопасно передадим ваши сообщения:</string>
+  <string name="vpn_securely_routed_no_internet">Подключение к интернету отсутствует. Когда оно восстановится, мы безопасно перенаправим ваш трафик через:</string>
   <string name="log_fragment_title">Журнал</string>
   <string name="vpn_fragment_title">VPN</string>
   <string name="navigation_drawer_open">Открыть панель навигации</string>
@@ -100,10 +100,10 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="update_certificate">Обновление сертификата</string>
   <string name="warning_eip_json_corrupted">Невозможно обновить конфигурацию провайдера.</string>
   <string name="eip_json_corrupted_user_message">Невозможно обновить конфигурацию провайдера. Войдите, чтобы повторить попытку.</string>
-  <string name="warning_client_parsing_error_gateways">Невозможно распознать шлюзы поставщика. Они могут быть настроены неправильно.</string>
-  <string name="warning_corrupted_provider_details">Сохранённые сведения о провайдере повреждены. Можно либо обновить %s (рекомендуется), либо обновить сведения о поставщике с помощью коммерческого сертификата ЦС.</string>
+  <string name="warning_client_parsing_error_gateways">Невозможно распознать шлюзы провайдера. Они могут быть настроены неправильно.</string>
+  <string name="warning_corrupted_provider_details">Сохранённые сведения о провайдере повреждены. Можно либо обновить %s (рекомендуется), либо обновить сведения о провайдере с помощью коммерческого сертификата ЦС.</string>
   <string name="warning_corrupted_provider_cert">Сохранённый сертификат провайдера недействителен. Вы можете либо обновить %s (рекомендуется), либо обновить сертификат провайдера используя коммерческий сертификат центра сертификации.</string>
-  <string name="warning_expired_provider_cert">Срок действия сохранённого сертификата провайдера истёк. Можно либо обновить %s (рекомендуется), либо обновить сертификат поставщика с помощью коммерческого сертификата ЦС.</string>
+  <string name="warning_expired_provider_cert">Срок действия сохранённого сертификата провайдера истёк. Можно либо обновить %s (рекомендуется), либо обновить сертификат провайдера с помощью коммерческого сертификата ЦС.</string>
   <string name="downloading_vpn_certificate_failed">Загрузка сертификата VPN не выполнена. Попробуйте ещё раз или выберите другого провайдера.</string>
   <string name="vpn_certificate_is_invalid">Сертификат VPN недействителен. Попытайтесь загрузить новый.</string>
   <string name="vpn_certificate_user_message">Сертификат VPN недействителен. Войдите для загрузки нового.</string>
@@ -125,7 +125,7 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="tethering_bluetooth">Bluetooth-модем</string>
   <string name="do_not_show_again">Не показывать снова</string>
   <string name="always_on_vpn_user_message">Для включения постоянной VPN в настройках Android, нажмите значок конфигурации [img src] и переведите его во включённое состояние.</string>
-  <string name="always_on_blocking_vpn_user_message">Чтобы оптимально защитить конфиденциальность, вы также должны активировать функцию \"Блокировать подключения без VPN\".</string>
+  <string name="always_on_blocking_vpn_user_message">Чтобы оптимально защитить конфиденциальность, вы также должны активировать функцию \'Блокировать подключения без VPN\'.</string>
   <string name="donate_title">Пожертвование</string>
   <string name="donate_default_message">Пожалуйста, сделайте пожертвование сегодня, если вы цените безопасное общение, простое как для конечного пользователя, так и для поставщика услуг.</string>
   <string name="donate_message">LEAP зависит от пожертвований и грантов. Пожалуйста, сделайте пожертвование сегодня, если вы цените безопасное общение, простое как для конечного пользователя, так и для поставщика услуг.</string>
@@ -144,13 +144,13 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   </plurals>
   <string name="warning_no_more_gateways_use_pt">%s не подключается. Возможно, что VPN-подключения блокируются. Попробовать подключиться с помощью маскировки подключения?</string>
   <string name="warning_no_more_gateways_no_pt">%s не удалось подключиться. Повторить попытку?</string>
-  <string name="warning_no_more_gateways_use_ovpn">%s не подключается с помощью маскировки VPN-подключения. Попробовать подключиться с помощью стандартного VPN?</string>
+  <string name="warning_no_more_gateways_use_ovpn">%s не подключается с помощью маскированного VPN-подключения. Попробовать подключиться с помощью стандартного VPN?</string>
   <string name="warning_no_more_gateways_manual_gw_selection">%1$s не может подключиться к %2$s. Использовать автоматический выбор лучшего расположения?</string>
   <string name="warning_option_try_best">Попробовать лучшее расположение</string>
   <string name="warning_option_try_pt">Попробовать маскировку подключения</string>
   <string name="warning_option_try_ovpn">Попробовать стандартное подключение</string>
   <string name="vpn_error_establish">Android не удалось установить службу VPN.</string>
-  <string name="root_permission_error">%s не может использовать такие функции, как точка доступа VPN или блокировка IPv6, без root-прав.</string>
+  <string name="root_permission_error">%s не может использовать такие функции, как точка доступа VPN или брандмауэр IPv6, без root-прав.</string>
   <string name="qs_enable_vpn">Запустить %s</string>
   <string name="version_update_found">Нажмите здесь, чтобы начать загрузку.</string>
   <string name="version_update_title">Найдена новая версия %s.</string>
@@ -205,7 +205,7 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="eip_state_no_network">Отсутствует рабочее подключение к интернету. Как только оно появится, вы будете автоматически подключены к</string>
   <string name="eip_state_blocking">%1$s блокирует весь интернет-трафик.</string>
   <string name="disabled_while_udp_on">Отключено при использовании UDP.</string>
-  <string name="advanced_settings">Дополнительно</string>
+  <string name="advanced_settings">Расширенные настройки</string>
   <string name="cancel_connection">Отключить</string>
   <string name="unknown_location">Неизвестное местоположение</string>
   <string name="splash_footer">Разработано LEAP</string>
@@ -217,12 +217,12 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="add_provider_description">Bitmask подключается к надёжным провайдерам, которых нет в открытом доступе. Введите ниже URL вашего провайдера.</string>
   <string name="provider_description_calyx">Calyx — некоммерческая образовательная и исследовательская организация, занимающаяся изучением, тестированием, разработкой и внедрением технологий и инструментов обеспечения конфиденциальности для продвижения свободы слова, свободы самовыражения, гражданской активности и прав на неприкосновенность частной жизни в интернете и в индустрии мобильной связи.</string>
   <string name="title_circumvention_setup">Вам требуется обход цензуры?</string>
-  <string name="circumvention_setup_description">Если вы живёте там, где интернет цензурируется, то можете использовать наши средства обхода цензуры для доступа ко всем услугам интернета. Это замедлят подключение!</string>
+  <string name="circumvention_setup_description">Если вы живёте там, где интернет цензурируется, то можете использовать наши средства обхода цензуры для доступа ко всем услугам интернета. Это замедлит подключение!</string>
   <string name="circumvention_setup_hint">%s автоматически попытается подключить вас к интернету, используя различные технологии обхода. Параметры можно изменить в настройках.</string>
   <string name="use_standard_vpn">Использовать стандарт %s</string>
   <string name="use_circumvention_tech">Использовать технологию обхода (медленнее)</string>
   <string name="description_configure_provider">Для подключения к вашему провайдеру %1$s получает всю необходимую информацию о конфигурации. Это происходит только при первичной настройке.</string>
-  <string name="description_configure_provider_circumvention">%1$s получает все необходимые конфигурационные данные от провайдера. Это происходит только при первичной настройке. Вы выбрали использование технологии обхода, поэтому процесс может занять некоторое время.</string>
+  <string name="description_configure_provider_circumvention">%1$s пытается получить все необходимые конфигурационные данные от провайдера. Это происходит только при первичной настройке. Вы выбрали использование технологии обхода, поэтому процесс может занять некоторое время.</string>
   <string name="details">Подробности</string>
   <string name="tor_status">Статус Tor</string>
   <string name="snowflake_status">Статус Snowflake</string>
@@ -239,5 +239,5 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="title_setup_success">Всё готово!</string>
   <string name="setup_success_description">Нажмите кнопку ниже для подключения</string>
   <string name="permission_rejected">Запрос на разрешение отклонён.</string>
-  <string name="login_not_supported">Текущая версия приложения не поддерживает возможность входа, поэтому необходимо обновить сертификат VPN для этого провайдера.</string>
+  <string name="login_not_supported">Текущая версия приложения не поддерживает возможность входа, которая необходима для обновления сертификата VPN для этого провайдера.</string>
 </resources>
