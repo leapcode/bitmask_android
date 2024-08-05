@@ -1,19 +1,28 @@
 # Updating l10n, metadata, f-droid, google play store
 
-# F-Droid compatible fastlane metadata directory
+Easy to get confused, app strings, store strings, transifex, play store…
 
-This source folder only contains the generated metadata for f-droid builds for both Bitmask and a custom flavored client.
+# Update app strings
+
+Any string that will be changed in the source language (en_US) in the  master branch, will be picked up by transifex. Translators get notified about source string changes, best to put many changes at once. Notify translators, beta test users and localization lab about an upcoming release and request contributions.
+
+# Metadata: F-Droid compatible fastlane metadata directory
+
+The src/<flavor>/fastlande/metadata folder contains the generated metadata for f-droid builds for both Bitmask and a custom flavored client.
 Currently neither F-Droid nor Fastlane support metadata dirs directly within build flavor dirs of a module, like 
 `/<module>/src/<buildFlavor>/fastlane/metadata/android/` (which would be preferable). 
 Transifex wants 1 file, play store wants 1 file, fastlane uses text files.
 
 Keep an eye on this [issue](https://gitlab.com/fdroid/fdroidserver/-/issues/829) to track the state of the fastlane improvements for F-Droid.
 
-## Updating l10n'ed app store listings
+## Updating localized app store listings
 
 1. Fetch content from google play (en_US) with scripts/fetch-play-metadata.py
 1. Check if there are changes with what fastlane creates in src/normal/fastlane/metadata/.. 
-1. Use scripts/prepareForTx.py to check what localized app versions exist in the Android app, prepare for transifex upload
+1. Now is a good moment to do a round of `APP` translation pulls. The
+scripts/pulltranslations.py checks which translations for the app exist, to make sure
+that we don't push metadata translations to the play store without having the app
+translated.
 1. tx push se.leap.riseupvpn-desc.json -l en
 1. wait for localization, answer questions, fix wording. Repeat when necessary.
 1. Pull from transifex: tx pull -f --keep-new-files
