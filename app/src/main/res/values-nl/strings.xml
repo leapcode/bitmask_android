@@ -219,13 +219,23 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="circumvention_setup_hint">%s zal automatisch proberen te verbinden met het internet met verschillende censuur omzeilende technologieën. Dit kun je verfijnen in de geavanceerde instellingen.</string>
   <string name="use_standard_vpn">Gebruik standaard %s</string>
   <string name="use_circumvention_tech">Gebruik censuur omzeilende technologie (trager)</string>
+  <string name="description_configure_provider">Om te verbinden met je provider, haalt %1$s, alle configuratie details op. Dit gebeurd alleen tijdens de eerste installatie.</string>
+  <string name="description_configure_provider_circumvention">%1$s probeert alle configuratie details van de provider op te halen. Dit gebeurt alleen tijdens de eerste installatie. U heeft gekozen om censuur omzeilendefuncties te gebruiken, dus dit kan enige tijd duren.</string>
   <string name="details">Details</string>
   <string name="tor_status">Tor-status</string>
   <string name="snowflake_status">Snowflake status</string>
   <string name="snowflake_started">Snowflake client status</string>
+  <string name="snowflake_negotiating_rendezvous_http">Bezig met Snowflake proxy verbinding (http)</string>
+  <string name="snowflake_negotiating_rendezvous_amp_cache">Bezig met Snowflake proxy verbinding (amp cache)</string>
   <string name="snowflake_socks_error">Snowflake SOCKS fout</string>
+  <string name="snowflake_broker_success">Snowflake proxy rendezvous succesvol</string>
   <string name="snowflake_sending_data">Data versturen via Snowflake</string>
+  <string name="title_upcoming_connection_request">Nu volgt een verzoek om een verbinding te maken.</string>
+  <string name="upcoming_connection_request_description">In het volgende scherm herinnert Android je eraan dat het belangrijk is je VPN provider te vertrouwen. Bitmask werkt alleen samen met providers die zich houden aan strikte privacyrichtlijnen voor VPN’s en een bewezen geschiedenis hebben in het beschermen van de gegevens en identiteiten van gebruikers. Wanneer je je met een niet publieke provider verbindt, zorg er dan zeker voor dat je ze vertrouwt.</string>
+  <string name="title_upcoming_notifications_request">Nu volgt de vraag om meldingen toe te staan.</string>
+  <string name="upcoming_notifications_request_description">In het volgende scherm vraagt Android of je meldingen wilt toestaan. Dit zorgt voor een stabiele achtergrondverbinding en stelt je in staat om je datagebruik te zien bij de meldingen van Android.</string>
   <string name="title_setup_success">Je bent klaar! </string>
   <string name="setup_success_description">Tik hieronder om een verbinding te maken</string>
   <string name="permission_rejected">Toestemmingsverzoek afgewezen.</string>
+  <string name="login_not_supported">Je kunt in deze versie van de app niet inloggen, wat je nodig hebt om de VPN certificaten van deze provider te updaten.</string>
 </resources>
