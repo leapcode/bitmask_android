@@ -3,6 +3,7 @@ package se.leap.bitmaskclient.eip;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
@@ -20,11 +21,12 @@ import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.Nullable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 import org.mockito.Answers;
 import org.mockito.Mock;
 
@@ -34,9 +36,11 @@ import java.util.List;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.ConfigParser;
+import de.blinkt.openvpn.core.connection.Connection;
 import se.leap.bitmaskclient.base.models.Location;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
+import se.leap.bitmaskclient.base.models.Transport;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.base.utils.TimezoneHelper;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
@@ -87,6 +91,18 @@ public class GatewaysManagerTest {
         assertEquals(3, gatewaysManager.size());
     }
 
+    @Nullable
+    private static VpnProfile createProfile(VpnConfigGenerator configGenerator, Connection.TransportType transportType) throws IOException, ConfigParser.ConfigParseError, JSONException {
+        VpnProfile profile = null;
+        for (Transport transport : configGenerator.transports) {
+            if (transport.getTransportType() == transportType) {
+                profile = configGenerator.createProfile(transport);
+                break;
+            }
+        }
+        return profile;
+    }
+
     @Test
     public void TestGetPosition_VpnProfileExtistingObfs4_returnPositionZero() throws JSONException, ConfigParser.ConfigParseError, IOException {
         Provider provider = getProvider(null, null, null, null, null, null, "ptdemo_three_mixed_gateways.json", null);
@@ -99,9 +115,10 @@ public class GatewaysManagerTest {
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.60";
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
-        VpnProfile profile = configGenerator.createProfile(OBFS4);
-
+        VpnProfile profile = createProfile(configGenerator, OBFS4);
+        assertNotNull(profile);
         assertEquals(0, gatewaysManager.getPosition(profile));
+
     }
 
     @Test
@@ -116,8 +133,8 @@ public class GatewaysManagerTest {
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.60";
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
-        VpnProfile profile = configGenerator.createProfile(OPENVPN);
-
+        VpnProfile profile = createProfile(configGenerator, OPENVPN);
+        assertNotNull(profile);
         assertEquals(0, gatewaysManager.getPosition(profile));
     }
 
@@ -133,7 +150,7 @@ public class GatewaysManagerTest {
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.60";
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
-        assertThrows(ConfigParser.ConfigParseError.class, () -> configGenerator.createProfile(OBFS4));
+        assertThrows(ConfigParser.ConfigParseError.class, () -> createProfile(configGenerator, OBFS4));
     }
 
     @Test
@@ -148,9 +165,9 @@ public class GatewaysManagerTest {
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.60";
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
-        VpnProfile profile = configGenerator.createProfile(OBFS4);
+        VpnProfile profile = createProfile(configGenerator, OBFS4);
 
-        assertEquals(1, gatewaysManager.getPosition(profile));
+        assertEquals(2, gatewaysManager.getPosition(profile));
     }
 
     @Test
@@ -165,7 +182,7 @@ public class GatewaysManagerTest {
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.60";
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
-        VpnProfile profile = configGenerator.createProfile(OPENVPN);
+        VpnProfile profile = createProfile(configGenerator, OPENVPN);
 
         assertEquals(2, gatewaysManager.getPosition(profile));
     }
@@ -182,7 +199,7 @@ public class GatewaysManagerTest {
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.61";
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
-        VpnProfile profile = configGenerator.createProfile(OBFS4);
+        VpnProfile profile = createProfile(configGenerator, OBFS4);
 
         assertEquals(-1, gatewaysManager.getPosition(profile));
     }
@@ -199,7 +216,7 @@ public class GatewaysManagerTest {
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "3.21.247.89";
         VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
-        VpnProfile profile = configGenerator.createProfile(OBFS4);
+        VpnProfile profile = createProfile(configGenerator, OBFS4);
 
         assertEquals(1, gatewaysManager.getPosition(profile));
     }
@@ -212,7 +229,7 @@ public class GatewaysManagerTest {
         sharedPreferences.edit().putBoolean(USE_BRIDGES, true).commit();
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("37.12.247.10", gatewaysManager.select(0).gateway.getRemoteIP());
+        assertEquals("37.12.247.10", gatewaysManager.selectVpnProfile(0).mGatewayIp);
     }
 
     @Test
@@ -226,11 +243,11 @@ public class GatewaysManagerTest {
                 commit();
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
         ArrayList<String> hosts = new ArrayList<>();
-        hosts.add(gatewaysManager.select(0).gateway.getHost());
-        hosts.add(gatewaysManager.select(1).gateway.getHost());
+        hosts.add(gatewaysManager.selectVpnProfile(0).mGatewayIp);
+        hosts.add(gatewaysManager.selectVpnProfile(1).mGatewayIp);
 
-        assertTrue(hosts.contains("bridge-nyc1-02.bitmask-dev.leapvpn.net"));
-        assertTrue(hosts.contains("bridge-nyc1-01.bitmask-dev.leapvpn.net"));
+        assertTrue(hosts.contains("192.81.208.164"));
+        assertTrue(hosts.contains("104.248.232.240"));
 
     }
 
@@ -246,10 +263,10 @@ public class GatewaysManagerTest {
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         ArrayList<String> hosts = new ArrayList<>();
-        hosts.add(gatewaysManager.select(0).gateway.getHost());
-        hosts.add(gatewaysManager.select(1).gateway.getHost());
-        assertTrue(hosts.contains("bridge-nyc1-02.bitmask-dev.leapvpn.net"));
-        assertTrue(hosts.contains("bridge-nyc1-01.bitmask-dev.leapvpn.net"));
+        hosts.add(gatewaysManager.selectVpnProfile(0).mGatewayIp);
+        hosts.add(gatewaysManager.selectVpnProfile(1).mGatewayIp);
+        assertTrue(hosts.contains("192.81.208.164"));
+        assertTrue(hosts.contains("104.248.232.240"));
     }
 
     @Test
@@ -264,7 +281,7 @@ public class GatewaysManagerTest {
 
         for (int i = 0; i < 1000; i++) {
             GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
-            assertEquals("bridge-nyc1-01.bitmask-dev.leapvpn.net", gatewaysManager.select(0).gateway.getHost());
+            assertEquals("104.248.232.240", gatewaysManager.selectVpnProfile(0).mGatewayIp);
         }
     }
 
@@ -279,8 +296,8 @@ public class GatewaysManagerTest {
                 commit();
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("bridge-nyc1-01.bitmask-dev.leapvpn.net", gatewaysManager.select(0).gateway.getHost());
-        assertNull(gatewaysManager.select(1));
+        assertEquals("104.248.232.240", gatewaysManager.selectVpnProfile(0).mGatewayIp);
+        assertNull(gatewaysManager.selectVpnProfile(1));
     }
 
     @Test
@@ -295,11 +312,11 @@ public class GatewaysManagerTest {
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
         ArrayList<String> hosts = new ArrayList<>();
-        hosts.add(gatewaysManager.select(0).gateway.getHost());
-        hosts.add(gatewaysManager.select(1).gateway.getHost());
+        hosts.add(gatewaysManager.selectVpnProfile(0).mGatewayIp);
+        hosts.add(gatewaysManager.selectVpnProfile(1).mGatewayIp);
 
-        assertTrue(hosts.contains("pt.demo.bitmask.net"));
-        assertTrue(hosts.contains("manila.bitmask.net"));
+        assertTrue(hosts.contains("37.218.247.60"));
+        assertTrue(hosts.contains("37.12.247.10"));
     }
 
     @Test
@@ -309,9 +326,9 @@ public class GatewaysManagerTest {
         providerObservable.updateProvider(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("manila.bitmask.net", gatewaysManager.select(0).gateway.getHost());
-        assertEquals("moscow.bitmask.net", gatewaysManager.select(1).gateway.getHost());
-        assertEquals("pt.demo.bitmask.net", gatewaysManager.select(2).gateway.getHost());
+        assertEquals("37.12.247.10", gatewaysManager.selectVpnProfile(0).mGatewayIp);
+        assertEquals("3.21.247.89", gatewaysManager.selectVpnProfile(1).mGatewayIp);
+        assertEquals("37.218.247.60", gatewaysManager.selectVpnProfile(2).mGatewayIp);
     }
 
     @Test
@@ -325,9 +342,9 @@ public class GatewaysManagerTest {
                 commit();
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("moscow.bitmask.net", gatewaysManager.select(0).gateway.getHost());
-        assertEquals("pt.demo.bitmask.net", gatewaysManager.select(1).gateway.getHost());
-        assertNull(gatewaysManager.select(2));
+        assertEquals("3.21.247.89", gatewaysManager.selectVpnProfile(0).mGatewayIp);
+        assertEquals("37.218.247.60", gatewaysManager.selectVpnProfile(1).mGatewayIp);
+        assertNull(gatewaysManager.selectVpnProfile(2));
     }
 
 
@@ -342,9 +359,9 @@ public class GatewaysManagerTest {
                 commit();
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("mouette.riseup.net", gatewaysManager.select(0).gateway.getHost());
-        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1).gateway.getHost());
-        assertEquals("zarapito.riseup.net", gatewaysManager.select(2).gateway.getHost());
+        assertEquals("163.172.126.44", gatewaysManager.selectVpnProfile(0).mGatewayIp);
+        assertEquals("212.83.143.67", gatewaysManager.selectVpnProfile(1).mGatewayIp);
+        assertEquals("212.129.62.247", gatewaysManager.selectVpnProfile(2).mGatewayIp);
     }
 
     @Test
@@ -358,9 +375,9 @@ public class GatewaysManagerTest {
                 commit();
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("mouette.riseup.net", gatewaysManager.select(0).gateway.getHost());
-        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1).gateway.getHost());
-        assertEquals("zarapito.riseup.net", gatewaysManager.select(2).gateway.getHost());
+        assertEquals("163.172.126.44", gatewaysManager.selectVpnProfile(0).mGatewayIp);
+        assertEquals("212.83.143.67", gatewaysManager.selectVpnProfile(1).mGatewayIp);
+        assertEquals("212.129.62.247", gatewaysManager.selectVpnProfile(2).mGatewayIp);
     }
 
     @Test
@@ -375,10 +392,10 @@ public class GatewaysManagerTest {
                 commit();
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("Paris", gatewaysManager.select(0).gateway.getName());
-        assertEquals("Paris", gatewaysManager.select(1).gateway.getName());
-        assertEquals("Paris", gatewaysManager.select(2).gateway.getName());
-        assertEquals(null, gatewaysManager.select(3));
+        assertEquals("Paris", gatewaysManager.selectVpnProfile(0).getName());
+        assertEquals("Paris", gatewaysManager.selectVpnProfile(1).getName());
+        assertEquals("Paris", gatewaysManager.selectVpnProfile(2).getName());
+        assertEquals(null, gatewaysManager.selectVpnProfile(3));
     }
 
     @Test
@@ -388,9 +405,9 @@ public class GatewaysManagerTest {
         providerObservable.updateProvider(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("mouette.riseup.net", gatewaysManager.select(0, "Paris").gateway.getHost());
-        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1, "Paris").gateway.getHost());
-        assertEquals("zarapito.riseup.net", gatewaysManager.select(2, "Paris").gateway.getHost());
+        assertEquals("163.172.126.44", gatewaysManager.selectVpnProfile(0, "Paris").mGatewayIp);
+        assertEquals("212.83.143.67", gatewaysManager.selectVpnProfile(1, "Paris").mGatewayIp);
+        assertEquals("212.129.62.247", gatewaysManager.selectVpnProfile(2, "Paris").mGatewayIp);
     }
 
     @Test
@@ -400,9 +417,9 @@ public class GatewaysManagerTest {
         providerObservable.updateProvider(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("mouette.riseup.net", gatewaysManager.select(0, "Paris").gateway.getHost());
-        assertEquals("hoatzin.riseup.net", gatewaysManager.select(1, "Paris").gateway.getHost());
-        assertEquals("zarapito.riseup.net", gatewaysManager.select(2, "Paris").gateway.getHost());
+        assertEquals("163.172.126.44", gatewaysManager.selectVpnProfile(0, "Paris").mGatewayIp);
+        assertEquals("212.83.143.67", gatewaysManager.selectVpnProfile(1, "Paris").mGatewayIp);
+        assertEquals("212.129.62.247", gatewaysManager.selectVpnProfile(2, "Paris").mGatewayIp);
     }
 
     @Test
@@ -413,10 +430,10 @@ public class GatewaysManagerTest {
         providerObservable.updateProvider(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
 
-        assertEquals("Paris", gatewaysManager.select(0, "Paris").gateway.getName());
-        assertEquals("Paris", gatewaysManager.select(1, "Paris").gateway.getName());
-        assertEquals("Paris", gatewaysManager.select(2, "Paris").gateway.getName());
-        assertEquals(null, gatewaysManager.select(3, "Paris"));
+        assertEquals("Paris", gatewaysManager.selectVpnProfile(0, "Paris").getName());
+        assertEquals("Paris", gatewaysManager.selectVpnProfile(1, "Paris").getName());
+        assertEquals("Paris", gatewaysManager.selectVpnProfile(2, "Paris").getName());
+        assertEquals(null, gatewaysManager.selectVpnProfile(3, "Paris"));
     }
 
     @Test
@@ -426,7 +443,7 @@ public class GatewaysManagerTest {
         provider.setGeoIpJson(new JSONObject());
         providerObservable.updateProvider(provider);
         GatewaysManager gatewaysManager = new GatewaysManager(mockContext);
-        assertNull(gatewaysManager.select(0, "Stockholm"));
+        assertNull(gatewaysManager.selectVpnProfile(0, "Stockholm"));
     }
 
     @Test

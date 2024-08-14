@@ -33,9 +33,7 @@ import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_STOP_BLOCKI
 import static se.leap.bitmaskclient.base.models.Constants.EIP_EARLY_ROUTES;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_N_CLOSEST_GATEWAY;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_RECEIVER;
-import static se.leap.bitmaskclient.base.models.Constants.EIP_RESTART_ON_BOOT;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.ensureNotOnMainThread;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.eip.EIP.EIPErrors.ERROR_INVALID_PROFILE;
@@ -71,8 +69,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.lang.ref.WeakReference;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -87,7 +83,6 @@ import se.leap.bitmaskclient.base.OnBootReceiver;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.eip.GatewaysManager.GatewayOptions;
 
 /**
  * EIP is the abstract base class for interacting with and managing the Encrypted
@@ -251,8 +246,8 @@ public final class EIP extends JobIntentService implements PropertyChangeListene
             return;
         }
 
-        GatewayOptions gatewayOptions = gatewaysManager.select(nClosestGateway);
-        launchActiveGateway(gatewayOptions, nClosestGateway, result);
+        VpnProfile gatewayOptions = gatewaysManager.selectVpnProfile(nClosestGateway);
+        launchProfile(gatewayOptions, nClosestGateway, result);
         if (result.containsKey(BROADCAST_RESULT_KEY) && !result.getBoolean(BROADCAST_RESULT_KEY)) {
             tellToReceiverOrBroadcast(this, EIP_ACTION_START, RESULT_CANCELED, result);
         } else {
@@ -266,7 +261,7 @@ public final class EIP extends JobIntentService implements PropertyChangeListene
      */
     private void startEIPAlwaysOnVpn() {
         GatewaysManager gatewaysManager = new GatewaysManager(getApplicationContext());
-        GatewayOptions gatewayOptions = gatewaysManager.select(0);
+        VpnProfile vpnProfile = gatewaysManager.selectVpnProfile(0);
         Bundle result = new Bundle();
 
         if (shouldUpdateVPNCertificate()) {
@@ -274,8 +269,7 @@ public final class EIP extends JobIntentService implements PropertyChangeListene
             p.setShouldUpdateVpnCertificate(true);
             ProviderObservable.getInstance().updateProvider(p);
         }
-
-        launchActiveGateway(gatewayOptions, 0, result);
+        launchProfile(vpnProfile, 0, result);
         if (result.containsKey(BROADCAST_RESULT_KEY) && !result.getBoolean(BROADCAST_RESULT_KEY)){
             VpnStatus.logWarning("ALWAYS-ON VPN: " + getString(R.string.no_vpn_profiles_defined));
         }
@@ -317,15 +311,15 @@ public final class EIP extends JobIntentService implements PropertyChangeListene
     }
 
     /**
-     * starts the VPN and connects to the given gateway
+     * starts the VPN and connects to the given Gateway the VpnProfile belongs to
      *
-     * @param gatewayOptions GatewayOptions model containing a Gateway and the associated transport used to connect
+     * @param profile VpnProfile which contains all information to setup a OpenVPN connection
+     *                   and optionally obfsvpn
+     * @param nClosestGateway gateway index, indicating the distance to the user
+     * @param result Bundle containing possible error messages shown to the user
      */
-    private void launchActiveGateway(@Nullable GatewayOptions gatewayOptions, int nClosestGateway, Bundle result) {
-        VpnProfile profile;
-
-        if (gatewayOptions == null || gatewayOptions.gateway == null ||
-                (profile = gatewayOptions.gateway.getProfile(gatewayOptions.transportType)) == null) {
+    private void launchProfile(@Nullable VpnProfile profile, int nClosestGateway, Bundle result) {
+        if (profile == null) {
             String preferredLocation = getPreferredCity();
             if (preferredLocation != null) {
                 setErrorResult(result, NO_MORE_GATEWAYS.toString(), getStringResourceForNoMoreGateways(), getString(R.string.app_name), preferredLocation);
@@ -378,7 +372,6 @@ public final class EIP extends JobIntentService implements PropertyChangeListene
             startActivity(permissionIntent);
         }
     }
-
 
     /**
      * Stop VPN

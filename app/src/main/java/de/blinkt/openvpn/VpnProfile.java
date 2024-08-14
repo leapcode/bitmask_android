@@ -5,6 +5,8 @@
 
 package de.blinkt.openvpn;
 
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
+import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_HOP;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PROFILE;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.stringEqual;
 
@@ -50,6 +52,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.PSSParameterSpec;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
@@ -73,10 +76,12 @@ import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.core.X509Utils;
 import de.blinkt.openvpn.core.connection.Connection;
 import de.blinkt.openvpn.core.connection.ConnectionAdapter;
+import de.blinkt.openvpn.core.connection.Obfs4Connection;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
+import se.leap.bitmaskclient.pluggableTransports.models.Obfs4Options;
 
 public class VpnProfile implements Serializable, Cloneable {
     // Note that this class cannot be moved to core where it belongs since
@@ -272,11 +277,20 @@ public class VpnProfile implements Serializable, Cloneable {
     }
 
     @Override
+    public int hashCode() {
+        int result =(mGatewayIp != null ? mGatewayIp.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(mConnections);
+        result = 31 * result + mTransportType;
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof VpnProfile) {
             VpnProfile vp = (VpnProfile) obj;
             return stringEqual(vp.mGatewayIp, mGatewayIp) &&
-                    vp.mTransportType == mTransportType;
+                    vp.mTransportType == mTransportType &&
+                    Arrays.equals(mConnections, vp.mConnections);
         }
         return false;
     }
@@ -313,6 +327,22 @@ public class VpnProfile implements Serializable, Cloneable {
 
     public Connection.TransportType getTransportType() {
         return Connection.TransportType.fromInt(mTransportType);
+    }
+
+    public @Nullable Obfs4Options getObfs4Options() {
+        Connection.TransportType transportType = getTransportType();
+        if (!(transportType == OBFS4 || transportType == OBFS4_HOP)) {
+            return null;
+        }
+        return ((Obfs4Connection) mConnections[0]).getObfs4Options();
+    }
+
+    public String getObfuscationTransportLayerProtocol() {
+        try {
+            return getObfs4Options().transport.getProtocols()[0];
+        } catch (NullPointerException | ArrayIndexOutOfBoundsException ignore) {
+            return null;
+        }
     }
 
     public String getName() {

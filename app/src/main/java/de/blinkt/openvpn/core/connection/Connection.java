@@ -9,10 +9,13 @@ import static de.blinkt.openvpn.core.connection.Connection.TransportType.*;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.JsonAdapter;
 
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.Objects;
 
 @JsonAdapter(ConnectionAdapter.class)
 public abstract class Connection implements Serializable, Cloneable {
@@ -301,5 +304,54 @@ public abstract class Connection implements Serializable, Cloneable {
         this.mProxyAuthPassword = proxyAuthPassword;
     }
 
-    public abstract TransportType getTransportType();
+    public abstract @NonNull TransportType getTransportType();
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Connection that)) return false;
+
+        if (mUseUdp != that.mUseUdp) return false;
+        if (mUseCustomConfig != that.mUseCustomConfig) return false;
+        if (mEnabled != that.mEnabled) return false;
+        if (mConnectTimeout != that.mConnectTimeout) return false;
+        if (mUseProxyAuth != that.mUseProxyAuth) return false;
+        if (!Objects.equals(mServerName, that.mServerName))
+            return false;
+        if (!Objects.equals(mServerPort, that.mServerPort))
+            return false;
+        if (!Objects.equals(mCustomConfiguration, that.mCustomConfiguration))
+            return false;
+        if (mProxyType != that.mProxyType) return false;
+        if (!Objects.equals(mProxyName, that.mProxyName))
+            return false;
+        if (!Objects.equals(mProxyPort, that.mProxyPort))
+            return false;
+        if (!Objects.equals(mProxyAuthUser, that.mProxyAuthUser))
+            return false;
+        if (getTransportType() != that.getTransportType()) {
+            return false;
+        }
+        return Objects.equals(mProxyAuthPassword, that.mProxyAuthPassword);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mServerName != null ? mServerName.hashCode() : 0;
+        result = 31 * result + (mServerPort != null ? mServerPort.hashCode() : 0);
+        result = 31 * result + (mUseUdp ? 1 : 0);
+        result = 31 * result + (mCustomConfiguration != null ? mCustomConfiguration.hashCode() : 0);
+        result = 31 * result + (mUseCustomConfig ? 1 : 0);
+        result = 31 * result + (mEnabled ? 1 : 0);
+        result = 31 * result + mConnectTimeout;
+        result = 31 * result + (mProxyType != null ? mProxyType.hashCode() : 0);
+        result = 31 * result + (mProxyName != null ? mProxyName.hashCode() : 0);
+        result = 31 * result + (mProxyPort != null ? mProxyPort.hashCode() : 0);
+        result = 31 * result + (mUseProxyAuth ? 1 : 0);
+        result = 31 * result + (mProxyAuthUser != null ? mProxyAuthUser.hashCode() : 0);
+        result = 31 * result + (mProxyAuthPassword != null ? mProxyAuthPassword.hashCode() : 0);
+        result = 31 * result + getTransportType().toInt();
+        return result;
+    }
 }
