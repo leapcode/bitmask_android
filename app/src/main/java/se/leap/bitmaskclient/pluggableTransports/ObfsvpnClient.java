@@ -40,17 +40,19 @@ public class ObfsvpnClient implements EventLogger {
         try {
             Log.d(TAG, obfsvpnConfig.toString());
             client = Client.newFFIClient(obfsvpnConfig.toString());
-            client.setEventLogger(this);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
     public int start() {
-
         synchronized (LOCK) {
             new Thread(() -> {
                 try {
+                    if (client.isStarted()) {
+                        return;
+                    }
+                    client.setEventLogger(this);
                     client.start();
                 } catch (Exception e) {
                     e.printStackTrace();
