@@ -223,7 +223,10 @@
   <string name="tor_status">Estado de Tor</string>
   <string name="snowflake_status">Estado Snowflake</string>
   <string name="snowflake_started">cliente Snowflake iniciado</string>
+  <string name="snowflake_negotiating_rendezvous_http">Negociando Snowflake proxy rendezvous (http)</string>
+  <string name="snowflake_negotiating_rendezvous_amp_cache">Negociando Snowflake proxy rendezvous (amp cache)</string>
   <string name="snowflake_socks_error">error Snowflake SOCKS</string>
+  <string name="snowflake_broker_success">Snowflake proxy rendezvous exitoso</string>
   <string name="snowflake_sending_data">Enviando datos via Snowflake</string>
   <string name="title_upcoming_connection_request">Próxima Solicitud de Conexión</string>
   <string name="title_upcoming_notifications_request">Solicitud de Próximas Notificaciones</string>

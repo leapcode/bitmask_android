@@ -214,6 +214,7 @@ Je kan kiezen om te herconfigureren of af te sluiten en bij de volgende start ee
   <string name="provider_description_riseup">Riseup biedt online communicatiemiddelen voor mensen en groepen die werken aan sociale verandering. Wij zijn een project dat democratische alternatieven creëert en zelfbeschikking in de praktijk brengt door onze eigen veilige communicatiemiddelen te beheren.</string>
   <string name="next">Volgende</string>
   <string name="add_provider_description">Bitmask maakt verbinding met betrouwbare aanbieders die niet openbaar vermeld zijn. Vul hieronder de URL van jouw aanbieder in.</string>
+  <string name="provider_description_calyx">Calyx is een non-profit voor onderwijs en onderzoek die zich focust op het bestuderen, testen, ontwikkelen en implementeren van privacytechnologie en -hulpmiddelen om vrije meningsuiting, expressie, burgerparticipatie en privacyrechten op internet en in de mobiele communicatiesector te promoten.</string>
   <string name="title_circumvention_setup">Moet je censuur omzeilen?</string>
   <string name="circumvention_setup_description">Als je in ergens woont waar het internet gecensureerd is, kun je onze opties om censuur te ontwijken gebruiken en zo toegang te krijgen tot alle internetdiensten. Deze opties zullen je verbinding vertragen!</string>
   <string name="circumvention_setup_hint">%s zal automatisch proberen te verbinden met het internet met verschillende censuur omzeilende technologieën. Dit kun je verfijnen in de geavanceerde instellingen.</string>

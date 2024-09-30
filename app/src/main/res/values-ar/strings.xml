@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="retry">حاول مجدداً</string>
-  <string name="repository_url_text">كود المصدر متواجد هنا  https://0xacab.org/leap/bitmask_android</string>
+  <string name="repository_url_text">كود المصدر متاح هنا  https://0xacab.org/leap/bitmask_android</string>
   <string name="leap_tracker">متتبع الأعطال متوافر هنا 
 https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="translation_project_text">يمكنك الترجمة؟ اطلع على مشروع الترجمة الخاص بنا عبر هذا الرابط
@@ -12,7 +12,7 @@ https://www.transifex.com/projects/p/bitmask/</string>
   <string name="connection_details">تفاصيل الاتصال</string>
   <string name="routes_info">المسارات: %s</string>
   <string name="routes_info6">مسارات IPv6: %s</string>
-  <string name="error_empty_username">اسم المستخدم ينبغي أن لا يكون فارغا.</string>
+  <string name="error_empty_username">لا ينبغي أن يظل مكان اسم المستخدم فارغاً.</string>
   <string name="cert_from_keystore">احصل على شهادة \'%s\' من مستودع مفاتيح</string>
   <string name="provider_label">مزود الخدمة:</string>
   <string name="provider_label_none">لا مزود خدمة مفعل</string>
