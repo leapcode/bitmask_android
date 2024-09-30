@@ -1,3 +1,10 @@
+1.4.1 stable
+features:
+- update censorship circumvention library
+- support for provider setups with multiple bridges colocated with a gateway
+- translation updates (again love to all contributors)
+- stable releasing 1.4.0 Release Candidate features and fixes (see below)
+
 1.4.0RC2 pre-API-v5
 features:
 - mainly work under the hood to support future configuration API v5
