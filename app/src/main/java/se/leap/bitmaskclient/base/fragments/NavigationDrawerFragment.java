@@ -46,15 +46,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Locale;
+import java.util.Map;
 
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
@@ -211,6 +215,7 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
         initSwitchProviderEntry();
         initSaveBatteryEntry();
         initManualGatewayEntry();
+        initLanguageSettingsEntry();
         initAdvancedSettingsEntry();
         initDonateEntry();
         initLogEntry();
@@ -309,6 +314,26 @@ public class NavigationDrawerFragment extends Fragment implements SharedPreferen
                 return;
             }
             Fragment fragment = new GatewaySelectionFragment();
+            setDrawerToggleColor(drawerView.getContext(), ContextCompat.getColor(drawerView.getContext(), R.color.colorActionBarTitleFont));
+            fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
+        });
+    }
+
+
+    private void initLanguageSettingsEntry() {
+        IconTextEntry languageSwitcher = drawerView.findViewById(R.id.language_switcher);
+
+        Locale currentLocale = LanguageSelectionFragment.getCurrentLocale();
+        languageSwitcher.setSubtitle(currentLocale.getDisplayName(Locale.ENGLISH));
+
+        languageSwitcher.setOnClickListener(v -> {
+            FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
+            closeDrawer();
+            Fragment current = fragmentManager.findFragmentByTag(MainActivity.TAG);
+            if (current instanceof LanguageSelectionFragment) {
+                return;
+            }
+            Fragment fragment = LanguageSelectionFragment.newInstance(Locale.getDefault());
             setDrawerToggleColor(drawerView.getContext(), ContextCompat.getColor(drawerView.getContext(), R.color.colorActionBarTitleFont));
             fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
         });
