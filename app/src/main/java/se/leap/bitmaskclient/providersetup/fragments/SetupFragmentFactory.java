@@ -11,11 +11,11 @@ import java.util.ArrayList;
 public class SetupFragmentFactory {
     public static final int PROVIDER_SELECTION_FRAGMENT = 0;
     public static final int CIRCUMVENTION_SETUP_FRAGMENT = 1;
-    public static final int CONFIGURE_PROVIDER_FRAGMENT = 2;
-    public static final int VPN_PERMISSON_EDUCATIONAL_FRAGMENT = 3;
-    public static final int VPN_PERMISSON_FRAGMENT = 4;
-    public static final int NOTIFICATION_PERMISSON_EDUCATIONAL_FRAGMENT = 5;
-    public static final int NOTIFICATION_PERMISSON_FRAGMENT = 6;
+    public static final int VPN_PERMISSON_EDUCATIONAL_FRAGMENT = 2;
+    public static final int VPN_PERMISSON_FRAGMENT = 3;
+    public static final int NOTIFICATION_PERMISSON_EDUCATIONAL_FRAGMENT = 4;
+    public static final int NOTIFICATION_PERMISSON_FRAGMENT = 5;
+    public static final int CONFIGURE_PROVIDER_FRAGMENT = 6;
 
     public static final int SUCCESS_FRAGMENT = 7;
 

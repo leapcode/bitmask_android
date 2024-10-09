@@ -38,7 +38,6 @@ public class SetupViewPagerAdapter extends FragmentStateAdapter {
                 fragments.add(PROVIDER_SELECTION_FRAGMENT);
             }
             fragments.add(CIRCUMVENTION_SETUP_FRAGMENT);
-            fragments.add(CONFIGURE_PROVIDER_FRAGMENT);
         }
 
         if (vpnPermissionRequest != null) {
@@ -48,6 +47,9 @@ public class SetupViewPagerAdapter extends FragmentStateAdapter {
         if (showNotificationPermission) {
             fragments.add(NOTIFICATION_PERMISSON_EDUCATIONAL_FRAGMENT);
             fragments.add(NOTIFICATION_PERMISSON_FRAGMENT);
+        }
+        if (providerSetup) {
+            fragments.add(CONFIGURE_PROVIDER_FRAGMENT);
         }
         fragments.add(SUCCESS_FRAGMENT);
         setupFragmentFactory = new SetupFragmentFactory(fragments, vpnPermissionRequest);
