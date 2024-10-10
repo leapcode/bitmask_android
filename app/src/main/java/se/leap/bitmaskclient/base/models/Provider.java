@@ -257,28 +257,42 @@ public final class Provider implements Parcelable {
     }
 
     private boolean supportsTransports(Pair<TransportType, TransportProtocol>[] transportTypes) {
-        try {
-            JSONArray gatewayJsons = eipServiceJson.getJSONArray(GATEWAYS);
-            for (int i = 0; i < gatewayJsons.length(); i++) {
-                JSONArray transports = gatewayJsons.getJSONObject(i).
-                        getJSONObject(CAPABILITIES).
-                        getJSONArray(TRANSPORT);
-                for (int j = 0; j < transports.length(); j++) {
-                    String supportedTransportType = transports.getJSONObject(j).getString(TYPE);
-                    JSONArray transportProtocols = transports.getJSONObject(j).getJSONArray(PROTOCOLS);
-                    for (Pair<TransportType, TransportProtocol> transportPair : transportTypes) {
-                        for (int k = 0; k < transportProtocols.length(); k++) {
-                            if (transportPair.first.toString().equals(supportedTransportType) &&
-                                transportPair.second.toString().equals(transportProtocols.getString(k))) {
-                                return true;
+        if (apiVersion < 5) {
+            try {
+                JSONArray gatewayJsons = eipServiceJson.getJSONArray(GATEWAYS);
+                for (int i = 0; i < gatewayJsons.length(); i++) {
+                    JSONArray transports = gatewayJsons.getJSONObject(i).
+                            getJSONObject(CAPABILITIES).
+                            getJSONArray(TRANSPORT);
+                    for (int j = 0; j < transports.length(); j++) {
+                        String supportedTransportType = transports.getJSONObject(j).getString(TYPE);
+                        JSONArray transportProtocols = transports.getJSONObject(j).getJSONArray(PROTOCOLS);
+                        for (Pair<TransportType, TransportProtocol> transportPair : transportTypes) {
+                            for (int k = 0; k < transportProtocols.length(); k++) {
+                                if (transportPair.first.toString().equals(supportedTransportType) &&
+                                        transportPair.second.toString().equals(transportProtocols.getString(k))) {
+                                    return true;
+                                }
                             }
                         }
                     }
                 }
+            } catch (Exception e) {
+                // ignore
             }
-        } catch (Exception e) {
-            // ignore
+        } else {
+            if (bridges == null) return false;
+            for (int i = 0; i < bridges.length(); i++) {
+                ModelsBridge bridge = bridges.get(i);
+                for (Pair<TransportType, TransportProtocol> transportPair : transportTypes) {
+                    if (transportPair.first.toString().equals(bridge.getType()) &&
+                    transportPair.second.toString().equals(bridge.getTransport())) {
+                        return true;
+                    }
+                }
+            }
         }
+
         return false;
     }
 
@@ -346,8 +360,14 @@ public final class Provider implements Parcelable {
     }
 
     public String getDomain() {
-        return domain;
-    }
+        if (apiVersion < 5) {
+            return domain;
+        }
+        try {
+            return modelsProvider.getDomain();
+        } catch (NullPointerException ignore) {
+            return "";
+        }
 
     }
 
