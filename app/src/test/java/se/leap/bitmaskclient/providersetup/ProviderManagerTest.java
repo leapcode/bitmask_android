@@ -162,7 +162,7 @@ public class ProviderManagerTest {
         providerManager.setAddDummyEntry(true);
         providerManager.clear();
         assertEquals("1 providers", 1, providerManager.providers().size());
-        assertEquals("provider is dummy element", "https://example.net", providerManager.get(0).getMainUrlString());
+        assertEquals("provider is dummy element", "https://example.net", providerManager.get(0).getMainUrl());
     }
 
     @Test

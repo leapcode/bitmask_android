@@ -64,7 +64,7 @@ public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
             Provider handledProvider = resultData.getParcelable(Constants.PROVIDER_KEY);
 
             if (handledProvider != null && setupInterface.getProvider() != null &&
-                    handledProvider.getMainUrlString().equalsIgnoreCase(setupInterface.getProvider().getMainUrlString())) {
+                    handledProvider.getMainUrl().equalsIgnoreCase(setupInterface.getProvider().getMainUrl())) {
                 switch (resultCode) {
                     case ProviderAPI.PROVIDER_OK:
                         setupInterface.handleProviderSetUp(handledProvider);

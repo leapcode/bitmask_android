@@ -17,7 +17,6 @@
 
 package se.leap.bitmaskclient.providersetup;
 
-import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.BuildConfig.DEBUG_MODE;
 import static se.leap.bitmaskclient.R.string.certificate_error;
 import static se.leap.bitmaskclient.R.string.downloading_vpn_certificate_failed;
@@ -202,7 +201,7 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
                 ProviderObservable.getInstance().setProviderForDns(null);
                 break;
             case DOWNLOAD_GEOIP_JSON:
-                if (!provider.getGeoipUrl().isDefault()) {
+                if (!provider.getGeoipUrl().isEmpty()) {
                     boolean startEIP = parameters.getBoolean(EIP_ACTION_START);
                     ProviderObservable.getInstance().setProviderForDns(provider);
                     result = getGeoIPJson(provider);
@@ -227,7 +226,7 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
     public Bundle setupProvider(Provider provider, Bundle task) {
         Bundle currentDownload = new Bundle();
 
-        if (isEmpty(provider.getMainUrlString()) || provider.getMainUrl().isDefault()) {
+        if (provider.getMainUrl().isEmpty()) {
             currentDownload.putBoolean(BROADCAST_RESULT_KEY, false);
             eventSender.setErrorResult(currentDownload, malformed_url, null);
             VpnStatus.logWarning("[API] MainURL String is not set. Cannot setup provider.");
@@ -274,7 +273,7 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
 
         String providerDotJsonString;
         if(provider.getDefinitionString().length() == 0 || provider.getCaCert().isEmpty()) {
-            String providerJsonUrl = provider.getMainUrlString() + "/provider.json";
+            String providerJsonUrl = provider.getMainUrl() + "/provider.json";
             providerDotJsonString = downloadWithCommercialCA(providerJsonUrl, provider);
         } else {
             providerDotJsonString = downloadFromApiUrlWithProviderCA("/provider.json", provider);
@@ -367,13 +366,13 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
     private Bundle getGeoIPJson(Provider provider) {
         Bundle result = new Bundle();
 
-        if (!provider.shouldUpdateGeoIpJson() || provider.getGeoipUrl().isDefault() || VpnStatus.isVPNActive() || TorStatusObservable.getStatus() != OFF) {
+        if (!provider.shouldUpdateGeoIpJson() || provider.getGeoipUrl().isEmpty() || VpnStatus.isVPNActive() || TorStatusObservable.getStatus() != OFF) {
             result.putBoolean(BROADCAST_RESULT_KEY, false);
             return result;
         }
 
         try {
-            URL geoIpUrl = provider.getGeoipUrl().getUrl();
+            URL geoIpUrl = new URL(provider.getGeoipUrl());
 
             String geoipJsonString = downloadFromUrlWithProviderCA(geoIpUrl.toString(), provider, false);
             if (DEBUG_MODE) {
@@ -389,7 +388,7 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
                 result.putBoolean(BROADCAST_RESULT_KEY, true);
             }
 
-        } catch (JSONException | NullPointerException e) {
+        } catch (JSONException | NullPointerException | MalformedURLException e) {
             result.putBoolean(BROADCAST_RESULT_KEY, false);
             e.printStackTrace();
         }
@@ -477,7 +476,7 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
      * @return an empty string if it fails, the response body if not.
      */
     private String downloadFromApiUrlWithProviderCA(String path, Provider provider) {
-        String baseUrl = provider.getApiUrlString();
+        String baseUrl = provider.getApiUrl();
         String urlString = baseUrl + path;
         return downloadFromUrlWithProviderCA(urlString, provider);
     }
@@ -594,7 +593,7 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
 
     private boolean canConnect(Provider provider, Bundle result, int tries) {
         JSONObject errorJson = new JSONObject();
-        String providerUrl = provider.getApiUrlString() + "/provider.json";
+        String providerUrl = provider.getApiUrl() + "/provider.json";
 
         OkHttpClient okHttpClient = clientGenerator.initSelfSignedCAHttpClient(provider.getCaCert(), getProxyPort(), errorJson);
         if (okHttpClient == null) {

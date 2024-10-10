@@ -140,7 +140,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
     private Bundle getAndSetProviderJson(Provider provider) {
         Bundle result = new Bundle();
 
-        String providerJsonUrl = provider.getMainUrlString() + "/provider.json";
+        String providerJsonUrl = provider.getMainUrl() + "/provider.json";
         String providerDotJsonString = fetch(providerJsonUrl, true);
 
         if (ConfigHelper.checkErroneousDownload(providerDotJsonString) || !isValidJson(providerDotJsonString)) {

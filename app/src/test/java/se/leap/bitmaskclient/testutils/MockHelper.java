@@ -259,9 +259,9 @@ public class MockHelper {
             sharedPreferences.edit().
                     putString(Provider.PROVIDER_IP + "." + providerDomain, provider.getProviderIp()).
                     putString(Provider.PROVIDER_API_IP + "." + providerDomain, provider.getProviderApiIp()).
-                    putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString()).
-                    putString(Provider.GEOIP_URL + "." + providerDomain, provider.getGeoipUrl().toString()).
-                    putString(Provider.MOTD_URL + "." + providerDomain, provider.getMotdUrl().toString()).
+                    putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrl()).
+                    putString(Provider.GEOIP_URL + "." + providerDomain, provider.getGeoipUrl()).
+                    putString(Provider.MOTD_URL + "." + providerDomain, provider.getMotdUrl()).
                     putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
                     putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
                     putString(PROVIDER_EIP_DEFINITION + "." + providerDomain, provider.getEipServiceJsonString()).

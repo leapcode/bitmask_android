@@ -307,7 +307,7 @@ public class EipFragment extends Fragment implements PropertyChangeListener {
             Log.e(TAG, "context is null when trying to start VPN");
             return;
         }
-        if (!provider.getGeoipUrl().isDefault() && provider.shouldUpdateGeoIpJson()) {
+        if (!provider.getGeoipUrl().isEmpty() && provider.shouldUpdateGeoIpJson()) {
             Bundle bundle = new Bundle();
             bundle.putBoolean(EIP_ACTION_START, true);
             bundle.putBoolean(EIP_EARLY_ROUTES, false);

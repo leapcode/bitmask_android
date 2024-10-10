@@ -215,7 +215,7 @@ public class PreferenceHelper {
         SharedPreferences.Editor editor = preferences.edit();
         for (Provider provider : providers) {
             String providerDomain = provider.getDomain();
-                    editor.putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString());
+                    editor.putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrl());
             newProviderDomains.add(providerDomain);
         }
 
@@ -243,7 +243,7 @@ public class PreferenceHelper {
                     putString(Provider.GEOIP_URL, provider.getGeoipUrl().toString()).
                     putString(Provider.MOTD_URL, provider.getMotdUrl().toString()).
                     putString(Provider.PROVIDER_API_IP, provider.getProviderApiIp()).
-                    putString(Provider.MAIN_URL, provider.getMainUrlString()).
+                    putString(Provider.MAIN_URL, provider.getMainUrl()).
                     putString(Provider.KEY, provider.getDefinitionString()).
                     putString(Provider.CA_CERT, provider.getCaCert()).
                     putString(PROVIDER_EIP_DEFINITION, provider.getEipServiceJsonString()).
@@ -263,9 +263,9 @@ public class PreferenceHelper {
             preferences.edit().putBoolean(PROVIDER_CONFIGURED, true).
                     putString(Provider.PROVIDER_IP + "." + providerDomain, provider.getProviderIp()).
                     putString(Provider.PROVIDER_API_IP + "." + providerDomain, provider.getProviderApiIp()).
-                    putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrlString()).
-                    putString(Provider.GEOIP_URL + "." + providerDomain, provider.getGeoipUrl().toString()).
-                    putString(Provider.MOTD_URL + "." + providerDomain, provider.getMotdUrl().toString()).
+                    putString(Provider.MAIN_URL + "." + providerDomain, provider.getMainUrl()).
+                    putString(Provider.GEOIP_URL + "." + providerDomain, provider.getGeoipUrl()).
+                    putString(Provider.MOTD_URL + "." + providerDomain, provider.getMotdUrl()).
                     putString(Provider.KEY + "." + providerDomain, provider.getDefinitionString()).
                     putString(Provider.CA_CERT + "." + providerDomain, provider.getCaCert()).
                     putString(PROVIDER_EIP_DEFINITION + "." + providerDomain, provider.getEipServiceJsonString()).

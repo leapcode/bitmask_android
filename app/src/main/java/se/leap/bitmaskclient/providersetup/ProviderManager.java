@@ -78,7 +78,7 @@ public class ProviderManager {
     private Set<String> getProviderUrlSetFromProviderSet(Set<Provider> providers) {
         HashSet<String> providerUrls = new HashSet<>();
         for (Provider provider : providers) {
-            providerUrls.add(provider.getMainUrl().toString());
+            providerUrls.add(provider.getMainUrl());
         }
         return providerUrls;
     }
@@ -152,10 +152,10 @@ public class ProviderManager {
 
     public boolean add(Provider element) {
         boolean addElement = element != null &&
-                !defaultProviderURLs.contains(element.getMainUrlString()) &&
-                !customProviders.containsKey(element.getMainUrlString());
+                !defaultProviderURLs.contains(element.getMainUrl()) &&
+                !customProviders.containsKey(element.getMainUrl());
         if (addElement) {
-            customProviders.put(element.getMainUrlString(), element);
+            customProviders.put(element.getMainUrl(), element);
             return true;
         }
         return false;
@@ -163,7 +163,7 @@ public class ProviderManager {
 
     public boolean remove(Object element) {
         return element instanceof Provider &&
-                customProviders.remove(((Provider) element).getMainUrlString()) != null;
+                customProviders.remove(((Provider) element).getMainUrl()) != null;
     }
 
     public boolean addAll(Collection<? extends Provider> elements) {
@@ -171,9 +171,9 @@ public class ProviderManager {
         boolean addedAll = true;
         while (iterator.hasNext()) {
             Provider p = (Provider) iterator.next();
-            boolean containsKey = customProviders.containsKey(p.getMainUrlString());
+            boolean containsKey = customProviders.containsKey(p.getMainUrl());
             if (!containsKey) {
-                customProviders.put(p.getMainUrlString(), p);
+                customProviders.put(p.getMainUrl(), p);
             }
             addedAll = !containsKey && addedAll;
         }

@@ -215,7 +215,7 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         if (ignoreProviderAPIUpdates ||
                 provider == null ||
                 (setupActivityCallback.getSelectedProvider() != null &&
-                        !setupActivityCallback.getSelectedProvider().getMainUrlString().equals(provider.getMainUrlString()))) {
+                        !setupActivityCallback.getSelectedProvider().getMainUrl().equals(provider.getMainUrl()))) {
             return;
         }
 

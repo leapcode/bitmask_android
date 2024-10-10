@@ -143,7 +143,7 @@ public abstract class ProviderApiManagerBase {
     }
 
     protected void getPersistedProviderUpdates(Provider provider) {
-        String providerDomain = getDomainFromMainURL(provider.getMainUrlString());
+        String providerDomain = getDomainFromMainURL(provider.getMainUrl());
         if (hasUpdatedProviderDetails(providerDomain)) {
             provider.setCaCert(getPersistedProviderCA(providerDomain));
             provider.define(getPersistedProviderDefinition(providerDomain));

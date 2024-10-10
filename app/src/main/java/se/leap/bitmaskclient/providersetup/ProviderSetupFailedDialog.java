@@ -136,7 +136,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
                 break;
             case ERROR_NEW_URL_NO_VPN_PROVIDER:
                 builder.setPositiveButton(R.string.retry, (dialog, id)
-                        -> interfaceWithConfigurationWizard.addAndSelectNewProvider(provider.getMainUrlString()));
+                        -> interfaceWithConfigurationWizard.addAndSelectNewProvider(provider.getMainUrl()));
                 break;
             case ERROR_TOR_TIMEOUT:
                 builder.setPositiveButton(R.string.retry, (dialog, id) -> {

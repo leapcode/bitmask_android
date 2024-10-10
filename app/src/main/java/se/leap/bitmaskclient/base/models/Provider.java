@@ -68,17 +68,18 @@ public final class Provider implements Parcelable {
     private JSONObject eipServiceJson = new JSONObject();
     private JSONObject geoIpJson = new JSONObject();
     private JSONObject motdJson = new JSONObject();
-    private DefaultedURL mainUrl = new DefaultedURL();
-    private DefaultedURL apiUrl = new DefaultedURL();
-    private DefaultedURL geoipUrl = new DefaultedURL();
-    private DefaultedURL motdUrl = new DefaultedURL();
+    private String mainUrl = "";
+    private String apiUrl = "";
+    private String geoipUrl = "";
+    private String motdUrl = "";
+    private Gateways gateways = null;
     private String domain = "";
     private String providerIp = ""; // ip of the provider main url
     private String providerApiIp = ""; // ip of the provider api url
     private String certificatePin = "";
     private String certificatePinEncoding = "";
     private String caCert = "";
-    private String apiVersion = "";
+    private int apiVersion = 3;
     private String privateKeyString = "";
     private transient PrivateKey privateKey = null;
     private String vpnCertificate = "";
@@ -127,9 +128,9 @@ public final class Provider implements Parcelable {
 
     public Provider(String mainUrl, String geoipUrl) {
         try {
-            this.mainUrl.setUrl(new URL(mainUrl));
+            this.mainUrl = new URL(mainUrl).toString();
         } catch (MalformedURLException e) {
-            this.mainUrl = new DefaultedURL();
+            this.mainUrl = "";
         }
         setGeoipUrl(geoipUrl);
     }
@@ -142,7 +143,7 @@ public final class Provider implements Parcelable {
 
     public Provider(String mainUrl, String geoipUrl, String motdUrl, String providerIp, String providerApiIp) {
         try {
-            this.mainUrl.setUrl(new URL(mainUrl));
+            this.mainUrl = new URL(mainUrl).toString();
             if (providerIp != null) {
                 this.providerIp = providerIp;
             }
@@ -184,13 +185,19 @@ public final class Provider implements Parcelable {
     };
 
     public boolean isConfigured() {
-        return !mainUrl.isDefault() &&
-                !apiUrl.isDefault() &&
-                hasCaCert() &&
-                hasDefinition() &&
-                hasVpnCertificate() &&
-                hasEIP() &&
-                hasPrivateKey();
+        if (apiVersion < 5) {
+            return !mainUrl.isEmpty() &&
+                    !apiUrl.isEmpty() &&
+                    hasCaCert() &&
+                    hasDefinition() &&
+                    hasVpnCertificate() &&
+                    hasEIP() &&
+                    hasPrivateKey();
+        } else {
+            return !mainUrl.isEmpty() &&
+                    hasVpnCertificate() &&
+                    hasPrivateKey();
+        }
     }
 
     public boolean supportsPluggableTransports() {
@@ -242,13 +249,21 @@ public final class Provider implements Parcelable {
 
     public String getIpForHostname(String host) {
         if (host != null) {
-            if (host.equals(mainUrl.getUrl().getHost())) {
+            if (host.equals(getHostFromUrl(mainUrl))) {
                 return providerIp;
-            } else if (host.equals(apiUrl.getUrl().getHost())) {
+            } else if (host.equals(getHostFromUrl(apiUrl))) {
                 return providerApiIp;
             }
         }
         return "";
+    }
+
+    private String getHostFromUrl(String url) {
+        try {
+            return new URL(url).getHost();
+        } catch (MalformedURLException e) {
+            return "";
+        }
     }
 
     public String getProviderApiIp() {
@@ -270,14 +285,15 @@ public final class Provider implements Parcelable {
     }
 
     public void setMainUrl(URL url) {
-        mainUrl.setUrl(url);
+        mainUrl = url.toString();
     }
 
     public void setMainUrl(String url) {
         try {
-            mainUrl.setUrl(new URL(url));
+            mainUrl = new URL(url).toString();
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            mainUrl = "";
         }
     }
 
@@ -298,52 +314,46 @@ public final class Provider implements Parcelable {
         return domain;
     }
 
-    public String getMainUrlString() {
-        return getMainUrl().toString();
     }
 
-    public DefaultedURL getMainUrl() {
+    public String getMainUrl() {
         return mainUrl;
     }
 
-    protected DefaultedURL getApiUrl() {
-        return apiUrl;
-    }
- 
-    public DefaultedURL getGeoipUrl() {
+    public String getGeoipUrl() {
         return geoipUrl;
     }
 
     public void setGeoipUrl(String url) {
         try {
-            this.geoipUrl.setUrl(new URL(url));
+            this.geoipUrl = new URL(url).toString();
         } catch (MalformedURLException e) {
-            this.geoipUrl = new DefaultedURL();
+            this.geoipUrl = "";
         }
     }
 
-    public DefaultedURL getMotdUrl() {
+    public String getMotdUrl() {
         return this.motdUrl;
     }
 
     public void setMotdUrl(String url) {
         try {
-            this.motdUrl.setUrl(new URL(url));
+            this.motdUrl = new URL(url).toString();
         } catch (MalformedURLException e) {
-            this.motdUrl = new DefaultedURL();
+            this.motdUrl = "";
         }
     }
 
     public String getApiUrlWithVersion() {
-        return getApiUrlString() + "/" + getApiVersion();
+        return getApiUrl() + "/" + getApiVersion();
     }
 
 
-    public String getApiUrlString() {
-        return getApiUrl().toString();
+    public String getApiUrl() {
+        return apiUrl;
     }
 
-    public String getApiVersion() {
+    public int getApiVersion() {
         return apiVersion;
     }
 
@@ -377,7 +387,7 @@ public final class Provider implements Parcelable {
                 name = definition.getJSONObject(API_TERM_NAME).getString("en");
             } catch (JSONException e2) {
                 if (mainUrl != null) {
-                    String host = mainUrl.getDomain();
+                    String host = getHostFromUrl(mainUrl);
                     name = host.substring(0, host.indexOf("."));
                 }
             }
@@ -424,11 +434,11 @@ public final class Provider implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(getDomain());
-        parcel.writeString(getMainUrlString());
+        parcel.writeString(getMainUrl());
         parcel.writeString(getProviderIp());
         parcel.writeString(getProviderApiIp());
-        parcel.writeString(getGeoipUrl().toString());
-        parcel.writeString(getMotdUrl().toString());
+        parcel.writeString(getGeoipUrl());
+        parcel.writeString(getMotdUrl());
         parcel.writeString(getDefinitionString());
         parcel.writeString(getCaCert());
         parcel.writeString(getEipServiceJsonString());
@@ -450,7 +460,7 @@ public final class Provider implements Parcelable {
     private Provider(Parcel in) {
         try {
             domain = in.readString();
-            mainUrl.setUrl(new URL(in.readString()));
+            mainUrl = new URL(in.readString()).toString();
             String tmpString = in.readString();
             if (!tmpString.isEmpty()) {
                 providerIp = tmpString;
@@ -461,11 +471,11 @@ public final class Provider implements Parcelable {
             }
             tmpString = in.readString();
             if (!tmpString.isEmpty()) {
-                geoipUrl.setUrl(new URL(tmpString));
+                geoipUrl = new URL(tmpString).toString();
             }
             tmpString = in.readString();
             if (!tmpString.isEmpty()) {
-                motdUrl.setUrl(new URL(tmpString));
+                motdUrl = new URL(tmpString).toString();
             }
             tmpString = in.readString();
             if (!tmpString.isEmpty()) {
@@ -516,7 +526,7 @@ public final class Provider implements Parcelable {
         if (o instanceof Provider) {
             Provider p = (Provider) o;
             return getDomain().equals(p.getDomain()) &&
-            mainUrl.getDomain().equals(p.mainUrl.getDomain()) &&
+            getHostFromUrl(mainUrl).equals(getHostFromUrl(p.getMainUrl())) &&
             definition.toString().equals(p.getDefinition().toString()) &&
             eipServiceJson.toString().equals(p.getEipServiceJsonString()) &&
             geoIpJson.toString().equals(p.getGeoIpJsonString()) &&
@@ -529,7 +539,7 @@ public final class Provider implements Parcelable {
             certificatePin.equals(p.getCertificatePin()) &&
             certificatePinEncoding.equals(p.getCertificatePinEncoding()) &&
             caCert.equals(p.getCaCert()) &&
-            apiVersion.equals(p.getApiVersion()) &&
+            apiVersion == p.getApiVersion() &&
             privateKeyString.equals(p.getPrivateKeyString()) &&
             vpnCertificate.equals(p.getVpnCertificate()) &&
             allowAnonymous == p.allowsAnonymous() &&
@@ -551,7 +561,7 @@ public final class Provider implements Parcelable {
 
     @Override
     public int hashCode() {
-        return getMainUrlString().hashCode();
+        return getMainUrl().hashCode();
     }
 
     @Override
@@ -564,13 +574,13 @@ public final class Provider implements Parcelable {
             String pin =  definition.getString(CA_CERT_FINGERPRINT);
             this.certificatePin = pin.split(":")[1].trim();
             this.certificatePinEncoding = pin.split(":")[0].trim();
-            this.apiUrl.setUrl(new URL(definition.getString(API_URL)));
+            this.apiUrl = new URL(definition.getString(API_URL)).toString();
             this.allowAnonymous = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS);
             this.allowRegistered = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED);
-            this.apiVersion = getDefinition().getString(Provider.API_VERSION);
+            this.apiVersion = Integer.parseInt(getDefinition().getString(Provider.API_VERSION));
             this.domain = getDefinition().getString(Provider.DOMAIN);
             return true;
-        } catch (JSONException | ArrayIndexOutOfBoundsException | MalformedURLException e) {
+        } catch (JSONException | ArrayIndexOutOfBoundsException | MalformedURLException | NullPointerException | NumberFormatException e) {
             return false;
         }
     }
@@ -616,7 +626,7 @@ public final class Provider implements Parcelable {
      * @return true if last message of the day was shown more than 24h ago
      */
     public boolean shouldShowMotdSeen() {
-        return !motdUrl.isDefault() && System.currentTimeMillis() - lastMotdSeen >= MOTD_TIMEOUT;
+        return !motdUrl.isEmpty() && System.currentTimeMillis() - lastMotdSeen >= MOTD_TIMEOUT;
     }
 
     /**
@@ -652,7 +662,7 @@ public final class Provider implements Parcelable {
     }
 
     public boolean shouldUpdateMotdJson() {
-        return !motdUrl.isDefault() && System.currentTimeMillis() - lastMotdUpdate >= MOTD_TIMEOUT;
+        return !motdUrl.isEmpty() && System.currentTimeMillis() - lastMotdUpdate >= MOTD_TIMEOUT;
     }
 
     public void setMotdJson(@NonNull JSONObject motdJson) {
@@ -709,9 +719,9 @@ public final class Provider implements Parcelable {
     }
 
     public boolean isDefault() {
-        return getMainUrl().isDefault() &&
-                getApiUrl().isDefault() &&
-                getGeoipUrl().isDefault() &&
+        return getMainUrl().isEmpty() &&
+                getApiUrl().isEmpty() &&
+                getGeoipUrl().isEmpty() &&
                 certificatePin.isEmpty() &&
                 certificatePinEncoding.isEmpty() &&
                 caCert.isEmpty();
@@ -777,11 +787,11 @@ public final class Provider implements Parcelable {
         eipServiceJson = new JSONObject();
         geoIpJson = new JSONObject();
         motdJson = new JSONObject();
-        apiUrl = new DefaultedURL();
+        apiUrl = "";
         certificatePin = "";
         certificatePinEncoding = "";
         caCert = "";
-        apiVersion = "";
+        apiVersion = 3;
         privateKeyString = "";
         vpnCertificate = "";
         allowRegistered = false;
