@@ -51,6 +51,7 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_TUNNEL;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
@@ -774,4 +775,124 @@ public class PreferenceHelper {
             preferences.edit().clear().apply();
         }
         }
+
+        public static class SharedPreferenceStore implements mobilemodels.Store {
+
+            public SharedPreferenceStore() throws IllegalArgumentException {
+                if (preferences == null) {
+                    throw new IllegalStateException("Preferences not initialized.");
+                }
+            }
+            @Override
+            public void clear() throws Exception {
+                preferences.edit().clear().apply();
+            }
+
+            @Override
+            public void close() throws Exception {
+
+            }
+
+            @Override
+            public boolean contains(String s) throws Exception {
+                return preferences.contains(s);
+            }
+
+            @Override
+            public boolean getBoolean(String s) {
+                return preferences.getBoolean(s, false);
+            }
+
+            @Override
+            public boolean getBooleanWithDefault(String s, boolean b) {
+                return preferences.getBoolean(s, b);
+            }
+
+            @Override
+            public byte[] getByteArray(String s) {
+                String encodedString = preferences.getString(s, "");
+                try {
+                    return Base64.decode(encodedString, Base64.DEFAULT);
+                } catch (IllegalArgumentException e) {
+                    return new byte[0];
+                }
+            }
+
+            @Override
+            public byte[] getByteArrayWithDefault(String s, byte[] bytes) {
+                String encodedString = preferences.getString(s, "");
+                try {
+                    return Base64.decode(encodedString, Base64.DEFAULT);
+                } catch (IllegalArgumentException e) {
+                    return bytes;
+                }
+            }
+
+            @Override
+            public long getInt(String s) {
+                return preferences.getInt(s, 0);
+            }
+
+            @Override
+            public long getIntWithDefault(String s, long l) {
+                return preferences.getInt(s, (int) l);
+            }
+
+            @Override
+            public long getLong(String s) {
+                return preferences.getLong(s, 0L);
+            }
+
+            @Override
+            public long getLongWithDefault(String s, long l) {
+                return preferences.getLong(s, l);
+            }
+
+            @Override
+            public String getString(String s) {
+                return preferences.getString(s, "");
+            }
+
+            @Override
+            public String getStringWithDefault(String s, String s1) {
+                return preferences.getString(s, s1);
+            }
+
+            @Override
+            public void open() throws Exception {
+
+            }
+
+            @Override
+            public void remove(String s) throws Exception {
+                preferences.edit().remove(s).apply();
+            }
+
+            @Override
+            public void setBoolean(String s, boolean b) {
+                preferences.edit().putBoolean(s, b).apply();
+            }
+
+            @Override
+            public void setByteArray(String s, byte[] bytes) {
+                String encodedString = Base64.encodeToString(bytes, Base64.DEFAULT);
+                preferences.edit().putString(s, encodedString).apply();
+            }
+
+            @Override
+            public void setInt(String s, long l) {
+                preferences.edit().putInt(s, (int) l).apply();
+            }
+
+            @Override
+            public void setLong(String s, long l) {
+                preferences.edit().putLong(s, l).apply();
+            }
+
+            @Override
+            public void setString(String s, String s1) {
+                preferences.edit().putString(s, s1).apply();
+            }
+        }
+
 }
