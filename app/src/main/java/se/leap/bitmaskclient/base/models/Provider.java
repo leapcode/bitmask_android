@@ -52,6 +52,11 @@ import java.util.Set;
 
 import de.blinkt.openvpn.core.connection.Connection.TransportProtocol;
 import de.blinkt.openvpn.core.connection.Connection.TransportType;
+import mobilemodels.Bridges;
+import mobilemodels.Gateways;
+import models.ModelsBridge;
+import models.ModelsEIPService;
+import models.ModelsProvider;
 import motd.IStringCollection;
 import motd.Motd;
 
@@ -73,6 +78,10 @@ public final class Provider implements Parcelable {
     private String geoipUrl = "";
     private String motdUrl = "";
     private Gateways gateways = null;
+
+    private ModelsProvider modelsProvider = null;
+    private ModelsEIPService service = null;
+    private Bridges bridges = null;
     private String domain = "";
     private String providerIp = ""; // ip of the provider main url
     private String providerApiIp = ""; // ip of the provider api url
@@ -184,6 +193,29 @@ public final class Provider implements Parcelable {
         }
     };
 
+    public void setBridges(Bridges bridges) {
+        this.bridges = bridges;
+    }
+
+    public Bridges getBridges() {
+        return this.bridges;
+    }
+    public void setGateways(Gateways gateways) {
+        this.gateways = gateways;
+    }
+
+    public Gateways getGateways() {
+        return gateways;
+    }
+
+    public void setService(ModelsEIPService service) {
+        this.service = service;
+    }
+
+    public ModelsEIPService getService() {
+        return this.service;
+    }
+
     public boolean isConfigured() {
         if (apiVersion < 5) {
             return !mainUrl.isEmpty() &&
@@ -195,6 +227,9 @@ public final class Provider implements Parcelable {
                     hasPrivateKey();
         } else {
             return !mainUrl.isEmpty() &&
+                    modelsProvider != null &&
+                    service != null &&
+                    gateways != null &&
                     hasVpnCertificate() &&
                     hasPrivateKey();
         }
@@ -416,6 +451,10 @@ public final class Provider implements Parcelable {
     public boolean hasEIP() {
         return getEipServiceJson() != null && getEipServiceJson().length() > 0
                 && !getEipServiceJson().has(ERRORS);
+    }
+
+    public boolean hasServiceInfo() {
+        return service != null;
     }
 
     public boolean hasGatewaysInDifferentLocations() {
@@ -798,5 +837,9 @@ public final class Provider implements Parcelable {
         allowAnonymous = false;
         lastGeoIpUpdate = 0L;
         lastEipServiceUpdate = 0L;
+    }
+
+    public void setModelsProvider(ModelsProvider p) {
+        this.modelsProvider = p;
     }
 }
