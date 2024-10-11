@@ -71,6 +71,17 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
                     eventSender.sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
                 }
                 break;
+
+            case DOWNLOAD_SERVICE_JSON:
+                result = updateServiceInfos(provider, parameters);
+                if (result.getBoolean(BROADCAST_RESULT_KEY)) {
+                    serviceCallback.saveProvider(provider);
+                    eventSender.sendToReceiverOrBroadcast(receiver, CORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
+                } else {
+                    eventSender.sendToReceiverOrBroadcast(receiver, INCORRECTLY_DOWNLOADED_EIP_SERVICE, result, provider);
+                }
+                break;
+
             case DOWNLOAD_VPN_CERTIFICATE:
                 result = updateVpnCertificate(provider);
                 if (result.getBoolean(BROADCAST_RESULT_KEY)) {
@@ -95,6 +106,50 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
 
     }
 
+    private Bundle updateServiceInfos(Provider provider, Bundle parameters) {
+        Bundle currentDownload = new Bundle();
+
+        BitmaskMobile bm;
+        try {
+            bm = new BitmaskMobile(provider.getMainUrl(), new PreferenceHelper.SharedPreferenceStore());
+        } catch (IllegalStateException e) {
+            return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
+        }
+
+        configureBaseCountryCode(bm, parameters);
+
+        try {
+            ModelsEIPService service = bm.getService();
+            provider.setService(service);
+        } catch (Exception e) {
+            return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
+        }
+
+        if (PreferenceHelper.getUseBridges()) {
+            try {
+                Bridges bridges = bm.getAllBridges("", "", "", "");
+                if (bridges.length() == 0) {
+                    //TODO send no bridges error event
+                }
+                provider.setBridges(bridges);
+            } catch (Exception e) {
+                // TODO: send failed to fetch bridges event
+            }
+        } else {
+            Gateways gateways = null;
+            try {
+                gateways = bm.getAllGateways("", "", "");
+                provider.setGateways(gateways);
+            } catch (Exception e) {
+                // TODO: send
+                return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
+
+            }
+        }
+
+        return currentDownload;
+
+    }
 
     protected Bundle setupProvider(Provider provider, Bundle parameters) {
         Bundle currentDownload = new Bundle();
