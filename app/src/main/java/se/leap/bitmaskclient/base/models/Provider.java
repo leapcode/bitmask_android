@@ -86,6 +86,7 @@ public final class Provider implements Parcelable {
     private long lastGeoIpUpdate = 0L;
     private long lastMotdUpdate = 0L;
     private long lastMotdSeen = 0L;
+    private Introducer introducer = null;
     private Set<String> lastMotdSeenHashes = new HashSet<>();
     private boolean shouldUpdateVpnCertificate;
 
@@ -114,6 +115,11 @@ public final class Provider implements Parcelable {
     private static final String API_TERM_NAME = "name";
 
     public Provider() { }
+
+    public Provider(Introducer introducer) {
+       this(introducer.toUrl(), null);
+        this.introducer = introducer;
+    }
 
     public Provider(String mainUrl) {
        this(mainUrl, null);
@@ -423,6 +429,7 @@ public final class Provider implements Parcelable {
         parcel.writeLong(lastMotdSeen);
         parcel.writeStringList(new ArrayList<>(lastMotdSeenHashes));
         parcel.writeInt(shouldUpdateVpnCertificate ? 0 : 1);
+        parcel.writeParcelable(introducer, 0);
     }
 
 
@@ -484,6 +491,7 @@ public final class Provider implements Parcelable {
             in.readStringList(lastMotdSeenHashes);
             this.lastMotdSeenHashes = new HashSet<>(lastMotdSeenHashes);
             this.shouldUpdateVpnCertificate = in.readInt()  == 0;
+            this.introducer = in.readParcelable(Introducer.class.getClassLoader());
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -737,6 +745,10 @@ public final class Provider implements Parcelable {
 
     public String getCaCertFingerprint() {
         return getCertificatePinEncoding() + ":" + getCertificatePin();
+    }
+
+    public boolean hasIntroducer() {
+        return introducer != null;
     }
 
     /**

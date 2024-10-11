@@ -212,6 +212,10 @@
     <string name="provider_description_riseup">Riseup provides online communication tools for people and groups working on liberatory social change. We are a project to create democratic alternatives and practice self-determination by controlling our own secure means of communications.</string>
     <string name="next">Next</string>
     <string name="add_provider_description">Bitmask connects to trusted providers that are not publicly listed. Enter your provider’s url below.</string>
+    <string name="add_provider_prompt">Enter the provider’s URL here.</string>
+    <string name="invite_code_provider_description">Bitmask allows you to connect to providers using a private Invite Code. </string>
+    <string name="invite_code_provider_prompt">Enter your trusted Invite Code here.</string>
+    <string name="qr_scanner_prompt">Click to Scan QR Code</string>
     <string name="provider_description_calyx">Calyx is a non-profit education and research organization devoted to studying, testing, developing and implementing privacy technology and tools to promote free speech, free expression, civic engagement and privacy rights on the internet and in the mobile communications industry.</string>
     <string name="title_circumvention_setup">Do You Require Censorship Circumvention?</string>
     <string name="circumvention_setup_description">If you live where the internet is censored you can use our censorship circumvention options to access all internet services. These options will slow down your connection!</string>
@@ -239,4 +243,8 @@
     <string name="permission_rejected">Permission request rejected.</string>
     <string name="login_not_supported">The current app version doesn\'t support logins, which you need to update your VPN certificate for this provider.</string>
     <string name="select_language">Select Language</string>
+    <string name="syntax_check">Syntax Check:</string>
+    <string name="validation_status_success">Good</string>
+    <string name="validation_status_failure">Bad</string>
+    <string name="enter_invite_code">Enter invite Code</string>
 </resources>

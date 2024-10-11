@@ -6,7 +6,9 @@ import static androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.deleteProviderDetailsFromPreferences;
+import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CIRCUMVENTION_SETUP_FRAGMENT;
 import static se.leap.bitmaskclient.providersetup.fragments.SetupFragmentFactory.CONFIGURE_PROVIDER_FRAGMENT;
+import static se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel.INVITE_CODE_PROVIDER;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
 
 import android.Manifest;
@@ -145,6 +147,9 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         binding.setupNextButton.setOnClickListener(v -> {
             int currentPos = binding.viewPager.getCurrentItem();
             int newPos = currentPos + 1;
+            if (newPos == CIRCUMVENTION_SETUP_FRAGMENT && provider.hasIntroducer()) {
+                newPos = newPos + 1; // skip configuration of `CIRCUMVENTION_SETUP_FRAGMENT` when invite code provider is selected
+            }
             if (newPos >= binding.viewPager.getAdapter().getItemCount()) {
                 return;
             }

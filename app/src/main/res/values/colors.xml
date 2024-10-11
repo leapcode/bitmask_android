@@ -4,6 +4,7 @@
     <color name="colorPrimaryLight">#FF69B4</color>
     <color name="colorPrimaryDark">#ef0072</color>
     <color name="colorPrimary_transparent">#0D000000</color>
+    <color name="color_provider_description_background">#F6F6F6</color>
     <color name="colorPrimary_transparent_dark">#1F000000</color>
     <color name="colorBackground">#fffafafa</color>
     <color name="colorError">#ef9a9a</color>
