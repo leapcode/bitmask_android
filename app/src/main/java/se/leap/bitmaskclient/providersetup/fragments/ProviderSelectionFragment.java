@@ -155,7 +155,17 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                 binding.getRoot().smoothScrollTo(binding.editCustomProvider.getLeft(), binding.getRoot().getBottom());
             }
         });
-        binding.providerRadioGroup.check(viewModel.getSelected());
+        providerSelectionChanged();
+    }
+
+    public void providerSelectionChanged(){
+        Provider provider = setupActivityCallback.getSelectedProvider();
+        if (provider != null && provider.hasIntroducer()) {
+            binding.providerRadioGroup.check(INVITE_CODE_PROVIDER);
+            binding.editCustomProvider.setText(provider.getIntroducer().toUrl());
+        } else {
+            binding.providerRadioGroup.check(viewModel.getSelected());
+        }
     }
 
     private void providerSelected(String string, int checkedId) {

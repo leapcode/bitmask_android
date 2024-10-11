@@ -39,6 +39,21 @@
             android:screenOrientation="portrait"
             android:exported="false" />
 
+        <activity-alias
+            android:exported="true"
+            android:name=".InviteCodeActivity"
+            android:targetActivity=".providersetup.activities.SetupActivity">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="obfsvpnintro" />
+            </intent-filter>
+        </activity-alias>
+
         <service
             android:name="de.blinkt.openvpn.core.OpenVPNService"
             android:exported="false"

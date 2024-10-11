@@ -751,6 +751,10 @@ public final class Provider implements Parcelable {
         return introducer != null;
     }
 
+    public Introducer getIntroducer() {
+        return introducer;
+    }
+
     /**
      * resets everything except the main url, the providerIp and the geoip
      * service url (currently preseeded)
