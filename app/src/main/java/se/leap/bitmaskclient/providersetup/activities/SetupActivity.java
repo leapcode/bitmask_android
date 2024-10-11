@@ -99,6 +99,13 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
             addIndicatorView(indicatorViews);
         }
 
+        if (getIntent() != null) {
+            if (ProviderObservable.getInstance().getCurrentProvider().isConfigured()){
+                switchProvider = true;
+            }
+            manageIntent(getIntent());
+        }
+
         // indicator views for config setup
         boolean basicProviderSetup = !ProviderObservable.getInstance().getCurrentProvider().isConfigured() || switchProvider;
         if (basicProviderSetup) {
@@ -172,9 +179,6 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
             }
         }
         binding.viewPager.setCurrentItem(currentPosition, false);
-       if (getIntent() != null) {
-           manageIntent(getIntent());
-       }
     }
 
     /**
