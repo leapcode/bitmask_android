@@ -417,7 +417,7 @@ public final class Provider implements Parcelable {
     }
 
     public boolean hasDefinition() {
-        return definition != null && definition.length() > 0;
+        return (definition != null && definition.length() > 0) || (modelsProvider != null);
     }
 
     public boolean hasGeoIpJson() {
