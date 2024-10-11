@@ -48,7 +48,9 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.Constants;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.databinding.FConfigureProviderBinding;
 import se.leap.bitmaskclient.eip.EipSetupListener;
 import se.leap.bitmaskclient.eip.EipSetupObserver;
@@ -136,7 +138,9 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
             handleResult(ProviderSetupObservable.getResultCode(), ProviderSetupObservable.getResultData(), true);
         } else {
             ProviderSetupObservable.startSetup();
-            ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, setupActivityCallback.getSelectedProvider());
+            Bundle parameters = new Bundle();
+            parameters.putString(Constants.COUNTRYCODE, PreferenceHelper.getBaseCountry());
+            ProviderAPICommand.execute(getContext(), SET_UP_PROVIDER, parameters, setupActivityCallback.getSelectedProvider());
         }
     }
 

@@ -10,6 +10,7 @@ import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_USB;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_WIFI;
 import static se.leap.bitmaskclient.base.models.Constants.ALWAYS_ON_SHOW_DIALOG;
 import static se.leap.bitmaskclient.base.models.Constants.CLEARLOG;
+import static se.leap.bitmaskclient.base.models.Constants.COUNTRYCODE;
 import static se.leap.bitmaskclient.base.models.Constants.CUSTOM_PROVIDER_DOMAINS;
 import static se.leap.bitmaskclient.base.models.Constants.DEFAULT_SHARED_PREFS_BATTERY_SAVER;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_IS_ALWAYS_ON;
@@ -612,6 +613,14 @@ public class PreferenceHelper {
 
     public static boolean getShowAlwaysOnDialog() {
         return getBoolean(ALWAYS_ON_SHOW_DIALOG, true);
+    }
+
+    public static String getBaseCountry() {
+        return getString(COUNTRYCODE, null);
+    }
+
+    public static void setBaseCountry(String countryCode) {
+        putString(COUNTRYCODE, countryCode);
     }
 
     public static String getPreferredCity() {

@@ -27,6 +27,7 @@ import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_GATEWAY_SETU
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_PROVIDER_API_EVENT;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_CODE;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.COUNTRYCODE;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_LAUNCH_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_PREPARE_VPN;
 import static se.leap.bitmaskclient.base.models.Constants.EIP_ACTION_START;
@@ -386,6 +387,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 //setupNClostestGateway > 0: at least one failed gateway -> did the provider change it's gateways?
                 Bundle parameters = new Bundle();
                 parameters.putLong(DELAY, 500);
+                parameters.putString(COUNTRYCODE, PreferenceHelper.getBaseCountry());
                 ProviderAPICommand.execute(appContext, ProviderAPI.DOWNLOAD_SERVICE_JSON, parameters, provider);
             }
 

@@ -42,6 +42,8 @@ public interface Constants {
     String RESTART_ON_UPDATE = "restart_on_update";
     String LAST_UPDATE_CHECK = "last_update_check";
     String PREFERRED_CITY = "preferred_city";
+    // ATTENTION: this key is also used in bitmask-core for persistence
+    String COUNTRYCODE = "COUNTRYCODE";
     String USE_SNOWFLAKE = "use_snowflake";
     String PREFER_UDP = "prefer_UDP";
     String GATEWAY_PINNING = "gateway_pinning";
