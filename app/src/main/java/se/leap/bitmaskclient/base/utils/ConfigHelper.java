@@ -34,6 +34,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -117,6 +118,36 @@ public class ConfigHelper {
         }
 
         return null;
+    }
+
+    public static String parseX509CertificatesToString(ArrayList<X509Certificate> certs) {
+        StringBuilder sb = new StringBuilder();
+        for (X509Certificate certificate : certs) {
+
+            byte[] derCert = new byte[0];
+            try {
+                derCert = certificate.getEncoded();
+                byte[] encodedCert = Base64.encode(derCert);
+                String base64Cert = new String(encodedCert);
+
+                // add cert header
+                sb.append("-----BEGIN CERTIFICATE-----\n");
+
+                // split base64 string into lines of 64 characters
+                int index = 0;
+                while (index < base64Cert.length()) {
+                    sb.append(base64Cert.substring(index, Math.min(index + 64, base64Cert.length())))
+                            .append("\n");
+                    index += 64;
+                }
+
+                // add cert footer
+                sb.append("-----END CERTIFICATE-----\n");
+            } catch (CertificateEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString().trim();
     }
 
     public static void ensureNotOnMainThread(@NonNull Context context) throws IllegalStateException{
