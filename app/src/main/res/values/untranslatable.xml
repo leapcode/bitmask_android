@@ -92,4 +92,6 @@
         <item>zh</item>
         <item>zh-TW</item>
     </string-array>
+    <string name="tunnelling_obfs4" translatable="false">Obfs4</string>
+    <string name="tunnelling_obfs4_kcp" translatable="false">Obfs4+KCP</string>
 </resources>

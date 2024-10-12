@@ -249,4 +249,16 @@
     <string name="enter_invite_code">Enter invite Code</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="invalid_code">Invalid code</string>
+    <string name="automatic_bridge">Automatic (recommended)</string>
+    <string name="automatic_bridge_description">Connection wil be attemptd using the best available birdges and protocols.</string>
+    <string name="manual_bridge">Manual Configuration</string>
+    <string name="manual_bridge_description">Select private bridges and specific protocols</string>
+    <string name="censorship_circumvention_description">Manual configuration requires technical understanding. Proceed with caution.</string>
+    <string name="discovery">Discovery</string>
+    <string name="discovery_description">Censors can block the discovery of critical configuration information from your provider. Choose a circumvention option to bypass blocks.</string>
+    <string name="none">None</string>
+    <string name="invite_proxy">Invite Proxy</string>
+    <string name="tunnelling">Tunneling</string>
+    <string name="tunnelling_description">Censors can block access to the open internet. Choose a circumvention option to bypass blocks.</string>
+    <string name="port_hopping">Port Hopping</string>
 </resources>

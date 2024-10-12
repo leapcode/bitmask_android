@@ -14,14 +14,11 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setAllowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
 
 import android.app.AlertDialog;
@@ -79,7 +76,8 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initExcludeAppsEntry(view);
         initPreferUDPEntry(view);
         initUseBridgesEntry(view);
-        initUseSnowflakeEntry(view);
+        initAutomaticCircumventionEntry(view);
+        initManualCircumventionEntry(view);
         initFirewallEntry(view);
         initTetheringEntry(view);
         initGatewayPinningEntry(view);
@@ -87,6 +85,22 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initObfuscationPinningEntry(view);
         setActionBarSubtitle(this, advanced_settings);
         return view;
+    }
+
+    private void initAutomaticCircumventionEntry(View rootView) {
+        IconSwitchEntry automaticCircumvention = rootView.findViewById(R.id.bridge_automatic_switch);
+        automaticCircumvention.setOnCheckedChangeListener((buttonView, isChecked) -> {
+
+        });
+    }
+
+    private void initManualCircumventionEntry(View rootView) {
+        FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
+        IconSwitchEntry manualConfiguration = rootView.findViewById(R.id.bridge_manual_switch);
+        manualConfiguration.setOnClickListener((buttonView) -> {
+            Fragment fragment = CensorshipCircumventionFragment.newInstance();
+            fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
+        });
     }
 
     @Override
@@ -119,18 +133,6 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         } else {
             useBridges.setVisibility(GONE);
         }
-    }
-
-    private void initUseSnowflakeEntry(View rootView) {
-        IconSwitchEntry useSnowflake = rootView.findViewById(R.id.snowflake_switch);
-        useSnowflake.setVisibility(VISIBLE);
-        useSnowflake.setChecked(hasSnowflakePrefs() && getUseSnowflake());
-        useSnowflake.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (!buttonView.isPressed()) {
-                return;
-            }
-            useSnowflake(isChecked);
-        });
     }
 
     private void initAlwaysOnVpnEntry(View rootView) {
@@ -350,7 +352,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             return;
         }
         if (key.equals(USE_BRIDGES) || key.equals(PREFER_UDP)) {
-            initUseBridgesEntry(rootView);
+            //initUseBridgesEntry(rootView);
             initPreferUDPEntry(rootView);
         } else if (key.equals(USE_IPv6_FIREWALL)) {
             initFirewallEntry(getView());
