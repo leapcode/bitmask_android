@@ -1,7 +1,13 @@
 package se.leap.bitmaskclient.base.fragments;
 
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setObfuscationPinningKCP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
 
@@ -16,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.databinding.FCensorshipCircumventionBinding;
 
 public class CensorshipCircumventionFragment extends Fragment {
@@ -62,22 +69,24 @@ public class CensorshipCircumventionFragment extends Fragment {
         RadioButton noneRadioButton = new RadioButton(binding.getRoot().getContext());
         noneRadioButton.setText(getText(R.string.none));
         noneRadioButton.setId(DISCOVERY_NONE);
+        noneRadioButton.setChecked(!(hasSnowflakePrefs() && getUseSnowflake()) && !ProviderObservable.getInstance().getCurrentProvider().hasIntroducer());
         binding.discoveryRadioGroup.addView(noneRadioButton);
 
         if (hasSnowflakePrefs()) {
-
             RadioButton snowflakeRadioButton = new RadioButton(binding.getRoot().getContext());
             snowflakeRadioButton.setText(getText(R.string.snowflake));
             snowflakeRadioButton.setId(DISCOVERY_SNOWFLAKE);
             snowflakeRadioButton.setChecked(hasSnowflakePrefs() && getUseSnowflake());
             binding.discoveryRadioGroup.addView(snowflakeRadioButton);
-
         }
 
-        RadioButton inviteProxyRadioButton = new RadioButton(binding.getRoot().getContext());
-        inviteProxyRadioButton.setText(getText(R.string.invite_proxy));
-        inviteProxyRadioButton.setId(DISCOVERY_INVITE_PROXY);
-        binding.discoveryRadioGroup.addView(inviteProxyRadioButton);
+        if (ProviderObservable.getInstance().getCurrentProvider().hasIntroducer()){
+            RadioButton inviteProxyRadioButton = new RadioButton(binding.getRoot().getContext());
+            inviteProxyRadioButton.setText(getText(R.string.invite_proxy));
+            inviteProxyRadioButton.setId(DISCOVERY_INVITE_PROXY);
+            inviteProxyRadioButton.setChecked(true);
+            binding.discoveryRadioGroup.addView(inviteProxyRadioButton);
+        }
 
         binding.discoveryRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == DISCOVERY_NONE) {
@@ -94,26 +103,33 @@ public class CensorshipCircumventionFragment extends Fragment {
     private void initTunneling() {
         RadioButton noneRadioButton = new RadioButton(binding.getRoot().getContext());
         noneRadioButton.setText(getText(R.string.none));
+        noneRadioButton.setChecked(!getUseObfs4() && !getObfuscationPinningKCP());
         noneRadioButton.setId(TUNNELING_NONE);
         binding.tunnelingRadioGroup.addView(noneRadioButton);
+        if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()){
+            RadioButton obfs4RadioButton = new RadioButton(binding.getRoot().getContext());
+            obfs4RadioButton.setText(getText(R.string.tunnelling_obfs4));
+            obfs4RadioButton.setId(TUNNELING_OBFS4);
+            obfs4RadioButton.setChecked(getUseObfs4());
+            binding.tunnelingRadioGroup.addView(obfs4RadioButton);
 
-        RadioButton obfs4RadioButton = new RadioButton(binding.getRoot().getContext());
-        obfs4RadioButton.setText(getText(R.string.tunnelling_obfs4));
-        obfs4RadioButton.setId(TUNNELING_OBFS4);
-        binding.tunnelingRadioGroup.addView(obfs4RadioButton);
-
-        RadioButton obfs4KcpRadioButton = new RadioButton(binding.getRoot().getContext());
-        obfs4KcpRadioButton.setText(getText(R.string.tunnelling_obfs4_kcp));
-        obfs4KcpRadioButton.setId(TUNNELING_OBFS4_KCP);
-        binding.tunnelingRadioGroup.addView(obfs4KcpRadioButton);
+            RadioButton obfs4KcpRadioButton = new RadioButton(binding.getRoot().getContext());
+            obfs4KcpRadioButton.setText(getText(R.string.tunnelling_obfs4_kcp));
+            obfs4KcpRadioButton.setId(TUNNELING_OBFS4_KCP);
+            obfs4KcpRadioButton.setChecked(getObfuscationPinningKCP());
+            binding.tunnelingRadioGroup.addView(obfs4KcpRadioButton);
+        }
 
         binding.tunnelingRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == TUNNELING_NONE) {
-                // TODO set up none
+                setObfuscationPinningKCP(false);
+                setUseObfs4(false);
             } else if (checkedId == TUNNELING_OBFS4) {
-                // TODO set up obfs4
+                setObfuscationPinningKCP(false);
+                setUseObfs4(true);
             } else if (checkedId == TUNNELING_OBFS4_KCP) {
-                // TODO set up obfs4 + kcp
+                setObfuscationPinningKCP(true);
+                setUseObfs4(false);
             }
 
         });
@@ -121,8 +137,12 @@ public class CensorshipCircumventionFragment extends Fragment {
 
     private void initPortHopping() {
         binding.portHoppingSwitch.findViewById(R.id.material_icon).setVisibility(View.GONE);
+        binding.portHoppingSwitch.setChecked(getUsePortHopping());
         binding.portHoppingSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            // TODO set up port hopping
+            if (!buttonView.isPressed()) {
+                return;
+            }
+            setUsePortHopping(isChecked);
         });
     }
 }

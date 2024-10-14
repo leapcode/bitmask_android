@@ -11,12 +11,19 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_OBFUSCATION_PINNIN
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheringSupport;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setAllowExperimentalTransports;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfuscationPinning;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
@@ -89,18 +96,40 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void initAutomaticCircumventionEntry(View rootView) {
         IconSwitchEntry automaticCircumvention = rootView.findViewById(R.id.bridge_automatic_switch);
+        automaticCircumvention.setChecked(!hasManualCircumventionConfig());
         automaticCircumvention.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
+            if (!buttonView.isPressed()) {
+                return;
+            }
+            if (isChecked){
+                useBridges(false);
+                setUseObfuscationPinning(false);
+                setUseObfs4(false);
+                setUsePortHopping(false);
+            }
         });
     }
 
     private void initManualCircumventionEntry(View rootView) {
-        FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
         IconSwitchEntry manualConfiguration = rootView.findViewById(R.id.bridge_manual_switch);
-        manualConfiguration.setOnClickListener((buttonView) -> {
-            Fragment fragment = CensorshipCircumventionFragment.newInstance();
-            fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
+        manualConfiguration.setChecked(hasManualCircumventionConfig());
+        manualConfiguration.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!buttonView.isPressed()) {
+                return;
+            }
+            openManualConfigurationFragment();
         });
+        manualConfiguration.setOnClickListener((buttonView) -> openManualConfigurationFragment());
+    }
+
+    private void openManualConfigurationFragment() {
+        FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
+        Fragment fragment = CensorshipCircumventionFragment.newInstance();
+        fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
+    }
+
+    private boolean hasManualCircumventionConfig() {
+        return getUseSnowflake() || getUseObfs4() || getObfuscationPinningKCP() || getUsePortHopping();
     }
 
     @Override
