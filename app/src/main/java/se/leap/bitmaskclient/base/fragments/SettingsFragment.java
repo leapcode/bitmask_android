@@ -22,10 +22,12 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePref
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setAllowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.usesManualBridges;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
 
 import android.app.AlertDialog;
@@ -96,14 +98,14 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void initAutomaticCircumventionEntry(View rootView) {
         IconSwitchEntry automaticCircumvention = rootView.findViewById(R.id.bridge_automatic_switch);
-        automaticCircumvention.setChecked(!hasManualCircumventionConfig());
+        automaticCircumvention.setChecked(!usesManualBridges());
         automaticCircumvention.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
             if (isChecked){
                 useBridges(false);
-                setUseObfuscationPinning(false);
+                setUseObfs4Kcp(false);
                 setUseObfs4(false);
                 setUsePortHopping(false);
             }
@@ -112,7 +114,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void initManualCircumventionEntry(View rootView) {
         IconSwitchEntry manualConfiguration = rootView.findViewById(R.id.bridge_manual_switch);
-        manualConfiguration.setChecked(hasManualCircumventionConfig());
+        manualConfiguration.setChecked(usesManualBridges());
         manualConfiguration.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
@@ -126,10 +128,6 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         FragmentManagerEnhanced fragmentManager = new FragmentManagerEnhanced(getActivity().getSupportFragmentManager());
         Fragment fragment = CensorshipCircumventionFragment.newInstance();
         fragmentManager.replace(R.id.main_container, fragment, MainActivity.TAG);
-    }
-
-    private boolean hasManualCircumventionConfig() {
-        return getUseSnowflake() || getUseObfs4() || getObfuscationPinningKCP() || getUsePortHopping();
     }
 
     @Override

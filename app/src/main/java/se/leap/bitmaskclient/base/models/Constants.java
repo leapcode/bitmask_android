@@ -56,6 +56,7 @@ public interface Constants {
     String CUSTOM_PROVIDER_DOMAINS = "custom_provider_domains";
     String USE_PORT_HOPPING = "use_port_hopping";
     String USE_OBSF4 = "use_obsf4";
+    String USE_OBSF4_KCP = "use_obsf4_kcp";
 
 
     //////////////////////////////////////////////

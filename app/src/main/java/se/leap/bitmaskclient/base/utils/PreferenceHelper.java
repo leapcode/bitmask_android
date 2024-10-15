@@ -41,6 +41,7 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_OBFUSCATION_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.USE_OBSF4;
+import static se.leap.bitmaskclient.base.models.Constants.USE_OBSF4_KCP;
 import static se.leap.bitmaskclient.base.models.Constants.USE_PORT_HOPPING;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SNOWFLAKE;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SYSTEM_PROXY;
@@ -580,6 +581,18 @@ public class PreferenceHelper {
 
     public static void setUseObfs4(boolean useObsf4) {
         putBoolean(USE_OBSF4, useObsf4);
+    }
+
+    public static void setUseObfs4Kcp(boolean useObfs4Kcp) {
+        putBoolean(USE_OBSF4_KCP, useObfs4Kcp);
+    }
+
+    public static boolean getUseObfs4Kcp() {
+        return getBoolean(USE_OBSF4_KCP, false);
+    }
+
+    public static boolean usesManualBridges(){
+        return getUseSnowflake() || getUseObfs4() || getUseObfs4Kcp() || getUsePortHopping();
     }
 
     public static boolean useIpv6Firewall() {

@@ -2,11 +2,13 @@ package se.leap.bitmaskclient.base.fragments;
 
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setObfuscationPinningKCP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
@@ -72,13 +74,11 @@ public class CensorshipCircumventionFragment extends Fragment {
         noneRadioButton.setChecked(!(hasSnowflakePrefs() && getUseSnowflake()) && !ProviderObservable.getInstance().getCurrentProvider().hasIntroducer());
         binding.discoveryRadioGroup.addView(noneRadioButton);
 
-        if (hasSnowflakePrefs()) {
-            RadioButton snowflakeRadioButton = new RadioButton(binding.getRoot().getContext());
-            snowflakeRadioButton.setText(getText(R.string.snowflake));
-            snowflakeRadioButton.setId(DISCOVERY_SNOWFLAKE);
-            snowflakeRadioButton.setChecked(hasSnowflakePrefs() && getUseSnowflake());
-            binding.discoveryRadioGroup.addView(snowflakeRadioButton);
-        }
+        RadioButton snowflakeRadioButton = new RadioButton(binding.getRoot().getContext());
+        snowflakeRadioButton.setText(getText(R.string.snowflake));
+        snowflakeRadioButton.setId(DISCOVERY_SNOWFLAKE);
+        snowflakeRadioButton.setChecked(hasSnowflakePrefs() && getUseSnowflake());
+        binding.discoveryRadioGroup.addView(snowflakeRadioButton);
 
         if (ProviderObservable.getInstance().getCurrentProvider().hasIntroducer()){
             RadioButton inviteProxyRadioButton = new RadioButton(binding.getRoot().getContext());
@@ -116,19 +116,19 @@ public class CensorshipCircumventionFragment extends Fragment {
             RadioButton obfs4KcpRadioButton = new RadioButton(binding.getRoot().getContext());
             obfs4KcpRadioButton.setText(getText(R.string.tunnelling_obfs4_kcp));
             obfs4KcpRadioButton.setId(TUNNELING_OBFS4_KCP);
-            obfs4KcpRadioButton.setChecked(getObfuscationPinningKCP());
+            obfs4KcpRadioButton.setChecked(getUseObfs4Kcp());
             binding.tunnelingRadioGroup.addView(obfs4KcpRadioButton);
         }
 
         binding.tunnelingRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == TUNNELING_NONE) {
-                setObfuscationPinningKCP(false);
+                setUseObfs4Kcp(false);
                 setUseObfs4(false);
             } else if (checkedId == TUNNELING_OBFS4) {
-                setObfuscationPinningKCP(false);
+                setUseObfs4Kcp(false);
                 setUseObfs4(true);
             } else if (checkedId == TUNNELING_OBFS4_KCP) {
-                setObfuscationPinningKCP(true);
+                setUseObfs4Kcp(true);
                 setUseObfs4(false);
             }
 
