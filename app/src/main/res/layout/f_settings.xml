@@ -71,23 +71,13 @@
             app:icon="@drawable/bridge_manual"
             app:singleLine="false" />
 
-        <se.leap.bitmaskclient.base.views.IconSwitchEntry
-            android:id="@+id/bridges_switch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:text="@string/nav_drawer_obfuscated_connection"
-            app:subtitle="@string/nav_drawer_subtitle_obfuscated_connection"
-            app:icon="@drawable/ic_bridge_36"
-            app:singleLine="false" />
-
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/experimental_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:text="@string/experimental_features"
-            android:paddingTop="@dimen/activity_margin"
-            />
+            android:paddingTop="@dimen/activity_margin" />
 
 
         <se.leap.bitmaskclient.base.views.IconSwitchEntry

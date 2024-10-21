@@ -6,7 +6,6 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setObfuscationPinningKCP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
@@ -80,7 +79,7 @@ public class CensorshipCircumventionFragment extends Fragment {
         snowflakeRadioButton.setChecked(hasSnowflakePrefs() && getUseSnowflake());
         binding.discoveryRadioGroup.addView(snowflakeRadioButton);
 
-        if (ProviderObservable.getInstance().getCurrentProvider().hasIntroducer()){
+        if (ProviderObservable.getInstance().getCurrentProvider().hasIntroducer()) {
             RadioButton inviteProxyRadioButton = new RadioButton(binding.getRoot().getContext());
             inviteProxyRadioButton.setText(getText(R.string.invite_proxy));
             inviteProxyRadioButton.setId(DISCOVERY_INVITE_PROXY);
@@ -106,13 +105,16 @@ public class CensorshipCircumventionFragment extends Fragment {
         noneRadioButton.setChecked(!getUseObfs4() && !getObfuscationPinningKCP());
         noneRadioButton.setId(TUNNELING_NONE);
         binding.tunnelingRadioGroup.addView(noneRadioButton);
-        if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()){
+
+        if (ProviderObservable.getInstance().getCurrentProvider().supportsObfs4()) {
             RadioButton obfs4RadioButton = new RadioButton(binding.getRoot().getContext());
             obfs4RadioButton.setText(getText(R.string.tunnelling_obfs4));
             obfs4RadioButton.setId(TUNNELING_OBFS4);
             obfs4RadioButton.setChecked(getUseObfs4());
             binding.tunnelingRadioGroup.addView(obfs4RadioButton);
+        }
 
+        if (ProviderObservable.getInstance().getCurrentProvider().supportsObfs4Kcp()) {
             RadioButton obfs4KcpRadioButton = new RadioButton(binding.getRoot().getContext());
             obfs4KcpRadioButton.setText(getText(R.string.tunnelling_obfs4_kcp));
             obfs4KcpRadioButton.setId(TUNNELING_OBFS4_KCP);
@@ -136,6 +138,7 @@ public class CensorshipCircumventionFragment extends Fragment {
     }
 
     private void initPortHopping() {
+        binding.portHoppingSwitch.setVisibility(ProviderObservable.getInstance().getCurrentProvider().supportsObfs4Hop() ? View.VISIBLE : View.GONE);
         binding.portHoppingSwitch.findViewById(R.id.material_icon).setVisibility(View.GONE);
         binding.portHoppingSwitch.setChecked(getUsePortHopping());
         binding.portHoppingSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {

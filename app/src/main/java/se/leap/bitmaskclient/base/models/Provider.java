@@ -201,6 +201,19 @@ public final class Provider implements Parcelable {
         return supportsTransports(new Pair[]{new Pair<>(OBFS4, KCP),  new Pair<>(OBFS4_HOP, TCP), new Pair<>(OBFS4_HOP, KCP)});
     }
 
+
+    public boolean supportsObfs4() {
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4, TCP)});
+    }
+
+    public boolean supportsObfs4Kcp() {
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4, KCP)});
+    }
+
+    public boolean supportsObfs4Hop() {
+        return supportsTransports(new Pair[]{new Pair<>(OBFS4_HOP, KCP),new Pair<>(OBFS4_HOP, TCP)});
+    }
+
     private boolean supportsTransports(Pair<TransportType, TransportProtocol>[] transportTypes) {
         try {
             JSONArray gatewayJsons = eipServiceJson.getJSONArray(GATEWAYS);

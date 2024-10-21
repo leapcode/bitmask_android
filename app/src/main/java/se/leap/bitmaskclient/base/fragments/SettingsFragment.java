@@ -11,14 +11,10 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_OBFUSCATION_PINNIN
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.isCalyxOSWithTetheringSupport;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setAllowExperimentalTransports;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4;
@@ -27,6 +23,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfuscatio
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.usesManualBridges;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
 
@@ -84,7 +81,6 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         initAlwaysOnVpnEntry(view);
         initExcludeAppsEntry(view);
         initPreferUDPEntry(view);
-        initUseBridgesEntry(view);
         initAutomaticCircumventionEntry(view);
         initManualCircumventionEntry(view);
         initFirewallEntry(view);
@@ -98,22 +94,35 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void initAutomaticCircumventionEntry(View rootView) {
         IconSwitchEntry automaticCircumvention = rootView.findViewById(R.id.bridge_automatic_switch);
-        automaticCircumvention.setChecked(!usesManualBridges());
-        automaticCircumvention.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (!buttonView.isPressed()) {
-                return;
-            }
-            if (isChecked){
-                useBridges(false);
-                setUseObfs4Kcp(false);
-                setUseObfs4(false);
-                setUsePortHopping(false);
-            }
-        });
+        if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
+            automaticCircumvention.setVisibility(VISIBLE);
+
+            automaticCircumvention.setChecked(getUseBridges() && !usesManualBridges());
+            automaticCircumvention.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (!buttonView.isPressed()) {
+                    return;
+                }
+
+                if (isChecked) {
+                    useSnowflake(false);
+                    setUseObfs4Kcp(false);
+                    setUseObfs4(false);
+                    setUsePortHopping(false);
+                }
+                useBridges(isChecked);
+                if (VpnStatus.isVPNActive()) {
+                    EipCommand.startVPN(getContext(), false);
+                    Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
+                }
+            });
+        } else {
+            automaticCircumvention.setVisibility(GONE);
+        }
     }
 
     private void initManualCircumventionEntry(View rootView) {
         IconSwitchEntry manualConfiguration = rootView.findViewById(R.id.bridge_manual_switch);
+        manualConfiguration.setVisibility(ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports() ? VISIBLE : GONE);
         manualConfiguration.setChecked(usesManualBridges());
         manualConfiguration.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
@@ -134,32 +143,6 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     public void onDestroy() {
         PreferenceHelper.unregisterOnSharedPreferenceChangeListener(this);
         super.onDestroy();
-    }
-
-    private void initUseBridgesEntry(View rootView) {
-        IconSwitchEntry useBridges = rootView.findViewById(R.id.bridges_switch);
-        if (ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports()) {
-            useBridges.setVisibility(VISIBLE);
-            useBridges.setChecked(getUseBridges());
-            useBridges.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (!buttonView.isPressed()) {
-                    return;
-                }
-                useBridges(isChecked);
-                if (VpnStatus.isVPNActive()) {
-                    EipCommand.startVPN(getContext(), false);
-                    Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
-                }
-            });
-            //We check the UI state of the useUdpEntry here as well, in order to avoid a situation
-            //where both entries are disabled, because both preferences are enabled.
-            //bridges can be enabled not only from here but also from error handling
-            boolean useUDP = getPreferUDP() && useUdpEntry.isEnabled();
-            useBridges.setEnabled(!useUDP);
-            useBridges.setSubtitle(getString(useUDP ? R.string.disabled_while_udp_on : R.string.nav_drawer_subtitle_obfuscated_connection));
-        } else {
-            useBridges.setVisibility(GONE);
-        }
     }
 
     private void initAlwaysOnVpnEntry(View rootView) {
@@ -381,6 +364,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         if (key.equals(USE_BRIDGES) || key.equals(PREFER_UDP)) {
             //initUseBridgesEntry(rootView);
             initPreferUDPEntry(rootView);
+            initManualCircumventionEntry(rootView);
         } else if (key.equals(USE_IPv6_FIREWALL)) {
             initFirewallEntry(getView());
         } else if (key.equals(GATEWAY_PINNING)) {
