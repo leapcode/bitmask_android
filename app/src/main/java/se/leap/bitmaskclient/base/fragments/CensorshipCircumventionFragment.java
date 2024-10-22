@@ -1,6 +1,5 @@
 package se.leap.bitmaskclient.base.fragments;
 
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
@@ -102,7 +101,7 @@ public class CensorshipCircumventionFragment extends Fragment {
     private void initTunneling() {
         RadioButton noneRadioButton = new RadioButton(binding.getRoot().getContext());
         noneRadioButton.setText(getText(R.string.none));
-        noneRadioButton.setChecked(!getUseObfs4() && !getObfuscationPinningKCP());
+        noneRadioButton.setChecked(!getUseObfs4() && !getUseObfs4Kcp());
         noneRadioButton.setId(TUNNELING_NONE);
         binding.tunnelingRadioGroup.addView(noneRadioButton);
 

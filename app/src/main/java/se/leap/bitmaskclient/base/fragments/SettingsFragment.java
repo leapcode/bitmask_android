@@ -115,6 +115,13 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
                     Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
                 }
             });
+
+            //We check the UI state of the useUdpEntry here as well, in order to avoid a situation
+            //where both entries are disabled, because both preferences are enabled.
+            //bridges can be enabled not only from here but also from error handling
+            boolean useUDP = getPreferUDP() && useUdpEntry.isEnabled();
+            automaticCircumvention.setEnabled(!useUDP);
+            automaticCircumvention.setSubtitle(getString(useUDP?R.string.disabled_while_udp_on:R.string.automatic_bridge_description));
         } else {
             automaticCircumvention.setVisibility(GONE);
         }
@@ -131,6 +138,13 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             openManualConfigurationFragment();
         });
         manualConfiguration.setOnClickListener((buttonView) -> openManualConfigurationFragment());
+
+        //We check the UI state of the useUdpEntry here as well, in order to avoid a situation
+        //where both entries are disabled, because both preferences are enabled.
+        //bridges can be enabled not only from here but also from error handling
+        boolean useUDP = getPreferUDP() && useUdpEntry.isEnabled();
+        manualConfiguration.setEnabled(!useUDP);
+        manualConfiguration.setSubtitle(getString(useUDP? R.string.disabled_while_udp_on:R.string.manual_bridge_description));
     }
 
     private void openManualConfigurationFragment() {
@@ -362,9 +376,9 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
             return;
         }
         if (key.equals(USE_BRIDGES) || key.equals(PREFER_UDP)) {
-            //initUseBridgesEntry(rootView);
             initPreferUDPEntry(rootView);
             initManualCircumventionEntry(rootView);
+            initAutomaticCircumventionEntry(rootView);
         } else if (key.equals(USE_IPv6_FIREWALL)) {
             initFirewallEntry(getView());
         } else if (key.equals(GATEWAY_PINNING)) {
