@@ -3,6 +3,10 @@ package se.leap.bitmaskclient.providersetup.fragments;
 import static se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel.ADD_PROVIDER;
 import static se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModel.INVITE_CODE_PROVIDER;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -12,14 +16,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import se.leap.bitmaskclient.R;
+import se.leap.bitmaskclient.providersetup.activities.scanner.ScannerActivity;
 import se.leap.bitmaskclient.base.models.Introducer;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ViewHelper;
@@ -29,6 +37,9 @@ import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelection
 import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelectionViewModelFactory;
 
 public class ProviderSelectionFragment extends BaseSetupFragment implements CancelCallback {
+
+    private static final int PERMISSION_GRANTED_REQUEST_CODE = 1;
+    private ActivityResultLauncher<Intent> scannerActivityResultLauncher;
 
     private ProviderSelectionViewModel viewModel;
     private ArrayList<RadioButton> radioButtons;
@@ -49,6 +60,15 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
                 new ProviderSelectionViewModelFactory(
                         getContext().getApplicationContext().getAssets())).
                 get(ProviderSelectionViewModel.class);
+        scannerActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Intent data = result.getData();
+                if (data != null) {
+                    Introducer introducer = data.getParcelableExtra(ScannerActivity.INVITE_CODE);
+                    binding.editCustomProvider.setText(introducer.toUrl());
+                }
+            }
+        });
     }
 
     @Override
@@ -80,6 +100,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
 
         binding.editCustomProvider.setVisibility(viewModel.getEditProviderVisibility());
         binding.syntaxCheck.setVisibility(viewModel.getEditProviderVisibility());
+        binding.qrScanner.setVisibility(viewModel.getQrScannerVisibility());
         return binding.getRoot();
     }
 
@@ -87,6 +108,28 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupActivityCallback.registerCancelCallback(this);
+        initQrScanner();
+    }
+
+    private void initQrScanner() {
+        binding.qrScanner.setOnClickListener(v -> {
+            if (isCameraPermissionGranted()) {
+                scannerActivityResultLauncher.launch(ScannerActivity.newIntent(getContext()));
+            } else {
+                ActivityCompat.requestPermissions(
+                        getActivity(),
+                        new String[]{Manifest.permission.CAMERA},
+                        PERMISSION_GRANTED_REQUEST_CODE
+                );
+            }
+        });
+    }
+
+    private boolean isCameraPermissionGranted() {
+        return ContextCompat.checkSelfPermission(
+                getContext(),
+                Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -102,6 +145,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
             binding.providerDescription.setText(viewModel.getProviderDescription(getContext()));
             binding.editCustomProvider.setVisibility(viewModel.getEditProviderVisibility());
             binding.syntaxCheck.setVisibility(viewModel.getEditProviderVisibility());
+            binding.qrScanner.setVisibility(viewModel.getQrScannerVisibility());
             if (viewModel.getCustomUrl() == null || viewModel.getCustomUrl().isEmpty()) {
                 binding.syntaxCheckResult.setText("");
                 binding.syntaxCheckResult.setTextColor(getResources().getColor(R.color.color_font_btn));

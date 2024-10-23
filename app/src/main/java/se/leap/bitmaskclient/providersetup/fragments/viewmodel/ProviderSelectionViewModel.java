@@ -86,6 +86,13 @@ public class ProviderSelectionViewModel extends ViewModel {
         return provider.getDescription();
     }
 
+    public int getQrScannerVisibility() {
+        if (selected == INVITE_CODE_PROVIDER) {
+            return View.VISIBLE;
+        }
+        return View.GONE;
+    }
+
     public int getEditProviderVisibility() {
         if (selected == ADD_PROVIDER) {
             return View.VISIBLE;
