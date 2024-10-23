@@ -247,4 +247,6 @@
     <string name="validation_status_success">Good</string>
     <string name="validation_status_failure">Bad</string>
     <string name="enter_invite_code">Enter invite Code</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="invalid_code">Invalid code</string>
 </resources>

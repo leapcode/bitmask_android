@@ -21,6 +21,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.mlkit.vision.MlKitAnalyzer;
 import androidx.camera.view.LifecycleCameraController;
+import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -78,7 +79,7 @@ public class ScannerActivity extends AppCompatActivity {
 
         ActionBarTitle actionBarTitle = new ActionBarTitle(context);
         actionBarTitle.setTitleCaps(BuildConfig.actionbar_capitalize_title);
-        actionBarTitle.setTitle("Scan QR Code");
+        actionBarTitle.setTitle(getString(R.string.scan_qr_code));
 
         final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_back, getTheme());
         actionBar.setHomeAsUpIndicator(upArrow);
@@ -98,15 +99,6 @@ public class ScannerActivity extends AppCompatActivity {
         }
     }
 
-    private boolean allPermissionsGranted() {
-        for (String permission : REQUIRED_PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private void startCamera() {
         var cameraController = new LifecycleCameraController(getBaseContext());
         var previewView = binding.previewView;
@@ -114,32 +106,41 @@ public class ScannerActivity extends AppCompatActivity {
         var options = new BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build();
         barcodeScanner = BarcodeScanning.getClient(options);
 
-        cameraController.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(this), new MlKitAnalyzer(Collections.singletonList(barcodeScanner), COORDINATE_SYSTEM_VIEW_REFERENCED, ContextCompat.getMainExecutor(this), result -> {
-            var barcodeResults = result.getValue(barcodeScanner);
-            if ((barcodeResults == null) || (barcodeResults.size() == 0) || (barcodeResults.get(0) == null)) {
-                previewView.getOverlay().clear();
-                previewView.setOnTouchListener((v, event) -> false); //no-op
-                return;
-            }
-            try {
-                Introducer introducer = Introducer.fromUrl(barcodeResults.get(0).getRawValue());
-                if (introducer != null && introducer.validate()) {
-                    setResult(RESULT_OK, new Intent().putExtra(INVITE_CODE, introducer));
-                } else {
-                    Toast.makeText(this, "Invalid introducer", Toast.LENGTH_SHORT).show();
-                }
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-                Toast.makeText(this, "Invalid introducer", Toast.LENGTH_SHORT).show();
-            }
-            previewView.setOnTouchListener((v, event) -> false); //no-op
-            previewView.getOverlay().clear();
+        var mlKitAnalyzer = new MlKitAnalyzer(
+                Collections.singletonList(barcodeScanner),
+                COORDINATE_SYSTEM_VIEW_REFERENCED,
+                ContextCompat.getMainExecutor(this),
+                result -> handleQrResult(result, previewView)
+        );
 
-            finish();
-        }));
+        cameraController.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(this), mlKitAnalyzer);
 
         cameraController.bindToLifecycle(this);
         previewView.setController(cameraController);
+    }
+
+    private void handleQrResult(MlKitAnalyzer.Result result, PreviewView previewView) {
+        var barcodeResults = result.getValue(barcodeScanner);
+        if ((barcodeResults == null) || (barcodeResults.isEmpty()) || (barcodeResults.get(0) == null)) {
+            previewView.getOverlay().clear();
+            previewView.setOnTouchListener((v, event) -> false); //no-op
+            return;
+        }
+        try {
+            Introducer introducer = Introducer.fromUrl(barcodeResults.get(0).getRawValue());
+            if (introducer.validate()) {
+                setResult(RESULT_OK, new Intent().putExtra(INVITE_CODE, introducer));
+            } else {
+                Toast.makeText(this, R.string.invalid_code, Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Introducer error: " + e.getMessage());
+            Toast.makeText(this, R.string.invalid_code, Toast.LENGTH_SHORT).show();
+        }
+        previewView.setOnTouchListener((v, event) -> false); //no-op
+        previewView.getOverlay().clear();
+
+        finish();
     }
 
     @Override
@@ -156,6 +157,15 @@ public class ScannerActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean allPermissionsGranted() {
+        for (String permission : REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
