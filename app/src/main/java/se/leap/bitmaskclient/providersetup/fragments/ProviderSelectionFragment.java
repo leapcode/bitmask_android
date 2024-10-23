@@ -38,7 +38,6 @@ import se.leap.bitmaskclient.providersetup.fragments.viewmodel.ProviderSelection
 
 public class ProviderSelectionFragment extends BaseSetupFragment implements CancelCallback {
 
-    private static final int PERMISSION_GRANTED_REQUEST_CODE = 1;
     private ActivityResultLauncher<Intent> scannerActivityResultLauncher;
 
     private ProviderSelectionViewModel viewModel;
@@ -112,25 +111,9 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
     }
 
     private void initQrScanner() {
-        binding.qrScanner.setOnClickListener(v -> {
-            if (isCameraPermissionGranted()) {
-                scannerActivityResultLauncher.launch(ScannerActivity.newIntent(getContext()));
-            } else {
-                ActivityCompat.requestPermissions(
-                        getActivity(),
-                        new String[]{Manifest.permission.CAMERA},
-                        PERMISSION_GRANTED_REQUEST_CODE
-                );
-            }
-        });
+        binding.qrScanner.setOnClickListener(v -> scannerActivityResultLauncher.launch(ScannerActivity.newIntent(getContext())));
     }
 
-    private boolean isCameraPermissionGranted() {
-        return ContextCompat.checkSelfPermission(
-                getContext(),
-                Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED;
-    }
 
     @Override
     public void onFragmentSelected() {

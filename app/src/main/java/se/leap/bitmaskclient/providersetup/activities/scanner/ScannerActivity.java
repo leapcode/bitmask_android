@@ -1,41 +1,55 @@
 package se.leap.bitmaskclient.providersetup.activities.scanner;
 
+import static androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM;
+import static androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED;
+
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageProxy;
-import androidx.camera.core.Preview;
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.camera.mlkit.vision.MlKitAnalyzer;
+import androidx.camera.view.LifecycleCameraController;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
-import com.google.mlkit.vision.common.InputImage;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import se.leap.bitmaskclient.BuildConfig;
+import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Introducer;
+import se.leap.bitmaskclient.base.utils.ViewHelper;
+import se.leap.bitmaskclient.base.views.ActionBarTitle;
 import se.leap.bitmaskclient.databinding.AScannerBinding;
 
-@OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)
 public class ScannerActivity extends AppCompatActivity {
     public static final String INVITE_CODE = "invite_code";
     private static final String TAG = ScannerActivity.class.getSimpleName();
+    private static final String[] REQUIRED_PERMISSIONS = new String[]{Manifest.permission.CAMERA};
+    private static final int REQUEST_CODE_PERMISSIONS = 1;
+
     private AScannerBinding binding;
-    private ProcessCameraProvider cameraProvider;
-    private Preview previewUseCase;
-    private CameraSelector cameraSelector;
-    private ImageAnalysis analysisUseCase;
+    private BarcodeScanner barcodeScanner;
+    private ExecutorService cameraExecutor;
 
     public static Intent newIntent(Context context) {
         return new Intent(context, ScannerActivity.class);
@@ -46,105 +60,114 @@ public class ScannerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = AScannerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setupActionBar();
+        if (allPermissionsGranted()) {
+            startCamera();
+        } else {
+            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
+        }
+        cameraExecutor = Executors.newSingleThreadExecutor();
+
+    }
+
+    private void setupActionBar() {
+        setSupportActionBar(binding.toolbar);
+        final ActionBar actionBar = getSupportActionBar();
+        Context context = actionBar.getThemedContext();
+        actionBar.setDisplayOptions(DISPLAY_SHOW_CUSTOM);
+
+        ActionBarTitle actionBarTitle = new ActionBarTitle(context);
+        actionBarTitle.setTitleCaps(BuildConfig.actionbar_capitalize_title);
+        actionBarTitle.setTitle("Scan QR Code");
+
+        final Drawable upArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_back, getTheme());
+        actionBar.setHomeAsUpIndicator(upArrow);
+
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        ViewHelper.setActivityBarColor(this, R.color.bg_setup_status_bar, R.color.bg_setup_action_bar, R.color.colorActionBarTitleFont);
+        @ColorInt int titleColor = ContextCompat.getColor(context, R.color.colorActionBarTitleFont);
+        actionBarTitle.setTitleTextColor(titleColor);
+
+        actionBarTitle.setCentered(BuildConfig.actionbar_center_title);
+        actionBarTitle.setSingleBoldTitle();
+        if (BuildConfig.actionbar_center_title) {
+            ActionBar.LayoutParams params = new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.MATCH_PARENT, Gravity.CENTER);
+            actionBar.setCustomView(actionBarTitle, params);
+        } else {
+            actionBar.setCustomView(actionBarTitle);
+        }
+    }
+
+    private boolean allPermissionsGranted() {
+        for (String permission : REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void startCamera() {
+        var cameraController = new LifecycleCameraController(getBaseContext());
+        var previewView = binding.previewView;
+
+        var options = new BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build();
+        barcodeScanner = BarcodeScanning.getClient(options);
+
+        cameraController.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(this), new MlKitAnalyzer(Collections.singletonList(barcodeScanner), COORDINATE_SYSTEM_VIEW_REFERENCED, ContextCompat.getMainExecutor(this), result -> {
+            var barcodeResults = result.getValue(barcodeScanner);
+            if ((barcodeResults == null) || (barcodeResults.size() == 0) || (barcodeResults.get(0) == null)) {
+                previewView.getOverlay().clear();
+                previewView.setOnTouchListener((v, event) -> false); //no-op
+                return;
+            }
+            try {
+                Introducer introducer = Introducer.fromUrl(barcodeResults.get(0).getRawValue());
+                if (introducer != null && introducer.validate()) {
+                    setResult(RESULT_OK, new Intent().putExtra(INVITE_CODE, introducer));
+                } else {
+                    Toast.makeText(this, "Invalid introducer", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+                Toast.makeText(this, "Invalid introducer", Toast.LENGTH_SHORT).show();
+            }
+            previewView.setOnTouchListener((v, event) -> false); //no-op
+            previewView.getOverlay().clear();
+
+            finish();
+        }));
+
+        cameraController.bindToLifecycle(this);
+        previewView.setController(cameraController);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        initCamera();
+    protected void onDestroy() {
+        super.onDestroy();
+        cameraExecutor.shutdown();
+        barcodeScanner.close();
     }
 
-    private void initCamera() {
-        cameraSelector = new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
-        new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())).get(ScannerViewModel.class).getProcessCameraProvider().observe(this, cameraProvider -> {
-            this.cameraProvider = cameraProvider;
-            bindCameraUseCases();
-        });
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
-    private void bindCameraUseCases() {
-        bindPreviewUseCase();
-        bindAnalyseUseCase();
-    }
-
-
-    private void bindPreviewUseCase() {
-        if (cameraProvider == null) {
-            return;
-        }
-        if (previewUseCase != null) {
-            cameraProvider.unbind(previewUseCase);
-        }
-
-        previewUseCase = new Preview.Builder().setTargetRotation(binding.previewView.getDisplay().getRotation()).build();
-        previewUseCase.setSurfaceProvider(binding.previewView.getSurfaceProvider());
-
-        try {
-            cameraProvider.bindToLifecycle(this, cameraSelector, previewUseCase);
-        } catch (Exception exception) {
-            Log.e(TAG, exception.getMessage());
-        }
-    }
-
-
-    private void bindAnalyseUseCase() {
-        // Note that if you know which format of barcode your app is dealing with, detection will be
-        // faster to specify the supported barcode formats one by one, e.g.
-        // BarcodeScannerOptions.Builder()
-        //     .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
-        //     .build();
-        BarcodeScanner barcodeScanner = BarcodeScanning.getClient();
-
-        if (cameraProvider == null) {
-            return;
-        }
-        if (analysisUseCase != null) {
-            cameraProvider.unbind(analysisUseCase);
-        }
-
-        analysisUseCase = new ImageAnalysis.Builder().setTargetRotation(binding.previewView.getDisplay().getRotation()).build();
-
-        // Initialize our background executor
-        ExecutorService cameraExecutor = Executors.newSingleThreadExecutor();
-
-        analysisUseCase.setAnalyzer(cameraExecutor, imageProxy -> {
-            // Insert barcode scanning code here
-            processImageProxy(barcodeScanner, imageProxy);
-        });
-
-        try {
-            cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase);
-        } catch (Exception exception) {
-            Log.e(TAG, exception.getMessage());
-        }
-    }
-
-    private void processImageProxy(BarcodeScanner barcodeScanner, ImageProxy imageProxy) {
-        InputImage inputImage = InputImage.fromMediaImage(imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
-
-        barcodeScanner.process(inputImage).addOnSuccessListener(barcodes -> {
-            for (Barcode barcode : barcodes) {
-                try {
-                    Introducer introducer = Introducer.fromUrl(barcode.getRawValue());
-                    if (introducer != null && introducer.validate()) {
-                        imageProxy.close();
-                        setResult(RESULT_OK, new Intent().putExtra(INVITE_CODE, introducer));
-                        finish();
-                    } else {
-                        Toast.makeText(this, "Invalid introducer", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage());
-                    Toast.makeText(this, "Invalid introducer", Toast.LENGTH_SHORT).show();
-                }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (allPermissionsGranted()) {
+                startCamera();
+            } else {
+                Toast.makeText(this, "Permissions not granted by the user.", Toast.LENGTH_SHORT).show();
+                finish();
             }
-        }).addOnFailureListener(e -> {
-            Log.e(TAG, e.getMessage());
-        }).addOnCompleteListener(task -> {
-            // When the image is from CameraX analysis use case, must call image.close() on received
-            // images when finished using them. Otherwise, new images may not be received or the camera
-            // may stall.
-            imageProxy.close();
-        });
+        }
     }
 }
