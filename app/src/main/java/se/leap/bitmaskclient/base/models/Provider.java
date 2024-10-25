@@ -28,6 +28,8 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOWED_REGIS
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_ALLOW_ANONYMOUS;
 import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.TYPE;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDomainName;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isNetworkUrl;
 import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.parsePrivateKeyFromString;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 
@@ -132,15 +134,11 @@ public final class Provider implements Parcelable {
     }
 
     public Provider(String mainUrl) {
-       this(mainUrl, null);
+        this(mainUrl, null);
     }
 
     public Provider(String mainUrl, String geoipUrl) {
-        try {
-            this.mainUrl = new URL(mainUrl).toString();
-        } catch (MalformedURLException e) {
-            this.mainUrl = "";
-        }
+        setMainUrl(mainUrl);
         setGeoipUrl(geoipUrl);
     }
 
@@ -151,17 +149,12 @@ public final class Provider implements Parcelable {
     }
 
     public Provider(String mainUrl, String geoipUrl, String motdUrl, String providerIp, String providerApiIp) {
-        try {
-            this.mainUrl = new URL(mainUrl).toString();
-            if (providerIp != null) {
-                this.providerIp = providerIp;
-            }
-            if (providerApiIp != null) {
-                this.providerApiIp = providerApiIp;
-            }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return;
+        setMainUrl(mainUrl);
+        if (providerIp != null) {
+            this.providerIp = providerIp;
+        }
+        if (providerApiIp != null) {
+            this.providerApiIp = providerApiIp;
         }
         setGeoipUrl(geoipUrl);
         setMotdUrl(motdUrl);
@@ -338,10 +331,16 @@ public final class Provider implements Parcelable {
 
     public void setMainUrl(String url) {
         try {
-            mainUrl = new URL(url).toString();
+            if (isNetworkUrl(url)) {
+                this.mainUrl = new URL(url).toString();
+            } else if (isDomainName(url)){
+                this.mainUrl = new URL("https://" + url).toString();
+            } else {
+                this.mainUrl = "";
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            mainUrl = "";
+            this.mainUrl = "";
         }
     }
 
@@ -525,7 +524,7 @@ public final class Provider implements Parcelable {
     private Provider(Parcel in) {
         try {
             domain = in.readString();
-            mainUrl = new URL(in.readString()).toString();
+            setMainUrl(in.readString());
             String tmpString = in.readString();
             if (!tmpString.isEmpty()) {
                 providerIp = tmpString;

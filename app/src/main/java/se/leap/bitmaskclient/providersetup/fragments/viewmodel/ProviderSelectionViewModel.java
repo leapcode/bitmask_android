@@ -1,11 +1,13 @@
 package se.leap.bitmaskclient.providersetup.fragments.viewmodel;
 
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isDomainName;
+import static se.leap.bitmaskclient.base.utils.ConfigHelper.isNetworkUrl;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.text.InputType;
 import android.util.Patterns;
 import android.view.View;
-import android.webkit.URLUtil;
 
 import androidx.lifecycle.ViewModel;
 
@@ -51,7 +53,7 @@ public class ProviderSelectionViewModel extends ViewModel {
 
     public boolean isValidConfig() {
         if (selected == ADD_PROVIDER) {
-            return customUrl != null && (Patterns.DOMAIN_NAME.matcher(customUrl).matches() || (URLUtil.isNetworkUrl(customUrl) && Patterns.WEB_URL.matcher(customUrl).matches()));
+            return isNetworkUrl(customUrl) || isDomainName(customUrl);
         }
         if (selected == INVITE_CODE_PROVIDER) {
             try {
@@ -121,7 +123,7 @@ public class ProviderSelectionViewModel extends ViewModel {
     }
 
     public String getCustomUrl() {
-        if (customUrl != null && Patterns.DOMAIN_NAME.matcher(customUrl).matches()) {
+        if (isDomainName(customUrl)) {
             return "https://" + customUrl;
         }
         return customUrl;

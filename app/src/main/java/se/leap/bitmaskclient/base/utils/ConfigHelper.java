@@ -21,6 +21,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Patterns;
+import android.webkit.URLUtil;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -221,6 +223,13 @@ public class ConfigHelper {
         return matcher.matches();
     }
 
+    public static boolean isNetworkUrl(String url) {
+        return url != null && URLUtil.isNetworkUrl(url) && Patterns.WEB_URL.matcher(url).matches();
+    }
+
+    public static boolean isDomainName(String url) {
+        return url != null && Patterns.DOMAIN_NAME.matcher(url).matches();
+    }
     public static String getDomainFromMainURL(@NonNull String mainUrl) throws NullPointerException {
         return PublicSuffixDatabase.Companion.get().getEffectiveTldPlusOne(mainUrl).replaceFirst("http[s]?://", "").replaceFirst("/.*", "");
     }
