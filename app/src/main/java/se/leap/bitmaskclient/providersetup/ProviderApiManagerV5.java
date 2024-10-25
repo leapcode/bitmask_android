@@ -38,11 +38,13 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
 import de.blinkt.openvpn.core.VpnStatus;
+import io.swagger.client.JSON;
+import io.swagger.client.model.ModelsBridge;
+import io.swagger.client.model.ModelsEIPService;
+import io.swagger.client.model.ModelsGateway;
+import io.swagger.client.model.ModelsProvider;
 import mobile.BitmaskMobile;
-import mobilemodels.Bridges;
-import mobilemodels.Gateways;
-import models.ModelsEIPService;
-import models.ModelsProvider;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
@@ -119,7 +121,8 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         configureBaseCountryCode(bm, parameters);
 
         try {
-            ModelsEIPService service = bm.getService();
+            String serviceJson = bm.getService();
+            ModelsEIPService service = JSON.createGson().create().fromJson(serviceJson, ModelsEIPService.class);
             provider.setService(service);
         } catch (Exception e) {
             return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
@@ -127,19 +130,24 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
 
         if (PreferenceHelper.getUseBridges()) {
             try {
-                Bridges bridges = bm.getAllBridges("", "", "", "");
-                if (bridges.length() == 0) {
+                String bridgesJson = bm.getAllBridges("", "", "", "");
+                if (bridgesJson.isEmpty())  {
                     //TODO send no bridges error event
                 }
+                ModelsBridge[] bridges = JSON.createGson().create().fromJson(bridgesJson, ModelsBridge[].class);
                 provider.setBridges(bridges);
             } catch (Exception e) {
                 // TODO: send failed to fetch bridges event
             }
         } else {
-            Gateways gateways = null;
-            try {
-                gateways = bm.getAllGateways("", "", "");
-                provider.setGateways(gateways);
+           try {
+               String gatewaysJson = bm.getAllGateways("", "", "");
+               if (gatewaysJson.isEmpty())  {
+                   //TODO send no bridges error event
+               }
+               ModelsGateway[] gateways = JSON.createGson().create().fromJson(gatewaysJson, ModelsGateway[].class);
+
+               provider.setGateways(gateways);
             } catch (Exception e) {
                 // TODO: send
                 return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
@@ -189,33 +197,49 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         configureBaseCountryCode(bm, parameters);
 
         try {
-           ModelsProvider p = bm.getProvider();
+           String providerJson = bm.getProvider();
+           Log.d(TAG, "provider Json reponse: " + providerJson);
+           ModelsProvider p = JSON.createGson().create().fromJson(providerJson, ModelsProvider.class);
            provider.setModelsProvider(p);
            ProviderSetupObservable.updateProgress(DOWNLOADED_PROVIDER_JSON);
         } catch (Exception e) {
+            Log.w(TAG, "failed fo fetch provider.json: " + e.getMessage());
+            e.printStackTrace();
             return eventSender.setErrorResult(currentDownload, R.string.error_json_exception_user_message, null);
         }
         try {
-            ModelsEIPService service = bm.getService();
+            String serviceJson = bm.getService();
+            Log.d(TAG, "service Json reponse: " + serviceJson);
+            ModelsEIPService service = JSON.createGson().create().fromJson(serviceJson, ModelsEIPService.class);
             provider.setService(service);
             ProviderSetupObservable.updateProgress(DOWNLOADED_EIP_SERVICE_JSON);
         } catch (Exception e) {
+            Log.w(TAG, "failed to fetch service.json: " + e.getMessage());
+            e.printStackTrace();
             return eventSender.setErrorResult(currentDownload, R.string.error_json_exception_user_message, null);
         }
 
         try {
             // TODO: check if provider supports this API endpoint?
-            Gateways gateways = bm.getAllGateways("", "", "");
+            String gatewaysJson = bm.getAllGateways("", "", "");
+            Log.d(TAG, "gateways Json reponse: " + gatewaysJson);
+            ModelsGateway[] gateways = JSON.createGson().create().fromJson(gatewaysJson, ModelsGateway[].class);
             provider.setGateways(gateways);
         } catch (Exception e) {
+            Log.w(TAG, "failed to fetch gateways: " + e.getMessage());
+            e.printStackTrace();
             return eventSender.setErrorResult(currentDownload, R.string.error_json_exception_user_message, null);
         }
 
         try {
             // TODO: check if provider supports this API endpoint?
-            Bridges bridges = bm.getAllBridges("", "", "", "");
+            String bridgesJson = bm.getAllBridges("", "", "", "");
+            Log.d(TAG, "bridges Json reponse: " + bridgesJson);
+            ModelsBridge[] bridges = JSON.createGson().create().fromJson(bridgesJson, ModelsBridge[].class);
             provider.setBridges(bridges);
         } catch (Exception e) {
+            Log.w(TAG, "failed to fetch bridges: " + e.getMessage());
+            e.printStackTrace();
             return eventSender.setErrorResult(currentDownload, R.string.error_json_exception_user_message, null);
         }
 
@@ -237,14 +261,14 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
                 TorStatusObservable.getStatus() == OFF) {
             try {
                 // FIXME: doGeolocationLookup currently sets the country code implicitly, change that in bitmask-core
-                bm.doGeolocationLookup();
+                cc = bm.getGeolocation();
             } catch (Exception e) {
                 // print exception and ignore
                 e.printStackTrace();
+                cc = "";
             }
-        } else {
-            bm.setCountryCode(cc);
         }
+        bm.setCountryCode(cc);
     }
 
     Bundle validateProviderDetails(Provider provider) {

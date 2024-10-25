@@ -46,17 +46,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
 import de.blinkt.openvpn.core.connection.Connection.TransportProtocol;
 import de.blinkt.openvpn.core.connection.Connection.TransportType;
-import mobilemodels.Bridges;
-import mobilemodels.Gateways;
-import models.ModelsBridge;
-import models.ModelsEIPService;
-import models.ModelsProvider;
+import io.swagger.client.JSON;
+import io.swagger.client.model.ModelsBridge;
+import io.swagger.client.model.ModelsEIPService;
+import io.swagger.client.model.ModelsGateway;
+import io.swagger.client.model.ModelsProvider;
 import motd.IStringCollection;
 import motd.Motd;
 
@@ -77,11 +78,10 @@ public final class Provider implements Parcelable {
     private String apiUrl = "";
     private String geoipUrl = "";
     private String motdUrl = "";
-    private Gateways gateways = null;
-
+    private ModelsEIPService modelsEIPService = null;
     private ModelsProvider modelsProvider = null;
-    private ModelsEIPService service = null;
-    private Bridges bridges = null;
+    private ModelsGateway[] modelsGateways = null;
+    private ModelsBridge[] modelsBridges = null;
     private String domain = "";
     private String providerIp = ""; // ip of the provider main url
     private String providerApiIp = ""; // ip of the provider api url
@@ -193,27 +193,27 @@ public final class Provider implements Parcelable {
         }
     };
 
-    public void setBridges(Bridges bridges) {
-        this.bridges = bridges;
+    public void setBridges(ModelsBridge[] bridges) {
+        this.modelsBridges = bridges;
     }
 
-    public Bridges getBridges() {
-        return this.bridges;
+    public ModelsBridge[] getBridges() {
+        return this.modelsBridges;
     }
-    public void setGateways(Gateways gateways) {
-        this.gateways = gateways;
+    public void setGateways(ModelsGateway[] gateways) {
+        this.modelsGateways = gateways;
     }
 
-    public Gateways getGateways() {
-        return gateways;
+    public ModelsGateway[] getGateways() {
+        return modelsGateways;
     }
 
     public void setService(ModelsEIPService service) {
-        this.service = service;
+        this.modelsEIPService = service;
     }
 
     public ModelsEIPService getService() {
-        return this.service;
+        return this.modelsEIPService;
     }
 
     public boolean isConfigured() {
@@ -228,8 +228,8 @@ public final class Provider implements Parcelable {
         } else {
             return !mainUrl.isEmpty() &&
                     modelsProvider != null &&
-                    service != null &&
-                    gateways != null &&
+                    modelsEIPService != null &&
+                    modelsGateways != null &&
                     hasVpnCertificate() &&
                     hasPrivateKey();
         }
@@ -281,12 +281,11 @@ public final class Provider implements Parcelable {
                 // ignore
             }
         } else {
-            if (bridges == null) return false;
-            for (int i = 0; i < bridges.length(); i++) {
-                ModelsBridge bridge = bridges.get(i);
+            if (modelsBridges == null) return false;
+            for (ModelsBridge bridge : modelsBridges) {
                 for (Pair<TransportType, TransportProtocol> transportPair : transportTypes) {
                     if (transportPair.first.toString().equals(bridge.getType()) &&
-                    transportPair.second.toString().equals(bridge.getTransport())) {
+                            transportPair.second.toString().equals(bridge.getTransport())) {
                         return true;
                     }
                 }
@@ -474,7 +473,7 @@ public final class Provider implements Parcelable {
     }
 
     public boolean hasServiceInfo() {
-        return service != null;
+        return modelsEIPService != null;
     }
 
     public boolean hasGatewaysInDifferentLocations() {
@@ -512,6 +511,13 @@ public final class Provider implements Parcelable {
         parcel.writeStringList(new ArrayList<>(lastMotdSeenHashes));
         parcel.writeInt(shouldUpdateVpnCertificate ? 0 : 1);
         parcel.writeParcelable(introducer, 0);
+        if (apiVersion == 5) {
+            Gson gson = JSON.createGson().create();
+            parcel.writeString(modelsProvider != null ? gson.toJson(modelsProvider) : "");
+            parcel.writeString(modelsEIPService != null ? gson.toJson(modelsEIPService) : "");
+            parcel.writeString(modelsBridges != null ? gson.toJson(modelsBridges) : "");
+            parcel.writeString(modelsGateways != null ? gson.toJson(modelsGateways) : "");
+        }
     }
 
 
@@ -574,6 +580,25 @@ public final class Provider implements Parcelable {
             this.lastMotdSeenHashes = new HashSet<>(lastMotdSeenHashes);
             this.shouldUpdateVpnCertificate = in.readInt()  == 0;
             this.introducer = in.readParcelable(Introducer.class.getClassLoader());
+            if (this.apiVersion == 5) {
+                Gson gson = JSON.createGson().create();
+                tmpString = in.readString();
+                if (!tmpString.isEmpty()) {
+                    this.setModelsProvider(gson.fromJson(tmpString, ModelsProvider.class));
+                }
+                tmpString = in.readString();
+                if (!tmpString.isEmpty()) {
+                    this.setService(gson.fromJson(tmpString, ModelsEIPService.class));
+                }
+                tmpString = in.readString();
+                if (!tmpString.isEmpty()) {
+                    this.setBridges(gson.fromJson(tmpString, ModelsBridge[].class));
+                }
+                tmpString = in.readString();
+                if (!tmpString.isEmpty()) {
+                    this.setGateways(gson.fromJson(tmpString, ModelsGateway[].class));
+                }
+            }
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
         }
@@ -585,24 +610,28 @@ public final class Provider implements Parcelable {
         if (o instanceof Provider) {
             Provider p = (Provider) o;
             return getDomain().equals(p.getDomain()) &&
-            getHostFromUrl(mainUrl).equals(getHostFromUrl(p.getMainUrl())) &&
-            definition.toString().equals(p.getDefinition().toString()) &&
-            eipServiceJson.toString().equals(p.getEipServiceJsonString()) &&
-            geoIpJson.toString().equals(p.getGeoIpJsonString()) &&
-            motdJson.toString().equals(p.getMotdJsonString()) &&
-            providerIp.equals(p.getProviderIp()) &&
-            providerApiIp.equals(p.getProviderApiIp()) &&
-            apiUrl.equals(p.getApiUrl()) &&
-            geoipUrl.equals(p.getGeoipUrl()) &&
-            motdUrl.equals(p.getMotdUrl()) &&
-            certificatePin.equals(p.getCertificatePin()) &&
-            certificatePinEncoding.equals(p.getCertificatePinEncoding()) &&
-            caCert.equals(p.getCaCert()) &&
-            apiVersion == p.getApiVersion() &&
-            privateKeyString.equals(p.getPrivateKeyString()) &&
-            vpnCertificate.equals(p.getVpnCertificate()) &&
-            allowAnonymous == p.allowsAnonymous() &&
-            allowRegistered == p.allowsRegistered();
+                    getHostFromUrl(mainUrl).equals(getHostFromUrl(p.getMainUrl())) &&
+                    definition.toString().equals(p.getDefinition().toString()) &&
+                    eipServiceJson.toString().equals(p.getEipServiceJsonString()) &&
+                    geoIpJson.toString().equals(p.getGeoIpJsonString()) &&
+                    motdJson.toString().equals(p.getMotdJsonString()) &&
+                    providerIp.equals(p.getProviderIp()) &&
+                    providerApiIp.equals(p.getProviderApiIp()) &&
+                    apiUrl.equals(p.getApiUrl()) &&
+                    geoipUrl.equals(p.getGeoipUrl()) &&
+                    motdUrl.equals(p.getMotdUrl()) &&
+                    certificatePin.equals(p.getCertificatePin()) &&
+                    certificatePinEncoding.equals(p.getCertificatePinEncoding()) &&
+                    caCert.equals(p.getCaCert()) &&
+                    apiVersion == p.getApiVersion() &&
+                    privateKeyString.equals(p.getPrivateKeyString()) &&
+                    vpnCertificate.equals(p.getVpnCertificate()) &&
+                    allowAnonymous == p.allowsAnonymous() &&
+                    allowRegistered == p.allowsRegistered() &&
+                    modelsProvider.equals(p.modelsProvider) &&
+                    modelsEIPService.equals(p.modelsEIPService) &&
+                    Arrays.equals(modelsBridges, p.modelsBridges) &&
+                    Arrays.equals(modelsGateways, p.modelsGateways);
         } else return false;
     }
 
