@@ -78,6 +78,7 @@ public abstract class ProviderApiManagerBase {
         boolean startTorService() throws InterruptedException, IllegalStateException, TimeoutException;
         void stopTorService();
         int getTorHttpTunnelPort();
+        int getTorSocksProxyPort();
         boolean hasNetworkConnection();
         void saveProvider(Provider p);
     }

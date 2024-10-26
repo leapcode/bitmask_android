@@ -452,6 +452,7 @@ public class PreferenceHelper {
         putBoolean(USE_SNOWFLAKE, isEnabled);
         if (!isEnabled) {
             TorStatusObservable.setProxyPort(-1);
+            TorStatusObservable.setSocksProxyPort(-1);
         }
     }
 

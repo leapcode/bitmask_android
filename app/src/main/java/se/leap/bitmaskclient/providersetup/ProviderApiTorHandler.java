@@ -29,7 +29,9 @@ public class ProviderApiTorHandler {
             }
             int port = serviceCallback.getTorHttpTunnelPort();
             TorStatusObservable.setProxyPort(port);
-            return port != -1;
+            int socksPort = serviceCallback.getTorSocksProxyPort();
+            TorStatusObservable.setSocksProxyPort(socksPort);
+            return port != -1 && socksPort != -1;
         }
         return false;
     }

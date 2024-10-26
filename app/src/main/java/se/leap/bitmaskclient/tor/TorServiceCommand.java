@@ -134,6 +134,21 @@ public class TorServiceCommand {
         return -1;
     }
 
+    @WorkerThread
+    public static int getSocksProxyPort(Context context) {
+        try {
+            TorServiceConnection torServiceConnection = initTorServiceConnection(context);
+            if (torServiceConnection != null) {
+                int tunnelPort = torServiceConnection.getService().getSocksPort();
+                torServiceConnection.close();
+                return tunnelPort;
+            }
+        } catch (InterruptedException | IllegalStateException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     private static boolean isNotCancelled() {
         return !TorStatusObservable.isCancelled();
     }

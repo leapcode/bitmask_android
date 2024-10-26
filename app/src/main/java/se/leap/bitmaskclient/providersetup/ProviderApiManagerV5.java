@@ -56,6 +56,8 @@ import se.leap.bitmaskclient.tor.TorStatusObservable;
 public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IProviderApiManager {
 
     private static final String TAG = ProviderApiManagerV5.class.getSimpleName();
+    private static final String PROXY_HOST = "127.0.0.1";
+    private static final String SOCKS_PROXY_SCHEME = "socks5://";
 
     ProviderApiManagerV5(Resources resources, ProviderApiServiceCallback callback) {
         super(resources, callback);
@@ -189,6 +191,9 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         BitmaskMobile bm;
         try {
             bm = new BitmaskMobile(provider.getMainUrl(), new PreferenceHelper.SharedPreferenceStore());
+            if (TorStatusObservable.isRunning() && TorStatusObservable.getSocksProxyPort() != -1) {
+                bm.setSocksProxy(SOCKS_PROXY_SCHEME + PROXY_HOST + ":" + TorStatusObservable.getSocksProxyPort());
+            }
         } catch (IllegalStateException e) {
             // TODO: improve error message
             return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);

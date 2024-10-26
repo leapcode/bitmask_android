@@ -95,6 +95,7 @@ public class TorStatusObservable {
     private String lastTorLog = "";
     private String lastSnowflakeLog = "";
     private int port = -1;
+    private int socksPort = -1;
     private int bootstrapPercent = -1;
     private int retrySnowflakeRendezVous = 0;
     private final Vector<String> lastLogs = new Vector<>(100);
@@ -319,6 +320,15 @@ public class TorStatusObservable {
 
     public static int getProxyPort() {
         return getInstance().port;
+    }
+
+    public static void setSocksProxyPort(int port) {
+        getInstance().socksPort = port;
+        instance.notifyObservers();
+    }
+
+    public static int getSocksProxyPort() {
+        return getInstance().socksPort;
     }
 
 

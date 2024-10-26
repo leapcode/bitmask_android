@@ -150,6 +150,11 @@ public class ProviderApiManagerV3Test {
         }
 
         @Override
+        public int getTorSocksProxyPort() {
+            return 9050;
+        }
+
+        @Override
         public boolean hasNetworkConnection() {
             return hasNetworkConnection;
         }

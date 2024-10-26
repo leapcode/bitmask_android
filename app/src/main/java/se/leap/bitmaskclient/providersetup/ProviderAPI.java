@@ -140,6 +140,11 @@ public class ProviderAPI extends JobIntentService implements ProviderApiManagerB
     }
 
     @Override
+    public int getTorSocksProxyPort() {
+        return TorServiceCommand.getSocksProxyPort(this);
+    }
+
+    @Override
     public boolean hasNetworkConnection() {
         try {
             ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
