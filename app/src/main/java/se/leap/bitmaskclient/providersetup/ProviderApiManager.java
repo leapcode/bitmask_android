@@ -15,6 +15,7 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.DELAY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.MISSING_NETWORK_CONNECTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.PARAMETERS;
+import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.RECEIVER_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_EXCEPTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
@@ -124,30 +125,31 @@ public class ProviderApiManager extends ProviderApiManagerBase {
 
 
         if (!provider.hasDefinition()) {
-            downloadProviderDefinition(provider);
+            downloadProviderDefinition(result, provider);
+            if (result.containsKey(ERRORS)) {
+                eventSender.sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
+                return;
+            }
         }
 
         IProviderApiManager apiManager = versionedApiFactory.getProviderApiManager(provider);
         apiManager.handleAction(action, provider, parameters, receiver);
     }
 
-    private void downloadProviderDefinition(Provider provider) {
+    private void downloadProviderDefinition(Bundle result, Provider provider) {
         getPersistedProviderUpdates(provider);
         if (provider.hasDefinition()) {
             return;
         }
-        getAndSetProviderJson(provider);
+        getAndSetProviderJson(result, provider);
     }
 
-    private Bundle getAndSetProviderJson(Provider provider) {
-        Bundle result = new Bundle();
-
+    private Bundle getAndSetProviderJson(Bundle result, Provider provider) {
         String providerJsonUrl = provider.getMainUrl() + "/provider.json";
         String providerDotJsonString = fetch(providerJsonUrl, true);
 
         if (ConfigHelper.checkErroneousDownload(providerDotJsonString) || !isValidJson(providerDotJsonString)) {
-            eventSender.setErrorResult(result, malformed_url, null);
-            return result;
+            return eventSender.setErrorResult(result, malformed_url, null);
         }
 
         if (DEBUG_MODE) {
@@ -163,7 +165,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             }
 
         } catch (JSONException e) {
-            eventSender.setErrorResult(result, providerDotJsonString);
+            return eventSender.setErrorResult(result, providerDotJsonString);
         }
         return result;
     }
