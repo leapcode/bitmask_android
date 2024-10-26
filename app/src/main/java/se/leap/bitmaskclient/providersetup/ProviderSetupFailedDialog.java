@@ -24,6 +24,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.BundleCompat;
 import androidx.fragment.app.DialogFragment;
 
 import org.json.JSONObject;
@@ -32,6 +33,7 @@ import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORID;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.INITIAL_ACTION;
@@ -219,7 +221,7 @@ public class ProviderSetupFailedDialog extends DialogFragment {
             return;
         }
         if (savedInstanceState.containsKey(KEY_PROVIDER)) {
-            this.provider = savedInstanceState.getParcelable(KEY_PROVIDER);
+            this.provider = BundleCompat.getParcelable(savedInstanceState, KEY_PROVIDER, Provider.class);
         }
         if (savedInstanceState.containsKey(KEY_REASON_TO_FAIL)) {
             this.reasonToFail = savedInstanceState.getString(KEY_REASON_TO_FAIL);

@@ -62,6 +62,7 @@ import io.swagger.client.model.ModelsGateway;
 import io.swagger.client.model.ModelsProvider;
 import motd.IStringCollection;
 import motd.Motd;
+import se.leap.bitmaskclient.BuildConfig;
 
 /**
  * @author Sean Leonard <meanderingcode@aetherislands.net>
@@ -90,7 +91,8 @@ public final class Provider implements Parcelable {
     private String certificatePin = "";
     private String certificatePinEncoding = "";
     private String caCert = "";
-    private int apiVersion = 3;
+    private int apiVersion = 5;
+    private int[] apiVersions = new int[0];
     private String privateKeyString = "";
     private transient PrivateKey privateKey = null;
     private String vpnCertificate = "";
@@ -108,6 +110,7 @@ public final class Provider implements Parcelable {
     final public static String
             API_URL = "api_uri",
             API_VERSION = "api_version",
+            API_VERSIONS = "api_versions",
             ALLOW_REGISTRATION = "allow_registration",
             API_RETURN_SERIAL = "serial",
             SERVICE = "service",
@@ -664,12 +667,48 @@ public final class Provider implements Parcelable {
             this.apiUrl = new URL(definition.getString(API_URL)).toString();
             this.allowAnonymous = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOW_ANONYMOUS);
             this.allowRegistered = definition.getJSONObject(Provider.SERVICE).getBoolean(PROVIDER_ALLOWED_REGISTERED);
-            this.apiVersion = Integer.parseInt(getDefinition().getString(Provider.API_VERSION));
+            this.apiVersions = parseApiVersionsArray();
+            this.apiVersion = selectPreferredApiVersion();
             this.domain = getDefinition().getString(Provider.DOMAIN);
             return true;
         } catch (JSONException | ArrayIndexOutOfBoundsException | MalformedURLException | NullPointerException | NumberFormatException e) {
             return false;
         }
+    }
+
+    /**
+     @returns latest api version supported by client and server or the version set in 'api_version'
+     in case there's not a common supported version
+     */
+    private int selectPreferredApiVersion() throws JSONException {
+        if (apiVersions.length == 0) {
+            return Integer.parseInt(getDefinition().getString(Provider.API_VERSION));
+        }
+
+        // apiVersion is a sorted Array
+        for (int i = apiVersions.length -1; i >= 0; i--) {
+            if (apiVersions[i] == BuildConfig.preferred_client_api_version ||
+                    apiVersions[i] < BuildConfig.preferred_client_api_version) {
+                return apiVersions[i];
+            }
+        }
+
+        return Integer.parseInt(getDefinition().getString(Provider.API_VERSION));
+    }
+
+    private int[] parseApiVersionsArray() {
+        int[] versionArray = new int[0];
+        try {
+            JSONArray versions = getDefinition().getJSONArray(Provider.API_VERSIONS);
+            versionArray = new int[versions.length()];
+            for (int i = 0; i < versions.length(); i++) {
+                versionArray[i] = Integer.parseInt(versions.getString(i));
+            }
+        } catch (JSONException ignore) {
+            // this backend doesn't support api_versions yet
+        }
+        Arrays.sort(versionArray);
+        return versionArray;
     }
 
     public void setCaCert(String cert) {

@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.BundleCompat;
 
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.databinding.FEmptyPermissionSetupBinding;
@@ -76,7 +77,7 @@ public class EmptyPermissionSetupFragment extends BaseSetupFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.vpnPermissionIntent = getArguments().getParcelable(EXTRA_VPN_INTENT);
+        this.vpnPermissionIntent = BundleCompat.getParcelable(getArguments(), EXTRA_VPN_INTENT, Intent.class);
         this.notificationPermissionAction = getArguments().getString(EXTRA_NOTIFICATION_PERMISSON_ACTION);
     }
 

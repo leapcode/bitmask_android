@@ -40,6 +40,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.os.BundleCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -215,7 +216,8 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
     }
 
     private void handleResult(int resultCode, Bundle resultData, boolean resumeSetup) {
-        Provider provider = resultData.getParcelable(PROVIDER_KEY);
+        Provider provider = BundleCompat.getParcelable(resultData, PROVIDER_KEY, Provider.class);
+
         if (ignoreProviderAPIUpdates ||
                 provider == null ||
                 (setupActivityCallback.getSelectedProvider() != null &&

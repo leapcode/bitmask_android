@@ -43,6 +43,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.os.BundleCompat;
 import androidx.fragment.app.ListFragment;
 
 import java.text.SimpleDateFormat;
@@ -300,7 +301,7 @@ public class LogFragment extends ListFragment implements StateListener, SeekBar.
             // We have been called
             if (msg.what == MESSAGE_NEWLOG) {
 
-                LogItem logMessage = msg.getData().getParcelable("logmessage");
+                LogItem logMessage = BundleCompat.getParcelable(msg.getData(), "logmessage", LogItem.class);
                 if (addLogMessage(logMessage))
                     for (DataSetObserver observer : observers) {
                         observer.onChanged();

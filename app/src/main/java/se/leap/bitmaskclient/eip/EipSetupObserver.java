@@ -61,6 +61,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.core.os.BundleCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.json.JSONObject;
@@ -201,7 +202,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
         switch (resultCode) {
             case CORRECTLY_DOWNLOADED_EIP_SERVICE:
                 Log.d(TAG, "correctly updated service json");
-                provider = resultData.getParcelable(PROVIDER_KEY);
+                provider = BundleCompat.getParcelable(resultData, PROVIDER_KEY, Provider.class);
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(provider);
                 if (EipStatus.getInstance().isDisconnected()) {
@@ -209,7 +210,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 }
                 break;
             case CORRECTLY_UPDATED_INVALID_VPN_CERTIFICATE:
-                provider = resultData.getParcelable(PROVIDER_KEY);
+                provider = BundleCompat.getParcelable(resultData, PROVIDER_KEY, Provider.class);
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(provider);
                 EipCommand.startVPN(appContext, false);
@@ -219,7 +220,7 @@ public class EipSetupObserver extends BroadcastReceiver implements VpnStatus.Sta
                 }
                 break;
             case CORRECTLY_DOWNLOADED_GEOIP_JSON:
-                provider = resultData.getParcelable(PROVIDER_KEY);
+                provider = BundleCompat.getParcelable(resultData, PROVIDER_KEY, Provider.class);
                 ProviderObservable.getInstance().updateProvider(provider);
                 PreferenceHelper.storeProviderInPreferences(provider);
                 maybeStartEipService(resultData);

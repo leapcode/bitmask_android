@@ -37,6 +37,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.os.BundleCompat;
 import androidx.fragment.app.DialogFragment;
 
 import org.json.JSONObject;
@@ -186,7 +187,7 @@ public class MainActivityErrorDialog extends DialogFragment {
             return;
         }
         if (savedInstanceState.containsKey(KEY_PROVIDER)) {
-            this.provider = savedInstanceState.getParcelable(KEY_PROVIDER);
+            this.provider = BundleCompat.getParcelable(savedInstanceState, KEY_PROVIDER, Provider.class);
         }
         if (savedInstanceState.containsKey(KEY_REASON_TO_FAIL)) {
             this.reasonToFail = savedInstanceState.getString(KEY_REASON_TO_FAIL);

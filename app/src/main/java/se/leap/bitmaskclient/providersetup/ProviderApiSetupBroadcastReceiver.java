@@ -18,11 +18,15 @@ package se.leap.bitmaskclient.providersetup;
 
 import static android.app.Activity.RESULT_CANCELED;
 
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
+import androidx.core.os.BundleCompat;
 
 import java.lang.ref.WeakReference;
 
@@ -61,7 +65,7 @@ public class ProviderApiSetupBroadcastReceiver extends BroadcastReceiver {
             Log.d(TAG, "Broadcast resultCode: " + resultCode);
 
             Bundle resultData = intent.getParcelableExtra(Constants.BROADCAST_RESULT_KEY);
-            Provider handledProvider = resultData.getParcelable(Constants.PROVIDER_KEY);
+            Provider handledProvider = resultData == null ? null : BundleCompat.getParcelable(resultData, PROVIDER_KEY, Provider.class);
 
             if (handledProvider != null && setupInterface.getProvider() != null &&
                     handledProvider.getMainUrl().equalsIgnoreCase(setupInterface.getProvider().getMainUrl())) {

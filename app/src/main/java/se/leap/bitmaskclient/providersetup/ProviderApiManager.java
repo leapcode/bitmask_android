@@ -30,6 +30,8 @@ import android.os.ResultReceiver;
 import android.util.Log;
 import android.util.Pair;
 
+import androidx.core.content.IntentCompat;
+
 import org.jetbrains.annotations.Blocking;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,8 +82,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         }
 
         Provider provider = null;
-        if (command.getParcelableExtra(PROVIDER_KEY) != null) {
-            provider = command.getParcelableExtra(PROVIDER_KEY);
+        if (command.hasExtra(PROVIDER_KEY)) {
+            provider = IntentCompat.getParcelableExtra(command, PROVIDER_KEY, Provider.class);
         } else {
             //TODO: consider returning error back e.g. NO_PROVIDER
             Log.e(TAG, action +" called without provider!");

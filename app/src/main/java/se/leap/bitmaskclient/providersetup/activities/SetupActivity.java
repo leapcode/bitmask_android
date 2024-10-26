@@ -32,6 +32,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.os.BundleCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -81,7 +82,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            provider = savedInstanceState.getParcelable(EXTRA_PROVIDER);
+            provider = BundleCompat.getParcelable(savedInstanceState, EXTRA_PROVIDER, Provider.class);
             currentPosition = savedInstanceState.getInt(EXTRA_CURRENT_POSITION);
             switchProvider = savedInstanceState.getBoolean(EXTRA_SWITCH_PROVIDER);
         }
@@ -173,7 +174,7 @@ public class SetupActivity extends AppCompatActivity implements SetupActivityCal
         setupActionBar();
 
         if (ProviderSetupObservable.isSetupRunning()) {
-            provider = ProviderSetupObservable.getResultData().getParcelable(PROVIDER_KEY);
+            provider = BundleCompat.getParcelable(ProviderSetupObservable.getResultData(), PROVIDER_KEY, Provider.class);
             if (provider != null) {
                 currentPosition = adapter.getFragmentPostion(CONFIGURE_PROVIDER_FRAGMENT);
             }
