@@ -215,7 +215,7 @@
     <string name="add_provider_prompt">Enter the provider’s URL here.</string>
     <string name="invite_code_provider_description">Bitmask allows you to connect to providers using a private Invite Code. </string>
     <string name="invite_code_provider_prompt">Enter your trusted Invite Code here.</string>
-    <string name="qr_scanner_prompt">Click to Scan QR Code</string>
+    <string name="qr_scanner_prompt">Scan QR Code</string>
     <string name="provider_description_calyx">Calyx is a non-profit education and research organization devoted to studying, testing, developing and implementing privacy technology and tools to promote free speech, free expression, civic engagement and privacy rights on the internet and in the mobile communications industry.</string>
     <string name="title_circumvention_setup">Do You Require Censorship Circumvention?</string>
     <string name="circumvention_setup_description">If you live where the internet is censored you can use our censorship circumvention options to access all internet services. These options will slow down your connection!</string>

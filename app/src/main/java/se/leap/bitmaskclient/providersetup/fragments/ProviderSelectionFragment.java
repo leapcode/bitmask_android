@@ -111,7 +111,7 @@ public class ProviderSelectionFragment extends BaseSetupFragment implements Canc
     }
 
     private void initQrScanner() {
-        binding.qrScanner.setOnClickListener(v -> scannerActivityResultLauncher.launch(ScannerActivity.newIntent(getContext())));
+        binding.btnQrScanner.setOnClickListener(v -> scannerActivityResultLauncher.launch(ScannerActivity.newIntent(getContext())));
     }
 
 

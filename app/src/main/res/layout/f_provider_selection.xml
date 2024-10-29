@@ -97,36 +97,31 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:paddingTop="@dimen/stdpadding"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/syntax_check"/>
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/syntax_check_result"
-                    android:paddingTop="@dimen/stdpadding"
                     android:paddingStart="@dimen/stdpadding"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     tools:text="Good"/>
             </LinearLayout>
             <LinearLayout
-                android:visibility="gone"
                 android:id="@+id/qr_scanner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingVertical="@dimen/stdpadding"
                 android:orientation="horizontal">
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:paddingTop="@dimen/stdpadding"
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_qr_scanner"
+                    android:padding="@dimen/stdpadding"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/qr_code_scanner"/>
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:paddingTop="@dimen/stdpadding"
-                    android:paddingStart="@dimen/stdpadding"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/qr_scanner_prompt"/>
+                    android:drawableStart="@drawable/qr_code_scanner"
+                    android:text="@string/qr_scanner_prompt"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"/>
             </LinearLayout>
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.appcompat.widget.LinearLayoutCompat>
