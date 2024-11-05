@@ -43,6 +43,9 @@ android {
 
     //Build Config Fields for default donation details
 
+    // preferred API version the client should client try in case the provider supports it
+    // If the provider doesn't the client falls back to lower available API versions
+    buildConfigField 'int', 'preferred_client_api_version', '5'
     //This is the default donation URL and should be set to the donation page of LEAP
     // and this should not be set/altered anywhere else.
     buildConfigField 'String', 'default_donation_url', '"https://riseuplabs.org/leap"'
@@ -136,6 +139,10 @@ android {
       //Change the versionName as needed
       //versionName "0.9.9RC1"
 
+
+      // preferred API version the client should client try in case the provider supports it
+      // If the provider doesn't the client falls back to lower available API versions
+      buildConfigField 'int', 'preferred_client_api_version', '5'
       //skip the account creation / login screen if the provider offers anonymous vpn usage, use directly the anonymous cert instead
       buildConfigField 'boolean', 'priotize_anonymous_usage', 'true'
       //allow manual gateway selection
@@ -500,7 +507,7 @@ subprojects {
   afterEvaluate {project ->
     if (project.hasProperty("android")) {
       android {
-        compileSdkVersion 33
+        compileSdkVersion 34
       }
     }
   }
