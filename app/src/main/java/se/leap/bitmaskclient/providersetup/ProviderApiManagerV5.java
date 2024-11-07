@@ -2,6 +2,7 @@ package se.leap.bitmaskclient.providersetup;
 
 import static android.text.TextUtils.isEmpty;
 import static se.leap.bitmaskclient.R.string.malformed_url;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
 import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
@@ -32,23 +33,22 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
 import de.blinkt.openvpn.core.VpnStatus;
-import io.swagger.client.JSON;
-import io.swagger.client.model.ModelsBridge;
-import io.swagger.client.model.ModelsEIPService;
-import io.swagger.client.model.ModelsGateway;
-import io.swagger.client.model.ModelsProvider;
 import mobile.BitmaskMobile;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
+import se.leap.bitmaskclient.base.utils.CredentialsParser;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.eip.EipStatus;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
@@ -124,8 +124,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
 
         try {
             String serviceJson = bm.getService();
-            ModelsEIPService service = JSON.createGson().create().fromJson(serviceJson, ModelsEIPService.class);
-            provider.setService(service);
+            provider.setService(serviceJson);
         } catch (Exception e) {
             return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
         }
@@ -133,23 +132,14 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         if (PreferenceHelper.getUseBridges()) {
             try {
                 String bridgesJson = bm.getAllBridges("", "", "", "");
-                if (bridgesJson.isEmpty())  {
-                    //TODO send no bridges error event
-                }
-                ModelsBridge[] bridges = JSON.createGson().create().fromJson(bridgesJson, ModelsBridge[].class);
-                provider.setBridges(bridges);
+                provider.setBridges(bridgesJson);
             } catch (Exception e) {
                 // TODO: send failed to fetch bridges event
             }
         } else {
            try {
                String gatewaysJson = bm.getAllGateways("", "", "");
-               if (gatewaysJson.isEmpty())  {
-                   //TODO send no bridges error event
-               }
-               ModelsGateway[] gateways = JSON.createGson().create().fromJson(gatewaysJson, ModelsGateway[].class);
-
-               provider.setGateways(gateways);
+               provider.setGateways(gatewaysJson);
             } catch (Exception e) {
                 // TODO: send
                 return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
@@ -171,29 +161,20 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             return currentDownload;
         }
 
-        getPersistedProviderUpdates(provider);
-        currentDownload = validateProviderDetails(provider);
-
         //provider certificate invalid
         if (currentDownload.containsKey(ERRORS)) {
             currentDownload.putParcelable(PROVIDER_KEY, provider);
             return currentDownload;
         }
 
-        //no provider json or certificate available
-        if (currentDownload.containsKey(BROADCAST_RESULT_KEY) && !currentDownload.getBoolean(BROADCAST_RESULT_KEY)) {
-            resetProviderDetails(provider);
-        }
-
-        if (currentDownload.containsKey(PROVIDER_KEY)) {
-            provider = currentDownload.getParcelable(PROVIDER_KEY);
-        }
         BitmaskMobile bm;
         try {
             bm = new BitmaskMobile(provider.getMainUrl(), new PreferenceHelper.SharedPreferenceStore());
+            bm.setDebug(BuildConfig.DEBUG);
             if (TorStatusObservable.isRunning() && TorStatusObservable.getSocksProxyPort() != -1) {
                 bm.setSocksProxy(SOCKS_PROXY_SCHEME + PROXY_HOST + ":" + TorStatusObservable.getSocksProxyPort());
             }
+            // TODO bm.setIntroducer();
         } catch (IllegalStateException e) {
             // TODO: improve error message
             return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
@@ -204,8 +185,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         try {
            String providerJson = bm.getProvider();
            Log.d(TAG, "provider Json reponse: " + providerJson);
-           ModelsProvider p = JSON.createGson().create().fromJson(providerJson, ModelsProvider.class);
-           provider.setModelsProvider(p);
+           provider.setModelsProvider(providerJson);
            ProviderSetupObservable.updateProgress(DOWNLOADED_PROVIDER_JSON);
         } catch (Exception e) {
             Log.w(TAG, "failed fo fetch provider.json: " + e.getMessage());
@@ -215,8 +195,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
         try {
             String serviceJson = bm.getService();
             Log.d(TAG, "service Json reponse: " + serviceJson);
-            ModelsEIPService service = JSON.createGson().create().fromJson(serviceJson, ModelsEIPService.class);
-            provider.setService(service);
+            provider.setService(serviceJson);
             ProviderSetupObservable.updateProgress(DOWNLOADED_EIP_SERVICE_JSON);
         } catch (Exception e) {
             Log.w(TAG, "failed to fetch service.json: " + e.getMessage());
@@ -228,8 +207,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             // TODO: check if provider supports this API endpoint?
             String gatewaysJson = bm.getAllGateways("", "", "");
             Log.d(TAG, "gateways Json reponse: " + gatewaysJson);
-            ModelsGateway[] gateways = JSON.createGson().create().fromJson(gatewaysJson, ModelsGateway[].class);
-            provider.setGateways(gateways);
+            provider.setGateways(gatewaysJson);
         } catch (Exception e) {
             Log.w(TAG, "failed to fetch gateways: " + e.getMessage());
             e.printStackTrace();
@@ -240,8 +218,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
             // TODO: check if provider supports this API endpoint?
             String bridgesJson = bm.getAllBridges("", "", "", "");
             Log.d(TAG, "bridges Json reponse: " + bridgesJson);
-            ModelsBridge[] bridges = JSON.createGson().create().fromJson(bridgesJson, ModelsBridge[].class);
-            provider.setBridges(bridges);
+            provider.setBridges(bridgesJson);
         } catch (Exception e) {
             Log.w(TAG, "failed to fetch bridges: " + e.getMessage());
             e.printStackTrace();
@@ -250,12 +227,25 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
 
         try {
             String cert = bm.getOpenVPNCert();
-            currentDownload = loadCertificate(provider, cert);
+            currentDownload = loadCredentials(provider, cert);
         } catch (Exception e) {
             return eventSender.setErrorResult(currentDownload, R.string.error_json_exception_user_message, null);
         }
 
         return currentDownload;
+    }
+
+    private Bundle loadCredentials(Provider provider, String credentials) {
+        Bundle result = new Bundle();
+
+        try {
+            CredentialsParser.parseXml(credentials, provider);
+        } catch (XmlPullParserException | IOException e) {
+            return eventSender.setErrorResult(result, vpn_certificate_is_invalid, null);
+        }
+
+        result.putBoolean(BROADCAST_RESULT_KEY, true);
+        return result;
     }
 
     @Nullable

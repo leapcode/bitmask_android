@@ -228,23 +228,19 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         switch (resultCode) {
             case PROVIDER_OK:
                 setupActivityCallback.onProviderSelected(provider);
-                if (provider.allowsAnonymous()) {
-                    ProviderAPICommand.execute(this.getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
+                if (provider.getApiVersion() < 5) {
+                    if (provider.allowsAnonymous()) {
+                        ProviderAPICommand.execute(this.getContext(), DOWNLOAD_VPN_CERTIFICATE, provider);
+                    } else {
+                        // TODO: implement error message that this client only supports anonymous usage
+                    }
                 } else {
-                    // TODO: implement error message that this client only supports anonymous usage
+                    sendSuccess(resumeSetup);
                 }
                 break;
             case CORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
                 setupActivityCallback.onProviderSelected(provider);
-                handler.postDelayed(() -> {
-                    if (!ProviderSetupObservable.isCanceled()) {
-                        try {
-                            setupActivityCallback.onConfigurationSuccess();
-                        } catch (NullPointerException npe) {
-                            // callback disappeared in the meanwhile
-                        }
-                    }
-                }, resumeSetup ? 0 : 750);
+                sendSuccess(resumeSetup);
                 break;
             case PROVIDER_NOK:
             case INCORRECTLY_DOWNLOADED_VPN_CERTIFICATE:
@@ -258,4 +254,15 @@ public class ConfigureProviderFragment extends BaseSetupFragment implements Prop
         }
     }
 
+    private void sendSuccess(boolean resumeSetup) {
+        handler.postDelayed(() -> {
+            if (!ProviderSetupObservable.isCanceled()) {
+                try {
+                    setupActivityCallback.onConfigurationSuccess();
+                } catch (NullPointerException npe) {
+                    // callback disappeared in the meanwhile
+                }
+            }
+        }, resumeSetup ? 0 : 750);
+    }
 }

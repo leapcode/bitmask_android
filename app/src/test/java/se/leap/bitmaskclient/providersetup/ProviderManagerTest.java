@@ -67,7 +67,7 @@ public class ProviderManagerTest {
         preferenceHelper = new PreferenceHelper(mockSharedPrefs);
 
         HashSet<Provider> customProviders = new HashSet<>();
-        customProviders.add(Provider.createCustomProvider("https://leapcolombia.org", "leapcolombia.org"));
+        customProviders.add(Provider.createCustomProvider("https://leapcolombia.org", "leapcolombia.org", null));
         PreferenceHelper.setCustomProviders(customProviders);
     }
 

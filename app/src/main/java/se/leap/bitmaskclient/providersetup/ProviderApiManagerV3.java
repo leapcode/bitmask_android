@@ -28,6 +28,7 @@ import static se.leap.bitmaskclient.R.string.server_unreachable_message;
 import static se.leap.bitmaskclient.R.string.service_is_down_error;
 import static se.leap.bitmaskclient.R.string.setup_error_text;
 import static se.leap.bitmaskclient.R.string.setup_error_text_custom;
+import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_cert;
 import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
 import static se.leap.bitmaskclient.R.string.warning_expired_provider_cert;
@@ -38,6 +39,11 @@ import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICA
 import static se.leap.bitmaskclient.base.utils.BuildConfigHelper.isDefaultBitmask;
 import static se.leap.bitmaskclient.base.utils.CertificateHelper.getFingerprintFromCertificate;
 import static se.leap.bitmaskclient.base.utils.ConfigHelper.getProviderFormattedString;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.ED_25519_KEY_BEGIN;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.ED_25519_KEY_END;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.RSA_KEY_BEGIN;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.RSA_KEY_END;
+import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.parsePrivateKeyFromString;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_EIP_SERVICE;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_GEOIP_JSON;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.CORRECTLY_DOWNLOADED_VPN_CERTIFICATE;
@@ -70,6 +76,7 @@ import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
@@ -86,12 +93,16 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.net.UnknownServiceException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -352,6 +363,47 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
             return result;
         }
         return loadCertificate(provider, certString);
+    }
+
+    private Bundle loadCertificate(Provider provider, String certString) {
+        Bundle result = new Bundle();
+        if (certString == null) {
+            eventSender.setErrorResult(result, vpn_certificate_is_invalid, null);
+            return result;
+        }
+
+        try {
+            // API returns concatenated cert & key.  Split them for OpenVPN options
+            String certificateString = null, keyString = null;
+            String[] certAndKey = certString.split("(?<=-\n)");
+
+            for (int i = 0; i < certAndKey.length - 1; i++) {
+                if (certAndKey[i].contains("KEY")) {
+                    keyString += certAndKey[i++] + certAndKey[i];
+                } else if (certAndKey[i].contains("CERTIFICATE")) {
+                    certificateString += certAndKey[i++] + certAndKey[i];
+                }
+            }
+
+            PrivateKey key = parsePrivateKeyFromString(keyString);
+            keyString = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
+
+            if (key instanceof RSAPrivateKey) {
+                provider.setPrivateKeyString(RSA_KEY_BEGIN + keyString + RSA_KEY_END);
+            } else {
+                provider.setPrivateKeyString(ED_25519_KEY_BEGIN + keyString + ED_25519_KEY_END);
+            }
+
+            ArrayList<X509Certificate> certificates = ConfigHelper.parseX509CertificatesFromString(certificateString);
+            certificates.get(0).checkValidity();
+            certificateString = Base64.encodeToString(certificates.get(0).getEncoded(), Base64.DEFAULT);
+            provider.setVpnCertificate( "-----BEGIN CERTIFICATE-----\n" + certificateString + "-----END CERTIFICATE-----");
+            result.putBoolean(BROADCAST_RESULT_KEY, true);
+        } catch (CertificateException | NullPointerException e) {
+            e.printStackTrace();
+            eventSender.setErrorResult(result, vpn_certificate_is_invalid, null);
+        }
+        return result;
     }
 
     /**

@@ -39,12 +39,14 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.util.ArrayList;
@@ -145,7 +147,7 @@ public final class Provider implements Parcelable {
         setGeoipUrl(geoipUrl);
     }
 
-    public static Provider createCustomProvider(String mainUrl, String domain) {
+    public static Provider createCustomProvider(String mainUrl, String domain, Introducer introducer) {
         Provider p = new Provider(mainUrl);
         p.domain = domain;
         return p;
@@ -189,27 +191,91 @@ public final class Provider implements Parcelable {
         }
     };
 
-    public void setBridges(ModelsBridge[] bridges) {
-        this.modelsBridges = bridges;
+    public void setBridges(String bridgesJson) {
+        if (bridgesJson == null) {
+            this.modelsBridges = null;
+            return;
+        }
+        try {
+            this.modelsBridges = JSON.createGson().create().fromJson(bridgesJson, ModelsBridge[].class);
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     public ModelsBridge[] getBridges() {
         return this.modelsBridges;
     }
-    public void setGateways(ModelsGateway[] gateways) {
-        this.modelsGateways = gateways;
+
+    public String getBridgesJson() {
+        return getJsonString(modelsBridges);
+    }
+
+    public void setGateways(String gatewaysJson) {
+        if (gatewaysJson == null) {
+            this.modelsGateways = null;
+            return;
+        }
+        try {
+            this.modelsGateways = JSON.createGson().create().fromJson(gatewaysJson, ModelsGateway[].class);
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     public ModelsGateway[] getGateways() {
         return modelsGateways;
     }
 
-    public void setService(ModelsEIPService service) {
-        this.modelsEIPService = service;
+    public String getGatewaysJson() {
+        return getJsonString(modelsGateways);
     }
 
+    public void setService(String serviceJson) {
+        if (serviceJson == null) {
+            this.modelsEIPService = null;
+            return;
+        }
+        try {
+            this.modelsEIPService = JSON.createGson().create().fromJson(serviceJson, ModelsEIPService.class);
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+        }
+    }
     public ModelsEIPService getService() {
         return this.modelsEIPService;
+    }
+
+    public String getServiceJson() {
+        return getJsonString(modelsEIPService);
+    }
+
+    public void setModelsProvider(String json) {
+        if (json == null) {
+            this.modelsProvider = null;
+            return;
+        }
+        try {
+            this.modelsProvider = JSON.createGson().create().fromJson(json, ModelsProvider.class);
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getModelsProviderJson() {
+        return getJsonString(modelsProvider);
+    }
+
+    private String getJsonString(Object model) {
+        if (model == null) {
+            return null;
+        }
+        try {
+            return JSON.createGson().create().toJson(model);
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public boolean isConfigured() {
@@ -583,23 +649,10 @@ public final class Provider implements Parcelable {
             this.shouldUpdateVpnCertificate = in.readInt()  == 0;
             this.introducer = in.readParcelable(Introducer.class.getClassLoader());
             if (this.apiVersion == 5) {
-                Gson gson = JSON.createGson().create();
-                tmpString = in.readString();
-                if (!tmpString.isEmpty()) {
-                    this.setModelsProvider(gson.fromJson(tmpString, ModelsProvider.class));
-                }
-                tmpString = in.readString();
-                if (!tmpString.isEmpty()) {
-                    this.setService(gson.fromJson(tmpString, ModelsEIPService.class));
-                }
-                tmpString = in.readString();
-                if (!tmpString.isEmpty()) {
-                    this.setBridges(gson.fromJson(tmpString, ModelsBridge[].class));
-                }
-                tmpString = in.readString();
-                if (!tmpString.isEmpty()) {
-                    this.setGateways(gson.fromJson(tmpString, ModelsGateway[].class));
-                }
+                this.setModelsProvider(in.readString());
+                this.setService(in.readString());
+                this.setBridges(in.readString());
+                this.setGateways(in.readString());
             }
         } catch (MalformedURLException | JSONException e) {
             e.printStackTrace();
@@ -904,6 +957,10 @@ public final class Provider implements Parcelable {
         return introducer;
     }
 
+    public void setIntroducer(String introducerUrl) throws URISyntaxException {
+       this.introducer = Introducer.fromUrl(introducerUrl);
+    }
+
     /**
      * resets everything except the main url, the providerIp and the geoip
      * service url (currently preseeded)
@@ -926,7 +983,4 @@ public final class Provider implements Parcelable {
         lastEipServiceUpdate = 0L;
     }
 
-    public void setModelsProvider(ModelsProvider p) {
-        this.modelsProvider = p;
-    }
 }

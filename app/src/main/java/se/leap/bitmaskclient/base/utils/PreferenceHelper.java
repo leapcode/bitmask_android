@@ -31,6 +31,10 @@ import static se.leap.bitmaskclient.base.models.Constants.PREFERRED_CITY;
 import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_CONFIGURED;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_BRIDGES;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_EIPSERVICE;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_GATEWAYS;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_PROVIDER;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_HASHES;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MOTD_LAST_SEEN;
@@ -60,6 +64,8 @@ import androidx.annotation.WorkerThread;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -74,7 +80,10 @@ import java.util.Set;
 
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.NativeUtils;
+import io.swagger.client.JSON;
+import mobile.BitmaskMobile;
 import se.leap.bitmaskclient.BuildConfig;
+import se.leap.bitmaskclient.base.models.Introducer;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
@@ -156,7 +165,14 @@ public class PreferenceHelper {
                 provider.setLastMotdSeen(preferences.getLong(PROVIDER_MOTD_LAST_SEEN, 0L));
                 provider.setLastMotdUpdate(preferences.getLong(PROVIDER_MOTD_LAST_UPDATED, 0L));
                 provider.setMotdLastSeenHashes(preferences.getStringSet(PROVIDER_MOTD_HASHES, new HashSet<>()));
-            } catch (MalformedURLException | JSONException e) {
+                provider.setModelsProvider(preferences.getString(PROVIDER_MODELS_PROVIDER, null));
+                provider.setService(preferences.getString(PROVIDER_MODELS_EIPSERVICE, null));
+                provider.setBridges(preferences.getString(PROVIDER_MODELS_BRIDGES, null));
+                provider.setGateways(preferences.getString(PROVIDER_MODELS_GATEWAYS, null));
+                BitmaskMobile bm = new BitmaskMobile(new SharedPreferenceStore());
+                provider.setIntroducer(bm.getIntroducerURLByDomain(provider.getDomain()));
+
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -201,12 +217,23 @@ public class PreferenceHelper {
     public static HashMap<String, Provider> getCustomProviders() {
         Set<String> providerDomains = getCustomProviderDomains();
         HashMap<String, Provider> customProviders = new HashMap<>();
-        for (String domain : providerDomains) {
-            String mainURL = preferences.getString(Provider.MAIN_URL + "." + domain, null);
-            if (mainURL != null) {
-                customProviders.put(mainURL, Provider.createCustomProvider(mainURL, domain));
+        if (providerDomains.size() > 0) {
+            BitmaskMobile bm = new BitmaskMobile(new PreferenceHelper.SharedPreferenceStore());
+            for (String domain : providerDomains) {
+                String mainURL = preferences.getString(Provider.MAIN_URL + "." + domain, null);
+                if (mainURL != null) {
+                    Introducer introducer = null;
+                    try {
+                       introducer = Introducer.fromUrl(bm.getIntroducerURLByDomain(domain));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    customProviders.put(mainURL, Provider.createCustomProvider(mainURL, domain, introducer));
+                }
             }
+
         }
+
         return customProviders;
     }
 
@@ -254,7 +281,11 @@ public class PreferenceHelper {
                     putString(PROVIDER_MOTD, provider.getMotdJsonString()).
                     putStringSet(PROVIDER_MOTD_HASHES, provider.getMotdLastSeenHashes()).
                     putLong(PROVIDER_MOTD_LAST_SEEN, provider.getLastMotdSeen()).
-                    putLong(PROVIDER_MOTD_LAST_UPDATED, provider.getLastMotdUpdate());
+                    putLong(PROVIDER_MOTD_LAST_UPDATED, provider.getLastMotdUpdate()).
+                    putString(PROVIDER_MODELS_GATEWAYS, provider.getGatewaysJson()).
+                    putString(PROVIDER_MODELS_BRIDGES, provider.getBridgesJson()).
+                    putString(PROVIDER_MODELS_EIPSERVICE, provider.getServiceJson()).
+                    putString(PROVIDER_MODELS_PROVIDER, provider.getModelsProviderJson());
             if (async) {
                 editor.apply();
             } else {
