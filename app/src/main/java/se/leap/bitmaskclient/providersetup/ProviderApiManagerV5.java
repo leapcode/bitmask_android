@@ -252,7 +252,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
     private void configureBaseCountryCode(BitmaskMobile bm, Bundle parameters) {
         String cc = parameters.getString(COUNTRYCODE, null);
         if (cc == null &&
-                !EipStatus.getInstance().isDisconnected() &&
+                EipStatus.getInstance().isDisconnected() &&
                 TorStatusObservable.getStatus() == OFF) {
             try {
                 // FIXME: doGeolocationLookup currently sets the country code implicitly, change that in bitmask-core
