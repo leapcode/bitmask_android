@@ -8,6 +8,7 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePref
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
 
@@ -90,6 +91,7 @@ public class CensorshipCircumventionFragment extends Fragment {
         }
 
         binding.discoveryRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            useBridges(true);
             if (checkedId == DISCOVERY_NONE) {
                 useSnowflake(false);
             } else if (checkedId == DISCOVERY_SNOWFLAKE) {
@@ -134,6 +136,7 @@ public class CensorshipCircumventionFragment extends Fragment {
         }
 
         binding.tunnelingRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            useBridges(true);
             if (checkedId == TUNNELING_NONE) {
                 setUseObfs4Kcp(false);
                 setUseObfs4(false);
@@ -156,6 +159,7 @@ public class CensorshipCircumventionFragment extends Fragment {
             if (!buttonView.isPressed()) {
                 return;
             }
+            useBridges(true);
             setUsePortHopping(isChecked);
             tryReconnectVpn();
         });
