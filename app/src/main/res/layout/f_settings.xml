@@ -62,14 +62,33 @@
             app:icon="@drawable/bridge_automatic"
             app:singleLine="false" />
 
-        <se.leap.bitmaskclient.base.views.IconSwitchEntry
-            android:id="@+id/bridge_manual_switch"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:text="@string/manual_bridge"
-            app:subtitle="@string/manual_bridge_description"
-            app:icon="@drawable/bridge_manual"
-            app:singleLine="false" />
+            android:orientation="horizontal">
+            <se.leap.bitmaskclient.base.views.IconTextEntry
+                android:id="@+id/bridge_manual_switch"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:text="@string/manual_bridge"
+                app:subtitle="@string/manual_bridge_description"
+                app:icon="@drawable/bridge_manual"
+                app:singleLine="false" />
+            <View
+                android:layout_width="1px"
+                android:background="@android:color/darker_gray"
+                android:layout_marginHorizontal="@dimen/stdpadding"
+                android:layout_marginVertical="@dimen/stdpadding"
+                android:layout_height="match_parent"/>
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/bridge_manual_switch_control"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+                android:paddingRight="?android:attr/listPreferredItemPaddingRight"/>
+        </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/experimental_header"

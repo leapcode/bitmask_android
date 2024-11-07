@@ -16,14 +16,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import de.blinkt.openvpn.core.VpnStatus;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.ProviderObservable;
 import se.leap.bitmaskclient.databinding.FCensorshipCircumventionBinding;
+import se.leap.bitmaskclient.eip.EipCommand;
 
 public class CensorshipCircumventionFragment extends Fragment {
     public static int DISCOVERY_NONE = 100200000;
@@ -94,7 +97,16 @@ public class CensorshipCircumventionFragment extends Fragment {
             } else if (checkedId == DISCOVERY_INVITE_PROXY) {
                 useSnowflake(false);
             }
+
+            tryReconnectVpn();
         });
+    }
+
+    private void tryReconnectVpn() {
+        if (VpnStatus.isVPNActive()) {
+            EipCommand.startVPN(getContext(), false);
+            Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
+        }
     }
 
 
@@ -132,7 +144,7 @@ public class CensorshipCircumventionFragment extends Fragment {
                 setUseObfs4Kcp(true);
                 setUseObfs4(false);
             }
-
+            tryReconnectVpn();
         });
     }
 
@@ -145,6 +157,7 @@ public class CensorshipCircumventionFragment extends Fragment {
                 return;
             }
             setUsePortHopping(isChecked);
+            tryReconnectVpn();
         });
     }
 }

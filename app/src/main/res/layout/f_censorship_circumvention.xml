@@ -59,7 +59,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/stdpadding"
         app:text="@string/port_hopping"
-        app:subtitle="\n"
+        app:subtitle="@string/port_hopping_description"
         app:singleLine="false" />
 
 </LinearLayout>

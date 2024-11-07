@@ -42,6 +42,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -128,14 +129,15 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
     }
 
     private void initManualCircumventionEntry(View rootView) {
-        IconSwitchEntry manualConfiguration = rootView.findViewById(R.id.bridge_manual_switch);
+        IconTextEntry manualConfiguration = rootView.findViewById(R.id.bridge_manual_switch);
         manualConfiguration.setVisibility(ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports() ? VISIBLE : GONE);
-        manualConfiguration.setChecked(usesManualBridges());
-        manualConfiguration.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        SwitchCompat manualConfigurationSwitch = rootView.findViewById(R.id.bridge_manual_switch_control);
+        manualConfigurationSwitch.setChecked(usesManualBridges());
+        manualConfigurationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
-            openManualConfigurationFragment();
+            resetManualConfig();
         });
         manualConfiguration.setOnClickListener((buttonView) -> openManualConfigurationFragment());
 
@@ -145,6 +147,22 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         boolean useUDP = getPreferUDP() && useUdpEntry.isEnabled();
         manualConfiguration.setEnabled(!useUDP);
         manualConfiguration.setSubtitle(getString(useUDP? R.string.disabled_while_udp_on:R.string.manual_bridge_description));
+    }
+
+    private void resetManualConfig() {
+        useSnowflake(false);
+        setUseObfs4Kcp(false);
+        setUseObfs4(false);
+        setUsePortHopping(false);
+        if (VpnStatus.isVPNActive()) {
+            EipCommand.startVPN(getContext(), false);
+            Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();
+        }
+        View rootView = getView();
+        if (rootView == null)  {
+            return;
+        }
+        initAutomaticCircumventionEntry(rootView);
     }
 
     private void openManualConfigurationFragment() {

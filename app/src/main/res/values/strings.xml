@@ -261,4 +261,5 @@
     <string name="tunnelling">Tunneling</string>
     <string name="tunnelling_description">Censors can block access to the open internet. Choose a circumvention option to bypass blocks.</string>
     <string name="port_hopping">Port Hopping</string>
+    <string name="port_hopping_description">"Censors use traffic analysis to block access to the open internet. Port Hopping can make this harder for them. "</string>
 </resources>
