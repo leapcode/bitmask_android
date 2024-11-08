@@ -52,8 +52,6 @@ import se.leap.bitmaskclient.tor.TorStatusObservable;
 public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IProviderApiManager {
 
     private static final String TAG = ProviderApiManagerV5.class.getSimpleName();
-    private static final String PROXY_HOST = "127.0.0.1";
-    private static final String SOCKS_PROXY_SCHEME = "socks5://";
 
     ProviderApiManagerV5(Resources resources, ProviderApiServiceCallback callback) {
         super(resources, callback);
@@ -123,9 +121,9 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
                 // TODO: send failed to fetch bridges event
             }
         } else {
-           try {
-               String gatewaysJson = bm.getAllGateways("", "", "");
-               provider.setGateways(gatewaysJson);
+            try {
+                String gatewaysJson = bm.getAllGateways("", "", "");
+                provider.setGateways(gatewaysJson);
             } catch (Exception e) {
                 // TODO: send
                 return eventSender.setErrorResult(currentDownload, R.string.config_error_found, null);
@@ -168,16 +166,6 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
 
         configureBaseCountryCode(bm, parameters);
 
-        try {
-           String providerJson = bm.getProvider();
-           Log.d(TAG, "provider Json reponse: " + providerJson);
-           provider.setModelsProvider(providerJson);
-           ProviderSetupObservable.updateProgress(DOWNLOADED_PROVIDER_JSON);
-        } catch (Exception e) {
-            Log.w(TAG, "failed fo fetch provider.json: " + e.getMessage());
-            e.printStackTrace();
-            return eventSender.setErrorResult(currentDownload, R.string.error_json_exception_user_message, null);
-        }
         try {
             String serviceJson = bm.getService();
             Log.d(TAG, "service Json reponse: " + serviceJson);
@@ -292,7 +280,7 @@ public class ProviderApiManagerV5 extends ProviderApiManagerBase implements IPro
                 certificate.checkValidity();
                 validCertificates.add(certificate);
             } catch (CertificateNotYetValidException |
-                    CertificateExpiredException e) {
+                     CertificateExpiredException e) {
                 e.printStackTrace();
                 invalidCertificates++;
             }

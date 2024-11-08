@@ -244,27 +244,15 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
             return currentDownload;
         }
 
-        getPersistedProviderUpdates(provider);
-        currentDownload = validateProviderDetails(provider);
-
-        //provider certificate invalid
-        if (currentDownload.containsKey(ERRORS)) {
-            currentDownload.putParcelable(PROVIDER_KEY, provider);
-            return currentDownload;
+        if (!provider.hasDefinition()) {
+            currentDownload = getAndSetProviderJson(provider);
         }
-
-        //no provider json or certificate available
-        if (currentDownload.containsKey(BROADCAST_RESULT_KEY) && !currentDownload.getBoolean(BROADCAST_RESULT_KEY)) {
-            resetProviderDetails(provider);
-        }
-
-        currentDownload = getAndSetProviderJson(provider);
-        if (provider.hasDefinition() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
+        if (provider.hasDefinition()) {
             ProviderSetupObservable.updateProgress(DOWNLOADED_PROVIDER_JSON);
             if (!provider.hasCaCert()) {
                 currentDownload = downloadCACert(provider);
             }
-            if (provider.hasCaCert() || (currentDownload.containsKey(BROADCAST_RESULT_KEY) && currentDownload.getBoolean(BROADCAST_RESULT_KEY))) {
+            if (provider.hasCaCert()) {
                 ProviderSetupObservable.updateProgress(DOWNLOADED_CA_CERT);
                 currentDownload = getAndSetEipServiceJson(provider);
             }
@@ -379,9 +367,9 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
 
             for (int i = 0; i < certAndKey.length - 1; i++) {
                 if (certAndKey[i].contains("KEY")) {
-                    keyString += certAndKey[i++] + certAndKey[i];
+                    keyString = certAndKey[i++] + certAndKey[i];
                 } else if (certAndKey[i].contains("CERTIFICATE")) {
-                    certificateString += certAndKey[i++] + certAndKey[i];
+                    certificateString = certAndKey[i++] + certAndKey[i];
                 }
             }
 

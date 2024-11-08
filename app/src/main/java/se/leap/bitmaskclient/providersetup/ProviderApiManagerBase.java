@@ -17,8 +17,6 @@
 
 package se.leap.bitmaskclient.providersetup;
 
-import static se.leap.bitmaskclient.R.string.vpn_certificate_is_invalid;
-import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_EIPSERVICE;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_MODELS_GATEWAYS;
@@ -38,35 +36,20 @@ import static se.leap.bitmaskclient.base.utils.ConfigHelper.getDomainFromMainURL
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getFromPersistedProvider;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getLongFromPersistedProvider;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getStringSetFromPersistedProvider;
-import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.ED_25519_KEY_BEGIN;
-import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.ED_25519_KEY_END;
-import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.RSA_KEY_BEGIN;
-import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.RSA_KEY_END;
-import static se.leap.bitmaskclient.base.utils.PrivateKeyHelper.parsePrivateKeyFromString;
 
 import android.content.Intent;
 import android.content.res.Resources;
-import android.os.Bundle;
-import android.util.Base64;
-
-import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
-import io.swagger.client.JSON;
-import io.swagger.client.model.ModelsBridge;
-import io.swagger.client.model.ModelsProvider;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
@@ -79,6 +62,8 @@ import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 public abstract class ProviderApiManagerBase {
 
     private final static String TAG = ProviderApiManagerBase.class.getName();
+    public static final String PROXY_HOST = "127.0.0.1";
+    public static final String SOCKS_PROXY_SCHEME = "socks5://";
 
     public interface ProviderApiServiceCallback {
         void broadcastEvent(Intent intent);
@@ -210,24 +195,6 @@ public abstract class ProviderApiManagerBase {
             return new JSONObject(getFromPersistedProvider(PROVIDER_MOTD, providerDomain));
         } catch (JSONException e) {
             return new JSONObject();
-        }
-    }
-
-    protected ModelsProvider getPersistedModelsProvider(String providerDomain) {
-        try {
-            String json = getFromPersistedProvider(PROVIDER_MODELS_PROVIDER, providerDomain);
-            return json != null ? JSON.createGson().create().fromJson(json, ModelsProvider.class) : null;
-        } catch (JsonSyntaxException e) {
-            return null;
-        }
-    }
-
-    protected ModelsBridge[] getPersistedModelsBridge(String providerDomain) {
-        try {
-            String json = getFromPersistedProvider(PROVIDER_MODELS_BRIDGES, providerDomain);
-            return json != null ? JSON.createGson().create().fromJson(json, ModelsBridge[].class) : null;
-        } catch (JsonSyntaxException e) {
-            return null;
         }
     }
 

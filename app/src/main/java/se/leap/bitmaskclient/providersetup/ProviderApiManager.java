@@ -1,15 +1,6 @@
 package se.leap.bitmaskclient.providersetup;
 
-import static se.leap.bitmaskclient.BuildConfig.DEBUG_MODE;
-import static se.leap.bitmaskclient.R.string.certificate_error;
-import static se.leap.bitmaskclient.R.string.error_io_exception_user_message;
-import static se.leap.bitmaskclient.R.string.error_json_exception_user_message;
-import static se.leap.bitmaskclient.R.string.error_no_such_algorithm_exception_user_message;
 import static se.leap.bitmaskclient.R.string.malformed_url;
-import static se.leap.bitmaskclient.R.string.server_unreachable_message;
-import static se.leap.bitmaskclient.R.string.service_is_down_error;
-import static se.leap.bitmaskclient.R.string.warning_corrupted_provider_details;
-import static se.leap.bitmaskclient.base.models.Constants.BROADCAST_RESULT_KEY;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.DELAY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.ERRORS;
@@ -19,17 +10,17 @@ import static se.leap.bitmaskclient.providersetup.ProviderAPI.PROVIDER_NOK;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.RECEIVER_KEY;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_EXCEPTION;
 import static se.leap.bitmaskclient.providersetup.ProviderAPI.TOR_TIMEOUT;
-import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_CORRUPTED_PROVIDER_JSON;
+import static se.leap.bitmaskclient.providersetup.ProviderApiManagerV5.PROXY_HOST;
+import static se.leap.bitmaskclient.providersetup.ProviderApiManagerV5.SOCKS_PROXY_SCHEME;
 import static se.leap.bitmaskclient.providersetup.ProviderSetupFailedDialog.DOWNLOAD_ERRORS.ERROR_TOR_TIMEOUT;
+import static se.leap.bitmaskclient.providersetup.ProviderSetupObservable.DOWNLOADED_PROVIDER_JSON;
 import static se.leap.bitmaskclient.tor.TorStatusObservable.TorStatus.OFF;
-import static se.leap.bitmaskclient.tor.TorStatusObservable.getProxyPort;
 
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.core.content.IntentCompat;
 
@@ -37,26 +28,15 @@ import org.jetbrains.annotations.Blocking;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.net.UnknownServiceException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
-
 import de.blinkt.openvpn.core.VpnStatus;
-import okhttp3.OkHttpClient;
+import mobile.BitmaskMobile;
+import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.R;
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.base.utils.ConfigHelper;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
-import se.leap.bitmaskclient.providersetup.connectivity.OkHttpClientGenerator;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
 public class ProviderApiManager extends ProviderApiManagerBase {
@@ -87,7 +67,7 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             provider = IntentCompat.getParcelableExtra(command, PROVIDER_KEY, Provider.class);
         } else {
             //TODO: consider returning error back e.g. NO_PROVIDER
-            Log.e(TAG, action +" called without provider!");
+            Log.e(TAG, action + " called without provider!");
             return;
         }
 
@@ -123,9 +103,8 @@ public class ProviderApiManager extends ProviderApiManagerBase {
             return;
         }
 
-
         if (!provider.hasDefinition()) {
-            downloadProviderDefinition(result, provider);
+            result = downloadProviderDefinition(result, provider);
             if (result.containsKey(ERRORS)) {
                 eventSender.sendToReceiverOrBroadcast(receiver, PROVIDER_NOK, result, provider);
                 return;
@@ -136,102 +115,52 @@ public class ProviderApiManager extends ProviderApiManagerBase {
         apiManager.handleAction(action, provider, parameters, receiver);
     }
 
-    private void downloadProviderDefinition(Bundle result, Provider provider) {
+    private Bundle downloadProviderDefinition(Bundle result, Provider provider) {
         getPersistedProviderUpdates(provider);
         if (provider.hasDefinition()) {
-            return;
-        }
-        getAndSetProviderJson(result, provider);
-    }
-
-    private Bundle getAndSetProviderJson(Bundle result, Provider provider) {
-        String providerJsonUrl = provider.getMainUrl() + "/provider.json";
-        String providerDotJsonString = fetch(providerJsonUrl, true);
-
-        if (ConfigHelper.checkErroneousDownload(providerDotJsonString) || !isValidJson(providerDotJsonString)) {
-            return eventSender.setErrorResult(result, malformed_url, null);
+            return result;
         }
 
-        if (DEBUG_MODE) {
-            VpnStatus.logDebug("[API] PROVIDER JSON: " + providerDotJsonString);
-        }
         try {
-            JSONObject providerJson = new JSONObject(providerDotJsonString);
-
-            if (provider.define(providerJson)) {
-                result.putBoolean(BROADCAST_RESULT_KEY, true);
-            } else {
-                return eventSender.setErrorResult(result, warning_corrupted_provider_details, ERROR_CORRUPTED_PROVIDER_JSON.toString());
+            String providerString = fetch(provider, true);
+            if (ConfigHelper.checkErroneousDownload(providerString) || !isValidJson(providerString)) {
+                return eventSender.setErrorResult(result, malformed_url, null);
             }
 
-        } catch (JSONException e) {
-            return eventSender.setErrorResult(result, providerDotJsonString);
+            JSONObject jsonObject = new JSONObject(providerString);
+            provider.define(jsonObject);
+            provider.setModelsProvider(providerString);
+            ProviderSetupObservable.updateProgress(DOWNLOADED_PROVIDER_JSON);
+        } catch (Exception e) {
+            return eventSender.setErrorResult(result, R.string.malformed_url, null);
         }
+
         return result;
     }
 
-
-
-    /**
-     * Tries to download the contents of the provided url using commercially validated CA certificate from chosen provider.
-     *
-     */
-    private String fetch(String url, boolean allowRetry) {
-
-        JSONObject errorJson = new JSONObject();
-        OkHttpClientGenerator clientGenerator = new OkHttpClientGenerator(resources);
-
-        OkHttpClient okHttpClient = clientGenerator.initCommercialCAHttpClient(errorJson, getProxyPort());
-        List<Pair<String, String>> headerArgs = new ArrayList<>();
-        if (okHttpClient == null) {
-            return errorJson.toString();
-        }
-
-        String plainResponseBody;
-
+    private String fetch(Provider provider, Boolean allowRetry) {
+        BitmaskMobile bm;
         try {
-
-            plainResponseBody = ProviderApiConnector.requestStringFromServer(url, "GET", null, headerArgs, okHttpClient);
-
-        } catch (NullPointerException npe) {
-            plainResponseBody = eventSender.formatErrorMessage(error_json_exception_user_message);
-            VpnStatus.logWarning("[API] Null response body for request " + url + ": " + npe.getLocalizedMessage());
-        } catch (UnknownHostException | SocketTimeoutException e) {
-            plainResponseBody = eventSender.formatErrorMessage(server_unreachable_message);
-            VpnStatus.logWarning("[API] UnknownHostException or SocketTimeoutException for request " + url + ": " + e.getLocalizedMessage());
-        } catch (MalformedURLException e) {
-            plainResponseBody = eventSender.formatErrorMessage(malformed_url);
-            VpnStatus.logWarning("[API] MalformedURLException for request " + url + ": " + e.getLocalizedMessage());
-        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
-            plainResponseBody = eventSender.formatErrorMessage(certificate_error);
-            VpnStatus.logWarning("[API] SSLHandshakeException or SSLPeerUnverifiedException for request " + url + ": " + e.getLocalizedMessage());
-        } catch (ConnectException e) {
-            plainResponseBody = eventSender.formatErrorMessage(service_is_down_error);
-            VpnStatus.logWarning("[API] ConnectException for request " + url + ": " + e.getLocalizedMessage());
-        } catch (IllegalArgumentException e) {
-            plainResponseBody = eventSender.formatErrorMessage(error_no_such_algorithm_exception_user_message);
-            VpnStatus.logWarning("[API] IllegalArgumentException for request " + url + ": " + e.getLocalizedMessage());
-        } catch (UnknownServiceException e) {
-            //unable to find acceptable protocols - tlsv1.2 not enabled?
-            plainResponseBody = eventSender.formatErrorMessage(error_no_such_algorithm_exception_user_message);
-            VpnStatus.logWarning("[API] UnknownServiceException for request " + url + ": " + e.getLocalizedMessage());
-        } catch (IOException e) {
-            plainResponseBody = eventSender.formatErrorMessage(error_io_exception_user_message);
-            VpnStatus.logWarning("[API] IOException for request " + url + ": " + e.getLocalizedMessage());
-        }
-
-        try {
-            if (allowRetry &&
-                    plainResponseBody != null &&
-                    plainResponseBody.contains(ERRORS)  &&
-                    TorStatusObservable.getStatus() == OFF &&
-                    torHandler.startTorProxy()
-            ) {
-                return fetch(url, false);
+            bm = new BitmaskMobile(provider.getMainUrl(), new PreferenceHelper.SharedPreferenceStore());
+            bm.setDebug(BuildConfig.DEBUG);
+            if (TorStatusObservable.isRunning() && TorStatusObservable.getSocksProxyPort() != -1) {
+                bm.setSocksProxy(SOCKS_PROXY_SCHEME + PROXY_HOST + ":" + TorStatusObservable.getSocksProxyPort());
+            } else if (provider.hasIntroducer()) {
+                bm.setIntroducer(provider.getIntroducer().toUrl());
             }
-        } catch (InterruptedException | IllegalStateException | TimeoutException e) {
-            e.printStackTrace();
+            return bm.getProvider();
+        } catch (Exception e) {
+            try {
+                if (allowRetry &&
+                        TorStatusObservable.getStatus() == OFF &&
+                        torHandler.startTorProxy()
+                ) {
+                    return fetch(provider, false);
+                }
+            } catch (InterruptedException | TimeoutException ex) {
+                ex.printStackTrace();
+            }
         }
-        return plainResponseBody;
+        return null;
     }
 }
