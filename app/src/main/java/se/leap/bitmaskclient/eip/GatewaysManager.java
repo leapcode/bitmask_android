@@ -171,6 +171,8 @@ public class GatewaysManager {
         } else if (getUseBridges() && getUseObfs4()) {
             return new TransportType[]{OBFS4};
         } else if (getUseBridges() && getUseObfs4Kcp()) {
+            return new TransportType[]{OBFS4};
+        } else if (getUseBridges() && usesSpecificTunnel() && getUsePortHopping()) {
             return new TransportType[]{OBFS4_HOP};
         } else {
             return new TransportType[]{OPENVPN};
