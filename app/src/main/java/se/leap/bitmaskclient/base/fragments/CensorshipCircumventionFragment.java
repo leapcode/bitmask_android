@@ -5,9 +5,8 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.hasSnowflakePrefs;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseTunnel;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
 import static se.leap.bitmaskclient.base.utils.ViewHelper.setActionBarSubtitle;
@@ -137,16 +136,7 @@ public class CensorshipCircumventionFragment extends Fragment {
 
         binding.tunnelingRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             useBridges(true);
-            if (checkedId == TUNNELING_NONE) {
-                setUseObfs4Kcp(false);
-                setUseObfs4(false);
-            } else if (checkedId == TUNNELING_OBFS4) {
-                setUseObfs4Kcp(false);
-                setUseObfs4(true);
-            } else if (checkedId == TUNNELING_OBFS4_KCP) {
-                setUseObfs4Kcp(true);
-                setUseObfs4(false);
-            }
+            setUseTunnel(checkedId);
             tryReconnectVpn();
         });
     }

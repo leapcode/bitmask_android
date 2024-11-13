@@ -3,6 +3,7 @@ package se.leap.bitmaskclient.base.fragments;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static se.leap.bitmaskclient.R.string.advanced_settings;
+import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_NONE;
 import static se.leap.bitmaskclient.base.models.Constants.GATEWAY_PINNING;
 import static se.leap.bitmaskclient.base.models.Constants.PREFER_UDP;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
@@ -14,13 +15,11 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getShowAlwaysOnDialog;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseSnowflake;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setAllowExperimentalTransports;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfs4Kcp;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUsePortHopping;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.setUseTunnel;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useBridges;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useSnowflake;
@@ -106,8 +105,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
                 if (isChecked) {
                     useSnowflake(false);
-                    setUseObfs4Kcp(false);
-                    setUseObfs4(false);
+                    setUseTunnel(TUNNELING_NONE);
                     setUsePortHopping(false);
                 }
                 useBridges(isChecked);
@@ -151,8 +149,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
 
     private void resetManualConfig() {
         useSnowflake(false);
-        setUseObfs4Kcp(false);
-        setUseObfs4(false);
+        setUseTunnel(TUNNELING_NONE);
         setUsePortHopping(false);
         if (VpnStatus.isVPNActive()) {
             EipCommand.startVPN(getContext(), false);

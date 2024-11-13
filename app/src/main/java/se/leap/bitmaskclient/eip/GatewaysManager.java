@@ -32,6 +32,10 @@ import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPi
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningPort;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferredCity;
 import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseBridges;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUseObfs4Kcp;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getUsePortHopping;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.usesSpecificTunnel;
 
 import android.content.Context;
 import android.util.Log;
@@ -152,7 +156,7 @@ public class GatewaysManager {
      * @return VpnProfile of the n closest Gateway or null if no remaining VpnProfiles available
      */
     public @Nullable VpnProfile selectVpnProfile(int nClosestGateway, String city) {
-        TransportType[] transportTypes = getUseBridges() ? new TransportType[]{OBFS4, OBFS4_HOP} : new TransportType[]{OPENVPN};
+        TransportType[] transportTypes = determineTransportTypes();
         Set<String> obfuscationTransportLayerProtocols = getObfuscationTransportLayerProtocols();
         if (presortedList.size() > 0) {
             return getVpnProfileFromPresortedList(nClosestGateway, transportTypes, obfuscationTransportLayerProtocols, city);
@@ -160,13 +164,35 @@ public class GatewaysManager {
 
         return getVpnProfileFromTimezoneCalculation(nClosestGateway, transportTypes, obfuscationTransportLayerProtocols, city);
     }
+
+    private TransportType[] determineTransportTypes() {
+        if (getUseBridges() && !usesSpecificTunnel()) {
+            return new TransportType[]{OBFS4, OBFS4_HOP};
+        } else if (getUseBridges() && getUseObfs4()) {
+            return new TransportType[]{OBFS4};
+        } else if (getUseBridges() && getUseObfs4Kcp()) {
+            return new TransportType[]{OBFS4_HOP};
+        } else {
+            return new TransportType[]{OPENVPN};
+        }
+    }
+
+
     @Nullable
     private static Set<String> getObfuscationTransportLayerProtocols() {
-        Set<String> obfuscationTransportLayerProtocols = null;
+        Set<String> transportProtocols = null;
+
         if (getUseBridges()) {
-            obfuscationTransportLayerProtocols = new HashSet<>(Arrays.asList(TCP, KCP));
+            if (getUseObfs4Kcp()) {
+                transportProtocols = Set.of(KCP);
+            } else if (getUseObfs4()) {
+                transportProtocols = Set.of(TCP);
+            } else {
+                transportProtocols = Set.of(TCP, KCP);
+            }
         }
-        return obfuscationTransportLayerProtocols;
+
+        return transportProtocols;
     }
 
     public void updateTransport(TransportType transportType) {
@@ -333,13 +359,13 @@ public class GatewaysManager {
      * @return position of the gateway owning to the profile
      */
     public int getPosition(VpnProfile profile) {
-        if (presortedList.size() > 0) { 
+        if (presortedList.size() > 0) {
             return getPositionFromPresortedList(profile);
-        } 
-        
+        }
+
         return getPositionFromTimezoneCalculatedList(profile);
     }
-    
+
     private int getPositionFromPresortedList(VpnProfile profile) {
         int nClosestGateway = 0;
         for (Gateway gateway : presortedList) {

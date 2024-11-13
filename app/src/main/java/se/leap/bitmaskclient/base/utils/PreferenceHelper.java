@@ -1,6 +1,9 @@
 package se.leap.bitmaskclient.base.utils;
 
 import static android.content.Context.MODE_PRIVATE;
+import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_NONE;
+import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_OBFS4;
+import static se.leap.bitmaskclient.base.fragments.CensorshipCircumventionFragment.TUNNELING_OBFS4_KCP;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_EXPERIMENTAL_TRANSPORTS;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_BLUETOOTH;
 import static se.leap.bitmaskclient.base.models.Constants.ALLOW_TETHERING_USB;
@@ -40,11 +43,10 @@ import static se.leap.bitmaskclient.base.models.Constants.SHOW_EXPERIMENTAL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_BRIDGES;
 import static se.leap.bitmaskclient.base.models.Constants.USE_IPv6_FIREWALL;
 import static se.leap.bitmaskclient.base.models.Constants.USE_OBFUSCATION_PINNING;
-import static se.leap.bitmaskclient.base.models.Constants.USE_OBSF4;
-import static se.leap.bitmaskclient.base.models.Constants.USE_OBSF4_KCP;
 import static se.leap.bitmaskclient.base.models.Constants.USE_PORT_HOPPING;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SNOWFLAKE;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SYSTEM_PROXY;
+import static se.leap.bitmaskclient.base.models.Constants.USE_TUNNEL;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -576,23 +578,27 @@ public class PreferenceHelper {
     }
 
     public  static boolean getUseObfs4() {
-        return getBoolean(USE_OBSF4, false);
-    }
-
-    public static void setUseObfs4(boolean useObsf4) {
-        putBoolean(USE_OBSF4, useObsf4);
-    }
-
-    public static void setUseObfs4Kcp(boolean useObfs4Kcp) {
-        putBoolean(USE_OBSF4_KCP, useObfs4Kcp);
+        return getUseTunnel() == TUNNELING_OBFS4;
     }
 
     public static boolean getUseObfs4Kcp() {
-        return getBoolean(USE_OBSF4_KCP, false);
+        return getUseTunnel() == TUNNELING_OBFS4_KCP;
     }
 
     public static boolean usesManualBridges(){
-        return getUseSnowflake() || getUseObfs4() || getUseObfs4Kcp() || getUsePortHopping();
+        return getUseSnowflake() || usesSpecificTunnel() || getUsePortHopping();
+    }
+
+    public static boolean usesSpecificTunnel() {
+        return getUseObfs4() || getUseObfs4Kcp();
+    }
+
+    public static void setUseTunnel(int tunnel) {
+        putInt(USE_TUNNEL, tunnel);
+    }
+
+    public static int getUseTunnel() {
+        return getInt(USE_TUNNEL, TUNNELING_NONE);
     }
 
     public static boolean useIpv6Firewall() {
