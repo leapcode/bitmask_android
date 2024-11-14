@@ -166,35 +166,35 @@ public class GatewaysManager {
     }
 
     private TransportType[] determineTransportTypes() {
-        if (getUseBridges() && !usesSpecificTunnel()) {
-            return new TransportType[]{OBFS4, OBFS4_HOP};
-        } else if (getUseBridges() && getUseObfs4()) {
-            return new TransportType[]{OBFS4};
-        } else if (getUseBridges() && getUseObfs4Kcp()) {
-            return new TransportType[]{OBFS4};
-        } else if (getUseBridges() && usesSpecificTunnel() && getUsePortHopping()) {
-            return new TransportType[]{OBFS4_HOP};
-        } else {
+        if (!getUseBridges()){
             return new TransportType[]{OPENVPN};
+        }
+
+        if (getUsePortHopping()) {
+            return new TransportType[]{OBFS4_HOP};
+        } else if (getUseObfs4() || getUseObfs4Kcp()) {
+            return new TransportType[]{OBFS4};
+        } else {
+            return new TransportType[]{OBFS4, OBFS4_HOP};
         }
     }
 
 
     @Nullable
     private static Set<String> getObfuscationTransportLayerProtocols() {
-        Set<String> transportProtocols = null;
-
-        if (getUseBridges()) {
-            if (getUseObfs4Kcp()) {
-                transportProtocols = Set.of(KCP);
-            } else if (getUseObfs4()) {
-                transportProtocols = Set.of(TCP);
-            } else {
-                transportProtocols = Set.of(TCP, KCP);
-            }
+        if (!getUseBridges()) {
+            return null;
         }
 
-        return transportProtocols;
+        if (getUseObfs4()) {
+            return Set.of(TCP);
+        } else if (getUseObfs4Kcp()) {
+            return Set.of(KCP);
+        } else {
+            // If neither Obf4 nor Obf4Kcp are used, and bridges are enabled,
+            // then use both TCP and KCP (based on the original logic).
+            return Set.of(TCP, KCP);
+        }
     }
 
     public void updateTransport(TransportType transportType) {
