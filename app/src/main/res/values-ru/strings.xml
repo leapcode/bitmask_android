@@ -215,6 +215,7 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="provider_description_riseup">Riseup предоставляет инструменты онлайн-коммуникации для людей и групп, работающих над освободительными социальными изменениями. Мы — проект, направленный на создание демократических альтернатив и самоопределения путём контроля за безопасностью собственных средств связи.</string>
   <string name="next">Далее</string>
   <string name="add_provider_description">Bitmask подключается к надёжным провайдерам, которых нет в открытом доступе. Введите ниже URL вашего провайдера.</string>
+  <string name="qr_scanner_prompt">Сканировать QR-код</string>
   <string name="provider_description_calyx">Calyx — некоммерческая образовательная и исследовательская организация, занимающаяся изучением, тестированием, разработкой и внедрением технологий и инструментов обеспечения конфиденциальности для продвижения свободы слова, свободы самовыражения, гражданской активности и прав на неприкосновенность частной жизни в интернете и в индустрии мобильной связи.</string>
   <string name="title_circumvention_setup">Вам требуется обход цензуры?</string>
   <string name="circumvention_setup_description">Если вы живёте там, где интернет цензурируется, то можете использовать наши средства обхода цензуры для доступа ко всем услугам интернета. Это замедлит подключение!</string>
@@ -240,4 +241,6 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="setup_success_description">Нажмите кнопку ниже для подключения</string>
   <string name="permission_rejected">Запрос на разрешение отклонён.</string>
   <string name="login_not_supported">Текущая версия приложения не поддерживает возможность входа, которая необходима для обновления сертификата VPN для этого провайдера.</string>
+  <string name="select_language">Выберите язык</string>
+  <string name="scan_qr_code">Сканировать QR-код</string>
 </resources>

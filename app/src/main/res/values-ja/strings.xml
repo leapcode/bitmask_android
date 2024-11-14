@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="retry">再試行</string>
-  <string name="repository_url_text">ソースコードは https://0xacab.org/leap/bitmask_android で利用できます</string>
+  <string name="repository_url_text">ソースコードは https://0xacab.org/leap/bitmask_android で入手可能です</string>
   <string name="leap_tracker">問題トラッカーは https://0xacab.org/leap/bitmask_android/issues で利用できます</string>
   <string name="translation_project_text">翻訳を歓迎、感謝します。 Transifex プロジェクトをご覧ください https://www.transifex.com/projects/p/bitmask/</string>
   <string name="switch_provider_menu_option">プロバイダーを切り替え</string>
@@ -93,8 +93,8 @@
   <string name="action_settings">設定</string>
   <string name="void_vpn_establish">%sはすべての送信インターネット通信をブロックします</string>
   <string name="void_vpn_error_establish">すべてのインターネット通信のブロックに失敗しました。</string>
-  <string name="void_vpn_stopped">すべての送信インターネット通信のブロックを停止しました。</string>
-  <string name="void_vpn_title">通信のブロック</string>
+  <string name="void_vpn_stopped">すべての送信インターネット通信の遮断を停止しました。</string>
+  <string name="void_vpn_title">通信を遮断</string>
   <string name="update_provider_details">プロバイダーの詳細を更新</string>
   <string name="update_certificate">証明書を更新</string>
   <string name="warning_eip_json_corrupted">プロバイダー設定の更新に失敗しました。</string>
@@ -138,7 +138,7 @@
   <plurals name="subtitle_exclude_apps">
     <item quantity="other">%d の保護されていないアプリ</item>
   </plurals>
-  <string name="warning_no_more_gateways_use_pt">%sは接続できませんでした。 VPN接続がブロックされている可能性があります。難読化された接続を使用して接続を試みますか?</string>
+  <string name="warning_no_more_gateways_use_pt">%sは接続できませんでした。 VPN接続が遮断されている可能性があります。難読化された接続を使用して接続を試みますか?</string>
   <string name="warning_no_more_gateways_no_pt">%s は接続できませんでした。 再試行しますか?</string>
   <string name="warning_no_more_gateways_use_ovpn">%s は難読化されたVPN接続を使用して接続できませんでした。標準VPNを使用して接続を試みますか?</string>
   <string name="warning_no_more_gateways_manual_gw_selection">%1$sは%2$sへ接続できませんでした。最適な場所へ自動的な接続を試みますか?</string>
@@ -199,7 +199,7 @@
   <string name="eip_state_insecure">接続は安全ではありません</string>
   <string name="connection_not_connected">あなたのインターネットプロバイダーまたはローカルネットワークに情報が漏洩するかもしれません。</string>
   <string name="eip_state_no_network">インターネットに接続できない状態です。インターネット接続が戻れば、自動的に接続します</string>
-  <string name="eip_state_blocking">%1$sはすべてのインターネット転送をプロックしています。</string>
+  <string name="eip_state_blocking">%1$sはすべてのインターネット転送を遮断しています。</string>
   <string name="disabled_while_udp_on">UDPがオンの間は無効化されます。</string>
   <string name="advanced_settings">詳細設定</string>
   <string name="cancel_connection">切断</string>
@@ -208,9 +208,13 @@
   <string name="welcome">ようこそ!</string>
   <string name="select_provider">プロバイダーを選択</string>
   <string name="select_provider_description">VPNを使用するとインターネットサービスプロバイダーからVPNプロバイダーへ、信頼されなければならない組織が移ります。Bitmaskは、プライバシーの保護と擁護の明瞭な歴史があるプロバイダーに限って接続します。</string>
-  <string name="provider_description_riseup">プロバイダーRiseupは解放的社会変革に粘り強く取り組む事業団体です。我々は新方式の民主主義を創り、通信の安全を意図する自己制御による自己決定を実践します。</string>
+  <string name="provider_description_riseup">プロバイダーRiseupは、解放的社会変革に粘り強く取り組む事業団体です。我々は新方式の民主主義を創り、通信の安全を意図して自己制御による自己決定を実践します。</string>
   <string name="next">次へ</string>
   <string name="add_provider_description">Bitmaskは公開一覧に記載されていない信用されたプロバイダーに接続します。以下に、プロバイダーのurlを入力してください。</string>
+  <string name="add_provider_prompt">ここに、プロバイダーのURLを入力してください。</string>
+  <string name="invite_code_provider_description">Bitmaskは非公開の招待文字列を使用してプロバイダーに接続できます。</string>
+  <string name="invite_code_provider_prompt">ここに、信用する招待文字列を入力してください。</string>
+  <string name="qr_scanner_prompt">QR コードをスキャン</string>
   <string name="provider_description_calyx">Calyxは、プライバシー技術を検討、試験、開発及び実装し、言論の自由、表現の自由、市民の参画及びインターネットと携帯電話通信事業でプライバシー権を助長する道具の製作に取り組む、教育と研究の非営利団体です。</string>
   <string name="title_circumvention_setup">検閲の回避策が必要ですか？</string>
   <string name="circumvention_setup_description">インターネットが検閲された地域にお住まいであれば、全てのインターネットサービスを利用するために検閲回避策を使用できます。これらの策を使用すると、接続が低速になります。</string>
@@ -229,11 +233,15 @@
   <string name="snowflake_broker_success">Snowflakeプロキシ接触成功</string>
   <string name="snowflake_sending_data">Snowflake 経由でデータを送信中</string>
   <string name="title_upcoming_connection_request">今度は接続要求だ</string>
-  <string name="upcoming_connection_request_description">次の小枠でAndroidがVPNプロバイダーを信用するか、必須の確認を行います。Bitmaskは、VPN用に最良の実践がある厳格なプライバシーを遵守し、利用者のデータと識別情報の保護の検証可能な歴史があるプロバイダーに限って提携します。</string>
+  <string name="upcoming_connection_request_description">次の小枠で、AndroidがVPNプロバイダーを信用するか、必須の確認を行います。Bitmaskは、VPN用に最良の実践がある厳格なプライバシーを遵守し、利用者のデータと識別情報の保護の、検証可能な歴史があるプロバイダーに限って提携します。</string>
   <string name="title_upcoming_notifications_request">今度は通知要求だ</string>
-  <string name="upcoming_notifications_request_description">次の小枠でAndroidが通知を許可するかをお尋ねします。これは、安定的なバックグラウンド接続を確実にし、Androidの通知センター内からデータ使用量を確認可能にします。</string>
+  <string name="upcoming_notifications_request_description">次の小枠で、Androidが通知を許可するかをお尋ねします。これは、安定的なバックグラウンド接続を確実にし、Androidの通知センター内からデータ使用量を確認可能にします。</string>
   <string name="title_setup_success">全て設定しました!</string>
   <string name="setup_success_description">接続するには、下のボタンをクリック</string>
   <string name="permission_rejected">権限の要求が拒否されました。</string>
   <string name="login_not_supported">現在のアプリのバージョンは、このプロバイダー用のVPN証明書を更新するのに必要なログインに対応しません。</string>
+  <string name="select_language">言語の選択</string>
+  <string name="validation_status_success">良</string>
+  <string name="enter_invite_code">招待文字列を入力</string>
+  <string name="scan_qr_code">QR コードをスキャン</string>
 </resources>

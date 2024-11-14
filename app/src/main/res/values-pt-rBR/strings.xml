@@ -213,6 +213,10 @@
   <string name="provider_description_riseup">Riseup fornece ferramentas de comunicação online para pessoas e grupos que trabalham em mudanças sociais libertadoras. Somos um projeto para criar alternativas democráticas e praticar a autodeterminação, controlando os nossos próprios meios de comunicação seguros.</string>
   <string name="next">Próximo</string>
   <string name="add_provider_description">Bitmask se conecta a provedores confiáveis ​​que não estão listados publicamente. Insira o URL do seu provedor abaixo.</string>
+  <string name="add_provider_prompt">Digite o URL do provedor aqui.</string>
+  <string name="invite_code_provider_description">O Bitmask permite que você se conecte a provedores usando um código de convite privado. </string>
+  <string name="invite_code_provider_prompt">Digite seu código de convite confiável aqui.</string>
+  <string name="qr_scanner_prompt">Ler QR Code</string>
   <string name="provider_description_calyx">Calyx é uma organização sem fins lucrativos de educação e pesquisa dedicada a estudar, testar, desenvolver e implementar tecnologias e ferramentas de privacidade para promover a liberdade de expressão, a liberdade de expressão, o envolvimento cívico e os direitos de privacidade na Internet e na indústria de comunicações móveis.</string>
   <string name="title_circumvention_setup">Você exige evasão da censura?</string>
   <string name="circumvention_setup_description">Se você mora em um local onde a Internet é censurada, você pode usar nossas opções de evasão de censura para acessar todos os serviços da Internet. Essas opções irão desacelerar sua conexão!</string>
@@ -238,4 +242,11 @@
   <string name="setup_success_description">Clique no botão abaixo para conectar</string>
   <string name="permission_rejected">Solicitação de permissão rejeitada.</string>
   <string name="login_not_supported">A versão atual do aplicativo não oferece suporte a logins, necessários para atualizar seu certificado VPN para este provedor.</string>
+  <string name="select_language">Selecionar idioma</string>
+  <string name="syntax_check">Verificação de sintaxe:</string>
+  <string name="validation_status_success">Bom</string>
+  <string name="validation_status_failure">Mau</string>
+  <string name="enter_invite_code">Digite o código de convite</string>
+  <string name="scan_qr_code">Ler QR Code</string>
+  <string name="invalid_code">Código inválido</string>
 </resources>

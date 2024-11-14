@@ -190,6 +190,10 @@
   <string name="cancel_connection">Kapcsolat bontása</string>
   <string name="welcome">Köszöntjük!</string>
   <string name="next">Következő</string>
+  <string name="qr_scanner_prompt">QR kód beolvasása</string>
   <string name="details">Részletek</string>
   <string name="tor_status">Tor állapot</string>
+  <string name="select_language">Nyelv választása</string>
+  <string name="validation_status_success">Jó</string>
+  <string name="scan_qr_code">QR kód beolvasása</string>
 </resources>

@@ -211,6 +211,7 @@
   <string name="provider_description_riseup">Riseup 致力於為解放社會變革的人民和團體提供線上交流工具。 我們透過控制自己的安全通訊方式來創造民主替代方案並實踐自決計畫。</string>
   <string name="next">下一個</string>
   <string name="add_provider_description">Bitmask 連接到未公開的可信任提供者。 在下面輸入提供者的網址。</string>
+  <string name="qr_scanner_prompt">掃描二維條碼</string>
   <string name="provider_description_calyx">Calyx 為非營利教育和研究組織，致力於研究、測試、開發和實施隱私技術和工具，以促進網路和行動通訊產業的言論自由、表達自由、公民參與和隱私權。</string>
   <string name="title_circumvention_setup">需規避審查？</string>
   <string name="circumvention_setup_description">如果住在網路審查的地區，可以使用我們的審查規避工具來存取所有網路服務。 這些選項會減慢您的連線速度！</string>
@@ -236,4 +237,8 @@
   <string name="setup_success_description">點擊下方按鈕來接線</string>
   <string name="permission_rejected">授權請求被拒。</string>
   <string name="login_not_supported">應用程式當前的版本不支援登入，須為此供應商更新 VPN 憑證。</string>
+  <string name="select_language">選取語言</string>
+  <string name="validation_status_success">優</string>
+  <string name="validation_status_failure">不良</string>
+  <string name="scan_qr_code">掃描二維條碼</string>
 </resources>

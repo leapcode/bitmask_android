@@ -211,6 +211,7 @@
   <string name="provider_description_riseup">Riseup 为解放社会变革的人民和团体提供线上交流工具，透过控制自己的安全通讯方式来创造民主替代方案并实践自决方案。</string>
   <string name="next">下一步</string>
   <string name="add_provider_description">Bitmask 连接未公开的可信任提供者。 在下面输入提供者的网址。</string>
+  <string name="qr_scanner_prompt">扫描二维码</string>
   <string name="provider_description_calyx">Calyx 为非营利教育研究组织，致力研究、测试、开发和实施隐私技术和工具，促进网路和行动通讯产业的言论自由、表达自由、公民参与和隐私权。</string>
   <string name="title_circumvention_setup">需要进行审查规避？</string>
   <string name="circumvention_setup_description">如果居住在网路审查的地区，可以使用我们的审查规避工具来存取所有网路服务。 但这些选项会减慢连线速度！</string>
@@ -236,4 +237,6 @@
   <string name="setup_success_description">点按下方按钮进行连接</string>
   <string name="permission_rejected">权限请求被拒绝。</string>
   <string name="login_not_supported">应用程序当前的版本不支援登入，须为此供应商更新 VPN 凭证。</string>
+  <string name="select_language">选择语言</string>
+  <string name="scan_qr_code">扫描二维码</string>
 </resources>

@@ -212,6 +212,10 @@
   <string name="provider_description_riseup">Riseup özgürleştirici toplumsal değişim üzerine çalışan kişi ve gruplara çevrim içi iletişim araçları sağlıyor. Projemiz, demokratik alternatifleri oluşturmayı ve kendi denetimimiz altında güvenli iletişim araçları geliştirmeyi amaçlıyor.</string>
   <string name="next">Sonraki</string>
   <string name="add_provider_description">Bitmask herkese açık olarak listelenmeyen güvenli hizmet sağlayıcılar ile bağlantı kurar. Hizmet sağlayıcınızın adresini aşağıya yazın.</string>
+  <string name="add_provider_prompt">Hizmet sağlayıcının adresini buraya yazın.</string>
+  <string name="invite_code_provider_description">Bitmask bir özel davet kodu ile hizmet sağlayıcılara bağlanmanızı sağlar.</string>
+  <string name="invite_code_provider_prompt">Güvenli davet Kodunuzu buraya yazın.</string>
+  <string name="qr_scanner_prompt">Kare kodu tara</string>
   <string name="provider_description_calyx">Calyx, İnternet ve mobil iletişim endüstrisinde konuşma özgürlüğü, ifade özgürlüğü, sivil katılım ve gizlilik haklarını özendirmek için gizlilik teknolojileri üzerine çalışan, bunları sınayan, geliştiren ve gerçekleştiren kâr amacı gütmeyen bir eğitim ve araştırma örgütüdür.</string>
   <string name="title_circumvention_setup">Engellemeyi aşmanız mı gerekiyor?</string>
   <string name="circumvention_setup_description">İnternet\'in engellendiği bir yerde yaşıyorsanız, tüm İnternet hizmetlerine erişmek için engellemeyi aşma seçeneklerimizi kullanabilirsiniz. Bu seçenekler bağlantınızı yavaşlatır!</string>
@@ -237,4 +241,11 @@
   <string name="setup_success_description">Bağlanmak için aşağıdaki düğmeye tıklayın</string>
   <string name="permission_rejected">İzin isteği reddedildi</string>
   <string name="login_not_supported">Bu hizmet sağlayıcı için VPN sertifikanızı güncellemeniz gerektiğinden geçerli uygulama sürümü oturum açmayı desteklemiyor. </string>
+  <string name="select_language">Dil seçin</string>
+  <string name="syntax_check">Yazım denetimi:</string>
+  <string name="validation_status_success">İyi</string>
+  <string name="validation_status_failure">Kötü</string>
+  <string name="enter_invite_code">Davet kodunu yazın</string>
+  <string name="scan_qr_code">Kare kodu tara</string>
+  <string name="invalid_code">Kod geçersiz</string>
 </resources>

@@ -205,6 +205,9 @@ https://0xacab.org/leap/bitmask_android/issues</string>
   <string name="cancel_connection">התנתק</string>
   <string name="welcome">ברוך הבא!</string>
   <string name="next">הבא</string>
+  <string name="qr_scanner_prompt">סרוק קוד QR</string>
   <string name="details">פרטים</string>
   <string name="tor_status">מעמד Tor</string>
+  <string name="select_language">בחר שפה</string>
+  <string name="scan_qr_code">סרוק קוד QR</string>
 </resources>

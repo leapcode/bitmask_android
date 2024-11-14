@@ -205,4 +205,5 @@
   <string name="next">Siguiente</string>
   <string name="details">Detalles</string>
   <string name="tor_status">Estado de Tor</string>
+  <string name="select_language">Seleccionar idioma</string>
 </resources>

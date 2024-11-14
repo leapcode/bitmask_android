@@ -214,6 +214,10 @@
   <string name="provider_description_riseup">„Riseup“ teikia internetinio susisiekimo įrankius žmonėms ir grupėms, siekiantiems išvaduojamųjų socialinių pokyčių. Mes esame projektas, kurio tikslas – kurti demokratines alternatyvas ir praktikuoti apsisprendimo teisę, valdant mūsų asmenines saugias komunikacijos priemones.</string>
   <string name="next">Kitas</string>
   <string name="add_provider_description">Bitmask jungiasi prie patikimų teikėjų, kurie nėra viešai išvardyti. Žemiau įveskite savo teikėjo URL adresą.</string>
+  <string name="add_provider_prompt">Čia įrašykite teikėjo URL adresą.</string>
+  <string name="invite_code_provider_description">Bitmask jums leidžia prisijungti prie teikėjų naudojant privatų pakvietimo kodą. </string>
+  <string name="invite_code_provider_prompt">Čia įveskite savo patikimą pakvietimo kodą.</string>
+  <string name="qr_scanner_prompt">Skenuoti QR kodą</string>
   <string name="provider_description_calyx">„Calyx“ yra ne pelno siekianti švietimo ir tyrinėjimų organizacija, pasišventusi tyrinėti, testuoti, plėtoti ir įgyvendinti privatumo technologijas bei įrankius, skatinant žodžio laisvę, laisvą raišką, piliečių įsitraukimą ir teises į privatumą internete bei mobiliųjų komunikacijų pramonėje.</string>
   <string name="title_circumvention_setup">Ar jums reikia cenzūros apėjimo?</string>
   <string name="circumvention_setup_description">Jei gyvenate šalyje, kurioje internetas yra cenzūruojamas, galite naudoti mūsų cenzūros apėjimo parinktis, kad pasiektumėte visas interneto paslaugas. Šios parinktys sulėtins jūsų interneto ryšio greitį!</string>
@@ -239,4 +243,11 @@
   <string name="setup_success_description">Norėdami prisijungti, spustelėkite žemiau esantį mygtuką</string>
   <string name="permission_rejected">Leidimo užklausa atmesta.</string>
   <string name="login_not_supported">Dabartinė programėlės versija nepalaiko prisijungimų, kurių reikia, kad atnaujintumėte savo VPN liudijimą šiam teikėjui.</string>
+  <string name="select_language">Pasirinkti kalbą</string>
+  <string name="syntax_check">Sintaksės tikrinimas:</string>
+  <string name="validation_status_success">Gerai</string>
+  <string name="validation_status_failure">Blogai</string>
+  <string name="enter_invite_code">Įveskite pakvietimo kodą</string>
+  <string name="scan_qr_code">Skenuoti QR kodą</string>
+  <string name="invalid_code">Neteisingas kodas</string>
 </resources>

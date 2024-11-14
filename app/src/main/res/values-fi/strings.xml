@@ -203,6 +203,10 @@
   <string name="cancel_connection">Katkaise yhteys</string>
   <string name="welcome">Tervetuloa!</string>
   <string name="next">Seuraava</string>
+  <string name="qr_scanner_prompt">Lue QR-koodi</string>
   <string name="details">Lisätiedot</string>
   <string name="tor_status">Tor-tila</string>
+  <string name="select_language">Valitse kieli</string>
+  <string name="validation_status_success">Hyvä</string>
+  <string name="scan_qr_code">Lue QR-koodi</string>
 </resources>

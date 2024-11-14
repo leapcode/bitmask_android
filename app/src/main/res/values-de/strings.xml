@@ -212,6 +212,7 @@
   <string name="provider_description_riseup">Riseup bietet Online-Kommunikationswerkzeuge für Menschen und Gruppen, die sich für einen progressiven sozialen Wandel einsetzen. Wir sind ein Projekt zur Verwirklichung demokratischer Alternativen und ermöglichen mehr Selbstbestimmung, indem wir eigene sichere Kommunikationsmittel bereitstellen.</string>
   <string name="next">Weiter</string>
   <string name="add_provider_description">Bitmask verbindet sich mit vertrauenswürdigen Providern, die nicht öffentlich gelistet sind. Gib die URL deines Providers hier an.</string>
+  <string name="qr_scanner_prompt">Lese QR Code</string>
   <string name="provider_description_calyx">Calyx ist eine gemeinnützige Bildungs- und Forschungsorganisation, die sich dem Studium, der Erprobung, Entwicklung und Umsetzung von Technologien und Instrumenten zum Schutz der Privatsphäre widmet, um Rede- und Meinungsfreiheit, zivilgesellschaftliches Engagement und Datenschutzrechte im Internet und in der Mobilfunkbranche zu fördern.</string>
   <string name="title_circumvention_setup">Benötigst du die Umgehung von Zensur?</string>
   <string name="circumvention_setup_description">Wenn du an einem Ort lebst, wo das Internet zensiert wird, kannst du unsere Optionen zur Umgehung der Zensur nutzen, um auf alle Internetdienste zuzugreifen. Diese Optionen werden deine Verbindung verlangsamen!</string>
@@ -237,4 +238,7 @@
   <string name="setup_success_description">Klicke auf die Schaltfläche unten, um eine Verbindung herzustellen</string>
   <string name="permission_rejected">Rechteanfrage abgelehnt.</string>
   <string name="login_not_supported">Die aktuelle App-Version unterstützt keine Logins, was du benötigst, um dein VPN-Zertifikat für diesen Anbieter zu aktualisieren.</string>
+  <string name="select_language">Sprache auswählen</string>
+  <string name="validation_status_success">Gut</string>
+  <string name="scan_qr_code">Lese QR Code</string>
 </resources>

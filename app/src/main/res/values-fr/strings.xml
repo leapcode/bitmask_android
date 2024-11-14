@@ -213,6 +213,7 @@
   <string name="provider_description_riseup">Riseup fournit des outils de communication en ligne pour les personnes et les groupes qui œuvrent en faveur d\'un changement social libéral. Nous voulons créer des alternatives démocratiques et pratiquer l\'autodétermination en contrôlant nos propres moyens de communication sécurisés.</string>
   <string name="next">Suivant</string>
   <string name="add_provider_description">Bitmask se connecte à des fournisseurs fiables qui ne sont pas répertoriés publiquement. Saisissez l\'adresse URL de votre fournisseur ci-dessous.</string>
+  <string name="qr_scanner_prompt">Balayer un code QR</string>
   <string name="provider_description_calyx">Calyx est un organisme d\'éducation et de recherche à but non lucratif qui se consacre à l\'étude, au test, au développement et à la mise en œuvre de technologies et d\'outils de protection de la vie privée afin de promouvoir la liberté d\'expression, la liberté de parole, l\'engagement civique et le droit à la vie privée sur l\'internet et dans l\'industrie des communications mobiles.</string>
   <string name="title_circumvention_setup">Avez-vous besoin de contourner la censure ?</string>
   <string name="circumvention_setup_description">Si vous vivez dans un pays où l\'internet est censuré, vous pouvez recourir à nos options de contournement de la censure pour accéder à tous les services web. Ces solutions ralentiront votre connexion !</string>
@@ -224,4 +225,7 @@
   <string name="details">Détails</string>
   <string name="tor_status">État de Tor</string>
   <string name="title_setup_success">Tout est prêt !</string>
+  <string name="select_language">Sélectionner une langue</string>
+  <string name="validation_status_success">Bon</string>
+  <string name="scan_qr_code">Balayer un code QR</string>
 </resources>

@@ -202,6 +202,9 @@
   <string name="cancel_connection">Ngắt kết nối</string>
   <string name="welcome">Chào mừng bạn!</string>
   <string name="next">Tiếp</string>
+  <string name="qr_scanner_prompt">Quét mã QR</string>
   <string name="details">Chi Tiết</string>
   <string name="tor_status">Trạng thái Tor</string>
+  <string name="select_language">Chọn Ngôn Ngữ</string>
+  <string name="scan_qr_code">Quét mã QR</string>
 </resources>
