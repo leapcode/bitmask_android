@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 import de.blinkt.openvpn.core.connection.Connection.TransportProtocol;
@@ -689,8 +690,8 @@ public final class Provider implements Parcelable {
                     vpnCertificate.equals(p.getVpnCertificate()) &&
                     allowAnonymous == p.allowsAnonymous() &&
                     allowRegistered == p.allowsRegistered() &&
-                    modelsProvider.equals(p.modelsProvider) &&
-                    modelsEIPService.equals(p.modelsEIPService) &&
+                    Objects.equals(modelsProvider, p.modelsProvider) &&
+                    Objects.equals(modelsEIPService, p.modelsEIPService) &&
                     Arrays.equals(modelsBridges, p.modelsBridges) &&
                     Arrays.equals(modelsGateways, p.modelsGateways);
         } else return false;
