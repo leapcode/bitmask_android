@@ -19,22 +19,25 @@ package se.leap.bitmaskclient.eip;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OBFS4_HOP;
 import static de.blinkt.openvpn.core.connection.Connection.TransportType.OPENVPN;
-import static se.leap.bitmaskclient.base.models.Constants.CAPABILITIES;
-import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS;
-import static se.leap.bitmaskclient.base.models.Constants.IP_ADDRESS6;
 import static se.leap.bitmaskclient.base.models.Constants.KCP;
-import static se.leap.bitmaskclient.base.models.Constants.PORTS;
-import static se.leap.bitmaskclient.base.models.Constants.PROTOCOLS;
 import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
 import static se.leap.bitmaskclient.base.models.Constants.REMOTE;
 import static se.leap.bitmaskclient.base.models.Constants.TCP;
-import static se.leap.bitmaskclient.base.models.Constants.TRANSPORT;
 import static se.leap.bitmaskclient.base.models.Constants.UDP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.allowExperimentalTransports;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getExcludedApps;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningCert;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningGatewayLocation;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningIP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningKCP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getObfuscationPinningPort;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getPreferUDP;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.useObfuscationPinning;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,7 +60,6 @@ import se.leap.bitmaskclient.pluggableTransports.models.Obfs4Options;
 
 public class VpnConfigGenerator {
     private final JSONObject generalConfiguration;
-    private final JSONObject gateway;
     private final JSONObject secrets;
     Vector<Transport> transports = new Vector<>();
     private final int apiVersion;
@@ -69,6 +71,7 @@ public class VpnConfigGenerator {
     private final String obfuscationPinningCert;
     private final boolean obfuscationPinningKCP;
     private final String remoteGatewayIP;
+    private final String remoteGatewayIPv6;
     private final String profileName;
     private final Set<String> excludedApps;
 
@@ -81,6 +84,7 @@ public class VpnConfigGenerator {
         boolean preferUDP;
         boolean experimentalTransports;
         String remoteGatewayIP = "";
+        String remoteGatewayIPv6 = "";
         String profileName = "";
         Set<String> excludedApps = null;
 
@@ -89,11 +93,33 @@ public class VpnConfigGenerator {
         String obfuscationProxyIP = "";
         String obfuscationProxyPort = "";
         String obfuscationProxyCert = "";
+        Vector<Transport> transports = new Vector<>();
+
+        public static VpnConfigGenerator.Configuration createProfileConfig(Vector<Transport> transports, int apiVersion, String remoteIpAddress, String remoteIpAddressV6, String locationName) {
+            VpnConfigGenerator.Configuration config = new VpnConfigGenerator.Configuration();
+            config.apiVersion = apiVersion;
+            config.preferUDP = getPreferUDP();
+            config.experimentalTransports = allowExperimentalTransports();
+            config.excludedApps = getExcludedApps();
+
+            config.remoteGatewayIP = config.useObfuscationPinning ? getObfuscationPinningIP() : remoteIpAddress;
+            config.remoteGatewayIPv6 = config.useObfuscationPinning ? null : remoteIpAddressV6;
+            config.useObfuscationPinning = useObfuscationPinning();
+            config.profileName = config.useObfuscationPinning ? getObfuscationPinningGatewayLocation() : locationName;
+            if (config.useObfuscationPinning) {
+                config.obfuscationProxyIP = getObfuscationPinningIP();
+                config.obfuscationProxyPort = getObfuscationPinningPort();
+                config.obfuscationProxyCert = getObfuscationPinningCert();
+                config.obfuscationProxyKCP = getObfuscationPinningKCP();
+            }
+            config.transports = transports;
+            return config;
+        }
     }
 
-    public VpnConfigGenerator(JSONObject generalConfiguration, JSONObject secrets, JSONObject gateway, Configuration config) throws ConfigParser.ConfigParseError {
+
+    public VpnConfigGenerator(JSONObject generalConfiguration, JSONObject secrets, Configuration config) {
         this.generalConfiguration = generalConfiguration;
-        this.gateway = gateway;
         this.secrets = secrets;
         this.apiVersion = config.apiVersion;
         this.preferUDP = config.preferUDP;
@@ -104,23 +130,10 @@ public class VpnConfigGenerator {
         this.obfuscationPinningCert = config.obfuscationProxyCert;
         this.obfuscationPinningKCP = config.obfuscationProxyKCP;
         this.remoteGatewayIP = config.remoteGatewayIP;
+        this.remoteGatewayIPv6 = config.remoteGatewayIPv6;
+        this.transports = config.transports;
         this.profileName = config.profileName;
         this.excludedApps = config.excludedApps;
-        checkCapabilities();
-    }
-
-    public void checkCapabilities() throws ConfigParser.ConfigParseError {
-        try {
-            if (apiVersion >= 3) {
-                JSONArray supportedTransports = gateway.getJSONObject(CAPABILITIES).getJSONArray(TRANSPORT);
-                for (int i = 0; i < supportedTransports.length(); i++) {
-                    Transport transport = Transport.fromJson(supportedTransports.getJSONObject(i));
-                    transports.add(transport);
-                }
-            }
-        } catch (Exception e) {
-            throw new ConfigParser.ConfigParseError("Api version ("+ apiVersion +") did not match required JSON fields");
-        }
     }
 
     public Vector<VpnProfile> generateVpnProfiles() throws
@@ -128,40 +141,26 @@ public class VpnConfigGenerator {
             NumberFormatException {
         Vector<VpnProfile> profiles = new Vector<>();
 
-        if (apiVersion >= 3) {
-            for (Transport transport : transports){
-                if (transport.getTransportType().isPluggableTransport()) {
-                    Transport.Options transportOptions = transport.getOptions();
-                    if (!experimentalTransports && transportOptions != null && transportOptions.isExperimental()) {
-                        continue;
-                    }
-                } else if (transport.getTransportType() == OPENVPN && useObfuscationPinning) {
+        for (Transport transport : transports){
+            if (transport.getTransportType().isPluggableTransport()) {
+                Transport.Options transportOptions = transport.getOptions();
+                if (!experimentalTransports && transportOptions != null && transportOptions.isExperimental()) {
                     continue;
                 }
-                try {
-                    profiles.add(createProfile(transport));
-                } catch (ConfigParser.ConfigParseError | NumberFormatException | JSONException | IOException e) {
-                    e.printStackTrace();
-                }
+            } else if (transport.getTransportType() == OPENVPN && useObfuscationPinning) {
+                continue;
             }
-        } else if (supportsOpenvpn()) {
-            // API v1 - TODO: let's remove support for API v1 soon
             try {
-                profiles.add(createApiv1OpenvpnProfile());
+                profiles.add(createProfile(transport));
             } catch (ConfigParser.ConfigParseError | NumberFormatException | JSONException | IOException e) {
                 e.printStackTrace();
             }
         }
+
         if (profiles.isEmpty()) {
             throw new ConfigParser.ConfigParseError("No supported transports detected.");
         }
         return profiles;
-    }
-
-    private boolean supportsOpenvpn() {
-        return !useObfuscationPinning &&
-                ((apiVersion >= 3 && getTransport(OPENVPN) != null) ||
-                        (apiVersion < 3 && !gatewayConfiguration(null).isEmpty()));
     }
 
     private String getConfigurationString(Transport transport) {
@@ -193,23 +192,8 @@ public class VpnConfigGenerator {
         return profile;
     }
 
-    @VisibleForTesting
-    protected VpnProfile createApiv1OpenvpnProfile() throws IOException, ConfigParser.ConfigParseError, JSONException {
-        String configuration = getConfigurationString(null);
-        ConfigParser icsOpenvpnConfigParser = new ConfigParser();
-        icsOpenvpnConfigParser.parseConfig(new StringReader(configuration));
-
-        VpnProfile profile = icsOpenvpnConfigParser.convertProfile(OPENVPN);
-        profile.mName = profileName;
-        profile.mGatewayIp = remoteGatewayIP;
-        if (excludedApps != null) {
-            profile.mAllowedAppsVpn = new HashSet<>(excludedApps);
-        }
-        return profile;
-    }
-
-    private Obfs4Options getObfs4Options(Transport transport) throws JSONException {
-        String ip = gateway.getString(IP_ADDRESS);
+    private Obfs4Options getObfs4Options(Transport transport) throws JSONException, NullPointerException {
+        String ip = remoteGatewayIP;
         if (useObfuscationPinning) {
             transport = new Transport(OBFS4.toString(),
                     new String[]{obfuscationPinningKCP ? KCP : TCP},
@@ -223,9 +207,9 @@ public class VpnConfigGenerator {
     private String generalConfiguration() {
         String commonOptions = "";
         try {
-            Iterator keys = generalConfiguration.keys();
+            Iterator<String> keys = generalConfiguration.keys();
             while (keys.hasNext()) {
-                String key = keys.next().toString();
+                String key = keys.next();
 
                 commonOptions += key + " ";
                 for (String word : String.valueOf(generalConfiguration.get(key)).split(" "))
@@ -243,32 +227,19 @@ public class VpnConfigGenerator {
         return commonOptions;
     }
 
-    private String gatewayConfiguration(@Nullable Transport transport) {
+    private String gatewayConfiguration(@NonNull Transport transport) {
         String configs = "";
 
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            String ipAddress = null;
-            JSONObject capabilities = gateway.getJSONObject(CAPABILITIES);
             switch (apiVersion) {
-                default:
-                case 1:
-                case 2:
-                    ipAddress = gateway.getString(IP_ADDRESS);
-                    gatewayConfigApiv1(stringBuilder, ipAddress, capabilities);
-                    break;
-                case 3:
-                case 4:
-                    ipAddress = gateway.optString(IP_ADDRESS);
-                    String ipAddress6 = gateway.optString(IP_ADDRESS6);
-                    String[] ipAddresses = ipAddress6.isEmpty()  ?
-                            new String[]{ipAddress} :
-                            new String[]{ipAddress6, ipAddress};
-                    if (transport == null) {
-                        throw new NullPointerException("Transport is not allowed to be null in APIv3+");
-                    }
+                case 1, 2 -> gatewayConfigApiv1(transport, stringBuilder, remoteGatewayIP);
+                case 3, 4, 5 -> {
+                    String[] ipAddresses = (remoteGatewayIPv6 == null || remoteGatewayIPv6.isEmpty()) ?
+                            new String[]{remoteGatewayIP} :
+                            new String[]{remoteGatewayIPv6, remoteGatewayIP};
                     gatewayConfigMinApiv3(transport, stringBuilder, ipAddresses);
-                    break;
+                }
             }
         } catch (JSONException | NullPointerException e) {
             // TODO Auto-generated catch block
@@ -300,15 +271,15 @@ public class VpnConfigGenerator {
         return null;
     }
 
-    private void gatewayConfigApiv1(StringBuilder stringBuilder, String ipAddress, JSONObject capabilities) throws JSONException {
-        int port;
-        String protocol;
-        JSONArray ports = capabilities.getJSONArray(PORTS);
-        JSONArray protocols = capabilities.getJSONArray(PROTOCOLS);
-        for (int i = 0; i < ports.length(); i++) {
-            port = ports.getInt(i);
-            for (int j = 0; j < protocols.length(); j++) {
-                protocol = protocols.optString(j);
+    private void gatewayConfigApiv1(Transport transport, StringBuilder stringBuilder, String ipAddress) throws JSONException {
+        if (transport == null || transport.getProtocols() == null || transport.getPorts() == null) {
+            VpnStatus.logError("Misconfigured provider: missing details for transport openvpn on gateway " + ipAddress);
+            return;
+        }
+        String[] ports = transport.getPorts();
+        String[] protocols = transport.getProtocols();
+        for (String port : ports) {
+            for (String protocol : protocols) {
                 String newRemote = REMOTE + " " + ipAddress + " " + port + " " + protocol + newLine;
                 stringBuilder.append(newRemote);
             }

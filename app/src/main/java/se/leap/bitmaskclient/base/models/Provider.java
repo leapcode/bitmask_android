@@ -545,11 +545,17 @@ public final class Provider implements Parcelable {
     }
 
     public boolean hasGatewaysInDifferentLocations() {
-        try {
-            return getEipServiceJson().getJSONObject(LOCATIONS).length() > 1;
-        } catch (NullPointerException | JSONException e) {
-            return false;
+        if (apiVersion >= 5) {
+            //FIXME: getService().getLocations()
+            return true;
+        } else {
+            try {
+                return getEipServiceJson().getJSONObject(LOCATIONS).length() > 1;
+            } catch (NullPointerException | JSONException e) {
+                return false;
+            }
         }
+
     }
 
     @Override
