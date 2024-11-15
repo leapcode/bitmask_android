@@ -94,7 +94,7 @@ public final class Provider implements Parcelable {
     private String certificatePin = "";
     private String certificatePinEncoding = "";
     private String caCert = "";
-    private int apiVersion = 5;
+    private int apiVersion = 3;
     private int[] apiVersions = new int[0];
     private String privateKeyString = "";
     private transient PrivateKey privateKey = null;
@@ -141,16 +141,19 @@ public final class Provider implements Parcelable {
 
     public Provider(String mainUrl) {
         this(mainUrl, null);
+        domain = getHostFromUrl(mainUrl);
     }
 
     public Provider(String mainUrl, String geoipUrl) {
         setMainUrl(mainUrl);
         setGeoipUrl(geoipUrl);
+        domain = getHostFromUrl(mainUrl);
     }
 
     public static Provider createCustomProvider(String mainUrl, String domain, Introducer introducer) {
         Provider p = new Provider(mainUrl);
         p.domain = domain;
+        p.introducer = introducer;
         return p;
     }
 
@@ -428,15 +431,14 @@ public final class Provider implements Parcelable {
     }
 
     public String getDomain() {
+        if ((apiVersion < 5 && (domain == null || domain.isEmpty())) ||
+                (modelsProvider == null)) {
+            return getHostFromUrl(mainUrl);
+        }
         if (apiVersion < 5) {
             return domain;
         }
-        try {
-            return modelsProvider.getDomain();
-        } catch (NullPointerException ignore) {
-            return "";
-        }
-
+        return modelsProvider.getDomain();
     }
 
     public String getMainUrl() {
