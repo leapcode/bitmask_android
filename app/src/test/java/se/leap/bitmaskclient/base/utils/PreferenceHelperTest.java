@@ -1,5 +1,13 @@
 package se.leap.bitmaskclient.base.utils;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
+import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
+import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
+import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
+
 import android.content.SharedPreferences;
 
 import org.junit.Before;
@@ -7,15 +15,6 @@ import org.junit.Test;
 
 import se.leap.bitmaskclient.base.models.Provider;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_EIP_DEFINITION;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_PRIVATE_KEY;
-import static se.leap.bitmaskclient.base.models.Constants.PROVIDER_VPN_CERTIFICATE;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.preferUDP;
-import static se.leap.bitmaskclient.testutils.TestSetupHelper.getInputAsString;
-import static se.leap.bitmaskclient.base.utils.PreferenceHelper.getSavedProviderFromSharedPreferences;
 
 /**
  * Created by cyberta on 17.01.18.

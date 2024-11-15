@@ -33,6 +33,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -40,6 +41,9 @@ import androidx.annotation.Nullable;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -55,6 +59,8 @@ import se.leap.bitmaskclient.base.utils.PrivateKeyHelper;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.tor.TorStatusObservable;
 
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Build.VERSION_CODES.P})
 public class ProviderApiManagerTest {
 
     private Resources mockResources;
@@ -158,7 +164,7 @@ public class ProviderApiManagerTest {
 
         Bundle expectedResult = new Bundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_TOR_TIMEOUT\",\"initalAction\":\"setUpProvider\",\"errors\":\"Starting bridges failed. Do you want to retry or continue with an unobfuscated secure connection to configure Bitmask?\"}");
+        expectedResult.putString(ERRORS, "{\"errors\":\"Starting bridges failed. Do you want to retry or continue with an unobfuscated secure connection to configure Bitmask?\",\"errorId\":\"ERROR_TOR_TIMEOUT\",\"initalAction\":\"setUpProvider\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         Intent providerApiCommand = new Intent();

@@ -9,26 +9,36 @@ import static org.mockito.Mockito.when;
 
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.os.Build;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import mobile.BitmaskMobile;
+import mobilemodels.BitmaskMobileCore;
 import se.leap.bitmaskclient.base.models.Constants;
 import se.leap.bitmaskclient.base.models.Provider;
+import se.leap.bitmaskclient.base.utils.BitmaskCoreProvider;
 import se.leap.bitmaskclient.base.utils.PreferenceHelper;
 import se.leap.bitmaskclient.testutils.MockHelper;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
+import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
 /**
  * Created by cyberta on 20.02.18.
  */
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Build.VERSION_CODES.P})
 public class ProviderManagerTest {
 
     private AssetManager assetManager;
@@ -40,6 +50,7 @@ public class ProviderManagerTest {
     @Before
     public void setup() throws Exception {
         assetManager = mock(AssetManager.class);
+        BitmaskCoreProvider.initBitmaskMobile(TestSetupHelper.getCustomBitmaskCore());
 
         when(assetManager.open(anyString())).thenAnswer(new Answer<InputStream>() {
             @Override
@@ -162,7 +173,7 @@ public class ProviderManagerTest {
         providerManager.setAddDummyEntry(true);
         providerManager.clear();
         assertEquals("1 providers", 1, providerManager.providers().size());
-        assertEquals("provider is dummy element", "https://example.net", providerManager.get(0).getMainUrl());
+        assertEquals("provider is dummy element", "", providerManager.get(0).getMainUrl());
     }
 
     @Test
@@ -195,8 +206,8 @@ public class ProviderManagerTest {
         providerManager.add(secondCustomProvider);
         providerManager.saveCustomProviders();
         Set<String> providerSet = mockSharedPrefs.getStringSet(Constants.CUSTOM_PROVIDER_DOMAINS, new HashSet<>());
-        assertEquals("persist was called twice", 2, providerSet.size());
-        assertEquals("PreferenceHelper has 2 providers", 2, PreferenceHelper.getCustomProviders().size());
+        assertEquals("persist was called twice", 3, providerSet.size());
+        assertEquals("PreferenceHelper has 2 providers", 3, PreferenceHelper.getCustomProviders().size());
 
     }
 

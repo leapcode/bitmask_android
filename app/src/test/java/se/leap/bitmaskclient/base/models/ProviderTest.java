@@ -5,8 +5,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.os.Build;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import se.leap.bitmaskclient.base.utils.BuildConfigHelper;
 import se.leap.bitmaskclient.testutils.MockHelper;
@@ -16,6 +21,8 @@ import se.leap.bitmaskclient.testutils.TestSetupHelper;
  * Created by cyberta on 12.02.18.
  */
 
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Build.VERSION_CODES.P})
 public class ProviderTest {
 
     @Before

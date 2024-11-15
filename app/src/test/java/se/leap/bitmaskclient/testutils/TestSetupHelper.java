@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import mobilemodels.BitmaskMobileCore;
 import se.leap.bitmaskclient.base.models.Provider;
 
 /**
@@ -103,6 +104,85 @@ public class TestSetupHelper {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static BitmaskMobileCore getCustomBitmaskCore() {
+        return new BitmaskMobileCore() {
+            @Override
+            public String getAllBridges(String s, String s1, String s2, String s3) throws Exception {
+                return null;
+            }
+
+            @Override
+            public String getAllGateways(String s, String s1, String s2) throws Exception {
+                return null;
+            }
+
+            @Override
+            public String getBestBridge() throws Exception {
+                return null;
+            }
+
+            @Override
+            public String getBestGateway() throws Exception {
+                return null;
+            }
+
+            @Override
+            public String getGeolocation() throws Exception {
+                return null;
+            }
+
+            @Override
+            public String getIntroducerURLByDomain(String s) throws Exception {
+                return null;
+            }
+
+            @Override
+            public String getOpenVPNCert() throws Exception {
+                return null;
+            }
+
+            @Override
+            public String getProvider() throws Exception {
+                return null;
+            }
+
+            @Override
+            public String getService() throws Exception {
+                return null;
+            }
+
+            @Override
+            public void setCountryCode(String s) {
+
+            }
+
+            @Override
+            public void setDebug(boolean b) {
+
+            }
+
+            @Override
+            public void setIntroducer(String s) throws Exception {
+
+            }
+
+            @Override
+            public void setResolveWithDoH(boolean b) {
+
+            }
+
+            @Override
+            public void setSocksProxy(String s) {
+
+            }
+
+            @Override
+            public void setUseTls(boolean b) {
+
+            }
+        };
     }
 
 }

@@ -10,6 +10,7 @@ import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 
 import androidx.annotation.Nullable;
 
@@ -17,8 +18,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,6 +39,8 @@ import se.leap.bitmaskclient.base.utils.TimezoneHelper;
 import se.leap.bitmaskclient.testutils.MockSharedPreferences;
 import se.leap.bitmaskclient.testutils.TestSetupHelper;
 
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Build.VERSION_CODES.P})
 public class GatewayTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)

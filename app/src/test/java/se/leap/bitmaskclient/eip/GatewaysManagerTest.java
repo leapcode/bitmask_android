@@ -20,6 +20,7 @@ import static se.leap.bitmaskclient.testutils.TestSetupHelper.getProvider;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 
 import androidx.annotation.Nullable;
 
@@ -27,8 +28,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +53,8 @@ import se.leap.bitmaskclient.testutils.TestSetupHelper;
 /**
  * Created by cyberta on 09.10.17.
  */
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Build.VERSION_CODES.P})
 public class GatewaysManagerTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -114,7 +120,8 @@ public class GatewaysManagerTest {
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.60";
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
+        configuration.transports = Transport.createTransportsFrom(gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, configuration);
         VpnProfile profile = createProfile(configGenerator, OBFS4);
         assertNotNull(profile);
         assertEquals(0, gatewaysManager.getPosition(profile));
@@ -132,7 +139,8 @@ public class GatewaysManagerTest {
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.60";
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
+        configuration.transports = Transport.createTransportsFrom(gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, configuration);
         VpnProfile profile = createProfile(configGenerator, OPENVPN);
         assertNotNull(profile);
         assertEquals(0, gatewaysManager.getPosition(profile));
@@ -149,7 +157,8 @@ public class GatewaysManagerTest {
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.60";
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
+        configuration.transports = Transport.createTransportsFrom(gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, configuration);
         assertThrows(ConfigParser.ConfigParseError.class, () -> createProfile(configGenerator, OBFS4));
     }
 
@@ -164,7 +173,8 @@ public class GatewaysManagerTest {
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.60";
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
+        configuration.transports = Transport.createTransportsFrom(gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, configuration);
         VpnProfile profile = createProfile(configGenerator, OBFS4);
 
         assertEquals(2, gatewaysManager.getPosition(profile));
@@ -181,7 +191,8 @@ public class GatewaysManagerTest {
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.60";
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
+        configuration.transports = Transport.createTransportsFrom(gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, configuration);
         VpnProfile profile = createProfile(configGenerator, OPENVPN);
 
         assertEquals(2, gatewaysManager.getPosition(profile));
@@ -198,7 +209,8 @@ public class GatewaysManagerTest {
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "37.218.247.61";
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
+        configuration.transports = Transport.createTransportsFrom(gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, configuration);
         VpnProfile profile = createProfile(configGenerator, OBFS4);
 
         assertEquals(-1, gatewaysManager.getPosition(profile));
@@ -215,7 +227,8 @@ public class GatewaysManagerTest {
         VpnConfigGenerator.Configuration configuration = new VpnConfigGenerator.Configuration();
         configuration.apiVersion = 3;
         configuration.remoteGatewayIP = "3.21.247.89";
-        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, gateway1, configuration);
+        configuration.transports = Transport.createTransportsFrom(gateway1, 3);
+        VpnConfigGenerator configGenerator = new VpnConfigGenerator(provider.getDefinition(), secrets, configuration);
         VpnProfile profile = createProfile(configGenerator, OBFS4);
 
         assertEquals(1, gatewaysManager.getPosition(profile));

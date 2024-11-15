@@ -47,8 +47,8 @@ import static se.leap.bitmaskclient.testutils.MockHelper.mockCertificateHelper;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockClientGenerator;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockContext;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockPreferenceHelper;
-import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnector;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockPrivateKeyHelper;
+import static se.leap.bitmaskclient.testutils.MockHelper.mockProviderApiConnector;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResources;
 import static se.leap.bitmaskclient.testutils.MockHelper.mockResultReceiver;
 import static se.leap.bitmaskclient.testutils.TestSetupHelper.getConfiguredProvider;
@@ -60,6 +60,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -68,6 +69,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -87,7 +91,8 @@ import se.leap.bitmaskclient.tor.TorStatusObservable;
 /**
  * Created by cyberta on 04.01.18.
  */
-
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Build.VERSION_CODES.P})
 public class ProviderApiManagerV3Test {
 
     private Resources mockResources;
@@ -250,7 +255,7 @@ public class ProviderApiManagerV3Test {
         providerApiManager = new ProviderApiManagerV3(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = new Bundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_CERTIFICATE_PINNING\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\",\"errorId\":\"ERROR_CERTIFICATE_PINNING\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         providerApiManager.handleAction(SET_UP_PROVIDER, provider, new Bundle(), mockResultReceiver(PROVIDER_NOK, expectedResult));
@@ -267,7 +272,7 @@ public class ProviderApiManagerV3Test {
 
         Bundle expectedResult = new Bundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_CERTIFICATE_PINNING\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\",\"errorId\":\"ERROR_CERTIFICATE_PINNING\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         providerApiManager.handleAction(SET_UP_PROVIDER, provider, new Bundle(), mockResultReceiver(PROVIDER_NOK, expectedResult));
@@ -284,7 +289,7 @@ public class ProviderApiManagerV3Test {
 
         Bundle expectedResult = new Bundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_CERTIFICATE_PINNING\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\",\"errorId\":\"ERROR_CERTIFICATE_PINNING\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         providerApiManager.handleAction(SET_UP_PROVIDER, provider, new Bundle(), mockResultReceiver(PROVIDER_NOK, expectedResult));
@@ -301,7 +306,7 @@ public class ProviderApiManagerV3Test {
 
         Bundle expectedResult = new Bundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errors\":\"Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\",\"errorId\":\"ERROR_INVALID_CERTIFICATE\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         providerApiManager.handleAction(SET_UP_PROVIDER, provider, new Bundle(), mockResultReceiver(PROVIDER_NOK, expectedResult));
@@ -318,7 +323,7 @@ public class ProviderApiManagerV3Test {
 
         Bundle expectedResult = new Bundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errors\":\"Stored provider certificate is expired. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\",\"errorId\":\"ERROR_INVALID_CERTIFICATE\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         providerApiManager.handleAction(SET_UP_PROVIDER, provider, new Bundle(), mockResultReceiver(PROVIDER_NOK, expectedResult));
@@ -334,7 +339,7 @@ public class ProviderApiManagerV3Test {
         providerApiManager = new ProviderApiManagerV3(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
         Bundle expectedResult = new Bundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\",\"errorId\":\"ERROR_INVALID_CERTIFICATE\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         Intent providerApiCommand = new Intent();
@@ -344,15 +349,15 @@ public class ProviderApiManagerV3Test {
 
     @Test
     public void test_handleIntentSetupProvider_storedProviderAndCAFromPreviousSetup_ValidCertificateButUpdatedCertificateOnServerSide() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
-        Provider provider = new Provider("https://riseup.net");
-        PreferenceHelper preferenceHelper = mockPreferenceHelper(getConfiguredProvider());
+        Provider provider = getConfiguredProvider();
+        PreferenceHelper preferenceHelper = mockPreferenceHelper(provider);
         CertificateHelper certHelper = mockCertificateHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         ProviderApiConnector mockedApiConnector = mockProviderApiConnector(ERROR_CASE_UPDATED_CERTIFICATE);
         providerApiManager = new ProviderApiManagerV3(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
         Bundle expectedResult = new Bundle();
         expectedResult.putBoolean(BROADCAST_RESULT_KEY, false);
-        expectedResult.putString(ERRORS, "{\"errorId\":\"ERROR_INVALID_CERTIFICATE\",\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\"}");
+        expectedResult.putString(ERRORS, "{\"errors\":\"Stored provider certificate is invalid. You can either update Bitmask (recommended) or update the provider certificate using a commercial CA certificate.\",\"errorId\":\"ERROR_INVALID_CERTIFICATE\"}");
         expectedResult.putParcelable(PROVIDER_KEY, provider);
 
         providerApiManager.handleAction(SET_UP_PROVIDER, provider, new Bundle(), mockResultReceiver(PROVIDER_NOK, expectedResult));
@@ -361,11 +366,11 @@ public class ProviderApiManagerV3Test {
     @Test
     public void test_handleIntentSetupProvider_preseededProviderAndCA_failedConfiguration() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
 
-        Provider provider = getConfiguredProvider();
+        Provider provider = getProvider(null, null, null, null, null, "riseup_net_invalid_config.json", null, null);
         PreferenceHelper preferenceHelper = mockPreferenceHelper(provider);
 
         CertificateHelper certHelper = mockCertificateHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
-        ProviderApiConnector mockedApiConnector = mockProviderApiConnector(ERROR_CASE_MICONFIGURED_PROVIDER);
+        ProviderApiConnector mockedApiConnector = mockProviderApiConnector(NO_ERROR);
 
         providerApiManager = new ProviderApiManagerV3(mockResources, mockClientGenerator(), new TestProviderApiServiceCallback());
 
@@ -380,8 +385,8 @@ public class ProviderApiManagerV3Test {
 
     @Test
     public void test_handleIntentSetupProvider_preseededCustomProviderAndCA_failedConfiguration() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, JSONException {
-        Provider provider = getConfiguredProvider();
-        PreferenceHelper preferenceHelper = mockPreferenceHelper(provider);
+        Provider provider = new Provider("riseup.net");
+        PreferenceHelper preferenceHelper = new PreferenceHelper(new MockSharedPreferences());
 
         ProviderApiConnector mockedApiConnector = mockProviderApiConnector(ERROR_CASE_MICONFIGURED_PROVIDER);
         CertificateHelper certHelper = mockCertificateHelper("a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
@@ -554,7 +559,7 @@ public class ProviderApiManagerV3Test {
     @Test
     public void test_handleIntentSetupProvider_TorFallback_SecondTryHappyPath() throws IOException, CertificateEncodingException, NoSuchAlgorithmException, TimeoutException, InterruptedException {
 
-        Provider provider = getConfiguredProviderAPIv4();
+        Provider provider = new Provider("riseup.net");
         PreferenceHelper preferenceHelper = mockPreferenceHelper(provider);
         CertificateHelper certHelper = mockCertificateHelper(" a5244308a1374709a9afce95e3ae47c1b44bc2398c0a70ccbf8b3a8a97f29494");
         ProviderApiConnector mockedApiConnector = mockProviderApiConnector(ERROR_DNS_RESUOLUTION_TOR_FALLBACK);
