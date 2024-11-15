@@ -244,6 +244,18 @@ public class ProviderApiManagerV3 extends ProviderApiManagerBase implements IPro
             return currentDownload;
         }
 
+        currentDownload = validateProviderDetails(provider);
+        //provider certificate invalid
+        if (currentDownload.containsKey(ERRORS)) {
+            currentDownload.putParcelable(PROVIDER_KEY, provider);
+            return currentDownload;
+        }
+
+        //no provider json or certificate available
+        if (currentDownload.containsKey(BROADCAST_RESULT_KEY) && !currentDownload.getBoolean(BROADCAST_RESULT_KEY)) {
+            resetProviderDetails(provider);
+        }
+
         if (!provider.hasDefinition()) {
             currentDownload = getAndSetProviderJson(provider);
         }
