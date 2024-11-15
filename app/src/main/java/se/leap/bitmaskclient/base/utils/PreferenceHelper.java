@@ -52,6 +52,7 @@ import static se.leap.bitmaskclient.base.models.Constants.USE_PORT_HOPPING;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SNOWFLAKE;
 import static se.leap.bitmaskclient.base.models.Constants.USE_SYSTEM_PROXY;
 import static se.leap.bitmaskclient.base.models.Constants.USE_TUNNEL;
+import static se.leap.bitmaskclient.base.utils.BitmaskCoreProvider.getBitmaskMobile;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -82,6 +83,7 @@ import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.core.NativeUtils;
 import io.swagger.client.JSON;
 import mobile.BitmaskMobile;
+import mobilemodels.BitmaskMobileCore;
 import se.leap.bitmaskclient.BuildConfig;
 import se.leap.bitmaskclient.base.models.Introducer;
 import se.leap.bitmaskclient.base.models.Provider;
@@ -169,8 +171,7 @@ public class PreferenceHelper {
                 provider.setService(preferences.getString(PROVIDER_MODELS_EIPSERVICE, null));
                 provider.setBridges(preferences.getString(PROVIDER_MODELS_BRIDGES, null));
                 provider.setGateways(preferences.getString(PROVIDER_MODELS_GATEWAYS, null));
-                BitmaskMobile bm = new BitmaskMobile(new SharedPreferenceStore());
-                provider.setIntroducer(bm.getIntroducerURLByDomain(provider.getDomain()));
+                provider.setIntroducer(getBitmaskMobile().getIntroducerURLByDomain(provider.getDomain()));
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -218,13 +219,12 @@ public class PreferenceHelper {
         Set<String> providerDomains = getCustomProviderDomains();
         HashMap<String, Provider> customProviders = new HashMap<>();
         if (providerDomains.size() > 0) {
-            BitmaskMobile bm = new BitmaskMobile(new PreferenceHelper.SharedPreferenceStore());
             for (String domain : providerDomains) {
                 String mainURL = preferences.getString(Provider.MAIN_URL + "." + domain, null);
                 if (mainURL != null) {
                     Introducer introducer = null;
                     try {
-                       introducer = Introducer.fromUrl(bm.getIntroducerURLByDomain(domain));
+                       introducer = Introducer.fromUrl(BitmaskCoreProvider.getBitmaskMobile().getIntroducerURLByDomain(domain));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
