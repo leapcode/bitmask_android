@@ -130,12 +130,16 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         IconTextEntry manualConfiguration = rootView.findViewById(R.id.bridge_manual_switch);
         manualConfiguration.setVisibility(ProviderObservable.getInstance().getCurrentProvider().supportsPluggableTransports() ? VISIBLE : GONE);
         SwitchCompat manualConfigurationSwitch = rootView.findViewById(R.id.bridge_manual_switch_control);
-        manualConfigurationSwitch.setChecked(usesManualBridges());
+        boolean usesManualBridge = usesManualBridges();
+        manualConfigurationSwitch.setChecked(usesManualBridge);
         manualConfigurationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) {
                 return;
             }
             resetManualConfig();
+            if (!usesManualBridge){
+                openManualConfigurationFragment();
+            }
         });
         manualConfiguration.setOnClickListener((buttonView) -> openManualConfigurationFragment());
 
@@ -151,6 +155,7 @@ public class SettingsFragment extends Fragment implements SharedPreferences.OnSh
         useSnowflake(false);
         setUseTunnel(TUNNELING_NONE);
         setUsePortHopping(false);
+        useBridges(false);
         if (VpnStatus.isVPNActive()) {
             EipCommand.startVPN(getContext(), false);
             Toast.makeText(getContext(), R.string.reconnecting, Toast.LENGTH_LONG).show();

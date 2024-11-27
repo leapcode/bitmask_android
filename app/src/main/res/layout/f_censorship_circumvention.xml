@@ -1,65 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="@dimen/activity_margin"
-    tools:context=".base.fragments.CensorshipCircumventionFragment">
+    android:layout_height="match_parent">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/censorship_circumvention_description" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_margin"
+        tools:context=".base.fragments.CensorshipCircumventionFragment">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/discovery"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/activity_margin"
-        android:text="@string/discovery"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/censorship_circumvention_description" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/stdpadding"
-        android:text="@string/discovery_description" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/discovery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/activity_margin"
+            android:text="@string/discovery"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-    <RadioGroup
-        android:id="@+id/discovery_radioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/stdpadding"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/stdpadding"
+            android:text="@string/discovery_description" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tunnelling"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/activity_margin"
-        android:text="@string/tunnelling"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+        <RadioGroup
+            android:id="@+id/discovery_radioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/stdpadding" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/stdpadding"
-        android:text="@string/tunnelling_description" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tunnelling"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/activity_margin"
+            android:text="@string/tunnelling"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-    <RadioGroup
-        android:id="@+id/tunneling_radioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/stdpadding"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/stdpadding"
+            android:text="@string/tunnelling_description" />
 
-    <se.leap.bitmaskclient.base.views.IconSwitchEntry
-        android:id="@+id/port_hopping_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/stdpadding"
-        app:text="@string/port_hopping"
-        app:subtitle="@string/port_hopping_description"
-        app:singleLine="false" />
+        <RadioGroup
+            android:id="@+id/tunneling_radioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/stdpadding" />
 
-</LinearLayout>
+        <se.leap.bitmaskclient.base.views.IconSwitchEntry
+            android:id="@+id/port_hopping_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/stdpadding"
+            app:singleLine="false"
+            app:subtitle="@string/port_hopping_description"
+            app:text="@string/port_hopping" />
+
+    </LinearLayout>
+</ScrollView>
