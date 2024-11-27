@@ -70,7 +70,7 @@ public class CensorshipCircumventionFragment extends Fragment {
     private void initDiscovery() {
 
         RadioButton noneRadioButton = new RadioButton(binding.getRoot().getContext());
-        noneRadioButton.setText(getText(R.string.none));
+        noneRadioButton.setText(getText(R.string.any));
         noneRadioButton.setId(DISCOVERY_NONE);
         noneRadioButton.setChecked(!(hasSnowflakePrefs() && getUseSnowflake()) && !ProviderObservable.getInstance().getCurrentProvider().hasIntroducer());
         binding.discoveryRadioGroup.addView(noneRadioButton);
@@ -113,7 +113,7 @@ public class CensorshipCircumventionFragment extends Fragment {
 
     private void initTunneling() {
         RadioButton noneRadioButton = new RadioButton(binding.getRoot().getContext());
-        noneRadioButton.setText(getText(R.string.none));
+        noneRadioButton.setText(getText(R.string.any));
         noneRadioButton.setChecked(!getUseObfs4() && !getUseObfs4Kcp());
         noneRadioButton.setId(TUNNELING_NONE);
         binding.tunnelingRadioGroup.addView(noneRadioButton);

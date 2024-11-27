@@ -256,7 +256,7 @@
     <string name="censorship_circumvention_description">Manual configuration requires technical understanding. Proceed with caution.</string>
     <string name="discovery">Discovery</string>
     <string name="discovery_description">Censors can block the discovery of critical configuration information from your provider. Choose a circumvention option to bypass blocks.</string>
-    <string name="none">None</string>
+    <string name="any">Any (automagically selected)</string>
     <string name="invite_proxy">Invite Proxy</string>
     <string name="tunnelling">Tunneling</string>
     <string name="tunnelling_description">Censors can block access to the open internet. Choose a circumvention option to bypass blocks.</string>
